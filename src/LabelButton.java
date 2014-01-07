@@ -12,69 +12,72 @@
  *   is currently not implemented; use the MouseClicked method
  *   of a MouseListener or MouseAdapter, instead.
  */
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
 public class LabelButton extends JLabel {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public static Border up = new BevelBorder(BevelBorder.RAISED);
-  public static Border down = new BevelBorder(BevelBorder.LOWERED);
-  
-  private static MouseAdapter ma;
+    public static Border up = new BevelBorder(BevelBorder.RAISED);
+    public static Border down = new BevelBorder(BevelBorder.LOWERED);
 
-  public String defaultLabel;
-  // This member is directly accessed in 'header' management, when 
-  //   a LabelButton is being used as a header label that could be
-  //   changed by the user.  The 'default' label will be the original,
-  //   unchanged text of the label, that can be used in determination
-  //   of choosing the correct sorting algorithm.  I know, very klunky....
-  //   Will revisit eventually... lc 5/12/2007
+    private static MouseAdapter ma;
 
-  public LabelButton() {
-    this("");
-  } // end constructor 1
+    public String defaultLabel;
+    // This member is directly accessed in 'header' management, when
+    //   a LabelButton is being used as a header label that could be
+    //   changed by the user.  The 'default' label will be the original,
+    //   unchanged text of the label, that can be used in determination
+    //   of choosing the correct sorting algorithm.  I know, very klunky....
+    //   Will revisit eventually... lc 5/12/2007
+
+    public LabelButton() {
+        this("");
+    } // end constructor 1
 
 
-  public LabelButton(String s) {
-    super();
-    defaultLabel = s;
-    setText(s);
-    setHorizontalAlignment(JLabel.CENTER);
-      
-    setBorder(up);
-    setName(s);    // Used later, in event handling
-    setOpaque(true);
-    setFont(Font.decode("Dialog-12"));
-    ma = new MouseAdapter() {
-      public void mousePressed(MouseEvent e) { 
-        setBorder(down);
-      } // end mousePressed
+    public LabelButton(String s) {
+        super();
+        defaultLabel = s;
+        setText(s);
+        setHorizontalAlignment(JLabel.CENTER);
 
-      public void mouseReleased(MouseEvent e) { 
         setBorder(up);
-      } // end mouseReleased
-    };
-    
-    addMouseListener(ma);
-  } // end constructor 2
-  
-  //==========================================================
+        setName(s);    // Used later, in event handling
+        setOpaque(true);
+        setFont(Font.decode("Dialog-12"));
+        ma = new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                setBorder(down);
+            } // end mousePressed
 
-  public Dimension getPreferredSize() {
-    if(!isVisible()) return new Dimension(0, 0);
-    return super.getPreferredSize();
-  } // end getPreferredSize
+            public void mouseReleased(MouseEvent e) {
+                setBorder(up);
+            } // end mouseReleased
+        };
 
-  public void removeMouseListener() { removeMouseListener(ma); }
-  
-  public void setText(String s) {
-    if(defaultLabel != null)
-      if(defaultLabel.equals("")) defaultLabel = s;
-    super.setText(s);
-  } // end setText
+        addMouseListener(ma);
+    } // end constructor 2
+
+    //==========================================================
+
+    public Dimension getPreferredSize() {
+        if (!isVisible()) return new Dimension(0, 0);
+        return super.getPreferredSize();
+    } // end getPreferredSize
+
+    public void removeMouseListener() {
+        removeMouseListener(ma);
+    }
+
+    public void setText(String s) {
+        if (defaultLabel != null)
+            if (defaultLabel.equals("")) defaultLabel = s;
+        super.setText(s);
+    } // end setText
 
 } // end class LabelButton
 

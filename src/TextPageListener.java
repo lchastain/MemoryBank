@@ -5,7 +5,8 @@
 //
 
 public interface TextPageListener {
-  public abstract void fontChanged();
-  public abstract void pageChanged();
+    public abstract void fontChanged();
+
+    public abstract void pageChanged();
 } // end TextPageListener
 

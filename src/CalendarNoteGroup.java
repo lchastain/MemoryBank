@@ -5,98 +5,100 @@
  * This class extends NoteGroup with calendar-specific behaviors.
  ****************************************************************************/
 /**  Displays a calendar-based group of NoteComponent.  The
-     calendar is set to one of DAY, MONTH, YEAR.
+ calendar is set to one of DAY, MONTH, YEAR.
  */
 
 import java.text.SimpleDateFormat;
 import java.util.*; // Calendar, more ??
 
 public class CalendarNoteGroup extends NoteGroup {
-  private static final long serialVersionUID = 1L;
- 
-  protected Date choice;
-  protected SimpleDateFormat sdf;
-  
-  private int calType = 0;
+    private static final long serialVersionUID = 1L;
 
-  // Holds the 'current' date of the displayed Group.
-  private GregorianCalendar cal;
+    protected Date choice;
+    protected SimpleDateFormat sdf;
 
-  CalendarNoteGroup( String defaultSubject ) {
-    super( defaultSubject );
+    private int calType = 0;
 
-    sdf = new SimpleDateFormat();
-    cal = (GregorianCalendar) Calendar.getInstance();
-    // Note: getInstance at this time returns a Calendar that
-    //   is actually a GregorianCalendar, but since the return
-    //   type is Calendar, it must be cast in order to assign.
+    // Holds the 'current' date of the displayed Group.
+    private GregorianCalendar cal;
 
-    cal.setGregorianChange(new GregorianCalendar(1752,
-        Calendar.SEPTEMBER, 14).getTime());
+    CalendarNoteGroup(String defaultSubject) {
+        super(defaultSubject);
 
-    choice = new Date();
+        sdf = new SimpleDateFormat();
+        cal = (GregorianCalendar) Calendar.getInstance();
+        // Note: getInstance at this time returns a Calendar that
+        //   is actually a GregorianCalendar, but since the return
+        //   type is Calendar, it must be cast in order to assign.
 
-    if( defaultSubject.equals("Day Note") )   calType = Calendar.DATE;
-    if( defaultSubject.equals("Month Note") ) calType = Calendar.MONTH;
-    if( defaultSubject.equals("Year Note") )  calType = Calendar.YEAR;
+        cal.setGregorianChange(new GregorianCalendar(1752,
+                Calendar.SEPTEMBER, 14).getTime());
 
-    updateGroup();
-  } // end constructor
+        choice = new Date();
 
+        if (defaultSubject.equals("Day Note")) calType = Calendar.DATE;
+        if (defaultSubject.equals("Month Note")) calType = Calendar.MONTH;
+        if (defaultSubject.equals("Year Note")) calType = Calendar.YEAR;
 
-  // A NoteGroup does not have a 'choice'.
-  public Date getChoice() { return choice; }
+        updateGroup();
+    } // end constructor
 
 
-  //------------------------------------------------------
-  // Method Name: getGroupFilename
-  //
-  // This is an overridden method in the base class (NoteGroup). 
-  //   Otherwise, it would have been more efficient to
-  //   simply make the calls from the calling context
-  //   rather than here.
-  //------------------------------------------------------
-  public String getGroupFilename() {
-    String s;
-    
-    if(intSaveGroupStatus == ONGOING) {
-      if(     calType == Calendar.DATE)  s = LogUtil.makeFilename(cal, "D");
-      else if(calType == Calendar.MONTH) s = LogUtil.makeFilename(cal, "M");
-      else                               s = LogUtil.makeFilename(cal, "Y");
-      return s;
-    } else {  // Results of a findFilename may be "".
-      if(     calType == Calendar.DATE)  s = LogUtil.findFilename(cal, "D");
-      else if(calType == Calendar.MONTH) s = LogUtil.findFilename(cal, "M");
-      else                               s = LogUtil.findFilename(cal, "Y");
-      return s;
-    } // end if saving else not saving
-  } // end getGroupFilename
+    // A NoteGroup does not have a 'choice'.
+    public Date getChoice() {
+        return choice;
+    }
 
 
-  //--------------------------------------------------------------
-  // Method Name: setChoice
-  //
-  // A calling context should only make this call if it is
-  //   needed, because it causes a reload of the group.
-  //--------------------------------------------------------------
-  public void setChoice(Date d) {
-    cal.setTime(d);
-    choice = cal.getTime();
-    updateGroup();
-  } // end setChoice
+    //------------------------------------------------------
+    // Method Name: getGroupFilename
+    //
+    // This is an overridden method in the base class (NoteGroup).
+    //   Otherwise, it would have been more efficient to
+    //   simply make the calls from the calling context
+    //   rather than here.
+    //------------------------------------------------------
+    public String getGroupFilename() {
+        String s;
+
+        if (intSaveGroupStatus == ONGOING) {
+            if (calType == Calendar.DATE) s = LogUtil.makeFilename(cal, "D");
+            else if (calType == Calendar.MONTH) s = LogUtil.makeFilename(cal, "M");
+            else s = LogUtil.makeFilename(cal, "Y");
+            return s;
+        } else {  // Results of a findFilename may be "".
+            if (calType == Calendar.DATE) s = LogUtil.findFilename(cal, "D");
+            else if (calType == Calendar.MONTH) s = LogUtil.findFilename(cal, "M");
+            else s = LogUtil.findFilename(cal, "Y");
+            return s;
+        } // end if saving else not saving
+    } // end getGroupFilename
 
 
-  public void setOneBack() {
-    preClose();
-    cal.add(calType, -1);
-    choice = cal.getTime();
-  } // end setOneBack
+    //--------------------------------------------------------------
+    // Method Name: setChoice
+    //
+    // A calling context should only make this call if it is
+    //   needed, because it causes a reload of the group.
+    //--------------------------------------------------------------
+    public void setChoice(Date d) {
+        cal.setTime(d);
+        choice = cal.getTime();
+        updateGroup();
+    } // end setChoice
 
 
-  public void setOneForward() {
-    preClose();
-    cal.add(calType, 1);
-    choice = cal.getTime();
-  } // end setOneForward
+    public void setOneBack() {
+        preClose();
+        cal.add(calType, -1);
+        choice = cal.getTime();
+    } // end setOneBack
+
+
+    public void setOneForward() {
+        preClose();
+        cal.add(calType, 1);
+        choice = cal.getTime();
+    } // end setOneForward
 
 } // end class CalendarNoteGroup

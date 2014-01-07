@@ -20,153 +20,155 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private static JLabel monthTitle;
+    private static JLabel monthTitle;
 
-  static {
+    static {
 
-    // Create the window title
-    monthTitle = new JLabel();
-    monthTitle.setHorizontalAlignment(JLabel.CENTER);
-    monthTitle.setForeground(Color.white);
-    monthTitle.setFont(Font.decode("Serif-bold-20"));
+        // Create the window title
+        monthTitle = new JLabel();
+        monthTitle.setHorizontalAlignment(JLabel.CENTER);
+        monthTitle.setForeground(Color.white);
+        monthTitle.setFont(Font.decode("Serif-bold-20"));
 
-    MemoryBank.init();
-  } // end static
+        MemoryBank.init();
+    } // end static
 
-  //=============================================================
+    //=============================================================
 
-  MonthNoteGroup() {
-    super("Month Note");
-    sdf.applyPattern("MMMM yyyy");
+    MonthNoteGroup() {
+        super("Month Note");
+        sdf.applyPattern("MMMM yyyy");
 
-    LabelButton prev = new LabelButton("-");
-    prev.addMouseListener(this);
-    prev.setPreferredSize(new Dimension(28, 28));
-    prev.setFont(Font.decode("Dialog-bold-14"));
+        LabelButton prev = new LabelButton("-");
+        prev.addMouseListener(this);
+        prev.setPreferredSize(new Dimension(28, 28));
+        prev.setFont(Font.decode("Dialog-bold-14"));
 
-    LabelButton next = new LabelButton("+");
-    next.addMouseListener(this);
-    next.setPreferredSize(new Dimension(28, 28));
-    next.setFont(Font.decode("Dialog-bold-14"));
+        LabelButton next = new LabelButton("+");
+        next.addMouseListener(this);
+        next.setPreferredSize(new Dimension(28, 28));
+        next.setFont(Font.decode("Dialog-bold-14"));
 
-    JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0,0));
-    p0.add(prev);
-    p0.add(next);
+        JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p0.add(prev);
+        p0.add(next);
 
-    JPanel heading = new JPanel(new BorderLayout());
-    heading.setBackground(Color.blue);
-    heading.add(p0, "West");
-    heading.add(monthTitle, "Center");
+        JPanel heading = new JPanel(new BorderLayout());
+        heading.setBackground(Color.blue);
+        heading.add(p0, "West");
+        heading.add(monthTitle, "Center");
 
-    add(heading, BorderLayout.NORTH);
+        add(heading, BorderLayout.NORTH);
 
-    updateHeader();
-  } // end constructor
-
-
-  //--------------------------------------------------------------
-  // Method Name: recalc
-  //
-  // Repaints the display.
-  //--------------------------------------------------------------
-  public void recalc() {
-    updateGroup();
-    updateHeader();
-
-    MemoryBank.debug("MonthNoteGroup recalc - " + sdf.format(getChoice()));
-  } // end recalc
+        updateHeader();
+    } // end constructor
 
 
-  // This is called from LogTree.
-  public void setChoice(Date d) { 
+    //--------------------------------------------------------------
+    // Method Name: recalc
+    //
+    // Repaints the display.
+    //--------------------------------------------------------------
+    public void recalc() {
+        updateGroup();
+        updateHeader();
 
-    // If the new day is the same as the current one - return.
-    if(sdf.format(getChoice()).equals(sdf.format(d))) return;
-
-    super.setChoice( d );
-    updateHeader();
-  } // end setChoice
-
-
-  //--------------------------------------------------------------
-  // Method Name: updateHeader
-  //
-  // This header contains only a formatted date string.
-  //--------------------------------------------------------------
-  public void updateHeader() {
-    // Generate new title from current choice.
-    monthTitle.setText(sdf.format(getChoice()));
-  } // end updateHeader
+        MemoryBank.debug("MonthNoteGroup recalc - " + sdf.format(getChoice()));
+    } // end recalc
 
 
-  //---------------------------------------------------------
-  // MouseListener methods
-  //---------------------------------------------------------
-  public void mouseClicked(MouseEvent e) {
-    LabelButton source = (LabelButton) e.getSource();
-    String s = source.getText();
+    // This is called from LogTree.
+    public void setChoice(Date d) {
 
-    if (s.equals("XXX")) {
-    } else if(s.equals("-")) {
-      setOneBack();
-    } else if(s.equals("+")) {
-      setOneForward();
-    } else {
-      (new Exception("Unhandled action!")).printStackTrace();
-      System.exit(1);
-    } // end if
+        // If the new day is the same as the current one - return.
+        if (sdf.format(getChoice()).equals(sdf.format(d))) return;
 
-    recalc();
-  } // end mouseClicked
+        super.setChoice(d);
+        updateHeader();
+    } // end setChoice
 
-  public void mouseEntered(MouseEvent e) {
-    LabelButton source = (LabelButton) e.getSource();
-    String s = source.getText();
-    if (s.equals("XXX")) {
-    } else if(s.equals("-")) {
-      s = "Click here to see previous month";
-    } else if(s.equals("+")) {
-      s = "Click here to see next month";
-    } // end if
-    setMessage(s);
-  } // end mouseEntered
 
-  public void mouseExited(MouseEvent e) { setMessage(" "); }
+    //--------------------------------------------------------------
+    // Method Name: updateHeader
+    //
+    // This header contains only a formatted date string.
+    //--------------------------------------------------------------
+    public void updateHeader() {
+        // Generate new title from current choice.
+        monthTitle.setText(sdf.format(getChoice()));
+    } // end updateHeader
 
-  public void mousePressed(MouseEvent e) {
-  } // end mousePressed
 
-  public void mouseReleased(MouseEvent e) {
-  } // end mouseReleased
-  //---------------------------------------------------------
+    //---------------------------------------------------------
+    // MouseListener methods
+    //---------------------------------------------------------
+    public void mouseClicked(MouseEvent e) {
+        LabelButton source = (LabelButton) e.getSource();
+        String s = source.getText();
 
-  public static void main(String[] args) {
-    System.out.println("main method of MonthNoteGroup started.");
+        if (s.equals("XXX")) {
+        } else if (s.equals("-")) {
+            setOneBack();
+        } else if (s.equals("+")) {
+            setOneForward();
+        } else {
+            (new Exception("Unhandled action!")).printStackTrace();
+            System.exit(1);
+        } // end if
 
-    MemoryBank.debug = true;
-    MemoryBank.setDataLocations();
+        recalc();
+    } // end mouseClicked
 
-    final MonthNoteGroup dn = new MonthNoteGroup();
+    public void mouseEntered(MouseEvent e) {
+        LabelButton source = (LabelButton) e.getSource();
+        String s = source.getText();
+        if (s.equals("XXX")) {
+        } else if (s.equals("-")) {
+            s = "Click here to see previous month";
+        } else if (s.equals("+")) {
+            s = "Click here to see next month";
+        } // end if
+        setMessage(s);
+    } // end mouseEntered
 
-    // local variable dn is accessed from within inner class; needs
-    //    to be declared final
-    JFrame f = new JFrame("MonthNoteGroup Test");
-    f.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent we) {
-        dn.preClose();
-        System.exit(0);
-      }
-    });
+    public void mouseExited(MouseEvent e) {
+        setMessage(" ");
+    }
 
-    dn.setChoice(new Date());
-    f.getContentPane().add(dn, "Center");
-    f.pack();
-    f.setVisible(true); 
+    public void mousePressed(MouseEvent e) {
+    } // end mousePressed
 
-    System.out.println("main method of MonthNoteGroup completed.");
-  } // end main
+    public void mouseReleased(MouseEvent e) {
+    } // end mouseReleased
+    //---------------------------------------------------------
+
+    public static void main(String[] args) {
+        System.out.println("main method of MonthNoteGroup started.");
+
+        MemoryBank.debug = true;
+        MemoryBank.setDataLocations();
+
+        final MonthNoteGroup dn = new MonthNoteGroup();
+
+        // local variable dn is accessed from within inner class; needs
+        //    to be declared final
+        JFrame f = new JFrame("MonthNoteGroup Test");
+        f.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                dn.preClose();
+                System.exit(0);
+            }
+        });
+
+        dn.setChoice(new Date());
+        f.getContentPane().add(dn, "Center");
+        f.pack();
+        f.setVisible(true);
+
+        System.out.println("main method of MonthNoteGroup completed.");
+    } // end main
 
 } // end class MonthNoteGroup
 
