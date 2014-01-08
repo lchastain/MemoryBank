@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
 
 import javax.swing.JOptionPane;
 
-public class LogUtil {
+public class AppUtil {
 
     public static GregorianCalendar calTemp;
 
@@ -518,8 +518,8 @@ public class LogUtil {
     //   comment out or remove.  The individual logging statements
     //   within that code section can remain unchanged.
     //
-    // LogUtil.localDebug(true);
-    // LogUtil.localDebug(false);
+    // AppUtil.localDebug(true);
+    // AppUtil.localDebug(false);
     // -----------------------------------------------------------------
     public static void localDebug(boolean b) {
         String traceString;
@@ -594,4 +594,4 @@ public class LogUtil {
         } // end accept
     } // end class logFileFilter
 
-} // end class LogUtil
+} // end class AppUtil

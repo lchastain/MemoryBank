@@ -18,12 +18,12 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class LogSplash extends JWindow {
+public class AppSplash extends JWindow {
     private static final long serialVersionUID = 1841135910245380844L;
 
     private JProgressBar progressBar;
 
-    public LogSplash(ImageIcon imageIcon) {
+    public AppSplash(ImageIcon imageIcon) {
         progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
         progressBar.setForeground(Color.blue);
@@ -51,6 +51,6 @@ public class LogSplash extends JWindow {
         });
     } // end setProgress
 
-} // end class LogSplash
+} // end class AppSplash
 
 

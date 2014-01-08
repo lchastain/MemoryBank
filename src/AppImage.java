@@ -45,7 +45,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public final class LogImage extends JPanel {
+public final class AppImage extends JPanel {
     private static final long serialVersionUID = 6216448968617689802L;
 
     private Image theImage;
@@ -56,7 +56,7 @@ public final class LogImage extends JPanel {
     private int imageHeight;
     private boolean doScale;
 
-    public LogImage() {
+    public AppImage() {
         setOpaque(true);
         imageWidth = 0;
         imageHeight = 0;
@@ -73,7 +73,7 @@ public final class LogImage extends JPanel {
                 Dimension d = getSize();
                 containerWidth = d.width;
                 containerHeight = d.height;
-                // MemoryBank.debug("LogImage - componentResized, Component size: " + d);
+                // MemoryBank.debug("AppImage - componentResized, Component size: " + d);
 
                 if (containerWidth == 0) return;
 
@@ -81,25 +81,25 @@ public final class LogImage extends JPanel {
             } // end componentResized
 
             public void componentShown(ComponentEvent e) {
-                MemoryBank.debug("LogImage shown");
+                MemoryBank.debug("AppImage shown");
             } // end componentShown
         });
     } // end constructor
 
 
-    public LogImage(Image i) {
+    public AppImage(Image i) {
         this();
         setImage(i);
     } // end constructor
 
 
-    public LogImage(String imageFile) {
+    public AppImage(String imageFile) {
         this();
         setImage(getToolkit().getImage(imageFile));
     } // end constructor
 
 
-    public LogImage(String imageFile, boolean b) {
+    public AppImage(String imageFile, boolean b) {
         this();
         doScale = b;
         setImage(getToolkit().getImage(imageFile));
@@ -173,7 +173,7 @@ public final class LogImage extends JPanel {
 
         // A smooth scale is needed more for shrinking than enlarging.
         // Also, it can take a lot more time when enlarging.
-        // MemoryBank.debug("LogImage - scaleImage factor = " + theFactor);
+        // MemoryBank.debug("AppImage - scaleImage factor = " + theFactor);
 
         theScaledImage = theImage.getScaledInstance(
                 (int) ((double) imageWidth * theFactor),
@@ -194,7 +194,7 @@ public final class LogImage extends JPanel {
 
         imageWidth = theImage.getWidth(this);
         imageHeight = theImage.getHeight(this);
-        // MemoryBank.dbg("LogImage - setImage  width: " + imageWidth);
+        // MemoryBank.dbg("AppImage - setImage  width: " + imageWidth);
         // MemoryBank.debug("\theight: " + imageHeight);
 
         if (doScale) scaleImage();
@@ -213,18 +213,18 @@ public final class LogImage extends JPanel {
         MemoryBank.debug = true;
         //-----------------------------------------------------------
 
-        LogImage li = new LogImage();
+        AppImage li = new AppImage();
 
         Image images[] = new Image[]{
-                new LogIcon("icons/icon_not.gif").getImage(),
+                new AppIcon("icons/icon_not.gif").getImage(),
                 new ImageIcon(MemoryBank.logHome + "/images/ABOUT.gif").getImage(),
                 null,
-                new LogIcon("icons/acro.ico").getImage(),
-                new LogIcon("icons/new8.gif").getImage()
+                new AppIcon("icons/acro.ico").getImage(),
+                new AppIcon("icons/new8.gif").getImage()
         };
 
         // Make the frame and add ourselves to it.
-        JFrame imageFrame = new JFrame("LogImage Test");
+        JFrame imageFrame = new JFrame("AppImage Test");
         imageFrame.getContentPane().add(li);
         imageFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -261,4 +261,4 @@ public final class LogImage extends JPanel {
     } // end main
     //------------------------------------------------------------------*/
 
-} // end class LogImage 
+} // end class AppImage

@@ -69,7 +69,7 @@ public class MemoryBank {
     // Members used in more than one method but only by 'MemoryBank':
     //----------------------------------------------------------
     private static JFrame logFrame;
-    private static LogSplash splash;
+    private static AppSplash splash;
     private static boolean logApplicationShowing;
     private static int percs[] = {20, 25, 45,
             50, 60, 90, 100};
@@ -617,7 +617,7 @@ public class MemoryBank {
             loc = current + File.separatorChar + "appData";
         } else {
             String userHome = System.getProperty("user.home");
-            loc = userHome + File.separatorChar + "log";
+            loc = userHome + File.separatorChar + "mbankData";
         }
         debug("Setting user data location to: " + loc);
         if (!setUserDataDirPathName(loc)) {  // Some validity testing here..
@@ -689,7 +689,7 @@ public class MemoryBank {
         String s;
 
         // Hold our place in line, on the taskbar.
-        logFrame = new JFrame("Personal Log:");
+        logFrame = new JFrame("Memory Bank:");
         logFrame.setLocation(-1000, -1000);
         logFrame.setVisible(true);
 
@@ -697,7 +697,7 @@ public class MemoryBank {
         // Splash Screen
         //---------------------------------------------------------------
         ImageIcon myImage = new ImageIcon(logHome + "/images/ABOUT.gif");
-        splash = new LogSplash(myImage);
+        splash = new AppSplash(myImage);
         splash.setVisible(true);
         logApplicationShowing = false;
         new Thread(new Runnable() {
@@ -749,7 +749,7 @@ public class MemoryBank {
         //--------------------------------------
         update("Setting Window variables");
         String userName = System.getProperty("user.name");
-        logFrame.setTitle("Personal Log: " + userName);
+        logFrame.setTitle("Memory Bank for: " + userName);
         logFrame.getRootPane().setOpaque(false);
 
 // Attributes to store and retrieve:
@@ -760,9 +760,9 @@ public class MemoryBank {
 // custom icon?
 
         // Use our own icon -
-        LogIcon theLogIcon = new LogIcon("icons/icon_not.gif");
-        theLogIcon = LogIcon.scaleIcon(theLogIcon);
-        logFrame.setIconImage(theLogIcon.getImage());
+        AppIcon theAppIcon = new AppIcon("icons/icon_not.gif");
+        theAppIcon = AppIcon.scaleIcon(theAppIcon);
+        logFrame.setIconImage(theAppIcon.getImage());
 
         logFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent we) {
@@ -773,8 +773,8 @@ public class MemoryBank {
         //--------------------------------------
 
         update("Creating the Log Tree");
-        final LogTree logTree = new LogTree(logFrame);
-        logFrame.setContentPane(logTree);
+        final AppTree appTree = new AppTree(logFrame);
+        logFrame.setContentPane(appTree);
 
 
         update("Laying out graphical components");
@@ -791,7 +791,7 @@ public class MemoryBank {
         //---------------------------------------------------------------------
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
-                logTree.preClose();
+                appTree.preClose();
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);

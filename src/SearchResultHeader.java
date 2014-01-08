@@ -215,11 +215,11 @@ public class SearchResultHeader extends Container implements ClingSource {
         //   the animation in the working dialog graphic to display correctly.
         //----------------------------------------------------------------------
         public void doSorting(int shift) {
-            LogTree.showWorkingDialog(true);
+            AppTree.showWorkingDialog(true);
             if (defaultLabel.equals("Note Text")) parent.sortNoteString(shift);
             else if (defaultLabel.equals("Last Mod")) parent.sortLastMod(shift);
             parent.setGroupChanged();
-            LogTree.showWorkingDialog(false);
+            AppTree.showWorkingDialog(false);
         } // end doSorting
 
         public void doUserHeader() {

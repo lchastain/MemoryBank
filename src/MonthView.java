@@ -106,7 +106,7 @@ public class MonthView extends JLayeredPane {
     private int initialMonth;
     private int initialYear;
     private int initialDay;
-    private LogTree parent;
+    private AppTree parent;
     private boolean hasDataArray[][];
     private Dimension minSize;
 
@@ -145,7 +145,7 @@ public class MonthView extends JLayeredPane {
     // Note: construction by itself will not be enough; you will need to
     //   call 'setChoice' afterwards, prior to display.
     //--------------------------------------------------------------------
-    MonthView(LogTree l) {
+    MonthView(AppTree l) {
         super();
         parent = l;
         initial = new Date();
@@ -196,7 +196,7 @@ public class MonthView extends JLayeredPane {
 
         visibleYear = initialYear;
         visibleMonth = initialMonth;
-        hasDataArray = LogUtil.findDataDays(visibleYear);
+        hasDataArray = AppUtil.findDataDays(visibleYear);
 
         monthCanvas = new MonthCanvas();
         monthCanvas.setBorder(theBorder);
@@ -224,7 +224,7 @@ public class MonthView extends JLayeredPane {
         DayNoteData tempDayData;
         MemoryBank.tempCalendar.set(year, month, day);
 
-        String FileName = LogUtil.findFilename(MemoryBank.tempCalendar, "D");
+        String FileName = AppUtil.findFilename(MemoryBank.tempCalendar, "D");
         if (!new File(FileName).exists()) return null;
 
         MemoryBank.debug("Loading: " + FileName);
@@ -253,7 +253,7 @@ public class MonthView extends JLayeredPane {
                         // Possibly as a 'spacer'.
                         returnArray[index] = null;
                     } else {
-                        returnArray[index] = new LogIcon(iconFileString).getImage();
+                        returnArray[index] = new AppIcon(iconFileString).getImage();
                     } // end if
 
                     index++;
@@ -344,7 +344,7 @@ public class MonthView extends JLayeredPane {
         choice = cal.getTime();
         choiceWasSet = true;
         visibleYear = cal.get(Calendar.YEAR);
-        hasDataArray = LogUtil.findDataDays(visibleYear);
+        hasDataArray = AppUtil.findDataDays(visibleYear);
         visibleMonth = cal.get(Calendar.MONTH);
         monthCanvas.recalc(); // only way to find the day object
     } // end setChoice
@@ -393,7 +393,7 @@ public class MonthView extends JLayeredPane {
                     visibleMonth = cal.get(Calendar.MONTH);
                     if (cal.get(Calendar.YEAR) != visibleYear) {
                         visibleYear = cal.get(Calendar.YEAR);
-                        hasDataArray = LogUtil.findDataDays(visibleYear);
+                        hasDataArray = AppUtil.findDataDays(visibleYear);
                     } // end if
                     monthCanvas.recalc();
                 } // end mouseClicked
@@ -548,11 +548,11 @@ public class MonthView extends JLayeredPane {
         private static final long serialVersionUID = 7499179306493480030L;
 
         private JLabel dayLabel;
-        private LogImage icon1 = new LogImage();
-        private LogImage icon2 = new LogImage();
-        private LogImage icon3 = new LogImage();
-        private LogImage icon4 = new LogImage();
-        private LogImage icon5 = new LogImage();
+        private AppImage icon1 = new AppImage();
+        private AppImage icon2 = new AppImage();
+        private AppImage icon3 = new AppImage();
+        private AppImage icon4 = new AppImage();
+        private AppImage icon5 = new AppImage();
         private Color offColor;
         private Font offFont;
 

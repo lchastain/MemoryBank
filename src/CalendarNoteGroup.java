@@ -62,14 +62,14 @@ public class CalendarNoteGroup extends NoteGroup {
         String s;
 
         if (intSaveGroupStatus == ONGOING) {
-            if (calType == Calendar.DATE) s = LogUtil.makeFilename(cal, "D");
-            else if (calType == Calendar.MONTH) s = LogUtil.makeFilename(cal, "M");
-            else s = LogUtil.makeFilename(cal, "Y");
+            if (calType == Calendar.DATE) s = AppUtil.makeFilename(cal, "D");
+            else if (calType == Calendar.MONTH) s = AppUtil.makeFilename(cal, "M");
+            else s = AppUtil.makeFilename(cal, "Y");
             return s;
         } else {  // Results of a findFilename may be "".
-            if (calType == Calendar.DATE) s = LogUtil.findFilename(cal, "D");
-            else if (calType == Calendar.MONTH) s = LogUtil.findFilename(cal, "M");
-            else s = LogUtil.findFilename(cal, "Y");
+            if (calType == Calendar.DATE) s = AppUtil.findFilename(cal, "D");
+            else if (calType == Calendar.MONTH) s = AppUtil.findFilename(cal, "M");
+            else s = AppUtil.findFilename(cal, "Y");
             return s;
         } // end if saving else not saving
     } // end getGroupFilename

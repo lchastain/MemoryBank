@@ -534,7 +534,7 @@ public class SearchResultGroup extends NoteGroup {
         int sortMethod = 0;
         int items = lastVisibleNoteIndex;
 
-        // LogUtil.localDebug(true);
+        // AppUtil.localDebug(true);
 
         MemoryBank.debug("SearchResultGroup sortText - Number of items in list: " + items);
 
@@ -663,7 +663,7 @@ public class SearchResultGroup extends NoteGroup {
                 break;
         } // end switch sortMethod
 
-        // LogUtil.localDebug(false);
+        // AppUtil.localDebug(false);
     } // end sortText
 
 } // end class SearchResultGroup

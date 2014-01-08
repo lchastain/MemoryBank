@@ -32,7 +32,7 @@ public class EventNoteGroup extends NoteGroup
     // is to assign it during the static section of this class.
     // ------------------------------------------------------------------
     private static String defaultIconFileString;
-    private static LogIcon defaultIcon;
+    private static AppIcon defaultIcon;
     private static String defaultFileName;
 
     private ThreeMonthColumn tmc;
@@ -48,11 +48,11 @@ public class EventNoteGroup extends NoteGroup
 
         if (defaultIconFileString.equals("")) {
             MemoryBank.debug("Default EventNoteComponent Icon: <blank>");
-            defaultIcon = new LogIcon();
+            defaultIcon = new AppIcon();
         } else {
             MemoryBank.debug("Default EventNoteComponent Icon: " + defaultIconFileString);
-            defaultIcon = new LogIcon(defaultIconFileString);
-            defaultIcon = LogIcon.scaleIcon(defaultIcon);
+            defaultIcon = new AppIcon(defaultIconFileString);
+            defaultIcon = AppIcon.scaleIcon(defaultIcon);
         } // end if/else
     } // end static section
 
@@ -96,7 +96,7 @@ public class EventNoteGroup extends NoteGroup
         String s;
         EventNoteData tempNoteData;
 
-        // LogUtil.localDebug(true);
+        // AppUtil.localDebug(true);
 
         for (NoteData ndTmp : vectGroupData) {
             blnDropThisEvent = false;
@@ -110,11 +110,11 @@ public class EventNoteGroup extends NoteGroup
                 if (tempNoteData.getRetainNote()) {
                     // We save this version of the event.
                     DayNoteData dnd = tempNoteData.getDayNoteData();
-                    LogUtil.calTemp.setTime(dnd.getTimeOfDayDate());
+                    AppUtil.calTemp.setTime(dnd.getTimeOfDayDate());
                     String theFilename;
-                    theFilename = LogUtil.findFilename(LogUtil.calTemp, "D");
+                    theFilename = AppUtil.findFilename(AppUtil.calTemp, "D");
                     if (theFilename.equals("")) {
-                        theFilename = LogUtil.makeFilename(LogUtil.calTemp, "D");
+                        theFilename = AppUtil.makeFilename(AppUtil.calTemp, "D");
                     } // end if
                     boolean success = addNote(theFilename, dnd);
 
@@ -162,7 +162,7 @@ public class EventNoteGroup extends NoteGroup
         //    because that data may not even be loaded into a component).
         //  So, if we can't go that route to a groupChanged, just do it explicitly.
         if (blnAnEventWasAgedOff) setGroupChanged();
-        // LogUtil.localDebug(false);
+        // AppUtil.localDebug(false);
         return blnAnEventWasAgedOff;
     } // end ageEvents
 
@@ -223,7 +223,7 @@ public class EventNoteGroup extends NoteGroup
         boolean doSwap;
         int items = vectGroupData.size();
 
-        LogUtil.localDebug(true);
+        AppUtil.localDebug(true);
 
         MemoryBank.debug("EventNoteGroup.doSort - Number of items in list: " + items);
         MemoryBank.debug("  ASCENDING start dates, Events without dates at BOTTOM");
@@ -250,7 +250,7 @@ public class EventNoteGroup extends NoteGroup
 
         postSort();
 
-        LogUtil.localDebug(false);
+        AppUtil.localDebug(false);
     } // end doSort
 
 
@@ -290,7 +290,7 @@ public class EventNoteGroup extends NoteGroup
     } // end editExtendedNoteComponent
 
 
-    public LogIcon getDefaultIcon() {
+    public AppIcon getDefaultIcon() {
         return defaultIcon;
     }
 
@@ -416,7 +416,7 @@ public class EventNoteGroup extends NoteGroup
     // Called by the EventNoteComponent's
     // popup menu handler for 'Set As Default'.
     // ----------------------------------------------------
-    public void setDefaultIcon(LogIcon li) {
+    public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
         saveDefaults();
         setGroupChanged();

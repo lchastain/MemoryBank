@@ -45,10 +45,10 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
-public final class LogTree extends JPanel implements TreeSelectionListener {
+public final class AppTree extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L;
 
-    public static LogTree ltTheTree;
+    public static AppTree ltTheTree;
 
     private static final int LIST_GONE = -3; // used in constr, createTree
 
@@ -100,7 +100,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
     private Vector<String> exportDataVector;
     private TodoNoteGroup theTodoList;    // currently active list
     private SearchPanel spTheSearchPanel;
-    private LogImage abbowt;
+    private AppImage abbowt;
     private ViewportLayout normalLayout;
     private CenterViewportLayout centerLayout;
 
@@ -207,7 +207,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
     } // end static
 
 
-    public LogTree(JFrame logFrame) {
+    public AppTree(JFrame logFrame) {
         super(new GridLayout(1, 0));
         logFrame.setJMenuBar(mb);
         ltTheTree = this;
@@ -218,7 +218,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         lbl.setFont(Font.decode("Dialog-bold-16"));
         String strWorkingIcon = MemoryBank.userDataDirPathName + File.separatorChar;
         strWorkingIcon += "icons/animated/const_anim.gif";
-        lbl.setIcon(new LogIcon(strWorkingIcon));
+        lbl.setIcon(new AppIcon(strWorkingIcon));
         lbl.setVerticalTextPosition(JLabel.TOP);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
         dlgWorkingDialog.add(lbl);
@@ -257,7 +257,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------------
         // Note - if you need cascading menus in the future, use
         //   the recursive version of this as implemented in
-        //   LogPane.java, a now archived predecessor to LogTree.
+        //   LogPane.java, a now archived predecessor to AppTree.
         //---------------------------------------------------------
         int numMenus = mb.getMenuCount();
         // MemoryBank.debug("Number of menus found: " + numMenus);
@@ -291,7 +291,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         JScrollPane treeView = new JScrollPane(tree);
 
         // Create the viewing pane and start with the 'about' graphic.
-        abbowt = new LogImage(MemoryBank.logHome + "/images/ABOUT.gif", false);
+        abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif", false);
         rightPane = new JScrollPane(abbowt);
 
         centerLayout = new CenterViewportLayout();
@@ -339,7 +339,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         } // end if
 
         blnRestoringSelection = false;
-    } // end constructor for LogTree
+    } // end constructor for AppTree
 
 
     // Adds a search result branch to the tree.
@@ -661,7 +661,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
 
             // Get the Date for this note, if available
             Date dateTmp = ndTemp.getNoteDate();
-            if (dateTmp == null) dateTmp = LogUtil.getDateFromFilename(dataFile);
+            if (dateTmp == null) dateTmp = AppUtil.getDateFromFilename(dataFile);
 
             if (null != dateTmp) s += "|" + dateTmp.toString();
             exportDataVector.add(s);
@@ -710,9 +710,9 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
             else if (s.equals("Year Notes")) theLogYears.recalc();
             else ngTheNoteGroup.updateGroup(); // reload without save
         } else {
-            LogUtil.localDebug(true);
+            AppUtil.localDebug(true);
             MemoryBank.debug("  " + what);
-            LogUtil.localDebug(false);
+            AppUtil.localDebug(false);
         } // end if/else
     } // end handleMenuBar
 
@@ -1138,7 +1138,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
 
                 // Check the Note date, possibly filter out based on 'when'.
                 if (goLook) {
-                    dateNoteDate = LogUtil.getDateFromFilename(theFiles[i]);
+                    dateNoteDate = AppUtil.getDateFromFilename(theFiles[i]);
                     if (dateNoteDate != null) {
                         if (!spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
                     } // end if
@@ -1226,7 +1226,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
 
                 // Get the Date for this note, if available
                 Date dateTmp = ndTemp.getNoteDate();
-                if (dateTmp == null) dateTmp = LogUtil.getDateFromFilename(dataFile);
+                if (dateTmp == null) dateTmp = AppUtil.getDateFromFilename(dataFile);
 
                 // It may still be null, but set it for this result
                 srd.setNoteDate(dateTmp);
@@ -1315,18 +1315,18 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
             //   here, rather than having to develop it from the filename.
             //   need to look into why that is not working...
             if (fname.startsWith("Y")) {
-                currentDateChoice = LogUtil.getDateFromFilename(srd.getFileFoundIn());
+                currentDateChoice = AppUtil.getDateFromFilename(srd.getFileFoundIn());
                 tree.setSelectionPath(yearNotesPath);
             } else if (fname.startsWith("M")) {
-                currentDateChoice = LogUtil.getDateFromFilename(srd.getFileFoundIn());
+                currentDateChoice = AppUtil.getDateFromFilename(srd.getFileFoundIn());
                 tree.setSelectionPath(monthNotesPath);
             } else if (fname.startsWith("D")) {
-                currentDateChoice = LogUtil.getDateFromFilename(srd.getFileFoundIn());
+                currentDateChoice = AppUtil.getDateFromFilename(srd.getFileFoundIn());
                 tree.setSelectionPath(dayNotesPath);
             } // end if
         } // end if
 
-        LogUtil.localDebug(false);
+        AppUtil.localDebug(false);
     } // end showFoundIn
 
 
@@ -1399,7 +1399,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         ob1kenoby = srgp;
 
         // Make a unique filename for the results
-        String strResultsFileName = "S" + LogUtil.getTimestamp();
+        String strResultsFileName = "S" + AppUtil.getTimestamp();
         strResultsFileName += ".sresults";
 
         String strResultsPath = MemoryBank.userDataDirPathName + File.separatorChar;
@@ -1446,7 +1446,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         currentDateChoice = new Date();
 
         String theCurrentView = tp.getLastPathComponent().toString();
-        System.out.println("LogTree.showToday path=" + theCurrentView);
+        System.out.println("AppTree.showToday path=" + theCurrentView);
 
         if (theCurrentView.equals("Year View")) {
             theYearView.setChoice(currentDateChoice);
@@ -1819,9 +1819,9 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
             //   handle from a separate thread.
             new Thread(new Runnable() {
                 public void run() {
-                    // LogUtil.localDebug(true);
+                    // AppUtil.localDebug(true);
                     treeSelectionChanged(tp);
-                    // LogUtil.localDebug(false);
+                    // AppUtil.localDebug(false);
                 }
             }).start(); // Start the thread
         }
@@ -1831,7 +1831,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
 
         try {
             // Make a unique filename for the results
-            String strResultsFileName = "Export" + LogUtil.getTimestamp();
+            String strResultsFileName = "Export" + AppUtil.getTimestamp();
             strResultsFileName += ".txt";
 
             String strResultsPath = MemoryBank.userDataDirPathName + File.separatorChar;
@@ -1991,7 +1991,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
 
         public void actionPerformed(ActionEvent e) {
             String doWhat = e.getActionCommand();
-            MemoryBank.debug("LogTree$TodoListHandler " + doWhat);
+            MemoryBank.debug("AppTree$TodoListHandler " + doWhat);
             if (doWhat.equals("Select")) {
                 doSelect();
             } else if (doWhat.equals("Add")) {
@@ -2271,9 +2271,9 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
             theTodoList.setFileName(newName);
 
             // Before we save, ensure that the 'old' file is not removed.
-            LogUtil.localArchive(true);
+            AppUtil.localArchive(true);
             theTodoList.preClose();
-            LogUtil.localArchive(false);
+            AppUtil.localArchive(false);
 
             // Rename the leaf.
             renameTreeNode(oldName, newName);
@@ -2340,7 +2340,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
             int numLeaves = theTodoBranch.getChildCount();
 
             // Develop a list of pre-selected items.
-            MemoryBank.dbg("LogTree$TodoListHandler number of To Do Lists ");
+            MemoryBank.dbg("AppTree$TodoListHandler number of To Do Lists ");
             MemoryBank.debug("in the tree: " + numLeaves);
             selections = new Vector<String>(numLeaves, 1);
             DefaultMutableTreeNode tmpLeaf = theTodoBranch.getFirstLeaf();
@@ -2372,7 +2372,7 @@ public final class LogTree extends JPanel implements TreeSelectionListener {
         } // end constructor
     } // end class TodoLeaf
 
-} // end LogTree class
+} // end AppTree class
 
 
 //-------------------------------------------------------------------------
@@ -2453,7 +2453,7 @@ class SearchResultNode extends DefaultMutableTreeNode implements Serializable {
 //    current selection.
 
 // Note that although the purpose of this class is solely to preserve
-//   the state of the LogTree 'tree', it cannot be inner to LogTree because
+//   the state of the AppTree 'tree', it cannot be inner to AppTree because
 //   in that case while saving it would try to preserve that relationship 
 //   as well.  The result is that the save operation hangs uninterruptably
 //   and the process must be killed
@@ -2481,8 +2481,8 @@ class TreeOptions implements Serializable {
 } // end class TreeOptions
 
 interface iconKeeper {
-    public abstract LogIcon getDefaultIcon();
+    public abstract AppIcon getDefaultIcon();
 
-    public abstract void setDefaultIcon(LogIcon li);
+    public abstract void setDefaultIcon(AppIcon li);
 } // end iconKeeper
 

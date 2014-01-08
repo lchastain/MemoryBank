@@ -257,7 +257,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     public void mousePressed(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getName();
-        //LogUtil.localDebug(true);
+        //AppUtil.localDebug(true);
 
         jtfThePageNum.setVisible(false);
         lbCurrentPage.setVisible(true);
@@ -268,7 +268,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             lbCurrentPage.setVisible(false);
         } else {
 //      myNoteGroup.transferFocusUpCycle();
-            LogTree.ltTheTree.requestFocusInWindow();
+            AppTree.ltTheTree.requestFocusInWindow();
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");
                 if (intCurrentPage > 1) {
@@ -301,7 +301,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         //   be updated after a page change.
         intPageFrom = intCurrentPage;
 
-        //LogUtil.localDebug(false);
+        //AppUtil.localDebug(false);
     } // end mousePressed
 
     public void mouseReleased(MouseEvent e) {

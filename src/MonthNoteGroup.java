@@ -79,7 +79,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     } // end recalc
 
 
-    // This is called from LogTree.
+    // This is called from AppTree.
     public void setChoice(Date d) {
 
         // If the new day is the same as the current one - return.

@@ -59,7 +59,7 @@ public class IconFileView extends FileView {
                     extension.equals("tif") ||
                     extension.equals("ico") ||
                     extension.equals("png"))
-                icon = new LogIcon(f.getPath());
+                icon = new AppIcon(f.getPath());
         } // end if extension not null
         return icon;
     } // end getIcon

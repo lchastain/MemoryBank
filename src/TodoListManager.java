@@ -498,7 +498,7 @@ public final class TodoListManager extends JPanel {
         } // end if
 
         // Check to see if a file with this name already exists?
-        //   No; for an 'add' the LogTree can handle that situation
+        //   No; for an 'add' the AppTree can handle that situation
         //   by simply opening it, a kind of back-door selection.
 
         // Note - I thought it would be a good idea to check for 'illegal'

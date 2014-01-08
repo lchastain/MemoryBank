@@ -206,11 +206,11 @@ public class TodoNoteComponent extends NoteComponent {
 
         // Prepare to preserve the item, then do so by calling addNote.
         DayNoteData dnd = myTodoNoteData.getDayNoteData(useDate);
-        LogUtil.calTemp.setTime(dnd.getTimeOfDayDate());
+        AppUtil.calTemp.setTime(dnd.getTimeOfDayDate());
         String theFilename;
-        theFilename = LogUtil.findFilename(LogUtil.calTemp, "D");
+        theFilename = AppUtil.findFilename(AppUtil.calTemp, "D");
         if (theFilename.equals("")) {
-            theFilename = LogUtil.makeFilename(LogUtil.calTemp, "D");
+            theFilename = AppUtil.makeFilename(AppUtil.calTemp, "D");
         } // end if
         success = NoteGroup.addNote(theFilename, dnd);
 
@@ -836,7 +836,7 @@ class TodoNoteData extends NoteData implements Serializable {
                 MemoryBank.debug("  Destination image is: " + src.getPath());
             } else {
                 MemoryBank.debug("  Copying to: " + destFileName);
-                LogUtil.copy(src, dest);
+                AppUtil.copy(src, dest);
             } // end if
             iconFileString = dest.getPath();
         } // end if status has been set

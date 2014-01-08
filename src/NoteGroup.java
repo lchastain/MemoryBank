@@ -616,7 +616,7 @@ public abstract class NoteGroup extends JPanel {
     private void loadInterface(int intPageNum) {
         int panelIndex = 0;
 
-        //LogUtil.localDebug(true);
+        //AppUtil.localDebug(true);
 
         // Set the indexes into the data vector -
         int maxDataIndex = vectGroupData.size() - 1;
@@ -683,7 +683,7 @@ public abstract class NoteGroup extends JPanel {
         // Each of the 'setNoteData' calls above would have set this to true.
         groupChanged = false;
 
-        //LogUtil.localDebug(false);
+        //AppUtil.localDebug(false);
     } // end loadInterface
 
 
@@ -848,7 +848,7 @@ public abstract class NoteGroup extends JPanel {
     //   those situations.
     //--------------------------------------------------------------
     private void saveGroup() {
-        //LogUtil.localDebug(true);
+        //AppUtil.localDebug(true);
         intSaveGroupStatus = ONGOING;
         File f;
 
@@ -943,7 +943,7 @@ public abstract class NoteGroup extends JPanel {
 
         // No need to save again until after the next data change.
         groupChanged = false;
-        //LogUtil.localDebug(false);
+        //AppUtil.localDebug(false);
     } // end saveGroup
 
 
@@ -1082,7 +1082,7 @@ public abstract class NoteGroup extends JPanel {
 
     // Needs double-threading in order to animate the gif.
     public void showWorkingDialog(boolean b) {
-        LogTree.showWorkingDialog(b);
+        AppTree.showWorkingDialog(b);
     } // end showWorkingDialog
 
 

@@ -221,14 +221,14 @@ public class TodoGroupHeader extends Container implements ClingSource {
         public void doSorting(int shift) {
             if (defaultLabel.equals("Status")) return; // Non-sortable column
 
-            LogTree.showWorkingDialog(true);
+            AppTree.showWorkingDialog(true);
 
             if (defaultLabel.equals("Priority")) parent.sortPriority(shift);
             else if (defaultLabel.equals("To Do Text")) parent.sortText(shift);
             else if (defaultLabel.equals("Deadline")) parent.sortDeadline(shift);
 
             parent.setGroupChanged();
-            LogTree.showWorkingDialog(false);
+            AppTree.showWorkingDialog(false);
         } // end doSorting
 
         public void doUserHeader() {

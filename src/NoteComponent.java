@@ -532,7 +532,7 @@ public class NoteComponent extends JPanel {
             if (strToolTip != null) {
                 // Insert line breaks as needed and enforce
                 //   an overall text length limit.
-                strToolTip = LogUtil.getBrokenString(strToolTip, 70, 10);
+                strToolTip = AppUtil.getBrokenString(strToolTip, 70, 10);
 
                 // In case we had a (too large) gap of linefeeds in the middle
                 //   and the cutoff didn't make it back to real text -

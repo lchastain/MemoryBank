@@ -44,7 +44,7 @@ public class YearView extends JPanel implements ActionListener {
     private int Year;               // numerous
     private YearBox yearBox;        // BottomPanel constructor
     private static SimpleDateFormat sdf;
-    private LogTree parent;
+    private AppTree parent;
     private MonthCanvas mc;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
@@ -77,7 +77,7 @@ public class YearView extends JPanel implements ActionListener {
         sdf.applyPattern("EEEE, MMMM d, yyyy");
     } // end static
 
-    YearView(LogTree l) {
+    YearView(AppTree l) {
         super(new BorderLayout());
         parent = l;
         initial = new Date();
@@ -236,7 +236,7 @@ public class YearView extends JPanel implements ActionListener {
 
     public void recalc(int year) {
         // Look for new day data, for color/font setting.
-        hasDataArray = LogUtil.findDataDays(year);
+        hasDataArray = AppUtil.findDataDays(year);
 
         for (int i = 0; i < 12; i++) {
             mc = (MonthCanvas) yearPanel.getComponent(i);

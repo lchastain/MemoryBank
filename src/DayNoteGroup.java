@@ -42,7 +42,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //   is to assign it during the static section of this class.
     //------------------------------------------------------------------
     public static String defaultIconFileString; // Accessed by MonthView.
-    private static LogIcon defaultIcon;
+    private static AppIcon defaultIcon;
     private static String defaultFileName;
     //------------------------------------------------------------------
 
@@ -74,11 +74,11 @@ public class DayNoteGroup extends CalendarNoteGroup
 
         if (defaultIconFileString.equals("")) {
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
-            defaultIcon = new LogIcon();
+            defaultIcon = new AppIcon();
         } else {
             MemoryBank.debug("Default DayNoteComponent Icon: " + defaultIconFileString);
-            defaultIcon = new LogIcon(defaultIconFileString);
-            defaultIcon = LogIcon.scaleIcon(defaultIcon);
+            defaultIcon = new AppIcon(defaultIconFileString);
+            defaultIcon = AppIcon.scaleIcon(defaultIcon);
         } // end if/else
 
         MemoryBank.init();
@@ -127,7 +127,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end getChoiceString
 
 
-    public LogIcon getDefaultIcon() {
+    public AppIcon getDefaultIcon() {
         return defaultIcon;
     }
 
@@ -193,12 +193,12 @@ public class DayNoteGroup extends CalendarNoteGroup
 //
 //    tempNoteData = (DayNoteData) ois.readObject();
 //
-//    // LogUtil.localDebug(true); 
+//    // AppUtil.localDebug(true);
 //    MemoryBank.debug("Loaded index " + i + " ID: " + tempNoteData.getNoteId());
 //    tempNote = (DayNoteComponent) groupNotesListPanel.getComponent(i);
 //    tempNote.setNoteData(tempNoteData);
 //    tempNote.setVisible(true);
-//    // LogUtil.localDebug(false);
+//    // AppUtil.localDebug(false);
 //
 //    return true;
 //  } // end loadNoteComponent
@@ -276,7 +276,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     // Method Name: recalc
     //
     // Repaints the display.
-    // called from LogTree for an 'undo' menu item selection.
+    // called from AppTree for an 'undo' menu item selection.
     // This can be removed after we have a real 'undo'.
     //--------------------------------------------------------------
     public void recalc() {
@@ -303,7 +303,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end saveDefaults
 
 
-    // This is called from LogTree.
+    // This is called from AppTree.
     public void setChoice(Date d) {
         if (blnNoteAdded) {
             // This ensures that we will reload the day, even
@@ -325,7 +325,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     // Called by the DayNoteComponent's
     //   popup menu handler for 'Set As Default'.
     //----------------------------------------------------
-    public void setDefaultIcon(LogIcon li) {
+    public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
         defaultIconFileString = li.getDescription();
         saveDefaults();

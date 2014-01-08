@@ -249,7 +249,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 //    TodoNoteComponent tempNote;
 //    TodoNoteData tempNoteData;
 //
-//    // LogUtil.localDebug(true); 
+//    // AppUtil.localDebug(true);
 //
 //    // Before reading the first item from a Todo List, we need 
 //    //   to get (and read past) the TodoListProperties.
@@ -265,7 +265,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 //    tempNote.setNoteData(tempNoteData);
 //    tempNote.setVisible(true);
 //    
-//    // LogUtil.localDebug(false);
+//    // AppUtil.localDebug(false);
 //    return true;
 //  } // end loadNoteComponent
 
@@ -747,7 +747,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         boolean doSwap;
         int items = vectGroupData.size();
 
-        LogUtil.localDebug(true);
+        AppUtil.localDebug(true);
 
         preSort();
         MemoryBank.debug("TodoNoteGroup.sortPriority - Number of items in list: " + items);
@@ -800,7 +800,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             } // end for j
         } // end for i
 
-        LogUtil.localDebug(false);
+        AppUtil.localDebug(false);
 
         // Display the same page, now with possibly different contents.
         postSort();
@@ -813,7 +813,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         boolean doSwap;
         int items = vectGroupData.size();
 
-        LogUtil.localDebug(true);
+        AppUtil.localDebug(true);
 
         preSort();
         MemoryBank.debug("TodoNoteGroup.sortText - Number of items in list: " + items);
@@ -867,7 +867,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             } // end for j
         } // end for i
 
-        LogUtil.localDebug(false);
+        AppUtil.localDebug(false);
 
         // Display the same page, now with possibly different contents.
         postSort();

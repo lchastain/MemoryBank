@@ -43,18 +43,18 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
-public class LogIcon extends ImageIcon {
+public class AppIcon extends ImageIcon {
     private static final long serialVersionUID = -1747855358689601291L;
 
     // Pass-thru constructor to ImageIcon.
-    LogIcon() {
+    AppIcon() {
         super();
         setDescription(""); // empty is ok, null is not.
     }
 
-    LogIcon(String filename) {
+    AppIcon(String filename) {
         // Note: Do not construct with null - handle prior.
-        MemoryBank.debug("Constructing LogIcon: " + filename);
+        MemoryBank.debug("Constructing AppIcon: " + filename);
         Image myImage;
 
         // If this icon is being constructed for the iconChooser (or
@@ -105,7 +105,7 @@ public class LogIcon extends ImageIcon {
     // Method Name: scaleIcon
     //
     //-----------------------------------------------------
-    public static LogIcon scaleIcon(LogIcon li) {
+    public static AppIcon scaleIcon(AppIcon li) {
         int theHeight, theWidth;
 
         boolean scaleIt = false;
@@ -614,4 +614,4 @@ public class LogIcon extends ImageIcon {
         }
     } // end class IconEntry
 
-} // end class LogIcon
+} // end class AppIcon

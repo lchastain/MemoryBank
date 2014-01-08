@@ -201,7 +201,7 @@ public class DayNoteComponent extends IconNoteComponent {
     //----------------------------------------------------------
     public void setNoteData(DayNoteData newNoteData) {
 
-        // LogUtil.localDebug(true);
+        // AppUtil.localDebug(true);
         myDayNoteData = newNoteData;
         initialized = true;
 
@@ -210,7 +210,7 @@ public class DayNoteComponent extends IconNoteComponent {
 
         // update visual components without updating the 'lastModDate'
         resetComponent();
-        // LogUtil.localDebug(false);
+        // AppUtil.localDebug(false);
 
         setNoteChanged();
     } // end setNoteData

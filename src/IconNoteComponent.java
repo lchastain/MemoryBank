@@ -158,14 +158,14 @@ public abstract class IconNoteComponent extends NoteComponent {
     //
     // This is the NoteComponent (vs NoteIcon/JLabel) method.
     //-----------------------------------------------------
-    public void setIcon(LogIcon li) {
+    public void setIcon(AppIcon li) {
         if ((li != myContainer.getDefaultIcon()) && (li != null)) {
             // Do not save the default icon's filename.
             //  (and scaling should have been done in the myNoteGroup).
             String s = li.getDescription();
             ((IconNoteData) getNoteData()).setIconFileString(s);
             noteIcon.theIconFile = s;
-            li = LogIcon.scaleIcon(li);
+            li = AppIcon.scaleIcon(li);
         } // end if
 
         noteIcon.setIcon(li);
@@ -199,7 +199,7 @@ public abstract class IconNoteComponent extends NoteComponent {
             } // end if
 
             MemoryBank.debug("Setting icon to: " + infs);
-            setIcon(new LogIcon(infs));
+            setIcon(new AppIcon(infs));
         } // end if
     } // end resetComponent
 
@@ -295,14 +295,14 @@ public abstract class IconNoteComponent extends NoteComponent {
             } else if (s.equals("Set As Default")) {
 
                 // Get a reference to the icon.
-                LogIcon tmpIcon = null;
-                tmpIcon = (LogIcon) noteIcon.getIcon();
+                AppIcon tmpIcon = null;
+                tmpIcon = (AppIcon) noteIcon.getIcon();
 
                 // Set the description.
                 MemoryBank.dbg("The new default icon's description is: ");
                 if (tmpIcon == null) {
                     // The user is setting a 'blank' to be default.
-                    tmpIcon = new LogIcon();
+                    tmpIcon = new AppIcon();
                     MemoryBank.debug("<blank>");
                 } else {
                     // The description did not come thru when
@@ -380,10 +380,10 @@ public abstract class IconNoteComponent extends NoteComponent {
                     if (!f.exists()) f.mkdirs();
                     if (!dest.exists()) {
                         MemoryBank.debug("  copying to " + destFileName);
-                        LogUtil.copy(src, dest);
+                        AppUtil.copy(src, dest);
                     } // end if
 
-                    IconNoteComponent.this.setIcon(new LogIcon(iconFileName));
+                    IconNoteComponent.this.setIcon(new AppIcon(iconFileName));
 
                     // Since an explicit Icon was chosen, default to showing on Month.
                     ((IconNoteData) getNoteData()).setShowIconOnMonthBoolean(true);
