@@ -60,7 +60,6 @@ public class MemoryBank {
     public static boolean debug;
     public static boolean event;
     public static boolean init;
-    public static boolean trace;
     public static boolean timing;
     public static String userDataDirPathName; // User data top-level directory 'MemoryBank'
     public static String logHome;  // For finding icons & images
@@ -91,13 +90,11 @@ public class MemoryBank {
         event = (System.getProperty("event") != null);
         init = (System.getProperty("init") != null);
         timing = (System.getProperty("timing") != null);
-        trace = (System.getProperty("trace") != null);
 
         if (debug) System.out.println("Debugging printouts on.");
         if (event) System.out.println("Event tracing printouts on.");
         if (init) System.out.println("Initialization trace printouts on.");
         if (timing) System.out.println("Timing printouts on.");
-        if (trace) System.out.println("Method trace printouts on.");
 
         sdf = new SimpleDateFormat();
         sdf.setDateFormatSymbols(new DateFormatSymbols());
@@ -356,22 +353,11 @@ public class MemoryBank {
     } // end getFieldFromFormat
 
 
-    public static int getInteger(String s) {
-        int i = -1;
-        try {
-            return Integer.parseInt(s.trim());
-        } catch (NumberFormatException nfe) {
-        }
-        return i;
-    } // end getInteger
-
-
     // Here is where the format is interpreted.
     private static String getRealFormat(String theFormat) {
         // System.out.println("Format parsing: [" + theFormat + "]");
         if (theFormat.equals("")) return "";  // never been set
         if (theFormat.equals("0")) return ""; // explicitly set to ""
-        String initialFormat = theFormat;
 
         String s = "";
         int which;
@@ -383,12 +369,12 @@ public class MemoryBank {
 
         for (int i = 0; i < order.length(); i++) {
             which = Integer.parseInt(order.substring(i, i + 1));
-            theField = getFieldFromFormat(which, initialFormat);
+            theField = getFieldFromFormat(which, theFormat);
             if (which == 5) {
                 s += TimeFormatBar.getRealFormat(theField);
             } else {
                 s += theField;
-                s += getSeparatorFromFormat(initialFormat, which, false);
+                s += getSeparatorFromFormat(theFormat, which, false);
             } // end if
         } // end for i
 
@@ -549,33 +535,6 @@ public class MemoryBank {
     } // end setLocation
 
 
-    //-----------------------------------------------
-    // Method Name: trace
-    //
-    // Execution tracing -
-    //-----------------------------------------------
-    public static void trace(String s) {
-        if (!MemoryBank.trace) return;
-        String mname;
-        String cname;
-        String traceString;
-
-        mname = Thread.currentThread().getStackTrace()[3].getMethodName();
-        cname = Thread.currentThread().getStackTrace()[3].getClassName();
-        traceString = Thread.currentThread().getStackTrace()[3].toString();
-
-        if (mname.equals("<init>")) {
-            System.out.print(cname + " constructor");
-        } else {
-            System.out.print(traceString);
-        } // end if
-
-        if (s != null) System.out.println("  " + s);
-        else System.out.println();
-    } // end trace
-    //-----------------------------------------------------
-
-
   /*/----------------------------------------------------------------------
   // Inner class
   //----------------------------------------------------------------------
@@ -707,6 +666,7 @@ public class MemoryBank {
                         Thread.sleep(1000);
                     } // end while
                 } catch (Exception e) {
+                    System.out.println("Exception: " + e.getMessage());
                 }
                 splash.setVisible(false);
                 splash = null;
@@ -720,8 +680,8 @@ public class MemoryBank {
         if (args.length > 0)
             System.out.println("Number of args: " + args.length);
 
-        for (int i = 0; i < args.length; i++) {
-            s = args[i];
+        for (String arg : args) {
+            s = arg;
 
             if (s.equals("-debug")) {
                 if (!debug) System.out.println("Debugging printouts on.");
@@ -735,9 +695,6 @@ public class MemoryBank {
             } else if (s.equals("-timing")) {
                 if (!timing) System.out.println("Timing printouts on.");
                 timing = true;
-            } else if (s.equals("-trace")) {
-                if (!trace) System.out.println("Method trace printouts on.");
-                trace = true;
             } else {
                 System.out.println("Parameter not handled: [" + s + "]");
             } // end if/else

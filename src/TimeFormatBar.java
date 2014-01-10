@@ -331,11 +331,11 @@ public class TimeFormatBar extends Container implements ClingSource {
 
         String posString = getOrderFromFormat();
         if (posString.equals("")) return visibility; // visibility remains 0
-        if (posString.indexOf("1") != -1) visibility += 1;
-        if (posString.indexOf("2") != -1) visibility += 2;
-        if (posString.indexOf("3") != -1) visibility += 4;
-        if (posString.indexOf("4") != -1) visibility += 8;
-        if (posString.indexOf("5") != -1) visibility += 16;
+        if (posString.contains("1")) visibility += 1;
+        if (posString.contains("2")) visibility += 2;
+        if (posString.contains("3")) visibility += 4;
+        if (posString.contains("4")) visibility += 8;
+        if (posString.contains("5")) visibility += 16;
         return visibility;
     } // end getVisibilityFromFormat
 
@@ -563,7 +563,7 @@ public class TimeFormatBar extends Container implements ClingSource {
             pop.show(TimeFormatBar.this, x, y);
         } // end mouseClicked
 
-        public void mousePressed(MouseEvent e) {
+        public void mousePressed() {
             if (pop.isShowing()) pop.setVisible(false);
         } // end mousePressed
 
@@ -641,6 +641,7 @@ public class TimeFormatBar extends Container implements ClingSource {
                 if (jpm == pop4) hb = hb4;
                 if (jpm == pop5) hb = hb5;
 
+                assert hb != null;
                 String ss = hb.getViewableSeparator();
                 String separatorString = ss;
                 String title = "Separator Text";
@@ -680,6 +681,7 @@ public class TimeFormatBar extends Container implements ClingSource {
             if (s.equals("Short Form")) nf = "z";
             if (s.equals("Long Form")) nf = "zzzz";
 
+            assert fb != null;
             fb.setFormat(nf);
             dfb.resetDateLabel();
         } // end actionPerformed

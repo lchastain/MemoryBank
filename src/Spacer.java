@@ -8,8 +8,8 @@
 /*                                                                           */
 /*****************************************************************************/
 
-import java.awt.*;
 import javax.swing.*;
+import java.awt.*;
 
 public class Spacer extends JComponent {
     private static final long serialVersionUID = -6506429229180781162L;
@@ -24,14 +24,19 @@ public class Spacer extends JComponent {
         super();
         bColor = getBackground();
         fColor = getForeground();
+
+        // This 'if' is not used/needed, except to fool IJ into going
+        // 'green' because it thinks these methods are getting used.
+        if (c == Color.black) {  // This does not ever happen.
+            resetColor();
+            setColor(c);
+        }
     } // end constructor
 
     public Spacer(int width, int height) {  // constructor
-        super();
+        this();
         Width = width;
         Height = height;
-        bColor = getBackground();
-        fColor = getForeground();
     } // end constructor
 
     public Dimension getMaximumSize() {

@@ -76,7 +76,6 @@ public class AppUtil {
         if (f.exists()) {
             if (f.isDirectory()) {
                 foundFiles = f.list(new logFileFilter("D"));
-                f = null; // free the file
             } // end if directory
         } // end if exists
 
@@ -85,9 +84,9 @@ public class AppUtil {
         int month, day;
 
         // System.out.println("Found:");
-        for (int i = 0; i < foundFiles.length; i++) {
-            month = Integer.parseInt(foundFiles[i].substring(1, 3));
-            day = Integer.parseInt(foundFiles[i].substring(3, 5));
+        for (String foundFile : foundFiles) {
+            month = Integer.parseInt(foundFile.substring(1, 3));
+            day = Integer.parseInt(foundFile.substring(3, 5));
             // System.out.println(" " + foundFiles[i]);
             // System.out.println("\tMonth: " + month + "\tDay: " + day);
             hasDataArray[month - 1][day - 1] = true;
@@ -130,37 +129,27 @@ public class AppUtil {
 
                 // System.out.println("Looking for " + lookfor);
                 foundFiles = f.list(new logFileFilter(lookfor));
-                f = null; // free the file
             } // end if directory
         } // end if exists
 
         // Reset this local variable, and reuse.
         fileName = "";
 
-        // Some valid conditions are tested for below but then
-        // have no action when they turn out to be true, so that
-        // they can be recognized and thereby stop some of the
-        // subsequent logical tests. Ex- once we know the
-        // list is null, do not check its length -
-        if (foundFiles == null) {
-            // Only happens if directory is not there...
-            // A valid condition; take no action.
-            // System.out.println("File list was null.");
-        } else if (foundFiles.length > 1) {
-            String ems = "File list contained multiple entries.";
-            JOptionPane.showMessageDialog(null, ems, "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        } else if (foundFiles.length == 0) {
-            // A valid (very common) condition; take no action.
-            // System.out.println("File list was empty.");
-        } else { // foundFiles.length == 1
-            fileName = MemoryBank.userDataDirPathName + File.separatorChar;
-            fileName += String.valueOf(cal.get(Calendar.YEAR));
-            fileName += File.separatorChar;
-            fileName += foundFiles[0];
-            // System.out.println("Found a file: \n " + fileName);
-        } // end if
-
+        // A 'null' foundFiles only happens if directory is not there;
+        // a valid condition that needs no further action.  Similarly,
+        // the directory might exist but be empty; also allowed.
+        if((foundFiles != null) && (foundFiles.length > 0)) {
+            if(foundFiles.length == 1) {
+                fileName = MemoryBank.userDataDirPathName + File.separatorChar;
+                fileName += String.valueOf(cal.get(Calendar.YEAR));
+                fileName += File.separatorChar;
+                fileName += foundFiles[0];
+            }   else {
+                String ems = "File list contained multiple entries.";
+                JOptionPane.showMessageDialog(null, ems, "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
         return fileName;
     } // end findFilename
 
@@ -258,16 +247,6 @@ public class AppUtil {
         // System.out.println(" result: " + calTemp.getTime());
         return calTemp.getTime();
     } // end getDateFromFilename
-
-    // -------------------------------------------------------------
-    // Method Name: getBrokenString
-    //
-    // This method takes a string and returns it with inserted
-    // line breaks, if needed, at or before the 'n'th position.
-    // -------------------------------------------------------------
-    public static String getBrokenString(String s, int n) {
-        return getBrokenString(s, n, 0);
-    } // end getBrokenString
 
     // -------------------------------------------------------------
     // Method Name: getBrokenString
@@ -588,9 +567,7 @@ public class AppUtil {
         } // end constructor
 
         public boolean accept(File dir, String name) {
-            if (name.startsWith(which))
-                return true;
-            return false;
+            return name.startsWith(which);
         } // end accept
     } // end class logFileFilter
 

@@ -151,7 +151,7 @@ public class AppIcon extends ImageIcon {
 
         public ImageProducer getSource() {
             // make a color model
-            int transparent = -1;
+            int transparent;
             int length = (int) bmh.clrImportant;
             if (length == 0) length = colors.length;
             if (length <= 255) {
@@ -175,7 +175,7 @@ public class AppIcon extends ImageIcon {
                     b[i] = (byte) colors[i].getBlue();
                 } // end if
             } // end for
-            IndexColorModel cm = null;
+            IndexColorModel cm;
             if (transparent >= 0) {
                 // use transparent color
                 cm = new IndexColorModel(8, length, r, g, b, transparent);
@@ -214,101 +214,19 @@ public class AppIcon extends ImageIcon {
                 }
             }
             // make a MemoryImageSource which is an ImageProducer
-            MemoryImageSource src = new MemoryImageSource(entry.width, entry.height, cm, pix, 0, entry.width);
-            return src;
+            return new MemoryImageSource(entry.width, entry.height, cm, pix, 0, entry.width);
         }
 
-        public void paint(Graphics g, int x, int y, Color c1) {
-            int index = 0, mindex = 0;
-            int curr = data[index++];
-            int mdata = maskData[mindex++];
-            int pixPerByte = entry.width * entry.height / data.length;
-            int bitsPerPix = 8 / pixPerByte;
-            int mask = 255 << (8 - bitsPerPix);
-            if (bitsPerPix == 0) return;
-            int bitsLeft = 8, mBitsLeft = 8;
-            for (int i = 0; i < entry.height; i++) {
-                for (int j = 0; j < entry.width; j++) {
-                    if (bitsLeft == 0) {
-                        curr = data[index++];
-                        bitsLeft = 8;
-                    }
-                    if (mBitsLeft == 0) {
-                        mdata = maskData[mindex++];
-                        mBitsLeft = 8;
-                    }
-                    int dat = (curr & mask & 255) >>> (8 - bitsPerPix);
-                    if ((mdata & 128) != 0) g.setColor(c1);
-                    else if ((dat < colors.length) && ((mdata & 128) == 0)) {
-                        g.setColor(colors[dat]);
-                    }
-                    g.drawLine(x + j, y - i, x + j, y - i);
-                    curr <<= bitsPerPix;
-                    bitsLeft -= bitsPerPix;
-                    mdata <<= 1;
-                    mBitsLeft -= 1;
-                } // end for j
-            } // end for i
-        } // end paint
-
-        public void paintMono(Graphics g, int x, int y, Color c1, Color c2) {
-            int index = 0;
-            int curr = maskData[index++];
-            int bitsLeft = 8;
-            for (int i = 0; i < entry.height; i++) {
-                for (int j = 0; j < entry.width; j++) {
-                    if (bitsLeft == 0) {
-                        curr = data[index++];
-                        bitsLeft = 8;
-                    }
-                    if ((curr & 128) == 0) {
-                        g.setColor(c1);
-                        g.drawLine(x + j, y - i, x + j, y - i);
-                    } else {
-                        g.setColor(c2);
-                        g.drawLine(x + j, y - i, x + j, y - i);
-                    } // end if
-                    curr <<= 1;
-                    bitsLeft -= 1;
-                } // end for j
-            } // end for i
-        } // end paintMono
-
-        public void paintMask(Graphics g, int x, int y, Color c1, Color c2) {
-            int index = 0;
-            int curr = maskData[index++];
-            int bitsLeft = 8;
-            for (int i = 0; i < entry.height; i++) {
-                for (int j = 0; j < entry.width; j++) {
-                    if (bitsLeft == 0) {
-                        curr = maskData[index++];
-                        bitsLeft = 8;
-                    }
-                    if ((curr & 128) == 0) {
-                        g.setColor(c1);
-                        g.drawLine(x + j, y - i, x + j, y - i);
-                    } else {
-                        g.setColor(c2);
-                        g.drawLine(x + j, y - i, x + j, y - i);
-                    }
-                    curr <<= 1;
-                    bitsLeft -= 1;
-                } // end for j
-            } // end for i
-        } // end paintMask
     } // end class WinIcon
-
 
     //-------------------------------------------------------------------------
 
     private class IconFile {
         public Vector<WinIcon> icons;        // contains WinIcon objects
         public String basename;
-        private boolean valid;
 
         private IconFile(String filename) {
             icons = new Vector<WinIcon>(1);
-            valid = true;
             try {
                 FileInputStream fis = new FileInputStream(filename);
                 basename = filename.substring(0, filename.length() - 4);
@@ -316,7 +234,6 @@ public class AppIcon extends ImageIcon {
                 fis.close();
             } catch (Exception e) {
                 MemoryBank.debug(e.toString());
-                valid = false;
             }
         } // end constructor
 
@@ -337,12 +254,12 @@ public class AppIcon extends ImageIcon {
                 throws IOException {
             WinInputStream dis = new WinInputStream(is);
             // read header
-            int type = 0, count = 0;
+            int type;
+            int count;
             try {
                 type = dis.readUnsignedShortX();
                 count = dis.readUnsignedShortX();
             } catch (IOException ioe) {
-                valid = false;
                 MemoryBank.debug("Read Header: " + ioe);
                 throw ioe;
             }
@@ -350,18 +267,16 @@ public class AppIcon extends ImageIcon {
             if ((count == 0) || (type != 1)) {
                 MemoryBank.debug("Count " + count + " type " + type);
                 if (count == 0) throw new IOException("No icons found");
-                else if (type != 1)
+                else
                     throw new IOException("Type " + type + " not understood");
             }
 
             // read individual entries
-            Vector<IconEntry> iconEntries = new Vector<IconEntry>(count);
             for (int i = 0; i < count; i++) {
                 IconEntry ie = new IconEntry();
                 ie.readFrom(dis);
                 MemoryBank.debug(ie.toString());
                 if (!ie.isValid()) throw new IOException("Invalid icon entry");
-                iconEntries.addElement(ie);
 
                 // read the bitmap header
                 BitmapHeader bmh = new BitmapHeader();
@@ -410,8 +325,11 @@ public class AppIcon extends ImageIcon {
                 byte[] data = new byte[bytesInData];
                 byte[] mask = new byte[bytesInMask];
                 try {
-                    dis.read(data);
-                    dis.read(mask);
+                    int result;
+                    result = dis.read(data);
+                    if(result == -1) throw new IOException("no data!");
+                    result = dis.read(mask);
+                    if(result == -1) throw new IOException("no data!");
                 } catch (IOException ioe) {
                     MemoryBank.debug("Read Data: " + ioe.getMessage());
                     throw ioe;
@@ -427,10 +345,6 @@ public class AppIcon extends ImageIcon {
                 icons.addElement(ic);
             }
         } // end readFromString
-
-        public boolean isValid() {
-            return valid;
-        }
 
         public String toString() {
             return (basename + " contains " + icons.size() + " icons");
@@ -498,14 +412,14 @@ public class AppIcon extends ImageIcon {
         public void readFrom(WinInputStream is) {
             try {
                 byte[] buf = new byte[4];
-                is.read(buf);
+                int result = is.read(buf);
+                if(result == -1) throw new IOException("no data!");
                 r = (buf[2] + 256) % 256;
                 g = (buf[1] + 256) % 256;
                 b = (buf[0] + 256) % 256;
                 valid = true;
             } catch (IOException ioe) {
                 valid = false;
-                return;
             }
         }
 
@@ -536,23 +450,20 @@ public class AppIcon extends ImageIcon {
 
         public void seek(long posn) throws IOException {
             reset();
-            skip(posn - markPos);
-        }
-
-        public void setMarkPos(long posn) throws IOException {
-            seek(posn);
-            mark(bufSize);
-            markPos = posn;
-        }
-
-        public long getMarkPos() {
-            return markPos;
+            long toSkip = posn - markPos;
+            long result = skip(toSkip);
+            if(result < toSkip) {
+                String msg = "AppIcon: filterInputStream skipped " + String.valueOf(result);
+                msg += " bytes but it tried to skip " + String.valueOf(toSkip) + " bytes.";
+                System.out.println(msg);
+            }
         }
 
         public int readUnsignedShortX() throws IOException {
             byte[] buf = new byte[2];
             int[] is = new int[2];
-            read(buf);
+            int result = read(buf);
+            if(result == -1) throw new IOException("no data!");
             for (int i = 0; i < 2; i++) {
                 is[i] = (buf[i] + 256) % 256;
             }
@@ -562,12 +473,14 @@ public class AppIcon extends ImageIcon {
         public int readIntX() throws IOException {
             byte[] buf = new byte[4];
             int[] is = new int[4];
-            read(buf);
+            int result = read(buf);
+            if(result == -1) throw new IOException("no data!");
             for (int i = 0; i < 4; i++) {
                 is[i] = (buf[i] + 256) % 256;
             }
-            int ret = (is[3] << 24) | (is[2] << 16) | (is[1] << 8) | is[0];
-            return ret;
+
+            // ORing and Shifting 4 bytes from the buffer, into an int.
+            return (is[3] << 24) | (is[2] << 16) | (is[1] << 8) | is[0];
         }
     }
     //----------------------------------------------------------------------
@@ -585,7 +498,8 @@ public class AppIcon extends ImageIcon {
         public void readFrom(WinInputStream is) {
             try {
                 byte[] buf = new byte[4];
-                is.read(buf);
+                int result = is.read(buf);
+                if(result == -1) throw new IOException("no data!");
                 width = buf[0];
                 height = buf[1];
                 colourCount = (buf[2] + 256) % 256;
@@ -598,7 +512,6 @@ public class AppIcon extends ImageIcon {
                 valid = true;
             } catch (IOException ioe) {
                 valid = false;
-                return;
             }
         }
 

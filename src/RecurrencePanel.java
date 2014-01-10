@@ -34,21 +34,11 @@ public class RecurrencePanel extends JPanel implements
 
     private boolean blnHandleItems;
 
-    // Variables declaration
-    private JPanel contentPane;
-    //-----
-    private JPanel pnlInterval;
     //-----
     private JLabel lblStartDate;
     private JRadioButton rbtnNone;
-    private JPanel pnlNone;
-    //-----
-    private JLabel jLabel1;
     private JRadioButton rbtnDay;
     private JTextField txtfDayInterval;
-    private JPanel pnlDay;
-    //-----
-    private JLabel jLabel3;
     private JRadioButton rbtnWeek;
     private JCheckBox chkboxSunday;
     private JCheckBox chkboxMonday;
@@ -58,28 +48,18 @@ public class RecurrencePanel extends JPanel implements
     private JCheckBox chkboxFriday;
     private JCheckBox chkboxSaturday;
     private JTextField txtfWeekInterval;
-    private JPanel pnlWeek;
-    //-----
-    private JLabel jLabel5;
-    private JLabel jLabel6;
     private JRadioButton rbtnMonth;
     private JTextField txtfMonthInterval;
     private JComboBox comboxMonth;
-    private JPanel pnlMonth;
     //-----
     private JRadioButton rbtnYear;
     private JComboBox comboxYear;
-    private JPanel pnlYear;
     //-----
     private JPanel pnlEnd;
     //-----
     private JRadioButton rbtnForever;
-    private JPanel jPanel15;
-    //-----
-    private JLabel jLabel8;
     private JRadioButton rbtnStopAfter;
     private JTextField txtfStopAfter;
-    private JPanel jPanel16;
     //-----
     private JLabel lblStopBy;
     private JRadioButton rbtnStopBy;
@@ -129,31 +109,6 @@ public class RecurrencePanel extends JPanel implements
         c.setBounds(x, y, width, height);
         container.add(c);
     } // end addComponent
-
-    //-------------------------------------------------------
-    // Method Name: compressPattern
-    //
-    public static String compressPattern(String s) {
-        String strPattern = "";
-        if (s.contains("first")) strPattern += "1";
-        else if (s.contains("second")) strPattern += "2";
-        else if (s.contains("third")) strPattern += "3";
-        else if (s.contains("fourth")) strPattern += "4";
-        else if (s.contains("last")) strPattern += "L";
-
-        if (s.contains("Sunday")) strPattern += "Su";
-        else if (s.contains("Monday")) strPattern += "Mo";
-        else if (s.contains("Tuesday")) strPattern += "Tu";
-        else if (s.contains("Wednesday")) strPattern += "We";
-        else if (s.contains("Thursday")) strPattern += "Th";
-        else if (s.contains("Friday")) strPattern += "Fr";
-        else if (s.contains("Saturday")) strPattern += "Sa";
-        else if (s.contains("weekend")) strPattern += "we";
-        else if (s.contains("weekday")) strPattern += "wb";
-        else if (s.contains("day")) strPattern += "da";
-
-        return strPattern;
-    } // end compressPattern
 
 
     public void focusGained(FocusEvent e) {
@@ -224,6 +179,7 @@ public class RecurrencePanel extends JPanel implements
         // Examine the user-selected recurrence pattern.
         if (Character.isDigit(strMonthPattern.charAt(4))) {
             // If the pattern is the simple numeric, then we are done.
+            assert true;
         } else if (strMonthPattern.toLowerCase().contains("weekend")) {
             // System.out.println("generalized - weekend");
             // Now set the calendar to the first one in this month -
@@ -434,20 +390,20 @@ public class RecurrencePanel extends JPanel implements
      * to retrieve your design properly in future, before revising this method.
      */
     private void initializeComponent() {
-        contentPane = this.getContentPane();
+        JPanel contentPane = this.getContentPane();
         //-----
-        pnlInterval = new JPanel();
+        JPanel pnlInterval = new JPanel();
         //-----
         lblStartDate = new JLabel();
         rbtnNone = new JRadioButton();
-        pnlNone = new JPanel();
+        JPanel pnlNone = new JPanel();
         //-----
-        jLabel1 = new JLabel();
+        JLabel jLabel1 = new JLabel();
         rbtnDay = new JRadioButton();
         txtfDayInterval = new JTextField();
-        pnlDay = new JPanel();
+        JPanel pnlDay = new JPanel();
         //-----
-        jLabel3 = new JLabel();
+        JLabel jLabel3 = new JLabel();
         rbtnWeek = new JRadioButton();
         chkboxSunday = new JCheckBox();
         chkboxMonday = new JCheckBox();
@@ -457,28 +413,28 @@ public class RecurrencePanel extends JPanel implements
         chkboxFriday = new JCheckBox();
         chkboxSaturday = new JCheckBox();
         txtfWeekInterval = new JTextField();
-        pnlWeek = new JPanel();
+        JPanel pnlWeek = new JPanel();
         //-----
-        jLabel5 = new JLabel();
-        jLabel6 = new JLabel();
+        JLabel jLabel5 = new JLabel();
+        JLabel jLabel6 = new JLabel();
         rbtnMonth = new JRadioButton();
         txtfMonthInterval = new JTextField();
         comboxMonth = new JComboBox();
-        pnlMonth = new JPanel();
+        JPanel pnlMonth = new JPanel();
         //-----
         rbtnYear = new JRadioButton();
         comboxYear = new JComboBox();
-        pnlYear = new JPanel();
+        JPanel pnlYear = new JPanel();
         //-----
         pnlEnd = new JPanel();
         //-----
         rbtnForever = new JRadioButton();
-        jPanel15 = new JPanel();
+        JPanel jPanel15 = new JPanel();
         //-----
-        jLabel8 = new JLabel();
+        JLabel jLabel8 = new JLabel();
         rbtnStopAfter = new JRadioButton();
         txtfStopAfter = new JTextField();
-        jPanel16 = new JPanel();
+        JPanel jPanel16 = new JPanel();
         //-----
         lblStopBy = new JLabel();
         rbtnStopBy = new JRadioButton();

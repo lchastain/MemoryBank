@@ -14,10 +14,10 @@
 // Tree Selection events - valueChanged.
 // TodoListManager Apply - TodoListHandler$actionPerformed.
 //
-// Management of todo lists was developed first, long before management
+// Management of 'to do' lists was developed first, long before management
 //   of search results.  The two methodologies are different, and the
 //   search methodology may be more efficient - consider a 
-//   rewrite of the todo list approach.
+//   rewrite of the 'to do' list approach.
 
 import java.awt.Component;
 import java.awt.Color;
@@ -61,17 +61,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     private static JMenu menuFile;
     private static JMenu menuFileSearchResult;
     private static JMenu menuFileTodo;
-    private static JMenu menuHelp;
     private static JMenu menuViewEvent;
     private static JMenu menuViewDate;
 
-    //-------------------------------------------------------------------
-    // These declarations are only needed so that the command-line
-    //   javac -Xlint MemoryBank.java will read the .java files for the
-    //   corresponding classes and in doing so, find additional
-    //   classes in those files, in advance of compiling other
-    //   .java files that reference them.
-    protected NoteComponent nc;            // NoteData
     protected SearchResultComponent src;   // SearchResultData
     protected ThreeMonthColumn tmc;        // DateSelection (interface)
     // If private, Eclipse would complain that they are not being used.
@@ -170,7 +162,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         menuViewDate = new JMenu("View");
         menuViewDate.add(new JMenuItem("Today"));
 
-        menuHelp = new JMenu("Help");
+        JMenu menuHelp = new JMenu("Help");
         menuHelp.add(new JMenuItem("Contents"));
         menuHelp.add(new JMenuItem("About"));
 
@@ -422,7 +414,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         // Remove the results file
         File f = new File(node.strFileName);
-        if (f.exists()) f.delete();
+        if (f.exists()) {
+            if(!f.delete()) System.out.println("Failed to remove " + node.strFileName);
+        }
 
         removeSearchNode(node);
     } // end closeSearchResult
@@ -443,8 +437,8 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("Log");
         theRootNode = trunk;
 
-        DefaultMutableTreeNode branch = null;
-        DefaultMutableTreeNode leaf = null;
+        DefaultMutableTreeNode branch;
+        DefaultMutableTreeNode leaf;
         TreeNode[] pathToRoot;
 
         leaf = new DefaultMutableTreeNode("Upcoming Events");
@@ -545,7 +539,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         leaf = new DefaultMutableTreeNode("Icon Manager");
         trunk.add(leaf);
-        intRowCounter++;
+        //intRowCounter++;
 
         // Restore previous search results, if any.
         if (treeOpts.searchResults != null) {
@@ -617,18 +611,19 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         MemoryBank.dbg("Scanning " + theDir.getName());
 
         File theFiles[] = theDir.listFiles();
+        assert theFiles != null;
         int howmany = theFiles.length;
         MemoryBank.debug("\t\tFound " + howmany + " data files");
         MemoryBank.debug("Level " + level);
 
         boolean goLook;
-        for (int i = 0; i < howmany; i++) {
+        for (File theFile1 : theFiles) {
             goLook = false;
-            String theFile = theFiles[i].getName();
-            if (theFiles[i].isDirectory()) {
+            String theFile = theFile1.getName();
+            if (theFile1.isDirectory()) {
                 if (theFile.equals("Archives")) continue;
                 if (theFile.equals("icons")) continue;
-                exportDataDir(theFiles[i], level + 1);
+                exportDataDir(theFile1, level + 1);
             } else {
                 if (theFile.equals("UpcomingEvents")) goLook = true;
                 if (theFile.endsWith(".todolist")) goLook = true;
@@ -637,7 +632,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 if ((theFile.startsWith("Y")) && (level > 0)) goLook = true;
             } // end if / else if
 
-            if (goLook) exportDataFile(theFiles[i]);
+            if (goLook) exportDataFile(theFile1);
         }//end for i
     }//end exportDataDir
 
@@ -773,6 +768,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 if (ois != null) ois.close();
                 if (fis != null) fis.close();
             } catch (IOException ioe) {
+                System.out.println("Exception: " + ioe.getMessage());
             } // end try/catch
         }//end try/catch
 
@@ -797,7 +793,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     //------------------------------------------------------
     private void loadOpts() {
         Exception e = null;
-        FileInputStream fis = null;
+        FileInputStream fis;
         TreeOptions tmp;
 
         String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "tree.options";
@@ -835,7 +831,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
 
     private void manageMenus(String strMenuType) {
-        String s = strMenuType;
 
         // Set the default of having the 'File' menu
         //   only; let the specific cases
@@ -851,26 +846,26 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         menuViewEvent.setVisible(false);
         menuViewDate.setVisible(false);
 
-        if (s.equals("Day Notes")) { // Day Notes
+        if (strMenuType.equals("Day Notes")) { // Day Notes
             menuEditDay.setVisible(true);
             menuViewDate.setVisible(true);
-        } else if (s.equals("Month Notes")) { // Month Notes
+        } else if (strMenuType.equals("Month Notes")) { // Month Notes
             menuEditMonth.setVisible(true);
             menuViewDate.setVisible(true);
-        } else if (s.equals("Month View")) { // Month View
+        } else if (strMenuType.equals("Month View")) { // Month View
             menuViewDate.setVisible(true);
-        } else if (s.equals("Year View")) { // Year View
+        } else if (strMenuType.equals("Year View")) { // Year View
             menuViewDate.setVisible(true);
-        } else if (s.equals("Search Result")) { // Search Results
+        } else if (strMenuType.equals("Search Result")) { // Search Results
             menuFile.setVisible(false);
             menuFileSearchResult.setVisible(true);
             menuViewDate.setVisible(true); // Temporary; should go away.
-        } else if (s.equals("Year Notes")) { // Year Notes
+        } else if (strMenuType.equals("Year Notes")) { // Year Notes
             menuEditYear.setVisible(true);
             menuViewDate.setVisible(true);
-        } else if (s.equals("Upcoming Events")) { // Upcoming Events
+        } else if (strMenuType.equals("Upcoming Events")) { // Upcoming Events
             menuViewEvent.setVisible(true);
-        } else if (s.equals("To Do List")) { // A Todo List
+        } else if (strMenuType.equals("To Do List")) { // A List
             menuFile.setVisible(false);
             menuFileTodo.setVisible(true);
             menuEditTodo.setVisible(true);
@@ -956,12 +951,15 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             MemoryBank.debug("Data location is: " + MemoryBank.userDataDirPathName);
             File theDir = new File(MemoryBank.userDataDirPathName);
             File theFiles[] = theDir.listFiles();
+            assert theFiles != null;
             int howmany = theFiles.length;
             MemoryBank.debug("\t\tFound " + howmany + " data files");
-            for (int i = 0; i < howmany; i++) {
-                String theFile = theFiles[i].getName();
-                if (theFiles[i].isFile()) {
-                    if (theFile.endsWith(".sresults")) theFiles[i].delete();
+            for (File theFile1 : theFiles) {
+                String theFile = theFile1.getName();
+                if (theFile1.isFile()) {
+                    if (theFile.endsWith(".sresults")) {
+                        if(!theFile1.delete()) System.out.println("Failed to remove " + theFile);
+                    }
                 } // end if
             } // end for
 
@@ -1012,23 +1010,19 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     //   be set to null; otherwise it should be that properties object.
     //--------------------------------------------------------------
     private int saveNoteData(File theFile) {
-        int index = 0;
 
         try {
             FileOutputStream fos = new FileOutputStream(theFile);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            if (index == 0) {
-                // Some NoteGroups have a 'properties' object as
-                //   their first item in the file.
-                if (ob1kenoby != null) {
-                    oos.writeObject(ob1kenoby);
-                    ob1kenoby = null;
-                } // end if
+            // Some NoteGroups have a 'properties' object as
+            //   their first item in the file.
+            if (ob1kenoby != null) {
+                oos.writeObject(ob1kenoby);
+                ob1kenoby = null;
             } // end if
 
             for (NoteData tempData : noteDataVector) {
                 oos.writeObject(tempData);
-                index++;
             }//end for i
             oos.flush();
             oos.close();
@@ -1099,21 +1093,22 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         MemoryBank.dbg("Scanning " + theDir.getName());
 
         File theFiles[] = theDir.listFiles();
+        assert theFiles != null;
         int howmany = theFiles.length;
         MemoryBank.debug("\t\tFound " + howmany + " data files");
         boolean goLook;
         Date dateNoteDate;
         MemoryBank.debug("Level " + level);
 
-        for (int i = 0; i < howmany; i++) {
-            String theFile = theFiles[i].getName();
-            if (theFiles[i].isDirectory()) {
+        for (File theFile1 : theFiles) {
+            String theFile = theFile1.getName();
+            if (theFile1.isDirectory()) {
                 if (theFile.equals("Archives")) continue;
                 if (theFile.equals("icons")) continue;
-                scanDataDir(theFiles[i], level + 1);
+                scanDataDir(theFile1, level + 1);
             } else {
                 goLook = true;
-                dateNoteDate = null;
+                //dateNoteDate = null;
                 if (theFile.equals("Goals")) {
                     if (!spTheSearchPanel.searchGoals()) {
                         goLook = false;
@@ -1138,7 +1133,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
                 // Check the Note date, possibly filter out based on 'when'.
                 if (goLook) {
-                    dateNoteDate = AppUtil.getDateFromFilename(theFiles[i]);
+                    dateNoteDate = AppUtil.getDateFromFilename(theFile1);
                     if (dateNoteDate != null) {
                         if (!spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
                     } // end if
@@ -1151,14 +1146,14 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 //   because the last mod to ANY note in the file CANNOT
                 //   be later than the last mod to the file itself.
                 if (goLook) {
-                    Date dateLastMod = new Date(theFiles[i].lastModified());
+                    Date dateLastMod = new Date(theFile1.lastModified());
                     if (spTheSearchPanel.getLastModSetting() == SearchPanel.AFTER) {
                         if (!spTheSearchPanel.filterLastMod(dateLastMod)) goLook = false;
                     } // end if
                 } // end if
 
                 if (goLook) {
-                    searchDataFile(theFiles[i]);
+                    searchDataFile(theFile1);
                 } // end if
             } // end if
         }//end for i
@@ -1181,7 +1176,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //----------------------------------------------------------------
         // The 'fixit' mechanism -
         //----------------------------------------------------------------
-        boolean madeChange = false;
         // A search will not normally make a change to the data.  However,
         //   this search mechanism has evolved from earlier MemoryBank versions
         //   that were themselves evolving and in the process, sometimes
@@ -1190,16 +1184,19 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //   the next, as the MemoryBank program continues to evolve.  To use,
         //   simply detect whatever changes are needed (the 'if' condition),
         //   then make the changes and set the flag to true.
-//    for(NoteData tempNoteData : noteDataVector) {
-//      if( some condition, if not ALL ) {
-//        <change the data>
-//        madeChange = true;
-//      } // end if
-//    } // end for
+        // This code will remain here but disabled in a comment block, until needed.
+        /* * /
+        boolean madeChange = false;
+        for (NoteData tempNoteData : noteDataVector) {
+            if (some condition,if not ALL){
+                <change the data >
+                        madeChange = true;
+            } // end if
+        } // end for
 
         // Later, after one or more complete searches have run without
-        //   seeing either of the printouts below, the entire 'for' loop
-        //   above may be commented out until it is needed again.
+        //   seeing either of the printouts below, this entire section
+        //   may be commented out until it is needed again.
         if (madeChange) {
             int result = saveNoteData(dataFile);
             if (result == 0)
@@ -1210,6 +1207,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             }//end else
         }//end if
         //----------------------------------------------------------------
+        /* */
 
         // Now get on with the search -
         for (NoteData ndTemp : noteDataVector) {
@@ -1516,6 +1514,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                             Thread.sleep(100);
                         } // end while
                     } catch (Exception e) {
+                        System.out.println("Exception: " + e.getMessage());
                     }
 
                     // Then kill it.
@@ -1527,7 +1526,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
 
     private void treeSelectionChanged(TreePath tp) {
-        String strSelectionType = ""; // used in menu management
+        String strSelectionType; // used in menu management
 
         // Obtain a reference to the new selection.
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
