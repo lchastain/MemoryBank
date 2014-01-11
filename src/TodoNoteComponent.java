@@ -48,14 +48,13 @@ public class TodoNoteComponent extends NoteComponent {
     public static ImageIcon todo_wait;
     public static ImageIcon todo_query;
     public static ImageIcon todo_obe;
-    private static PopHandler popHandler;
 
 
     static {
         //-----------------------------------
         // Add to the base class popup menu.
         //-----------------------------------
-        popHandler = new PopHandler(); // This is our own, local handler.
+        PopHandler popHandler = new PopHandler();
         miClearPriority = popup.add("Clear Priority");
         miClearPriority.addActionListener(popHandler);
 
@@ -125,6 +124,7 @@ public class TodoNoteComponent extends NoteComponent {
         super.clear();
         if (pbThePriorityButton != null) pbThePriorityButton.clear();
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
+        initialized = true;  // We don't want to make a new one..
     } // end clear
 
 

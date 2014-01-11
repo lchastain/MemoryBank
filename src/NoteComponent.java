@@ -61,7 +61,6 @@ public class NoteComponent extends JPanel {
     protected static Border redBorder;
     protected static Border highBorder;
     protected static Border lowBorder;
-    private static PopHandler popHandler;
     protected static JPopupMenu popup;
 
     // This is a workaround for the restriction on
@@ -91,7 +90,7 @@ public class NoteComponent extends JPanel {
         //-----------------------------------
         // Create the popup menus.
         //-----------------------------------
-        popHandler = new PopHandler();
+        PopHandler popHandler = new PopHandler();
 
         popup = new JPopupMenu();
         popup.setFocusable(false);
