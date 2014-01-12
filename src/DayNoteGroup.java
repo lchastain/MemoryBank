@@ -51,13 +51,6 @@ public class DayNoteGroup extends CalendarNoteGroup
     // Set by other NoteGroups (Event, Todo)
     public static boolean blnNoteAdded;
 
-    // This declaration is only needed so that the command-line
-    //   javac -Xlint MemoryBank.java will read the DayNoteComponent.java
-    //   file to get the DayNoteComponent class, and in doing so,
-    //   find the DayNoteData class that it also contains.
-    protected DayNoteComponent dnc;
-    // If private, Eclipse would complain that it's not being used.
-
     static {
         // Create the window title
         dayTitle = new JLabel();
@@ -144,7 +137,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     public static void loadDefaults() {
         String FileName = MemoryBank.userDataDirPathName + File.separatorChar + defaultFileName;
         Exception e = null;
-        FileInputStream fis = null;
+        FileInputStream fis;
         String tmp = null;
 
         try {
@@ -223,6 +216,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
         if (s.equals("XXX")) {
+            System.out.print(""); // To avoid the IJ complaint about an empty 'if'.
         } else if (s.equals("-")) {
             s = "Click here to see previous day";
         } else if (s.equals("+")) {

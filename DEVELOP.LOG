@@ -13,6 +13,8 @@ single deliberately irrelevant (and therefore empty) 'if' block.  This prompted 
 back and reuse my 'no-op' solution but after spending about an hour to track it down, what I found
 is that I never had one; I had done a rewrite so as to not need it.  That is probably the needed
 solution for the new such cases I am finding during the 'greening' continuation.
+1153 Embedded data classes removed from NoteComponent, DayNoteComponent, and an unnecessary
+declaration that was made only to control compile order, was removed.
 
 1/11/2014 1131 - Continuing to rescrub the SCRs.  May have fixed the 'duplicate/lost to-do
 item after a clear' issue; checked in a one-liner and will see.  Moved all current 'maintenance'
