@@ -1,0 +1,93 @@
+Development notes for MemoryBank - record of roadblocks, accomplishments, and
+DESIGN DECISIONs (upper-cased in text below for a quick search).
+(If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
+
+
+
+1/12/2014 0926 - The effort this morning has been to see if there is any downside to pulling
+NoteData out of NoteComponent; the reasons originally given for having the two classes in one
+file are seeming increasingly invalid, and upcoming architectural changes will be better supported
+if the data is separated from the visualization.  In the process of doing this, much more 'greening'
+is being done, and I ran across another case of finding a long sequence of 'else if's following a
+single deliberately irrelevant (and therefore empty) 'if' block.  This prompted me to want to go
+back and reuse my 'no-op' solution but after spending about an hour to track it down, what I found
+is that I never had one; I had done a rewrite so as to not need it.  That is probably the needed
+solution for the new such cases I am finding during the 'greening' continuation.
+
+1/11/2014 1131 - Continuing to rescrub the SCRs.  May have fixed the 'duplicate/lost to-do
+item after a clear' issue; checked in a one-liner and will see.  Moved all current 'maintenance'
+issues to major or minor problems after better defining that category.
+
+1/10/2014 0942 - Took a look at the recurrence panel on an XP running Windows L&F, and it is good.
+However, running the 'default', it is not.  This means:  We now need to handle different OSs AND
+different L&Fs.  Maybe there is a framework that I can use for that, like web apps have?  After
+research, short answer is NO; it simply does not (can not?) exist.  Next best thing: develop with
+the UI portions as interfaces, provide a different implementation for each and detect/switch the
+interface depending on the OS and other factors.
+1046 After looking over the SCRs spreadsheet (and adding analysis for a couple of them, including
+the nefarious 'duplicate or dropped' to-do items), I want/need to reconsider the overall architecture:
+Of course I want this app to run everywhere and look great, but the 'cost' of trying to get there
+from the current state seems too high.  As long as the app has as many problems as it does and I
+am the only user, it seems that I should concentrate on the easiest track for me and just fix all
+issues and add all new functionality first, using the platform/UI I am already working with but
+converting to interfaces wherever the possibility for that is found.  When the app is
+more ready for prime-time, it would then have at least one deliverable version, and the next phase
+of work would all be towards going cross-platform, only.
+
+1/9/2014 1002 - Finished 'greening' many classes, including the program Main and the AppTree.  Then
+while looking at xlint complaints, saw output from the RecurrencePanel (events) so went there to see
+how it functions - the L&F is all off (mostly too short containers for text labels), and verified
+this is also the case when running from the older jar file.  Suspecting that this is a Win7 issue
+and that XP may be ok; need to see it on whitey, but will put a copy over to selofain for future
+reference.  This seems like a good point to make the next snapshot - the first rev after the rename.
+1205 Just noticed that the global rename of 'log' to 'Memory Bank' also affected the SCRs.  That might
+actually be ok except for the last two, which came from 'clog' and were addressing the naming
+problems.  Restored those two from older copies, but now will update and resolve, anyway.
+
+1/8/2014 0448 - The first rev of the new data location approach will not stand up to running the app
+from a new .jar file if the jar is colocated with the dev code, because then it would use the dev
+data and not the 'good' data loc.  Working on this..
+0552 - Took a sidetrack to nail down questions on the swing.properties file - yes, it is still
+needed and it IS still an installation issue.  While Windows 7 does not support a Win XP L&F,
+we never developed for that one anyway, so the 'basic' / 'classic' Windows L&F CAN still be
+specified, and it does look better, IMO.  Need to continue to consider it, so even if the
+'InstallIssues.txt' file goes away, keep the info from it, somewhere.  But then, with regard to
+the data naming and location issue, now adding more notes to that file anyway, so it is less
+likely to 'go away'.
+0631 As much as I liked the idea of running the 'installed' version right out of the dev loc,
+and after considering keeping it that way by using program arguments, decided to leave the
+data location decision as-is, and go back to having a separate 'installation' of the app in a
+different location, where it does not have the appData subdirectory so it will revert to the
+'official' data.
+0652 So what remains on this is to choose a better name for the 'official' data directory,
+and to continue fixing/changing the name from 'log' to 'mbank'.  Next up: the jar file and
+name of the 'official' data.  Did those.
+But to explain the reason for having 'appData' (dev env) named differently than 'mbankData'
+(production) - just don't want to ever think that data that came from the dev side needs to be
+preserved (even if it does, because in that case I should have put it on the 'production' side
+either in the first place, or shortly after it was created).
+0844 So now - the initial goals of the current effort have all been met:
+1.  Resume the dev env and convert to Intellij
+2.  Rename the program (and revisit deployment methods and locations)
+3.  Rename the data (must not be the same as the app)
+And we even got an extra:  can now have dev data, separate of production data.
+Next:  clear out the stragglers - any class with its name starting in 'Log' - should get a
+name change.
+But first - I want to take the 'Better Programmer' test..    and it wasn't pretty.
+1344 So back to it - class renamings started, and found the 'missing about' graphic cause: the
+'about.gif' is not there!  Just copied the last one to a dateless name, to fix.  As
+for how it HAS been working - probably there was one in the 'log' under Program Files, but
+as for finding it in the source - it was not even in the one from 2011, so at some point
+before that I must have renamed it to the latest dated one, and didn't see a break because
+I wasn't running from a dev env location.
+And apparently - I haven't really run from a dev location since 2008; back when I originally
+created the about.gif file and put it into the production 'log' folder but not into the
+development 'images' folder other than the one with the date in the name.
+1403 Renamings all done with apparent success.  Now I want to make a new splash screen and
+'about' gif; the previous one is waaay obe.
+1852 Basic redesign is done; one font (and the overall background) needs tweaks.
+2144 did those (after a long break; it didn't take that long).
+Next:  clean up warnings from IJ and xlint; green-up the code as much as possible.
+
+1/7/2014 - Cleared all older notes; moving forward with the new program name.
+Next step: work on 'pub', and establishing a new name for the user data repo.

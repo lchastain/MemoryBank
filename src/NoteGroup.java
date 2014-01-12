@@ -57,11 +57,6 @@ public abstract class NoteGroup extends JPanel {
     protected static final int ASCENDING = 0;
     protected static final int DESCENDING = 1;
 
-    // Sorting behavior when there is no sort key.
-    protected static final int TOP = 0;
-    protected static final int BOTTOM = 1;
-    protected static final int STAY = 2;
-
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
@@ -253,11 +248,7 @@ public abstract class NoteGroup extends JPanel {
         vectNoteData.addElement(nd);
 
         // Write the file
-        if (saveData(theFilename, vectNoteData, objProperties) == vectNoteData.size()) {
-            return true;
-        } else {
-            return false;
-        } // end if note
+        return saveData(theFilename, vectNoteData, objProperties) == vectNoteData.size();
     } // end addNote
 
 
@@ -530,6 +521,7 @@ public abstract class NoteGroup extends JPanel {
                 if (ois != null) ois.close();
                 if (fis != null) fis.close();
             } catch (IOException ioe) {
+                System.out.println("Exception: " + ioe.getMessage());
             } // end try/catch
         } // end try/catch
 
@@ -598,7 +590,6 @@ public abstract class NoteGroup extends JPanel {
             System.out.println("ems = " + ems);
             JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
-            return;
         } // end if
     } // end loadGroup
 
@@ -825,6 +816,7 @@ public abstract class NoteGroup extends JPanel {
                 if (oos != null) oos.close();
                 if (fos != null) fos.close();
             } catch (IOException ioe) {
+                System.out.println("Exception: " + ioe.getMessage());
             } // end try/catch
         } // end try/catch
 
@@ -1080,12 +1072,6 @@ public abstract class NoteGroup extends JPanel {
     } // end shortName
 
 
-    // Needs double-threading in order to animate the gif.
-    public void showWorkingDialog(boolean b) {
-        AppTree.showWorkingDialog(b);
-    } // end showWorkingDialog
-
-
     protected void sortLastMod(int direction) {
 
         // Preserve current interface changes before sorting.
@@ -1203,7 +1189,7 @@ public abstract class NoteGroup extends JPanel {
 
         public int compare(NoteData nd1, NoteData nd2) {
             Calendar calOween = Calendar.getInstance();
-            calOween.set(1987, 10, 30);
+            calOween.set(1987, Calendar.OCTOBER, 30);
 
             Date d1, d2;
 
@@ -1224,7 +1210,6 @@ public abstract class NoteGroup extends JPanel {
 
     class NoteStringComparator implements Comparator<NoteData> {
         int direction;
-        int whenNoKey;
 
         NoteStringComparator(int d) {
             direction = d;

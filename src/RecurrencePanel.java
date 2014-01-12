@@ -50,10 +50,10 @@ public class RecurrencePanel extends JPanel implements
     private JTextField txtfWeekInterval;
     private JRadioButton rbtnMonth;
     private JTextField txtfMonthInterval;
-    private JComboBox comboxMonth;
+    private JComboBox<String> comboxMonth;
     //-----
     private JRadioButton rbtnYear;
-    private JComboBox comboxYear;
+    private JComboBox<String> comboxYear;
     //-----
     private JPanel pnlEnd;
     //-----
@@ -419,11 +419,11 @@ public class RecurrencePanel extends JPanel implements
         JLabel jLabel6 = new JLabel();
         rbtnMonth = new JRadioButton();
         txtfMonthInterval = new JTextField();
-        comboxMonth = new JComboBox();
+        comboxMonth = new JComboBox<String>();
         JPanel pnlMonth = new JPanel();
         //-----
         rbtnYear = new JRadioButton();
-        comboxYear = new JComboBox();
+        comboxYear = new JComboBox<String>();
         JPanel pnlYear = new JPanel();
         //-----
         pnlEnd = new JPanel();
@@ -691,7 +691,7 @@ public class RecurrencePanel extends JPanel implements
     public boolean isRecurrenceValid() {
         boolean blnIsIt = true;
 
-        int intInterval = 0;
+        int intInterval;
         String strTmp;
 
         // Day interval
@@ -812,7 +812,7 @@ public class RecurrencePanel extends JPanel implements
             return; // Do not End
         } // end if
 
-        int intInterval = 0;
+        int intInterval;
         String strTmp;
 
         if (rbtnStopAfter.isSelected()) {
@@ -832,6 +832,7 @@ public class RecurrencePanel extends JPanel implements
                 // System.out.println("Stop By is null");
                 return;  // Stop By not specified
             } else {
+                System.out.print("");
                 // System.out.println("Stop By: " + dateStopBy);
             }
         } // end if
@@ -1218,6 +1219,7 @@ public class RecurrencePanel extends JPanel implements
     // Just for JFrameBuilder -
     public void setTitle(String s) {
         // ignore, for now.
+        System.out.println("RecurrencePanel.setTitle was called with: " + s);
     } // end setTitle
 
 
@@ -1548,7 +1550,9 @@ public class RecurrencePanel extends JPanel implements
                 try {
                     dateStopBy = sdf.parse(strRecurEnd);
                     rbtnStopBy.setSelected(true);
-                } catch (Exception pe) {
+                } catch (Exception pe)
+                {
+                    System.out.println("Exception: " + pe.getMessage());
                 }
             }
         } // end if there is an end recurrence range

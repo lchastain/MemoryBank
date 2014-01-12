@@ -11,7 +11,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Point;
 import java.io.*;
 import java.util.Date;
@@ -223,11 +222,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end getProperties
 
 
-    public boolean getShowPriority() {
-        return myVars.showPriority;
-    } // end getShowPriority
-
-
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
@@ -325,9 +319,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             //   anymore since todo items are only loaded into pre-existing
             //   NoteComponents and not actually created.
             try {
+                assert ois != null;
                 ois.close();
                 fis.close();
             } catch (Exception ex) {
+                System.out.println("Exception: " + ex.getMessage());
             }
         } catch (IOException ioe) {
             e = ioe;
@@ -510,31 +506,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     protected void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
         showComponent((TodoNoteComponent) nc, noteIsActive);
     } // end reportComponentChange
-
-
-    //--------------------------------------------------------------
-    // Method Name: saveProperties
-    //
-    //--------------------------------------------------------------
-    protected boolean saveProperties(ObjectOutputStream oos)
-            throws IOException {
-
-        Frame jf = JOptionPane.getFrameForComponent(this);
-        myVars.frameSize = jf.getSize();
-        // System.out.println("Saving Frame size: " + myVars.frameSize);
-        myVars.numberOfItems = lastVisibleNoteIndex;
-        myVars.todoPos = jf.getLocation();
-        myVars.column1Label = listHeader.getColumnHeader(1);
-        myVars.column2Label = listHeader.getColumnHeader(2);
-        myVars.column3Label = listHeader.getColumnHeader(3);
-        myVars.columnOrder = listHeader.getColumnOrder();
-        System.out.println("Todo Column order = " + myVars.columnOrder);
-
-        // Write out the TodoListProperties
-        oos.writeObject(myVars);
-
-        return true;
-    } // end saveProperties
 
 
     //-----------------------------------------------------------------

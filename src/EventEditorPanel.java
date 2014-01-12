@@ -98,10 +98,9 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private JLabel lblNotes;
     private JCheckBox chkboxRetainNote;
     private JTextField txtfDurationValue;
-    private JComboBox comboxLocation;
+    private JComboBox<String> comboxLocation;
     private JComboBox jComboBox2;           // replaced
-    private JComboBox comboxDurationUnits;
-    private JTextArea jTextArea1;           // replaced
+    private JComboBox<String> comboxDurationUnits;
     private JScrollPane spaneNotes;
     private JButton btnRecurrence;
     private JButton btnDateFormat;
@@ -152,7 +151,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         btnRecurrence.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                btnRecurrence_actionPerformed(null);
+                btnRecurrence_actionPerformed();
             }
         });
 
@@ -210,7 +209,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     }
 
 
-    public void btnRecurrence_actionPerformed(ActionEvent ae) {
+    public void btnRecurrence_actionPerformed() {
         showRecurrenceDialog();
     }
 
@@ -319,7 +318,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
             if (!(blnSD || blnST || blnED || blnET)) {
                 doit = true;
             }
-            if (doit) end.setDuration(tmpLong.longValue());
+            if (doit) end.setDuration(tmpLong);
         }
         //-------------------------------------------------------------
 
@@ -561,10 +560,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         lblNotes = new JLabel();
         chkboxRetainNote = new JCheckBox();
         txtfDurationValue = new JTextField();
-        comboxLocation = new JComboBox();
+        comboxLocation = new JComboBox<String>();
         jComboBox2 = new JComboBox();
-        comboxDurationUnits = new JComboBox();
-        jTextArea1 = new JTextArea();
+        comboxDurationUnits = new JComboBox<String>();
+        JTextArea jTextArea1 = new JTextArea();
         spaneNotes = new JScrollPane();
         btnRecurrence = new JButton();
         btnDateFormat = new JButton();
@@ -752,6 +751,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
             while (true) {  // The expected exit is via EOFException
                 loc = (String) ois.readObject();
+                if(loc == null) break; // Added this line to avoid an IJ complaint about 'while'
                 locations.addElement(loc);
                 MemoryBank.debug("  loaded subject: " + loc);
             } // end while
@@ -778,6 +778,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
             } // end try/catch
         } catch (IOException ioe) {
             e = ioe;
+        } catch (Exception ex) {
+            e = ex;
         } // end try/catch
 
         if (e != null) {
@@ -937,7 +939,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         rectTmp = comboxLocation.getBounds();
         remove(comboxLocation);
         loadLocations();
-        comboxLocation = new JComboBox(locations);
+        comboxLocation = new JComboBox<String>(locations);
         comboxLocation.setFont(Font.decode("Serif-bold-12"));
         comboxLocation.setMaximumRowCount(maxLocations);
         comboxLocation.setEditable(true);

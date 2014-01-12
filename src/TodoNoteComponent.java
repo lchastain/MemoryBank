@@ -18,7 +18,6 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -462,11 +461,11 @@ public class TodoNoteComponent extends NoteComponent {
         //---------------------------------------------------------
         // FocusListener methods
         //---------------------------------------------------------
-        public void focusGained(FocusEvent e) {
+        public void focusGained() {
             transferFocus();
         }
 
-        public void focusLost(FocusEvent e) {
+        public void focusLost() {
         }
 
         //---------------------------------------------------------
@@ -527,7 +526,7 @@ public class TodoNoteComponent extends NoteComponent {
                 if (Priority < myNoteGroup.getMaxPriority()) Priority++;
                 else Priority = 0;
                 leftClicked = false;
-            } else if (rightClicked) {
+            } else {
                 if (Priority > 0) Priority--;
                 else Priority = myNoteGroup.getMaxPriority();
                 rightClicked = false;
@@ -554,8 +553,6 @@ public class TodoNoteComponent extends NoteComponent {
             super();
             addMouseListener(this);
 
-//      theStatus = myTodoNoteData.getStatus();
-
             setOpaque(true);
             showStatusIcon();
         } // end StatusButton constructor
@@ -564,11 +561,6 @@ public class TodoNoteComponent extends NoteComponent {
             setIcon(null);
             setStatus(TodoNoteData.TODO_STARTED); // 0
         } // end clear
-
-
-        public int getStatus() {
-            return theStatus;
-        }
 
 
         public Dimension getPreferredSize() {

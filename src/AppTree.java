@@ -630,7 +630,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 if ((theFile.startsWith("D")) && (level > 0)) goLook = true;
                 if ((theFile.startsWith("M")) && (level > 0)) goLook = true;
                 if ((theFile.startsWith("Y")) && (level > 0)) goLook = true;
-            } // end if / else if
+            } // end if / else
 
             if (goLook) exportDataFile(theFile1);
         }//end for i

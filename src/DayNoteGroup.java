@@ -181,30 +181,6 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     //-------------------------------------------------------------------
-    // Method Name: loadNoteComponent
-    //
-    // In this case, a DayNoteComponent.
-    //-------------------------------------------------------------------
-//  public boolean loadNoteComponent(ObjectInputStream ois, int i) 
-//    throws EOFException, ClassNotFoundException, IOException  {
-//
-//    DayNoteComponent tempNote;
-//    DayNoteData tempNoteData;
-//
-//    tempNoteData = (DayNoteData) ois.readObject();
-//
-//    // AppUtil.localDebug(true);
-//    MemoryBank.debug("Loaded index " + i + " ID: " + tempNoteData.getNoteId());
-//    tempNote = (DayNoteComponent) groupNotesListPanel.getComponent(i);
-//    tempNote.setNoteData(tempNoteData);
-//    tempNote.setVisible(true);
-//    // AppUtil.localDebug(false);
-//
-//    return true;
-//  } // end loadNoteComponent
-
-
-    //-------------------------------------------------------------------
     // Method Name: makeNewNote
     //
     //-------------------------------------------------------------------
@@ -222,8 +198,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
 
-        if (s.equals("XXX")) {
-        } else if (s.equals("-")) {
+        if (s.equals("-")) {
             setOneBack();
         } else if (s.equals("+")) {
             setOneForward();

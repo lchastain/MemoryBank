@@ -33,9 +33,6 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.Serializable;
-import java.rmi.server.UID;
-import java.util.*;     // Date, + ?
 
 import javax.swing.*;
 import javax.swing.event.*;   // DocumentListener
@@ -272,7 +269,7 @@ public class NoteComponent extends JPanel {
         noteTextField.resetToolTip(getNoteData());
 //    noteTextField.transferFocusUpCycle();  // new.. 3/19/2008
         // Commented out the above line, 7/20/2008, to clear the
-        // problem of a todo item being deselected as soon as
+        // problem of a to-do item being deselected as soon as
         // a date for it on the TMC was selected.  Need to see if
         // the problem(s) that it tried to fix are now back....
 
@@ -384,7 +381,7 @@ public class NoteComponent extends JPanel {
         //   to data objects.  If you 'get' data from the component into a
         //   local variable and then later clear the component, you also
         //   cleared the data in your local variable because you never had
-        //   a separatate copy of the data object, just the reference to it.
+        //   a separate copy of the data object, just the reference to it.
 
         // So - copy the data objects.
         if (nd1 != null) nd1 = new NoteData(nd1);
@@ -481,14 +478,6 @@ public class NoteComponent extends JPanel {
             });  // end of adding a KeyListener
         } // end constructor
 
-
-        public String getExtText() {
-            return getNoteData().getExtendedNoteString();
-        }
-
-        public String getSubject() {
-            return getNoteData().getSubjectString();
-        }
 
         // By sizing the text field to a smaller width than its container,
         //   it does not go beyond the viewable area,
@@ -740,121 +729,11 @@ public class NoteComponent extends JPanel {
 // after a while.        
             } else {
                 System.out.println(s);
-            } // end if/else if
+            } // end if/else
             ncTheNoteComponent.setNoteChanged();
         } // end actionPerformed
     } // end class PopHandler
 
 } // end class NoteComponent
 
-
-class NoteData implements Serializable {
-    private static final long serialVersionUID = 5299342314918199917L;
-
-    private String strNoteId;
-    private Date dateLastMod;
-    protected String noteString;
-    protected String subjectString;
-    protected String extendedNoteString;
-    protected int extendedNoteWidthInt;
-    protected int extendedNoteHeightInt;
-
-    public NoteData() {
-        super();  // whatever happens for a generic object...
-
-        strNoteId = new UID().toString();
-        dateLastMod = new Date();
-        clear();
-    } // end constructor
-
-
-    // The copy constructor (clone)
-    public NoteData(NoteData ndCopy) {
-        this();  // Provides a unique strNoteId
-        this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
-        this.extendedNoteString = ndCopy.extendedNoteString;
-        this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
-        this.noteString = ndCopy.noteString;
-        this.subjectString = ndCopy.subjectString;
-        this.dateLastMod = ndCopy.dateLastMod;
-    } // end constructor
-
-
-    protected void clear() {
-        noteString = "";
-
-        // initialize subject to null to indicate that a default should
-        // be used.  A value of "" should stay "".
-        subjectString = null;
-
-        extendedNoteString = "";
-        extendedNoteWidthInt = 300;
-        extendedNoteHeightInt = 200;
-    } // end clear
-
-    public int getExtendedNoteHeightInt() {
-        return extendedNoteHeightInt;
-    }
-
-    public String getExtendedNoteString() {
-        return extendedNoteString;
-    }
-
-    public int getExtendedNoteWidthInt() {
-        return extendedNoteWidthInt;
-    }
-
-    protected Date getNoteDate() {
-        return null;
-    }
-
-    public String getNoteId() {
-        return strNoteId;
-    }
-
-    public String getNoteString() {
-        return noteString;
-    }
-
-    public Date getLastModDate() {
-        return dateLastMod;
-    }
-
-    public String getSubjectString() {
-        return subjectString;
-    }
-
-    public boolean hasText() {
-        if (!noteString.trim().equals("")) return true;
-        if (!extendedNoteString.trim().equals("")) return true;
-        return false;
-    } // end hasText()
-
-    public void setExtendedNoteHeightInt(int val) {
-        extendedNoteHeightInt = val;
-    }
-
-
-    public void setExtendedNoteString(String val) {
-        extendedNoteString = val;
-        dateLastMod = new Date();
-    }
-
-
-    public void setExtendedNoteWidthInt(int val) {
-        extendedNoteWidthInt = val;
-    }
-
-
-    public void setNoteString(String value) {
-        noteString = value;
-        dateLastMod = new Date();
-    }
-
-
-    public void setSubjectString(String value) {
-        subjectString = value;
-        dateLastMod = new Date();
-    }
-} // end class NoteData
 
