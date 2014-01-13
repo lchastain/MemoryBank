@@ -45,7 +45,6 @@ public class YearView extends JPanel implements ActionListener {
     private YearBox yearBox;        // BottomPanel constructor
     private static SimpleDateFormat sdf;
     private AppTree parent;
-    private MonthCanvas mc;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-16");
@@ -239,7 +238,7 @@ public class YearView extends JPanel implements ActionListener {
         hasDataArray = AppUtil.findDataDays(year);
 
         for (int i = 0; i < 12; i++) {
-            mc = (MonthCanvas) yearPanel.getComponent(i);
+            MonthCanvas mc = (MonthCanvas) yearPanel.getComponent(i);
             cal.set(year, i, 1);
             mc.recalc(cal);
         } // end for i
@@ -334,8 +333,8 @@ public class YearView extends JPanel implements ActionListener {
             JPanel q = new JPanel();
             q.setLayout(new GridLayout(1, weekNames.length));
             q.setBackground(Color.gray);
-            for (int i = 0; i < weekNames.length; i++) {
-                l = new JLabel(weekNames[i], JLabel.CENTER);
+            for (String weekName : weekNames) {
+                l = new JLabel(weekName, JLabel.CENTER);
                 l.setForeground(Color.white);
                 l.setBackground(Color.gray);
                 l.addMouseListener(new MouseAdapter() {
@@ -367,7 +366,6 @@ public class YearView extends JPanel implements ActionListener {
 
         public void recalc(GregorianCalendar cal) {
             DayLabel tmp;
-            int offset = 0;
             myDate = cal.getTime();
 
             // Get the day of the week of the first day.
@@ -386,7 +384,6 @@ public class YearView extends JPanel implements ActionListener {
                 //---------------------------------------------------
                 // 'blank' days in the first row, before the 1st of the month.
                 if (i < dayOfWeek) {
-                    offset++;
                     ((DayLabel) p2.getComponent(i - 1)).setText("");
                     continue;
                 } // end if
@@ -542,13 +539,13 @@ public class YearView extends JPanel implements ActionListener {
     class YearBox extends JPanel implements ItemListener {
         private static final long serialVersionUID = 1555749356147914633L;
 
-        JComboBox y1;
-        JComboBox y2;
+        JComboBox<String> y1;
+        JComboBox<String> y2;
 
         public YearBox(String init) {
             super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-            y1 = new JComboBox();
-            y2 = new JComboBox();
+            y1 = new JComboBox<String>();
+            y2 = new JComboBox<String>();
 
             String[] nums = {
                     "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",

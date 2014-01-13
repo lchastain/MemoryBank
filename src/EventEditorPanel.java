@@ -99,7 +99,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private JCheckBox chkboxRetainNote;
     private JTextField txtfDurationValue;
     private JComboBox<String> comboxLocation;
-    private JComboBox jComboBox2;           // replaced
+    private JComboBox<String> jComboBox2;  // placeholder; to be replaced
     private JComboBox<String> comboxDurationUnits;
     private JScrollPane spaneNotes;
     private JButton btnRecurrence;
@@ -561,7 +561,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         chkboxRetainNote = new JCheckBox();
         txtfDurationValue = new JTextField();
         comboxLocation = new JComboBox<String>();
-        jComboBox2 = new JComboBox();
+        jComboBox2 = new JComboBox<String>(); // Needed to hold this place because Subjects not yet loaded.
         comboxDurationUnits = new JComboBox<String>();
         JTextArea jTextArea1 = new JTextArea();
         spaneNotes = new JScrollPane();
@@ -621,11 +621,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         comboxLocation.addItem("Office");
         comboxLocation.addItem("Sweden");
         comboxLocation.setEditable(true);
-        // 
-        // jComboBox2 
-        // 
-        jComboBox2.setToolTipText("Select (or enter) a ");
-        // 
+        //
         // comboxDurationUnits 
         // 
         comboxDurationUnits.addItem("Unknown");
@@ -822,7 +818,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
             addSubject("Meeting");
         } // end if no subjects were loaded.
 
-        // Replace jComboBox 2 with the subjectChooser
+        // Replace jComboBox2 with the subjectChooser
         rectTmp = jComboBox2.getBounds();
         remove(jComboBox2);
         addComponent(contentPane, subjectChooser, rectTmp.x, rectTmp.y, rectTmp.width, rectTmp.height);

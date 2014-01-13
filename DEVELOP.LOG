@@ -13,8 +13,14 @@ single deliberately irrelevant (and therefore empty) 'if' block.  This prompted 
 back and reuse my 'no-op' solution but after spending about an hour to track it down, what I found
 is that I never had one; I had done a rewrite so as to not need it.  That is probably the needed
 solution for the new such cases I am finding during the 'greening' continuation.
+Follow-up to that:  the next best thing to a no-op may be: System.out.print("");
 1153 Embedded data classes removed from NoteComponent, DayNoteComponent, and an unnecessary
 declaration that was made only to control compile order, was removed.
+Next: clean up remaining 'xlint' issues, focus on L&F problems seen as a result of Win7 vs XP,
+and classic vs default.  Do not believe that these are listed in the wishlist or the SCRs, but
+it 'feels' like this is the area of greatest need.  This may be the beginning of the
+rearchitecting effort.  One specific: bring back the query and listing of available L&F.
+2145 - Finished cleaning out the 'xlint' errors, a good bit more greening.
 
 1/11/2014 1131 - Continuing to rescrub the SCRs.  May have fixed the 'duplicate/lost to-do
 item after a clear' issue; checked in a one-liner and will see.  Moved all current 'maintenance'

@@ -30,7 +30,7 @@ public class TextPage extends Component {
     private static final long serialVersionUID = 6610176903300017933L;
 
     // This flag is separate and listed first, for obvious reasons.
-    private static boolean debugPrint = false; // true;
+    protected static boolean debugPrint = false; // true;
 
     private static double screenResHorizontal;
     private static double screenResVertical;
@@ -52,20 +52,6 @@ public class TextPage extends Component {
 
     // Current Date and Time, for header
     private String todaynow;
-
-    // The areas in which the printer cannot print.
-    //  How much - left/right or top/bottom
-    private int topPageMargin;
-    private int bottomPageMargin;
-    private int leftPageMargin;
-    private int rightPageMargin;
-
-    // Internal margin between boxes and text.
-    private int margin = 10;
-
-    // Bounds which includes the header, box, and text.
-    // On screen, is viewablePageRect; on paper, is printablePageRect.
-    private Rectangle usablePageRect; // so - refer to it as usablePageRect.
 
     // The bounds of the box.
     private Rectangle boxRect;
@@ -275,11 +261,11 @@ public class TextPage extends Component {
             dbp("Screen Graphics - pageDimension: " + pageSize);
         } // end if
 
-        margin = (int) (.142857142857 * resHorizontal);
-        topPageMargin = (int) (.25 * resVertical);
-        leftPageMargin = (int) (.25 * resHorizontal);
-        rightPageMargin = (int) (.25 * resHorizontal);
-        bottomPageMargin = (int) (.5 * resVertical);
+        int margin = (int) (.142857142857 * resHorizontal);
+        int topPageMargin = (int) (.25 * resVertical);
+        int leftPageMargin = (int) (.25 * resHorizontal);
+        int rightPageMargin = (int) (.25 * resHorizontal);
+        int bottomPageMargin = (int) (.5 * resVertical);
 
         // Debug printing -
         dbp("Using horizontal resolution: " + resHorizontal);
@@ -291,8 +277,10 @@ public class TextPage extends Component {
         dbp("Right Page Margin: " + rightPageMargin);
         dbp("Bottom Page Margin: " + bottomPageMargin);
 
+        // Bounds which includes the header, box, and text.
+        // On screen, is viewablePageRect; on paper, is printablePageRect.
         // Parameters: x, y, width, height
-        usablePageRect = new Rectangle(leftPageMargin, topPageMargin,
+        Rectangle usablePageRect = new Rectangle(leftPageMargin, topPageMargin,
                 pageSize.width - (leftPageMargin + rightPageMargin),
                 pageSize.height - (topPageMargin + bottomPageMargin));
         dbp("Usable Page Rectangle: " + usablePageRect);
@@ -315,12 +303,15 @@ public class TextPage extends Component {
         // The metrics may have changed so recompute the broken lines.
         brokenLines = new Vector<String>();
         for (int i = 0; i < lines.size(); i++) {
-            s = (String) lines.elementAt(i);
+            s = lines.elementAt(i);
             stringWidth = textFontMetrics.stringWidth(s);
 
             dbp("[" + s + "]");
             dbp("stringWidth = " + stringWidth);
-            boolean moreInfo = false;
+            // With the 'true' setting commented out, this remained 'always false' and
+            // so then IJ has complaints.  For now, disabling it altogether; later -
+            // need a rewrite or remove entirely.
+            //boolean moreInfo = false;
 
             if (stringWidth > lineMax) {
                 int lastSpacePos = s.lastIndexOf(" ");
@@ -336,17 +327,15 @@ public class TextPage extends Component {
 // check for spaces and keep dropping them off until a better
 //  break point is reached.
 
-                if (moreInfo) dbp("Trying:");
-
                 while (stringWidth > lineMax) {
                     leftovers = s.substring(s.length() - 1) + leftovers;
                     s = s.substring(0, s.length() - 1);
                     stringWidth = textFontMetrics.stringWidth(s);
-                    if (moreInfo) {
-                        dbp("  string: " + "[" + s + "]");
-                        dbp("  leftovers: " + "[" + leftovers + "]");
-                        dbp("  new width: " + stringWidth);
-                    } // end if
+//                    if (moreInfo) {
+//                        dbp("  string: " + "[" + s + "]");
+//                        dbp("  leftovers: " + "[" + leftovers + "]");
+//                        dbp("  new width: " + stringWidth);
+//                    } // end if
                 } // end while
                 dbp("stringWidth after break = " + stringWidth);
 

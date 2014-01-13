@@ -44,7 +44,7 @@ public class ExtendedNoteComponent extends JPanel {
     private static final int maxSubjects = 20;
 
     // Laid out differently in extended classes.
-    protected JComboBox subjectChooser;
+    protected JComboBox<String> subjectChooser;
     protected JTextArea body;
 
     private Vector<String> subjects;
@@ -86,7 +86,7 @@ public class ExtendedNoteComponent extends JPanel {
         FileName = MemoryBank.userDataDirPathName + File.separatorChar + s;
 
         loadSubjects(); // There may or may not be any.
-        subjectChooser = new JComboBox(subjects);
+        subjectChooser = new JComboBox<String>(subjects);
         subjectChooser.setEditable(true);
         subjectChooser.setFont(Font.decode("Serif-bold-12"));
         // Note: too large of font here causes display problems.
@@ -210,6 +210,7 @@ public class ExtendedNoteComponent extends JPanel {
 
             while (true) {  // The expected exit is via EOFException
                 subj = (String) ois.readObject();
+                if(subj == null) break; // Added this line to avoid an IJ complaint about 'while'
                 subjects.addElement(subj);
                 // MemoryBank.debug("  loaded subject: " + subj);
             } // end while
@@ -225,7 +226,7 @@ public class ExtendedNoteComponent extends JPanel {
             // System.out.println("End of file reached!");
             try {
                 if (null != ois) ois.close();
-                if (null != fis) fis.close();
+                fis.close();
             } catch (IOException ioe) {   // This one's a throw-away.
                 ioe.printStackTrace(); // not handled but not (entirely) ignored...
             } // end try/catch

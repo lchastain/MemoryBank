@@ -42,10 +42,6 @@ public class SearchPanel extends JPanel {
     //-------------------------------------------------------------
 
 
-    // JFrameBuilder Variables declaration section
-    //-------------------------------------------------------------
-    // Variables declaration
-    private JPanel contentPane;
     //-----
     private JCheckBox chkboxGoals;
     private JCheckBox chkboxDayNotes;
@@ -56,47 +52,38 @@ public class SearchPanel extends JPanel {
     private JPanel pnlWhere;
     //-----
     private JPanel pnlKeywords;
-    //-----
-    private JLabel jLabel3;
     private JLabel lblOpenParen1;
     private JCheckBox chkboxNot1;
-    private JComboBox comboxSearchText1;
-    private JPanel pnlKeyword1;
+    private JComboBox<String> comboxSearchText1;
     //-----
     private JLabel lblOpenParen2;
     private JLabel lblCloseParen1;
     private JRadioButton rbtnAnd1;
     private JRadioButton rbtnOr1;
     private JCheckBox chkboxNot2;
-    private JComboBox comboxSearchText2;
-    private JPanel pnlKeyword2;
+    private JComboBox<String> comboxSearchText2;
     //-----
     private JLabel lblCloseParen2;
     private JRadioButton rbtnAnd2;
     private JRadioButton rbtnOr2;
     private JCheckBox chkboxNot3;
-    private JComboBox comboxSearchText3;
-    private JPanel pnlKeyword3;
+    private JComboBox<String> comboxSearchText3;
     //-----
     private JPanel pnlWhen;
     //-----
     private JPanel pnlLastMod;
     //-----
     private JLabel lblWhenSelected;
-    private JPanel jPanel10;
     //-----
     private JRadioButton rbtnModBefore;
     private JRadioButton rbtnModBetween;
     private JRadioButton rbtnModAfter;
-    private JPanel jPanel12;
     //-----
     private JRadioButton rbtnWhenAfter;
     private JRadioButton rbtnWhenBefore;
     private JRadioButton rbtnWhenBetween;
-    private JPanel jPanel15;
     //-----
     private JLabel lblModSelected;
-    private JPanel jPanel17;
     //-----
     // End of variables declaration
 
@@ -136,9 +123,9 @@ public class SearchPanel extends JPanel {
     //------------------------------------------------------------
     private boolean checkAllFalse(Boolean blnC1, Boolean blnC2, Boolean blnC3) {
 
-        if (blnC1 != null) if (blnC1 == true) return false;
-        if (blnC2 != null) if (blnC2 == true) return false;
-        if (blnC3 != null) if (blnC3 == true) return false;
+        if (blnC1 != null) if (blnC1) return false;
+        if (blnC2 != null) if (blnC2) return false;
+        if (blnC3 != null) if (blnC3) return false;
 
         if (blnC1 == null)
             if (blnC2 == null)
@@ -160,19 +147,19 @@ public class SearchPanel extends JPanel {
     private boolean checkFalseCombo(Boolean blnC1, Boolean blnC2, Boolean blnC3) {
         boolean rv = false;
 
-        if ((blnC1 != null) && (blnC1 == false)) {
+        if ((blnC1 != null) && (!blnC1)) {
             if ((rbtnAnd1.isSelected() && blnC2 != null)) return true;   // C1 && C2
             if (blnC2 == null) {
                 if ((rbtnAnd2.isSelected() && blnC3 != null)) return true; // C1 && C3
             } // end if C2 is null
         } // end if C1 is false
 
-        if ((blnC2 != null) && (blnC2 == false)) {
+        if ((blnC2 != null) && (!blnC2)) {
             if ((rbtnAnd1.isSelected() && blnC1 != null)) return true; // C1 && C2
             if ((rbtnAnd2.isSelected() && blnC3 != null)) return true; // C2 && C3
         } // end if C1 is false
 
-        if ((blnC3 != null) && (blnC3 == false)) {
+        if ((blnC3 != null) && (!blnC3)) {
             if (blnC2 == null) {
                 if ((rbtnAnd2.isSelected() && blnC1 != null)) return true; // C1 && C3
             } // end if C2 is null
@@ -282,9 +269,9 @@ public class SearchPanel extends JPanel {
         //   NOT is checked and the word is not found, it is true.  We
         //   are using the object vs the primitive type, so that we can
         //   also make use of a third possible value - null.
-        Boolean blnC1 = true;  // 'C' is short for Condition
-        Boolean blnC2 = true;
-        Boolean blnC3 = true;
+        Boolean blnC1;  // 'C' is short for Condition
+        Boolean blnC2;
+        Boolean blnC3;
 
         // First, we evaluate the three individual conditions.
         //------------------------------------------------------
@@ -346,17 +333,20 @@ public class SearchPanel extends JPanel {
             // This test covered the remaining 12 cases without parens.
         } else { // 12 more (with parens) to go -
             if (getParens() == PARENS1) { // 3 cases
-                if (rbtnAnd2.isSelected() && (blnC3 == false)) return false; // P1aC3f
+                if (rbtnAnd2.isSelected() && (blnC3 != null && !blnC3)) return false; // P1aC3f
             } // end if
 
             if (getParens() == PARENS2) { // 3 cases
-                if ((blnC1 == false) && rbtnAnd1.isSelected()) return false; // P2C1fa
+                if ((blnC1 != null && !blnC1) && rbtnAnd1.isSelected()) return false; // P2C1fa
             } // end if
 
             // The remaining 6 cases apply whether they are P1 or P2
             // So now we break them out according to AND/OR -
             // (When we test for AND, we know the other is an OR, or else
             //   we wouldn't have the parens in the first place).
+            assert blnC1 != null;
+            assert blnC2 != null;
+            assert blnC3 != null;
             if (rbtnAnd1.isSelected()) { // 3 cases
                 if (blnC1 && !blnC2 && !blnC3) return false; // Ptafof (2)
                 if (!blnC1 && blnC2 && !blnC3) return false; // Pfatof (1)
@@ -760,13 +750,14 @@ public class SearchPanel extends JPanel {
     //   one place to search; otherwise false.
     //----------------------------------------------------------
     public boolean hasWhere() {
-        if (chkboxGoals.isSelected()) return true;
-        if (chkboxDayNotes.isSelected()) return true;
-        if (chkboxMonthNotes.isSelected()) return true;
-        if (chkboxYearNotes.isSelected()) return true;
-        if (chkboxEvents.isSelected()) return true;
-        if (chkboxTodoLists.isSelected()) return true;
-        return false;
+        boolean retVal = false;
+        if (chkboxGoals.isSelected()) retVal = true;
+        if (chkboxDayNotes.isSelected()) retVal =  true;
+        if (chkboxMonthNotes.isSelected()) retVal =  true;
+        if (chkboxYearNotes.isSelected()) retVal =  true;
+        if (chkboxEvents.isSelected()) retVal =  true;
+        if (chkboxTodoLists.isSelected()) retVal = true;
+        return retVal;
     } // end hasWhere
 
 
@@ -778,7 +769,7 @@ public class SearchPanel extends JPanel {
      * to retrieve your design properly in future, before revising this method.
      */
     private void initializeComponent() {
-        contentPane = this.getContentPane();
+        JPanel contentPane = this.getContentPane();
         //----- 
         chkboxGoals = new JCheckBox();
         chkboxDayNotes = new JCheckBox();
@@ -790,46 +781,46 @@ public class SearchPanel extends JPanel {
         //----- 
         pnlKeywords = new JPanel();
         //----- 
-        jLabel3 = new JLabel();
+        JLabel jLabel3 = new JLabel();
         lblOpenParen1 = new JLabel();
         chkboxNot1 = new JCheckBox();
-        comboxSearchText1 = new JComboBox();
-        pnlKeyword1 = new JPanel();
+        comboxSearchText1 = new JComboBox<String>();
+        JPanel pnlKeyword1 = new JPanel();
         //----- 
         lblOpenParen2 = new JLabel();
         lblCloseParen1 = new JLabel();
         rbtnAnd1 = new JRadioButton();
         rbtnOr1 = new JRadioButton();
         chkboxNot2 = new JCheckBox();
-        comboxSearchText2 = new JComboBox();
-        pnlKeyword2 = new JPanel();
+        comboxSearchText2 = new JComboBox<String>();
+        JPanel pnlKeyword2 = new JPanel();
         //----- 
         lblCloseParen2 = new JLabel();
         rbtnAnd2 = new JRadioButton();
         rbtnOr2 = new JRadioButton();
         chkboxNot3 = new JCheckBox();
-        comboxSearchText3 = new JComboBox();
-        pnlKeyword3 = new JPanel();
+        comboxSearchText3 = new JComboBox<String>();
+        JPanel pnlKeyword3 = new JPanel();
         //----- 
         pnlWhen = new JPanel();
         //----- 
         pnlLastMod = new JPanel();
         //----- 
         lblWhenSelected = new JLabel();
-        jPanel10 = new JPanel();
+        JPanel jPanel10 = new JPanel();
         //----- 
         rbtnModBefore = new JRadioButton();
         rbtnModBetween = new JRadioButton();
         rbtnModAfter = new JRadioButton();
-        jPanel12 = new JPanel();
+        JPanel jPanel12 = new JPanel();
         //----- 
         rbtnWhenAfter = new JRadioButton();
         rbtnWhenBefore = new JRadioButton();
         rbtnWhenBetween = new JRadioButton();
-        jPanel15 = new JPanel();
+        JPanel jPanel15 = new JPanel();
         //----- 
         lblModSelected = new JLabel();
-        jPanel17 = new JPanel();
+        JPanel jPanel17 = new JPanel();
         //----- 
 
         // 
@@ -907,7 +898,7 @@ public class SearchPanel extends JPanel {
         comboxSearchText1.setEditable(true);
         comboxSearchText1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                comboxSearchText1_actionPerformed(e);
+                comboxSearchText1_actionPerformed();
             }
 
         });
@@ -945,7 +936,7 @@ public class SearchPanel extends JPanel {
         comboxSearchText2.setEditable(true);
         comboxSearchText2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                comboxSearchText2_actionPerformed(e);
+                comboxSearchText2_actionPerformed();
             }
 
         });
@@ -981,7 +972,7 @@ public class SearchPanel extends JPanel {
         comboxSearchText3.setEditable(true);
         comboxSearchText3.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                comboxSearchText3_actionPerformed(e);
+                comboxSearchText3_actionPerformed();
             }
 
         });
@@ -1069,13 +1060,13 @@ public class SearchPanel extends JPanel {
         // 
         // SearchPanel 
         // 
-        this.setTitle("SearchPanel - extends JPanel");
+        this.setTitle();
         this.setLocation(new Point(16, 0));
         this.setSize(new Dimension(443, 337));
     } // end initializeComponent
 
 
-    private void comboxSearchText1_actionPerformed(ActionEvent e) {
+    private void comboxSearchText1_actionPerformed() {
         System.out.println("\ncomboxSearchText1_actionPerformed(ActionEvent e) called.");
 
         Object o = comboxSearchText1.getSelectedItem();
@@ -1084,7 +1075,7 @@ public class SearchPanel extends JPanel {
 
     }
 
-    private void comboxSearchText2_actionPerformed(ActionEvent e) {
+    private void comboxSearchText2_actionPerformed() {
         System.out.println("\ncomboxSearchText2_actionPerformed(ActionEvent e) called.");
 
         Object o = comboxSearchText2.getSelectedItem();
@@ -1093,7 +1084,7 @@ public class SearchPanel extends JPanel {
 
     }
 
-    private void comboxSearchText3_actionPerformed(ActionEvent e) {
+    private void comboxSearchText3_actionPerformed() {
         System.out.println("\ncomboxSearchText3_actionPerformed(ActionEvent e) called.");
 
         Object o = comboxSearchText3.getSelectedItem();
@@ -1280,7 +1271,7 @@ public class SearchPanel extends JPanel {
     }
 
     // Just for JFrameBuilder -
-    public void setTitle(String s) {
+    public void setTitle() {
     }
 
     private void showDateDialog(String s, int numSelections) {

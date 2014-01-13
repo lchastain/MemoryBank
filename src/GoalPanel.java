@@ -17,7 +17,7 @@ public class GoalPanel extends JPanel {
 
     // Variables declaration
     private JTextField txtfGoalText;
-    private JList lstGoals;
+    private JList<String> lstGoals;
     private JScrollPane jspGoals;
     private JTextArea txtaPlan;
     private JScrollPane jspPlan;
@@ -46,11 +46,11 @@ public class GoalPanel extends JPanel {
      * to retrieve your design properly in future, before revising this method.
      */
     private void initializeComponent() {
-        ArrayList<Object> arr;
+        ArrayList<String> arr;
 
         jLabel1 = new JLabel();
         txtfGoalText = new JTextField();
-        lstGoals = new JList();
+        lstGoals = new JList<String>();
         jspGoals = new JScrollPane();
         txtaPlan = new JTextArea();
         jspPlan = new JScrollPane();
@@ -76,11 +76,15 @@ public class GoalPanel extends JPanel {
         // 
         // lstGoals 
         // 
-        arr = new ArrayList<Object>();
-//        arr.add("List"); 
-//        arr.add("of"); 
-//       arr.add("goals"); 
-        lstGoals.setListData(arr.toArray());
+        arr = new ArrayList<String>();
+        arr.add("List");
+        arr.add("of");
+        arr.add("goals");
+
+        String[] array = new String[arr.size()];
+        arr.toArray(array); // fill the array
+
+        lstGoals.setListData(array);
         lstGoals.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 lstGoals_valueChanged(e);
