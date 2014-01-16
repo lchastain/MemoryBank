@@ -311,6 +311,9 @@ public abstract class NoteGroup extends JPanel {
     // Provides an interface for the modification of elements of
     //   the extended note component, and returns true if there
     //   was a change; false otherwise.
+    //
+    // Note that the 'tempwin' used here was developed long ago;
+    // it is pre-JOptionPane code.
     //---------------------------------------------------------------
     protected boolean editExtendedNoteComponent(NoteData nd) {
         JDialog tempwin;

@@ -81,7 +81,6 @@ public class MemoryBank {
     static {
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
-            //SwingUtilities.updateComponentTreeUI(theFrame);
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
             e.printStackTrace();
@@ -695,7 +694,7 @@ public class MemoryBank {
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
 
-        // Temporary fon now - info about L&F
+        // Temporary for now - info about L&F
         String laf = UIManager.getSystemLookAndFeelClassName();
         System.out.println("SystemLookAndFeelClassName: " + laf);
         // SystemLookAndFeelClassName: com.sun.java.swing.plaf.windows.WindowsLookAndFeel

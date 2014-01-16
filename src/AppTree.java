@@ -49,6 +49,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L;
 
     public static AppTree ltTheTree;
+    private JFrame theFrame;
 
     private static final int LIST_GONE = -3; // used in constr, createTree
 
@@ -61,6 +62,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     private static JMenu menuFile;
     private static JMenu menuFileSearchResult;
     private static JMenu menuFileTodo;
+    private static JMenu menuView;
     private static JMenu menuViewEvent;
     private static JMenu menuViewDate;
 
@@ -154,12 +156,17 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         menuEditTodo.addSeparator();
         menuEditTodo.add(new JMenuItem("Set Options..."));
 
+        menuView = new JMenu("View");
+        menuView.add(new JMenuItem("Set Look and Feel..."));
+
         menuViewEvent = new JMenu("View");
         // menuViewEvent.add(new JMenuItem("Date Format"));
         menuViewEvent.add(new JMenuItem("Refresh"));
+        menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
 
         menuViewDate = new JMenu("View");
         menuViewDate.add(new JMenuItem("Today"));
+        menuViewDate.add(new JMenuItem("Set Look and Feel..."));
 
         JMenu menuHelp = new JMenu("Help");
         menuHelp.add(new JMenuItem("Contents"));
@@ -173,6 +180,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         mb.add(menuEditMonth);
         mb.add(menuEditYear);
         mb.add(menuEditTodo);
+        mb.add(menuView);
         mb.add(menuViewEvent);
         mb.add(menuViewDate);
 
@@ -182,12 +190,15 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         // mb.setHelpMenu(menuHelp);  // Not implemented in Java 1.4.2 ...
         // Still not implemented in Java 1.5.0_03
 
+        // Initial visibility of all menu items is false.
+        // That can change in 'manageMenus'
         menuEditDay.setVisible(false);
         menuEditMonth.setVisible(false);
         menuEditTodo.setVisible(false);
         menuEditYear.setVisible(false);
         menuFileTodo.setVisible(false);
         menuFileSearchResult.setVisible(false);
+        menuView.setVisible(false);
         menuViewEvent.setVisible(false);
         menuViewDate.setVisible(false);
 
@@ -198,13 +209,14 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     } // end static
 
 
-    public AppTree(JFrame logFrame) {
+    public AppTree(JFrame aFrame) {
         super(new GridLayout(1, 0));
-        logFrame.setJMenuBar(mb);
+        theFrame = aFrame;
+        theFrame.setJMenuBar(mb);
         ltTheTree = this;
 
         // Make the 'Working...' dialog.
-        dlgWorkingDialog = new JDialog(logFrame, "Working", true);
+        dlgWorkingDialog = new JDialog(theFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
         String strWorkingIcon = MemoryBank.userDataDirPathName + File.separatorChar;
@@ -697,6 +709,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         else if (what.equals("Review...")) System.out.println("Review was selected.");
         else if (what.startsWith("Save As")) theTodoListHandler.saveAs();
         else if (what.equals("Today")) showToday();
+        else if (what.equals("Set Look and Feel...")) showPlafDialog();
         else if (what.equals("undo")) {
             String s = treeOpts.theSelection;
             if (s.equals("Day Notes")) theLogDays.recalc();
@@ -709,6 +722,36 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             AppUtil.localDebug(false);
         } // end if/else
     } // end handleMenuBar
+
+    private void showPlafDialog() {
+
+        PlafEditorPanel pep = new PlafEditorPanel();
+        int doit = JOptionPane.showConfirmDialog(
+                theFrame, pep,
+                "Select a new Look and Feel", JOptionPane.OK_CANCEL_OPTION);
+
+        if (doit == -1) return; // The X on the dialog
+        if (doit == JOptionPane.CANCEL_OPTION) return;
+
+        // This is where we would set the options...
+        //boolean blnOrigShowPriority = myVars.showPriority;
+        //myVars = to.getValues();
+
+        try {
+            UIManager.setLookAndFeel(pep.getSelectedPlaf());
+            SwingUtilities.updateComponentTreeUI(theFrame);
+            // It looks like a nullPointerException stack trace is being printed as a result of
+            // the above command, which seems to complete successfully anyway, after that.
+            // This exception is not getting trapped by the catch section below.
+            // I think it may be happening because of my implementation of the custom
+            // scrollpane (need to find/review that code).  Seems to go thru without any other
+            // trouble, tho, so we may be able to ignore this indefinitely.
+            //System.out.println("updatedComponentTreeUI"); // Shows that the above succeeded.
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            //e.printStackTrace();
+        }
+    }
 
 
     // This is a 'generic' NoteData loader that can handle the loading
@@ -831,9 +874,8 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
     private void manageMenus(String strMenuType) {
 
-        // Set the default of having the 'File' menu
-        //   only; let the specific cases
-        //   below make any needed alterations.
+        // Set the default of having the 'File' and 'View' menus only;
+        //   let the specific cases below make any needed alterations.
         //-----------------------------------------
         menuEditDay.setVisible(false);
         menuEditMonth.setVisible(false);
@@ -842,27 +884,35 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         menuFile.setVisible(true);
         menuFileTodo.setVisible(false);
         menuFileSearchResult.setVisible(false);
+        menuView.setVisible(true);
         menuViewEvent.setVisible(false);
         menuViewDate.setVisible(false);
 
         if (strMenuType.equals("Day Notes")) { // Day Notes
             menuEditDay.setVisible(true);
+            menuView.setVisible(false);
             menuViewDate.setVisible(true);
         } else if (strMenuType.equals("Month Notes")) { // Month Notes
             menuEditMonth.setVisible(true);
+            menuView.setVisible(false);
             menuViewDate.setVisible(true);
         } else if (strMenuType.equals("Month View")) { // Month View
+            menuView.setVisible(false);
             menuViewDate.setVisible(true);
         } else if (strMenuType.equals("Year View")) { // Year View
+            menuView.setVisible(false);
             menuViewDate.setVisible(true);
         } else if (strMenuType.equals("Search Result")) { // Search Results
             menuFile.setVisible(false);
             menuFileSearchResult.setVisible(true);
+            menuView.setVisible(false);
             menuViewDate.setVisible(true); // Temporary; should go away.
         } else if (strMenuType.equals("Year Notes")) { // Year Notes
             menuEditYear.setVisible(true);
+            menuView.setVisible(false);
             menuViewDate.setVisible(true);
         } else if (strMenuType.equals("Upcoming Events")) { // Upcoming Events
+            menuView.setVisible(false);
             menuViewEvent.setVisible(true);
         } else if (strMenuType.equals("To Do List")) { // A List
             menuFile.setVisible(false);

@@ -26,6 +26,7 @@ import javax.swing.text.AbstractDocument;
 
 /**
  * Summary description for EventEditorPanel
+ * It inherits a subject-management capability.
  */
 public class EventEditorPanel extends ExtendedNoteComponent {
     private static final long serialVersionUID = -7352174501774555398L;

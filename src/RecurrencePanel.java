@@ -1651,10 +1651,8 @@ public class RecurrencePanel extends JPanel implements
     } // end shuffleDays
 
 
-    //============================= Testing ================================//
-//=                                                                    =//
-//= The following main method is just for testing this class you built.=//
-//= After testing,you may simply delete it.                            =//
+//============================= Testing ================================//
+//  The following main method is just for testing this class.           //
 //======================================================================//
     public static void main(String[] args) {
         JFrame.setDefaultLookAndFeelDecorated(true);
