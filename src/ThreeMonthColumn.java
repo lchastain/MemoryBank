@@ -250,8 +250,8 @@ public class ThreeMonthColumn extends JPanel {
             JPanel head2 = new JPanel();
             head2.setLayout(new GridLayout(1, weekNames.length));
             head2.setBackground(Color.gray);
-            for (int i = 0; i < weekNames.length; i++) {
-                JLabel l = new JLabel(weekNames[i], JLabel.CENTER);
+            for (String weekName : weekNames) {
+                JLabel l = new JLabel(weekName, JLabel.CENTER);
                 l.setForeground(Color.white);
                 l.setBackground(Color.gray);
                 head2.add(l);
@@ -284,7 +284,6 @@ public class ThreeMonthColumn extends JPanel {
 
         public void recalc(GregorianCalendar mc_cal) {
             DayLabel tmp;
-            int offset = 0;
             boolean firstTime = false;  // first time?
             if (p2.getComponentCount() == 0) firstTime = true;
 
@@ -314,7 +313,6 @@ public class ThreeMonthColumn extends JPanel {
                 //---------------------------------------------------
                 // 'blank' days in the first week, before the 1st.
                 if (i < dayOfWeek) {
-                    offset++;
                     if (firstTime) p2.add(new DayLabel());
                     else ((DayLabel) p2.getComponent(i - 1)).setCal();
                     continue;
@@ -456,14 +454,6 @@ public class ThreeMonthColumn extends JPanel {
         return choice;
     } // end getChoice
 
-    // debug method...
-    public static void calPrint(Calendar pcal) {
-        System.out.print("Date:  " + pcal.get(Calendar.DAY_OF_MONTH));
-        System.out.print("\tMonth: " + pcal.get(Calendar.MONTH));
-        System.out.print("\tYear: " + pcal.get(Calendar.YEAR));
-        System.out.print("\n");
-    } // end calPrint
-
     static {
         // Initialize month names.
         monthNames = new String[]{"January", "February", "March",
@@ -480,7 +470,7 @@ public class ThreeMonthColumn extends JPanel {
         ThreeMonthColumn dc = new ThreeMonthColumn();
 
         // Just as a test of the ability to initialize to a value -
-        dc.setBaseDate(new GregorianCalendar(1999, 04, 12).getTime());
+        dc.setBaseDate(new GregorianCalendar(1999, 4, 12).getTime());
 
         dcFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
@@ -490,13 +480,19 @@ public class ThreeMonthColumn extends JPanel {
 
         // Needed to override the 'metal' L&F for Swing components.
         String laf = UIManager.getSystemLookAndFeelClassName();
+        Exception e = null;
         try {
             UIManager.setLookAndFeel(laf);
         } catch (UnsupportedLookAndFeelException ulafe) {
+            e = ulafe;
         } catch (InstantiationException iee) {
+            e = iee;
         } catch (ClassNotFoundException cnfe) {
+            e = cnfe;
         } catch (IllegalAccessException iae) {
+            e = iae;
         } // end try/catch
+        if(e != null) System.out.println("Exception: " + e.getMessage());
         SwingUtilities.updateComponentTreeUI(dc);
 
         dcFrame.add(dc);

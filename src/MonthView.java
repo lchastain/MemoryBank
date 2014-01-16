@@ -76,7 +76,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 public class MonthView extends JLayeredPane {
-    private static final long serialVersionUID = 3332621076263345245L;
+    private static final long serialVersionUID = -1L;
     // As a container, this class has only two items:
     //   a MonthCanvas and a JLabel.  Because it has no layout
     //   manager, the Bounds of both items must be set explicitly.
@@ -116,9 +116,6 @@ public class MonthView extends JLayeredPane {
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
 
-        // The default gray from a Windows platform -
-        Color defaultBackground = new Color(212, 208, 200);
-
         // Initialize month names.
         monthNames = new String[]{"January", "February", "March",
                 "April", "May", "June", "July", "August", "September",
@@ -130,7 +127,6 @@ public class MonthView extends JLayeredPane {
 
         // Create a grid for the days (6 rows, 7 columns).
         monthGrid = new JPanel(new GridLayout(6, dayNames.length));
-        monthGrid.setBackground(defaultBackground);
 
         sdf = new SimpleDateFormat();
         sdf.applyPattern("EEEE, MMMM d, yyyy");
@@ -222,6 +218,7 @@ public class MonthView extends JLayeredPane {
         FileInputStream fis = null;
         ObjectInputStream ois = null;
         DayNoteData tempDayData;
+        //noinspection MagicConstant
         MemoryBank.tempCalendar.set(year, month, day);
 
         String FileName = AppUtil.findFilename(MemoryBank.tempCalendar, "D");
@@ -272,6 +269,7 @@ public class MonthView extends JLayeredPane {
             e = ioe;
         } finally {
             try {
+                assert ois != null;
                 ois.close();
                 fis.close();
             } catch (IOException ioe) {
@@ -317,18 +315,6 @@ public class MonthView extends JLayeredPane {
         sdf.setCalendar(cal);
         choice = cal.getTime();
     } // end reset
-
-    //---------------------------------------------------------------
-    // Method Name: setHeightOffset
-    //
-    // Set heightOffset when MonthView is inside a container where
-    //   some part of the height is not available.  Ex: A tabbed pane
-    //   will report a height that includes the tab line(s), but that
-    //   portion of the area will not be available to MonthView.
-    //---------------------------------------------------------------
-    public void setHeightOffset(int h) {
-        heightOffset = h;
-    }
 
 
     public Date getChoice() {
@@ -435,8 +421,8 @@ public class MonthView extends JLayeredPane {
             JLabel l;
             head2.setLayout(new GridLayout(1, dayNames.length));
             head2.setBackground(Color.gray);
-            for (int i = 0; i < dayNames.length; i++) {
-                l = new JLabel(dayNames[i], JLabel.CENTER);
+            for (String dayName : dayNames) {
+                l = new JLabel(dayName, JLabel.CENTER);
                 l.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
 //            setChoice(cal.getTime());

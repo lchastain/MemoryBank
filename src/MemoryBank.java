@@ -79,6 +79,14 @@ public class MemoryBank {
     //   items developed here (such as the tempCalendar)
     //   without going thru the MemoryBank.main.
     static {
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+            //SwingUtilities.updateComponentTreeUI(theFrame);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         amColor = Color.blue;
         pmColor = Color.black;
         archive = false;
@@ -580,6 +588,7 @@ public class MemoryBank {
     public static void main(String[] args) {
         String s;
 
+
         // Hold our place in line, on the taskbar.
         logFrame = new JFrame("Memory Bank:");
         logFrame.setLocation(-1000, -1000);
@@ -685,6 +694,12 @@ public class MemoryBank {
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
+
+        // Temporary fon now - info about L&F
+        String laf = UIManager.getSystemLookAndFeelClassName();
+        System.out.println("SystemLookAndFeelClassName: " + laf);
+        // SystemLookAndFeelClassName: com.sun.java.swing.plaf.windows.WindowsLookAndFeel
+
 
     } // end main
 } // end class MemoryBank

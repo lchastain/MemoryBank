@@ -66,7 +66,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
     protected SearchResultComponent src;   // SearchResultData
     protected ThreeMonthColumn tmc;        // DateSelection (interface)
-    // If private, Eclipse would complain that they are not being used.
     //-------------------------------------------------------------------
 
     private JTree tree;
@@ -2444,40 +2443,6 @@ class SearchResultNode extends DefaultMutableTreeNode implements Serializable {
     }
 } // end class SearchResultNode
 
-
-//-------------------------------------------------------------------------
-// Class Name:  TreeOptions
-//
-//  The way to preserve expanded nodes, variable leaf names,
-//    current selection.
-
-// Note that although the purpose of this class is solely to preserve
-//   the state of the AppTree 'tree', it cannot be inner to AppTree because
-//   in that case while saving it would try to preserve that relationship 
-//   as well.  The result is that the save operation hangs uninterruptably
-//   and the process must be killed
-//-------------------------------------------------------------------------
-class TreeOptions implements Serializable {
-    static final long serialVersionUID = -7794718588806876785L;
-
-    boolean ViewsExpanded;
-    boolean NotesExpanded;
-    boolean TodoListsExpanded;
-    String theSelection;
-    int theSelectionRow;
-    Vector<String> todoLists;
-    SearchResultNode searchResults;
-
-    public TreeOptions() {
-        ViewsExpanded = false;
-        NotesExpanded = false;
-        TodoListsExpanded = false;
-        theSelection = null;
-        theSelectionRow = -1;
-        todoLists = new Vector<String>(0, 1);
-        searchResults = null;
-    } // end constructor
-} // end class TreeOptions
 
 interface iconKeeper {
     public abstract AppIcon getDefaultIcon();

@@ -3,6 +3,41 @@ DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
 
+1/16/2014 1057 Now:  Add the plaf to the log.options, change log.options to app.options, provide a UI
+for listing the installed plafs and making a choice.  Ensure a 'good' default is used.
+
+1/15/2014 1030 - Additional research has discovered that the 'windows' plaf looks different on
+    Windows7 when the 'Theme' is not Windows Classic.  These are two different issues; use of the
+    Swing plaf, and use of the Windows 'Theme', which apparently has an effect on the look of the
+    Swing plaf.  Prior to now, this app has relied on the system default to be 'correct', but ever
+    since the 'Metal' plaf became a default for Swing, this app has overridden it to be the 'Windows'
+    (not WindowsClassic) plaf, by leaving it at the default but placing a swing.properties file into
+    the lib folder of the JVM that runs the app, to force that default to be 'Windows'.  That worked
+    ok for Windows versions up to and including XP, but with Windows 7 Themes we are seeing problems.
+    I have found/fixed two of these problems - the 'mixed' look can be cured by using the
+    'WindowsClassic' (vs just windows) plaf in Swing, and the mixed look on the MonthView was
+    unmixed by removing the 'setBackground' that appears to no longer be needed (but once was? - need
+    to verify this by looking at the new code as it runs on XP).
+    Finally, I want to stop the use of the swing.properties file.  Did that, and removed these lines
+    from the InstallIssues file:
+Need to put a 'swing.properties' file into the lib folder of the JVM:
+(complete file is below, between the '==' lines)
+=======================================================================
+# Swing properties
+
+swing.defaultlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel
+=======================================================================
+For running the app from IntelliJ, the location is the jre\lib that
+is under the current jdk location (not the standalone jre)
+
+1/13/2014 1621 - It seems like the L&F problem comes down to two separate issues:
+  1.  Some of the Win7 UIs are mixed; seems like a win7 labels mixed with metal buttons,
+        backgrounds off-color or missing, just a strange / bad look.
+  2.  Set lib L&F - control by a switch, vs landing on a 'default'.  Especially when the
+        default must be placed in the 'swing.properties' file in the lib folder.  Need
+        a better way.
+Needs more research..   (now looks like the JTree may be going one way, while the rightPanel
+goes a different plaf.  Still investigating, but may do San Antonio tomorrow).
 
 1/12/2014 0926 - The effort this morning has been to see if there is any downside to pulling
 NoteData out of NoteComponent; the reasons originally given for having the two classes in one
