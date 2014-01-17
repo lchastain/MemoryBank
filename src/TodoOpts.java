@@ -28,7 +28,6 @@ public class TodoOpts extends JTabbedPane {
     private PriorityPanel priorityPanel;
     private printPanel pp;
     private SortPanel sp;
-    private static String ints = "0123456789";
     private TodoListProperties tlp;
 
     public TodoOpts(TodoListProperties o) {
@@ -57,12 +56,13 @@ public class TodoOpts extends JTabbedPane {
         if (userInt.length() > 2) userInt = userInt.substring(0, 2).trim();
         if (userInt.length() == 0) userInt = "0";
         digit = userInt.substring(0, 1);
-        if (ints.indexOf(digit) == -1) userInt = "0";
+        String ints = "0123456789";
+        if (!ints.contains(digit)) userInt = "0";
         if (userInt.length() == 2) {
             digit = userInt.substring(1, 2);
-            if (ints.indexOf(digit) == -1) userInt = userInt.substring(0, 1);
+            if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        tlp.maxPriority = (new Integer(userInt)).intValue();
+        tlp.maxPriority = new Integer(userInt);
 
         // Print panel
         tlp.pHeader = pp.cb1.isSelected();
@@ -78,12 +78,12 @@ public class TodoOpts extends JTabbedPane {
         if (userInt.length() > 2) userInt = userInt.substring(0, 2).trim();
         if (userInt.length() == 0) userInt = "99";
         digit = userInt.substring(0, 1);
-        if (ints.indexOf(digit) == -1) userInt = "99";
+        if (!ints.contains(digit)) userInt = "99";
         if (userInt.length() == 2) {
             digit = userInt.substring(1, 2);
-            if (ints.indexOf(digit) == -1) userInt = userInt.substring(0, 1);
+            if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        tlp.pCutoff = (new Integer(userInt)).intValue();
+        tlp.pCutoff = new Integer(userInt);
 
         tlp.lineSpace = pp.sp.getValue();
 
@@ -158,7 +158,6 @@ public class TodoOpts extends JTabbedPane {
         JCheckBox cb5;
         JCheckBox cb6;
         JCheckBox cb7;
-        JTextField tf1;
         JTextField tf2;
         spacing sp;
 

@@ -41,6 +41,7 @@ import java.io.*;      // File, InputStream, OutputStream, ...
 import java.text.*;    // SimpleDateFormat, DateFormatSymbols
 import java.util.*;    // Vector, Date
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 
 public class MemoryBank {
     //-------------------------------------------------
@@ -63,6 +64,7 @@ public class MemoryBank {
     public static boolean timing;
     public static String userDataDirPathName; // User data top-level directory 'MemoryBank'
     public static String logHome;  // For finding icons & images
+    private static AppOptions appOpts;     // saved/loaded
 
     //----------------------------------------------------------
     // Members used in more than one method but only by 'MemoryBank':
@@ -79,12 +81,31 @@ public class MemoryBank {
     //   items developed here (such as the tempCalendar)
     //   without going thru the MemoryBank.main.
     static {
+        //--------------------------------------
+        // Establish the locations for data.
+        //--------------------------------------
+        setDataLocations();
+
+        // Load the user settings
+        appOpts = new AppOptions(); // Start with default values.
+        loadOpts(); // If available, overrides defaults.
+        System.out.println("Pane separator: " + appOpts.paneSeparator);
+
+        // Set the Look and Feel
         try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+            if(appOpts.thePlaf != null) {
+                UIManager.setLookAndFeel(appOpts.thePlaf);
+            } else {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
             e.printStackTrace();
         }
+
+        // Global setting for tool tips
+        UIManager.put("ToolTip.font",
+                new FontUIResource("SansSerif", Font.BOLD, 12));
 
         amColor = Color.blue;
         pmColor = Color.black;
@@ -114,11 +135,53 @@ public class MemoryBank {
         tempCalendar.setGregorianChange(new GregorianCalendar(1752,
                 Calendar.SEPTEMBER, 14).getTime());
 
-        //--------------------------------------
-        // Establish the locations for data.
-        //--------------------------------------
-        setDataLocations();
     } // end static
+
+
+    //------------------------------------------------------
+    // Method Name: loadOpts
+    //
+    // Load the last known state of the tree, if any.  This
+    //  includes which nodes are expanded and which additional
+    //  leaves have been added.
+    //------------------------------------------------------
+    private static void loadOpts() {
+        Exception e = null;
+        FileInputStream fis;
+        AppOptions tmp;
+
+        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "app.options";
+
+        try {
+            fis = new FileInputStream(FileName);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            tmp = (AppOptions) ois.readObject();
+            appOpts = tmp;
+            ois.close();
+            fis.close();
+        } catch (ClassCastException cce) {
+            e = cce;
+        } catch (ClassNotFoundException cnfe) {
+            e = cnfe;
+        } catch (InvalidClassException ice) {
+            e = ice;
+        } catch (FileNotFoundException fnfe) {
+            // not a problem; use defaults.
+            debug("User tree options not found; using defaults");
+        } catch (EOFException eofe) {
+            e = eofe;
+        } catch (IOException ioe) {
+            e = ioe;
+        } // end try/catch
+
+        if (e != null) {
+            String ems = "Error in loading " + FileName + " !\n";
+            ems = ems + e.toString();
+            ems = ems + "\nOptions load operation aborted.";
+            JOptionPane.showMessageDialog(null,
+                    ems, "Error", JOptionPane.ERROR_MESSAGE);
+        } // end if
+    } // end loadOpts
 
 
     // Change this name - MemoryBank is not an applet.
@@ -472,7 +535,7 @@ public class MemoryBank {
         } // end if
 
         return answer;
-    } // end setLocation
+    } // end setUserDataDirPathName
 
 
   /*/----------------------------------------------------------------------
@@ -671,7 +734,7 @@ public class MemoryBank {
         //--------------------------------------
 
         update("Creating the Log Tree");
-        final AppTree appTree = new AppTree(logFrame);
+        final AppTree appTree = new AppTree(logFrame, appOpts);
         logFrame.setContentPane(appTree);
 
 
@@ -693,12 +756,6 @@ public class MemoryBank {
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
-
-        // Temporary for now - info about L&F
-        String laf = UIManager.getSystemLookAndFeelClassName();
-        System.out.println("SystemLookAndFeelClassName: " + laf);
-        // SystemLookAndFeelClassName: com.sun.java.swing.plaf.windows.WindowsLookAndFeel
-
 
     } // end main
 } // end class MemoryBank

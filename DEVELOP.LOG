@@ -2,9 +2,31 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+1/17/2014 0903 Rename of treeOpts to appOpts seems to be done; no user benefit yet but it is still
+a preparatory step to saving other items.
+0925 - feeling that a re-arch is needed with regard to the app/frame/tree - the tree should not be
+the one who is making and setting the MenuBar.  Need to break the bar out into its own class, that
+is then applied to the frame by the app.  This will simplify the appTree class and make the overall
+app easier to maintain.  Also considering - changing the 'options' class(es) to properties, to
+standardize the access and make the 'config' file human-readable.  But that may not be needed, as
+long as there is no need to change one of those vars outside of a program run.
+1116 Ok, the menubar is moved, options are loaded by the Main, and the plaf is saved/restored.
+This is a LOT of good progress but did it by taking half-steps; the MenuBar is its own class but
+the 'tree' still sets and handles it, because I now see that 'Tree' is a mis-name; that class
+does encapsulate a JTree but it is also the entire content of the JFrame, so it may not need to give
+up so much control after all.  A better name would help, tho.  And even though the Main now loads
+the options, the 'tree' still saves them.  Took a 'snapshot' of this version and put a copy over
+to selofain, to get a look at the L&Fs there.
 
 1/16/2014 1057 Now:  Add the plaf to the log.options, change log.options to app.options, provide a UI
 for listing the installed plafs and making a choice.  Ensure a 'good' default is used.
+1253 Now looking closer, I see that the log.options file was a leftover from 2006; we now have two
+different options methods - one for the tree in its own file, and one each per todolist, in the
+file for each list along with the items.  So - will defer any further changes, for now, and leave
+the initial default as WindowsClassic.
+1904 But on further thought - the tree.options really should be the app.options, and I have another
+SCR asking to keep/use the separator width, so why not do the rename and add both new options?
+Considering this; will pick it up in the morning.
 
 1/15/2014 1030 - Additional research has discovered that the 'windows' plaf looks different on
     Windows7 when the 'Theme' is not Windows Classic.  These are two different issues; use of the

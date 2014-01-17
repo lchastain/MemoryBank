@@ -8,6 +8,8 @@ import java.util.HashMap;
 // installed on the system, and allows the user to make a new selection.  The
 // calling context must make the change, if any.
 public class PlafEditorPanel extends JPanel implements ActionListener {
+    static final long serialVersionUID = 1L;
+
     private String selectedPlaf;
     private ButtonGroup bg;
     private HashMap<String, String> hm;
@@ -24,7 +26,8 @@ public class PlafEditorPanel extends JPanel implements ActionListener {
         setLayout(new GridLayout(0, 1));
 
         for (UIManager.LookAndFeelInfo lafi : lafiArray) {
-            System.out.print(lafi.getClassName() + "\t");
+            //System.out.print(lafi.getClassName() + "\t");
+            //System.out.println(lafi.getName());
             String theName = lafi.getName();
             String theClassName = lafi.getClassName();
             hm.put(theName, theClassName);
@@ -34,7 +37,6 @@ public class PlafEditorPanel extends JPanel implements ActionListener {
             if (theName.equals(currentLaf)) jrb.setSelected(true);
             bg.add(jrb);
             add(jrb);
-            System.out.println(lafi.getName());
         }
 
     }

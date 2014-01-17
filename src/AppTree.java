@@ -3,9 +3,8 @@
  * Author:  D. Lee Chastain
  ****************************************************************************/
 /**
- The primary control for the Log application; provides a menubar
- at the top, a 'tree' control on the left, and a viewing pane on
- the right
+ The primary control for the Memory Bank application; provides a menubar at
+ the top, a 'tree' control on the left, and a viewing pane on the right
  */
 
 // Quick-reference notes:
@@ -36,7 +35,6 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.*;    // JPanel, JScrollPane, Jx, Jy, Jz...
-import javax.swing.plaf.FontUIResource;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -53,19 +51,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
     private static final int LIST_GONE = -3; // used in constr, createTree
 
-    // All related to the menu bar and its menus -
-    private static JMenuBar mb;
-    private static JMenu menuEditDay;
-    private static JMenu menuEditMonth;
-    private static JMenu menuEditTodo;
-    private static JMenu menuEditYear;
-    private static JMenu menuFile;
-    private static JMenu menuFileSearchResult;
-    private static JMenu menuFileTodo;
-    private static JMenu menuView;
-    private static JMenu menuViewEvent;
-    private static JMenu menuViewDate;
-
+    private static AppMenuBar mb;
     protected SearchResultComponent src;   // SearchResultData
     protected ThreeMonthColumn tmc;        // DateSelection (interface)
     //-------------------------------------------------------------------
@@ -96,10 +82,10 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     private AppImage abbowt;
     private ViewportLayout normalLayout;
     private CenterViewportLayout centerLayout;
+    private JSplitPane splitPane;
 
     private static String ems;               // Error Message String
     private static Date currentDateChoice;
-    private static TreeOptions treeOpts;     // saved/loaded
     private TodoListHandler theTodoListHandler;
     private DefaultMutableTreeNode theRootNode;
     private DefaultMutableTreeNode nodeTodoLists;
@@ -113,107 +99,20 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     private TreePath weekViewPath;
     private TreePath upcomingEventsPath;
 
+    private AppOptions appOpts;
+
     // Used in Search / fix
     private Object ob1kenoby;
 
     private boolean blnRestoringSelection;
 
-    static {
-        menuFile = new JMenu("File");
-        menuFile.add(new JMenuItem("Search..."));
-        menuFile.add(new JMenuItem("Export"));
-        menuFile.add(new JMenuItem("Exit"));
-
-        menuFileSearchResult = new JMenu("File");
-        menuFileSearchResult.add(new JMenuItem("Close"));
-        menuFileSearchResult.add(new JMenuItem("Search..."));
-        menuFileSearchResult.add(new JMenuItem("Search these results..."));
-        menuFileSearchResult.add(new JMenuItem("Review..."));
-        menuFileSearchResult.add(new JMenuItem("Exit"));
-
-        menuFileTodo = new JMenu("File");
-        menuFileTodo.add(new JMenuItem("Search..."));
-        menuFileTodo.add(new JMenuItem("Merge..."));
-        menuFileTodo.add(new JMenuItem("Print..."));
-        menuFileTodo.add(new JMenuItem("Save As..."));
-        menuFileTodo.add(new JMenuItem("Exit"));
-
-        menuEditDay = new JMenu("Edit");
-        menuEditDay.add(new JMenuItem("undo"));
-        menuEditDay.add(new JMenuItem("Clear Day"));
-
-        menuEditMonth = new JMenu("Edit");
-        menuEditMonth.add(new JMenuItem("undo"));
-        menuEditMonth.add(new JMenuItem("Clear Month"));
-
-        menuEditYear = new JMenu("Edit");
-        menuEditYear.add(new JMenuItem("undo"));
-        menuEditYear.add(new JMenuItem("Clear Year"));
-
-        menuEditTodo = new JMenu("Edit");
-        menuEditTodo.add(new JMenuItem("undo"));
-        menuEditTodo.add(new JMenuItem("Clear Entire List"));
-        menuEditTodo.addSeparator();
-        menuEditTodo.add(new JMenuItem("Set Options..."));
-
-        menuView = new JMenu("View");
-        menuView.add(new JMenuItem("Set Look and Feel..."));
-
-        menuViewEvent = new JMenu("View");
-        // menuViewEvent.add(new JMenuItem("Date Format"));
-        menuViewEvent.add(new JMenuItem("Refresh"));
-        menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
-
-        menuViewDate = new JMenu("View");
-        menuViewDate.add(new JMenuItem("Today"));
-        menuViewDate.add(new JMenuItem("Set Look and Feel..."));
-
-        JMenu menuHelp = new JMenu("Help");
-        menuHelp.add(new JMenuItem("Contents"));
-        menuHelp.add(new JMenuItem("About"));
-
-        mb = new JMenuBar();
-        mb.add(menuFile);
-        mb.add(menuFileSearchResult);
-        mb.add(menuFileTodo);
-        mb.add(menuEditDay);
-        mb.add(menuEditMonth);
-        mb.add(menuEditYear);
-        mb.add(menuEditTodo);
-        mb.add(menuView);
-        mb.add(menuViewEvent);
-        mb.add(menuViewDate);
-
-        // This puts the 'Help' on the far right side.
-        mb.add(Box.createHorizontalGlue());
-        mb.add(menuHelp);
-        // mb.setHelpMenu(menuHelp);  // Not implemented in Java 1.4.2 ...
-        // Still not implemented in Java 1.5.0_03
-
-        // Initial visibility of all menu items is false.
-        // That can change in 'manageMenus'
-        menuEditDay.setVisible(false);
-        menuEditMonth.setVisible(false);
-        menuEditTodo.setVisible(false);
-        menuEditYear.setVisible(false);
-        menuFileTodo.setVisible(false);
-        menuFileSearchResult.setVisible(false);
-        menuView.setVisible(false);
-        menuViewEvent.setVisible(false);
-        menuViewDate.setVisible(false);
-
-        // Global setting for tool tips
-        UIManager.put("ToolTip.font",
-                new FontUIResource("SansSerif", Font.BOLD, 12));
-
-    } // end static
-
-
-    public AppTree(JFrame aFrame) {
+    public AppTree(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
+        mb = new AppMenuBar();
         theFrame = aFrame;
         theFrame.setJMenuBar(mb);
         ltTheTree = this;
+        this.appOpts = appOpts;
 
         // Make the 'Working...' dialog.
         dlgWorkingDialog = new JDialog(theFrame, "Working", true);
@@ -278,11 +177,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         setOpaque(true);
 
-        // Load the user settings
-        treeOpts = new TreeOptions(); // Start with default values.
-        MemoryBank.update("Loading the previous Tree configuration");
-        loadOpts(); // If available, overrides defaults.
-
+        MemoryBank.update("Recreating the previous Tree configuration");
         createTree();  // Create the tree.
 
         // Listen for when the selection changes.
@@ -303,8 +198,10 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         rightPane.getViewport().setLayout(centerLayout);
 
         // Add the scroll panes to a split pane.
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setLeftComponent(treeView);
+        if(appOpts.paneSeparator > 0) splitPane.setDividerLocation(appOpts.paneSeparator);
+        else splitPane.setDividerLocation(140);
 
         // Do not let focus escape from the right side.
         tree.setFocusable(false);
@@ -318,7 +215,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         Dimension minimumSize = new Dimension(100, 50);
         rightPane.setMinimumSize(minimumSize);
         treeView.setMinimumSize(minimumSize);
-        splitPane.setDividerLocation(140);
 
         splitPane.setPreferredSize(new Dimension(820, 520));
 
@@ -330,12 +226,12 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
         blnRestoringSelection = true;
-        if (treeOpts.theSelectionRow >= 0)
-            tree.setSelectionRow(treeOpts.theSelectionRow);
+        if (appOpts.theSelectionRow >= 0)
+            tree.setSelectionRow(appOpts.theSelectionRow);
         else {
-            if (treeOpts.theSelectionRow == LIST_GONE) {
-                treeOpts.theSelectionRow = tree.getRowForPath(todoPath);
-                tree.setSelectionRow(treeOpts.theSelectionRow);
+            if (appOpts.theSelectionRow == LIST_GONE) {
+                appOpts.theSelectionRow = tree.getRowForPath(todoPath);
+                tree.setSelectionRow(appOpts.theSelectionRow);
             } // end if
             // Note - the 'else' here is that there was not a selection;
             //  ie, the first time run.  In that case, leave as-is.
@@ -362,7 +258,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //   created.  If not then create and add it now.
         if (nodeSearchResults == null) {
             // Preserve current branch expansions
-            updateTreeOpts(false);
+            updateTreeState(false);
 
             nodeSearchResults = new SearchResultNode(null, 0);
             theRootNode.add(nodeSearchResults);
@@ -527,7 +423,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         intRowCounter++;
         intTodoRow = intRowCounter;
 
-        for (String s : treeOpts.todoLists) {
+        for (String s : appOpts.todoLists) {
 
             // First check to see that the file is 'here'.
             theName = MemoryBank.userDataDirPathName + File.separatorChar + s + ".todolist";
@@ -540,9 +436,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
             } else { // List not found.
                 MemoryBank.debug("  The " + s + " file was not found");
-                if (s.equals(treeOpts.theSelection)) {
-                    treeOpts.theSelection = "To Do Lists";
-                    treeOpts.theSelectionRow = LIST_GONE;
+                if (s.equals(appOpts.theSelection)) {
+                    appOpts.theSelection = "To Do Lists";
+                    appOpts.theSelectionRow = LIST_GONE;
                 } // end if
             } // end if
         } // end for
@@ -553,8 +449,8 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //intRowCounter++;
 
         // Restore previous search results, if any.
-        if (treeOpts.searchResults != null) {
-            nodeSearchResults = treeOpts.searchResults;
+        if (appOpts.searchResults != null) {
+            nodeSearchResults = appOpts.searchResults;
             trunk.add(nodeSearchResults);
         } // end if
 
@@ -711,7 +607,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         else if (what.equals("Today")) showToday();
         else if (what.equals("Set Look and Feel...")) showPlafDialog();
         else if (what.equals("undo")) {
-            String s = treeOpts.theSelection;
+            String s = appOpts.theSelection;
             if (s.equals("Day Notes")) theLogDays.recalc();
             else if (s.equals("Month Notes")) theLogMonths.recalc();
             else if (s.equals("Year Notes")) theLogYears.recalc();
@@ -739,6 +635,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         try {
             UIManager.setLookAndFeel(pep.getSelectedPlaf());
+            appOpts.thePlaf = pep.getSelectedPlaf();
             SwingUtilities.updateComponentTreeUI(theFrame);
             // It looks like a nullPointerException stack trace is being printed as a result of
             // the above command, which seems to complete successfully anyway, after that.
@@ -826,102 +723,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     }//end loadNoteData
 
 
-    //------------------------------------------------------
-    // Method Name: loadOpts
-    //
-    // Load the last known state of the tree, if any.  This
-    //  includes which nodes are expanded and which additional
-    //  leaves have been added.
-    //------------------------------------------------------
-    private void loadOpts() {
-        Exception e = null;
-        FileInputStream fis;
-        TreeOptions tmp;
-
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "tree.options";
-
-        try {
-            fis = new FileInputStream(FileName);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            tmp = (TreeOptions) ois.readObject();
-            treeOpts = tmp;
-            ois.close();
-            fis.close();
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; use defaults.
-            MemoryBank.debug("User tree options not found; using defaults");
-        } catch (EOFException eofe) {
-            e = eofe;
-        } catch (IOException ioe) {
-            e = ioe;
-        } // end try/catch
-
-        if (e != null) {
-            ems = "Error in loading " + FileName + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\nOptions load operation aborted.";
-            JOptionPane.showMessageDialog(null,
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-        } // end if
-    } // end loadOpts
-
-
-    private void manageMenus(String strMenuType) {
-
-        // Set the default of having the 'File' and 'View' menus only;
-        //   let the specific cases below make any needed alterations.
-        //-----------------------------------------
-        menuEditDay.setVisible(false);
-        menuEditMonth.setVisible(false);
-        menuEditTodo.setVisible(false);
-        menuEditYear.setVisible(false);
-        menuFile.setVisible(true);
-        menuFileTodo.setVisible(false);
-        menuFileSearchResult.setVisible(false);
-        menuView.setVisible(true);
-        menuViewEvent.setVisible(false);
-        menuViewDate.setVisible(false);
-
-        if (strMenuType.equals("Day Notes")) { // Day Notes
-            menuEditDay.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Month Notes")) { // Month Notes
-            menuEditMonth.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Month View")) { // Month View
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Year View")) { // Year View
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Search Result")) { // Search Results
-            menuFile.setVisible(false);
-            menuFileSearchResult.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true); // Temporary; should go away.
-        } else if (strMenuType.equals("Year Notes")) { // Year Notes
-            menuEditYear.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Upcoming Events")) { // Upcoming Events
-            menuView.setVisible(false);
-            menuViewEvent.setVisible(true);
-        } else if (strMenuType.equals("To Do List")) { // A List
-            menuFile.setVisible(false);
-            menuFileTodo.setVisible(true);
-            menuEditTodo.setVisible(true);
-        } // end if
-    } // end manageMenus
-
-
     public void mergeTodoList() {
         String mf = TodoNoteGroup.chooseFileName("Merge");
         if (mf != null) ((TodoNoteGroup) ngTheNoteGroup).merge(mf);
@@ -937,7 +738,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //   have been saved when the view changed away from them.
         if (ngTheNoteGroup != null) ngTheNoteGroup.preClose();
 
-        updateTreeOpts(true); // Update treeOpts
+        updateTreeState(true); // Update appOpts
         saveOpts();
     } // end preClose
 
@@ -1032,9 +833,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         treeModel.nodeStructureChanged(theRootNode); // collapses branches
 
         // Expand branches based on last configuration.
-        if (treeOpts.ViewsExpanded) tree.expandPath(viewPath);
-        if (treeOpts.NotesExpanded) tree.expandPath(notePath);
-        if (treeOpts.TodoListsExpanded) tree.expandPath(todoPath);
+        if (appOpts.ViewsExpanded) tree.expandPath(viewPath);
+        if (appOpts.NotesExpanded) tree.expandPath(notePath);
+        if (appOpts.TodoListsExpanded) tree.expandPath(todoPath);
 
         if (nodeSearchResults != null) {
             if (nodeSearchResults.blnExpanded) {
@@ -1090,13 +891,13 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     //
     //------------------------------------------------------------------------
     private void saveOpts() {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "tree.options";
-        MemoryBank.debug("Saving tree option data in " + FileName);
+        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "app.options";
+        MemoryBank.debug("Saving application option data in " + FileName);
 
         try {
             FileOutputStream fos = new FileOutputStream(FileName);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(treeOpts);
+            oos.writeObject(appOpts);
             oos.flush();
             oos.close();
             fos.close();
@@ -1113,7 +914,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             // denied, etc, that a sysadmin type can resolve for them, that will
             // also fix this issue.
             ems = ioe.getMessage();
-            ems = ems + "\nTree options save operation aborted.";
+            ems = ems + "\nMemory Bank options save operation aborted.";
             MemoryBank.debug(ems);
             // This popup caused a hangup and the vm had to be 'kill'ed.
             // JOptionPane.showMessageDialog(null,
@@ -1304,20 +1105,20 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         if (node == null) {
             // Reset tree to the state it was in before.
-            if (treeOpts.ViewsExpanded) tree.expandPath(viewPath);
+            if (appOpts.ViewsExpanded) tree.expandPath(viewPath);
             else tree.collapsePath(viewPath);
-            if (treeOpts.NotesExpanded) tree.expandPath(notePath);
+            if (appOpts.NotesExpanded) tree.expandPath(notePath);
             else tree.collapsePath(notePath);
-            if (treeOpts.TodoListsExpanded) tree.expandPath(todoPath);
+            if (appOpts.TodoListsExpanded) tree.expandPath(todoPath);
             else tree.collapsePath(todoPath);
-            tree.setSelectionRow(treeOpts.theSelectionRow);
+            tree.setSelectionRow(appOpts.theSelectionRow);
         } else {
             // Capture the current state; we may have to 'toggle' back to it.
-            updateTreeOpts(false);
+            updateTreeState(false);
             tree.clearSelection();
             rightPane.getViewport().setLayout(centerLayout);
             rightPane.setViewportView(abbowt);
-            manageMenus("");
+            mb.manageMenus("");
         } // end if
     } // end showAbout
 
@@ -1587,7 +1388,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         showWorkingDialog(true);
 
         // Update the current selection row
-        treeOpts.theSelectionRow = tree.getMaxSelectionRow();
+        appOpts.theSelectionRow = tree.getMaxSelectionRow();
 
         // null this value so that if the new selection is NOT a
         // To Do list, the reference will not be active.  This
@@ -1630,7 +1431,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         String theParent = node.getParent().toString();
         MemoryBank.debug("New tree selection: " + theText);
         //System.out.println("New tree selection: " + theText);
-        treeOpts.theSelection = theText; // Preserved exactly.
+        appOpts.theSelection = theText; // Preserved exactly.
         strSelectionType = theText;  // May be generalized
 
         // Set (or reset) the default layout to the norm.
@@ -1786,7 +1587,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(new JLabel(theText));
         } // end if/else if
 
-        manageMenus(strSelectionType);
+        mb.manageMenus(strSelectionType);
         showWorkingDialog(false);
     } // end treeSelectionChanged
 
@@ -1794,13 +1595,16 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     //-------------------------------------------------
     // Method Name:  updateTreeState
     //
-    // Capture the variables in the tree configuration
-    //   and put them in treeOpts (TreeOptions class).
+    // Capture the current tree configuration
+    //   and put it into appOpts (AppOptions class).
     //-------------------------------------------------
-    private void updateTreeOpts(boolean updateLists) {
-        treeOpts.ViewsExpanded = tree.isExpanded(viewPath);
-        treeOpts.NotesExpanded = tree.isExpanded(notePath);
-        treeOpts.TodoListsExpanded = tree.isExpanded(todoPath);
+    private void updateTreeState(boolean updateLists) {
+        appOpts.ViewsExpanded = tree.isExpanded(viewPath);
+        appOpts.NotesExpanded = tree.isExpanded(notePath);
+        appOpts.TodoListsExpanded = tree.isExpanded(todoPath);
+
+        //System.out.println("Divider Location: " + splitPane.getDividerLocation());
+        appOpts.paneSeparator = splitPane.getDividerLocation();
 
         // Preserve the expansion state of the Search Results
         if (nodeSearchResults != null) {
@@ -1809,7 +1613,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             nodeSearchResults.blnExpanded = tree.isExpanded(path);
         }
 
-        treeOpts.theSelectionRow = tree.getMaxSelectionRow();
+        appOpts.theSelectionRow = tree.getMaxSelectionRow();
         // Current selection text was captured when the last selection
         //    was made, but the row may have changed due to expansion
         //    or collapsing of nodes above the selection.
@@ -1821,7 +1625,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         int numLeaves;
 
         // Preserve the active To Do Lists
-        treeOpts.todoLists.clear();
+        appOpts.todoLists.clear();
 
         numLeaves = nodeTodoLists.getChildCount();
         if (numLeaves > 0) {
@@ -1829,7 +1633,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             while (numLeaves-- > 0) {
                 String s = leafLink.toString();
                 //MemoryBank.debug("  Preserving list: " + s);
-                treeOpts.todoLists.addElement(s);
+                appOpts.todoLists.addElement(s);
                 leafLink = leafLink.getNextLeaf();
             } // end while
         } // end if
@@ -1837,8 +1641,8 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //------------------------------------------
 
         // Preserve the active Search Results
-        treeOpts.searchResults = nodeSearchResults;
-    } // end updateTreeOpts
+        appOpts.searchResults = nodeSearchResults;
+    } // end updateTreeState
 
     //-------------------------------------------------------------
     // Method Name: valueChanged
@@ -2341,7 +2145,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             // Reselect this tree node because after renameTreeNode
             //   there is no current selection.  This will also have
             //   the effect of once again correctly setting theTodoList.
-            tree.setSelectionRow(treeOpts.theSelectionRow);
+            tree.setSelectionRow(appOpts.theSelectionRow);
         } // end saveAs
 
 
@@ -2421,77 +2225,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     } // end class TodoLeaf
 
 } // end AppTree class
-
-
-//-------------------------------------------------------------------------
-// Class Name:  SearchResultNode
-//
-// Holds the data for the 'Search Results' tree node.
-// The first one (top level) will have a null filename and the
-//   node name will be 'Search Results'.
-//-------------------------------------------------------------------------
-class SearchResultNode extends DefaultMutableTreeNode implements Serializable {
-    static final long serialVersionUID = 1955502766506973356L;
-
-    public String strFileName;
-    public String strNodeName;
-    public int intGroupSize;
-    public boolean blnExpanded;
-
-    // This member is transient so that it will not be saved.  This
-    //   allows the SearchResultNode to be quickly restored from
-    //   saved data, even if it is a handle to a large SearchResultGroup.
-    //   Upon initial construction of the node, it will be 'filled' but
-    //   later, upon reload of this node, it will be null.  Then, the
-    //   group will be loaded only if the node is clicked by the user.
-    public transient SearchResultGroup srg;
-
-    public SearchResultNode(String s, int i) {
-        intGroupSize = i;
-        if ((s == null) || (s.equals(""))) {
-            strNodeName = "Search Results";
-        } else {
-            strFileName = s;  // will be null at the top level ONLY
-            strNodeName = prettyName(s);
-
-            // Note: an earlier version sent the full path in 's'.  Now,
-            //   we expect to only have the filename.
-            String strFilePath = MemoryBank.userDataDirPathName + File.separatorChar;
-//      srg = new SearchResultGroup(strFilePath + strFileName, intGroupSize);
-            srg = new SearchResultGroup(strFilePath + strFileName);
-        } // end else
-
-        blnExpanded = true;
-    } // end constructor
-
-
-    public static String prettyName(String s) {
-        int i;
-        char slash = File.separatorChar;
-
-        i = s.lastIndexOf(slash);
-        if (i != -1) {
-            s = s.substring(i + 1);
-        } // end if
-
-        // Even though a Windows path separator char should be a
-        //   backslash, in Java a forward slash is often also accepted.
-        i = s.lastIndexOf("/");
-        if (i != -1) {
-            s = s.substring(i + 1);
-        } // end if
-
-        // Drop the suffix
-        i = s.lastIndexOf(".sresults");
-        if (i == -1) return s;
-        return s.substring(0, i);
-    } // end prettyName
-
-
-    public String toString() {
-        return strNodeName;
-    }
-} // end class SearchResultNode
 
 
 interface iconKeeper {
