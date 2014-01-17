@@ -1270,25 +1270,30 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     // If the current tree view is one of the ones that are
     // date-based and the date they are centered on is NOT
     // today, then this method will change the date of that
-    // view to today.  Otherwise, the view will change to a
-    // textual representation of today's date.
-    // Note: The 'otherwise' stopped working 12/2006 for
-    //   date-based-but-same-date selections.  In 3/2008
-    //   it stopped working for non-date-based selections,
-    //   when 'Today' moved from a tree selection to a
-    //   menu choice that is not always displayed.  The
-    //   value of the 'otherwise' action is questionable but
-    //   it remains below and can be accessed by placing a
-    //   'Today' on a non-date-based group's menubar.  To
-    //   reinstate a toggle on date-based groups, will need
-    //   to first determine if 'Today' is already showing.
+    // view to today.
+    //
+    // If the view is NOT date-based, it will change to a
+    // textual representation of today's date.  The value
+    // of this variation is questionable but it remains
+    // below and can be enabled by placing a 'Today' on a
+    // non-date-based group's menubar (currently that menu
+    // choice is not present for a non date-centered view).
+    //
+    // If the view is date-based and the selected date is
+    // already today, no apparent change is made but it
+    // could be made into a toggle between the date-based
+    // view and the textual panel as described above, like
+    // the 'showAbout' behavior.  To implement a toggle on
+    // date-based groups, will need to first determine if
+    // 'Today' is already showing.
     //   See 'getChoiceString' from DayNoteGroup; may need
     //   a common method between all 5 groups, like isToday()
     //   or choiceIsDate(today).
-    //   Then, can implement something like the 'showAbout'
-    //   toggle.
     //--------------------------------------------------------
     public void showToday() {
+        // Make sure that the most recent changes, if any, are preserved.
+        preClose();
+
         TreePath tp = tree.getSelectionPath();
 
         currentDateChoice = new Date();
