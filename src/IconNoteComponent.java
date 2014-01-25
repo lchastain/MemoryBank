@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.Serializable;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -32,12 +31,11 @@ public abstract class IconNoteComponent extends NoteComponent {
     protected NoteIcon noteIcon;
 
     // Private static values that are accessed from multiple contexts.
-    protected static JFileChooser iconChooser;
+    protected static IconFileChooser iconChooser;
     protected static JCheckBoxMenuItem siombMi;
     protected static JMenuItem sadMi;
     protected static JMenuItem resetMi;
     protected static JMenuItem blankMi;
-    protected static JDialog tempwin;
     protected static JPopupMenu iconPopup;
 
     // A reference to the container that holds this component
@@ -64,41 +62,9 @@ public abstract class IconNoteComponent extends NoteComponent {
         blankMi = new JMenuItem("Blank Icon");
         iconPopup.add(blankMi);
 
-        //--------------------------------------------
         // Initialize the Icon file chooser
-        //--------------------------------------------
-        iconChooser = new JFileChooser(MemoryBank.logHome + "/icons");
-        javax.swing.filechooser.FileFilter filter;
-        filter = new javax.swing.filechooser.FileFilter() {
-            public boolean accept(File f) {
-                if (f != null) {
-                    if (f.isDirectory()) return true;
-                    String filename = f.getName().toLowerCase();
-                    int i = filename.lastIndexOf('.');
-                    if (i > 0 && i < filename.length() - 1) {
-                        String extension = filename.substring(i + 1);
-                        if (extension.equals("tiff") ||
-                                extension.equals("tif") ||
-                                extension.equals("gif") ||
-                                extension.equals("jpeg") ||
-                                extension.equals("jpg") ||
-                                extension.equals("ico") ||
-                                extension.equals("png"))
-                            return true;
+        iconChooser = new IconFileChooser(MemoryBank.logHome + "/icons");
 
-                    } // end if
-                } // end if
-                return false;
-            } // end accept
-
-            public String getDescription() {
-                return "icon images";
-            } // end getDescription
-        };
-        iconChooser.addChoosableFileFilter(filter);
-        iconChooser.setAcceptAllFileFilterUsed(false);
-        iconChooser.setFileView(new IconFileView());
-        //--------------------------------------------
     } // end static section
 
 
@@ -295,7 +261,7 @@ public abstract class IconNoteComponent extends NoteComponent {
             } else if (s.equals("Set As Default")) {
 
                 // Get a reference to the icon.
-                AppIcon tmpIcon = null;
+                AppIcon tmpIcon;
                 tmpIcon = (AppIcon) noteIcon.getIcon();
 
                 // Set the description.
@@ -355,7 +321,7 @@ public abstract class IconNoteComponent extends NoteComponent {
 
                 // Double click, left mouse button.
             } else if (e.getClickCount() == 2) {
-                // Don't care.
+                System.out.print(""); // Don't care.
             } else { // Single Left Mouse Button
                 // Some of the method calls below use the full
                 //   scope - without it, the method would only apply to
@@ -367,17 +333,35 @@ public abstract class IconNoteComponent extends NoteComponent {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     String iconFileName = iconChooser.getSelectedFile().getPath();
                     MemoryBank.debug("Chosen icon file: " + iconFileName);
+                    iconFileName = iconFileName.toLowerCase();
 
                     // Now copy the chosen file from 'Program Data' to user data.
-                    // (if needed)
+                    // (if needed).  Once an icon has been 'chosen', it should never
+                    // change, even if the source icon file does.  So - we preserve it
+                    // in its original form, in the user's data location.  Of course,
+                    // if a 'new' icon comes into system data, replacing one that used to have that
+                    // name, this 'solution' wlll cause the app to always display the old
+                    // one.  This obviously still needs work - perhaps need to also save
+                    // the image..
                     File src = new File(iconFileName);
                     int iconsIndex = iconFileName.indexOf("icons");
-                    String destFileName = iconFileName.substring(iconsIndex);
-                    destFileName = MemoryBank.userDataDirPathName + "/" + destFileName;
+                    String destFileName;
+                    if(iconsIndex >= 0) {
+                        destFileName = iconFileName.substring(iconsIndex);
+                        destFileName = MemoryBank.userDataDirPathName + "/" + destFileName;
+                    } else {
+                        // need to drop off the drive, convert filesep chars?
+                        destFileName = MemoryBank.userDataDirPathName + "/" + iconFileName;
+                    }
+                    System.out.println("destFileName = " + destFileName);
                     File dest = new File(destFileName);
                     String theParentDir = dest.getParent();
                     File f = new File(theParentDir);
-                    if (!f.exists()) f.mkdirs();
+                    if (!f.exists()) {
+                        if (!f.mkdirs()) {
+                            System.out.println("Error - Could not create directories: " + f.getAbsolutePath());
+                        } // end if
+                    }
                     if (!dest.exists()) {
                         MemoryBank.debug("  copying to " + destFileName);
                         AppUtil.copy(src, dest);

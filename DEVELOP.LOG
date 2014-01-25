@@ -2,6 +2,17 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+1/25/2014 1130 After casting around looking for the next big thing to do, have 'landed' on
+rehabilitating the icon file handling.  It appears that .ico file reading had stopped working
+and so I have found / started working with an external open source library for this - 'image4j'.
+Have already seen that it can fix the .ico files, and it claims to also support .bmp files.
+As well as repairing / adding these functionalities, this work will also hopefully rearchitect
+the icon chooser (into its own class?) and clear up SCRs 7 & 11.
+
+1/17/2014 1747 Fixed the last 'Major' issue - lost notes if 'Today' is chosen from the menubar.
+Decided to overwrite the last snapshot with a new one for today, right now, because I have also
+done the git commit this time, and it may be a good place to pause for a while.
+
 1/17/2014 0903 Rename of treeOpts to appOpts seems to be done; no user benefit yet but it is still
 a preparatory step to saving other items.
 0925 - feeling that a re-arch is needed with regard to the app/frame/tree - the tree should not be
