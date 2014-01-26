@@ -11,40 +11,37 @@ import javax.swing.filechooser.*;
 
 public class IconFileView extends FileView {
 
-    //let the L&F FileView figure these out...
     public String getName(File f) {
-        return null;
+        String s = f.getName();
+        String name = s;
+        int i = s.lastIndexOf('.');
+
+        if (i > 0 && i < s.length() - 1) {
+            name = s.substring(0, i);
+        }
+        return name;
     }
 
-    public String getDescription(File f) {
-        return null;
-    }
-
+    // When we do not override, the System FileView for the chosen L&F will provide.
     public Boolean isTraversable(File f) {
         return null;
     }
 
-    public String getTypeDescription(File f) {
-        String extension = getExtension(f);
-        String type = null;
+    /* From http://www.informit.com/articles/article.aspx?p=32060 :
+    As of Swing1.1 FCS, the getDescription and getTypeDescription methods are not used within
+    Swing. The methods are meant for look and feels that wish to provide additional information
+    about files in a file chooser.   AND:
+    http://stackoverflow.com/questions/6489978/java-early-access-download-what-does-fcs-means
+        FCS - First Customer Shipment
+    //=======================================================================================*/
+    public String getDescription(File f) {
+        return null;
+    }
 
-        if (extension != null) {
-            if (extension.equals("jpeg") ||
-                    extension.equals("jpg")) {
-                type = "JPEG Image";
-            } else if (extension.equals("gif")) {
-                type = "GIF Image";
-            } else if (extension.equals("tiff") ||
-                    extension.equals("tif")) {
-                type = "TIFF Image";
-            } else if (extension.equals("ico")) {
-                type = "ICO Image";
-            } else if (extension.equals("png")) {
-                type = "PNG Image";
-            } // end if extension is various
-        } // end if extension not null
-        return type;
-    } // end getTypeDescription
+    public String getTypeDescription(File f) {
+        return null;
+    }
+    //=========================================================================================
 
     public Icon getIcon(File f) {
         String extension = getExtension(f);
@@ -58,8 +55,10 @@ public class IconFileView extends FileView {
                     extension.equals("tiff") ||
                     extension.equals("tif") ||
                     extension.equals("ico") ||
-                    extension.equals("png"))
-                icon = new AppIcon(f.getPath());
+                    extension.equals("png")) {
+                AppIcon ai = new AppIcon(f.getPath());
+                if(ai.getImage() != null) icon = AppIcon.scaleIcon(ai);
+            }
         } // end if extension not null
         return icon;
     } // end getIcon

@@ -4,20 +4,23 @@
  *
  * Author:  D. Lee Chastain
  *
+ * BMP and ICO support comes from the external library:  image4j.
+ * The image4j library allows you to read and write certain image formats in 100% pure Java.
+    Currently the following formats are supported:
+    •BMP (Microsoft bitmap format - uncompressed; 1, 4, 8, 24 and 32 bit)
+    •ICO (Microsoft icon format - 1, 4, 8, 24 and 32 bit [XP uncompressed, Vista compressed])
+ *
  ****************************************************************************/
-/**  Addition to an ImageIcon to provide .ico file support
- */
 
+import net.sf.image4j.codec.bmp.BMPDecoder;
 import net.sf.image4j.codec.ico.ICODecoder;
 
-import java.awt.Image;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import javax.swing.ImageIcon;
 
 public class AppIcon extends ImageIcon {
     private static final long serialVersionUID = -1747855358689601291L;
@@ -56,11 +59,17 @@ public class AppIcon extends ImageIcon {
 
         if (filename.endsWith(".ico")) {
             try {
-            List<BufferedImage> images = ICODecoder.read(new File(filename));
-            System.out.println("ico file image count: " + images.size());
+                List<BufferedImage> images = ICODecoder.read(new File(filename));
+                System.out.println("ico file image count: " + images.size());
                 myImage = images.get(0);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
+            }
+        } else if (filename.endsWith(".bmp")) {
+            try {
+                myImage = BMPDecoder.read(new File(filename));
+            } catch (IOException ioe) {
+                MemoryBank.debug(ioe.getMessage());
             }
         } else {
             myImage = Toolkit.getDefaultToolkit().getImage(filename);

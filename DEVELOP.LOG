@@ -2,6 +2,19 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+1/26/2014 0923 In trying to add the .bmp support, needed to add scaling to the icons displayed
+in the chooser.  While the .bmp support did not work as desired (so I turned it back off), the
+scaling did have the effect of resolving SCR #11 after all; now by showing slightly smaller
+icons, their size more closely matches the folders and in the same space that previously showed
+four rows of three columns, we now have six rows of four columns.  Part of this extra real estate
+came from dropping the filename extensions from the chooser display.  SCR #7 remains unresolved.
+1009 The next area to consider will be overall Tree manipulations.  This may touch on requests
+from SCRs 4, 5, 23, the App Direction todolist item TodoList Management, and at least the 'rename'
+item from the Search Issues list.  The idea is to implement a 'tree' editor where the branch under
+consideration is shown on the right (like it already is, for 'Views' and 'Notes'), but 'editable' -
+to include reordering, renaming, selection for display, deletion, and a way (context or main menu,
+or both) to add a new one or leave off from the parent branch altogether.  'TreeNodeEditor' ?
+
 1/25/2014 1130 After casting around looking for the next big thing to do, have 'landed' on
 rehabilitating the icon file handling.  It appears that .ico file reading had stopped working
 and so I have found / started working with an external open source library for this - 'image4j'.
