@@ -107,11 +107,7 @@ public class DndLayout extends GridLayout implements MouseListener,
         if (col == 0) v = ClingOns;
         if (col == 1) v = ClingRight;
 
-        if (false && (col != 0)) {
-            System.out.println("Col = " + col + "\tx = " + x);
-            System.out.println("Elements in v: " + v.size());
-        } // end if
-
+        assert v != null;
         for (int i = 0; i < v.size(); i++) {
             c = (Component) v.elementAt(i);
             if (col == 0) c.getParent().add(c, 0); // Z order

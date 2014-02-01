@@ -1,0 +1,18 @@
+<configuration>
+    <!-- Get explanatory info for the patterns below, here:
+        http://logback.qos.ch/manual/layouts.html
+    -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>
+                %d{dd MMM HH:mm:ss} %-5level - %msg %caller{1}
+            </pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

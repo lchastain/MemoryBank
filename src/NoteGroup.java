@@ -119,7 +119,7 @@ public abstract class NoteGroup extends JPanel {
         JScrollBar jsb = new JScrollBar();
 
         // This is necessary because otherwise, once the bar appears,
-        //  the tab and up/down keys can tranfer focus over to here,
+        //  the tab and up/down keys can transfer focus over to here,
         //  and the up/down keys cannot get it back out.
         jsb.setFocusable(false);
 

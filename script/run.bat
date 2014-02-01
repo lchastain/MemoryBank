@@ -1,3 +1,3 @@
 pushd ..
-java -cp .\mbank.jar -Ddebug MemoryBank %*
+java -cp mbank.jar;image4j.jar -Ddebug MemoryBank
 popd

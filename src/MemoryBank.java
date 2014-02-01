@@ -95,6 +95,7 @@ public class MemoryBank {
         try {
             if(appOpts.thePlaf != null) {
                 UIManager.setLookAndFeel(appOpts.thePlaf);
+                System.out.println("Setting plaf to: " + appOpts.thePlaf);
             } else {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }

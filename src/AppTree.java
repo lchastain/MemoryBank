@@ -18,30 +18,17 @@
 //   search methodology may be more efficient - consider a 
 //   rewrite of the 'to do' list approach.
 
-import java.awt.Component;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
+import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.GridLayout;
-import java.awt.Point;
-
-import java.io.*;        // File, Exceptions, io Streams, Serializable.
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
-
-import javax.swing.*;    // JPanel, JScrollPane, Jx, Jy, Jz...
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 
 public final class AppTree extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L;
@@ -67,9 +54,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
     private NoteGroup ngTheNoteGroup;
     private GoalPanel theGoalPanel;
-    private DayNoteGroup theLogDays;
-    private MonthNoteGroup theLogMonths;
-    private YearNoteGroup theLogYears;
+    private DayNoteGroup theAppDays;
+    private MonthNoteGroup theAppMonths;
+    private YearNoteGroup theAppYears;
     private MonthView theMonthView;
     private YearView theYearView;
     private EventNoteGroup theEvents;
@@ -200,7 +187,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         // Add the scroll panes to a split pane.
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setLeftComponent(treeView);
-        if(appOpts.paneSeparator > 0) splitPane.setDividerLocation(appOpts.paneSeparator);
+        if (appOpts.paneSeparator > 0) splitPane.setDividerLocation(appOpts.paneSeparator);
         else splitPane.setDividerLocation(140);
 
         // Do not let focus escape from the right side.
@@ -322,7 +309,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         // Remove the results file
         File f = new File(node.strFileName);
         if (f.exists()) {
-            if(!f.delete()) System.out.println("Failed to remove " + node.strFileName);
+            if (!f.delete()) System.out.println("Failed to remove " + node.strFileName);
         }
 
         removeSearchNode(node);
@@ -341,7 +328,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         int intTodoRow;  // Used in expansion state retention
 
         MemoryBank.debug("Creating the tree");
-        DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("Log");
+        DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
         theRootNode = trunk;
 
         DefaultMutableTreeNode branch;
@@ -591,9 +578,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
         else if (what.equals("Close")) closeSearchResult();
-        else if (what.equals("Clear Day")) theLogDays.clearGroupData();
-        else if (what.equals("Clear Month")) theLogMonths.clearGroupData();
-        else if (what.equals("Clear Year")) theLogYears.clearGroupData();
+        else if (what.equals("Clear Day")) theAppDays.clearGroupData();
+        else if (what.equals("Clear Month")) theAppMonths.clearGroupData();
+        else if (what.equals("Clear Year")) theAppYears.clearGroupData();
         else if (what.equals("Clear Entire List")) theTodoList.clearGroupData();
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Export")) doExport();
@@ -608,9 +595,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         else if (what.equals("Set Look and Feel...")) showPlafDialog();
         else if (what.equals("undo")) {
             String s = appOpts.theSelection;
-            if (s.equals("Day Notes")) theLogDays.recalc();
-            else if (s.equals("Month Notes")) theLogMonths.recalc();
-            else if (s.equals("Year Notes")) theLogYears.recalc();
+            if (s.equals("Day Notes")) theAppDays.recalc();
+            else if (s.equals("Month Notes")) theAppMonths.recalc();
+            else if (s.equals("Year Notes")) theAppYears.recalc();
             else ngTheNoteGroup.updateGroup(); // reload without save
         } else {
             AppUtil.localDebug(true);
@@ -620,7 +607,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     } // end handleMenuBar
 
     private void showPlafDialog() {
-
         PlafEditorPanel pep = new PlafEditorPanel();
         int doit = JOptionPane.showConfirmDialog(
                 theFrame, pep,
@@ -808,7 +794,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 String theFile = theFile1.getName();
                 if (theFile1.isFile()) {
                     if (theFile.endsWith(".sresults")) {
-                        if(!theFile1.delete()) System.out.println("Failed to remove " + theFile);
+                        if (!theFile1.delete()) System.out.println("Failed to remove " + theFile);
                     }
                 } // end if
             } // end for
@@ -1308,13 +1294,13 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             theMonthView.setChoice(currentDateChoice);
             return;
         } else if (theCurrentView.equals("Day Notes")) {
-            theLogDays.setChoice(currentDateChoice);
+            theAppDays.setChoice(currentDateChoice);
             return;
         } else if (theCurrentView.equals("Month Notes")) {
-            theLogMonths.setChoice(currentDateChoice);
+            theAppMonths.setChoice(currentDateChoice);
             return;
         } else if (theCurrentView.equals("Year Notes")) {
-            theLogYears.setChoice(currentDateChoice);
+            theAppYears.setChoice(currentDateChoice);
             return;
         } // end if
 
@@ -1423,11 +1409,11 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             } else if (theLastSelection.equals("Month View")) {
                 currentDateChoice = theMonthView.getChoice();
             } else if (theLastSelection.equals("Day Notes")) {
-                currentDateChoice = theLogDays.getChoice();
+                currentDateChoice = theAppDays.getChoice();
             } else if (theLastSelection.equals("Month Notes")) {
-                currentDateChoice = theLogMonths.getChoice();
+                currentDateChoice = theAppMonths.getChoice();
             } else if (theLastSelection.equals("Year Notes")) {
-                currentDateChoice = theLogYears.getChoice();
+                currentDateChoice = theAppYears.getChoice();
             } // end if
             //-------------------------------------------------------------
         } // end if
@@ -1452,7 +1438,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //   we start considering the text of the selection.
         //-----------------------------------------------------
         boolean isListManager = theText.equals("To Do Lists");
-        boolean isTopLevel = theParent.equals("Log");
+        boolean isTopLevel = theParent.equals("App");
 
         ngTheNoteGroup = null; // initialize
 
@@ -1460,13 +1446,18 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             // To Do List selection / deselection
             theTodoListHandler.showListManager(TodoListManager.SELECT_MODE);
 
+            /*
+            JTree jt = new JTree(node);
+            jt.setShowsRootHandles(true);
+            jt.setEditable(true);
+            rightPane.setViewportView(jt);
+            */
+
         } else if (!node.isLeaf()) {
             // Looking at other expandable nodes
             JTree jt = new JTree(node);
-            jt.setRootVisible(false);
-            //jt.setShowsRootHandles(true);
+            jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
-
         } else if (theParent.equals("To Do Lists")) {
             // Selection of a To Do List
             strSelectionType = "To Do List";
@@ -1511,26 +1502,26 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             theMonthView.setChoice(currentDateChoice);
             rightPane.setViewportView(theMonthView);
         } else if (theText.equals("Day Notes")) {
-            if (theLogDays == null) {
-                theLogDays = new DayNoteGroup();
+            if (theAppDays == null) {
+                theAppDays = new DayNoteGroup();
             }
-            ngTheNoteGroup = theLogDays;
-            theLogDays.setChoice(currentDateChoice);
-            rightPane.setViewportView(theLogDays);
+            ngTheNoteGroup = theAppDays;
+            theAppDays.setChoice(currentDateChoice);
+            rightPane.setViewportView(theAppDays);
         } else if (theText.equals("Month Notes")) {
-            if (theLogMonths == null) {
-                theLogMonths = new MonthNoteGroup();
+            if (theAppMonths == null) {
+                theAppMonths = new MonthNoteGroup();
             }
-            ngTheNoteGroup = theLogMonths;
-            theLogMonths.setChoice(currentDateChoice);
-            rightPane.setViewportView(theLogMonths);
+            ngTheNoteGroup = theAppMonths;
+            theAppMonths.setChoice(currentDateChoice);
+            rightPane.setViewportView(theAppMonths);
         } else if (theText.equals("Year Notes")) {
-            if (theLogYears == null) {
-                theLogYears = new YearNoteGroup();
+            if (theAppYears == null) {
+                theAppYears = new YearNoteGroup();
             }
-            ngTheNoteGroup = theLogYears;
-            theLogYears.setChoice(currentDateChoice);
-            rightPane.setViewportView(theLogYears);
+            ngTheNoteGroup = theAppYears;
+            theAppYears.setChoice(currentDateChoice);
+            rightPane.setViewportView(theAppYears);
         } else if (theText.equals("Upcoming Events")) {
             if (theEvents == null) {
                 theEvents = new EventNoteGroup();
@@ -2194,6 +2185,12 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         } // end selectList
 
         public void showListManager(int mode) {
+            // When we invoke an Editor for a tree branch, we need to tell it which
+            // leaves are already selected.  The reason that we go to the branch itself
+            // rather than the 'todoOpts' is that those options are only updated upon
+            // app close; if we had previously edited this branch during this same session
+            // and made different selections, the saved options would not accurately reflect
+            // the new/current state.
             int numLeaves = theTodoBranch.getChildCount();
 
             // Develop a list of pre-selected items.
