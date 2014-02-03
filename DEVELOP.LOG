@@ -2,6 +2,11 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+2/3/2014 1241 - Spawn is heading towards a shutdown; we are all on standby until that happens, now.
+Meanwhile, the TreeBranchEditor is done!  At least from the perspective of its stand-alone driver.
+Now, want to GitHub it as a separate widget, and also integrate it into this app.  Also looking at
+providing an executable version, maybe via my website.
+
 1/30/2014 0945 (from Spawn) - The 'TreeBranchEditor' work has been underway since the last entry
 and could go on for several more days, but it is already off to a great start; tree dnd is
 working, and the design (in general) is done.  Implementation of features, then integration and

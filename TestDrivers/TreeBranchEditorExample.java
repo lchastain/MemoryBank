@@ -1,28 +1,34 @@
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
-import java.awt.event.ActionEvent;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
 class TBH implements TreeBranchHelper {
     @Override
-    public boolean isNameValid(String theName) {
-        // The 'if' is just to get some usage for 'theName'; not really needed.
-        if(!theName.equals("badbadbad")) return true;
+    public boolean allowRenameFrom(String theName) {
+        if(theName.equals("An Example Branch")) {
+            JOptionPane.showMessageDialog(new JFrame(), "You can't rename the root!");
+            return false;
+        }
         return true;
     }
 
     @Override
-    public String reason() {
-        return ""; //"Just because";
+    public boolean allowRenameTo(String theName) {
+        if(theName.equals("thine")) {
+            JOptionPane.showMessageDialog(new JFrame(), "That name is not allowed!");
+            return false;
+        }
+        return true;
     }
 
     @Override
-    public boolean doApply(MutableTreeNode mtn, ArrayList newChoices) {
-        return true;
+    public void doApply(MutableTreeNode mtn, ArrayList newChoices, ArrayList changes) {
+        for(Object nco: changes) {
+            System.out.println(nco.toString());
+        }
+        System.exit(0);
     }
 
     @Override
@@ -31,7 +37,7 @@ class TBH implements TreeBranchHelper {
     }
 
     @Override
-    public boolean deleteAllowed() { return true; }
+    public boolean deletesAllowed() { return true; }
 
     @Override
     public boolean makeParents() {
@@ -40,18 +46,17 @@ class TBH implements TreeBranchHelper {
 
     @Override
     public ArrayList<String> getChoices() {
-        ArrayList<String> theLeafChoices = new ArrayList<String> (Arrays.asList(
+        return new ArrayList<String> (Arrays.asList(
                 "this", "that", "these", "those",
                 "we", "you", "us", "they", "them",
                 "what", "why", "when", "where", "who",
                 "whom", "whomever", "how"
         ));
-        return theLeafChoices;
     }
-}
+} // end class TBH
+
 
 public class TreeBranchEditorExample {
-    static final long serialVersionUID = -1L;
 
     public static void main(String args[]) {
         //URL myURL = TreeBranchEditorExample.class.getClassLoader().getResource("logback.xml");
@@ -66,9 +71,6 @@ public class TreeBranchEditorExample {
         {
             System.out.println("Failed loading L&F: " + ex.getMessage());
         }
-
-        final Vector<String> selections = new Vector<String>(2);
-
 
         // Make a 'test' Tree Branch
         DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode("An Example Branch");
@@ -94,4 +96,3 @@ public class TreeBranchEditorExample {
 } // end class TreeBranchEditorExample
 
 
-/**/

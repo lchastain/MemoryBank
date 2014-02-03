@@ -1,34 +1,30 @@
 /* ***************************************************************************
     A custom Editor panel for a TreeNode.
 
-    Constructs the view from the initial branch and a TreeBranchHelper,
+    Constructs a view from an initial TreeNode and a TreeBranchHelper,
     and accepts user changes for leaf selection, renaming, deletion, and
-    reordering (including 'stacking').
+    reordering (including 'stacking').  Requires that all node names are
+    unique.
 
     As a component, we have a JPanel with a BorderLayout, where the Center is
     filled with a JSplitPane and the South contains the Apply/Cancel buttons.
-    The JSplitPane shows the initial & proposed JTree on the left, and the
-    complete list of available leaves on the right.
+    The JSplitPane shows the proposed TreeNode on the left, and the complete
+    list of available leaves on the right, with a checkbox on each leaf to
+    indicate whether or not it should appear on the tree.
  ****************************************************************************/
-/**/
 
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public final class TreeBranchEditor extends JPanel
+public class TreeBranchEditor extends JPanel
         implements ItemListener, ActionListener, TreeModelListener {
     static final long serialVersionUID = -1L;
     private static Logger log = LoggerFactory.getLogger(TreeBranchEditor.class);
@@ -40,13 +36,39 @@ public final class TreeBranchEditor extends JPanel
     private DefaultMutableTreeNode myBranch;
     private TreeBranchHelper myHelper;
     private ArrayList<String> theChoices;
-    private boolean makeParents;
+    BranchEditorModel bem;
 
-    public TreeBranchEditor(TreeNode dmtn, TreeBranchHelper tbh) {
+    private ArrayList<NodeChange> changeList;
+    // The changeList keeps an ongoing list of cumulative changes, that the helper receives
+    // when the user ends the editing session by clicking 'Apply'.  Of course we could just
+    // let the user figure out what happened by comparing the final tree and selection list
+    // with the originals, but that seems a bit harsh given the complexities of the logic
+    // needed to respond to an editor control that allows multiple diverse and sometimes
+    // conflicting actions.  So - we keep a list of every single change, even when the
+    // later ones have the effect of cancelling out one or more earlier ones.
+
+    // Logical considerations for the handler of the changeList:
+    // ADDED to the tree is the same as SELECTED from the list, and REMOVED from the tree
+    // is the same action as DESELECTED from the list, but we don't distinguish; just use
+    // SELECTED/DESELECTED because it is a better description of the action taken by the user.
+    // DELETED has the same visual effect as DESELECTED from the tree, but it also affects
+    // the selection list.  Further, it 'trumps' all earlier actions on that node.
+    // To simplify things, you can rely on the restrictions built into the editor UI to
+    // prevent many of the illogical cases.  For example, after a DELETED no other action on
+    // the same node would be allowed, so when processing any other action, you do not need to
+    // check the list to see if the node under consideration has been DELETED earlier in this
+    // editing session.
+    // Although we do report a MOVED node, we do not distinguish whether or not it created or
+    // eliminated a 'parent' node in the process, nor do we say where it was moved to.  If you
+    // need that info you will have to interpolate it, given the original and final tree along
+    // with the changeList.
+
+    public TreeBranchEditor(TreeNode tn, TreeBranchHelper tbh) {
         super(new BorderLayout());
-        origBranch = (DefaultMutableTreeNode) dmtn;
+        origBranch = (DefaultMutableTreeNode) tn;
         myBranch = deepClone(origBranch);
         myHelper = tbh;
+        changeList = new ArrayList<NodeChange>();
 
         theChoices = myHelper.getChoices();
 
@@ -78,7 +100,9 @@ public final class TreeBranchEditor extends JPanel
     } // end constructor
 
     private void showTree() {
-        JTree jt = new JTree(myBranch);
+        bem = new BranchEditorModel(myBranch, false);
+        bem.addTreeModelListener(this);
+        JTree jt = new JTree(bem);
         jt.setShowsRootHandles(false);
         jt.setEditable(true);
 
@@ -87,7 +111,6 @@ public final class TreeBranchEditor extends JPanel
         jt.setTransferHandler(new TreeTransferHandler(myHelper.makeParents()));
         jt.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
-        jt.getModel().addTreeModelListener(this);
         expandTree(jt);
         leftScroller.setViewportView(jt);
     } // end showTree
@@ -106,15 +129,16 @@ public final class TreeBranchEditor extends JPanel
     }
 
     private void showChoices() {
-        // Develop a list of pre-selected items.
-        Vector<String> selections = new Vector<String>(1, 1);
-        DefaultMutableTreeNode tmpLeaf = myBranch.getFirstLeaf();
-        while (tmpLeaf != null) {
-            String s = tmpLeaf.toString();
-            //log.debug("Tree leaf: " + s);
-            selections.addElement(s);
-            tmpLeaf = tmpLeaf.getNextLeaf();
-        } // end while
+        // Create lists of pre-selected items from the existing branch.
+        Enumeration dfe = myBranch.depthFirstEnumeration();
+        ArrayList<String> leaves = new ArrayList<String>();
+        ArrayList<String> branches = new ArrayList<String>();
+        while(dfe.hasMoreElements()) {
+            DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode)dfe.nextElement();
+            String name = dmtn.toString();
+            if(dmtn.isLeaf()) leaves.add(name);
+            else branches.add(name);
+        }
 
         JPanel jpr = new JPanel();
         jpr.setLayout(new BoxLayout(jpr, BoxLayout.Y_AXIS));
@@ -122,8 +146,11 @@ public final class TreeBranchEditor extends JPanel
         // To the right-side panel, add the selection choices.
         for(String s: theChoices)  {
             JCheckBox jcb = new JCheckBox(s);
-            if(selections.contains(s)) {
+            if(leaves.contains(s)) {
                 jcb.setSelected(true);
+            } else if(branches.contains(s)) {
+                jcb.setSelected(true);
+                jcb.setEnabled(false);
             }
             jcb.addItemListener(this);
 
@@ -137,13 +164,13 @@ public final class TreeBranchEditor extends JPanel
             // behavior but don't want the vertical stretch.  So - we 'fix' this by
             // taking advantage of the fact that the BoxLayout is one of the few
             // Layouts that actually respects the minimum and maximum sizes of a component.
-            if(myHelper.deleteAllowed()) {
+            if(myHelper.deletesAllowed()) {
                 JPanel oneLine = new JPanel(new BorderLayout());
                 oneLine.add(jcb, "West");
                 JButton jb =new JButton(myHelper.getDeleteCommand());
                 jb.setActionCommand(s);
                 jb.addActionListener(this);
-                oneLine.add(jb, "East");
+                if(!branches.contains(s)) oneLine.add(jb, "East");
                 int w = oneLine.getMaximumSize().width;
                 int h = oneLine.getPreferredSize().height;
                 oneLine.setMaximumSize(new Dimension(w, h)); // See above note.
@@ -152,7 +179,6 @@ public final class TreeBranchEditor extends JPanel
                 jpr.add(jcb);
             }
         }
-
         rightScroller.setViewportView(jpr);
     }
 
@@ -161,15 +187,14 @@ public final class TreeBranchEditor extends JPanel
         String theText = ((JCheckBox)source).getText();
 
         if (e.getStateChange() == ItemEvent.SELECTED) {
-            log.debug(theText + " selected");
+            //log.debug(theText + " selected");
             DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(theText);
             myBranch.add(dmtn);
-        } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-            log.debug(theText + " deselected");
+            changeList.add(new NodeChange(theText, NodeChange.SELECTED));
+        } else { // if (e.getStateChange() == ItemEvent.DESELECTED) {
+            //log.debug(theText + " deselected");
             remove(theText);
-        } else {
-            log.debug(theText + " " + e.toString());
-            return;
+            changeList.add(new NodeChange(theText, NodeChange.DESELECTED));
         }
         showTree();  // Refresh the view on the left side.
     }
@@ -186,40 +211,14 @@ public final class TreeBranchEditor extends JPanel
 
         // We cannot just remove this leaf from myBranch; it may be deeper in if it
         // has been moved there first during the current edit session, then removed.
-        log.debug("Removing: " + theLeafText);
+        //log.debug("Removing: " + theLeafText);
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) tmpLeaf.getParent();
         theParent.remove(tmpLeaf);
 
         // We do this here because somehow, the above removal does not kick off the
         // TreeModel treeNodesRemoved event.
-        countChildren(theParent);
+        showChoices();
     }
-
-    // We call this on a node after it has lost a child.
-    private void countChildren(DefaultMutableTreeNode theParent) {
-        // If the parent is the root, no need to look further 'up'.
-        if(theParent.toString().equals(myBranch.toString())) return;
-
-        // If the just-removed leaf was an only child (causing the parent to go back to
-        // being just a leaf) and if the now childless parent was one of the original
-        // choices and it is not currently a choice, then add it back to the list of choices.
-
-        // * One way that it could already be a choice is - during the current edit session,
-        // after it became a parent and was first removed from the choices, then some other node
-        // might have been renamed to that same string value.  Messy.  But this condition
-        // prevents it from getting messier. (May need to revisit this, after renaming is working.
-        // maybe a better solution is to disallow a 'rename to' a 'removed' node in the same session;
-        // just make them click 'Apply' after the removal, then start a new edit session to do the
-        // rename to reuse the name that was removed in the previous session.
-        if(theParent.getChildCount() == 0) {
-            if(!theChoices.contains(theParent.toString())) {  // See the '*' note above.
-                if(myHelper.getChoices().contains(theParent.toString())) {
-                    theChoices.add(theParent.toString());
-                    showChoices();
-                }
-            }
-        }
-    } // end countChildren
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -230,13 +229,19 @@ public final class TreeBranchEditor extends JPanel
         if(theAction.equals("Cancel")) {
             myBranch = deepClone(origBranch);
             theChoices = myHelper.getChoices();
+            changeList = new ArrayList<NodeChange>();
             showTree();
             showChoices();
         }   else if(theAction.equals("Apply")) {
-            myHelper.doApply(myBranch, theChoices);
+            myHelper.doApply(myBranch, theChoices, changeList);
+
+            // Whether or not the helper accepts the changes, clear the list.
+            changeList = new ArrayList<NodeChange>();
         }  else if(theText.equals(myHelper.getDeleteCommand())) {
-            remove(theAction);
-            theChoices.remove(theAction);
+            // The action was a 'delete' button click.
+            remove(theAction);  // Remove from the tree.
+            theChoices.remove(theAction); // Remove from selection list.
+            changeList.add(new NodeChange(theAction, NodeChange.DELETED));
             showTree();
             showChoices();
         }
@@ -253,42 +258,125 @@ public final class TreeBranchEditor extends JPanel
     // The rename of a node in the tree will kick off this event.
     @Override
     public void treeNodesChanged(TreeModelEvent treeModelEvent) {
-        log.debug(treeModelEvent.toString());
+        DefaultMutableTreeNode node;
+        node = (DefaultMutableTreeNode)
+                (treeModelEvent.getTreePath().getLastPathComponent());
+
+         // If the event lists children then the changed node is the child of that one.
+         // Otherwise, the changed node is the one we already have.
+        try {
+            int index = treeModelEvent.getChildIndices()[0];
+            node = (DefaultMutableTreeNode)
+                    (node.getChildAt(index));
+        } catch (NullPointerException exc) { System.out.print(""); }
+
+        String renamedTo = node.toString();
+        String renamedFrom = bem.getOriginalName();
+        //log.debug(renamedFrom + " was renamed to " + renamedTo);
+        doRename(renamedFrom, renamedTo);
+        changeList.add(new NodeChange(renamedFrom, renamedTo));
+    }
+
+    // This method is called after a rename has been done on the JTree UI,
+    // in order to keep the selections in line with the new text.
+    private void doRename(String renamedFrom, String renamedTo) {
+        for(int i=0; i<theChoices.size(); i++) {
+            String s = theChoices.get(i);
+            if(s.equals(renamedFrom)) {
+                theChoices.set(i, renamedTo);
+                break;
+            }
+        }
+        showChoices();
     }
 
     // When one or more choices is moved to another, if the drop target is not already
-    // a 'parent', it will become one at that time.  When that happens, we remove the
-    // new parent from the list of choices because we no longer want to handle selection
-    // or deletion events for that node.
+    // a 'parent', it will become one at that time.  When that happens, we no longer
+    // want to handle deselection or deletion events for that node.  But that logic
+    // is already implemented in the showChoices method; all we need to do from here
+    // is to invoke it.
     @Override
     public void treeNodesInserted(TreeModelEvent treeModelEvent) {
-        log.debug(treeModelEvent.toString());
-        Object[] thePath = treeModelEvent.getPath();
-        int lastIndex = thePath.length -1;
-        String droppedOn = thePath[lastIndex].toString();
-        log.debug(droppedOn);
-        theChoices.remove(droppedOn);
+        //log.debug(treeModelEvent.toString());
+        DefaultMutableTreeNode node;
+        node = (DefaultMutableTreeNode)
+                (treeModelEvent.getTreePath().getLastPathComponent());
+
+        // If the event lists children then the changed node is the child of that one.
+        // Otherwise, the changed node is the one we already have.
+        try {
+            int index = treeModelEvent.getChildIndices()[0];
+            node = (DefaultMutableTreeNode)
+                    (node.getChildAt(index));
+        } catch (NullPointerException exc) { System.out.print(""); }
+
+        changeList.add(new NodeChange(node.toString(), NodeChange.MOVED));
         showChoices();
     }
 
     // This event fires when a leaf (node) is dragged away from its branch (parent).
-    // For our purposes, we want to see if this is the last child of the parent, thereby
-    // turning that parent back into a leaf.  If so, we can restore that leaf back to
-    // the list of choices.  Note that we also do this during deselection.
+    // For our purposes, if this was the last child of the parent (thereby turning
+    // that parent back into a leaf), we can restore the DESELECT and DELETE
+    // functionalities of that leaf by simply redisplaying the list of choices.
     @Override
     public void treeNodesRemoved(TreeModelEvent treeModelEvent) {
-        log.debug(treeModelEvent.toString());
-
-        DefaultMutableTreeNode node;
-        node = (DefaultMutableTreeNode) (treeModelEvent.getTreePath().getLastPathComponent());
-        countChildren(node);
+        //log.debug(treeModelEvent.toString());
+        showChoices();
     }
 
     @Override
     public void treeStructureChanged(TreeModelEvent treeModelEvent) {
         log.debug(treeModelEvent.toString());
     }
+
+    // Inner Class
+
+    //------------------------------------------------------------------------------------------
+    // Identical to the parent class (DefaultTreeModel) except that for a rename operation it
+    // preserves the original name in a variable that can then be accessed from methods in
+    // the instantiating context, such as the event handlers in the TreeModelListener.
+    // The TreeBranchHelper may impose restrictions on certain 'from' or 'to' names, via the
+    // 'allowRename<To/From>' methods.
+    // Additionally, to enforce the uniqueness requirement as well as to prevent the
+    // various changes made during an edit session from getting cross-threaded, it will not
+    // accept a 'new' name that is in the list of the original or the current choices.
+    // (A string might be in the current choices but not the original ones, if a selection
+    //  had already been renamed to that value during this editing session).
+    // The constraint that a new name not be in the original choices does unfortunately
+    // prevent the case where an original selection was renamed to something else, then
+    // renamed back to what it was in the first place.  Such actions would indicate that the
+    // first rename was an error on the part of the user and that can be easily remedied by
+    // a click of the 'Cancel' button, but that is not a selective fix and will undo ALL
+    // changes for the entire editing session.  Oh well.  Renaming logic is a b*tch.
+    class BranchEditorModel extends DefaultTreeModel {
+        private String originalName;
+
+        public BranchEditorModel(TreeNode treeNode, boolean b) {
+            super(treeNode, b);
+        }
+
+        public void valueForPathChanged(TreePath path, Object newValue)
+        {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+            //log.debug("value changed: " + node.toString());
+
+            boolean originalChoice = myHelper.getChoices().contains(String.valueOf(newValue));
+            boolean renamedChoice = theChoices.contains(String.valueOf(newValue));
+
+            // No user feedback (here) for this condition; if desired then do
+            // it in the helper methods, where a reason may also be provided.
+            if(!myHelper.allowRenameFrom(node.toString())) return;
+            if(!myHelper.allowRenameTo(String.valueOf(newValue))) return;
+
+            if(!originalChoice && !renamedChoice) {
+                originalName = node.toString();
+                super.valueForPathChanged(path, newValue);
+            }
+        }
+
+        public String getOriginalName() { return originalName; }
+    } // end inner class BranchEditorModel
+
 } // end class TreeBranchEditor
 
 
-/**/
