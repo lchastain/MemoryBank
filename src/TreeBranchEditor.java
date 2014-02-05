@@ -36,28 +36,29 @@ public class TreeBranchEditor extends JPanel
     private DefaultMutableTreeNode myBranch;
     private TreeBranchHelper myHelper;
     private ArrayList<String> theChoices;
+    private ArrayList<String> removals = new ArrayList<String>();
     BranchEditorModel bem;
 
     private ArrayList<NodeChange> changeList;
     // The changeList keeps an ongoing list of cumulative changes, that the helper receives
     // when the user ends the editing session by clicking 'Apply'.  Of course we could just
-    // let the user figure out what happened by comparing the final tree and selection list
-    // with the originals, but that seems a bit harsh given the complexities of the logic
-    // needed to respond to an editor control that allows multiple diverse and sometimes
-    // conflicting actions.  So - we keep a list of every single change, even when the
-    // later ones have the effect of cancelling out one or more earlier ones.
+    // let the user figure out what happened by comparing the final tree with the original,
+    // but that seems a bit harsh given the complexities of the logic needed to respond to
+    // an editor control that allows multiple diverse and sometimes conflicting actions.
+    // So - we keep a list of every single change, even when the later ones have the effect
+    // of cancelling out one or more earlier ones.
+    // The one exception to this is the REMOVED action, which only goes at the end of the
+    // list, not to capture a user action but as an indicator that an item's final state
+    // was MARKED (for removal).
 
     // Logical considerations for the handler of the changeList:
-    // ADDED to the tree is the same as SELECTED from the list, and REMOVED from the tree
-    // is the same action as DESELECTED from the list, but we don't distinguish; just use
-    // SELECTED/DESELECTED because it is a better description of the action taken by the user.
-    // DELETED has the same visual effect as DESELECTED from the tree, but it also affects
-    // the selection list.  Further, it 'trumps' all earlier actions on that node.
-    // To simplify things, you can rely on the restrictions built into the editor UI to
-    // prevent many of the illogical cases.  For example, after a DELETED no other action on
-    // the same node would be allowed, so when processing any other action, you do not need to
-    // check the list to see if the node under consideration has been DELETED earlier in this
-    // editing session.
+    // 'added' to the branch is the same as SELECTED from the list, and 'removed' from the
+    // branch is the same action as DESELECTED from the list, but we don't distinguish; just
+    // use SELECTED/DESELECTED because it is a better description of the action taken by the user.
+    // MARKED has the same visual effect as DESELECTED from the tree, but it also affects
+    // the selection list beyond just toggling the checkmark.
+    // To simplify things, we rely on the restrictions built into the editor UI to
+    // prevent many of the illogical cases.
     // Although we do report a MOVED node, we do not distinguish whether or not it created or
     // eliminated a 'parent' node in the process, nor do we say where it was moved to.  If you
     // need that info you will have to interpolate it, given the original and final tree along
@@ -70,7 +71,7 @@ public class TreeBranchEditor extends JPanel
         myHelper = tbh;
         changeList = new ArrayList<NodeChange>();
 
-        theChoices = myHelper.getChoices();
+        theChoices = getChoices();
 
         log.debug("Number of preselected items: " + myBranch.getChildCount());
 
@@ -98,6 +99,24 @@ public class TreeBranchEditor extends JPanel
         add(centerPanel, "Center");
         add(southPanel, "South");
     } // end constructor
+
+    // If the helper's getChoices() has not been implemented,
+    // then make our own, from the provided branch.
+    private ArrayList<String> getChoices() {
+        theChoices = myHelper.getChoices();
+        if(theChoices != null) return theChoices;
+
+        // Create list of choices from the existing branch.
+        theChoices = new ArrayList<String>();
+        String theRoot = origBranch.toString();
+        Enumeration dfe = origBranch.depthFirstEnumeration();
+        while(dfe.hasMoreElements()) {
+            DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode)dfe.nextElement();
+            if(!dmtn.toString().equals(theRoot))
+                theChoices.add(dmtn.toString());
+        }
+        return theChoices;
+    }
 
     private void showTree() {
         bem = new BranchEditorModel(myBranch, false);
@@ -167,10 +186,18 @@ public class TreeBranchEditor extends JPanel
             if(myHelper.deletesAllowed()) {
                 JPanel oneLine = new JPanel(new BorderLayout());
                 oneLine.add(jcb, "West");
-                JButton jb =new JButton(myHelper.getDeleteCommand());
+                String deleteCommand = getDeleteCommand();
+                JButton jb =new JButton(deleteCommand);
                 jb.setActionCommand(s);
                 jb.addActionListener(this);
                 if(!branches.contains(s)) oneLine.add(jb, "East");
+                if(removals.contains(s)) {
+                    jcb.setEnabled(false);
+                    JLabel removalLabel = new JLabel("Marked for REMOVAL");
+                    removalLabel.setForeground(Color.red);
+                    removalLabel.setHorizontalAlignment(JLabel.CENTER);
+                    oneLine.add(removalLabel, "Center");
+                }
                 int w = oneLine.getMaximumSize().width;
                 int h = oneLine.getPreferredSize().height;
                 oneLine.setMaximumSize(new Dimension(w, h)); // See above note.
@@ -180,6 +207,12 @@ public class TreeBranchEditor extends JPanel
             }
         }
         rightScroller.setViewportView(jpr);
+    }
+
+    private String getDeleteCommand() {
+        String deleteCommand = myHelper.getDeleteCommand();
+        if(deleteCommand == null) return "X"; // a default.
+        return deleteCommand;
     }
 
     public void itemStateChanged(ItemEvent e) {
@@ -224,24 +257,35 @@ public class TreeBranchEditor extends JPanel
     public void actionPerformed(ActionEvent actionEvent) {
         String theAction = actionEvent.getActionCommand();
         String theText = ((JButton) actionEvent.getSource()).getText();
-        log.debug(theAction);
+        //log.debug(theAction);
 
         if(theAction.equals("Cancel")) {
             myBranch = deepClone(origBranch);
-            theChoices = myHelper.getChoices();
+            theChoices = getChoices();
             changeList = new ArrayList<NodeChange>();
+            removals = new ArrayList<String>();
             showTree();
             showChoices();
         }   else if(theAction.equals("Apply")) {
-            myHelper.doApply(myBranch, theChoices, changeList);
-
-            // Whether or not the helper accepts the changes, clear the list.
-            changeList = new ArrayList<NodeChange>();
-        }  else if(theText.equals(myHelper.getDeleteCommand())) {
-            // The action was a 'delete' button click.
-            remove(theAction);  // Remove from the tree.
-            theChoices.remove(theAction); // Remove from selection list.
-            changeList.add(new NodeChange(theAction, NodeChange.DELETED));
+            for(String s: removals) {
+                changeList.add(new NodeChange(s, NodeChange.REMOVED));
+            }
+            myHelper.doApply(myBranch, changeList);
+            // At this point there is not much use in leaving the editor displayed and
+            // accessible to the user; in fact they may wreak havoc with another click
+            // of any of the buttons that we handle here.  But for some reason, it seems
+            // like a bad idea to try and idiot-proof it from here; that will be up to
+            // the consumer of this tool.  Good luck and happy tree-trimming!
+        }  else if(theText.equals(getDeleteCommand())) {
+            // The action was a 'delete' button click, which is a toggle.
+            if(removals.contains(theAction)) {
+                removals.remove(theAction);
+                changeList.add(new NodeChange(theAction, NodeChange.UNMARKED));
+            }   else {
+                removals.add(theAction);
+                remove(theAction);  // Remove from the tree.
+                changeList.add(new NodeChange(theAction, NodeChange.MARKED));
+            }
             showTree();
             showChoices();
         }
@@ -343,8 +387,8 @@ public class TreeBranchEditor extends JPanel
     // (A string might be in the current choices but not the original ones, if a selection
     //  had already been renamed to that value during this editing session).
     // The constraint that a new name not be in the original choices does unfortunately
-    // prevent the case where an original selection was renamed to something else, then
-    // renamed back to what it was in the first place.  Such actions would indicate that the
+    // prevent the case where the user wants to restore a selection back to what it was
+    // originally, before it was renamed to something else.  Such actions would indicate that the
     // first rename was an error on the part of the user and that can be easily remedied by
     // a click of the 'Cancel' button, but that is not a selective fix and will undo ALL
     // changes for the entire editing session.  Oh well.  Renaming logic is a b*tch.
@@ -355,20 +399,31 @@ public class TreeBranchEditor extends JPanel
             super(treeNode, b);
         }
 
+        // Handle rename actions
         public void valueForPathChanged(TreePath path, Object newValue)
         {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
             //log.debug("value changed: " + node.toString());
 
-            boolean originalChoice = myHelper.getChoices().contains(String.valueOf(newValue));
-            boolean renamedChoice = theChoices.contains(String.valueOf(newValue));
-
-            // No user feedback (here) for this condition; if desired then do
+            // No user feedback (here) for these cases; if desired then do
             // it in the helper methods, where a reason may also be provided.
             if(!myHelper.allowRenameFrom(node.toString())) return;
             if(!myHelper.allowRenameTo(String.valueOf(newValue))) return;
 
-            if(!originalChoice && !renamedChoice) {
+            // Now consider the original list of choices, if such a list was provided by the helper.
+            ArrayList<String> helperChoices = myHelper.getChoices();
+            boolean foundInHelperChoices = false;
+            if(helperChoices != null) {
+                foundInHelperChoices = helperChoices.contains(String.valueOf(newValue));
+            }
+
+            // Now consider the choices as they currently appear.
+            boolean foundInCurrentChoices = theChoices.contains(String.valueOf(newValue));
+
+            // If a refusal to rename happens due to our own 'foundIn' reasons, currently
+            // we just silently ignore the attempt.  If the helper has a 'need to know'
+            // then we can always add a notification method to the interface.
+            if(!foundInHelperChoices && !foundInCurrentChoices) {
                 originalName = node.toString();
                 super.valueForPathChanged(path, newValue);
             }

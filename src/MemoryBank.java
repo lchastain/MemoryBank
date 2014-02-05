@@ -62,9 +62,10 @@ public class MemoryBank {
     public static boolean event;
     public static boolean init;
     public static boolean timing;
-    public static String userDataDirPathName; // User data top-level directory 'MemoryBank'
+    public static String userDataDirPathName; // User data top-level directory 'mbankData'
     public static String logHome;  // For finding icons & images
     private static AppOptions appOpts;     // saved/loaded
+    private static AppTree appTree;
 
     //----------------------------------------------------------
     // Members used in more than one method but only by 'MemoryBank':
@@ -138,6 +139,8 @@ public class MemoryBank {
 
     } // end static
 
+
+    public static AppTree getAppTree() { return appTree; }
 
     //------------------------------------------------------
     // Method Name: loadOpts
@@ -583,6 +586,7 @@ public class MemoryBank {
             loc = userHome + File.separatorChar + "mbankData";
         }
         debug("Setting user data location to: " + loc);
+        System.out.println("Setting user data location to: " + loc);
         if (!setUserDataDirPathName(loc)) {  // Some validity testing here..
             System.exit(0);
         } // end if
@@ -735,9 +739,8 @@ public class MemoryBank {
         //--------------------------------------
 
         update("Creating the Log Tree");
-        final AppTree appTree = new AppTree(logFrame, appOpts);
+        appTree = new AppTree(logFrame, appOpts);
         logFrame.setContentPane(appTree);
-
 
         update("Laying out graphical components");
         logFrame.pack();
@@ -753,7 +756,7 @@ public class MemoryBank {
         //---------------------------------------------------------------------
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
-                appTree.preClose();
+                getAppTree().preClose();
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);

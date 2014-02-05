@@ -24,7 +24,7 @@ class TBH implements TreeBranchHelper {
     }
 
     @Override
-    public void doApply(MutableTreeNode mtn, ArrayList newChoices, ArrayList changes) {
+    public void doApply(MutableTreeNode mtn, ArrayList changes) {
         for(Object nco: changes) {
             System.out.println(nco.toString());
         }

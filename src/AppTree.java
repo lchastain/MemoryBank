@@ -67,15 +67,12 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     private TodoNoteGroup theTodoList;    // currently active list
     private SearchPanel spTheSearchPanel;
     private AppImage abbowt;
-    private ViewportLayout normalLayout;
-    private CenterViewportLayout centerLayout;
     private JSplitPane splitPane;
 
     private static String ems;               // Error Message String
     private static Date currentDateChoice;
     private TodoListHandler theTodoListHandler;
     private DefaultMutableTreeNode theRootNode;
-    private DefaultMutableTreeNode nodeTodoLists;
     private SearchResultNode nodeSearchResults;
 
     // Predefined Tree Paths
@@ -177,12 +174,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         // Create the viewing pane and start with the 'about' graphic.
         abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif", false);
-        rightPane = new JScrollPane(abbowt);
-
-        centerLayout = new CenterViewportLayout();
-        normalLayout = (ViewportLayout) rightPane.getViewport().getLayout();
-
-        rightPane.getViewport().setLayout(centerLayout);
+        JPanel aboutPanel = new JPanel(new GridBagLayout());
+        aboutPanel.add(abbowt); // Nested the image in a panel with a flexible layout, for centering.
+        rightPane = new JScrollPane(aboutPanel);
 
         // Add the scroll panes to a split pane.
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -400,12 +394,10 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------
         // To Do Lists
         //---------------------------------------------------
-        // The root branch
-        nodeTodoLists = new DefaultMutableTreeNode("To Do Lists");
-        branch = nodeTodoLists;
+        branch = new DefaultMutableTreeNode("To Do Lists");
         String theName;
         theTodoLeafVector = new Vector<TodoLeaf>(0, 1);
-        theTodoListHandler = new TodoListHandler(branch);
+        theTodoListHandler = new TodoListHandler(branch); // menubar items
         trunk.add(branch);
         intRowCounter++;
         intTodoRow = intRowCounter;
@@ -441,7 +433,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             trunk.add(nodeSearchResults);
         } // end if
 
-        // Create a default model based on the 'Log' node that
+        // Create a default model based on the 'App' node that
         //   we've been growing, and create the tree from that model.
         treeModel = new DefaultTreeModel(trunk);
         tree = new JTree(treeModel);
@@ -799,11 +791,8 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 } // end if
             } // end for
 
-            // Display the 'About' view.
-            // Code below was copied from the relevant section
-            //   of 'showAbout', without the toggle feature.
-            rightPane.getViewport().setLayout(centerLayout);
-            rightPane.setViewportView(abbowt);
+            // With no more search results remaining, display the 'About' view.
+            showAbout();
         } // end if
     } // end removeSearchNode
 
@@ -1102,8 +1091,12 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             // Capture the current state; we may have to 'toggle' back to it.
             updateTreeState(false);
             tree.clearSelection();
-            rightPane.getViewport().setLayout(centerLayout);
-            rightPane.setViewportView(abbowt);
+
+            // A 'nesting' trick, to get the image centered in the JScrollPane
+            JPanel jp = new JPanel(new GridBagLayout());
+            jp.add(abbowt);
+            rightPane.setViewportView(jp);
+
             mb.manageMenus("");
         } // end if
     } // end showAbout
@@ -1317,7 +1310,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         dayTitle.setFont(Font.decode("Serif-bold-24"));
         dayTitle.setText(sdf.format(currentDateChoice));
 
-        rightPane.getViewport().setLayout(centerLayout);
         rightPane.setViewportView(dayTitle);
     } // end showToday
 
@@ -1425,9 +1417,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         appOpts.theSelection = theText; // Preserved exactly.
         strSelectionType = theText;  // May be generalized
 
-        // Set (or reset) the default layout to the norm.
-        rightPane.getViewport().setLayout(normalLayout);
-
         //-----------------------------------------------------
         // These two booleans will help us to avoid going down
         //   the wrong branch in a case where some bozo named
@@ -1444,7 +1433,8 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         if (isListManager && isTopLevel) {
             // To Do List selection / deselection
-            theTodoListHandler.showListManager(TodoListManager.SELECT_MODE);
+
+            //theTodoListHandler.showListManager(TodoListManager.SELECT_MODE);
 
             /*
             JTree jt = new JTree(node);
@@ -1452,6 +1442,10 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             jt.setEditable(true);
             rightPane.setViewportView(jt);
             */
+            TodoBranchHelper tbh = new TodoBranchHelper(tree);
+
+            TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
+            rightPane.setViewportView(tbe);
 
         } else if (!node.isLeaf()) {
             // Looking at other expandable nodes
@@ -1579,8 +1573,11 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 rightPane.setViewportView(ngTheNoteGroup);
             } // end if
         } else {
-            rightPane.getViewport().setLayout(centerLayout);
-            rightPane.setViewportView(new JLabel(theText));
+            // Any other as-yet unhandled node on the tree.
+            // Currently - Week View, Icon Manager
+            JPanel jp = new JPanel(new GridBagLayout());
+            jp.add(new JLabel(theText));
+            rightPane.setViewportView(jp);
         } // end if/else if
 
         mb.manageMenus(strSelectionType);
@@ -1616,16 +1613,15 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
 
         if (!updateLists) return;
 
-        // Used in loops below -
+        // Preserve the active To Do Lists
+        DefaultMutableTreeNode theTodoNode = TodoBranchHelper.getTodoNode(theRootNode);
         DefaultMutableTreeNode leafLink;
         int numLeaves;
-
-        // Preserve the active To Do Lists
         appOpts.todoLists.clear();
 
-        numLeaves = nodeTodoLists.getChildCount();
+        numLeaves = theTodoNode.getChildCount();
         if (numLeaves > 0) {
-            leafLink = nodeTodoLists.getFirstLeaf();
+            leafLink = theTodoNode.getFirstLeaf();
             while (numLeaves-- > 0) {
                 String s = leafLink.toString();
                 //MemoryBank.debug("  Preserving list: " + s);
@@ -1708,118 +1704,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     //------------------------------------------------------------
     // Inner classes
     //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    // Class Name:  CenterViewportLayout
-    //
-    // A custom layout manager to allow centering of the viewport
-    // view component, when it is smaller than the space allotted.
-    //------------------------------------------------------------
-    final class CenterViewportLayout extends ViewportLayout {
-        private static final long serialVersionUID = 3968894610762011575L;
-
-        private static final boolean useCenterLayout = true;
-
-        /**
-         * This method is copied directly from
-         * ViewportLayout.layoutContainer() useCenterLayout marks all
-         * changed behavior
-         */
-        public void layoutContainer(Container parent) {
-            javax.swing.JViewport vp = (javax.swing.JViewport) parent;
-            Component view = vp.getView();
-            javax.swing.Scrollable scrollableView = null;
-
-            if (view == null) return;
-
-            try {
-                scrollableView = (javax.swing.Scrollable) view;
-            } catch (ClassCastException cce) {
-                // do nothing
-            } // end try/catch
-
-            // All of the dimensions below are in view coordinates, except
-            //   vpSize which we're converting.
-            Dimension viewPrefSize = view.getPreferredSize();
-            Dimension vpSize = vp.getSize();
-            Dimension extentSize = vp.toViewCoordinates(vpSize);
-            Dimension viewSize = new Dimension(viewPrefSize);
-
-            if (scrollableView != null) {
-                if (scrollableView.getScrollableTracksViewportWidth()) {
-                    viewSize.width = vpSize.width;
-                } // end if
-                if (scrollableView.getScrollableTracksViewportHeight()) {
-                    System.out.println("!!! tracking height");
-                    viewSize.height = vpSize.height;
-                } // end if
-            } // end if
-
-            Point viewPosition = vp.getViewPosition();
-
-      /* If the new viewport size would leave empty space to the
-       * right of the view, right justify the view or left justify
-       * the view when the width of the view is smaller than the
-       * container.
-       */
-            if (useCenterLayout) {
-                if (extentSize.width > viewSize.width) {
-                    viewPosition.x = (viewSize.width - extentSize.width) / 2;
-                }
-            } else {
-                if (scrollableView == null ||
-                        vp.getParent() == null ||
-                        vp.getParent().getComponentOrientation().isLeftToRight()) {
-                    if ((viewPosition.x + extentSize.width) > viewSize.width) {
-                        viewPosition.x = Math.max(0, viewSize.width - extentSize.width);
-                    }
-                } else {
-                    if (extentSize.width > viewSize.width) {
-                        viewPosition.x = viewSize.width - extentSize.width;
-                    } else {
-                        viewPosition.x = Math.max(0,
-                                Math.min(viewSize.width - extentSize.width, viewPosition.x));
-                    }
-                }
-            }
-
-      /* If the new viewport size would leave empty space below the
-       * view, bottom justify the view or top justify the view when
-       * the height of the view is smaller than the container.
-       */
-            if ((viewPosition.y + extentSize.height) > viewSize.height) {
-                viewPosition.y = Math.max(0, viewSize.height - extentSize.height);
-            }
-
-      /* If we haven't been advised about how the viewports size 
-       * should change wrt to the viewport, i.e. if the view isn't
-       * an instance of Scrollable, then adjust the views size as follows.
-       * 
-       * If the origin of the view is showing and the viewport is
-       * bigger than the views preferred size, then make the view
-       * the same size as the viewport.
-       */
-
-            if (useCenterLayout) {
-                if (extentSize.height > viewSize.height) {
-                    viewPosition.y = (viewSize.height - extentSize.height) / 2;
-                }
-            } else {
-                if (scrollableView == null) {
-                    if ((viewPosition.x == 0) && (vpSize.width > viewPrefSize.width)) {
-                        viewSize.width = vpSize.width;
-                    }
-                    if ((viewPosition.y == 0) && (vpSize.height > viewPrefSize.height)) {
-                        viewSize.height = vpSize.height;
-                    }
-                }
-            }
-
-            vp.setViewSize(viewSize);
-            vp.setViewPosition(viewPosition);
-        }
-    } // end class CenterViewportLayout
-
 
     //------------------------------------------------------------
     // Class Name:  TodoListHandler

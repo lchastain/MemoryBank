@@ -2,6 +2,28 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+2/3/2014 1734 The 'about' graphic has been getting cut off, when displayed a 2nd+ time.  Suspecting
+my custom 'CenterViewportLayout', I found a better way to center items in a JScrollPane when they are
+smaller than the available space - nesting inside a JPanel with a GridBagLayout.  Now - using that
+and removing my custom code.  My code base continues to shrink, as I get more proficient with the
+available tools.  But to be fair - some of these tool (and techniques) are fairly new.
+
+2/5/2014 1348 - With the solution of the 'showAbout' toggle graphic problem, then added a
+static mechanism whereby the TodoBranchHelper could acquire the app and make that call -
+no longer need the 'filesystem sync needed' warning; just unshow the editor (by showing
+the about graphic) and if they go
+back to it, it is reloaded based on existing files.  The TreeBranchEditor is now usable for
+all To Do list actions except for 'Add'; working on that one next.  SCR #5 is resolved by
+the work done so far.
+
+2/4/2014 1217 - Have been considering the problem of coordinating Tree changes with FileSystem
+changes, and what to do when one of them (mostly the FileSystem changes) encounters trouble.
+After a brief hope that Apache had the answer with its transactional file system changes library
+(they now disavow that it works) - have decided to allow the tree changes and queue up FileSystem
+complaints, still attempting every change vs bailing out at the first sign of trouble.  At the end,
+if there are any complaints in the queue, will display them in a warning to the user and suggest
+that they restart the app, to get back in sync.  DESIGN DECISION
+
 2/3/2014 1241 - Spawn is heading towards a shutdown; we are all on standby until that happens, now.
 Meanwhile, the TreeBranchEditor is done!  At least from the perspective of its stand-alone driver.
 Now, want to GitHub it as a separate widget, and also integrate it into this app.  Also looking at

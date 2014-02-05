@@ -57,6 +57,8 @@ public class AppMenuBar extends JMenuBar{
         menuView.add(new JMenuItem("Set Look and Feel..."));
 
         menuViewEvent = new JMenu("View");
+        // Don't leave Today here...
+        menuViewEvent.add(new JMenuItem("Today"));
         // menuViewEvent.add(new JMenuItem("Date Format"));
         menuViewEvent.add(new JMenuItem("Refresh"));
         menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
