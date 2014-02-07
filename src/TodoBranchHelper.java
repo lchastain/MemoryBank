@@ -1,34 +1,52 @@
+/* ***************************************************************************
+ * File:    TodoBranchHelper.java
+ * Author:  D. Lee Chastain
+ *
+ ****************************************************************************/
+/**
+ A custom TreeBranchHelper, in support of the TreeBranchEditor actions on
+ the TodoBranch.  In addition to the interface methods, there are several
+ static methods that support other actions on the TodoBranch, that will be
+ called by the AppTree or other branches.  For actions on the TodoLists
+ themselves (such as save, load, etc), see the TodoNoteGroup class.
+
+*/
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 // TODO
+// Remove the old todolistHandler.
+//      first move menu handling to here
+//          save as...
+//      then can remove.
+// Use the branch editor for all other appropriate branches.
 // Fix the startup debug messages (user data loc)
 // Test showAbout after removing all search results, then test again - toggle?
-// Implement a list 'add'.
-// Remove the old todolistmanager and handler.
-// Use the branch editor for all other appropriate branches.
 // app user name
-// app window size
-
 
 
 public class TodoBranchHelper implements TreeBranchHelper {
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
     private static String ems;  // Error Message String
 
+    private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
     private JTree theTree;  // The original tree, not the one from the editor.
     private DefaultTreeModel theTreeModel = null;
     private DefaultMutableTreeNode theRoot;
     private int todoIndex;
+    private String renameFrom;
 
     // Construct this class with the JTree that contains the TodoBranch.
     public TodoBranchHelper(JTree jt) {
@@ -39,6 +57,25 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
         DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
         if(dmtn != null) todoIndex = theRoot.getIndex(dmtn);
+    }
+
+    // This method will return a TreePath for the provided String,
+    // regardless of whether or not it really is a node on the tree.
+    public static TreePath getPathFor(JTree jt, String s) {
+        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
+        DefaultMutableTreeNode clonedRoot = AppTree.deepClone(theRoot);
+        DefaultMutableTreeNode theTodoNode = getTodoNode(clonedRoot);
+
+        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(s);
+
+        // This is the 'tricky' part - we don't really want to add this node;
+        // we just want the system to create the TreeNode array for us so we
+        // can get and return the TreePath.  So - we didn't add it to the
+        // 'real' tree, but a clone of the root.
+        theTodoNode.add(newNode);
+
+        return new TreePath(newNode.getPath());
     }
 
     public static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
@@ -54,6 +91,114 @@ public class TodoBranchHelper implements TreeBranchHelper {
         return dmtn;
     }
 
+    public static void addNewList(JTree jt) {
+        String newName = "";
+        String prompt = "Enter a name for the new To Do List";
+        String title = "Add a new To Do List";
+
+        newName = (String) JOptionPane.showInputDialog(
+                jt,                           // parent component - for modality
+                prompt,                       // prompt
+                title,                        // pane title bar
+                JOptionPane.QUESTION_MESSAGE, // type of pane
+                null,                         // icon
+                null,                         // list of choices
+                newName);                     // initial value
+
+        if (newName == null) return;      // No user entry; dialog was Cancelled.
+        newName = nameAdjust(newName);
+
+        DefaultTreeModel theTreeModel = (DefaultTreeModel) jt.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
+        if (dmtn != null) {
+            // Declare a tree node for the new list.
+            DefaultMutableTreeNode newList;
+
+            // Allowing 'add' to act as a back-door selection is ok, but do
+            // not add this choice to the branch if it is already there.
+            boolean addNodeToBranch = true;
+            newList = (DefaultMutableTreeNode) getChild(dmtn, newName);
+            if(newList == null) {
+                newList = new DefaultMutableTreeNode(newName);
+            } else {
+                addNodeToBranch = false;
+            }
+
+            if(addNodeToBranch) {
+                // Ensure that the new name meets our requirements.
+                if(!nameCheck(newName, jt)) return;
+
+                // Add the new list name to the tree
+                dmtn.add(newList);
+                theTreeModel.nodeStructureChanged(dmtn);
+            }
+
+            // Select the list.
+            TreePath tp = getPath(dmtn);
+            jt.expandPath(tp);
+            jt.setSelectionPath(new TreePath(newList.getPath()));
+        }
+    } // end addNewList
+
+
+    private static MutableTreeNode getChild(DefaultMutableTreeNode dmtn, String name) {
+        Enumeration children = dmtn.children();
+        while(children.hasMoreElements()) {
+            DefaultMutableTreeNode achild = (DefaultMutableTreeNode) children.nextElement();
+            if (achild.toString().equals(name)) {
+                return achild;
+            }
+        }
+        return null;
+    }
+
+    // Called when adding a new list.  First, it trims any leading and trailing spaces.
+    // Then it checks to see if the file already exists.  But rather than considering that
+    // to be an error condition, we allow this situation to be a back-door selection method
+    // rather than an 'Add'.  The only thing is - on a case-insensitive file system the file
+    // may exist but not necessarily with the same casing as the name that was entered by
+    // the user.  So - if we find that it does exist, we adopt that name and casing which
+    // may be different.  After that, they can change the casing if desired, via the rename
+    // mechanism.  But note that it would have to be a two-step process; a case-only name
+    // change would look like a same-file conflict (unlike 'Add', the rename operation does
+    // consider that to be an error).  So for an example of changing case via a rename:
+    // 'upper' ==> 'UPPER' could be accomplished by 'upper' ==> 'upper1' ==> "UPPER".
+    private static String nameAdjust(String name) {
+        name = name.trim();
+        if(!name.isEmpty()) {
+            String newNamedFile = MemoryBank.userDataDirPathName + File.separatorChar;
+            newNamedFile += name + ".todolist";
+            File f = new File(newNamedFile);
+            if (f.exists()) {
+                try {
+                    String longCaseName = f.getCanonicalPath();
+                    int theSep = longCaseName.lastIndexOf(File.separatorChar);
+                    int theDot = longCaseName.lastIndexOf(".todolist");
+                    name = longCaseName.substring(theSep+1, theDot);
+                } catch (IOException ioe) {
+                    System.out.println(ioe.getMessage());
+                }
+            }
+        }
+        return name;
+    }
+
+
+    public static TreePath getPath(TreeNode treeNode) {
+        List<Object> nodes = new ArrayList<Object>();
+        if (treeNode != null) {
+            nodes.add(treeNode);
+            treeNode = treeNode.getParent();
+            while (treeNode != null) {
+                nodes.add(0, treeNode);
+                treeNode = treeNode.getParent();
+            }
+        }
+
+        return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
+    }
+
 
     @Override
     public boolean allowRenameFrom(String theName) {
@@ -61,26 +206,33 @@ public class TodoBranchHelper implements TreeBranchHelper {
             JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the root!");
             return false;
         }
+        renameFrom = theName.trim(); // Used in renameTo; trim is ok but don't mess with case.
         return true;
     }
 
     @Override
     public boolean allowRenameTo(String theName) {
+        // If theName is also our 'renameFrom' name then the whole thing is a no-op.
+        // No need to put out a complaint about that; just return a false.
+        if(theName.trim().equals(renameFrom)) return false;
+        // But we do support case-sensitive filesystems, so if 'case' is the only difference
+        // between the two names then we will fall thru to the 'file exists' complaint, on a
+        // case-insensitive filesystem.
 
         // Check to see if the destination file name already exists.
         // If so then complain and refuse to do the rename.
         String newNamedFile = MemoryBank.userDataDirPathName + File.separatorChar;
-        newNamedFile += theName + ".todolist";
+        newNamedFile += theName.trim() + ".todolist";
 
         if ((new File(newNamedFile)).exists()) {
-            ems = "A list named " + theName + " already exists!\n";
+            ems = "A list with that name already exists!" + System.lineSeparator();
             ems += "  Rename operation cancelled.";
             JOptionPane.showMessageDialog(theTree, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } // end if
 
-        return true;
+        return nameCheck(theName, null);
     }
 
     @Override
@@ -182,6 +334,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nc.nodeName);
                     } // end if
+                    MemoryBank.getAppTree().removeLeafFromVector(nc.nodeName);
                 } catch (SecurityException se) {
                     ems += se.getMessage() + System.lineSeparator();
                 } catch (Exception ue) {  // User Exception
@@ -222,4 +375,105 @@ public class TodoBranchHelper implements TreeBranchHelper {
     public String getDeleteCommand() {
         return null;
     }
+
+    //-------------------------------------------------------------------
+    // Method Name:  nameCheck
+    //
+    // Check for the following 'illegal' file naming conditions:
+    //   No entry, or whitespace only.
+    //   The name ends in '.todolist'.
+    //   The name contains more than MAX_FILENAME_LENGTH chars.
+    //   The filesystem refuses to create a file with this name.
+    //
+    // Return Value - false if file name should not be allowed;
+    //    otherwise, true.  Also, any 'false' return will be
+    //    preceeded by an informative error dialog.
+    //-------------------------------------------------------------------
+    public static boolean nameCheck(String theName, Component parent) {
+        Exception e = null;
+        ems = "";
+
+        theName = theName.trim();
+
+        // Check for non-entry (or evaporation).
+        if (theName.equals("")) {
+            ems = "No New List Name was supplied!";
+        } // end if
+
+        // Refuse unwanted help.
+        if (theName.endsWith(".todolist")) {
+            ems = "The name you supply cannot end in '.todolist'";
+        } // end if
+
+        // Check for legal max length.
+        // The input field used in this class would not allow this one, but
+        //   since this method is static and accepts input from outside
+        //   sources, this check should be done.
+        if (theName.length() > MAX_FILENAME_LENGTH) {
+            ems = "The new name is limited to " + MAX_FILENAME_LENGTH + " characters";
+        } // end if
+
+        if (!ems.equals("")) {
+            JOptionPane.showMessageDialog(parent, ems,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } // end if
+
+        // Check to see if a file with this name already exists?
+        //   No; for an 'add' the AppTree can handle that situation
+        //   by simply opening it, a kind of back-door selection.
+
+        // Note - I thought it would be a good idea to check for 'illegal'
+        //   characters in the filename, but when I started testing, the
+        //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
+        //   Of course there ARE illegal characters, and the ones above may
+        //   also be illegal on another OS.  So, the best way to
+        //   detect them is to try to create a file using the name we're
+        //   checking.  Any io error and we can fail this check.
+
+        // Now try to create the file, with a '.test' extension; this will not
+        // conflict with any 'legal' existing file in this directory, so if
+        // there is any problem at all then we can report a failure.
+
+        String theFilename = MemoryBank.userDataDirPathName + File.separatorChar + theName + ".test";
+        File f = new File(theFilename);
+        MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
+        boolean b = false; // Used only for 'greening' the code.
+        try {
+            b = f.delete();
+            // If the file does not already exist, this simply returned a false.
+            // If it did already exist then we must consider how it got there and
+            // that this attempt to delete will quite probably throw a Security
+            // Exception. But if it does not then the file is gone now so we go on.
+
+            b = f.createNewFile();
+            // We didn't test the return value here because anything short of an
+            // Exception means that (thanks to the previous delete) the value is
+            // 'true' and we just now created a file with the specified name.
+
+            // The above call would have worked even without the previous delete,
+            // but in the case of a preexisting file we would not have been sure
+            // that we had overcome any possible security exception.  Since we
+            // know that we just now created this file, we also know that it is
+            // writable and do not need to check 'canWrite'.
+
+            b = f.delete(); // So, delete the test file; name test passed.
+        } catch (IOException ioe) {
+            e = ioe;  // Identify now, handle below.
+        } catch (SecurityException se) {
+            e = se;  // Identify now, handle below.
+        } finally {
+            if(!b) System.out.print("");
+        } // end try/catch
+
+        // Handle Exceptions, if any.
+        if (e != null) {
+            JOptionPane.showMessageDialog(parent, e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } // end if
+
+        return true;
+    } // end nameCheck
+
 }

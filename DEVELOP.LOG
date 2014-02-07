@@ -2,19 +2,28 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
-2/3/2014 1734 The 'about' graphic has been getting cut off, when displayed a 2nd+ time.  Suspecting
-my custom 'CenterViewportLayout', I found a better way to center items in a JScrollPane when they are
-smaller than the available space - nesting inside a JPanel with a GridBagLayout.  Now - using that
-and removing my custom code.  My code base continues to shrink, as I get more proficient with the
-available tools.  But to be fair - some of these tool (and techniques) are fairly new.
+2/6/2014 1749 - All name checking code has been adopted and the TodoListManager has been
+removed.  In the todoListHandler there was a 'selectList' method used by the handler for
+a click on Search Results 'found in', that is now supported by the TodoBranchHelper, invoked
+by a one-liner from the AppTree.  The important difference from the original behavior is that
+the old way would add the todolist as a node into the tree if it was not already there.  The
+new way does not do that.  It was a DESIGN DECISION that the original behavior was intrusive;
+if I wanted to select that 'old' list, I would have, and now I have to go back and edit the
+lists and remove it, and this will continue to happen.  So - we now have a way to 'select'
+(programmatically) a todolist that is not showing in the tree.  Upon leaving of the leaf,
+the user has no 'tree' path back to that view (but they can always repeat the click on the
+search result).  One minor concern - when the list IS in the tree and we 'select' it, it
+is not highlighted as a selection, as it would be if the user had clicked on it.  May be
+able to 'fix' that but no pressing need atm.
 
 2/5/2014 1348 - With the solution of the 'showAbout' toggle graphic problem, then added a
 static mechanism whereby the TodoBranchHelper could acquire the app and make that call -
 no longer need the 'filesystem sync needed' warning; just unshow the editor (by showing
-the about graphic) and if they go
-back to it, it is reloaded based on existing files.  The TreeBranchEditor is now usable for
-all To Do list actions except for 'Add'; working on that one next.  SCR #5 is resolved by
-the work done so far.
+the about graphic) and if they go back to the editor, it is reloaded based on existing files.
+The TreeBranchEditor is now usable for all To Do list actions except for 'Add'; working on
+that one next.  SCR #5 is resolved by the work done so far.
+(before stopping for the day) - 'add' functionality now in place, now a menu choice when the
+editor is showing.  Still need to add more name checking.
 
 2/4/2014 1217 - Have been considering the problem of coordinating Tree changes with FileSystem
 changes, and what to do when one of them (mostly the FileSystem changes) encounters trouble.
@@ -23,6 +32,12 @@ After a brief hope that Apache had the answer with its transactional file system
 complaints, still attempting every change vs bailing out at the first sign of trouble.  At the end,
 if there are any complaints in the queue, will display them in a warning to the user and suggest
 that they restart the app, to get back in sync.  DESIGN DECISION
+
+2/3/2014 1734 The 'about' graphic has been getting cut off, when displayed a 2nd+ time.  Suspecting
+my custom 'CenterViewportLayout', I found a better way to center items in a JScrollPane when they are
+smaller than the available space - nesting inside a JPanel with a GridBagLayout.  Now - using that
+and removing my custom code.  My code base continues to shrink, as I get more proficient with the
+available tools.  But to be fair - some of these tool (and techniques) are fairly new.
 
 2/3/2014 1241 - Spawn is heading towards a shutdown; we are all on standby until that happens, now.
 Meanwhile, the TreeBranchEditor is done!  At least from the perspective of its stand-alone driver.

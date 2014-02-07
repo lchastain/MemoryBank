@@ -1,5 +1,5 @@
 /* ***************************************************************************
- * File:    LogTree.java
+ * File:    AppTree.java
  * Author:  D. Lee Chastain
  ****************************************************************************/
 /**
@@ -11,12 +11,9 @@
 // 
 // MenuBar events        - actionPerformed.
 // Tree Selection events - valueChanged.
-// TodoListManager Apply - TodoListHandler$actionPerformed.
 //
-// Management of 'to do' lists was developed first, long before management
-//   of search results.  The two methodologies are different, and the
-//   search methodology may be more efficient - consider a 
-//   rewrite of the 'to do' list approach.
+// Management of search results should be rewritten to be closer to
+//   the way to do lists are handled.
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -28,9 +25,10 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Vector;
 
-public final class AppTree extends JPanel implements TreeSelectionListener {
+public class AppTree extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L;
 
     public static AppTree ltTheTree;
@@ -569,6 +567,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
+        else if (what.equals("Add...")) TodoBranchHelper.addNewList(tree);
         else if (what.equals("Close")) closeSearchResult();
         else if (what.equals("Clear Day")) theAppDays.clearGroupData();
         else if (what.equals("Clear Month")) theAppMonths.clearGroupData();
@@ -1128,7 +1127,10 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
                 JOptionPane.showMessageDialog(this,
                         s, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                theTodoListHandler.selectList(pn);
+                // The beauty of this action is that the path we are
+                // selecting does not actually have to be present
+                // for this to work and display the list.
+                tree.setSelectionPath(TodoBranchHelper.getPathFor(tree, pn));
             } // end if
         } else if (fname.equals("UpcomingEvents")) {
             tree.setSelectionPath(upcomingEventsPath);
@@ -1426,30 +1428,22 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         //   look to see if the parent is 'To Do Lists', before
         //   we start considering the text of the selection.
         //-----------------------------------------------------
-        boolean isListManager = theText.equals("To Do Lists");
+        boolean isTodoBranch = theText.equals("To Do Lists");
         boolean isTopLevel = theParent.equals("App");
 
         ngTheNoteGroup = null; // initialize
 
-        if (isListManager && isTopLevel) {
-            // To Do List selection / deselection
-
-            //theTodoListHandler.showListManager(TodoListManager.SELECT_MODE);
-
-            /*
-            JTree jt = new JTree(node);
-            jt.setShowsRootHandles(true);
-            jt.setEditable(true);
-            rightPane.setViewportView(jt);
-            */
+        if (isTodoBranch && isTopLevel) {
+            // To Do List management - select, deselect, rename, reorder, remove
+            // The 'tree' may change often.  We instantiate a new helper
+            // and editor each time, to be sure all are in sync.
             TodoBranchHelper tbh = new TodoBranchHelper(tree);
-
             TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
             rightPane.setViewportView(tbe);
-
         } else if (!node.isLeaf()) {
             // Looking at other expandable nodes
             JTree jt = new JTree(node);
+            //jt.setEditable(true);
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
         } else if (theParent.equals("To Do Lists")) {
@@ -1709,10 +1703,9 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
     // Class Name:  TodoListHandler
     //
     //------------------------------------------------------------
-    private final class TodoListHandler implements ActionListener {
+    private final class TodoListHandler {
         private DefaultMutableTreeNode theTodoBranch;
         private Vector<String> selections;
-        private TodoListManager todoMan;
         private TreeNode[] pathToRoot;
         private DefaultMutableTreeNode tmpNode;
 
@@ -1721,186 +1714,10 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
         } // end constructor
 
 
-        public void actionPerformed(ActionEvent e) {
-            String doWhat = e.getActionCommand();
-            MemoryBank.debug("AppTree$TodoListHandler " + doWhat);
-            if (doWhat.equals("Select")) {
-                doSelect();
-            } else if (doWhat.equals("Add")) {
-                // After the TodoListManager's checks on name validity,
-                //   do not know of any reason why we would fail to
-                //   create the list, if it does not already exist.  So -
-
-                // Get the new list name
-                String theNewList = selections.elementAt(0);
-
-                // and make it happen
-                selectList(theNewList);
-            } else if (doWhat.equals("Rename")) {
-                String oldName = selections.elementAt(0);
-                String newName = selections.elementAt(1);
-                String didit = selections.elementAt(2);
-
-                // We need to remove the old list name from the Vector, in the case
-                //   that the original list name had previously been a selection.
-                removeLeafFromVector(oldName);
-
-                // Is the operation complete?
-                if (didit.equals("yes")) return;
-
-                // Otherwise, 'no' - in which case the renamed list is
-                // also a current selection.  Rename the leaf.
-                // Since we're not 'on' it, we won't need to reselect it.
-                renameTreeNode(oldName, newName);
-
-            } else if (doWhat.equals("Delete")) {
-                doDelete();
-            } // end if/else if
-
-        } // end actionPerformed
-
-
-        //-------------------------------------------------------
-        // Method Name:  doDelete
-        //
-        // Called after the TodoListManager has deleted one or
-        // more TD lists.  Now, (if present) remove the deleted
-        // lists from the tree and Vector.
-        //-------------------------------------------------------
-        private void doDelete() {
-            MemoryBank.debug("Reconfiguring tree based on deletions");
-            boolean changeWasMade = false;
-            int numLeaves;
-            DefaultMutableTreeNode leafLink;
-            boolean inBranch;
-
-            for (String s : selections) { // For each deletion
-                // Remove from Vector.
-                // If this deletion had previously been selected and viewed
-                // then it is in the reference Vector and should be removed.
-                // This is for later, in the case where a new list could be
-                // created with this name or an existing list is renamed to
-                // it.  If we still had a good reference to the deleted list
-                // then during a vector search we might find that one first,
-                // rather than the one we're really looking for.
-                removeLeafFromVector(s);
-
-                numLeaves = theTodoBranch.getChildCount();
-                leafLink = theTodoBranch.getFirstLeaf();
-
-                // Search the tree branch for this deleted list.
-                inBranch = false;
-                while (numLeaves-- > 0) {
-                    String leaf = leafLink.toString();
-                    if (leaf.equals(s)) {
-                        inBranch = true;
-                        break;
-                    } // end if
-                    leafLink = leafLink.getNextLeaf();
-                } // end while
-
-                // If the deletion is present, remove from branch.
-                if (inBranch) {
-                    MemoryBank.debug("  Pruning " + s + " from the 'To Do Lists' branch");
-                    changeWasMade = true;
-                    theTodoBranch.remove(leafLink);
-                } // end if
-            } // end for each deletion
-
-            if (changeWasMade) treeModel.nodeStructureChanged(theTodoBranch);
-        } // end doDelete
-
-
-        //-------------------------------------------------------------------
-        // Method Name:  doSelect
-        //
-        // Examine each node in the tree and verify that it is still in the
-        //   selections.  If not then delete that node.
-        //
-        // Then examine each selection and verify that it is in the tree.
-        //   If not then add it to the 'end'.
-        //
-        // The intent is not to rebuild the tree each time but to prune and
-        //   grow it as the way to let the user specify the order of the
-        //   lists that it contains.
-        //-------------------------------------------------------------------
-        private void doSelect() {
-            MemoryBank.debug("Reconfiguring tree based on selections");
-            boolean changeWasMade = false;
-            int numLeaves = theTodoBranch.getChildCount();
-            int tmpNum;
-            DefaultMutableTreeNode leafLink;
-            DefaultMutableTreeNode tmpLeaf;
-
-            //---------------------------------------
-            // This section implements 'deselection'.
-            //---------------------------------------
-            leafLink = theTodoBranch.getFirstLeaf();
-            boolean inSelections;
-
-            // Search the selections for this leaf.
-            while (numLeaves-- > 0) {
-                inSelections = false;
-                String leaf = leafLink.toString();
-                for (String sel : selections) {
-                    if (leaf.equals(sel)) {
-                        inSelections = true;
-                        break;
-                    } // end if
-                } // end for
-
-                // Keep a reference to this leaf, in case -
-                tmpLeaf = leafLink;
-                leafLink = leafLink.getNextLeaf();
-
-                // If not a current selection, remove from tree.
-                if (!inSelections) {
-                    MemoryBank.debug("  deselecting " + leaf);
-                    changeWasMade = true;
-                    theTodoBranch.remove(tmpLeaf);
-                } // end if
-            } // end while
-
-            //---------------------------------------
-            // This section implements 'selection'.
-            //---------------------------------------
-            boolean foundInTree;
-
-            // We get this value once, outside the loops below, because we
-            //   don't need to search through leaves that we just added as
-            //   the list grows, in the case of selecting an additional ten
-            //   lists, for example.
-            tmpNum = theTodoBranch.getChildCount(); // get current # of leaves.
-
-            for (String sel : selections) {  // for each selection -
-                foundInTree = false; // initialize.
-                numLeaves = tmpNum;  // (re)set to the original count.
-                tmpLeaf = theTodoBranch.getFirstLeaf();
-                while (numLeaves-- > 0) {
-                    String leaf = tmpLeaf.toString();
-                    if (sel.equals(leaf)) {
-                        foundInTree = true;
-                        MemoryBank.debug("  " + sel + " already in Tree");
-                        break; // leave the 'while' - no need to search the rest.
-                    } // end if
-                    tmpLeaf = tmpLeaf.getNextLeaf();
-                } // end while
-
-                if (!foundInTree) {
-                    MemoryBank.debug("  Added " + sel);
-                    theTodoBranch.add(new DefaultMutableTreeNode(sel));
-                    changeWasMade = true;
-                } // end if
-
-            } // end for
-
-            if (changeWasMade) treeModel.nodeStructureChanged(theTodoBranch);
-        } // end doSelect
-
-
         //----------------------------------------------------------------
         // Method Name:  renameTreeNode
         //
+        // called by the saveAs, below.
         //----------------------------------------------------------------
         private void renameTreeNode(String oldname, String newname) {
             boolean changeWasMade = false;
@@ -1949,7 +1766,7 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             newName = newName.trim(); // eliminate outer space.
 
             // Test new name validity.
-            if (!TodoListManager.nameCheck(newName, f)) return;
+            if (!TodoBranchHelper.nameCheck(newName, f)) return;
 
             // Get the current file name -
             String oldName = theTodoList.getGroupFilename();
@@ -2010,10 +1827,11 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             // Rename the leaf.
             renameTreeNode(oldName, newName);
 
-            // Removal from the Vector is needed because if not and the
-            //   original list were to be reselected, it would be found and
-            //   displayed with any changes that had been made before the
-            //   saveAs, even though the file on the filesystem does not
+            // Removal from the Vector is needed, to force a file reload in the case that
+            // the user reselects the original list after this operation.
+            // Otherwise, upon reselection it
+            // would be found in the vector and displayed with any changes that had been made
+            // before the saveAs, even though the file on the filesystem does not
             //   (and should not) have those changes.
             removeLeafFromVector(oldName);
 
@@ -2027,71 +1845,6 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             //   the effect of once again correctly setting theTodoList.
             tree.setSelectionRow(appOpts.theSelectionRow);
         } // end saveAs
-
-
-        //-------------------------------------------------------------
-        // Method Name: selectList
-        //
-        // This method will select the list, adding it to the tree
-        //   if it is not already there.  If the file does not exist,
-        //   a new list will be created.  The input parameter is the
-        //   simple name, not the entire file path/name.
-        //-------------------------------------------------------------
-        public void selectList(String theListToSelect) {
-            // Check to see if it is already a displayed list -
-            //   If so - grab a reference to the node.
-            int numLeaves = theTodoBranch.getChildCount();
-            tmpNode = null;
-            DefaultMutableTreeNode tmpLeaf = theTodoBranch.getFirstLeaf();
-            while (numLeaves-- > 0) {
-                String s = tmpLeaf.toString();
-                if (s.equalsIgnoreCase(theListToSelect)) {
-                    tmpNode = tmpLeaf;
-                    break;
-                } // end if
-                tmpLeaf = tmpLeaf.getNextLeaf();
-            } // end while
-
-            // Add the new list to the tree, if needed.
-            if (tmpNode == null) {
-                tmpNode = new DefaultMutableTreeNode(theListToSelect);
-                theTodoBranch.add(tmpNode);
-                treeModel.nodeStructureChanged(theTodoBranch);
-            } // end if
-
-            // Select the list.
-            pathToRoot = tmpNode.getPath();
-            tree.setSelectionPath(new TreePath(pathToRoot));
-            // The actual creation of the item in the tracking vector
-            //  and the construction of the TodoList will be done in
-            //  'treeSelectionChanged', as part of selection handling.
-            //
-        } // end selectList
-
-        public void showListManager(int mode) {
-            // When we invoke an Editor for a tree branch, we need to tell it which
-            // leaves are already selected.  The reason that we go to the branch itself
-            // rather than the 'todoOpts' is that those options are only updated upon
-            // app close; if we had previously edited this branch during this same session
-            // and made different selections, the saved options would not accurately reflect
-            // the new/current state.
-            int numLeaves = theTodoBranch.getChildCount();
-
-            // Develop a list of pre-selected items.
-            MemoryBank.dbg("AppTree$TodoListHandler number of To Do Lists ");
-            MemoryBank.debug("in the tree: " + numLeaves);
-            selections = new Vector<String>(numLeaves, 1);
-            DefaultMutableTreeNode tmpLeaf = theTodoBranch.getFirstLeaf();
-            while (numLeaves-- > 0) {
-                String s = tmpLeaf.toString();
-                // MemoryBank.debug("  " + s);
-                selections.addElement(s);
-                tmpLeaf = tmpLeaf.getNextLeaf();
-            } // end while
-
-            todoMan = new TodoListManager(selections, this, mode);
-            rightPane.setViewportView(todoMan);
-        } // end showListManager
 
     } // end class TodoListHandler
 
@@ -2109,6 +1862,14 @@ public final class AppTree extends JPanel implements TreeSelectionListener {
             theLeafTodoList = null;
         } // end constructor
     } // end class TodoLeaf
+
+    public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
+        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
+        for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){
+            newRoot.add(deepClone((DefaultMutableTreeNode)childEnum.nextElement()));
+        }
+        return newRoot;
+    }
 
 } // end AppTree class
 

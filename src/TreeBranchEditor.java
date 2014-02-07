@@ -247,10 +247,6 @@ public class TreeBranchEditor extends JPanel
         //log.debug("Removing: " + theLeafText);
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) tmpLeaf.getParent();
         theParent.remove(tmpLeaf);
-
-        // We do this here because somehow, the above removal does not kick off the
-        // TreeModel treeNodesRemoved event.
-        showChoices();
     }
 
     @Override
@@ -362,6 +358,8 @@ public class TreeBranchEditor extends JPanel
     // For our purposes, if this was the last child of the parent (thereby turning
     // that parent back into a leaf), we can restore the DESELECT and DELETE
     // functionalities of that leaf by simply redisplaying the list of choices.
+    // Note that this event is NOT fired when a node is removed programmatically;
+    // for example, in the 'remove' method.
     @Override
     public void treeNodesRemoved(TreeModelEvent treeModelEvent) {
         //log.debug(treeModelEvent.toString());

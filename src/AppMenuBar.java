@@ -9,6 +9,7 @@ public class AppMenuBar extends JMenuBar{
     private static JMenu menuEditYear;
     private static JMenu menuFile;
     private static JMenu menuFileSearchResult;
+    private static JMenu menuFileTodoBranch;
     private static JMenu menuFileTodo;
     private static JMenu menuView;
     private static JMenu menuViewEvent;
@@ -27,6 +28,9 @@ public class AppMenuBar extends JMenuBar{
         menuFileSearchResult.add(new JMenuItem("Search these results..."));
         menuFileSearchResult.add(new JMenuItem("Review..."));
         menuFileSearchResult.add(new JMenuItem("Exit"));
+
+        menuFileTodoBranch = new JMenu("File");
+        menuFileTodoBranch.add(new JMenuItem("Add..."));
 
         menuFileTodo = new JMenu("File");
         menuFileTodo.add(new JMenuItem("Search..."));
@@ -78,6 +82,7 @@ public class AppMenuBar extends JMenuBar{
         menuEditMonth.setVisible(false);
         menuEditTodo.setVisible(false);
         menuEditYear.setVisible(false);
+        menuFileTodoBranch.setVisible(false);
         menuFileTodo.setVisible(false);
         menuFileSearchResult.setVisible(false);
         menuView.setVisible(false);
@@ -89,6 +94,7 @@ public class AppMenuBar extends JMenuBar{
         super();
         add(menuFile);
         add(menuFileSearchResult);
+        add(menuFileTodoBranch);
         add(menuFileTodo);
         add(menuEditDay);
         add(menuEditMonth);
@@ -116,6 +122,7 @@ public class AppMenuBar extends JMenuBar{
         menuEditTodo.setVisible(false);
         menuEditYear.setVisible(false);
         menuFile.setVisible(true);
+        menuFileTodoBranch.setVisible(false);
         menuFileTodo.setVisible(false);
         menuFileSearchResult.setVisible(false);
         menuView.setVisible(true);
@@ -148,6 +155,9 @@ public class AppMenuBar extends JMenuBar{
         } else if (strMenuType.equals("Upcoming Events")) { // Upcoming Events
             menuView.setVisible(false);
             menuViewEvent.setVisible(true);
+        } else if (strMenuType.equals("To Do Lists")) { // TodoBranchHelper
+            menuFile.setVisible(false);
+            menuFileTodoBranch.setVisible(true);
         } else if (strMenuType.equals("To Do List")) { // A List
             menuFile.setVisible(false);
             menuFileTodo.setVisible(true);

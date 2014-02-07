@@ -4,6 +4,9 @@
  *
  ****************************************************************************/
 /**  This class displays a group of TodoNoteComponent.
+ *   It is named to be consistent with other 'Group'
+ *   classes in this app, but you may think of it as
+ *   the TodoList.
  */
 
 import java.awt.BorderLayout;
@@ -245,7 +248,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 //
 //    // AppUtil.localDebug(true);
 //
-//    // Before reading the first item from a Todo List, we need 
+//    // Before reading the first item from a To do List, we need
 //    //   to get (and read past) the TodoListProperties.
 //    if(i==0) {
 //      myVars = (TodoListProperties) ois.readObject();
