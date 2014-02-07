@@ -147,6 +147,7 @@ public class TreeBranchEditor extends JPanel
         }
     }
 
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private void showChoices() {
         // Create lists of pre-selected items from the existing branch.
         Enumeration dfe = myBranch.depthFirstEnumeration();
@@ -287,6 +288,7 @@ public class TreeBranchEditor extends JPanel
         }
     }
 
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     public DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
         DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
         for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){

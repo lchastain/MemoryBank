@@ -19,14 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 class TreeTransferHandler extends TransferHandler {
+    static final long serialVersionUID = -1L;
+
     DataFlavor nodesFlavor;
     DataFlavor[] flavors = new DataFlavor[1];
     DefaultMutableTreeNode[] nodesToRemove;
     boolean makeParents;
-
-    public TreeTransferHandler() {
-        this(true);
-    }
 
     public TreeTransferHandler(boolean makeParents) {
         this.makeParents = makeParents;

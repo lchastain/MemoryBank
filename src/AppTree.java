@@ -29,7 +29,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class AppTree extends JPanel implements TreeSelectionListener {
-    static final long serialVersionUID = 1L;
+    static final long serialVersionUID = -1L;
 
     public static AppTree ltTheTree;
     private JFrame theFrame;
@@ -1705,9 +1705,6 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     //------------------------------------------------------------
     private final class TodoListHandler {
         private DefaultMutableTreeNode theTodoBranch;
-        private Vector<String> selections;
-        private TreeNode[] pathToRoot;
-        private DefaultMutableTreeNode tmpNode;
 
         public TodoListHandler(DefaultMutableTreeNode dmtn) {
             theTodoBranch = dmtn;
@@ -1863,6 +1860,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         } // end constructor
     } // end class TodoLeaf
 
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
         DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
         for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){

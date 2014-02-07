@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -38,9 +37,10 @@ import java.util.List;
 
 
 public class TodoBranchHelper implements TreeBranchHelper {
+    static final long serialVersionUID = -1L;
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
-    private static String ems;  // Error Message String
 
+    private static String ems;  // Error Message String
     private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
     private JTree theTree;  // The original tree, not the one from the editor.
     private DefaultTreeModel theTreeModel = null;
@@ -78,6 +78,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         return new TreePath(newNode.getPath());
     }
 
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     public static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();
@@ -142,6 +143,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     } // end addNewList
 
 
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private static MutableTreeNode getChild(DefaultMutableTreeNode dmtn, String name) {
         Enumeration children = dmtn.children();
         while(children.hasMoreElements()) {
