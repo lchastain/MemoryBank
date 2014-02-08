@@ -30,9 +30,12 @@ public class AppMenuBar extends JMenuBar{
         menuFileSearchResult.add(new JMenuItem("Exit"));
 
         menuFileTodoBranch = new JMenu("File");
-        menuFileTodoBranch.add(new JMenuItem("Add..."));
+        menuFileTodoBranch.add(new JMenuItem("Add New List..."));
+        menuFileTodoBranch.add(new JMenuItem("Search..."));
+        menuFileTodoBranch.add(new JMenuItem("Exit"));
 
         menuFileTodo = new JMenu("File");
+        menuFileTodo.add(new JMenuItem("Add New List..."));
         menuFileTodo.add(new JMenuItem("Search..."));
         menuFileTodo.add(new JMenuItem("Merge..."));
         menuFileTodo.add(new JMenuItem("Print..."));

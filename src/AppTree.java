@@ -9,11 +9,14 @@
 
 // Quick-reference notes:
 // 
-// MenuBar events        - actionPerformed.
-// Tree Selection events - valueChanged.
+// MenuBar events        - actionPerformed() --> handleMenuBar().
+// Tree Selection events - valueChanged() --> treeSelectionChanged() in a new thread.
 //
 // Management of search results should be rewritten to be closer to
 //   the way to do lists are handled.
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -29,14 +32,15 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class AppTree extends JPanel implements TreeSelectionListener {
-    static final long serialVersionUID = -1L;
+    static final long serialVersionUID = 1L;
+    private static Logger log = LoggerFactory.getLogger(AppTree.class);
 
     public static AppTree ltTheTree;
     private JFrame theFrame;
 
     private static final int LIST_GONE = -3; // used in constr, createTree
 
-    private static AppMenuBar mb;
+    private static AppMenuBar amb;
     protected SearchResultComponent src;   // SearchResultData
     protected ThreeMonthColumn tmc;        // DateSelection (interface)
     //-------------------------------------------------------------------
@@ -50,7 +54,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     private TreePath todoPath;
     private static JDialog dlgWorkingDialog;
 
-    private NoteGroup ngTheNoteGroup;
+    private NoteGroup theNoteGroup; // A reference to the current selection
     private GoalPanel theGoalPanel;
     private DayNoteGroup theAppDays;
     private MonthNoteGroup theAppMonths;
@@ -58,18 +62,16 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     private MonthView theMonthView;
     private YearView theYearView;
     private EventNoteGroup theEvents;
-    private Vector<TodoLeaf> theTodoLeafVector;
-    private Vector<NoteData> noteDataVector;  // For searching
+    private Vector<NoteData> noteDataVector;   // For searching
     private Vector<NoteData> foundDataVector;  // Search results
     private Vector<String> exportDataVector;
-    private TodoNoteGroup theTodoList;    // currently active list
+    private TodoListKeeper theTodoListKeeper;  // keeper of all loaded 'to do' lists.
     private SearchPanel spTheSearchPanel;
     private AppImage abbowt;
     private JSplitPane splitPane;
 
     private static String ems;               // Error Message String
     private static Date currentDateChoice;
-    private TodoListHandler theTodoListHandler;
     private DefaultMutableTreeNode theRootNode;
     private SearchResultNode nodeSearchResults;
 
@@ -90,9 +92,9 @@ public class AppTree extends JPanel implements TreeSelectionListener {
 
     public AppTree(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
-        mb = new AppMenuBar();
+        amb = new AppMenuBar();
         theFrame = aFrame;
-        theFrame.setJMenuBar(mb);
+        theFrame.setJMenuBar(amb);
         ltTheTree = this;
         this.appOpts = appOpts;
 
@@ -132,7 +134,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
                         handleMenuBar(what);
                     }
                 }).start(); // Start the thread
-            } // end valueChanged
+            }
         };
         //---------------------------------------------------
 
@@ -143,10 +145,10 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         //   the recursive version of this as implemented in
         //   LogPane.java, a now archived predecessor to AppTree.
         //---------------------------------------------------------
-        int numMenus = mb.getMenuCount();
+        int numMenus = amb.getMenuCount();
         // MemoryBank.debug("Number of menus found: " + numMenus);
         for (int i = 0; i < numMenus; i++) {
-            JMenu jm = mb.getMenu(i);
+            JMenu jm = amb.getMenu(i);
             if (jm == null) continue;
 
             for (int j = 0; j < jm.getItemCount(); j++) {
@@ -394,8 +396,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------
         branch = new DefaultMutableTreeNode("To Do Lists");
         String theName;
-        theTodoLeafVector = new Vector<TodoLeaf>(0, 1);
-        theTodoListHandler = new TodoListHandler(branch); // menubar items
+        theTodoListKeeper = new TodoListKeeper();
         trunk.add(branch);
         intRowCounter++;
         intTodoRow = intRowCounter;
@@ -458,14 +459,28 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         tree.setShowsRootHandles(true);
     } // end createTree
 
+    //----------------------------------------------------------------
+    // Method Name:  deepClone
+    //
+    // Used to fully clone a tree node, since the system-provided
+    // method only does the first level.
+    //----------------------------------------------------------------
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
+    public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
+        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
+        for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){
+            newRoot.add(deepClone((DefaultMutableTreeNode)childEnum.nextElement()));
+        }
+        return newRoot;
+    }
 
     private void doExport() {
         showWorkingDialog(true); // Show the 'Working...' dialog
 
         // Make sure that the most recent changes, if any,
         //   will be included in the export.
-        if (ngTheNoteGroup != null) {
-            ngTheNoteGroup.preClose();
+        if (theNoteGroup != null) {
+            theNoteGroup.preClose();
         } // end if
 
         // Now make a Vector that can collect the search results.
@@ -563,33 +578,35 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         return retVal;
     }
 
+    public TodoListKeeper getTodoListKeeper() { return theTodoListKeeper; }
+    public JTree getTree() { return tree; }
 
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
-        else if (what.equals("Add...")) TodoBranchHelper.addNewList(tree);
+        else if (what.equals("Add New List...")) TodoBranchHelper.addNewList(tree);
         else if (what.equals("Close")) closeSearchResult();
         else if (what.equals("Clear Day")) theAppDays.clearGroupData();
         else if (what.equals("Clear Month")) theAppMonths.clearGroupData();
         else if (what.equals("Clear Year")) theAppYears.clearGroupData();
-        else if (what.equals("Clear Entire List")) theTodoList.clearGroupData();
+        else if (what.equals("Clear Entire List")) theNoteGroup.clearGroupData();
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Export")) doExport();
         else if (what.equals("Search...")) showSearchDialog();
-        else if (what.equals("Set Options...")) ((TodoNoteGroup) ngTheNoteGroup).setOptions();
-        else if (what.startsWith("Merge")) mergeTodoList();
-        else if (what.startsWith("Print")) ((TodoNoteGroup) ngTheNoteGroup).printList();
+        else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
+        else if (what.startsWith("Merge")) ((TodoNoteGroup) theNoteGroup).merge();
+        else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
         else if (what.equals("Refresh")) theEvents.refresh();
         else if (what.equals("Review...")) System.out.println("Review was selected.");
-        else if (what.startsWith("Save As")) theTodoListHandler.saveAs();
+        else if (what.startsWith("Save As")) saveTodoListAs();
         else if (what.equals("Today")) showToday();
-        else if (what.equals("Set Look and Feel...")) showPlafDialog();
+        else if (what.equals("Set Look and Feel...")) showPlafDialog();  // move to MemoryBank?
         else if (what.equals("undo")) {
             String s = appOpts.theSelection;
             if (s.equals("Day Notes")) theAppDays.recalc();
             else if (s.equals("Month Notes")) theAppMonths.recalc();
             else if (s.equals("Year Notes")) theAppYears.recalc();
-            else ngTheNoteGroup.updateGroup(); // reload without save
+            else theNoteGroup.updateGroup(); // reload without save
         } else {
             AppUtil.localDebug(true);
             MemoryBank.debug("  " + what);
@@ -700,12 +717,6 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     }//end loadNoteData
 
 
-    public void mergeTodoList() {
-        String mf = TodoNoteGroup.chooseFileName("Merge");
-        if (mf != null) ((TodoNoteGroup) ngTheNoteGroup).merge(mf);
-    } // end mergeTodoList
-
-
     //------------------------------------------------------------
     // Method Name:  preClose
     //
@@ -713,39 +724,11 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     public void preClose() {
         // Only for the currently active NoteGroup; any others would
         //   have been saved when the view changed away from them.
-        if (ngTheNoteGroup != null) ngTheNoteGroup.preClose();
+        if (theNoteGroup != null) theNoteGroup.preClose();
 
         updateTreeState(true); // Update appOpts
         saveOpts();
     } // end preClose
-
-
-    //----------------------------------------------------------------
-    // Method Name:  removeLeafFromVector
-    //
-    // Scan the reference vector looking for the
-    // indicated leaf and if found, remove.
-    //----------------------------------------------------------------
-    public void removeLeafFromVector(String s) {
-        TodoLeaf tmpTl; // Keep a temporary reference to a TodoLeaf
-        tmpTl = null; // Initialize the tmp ref to null.
-
-        // Search the TodoLeaf Vector for the list.
-        for (TodoLeaf tl : theTodoLeafVector) {
-            if (s.equals(tl.theLeafTodoListName)) {
-                tmpTl = tl;
-                // Note: cannot remove from within this loop;
-                // ConcurrentModificationException.
-                break;
-            } // end if
-        } // end for
-
-        // If found, then remove.  Otherwise no action needed.
-        if (tmpTl != null) {
-            MemoryBank.debug("  Removing " + s + " from the TodoLeaf Vector");
-            theTodoLeafVector.removeElement(tmpTl);
-        } // end if
-    } // end removeLeafFromVector
 
 
     private void removeSearchNode(SearchResultNode node) {
@@ -759,7 +742,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
 
         // Do not attempt to save this one prior
         //   to changing the tree selection.
-        ngTheNoteGroup = null;
+        theNoteGroup = null;
 
         // Select the Search Results branch
         TreeNode[] pathToRoot = nodeSearchResults.getPath();
@@ -897,6 +880,36 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         } // end try/catch
     } // end saveOpts
 
+
+    //------------------------------------------------------------------------
+    // Method Name:  saveTodoListAs
+    //
+    //------------------------------------------------------------------------
+    private void saveTodoListAs() {
+        String oldName = theNoteGroup.getName();
+        if(((TodoNoteGroup) theNoteGroup).saveAs()) {
+            String newName = theNoteGroup.getName();
+
+            // When the tree selection changes, any open NoteGroup is automatically saved,
+            // and the tree selection will change automatically when we do the rename of
+            // the leaf on the tree below.  But in this case we do not want that behavior,
+            // because we have already saved the file, milliseconds ago.  It wouldn't hurt
+            // to let it save again, but why allow it, when all it takes to stop it is:
+            theNoteGroup = null;
+
+            // Removal from the TodoListKeeper is needed, to force a file reload
+            // during the rename of the leaf (below), because even though the saveAs
+            // operation changed the name of the list held by the todoListKeeper, it
+            // still shows a title that was developed from the old file name.
+            // Reloading from the file with the new name will fix that.
+            theTodoListKeeper.remove(newName);
+
+            // Rename the leaf, refresh the To Do branch, and reselect the same tree
+            // row to cause a reload and redisplay of the list.  Note that not only
+            // does the leaf name change, but the reload also changes the list title.
+            TodoBranchHelper.renameTodoListLeaf(oldName, newName);
+        }
+    }
 
     //--------------------------------------------------------
     // Method Name:  scanDataDir
@@ -1096,7 +1109,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             jp.add(abbowt);
             rightPane.setViewportView(jp);
 
-            mb.manageMenus("");
+            amb.manageMenus("");
         } // end if
     } // end showAbout
 
@@ -1130,7 +1143,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
                 // The beauty of this action is that the path we are
                 // selecting does not actually have to be present
                 // for this to work and display the list.
-                tree.setSelectionPath(TodoBranchHelper.getPathFor(tree, pn));
+                tree.setSelectionPath(TodoBranchHelper.getTodoPathFor(tree, pn));
             } // end if
         } else if (fname.equals("UpcomingEvents")) {
             tree.setSelectionPath(upcomingEventsPath);
@@ -1206,8 +1219,8 @@ public class AppTree extends JPanel implements TreeSelectionListener {
 
         // Make sure that the most recent changes, if any,
         //   will be included in the search.
-        if (ngTheNoteGroup != null) {
-            ngTheNoteGroup.preClose();
+        if (theNoteGroup != null) {
+            theNoteGroup.preClose();
         } // end if
 
         // Now make a Vector that can collect the search results.
@@ -1375,13 +1388,8 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         // Update the current selection row
         appOpts.theSelectionRow = tree.getMaxSelectionRow();
 
-        // null this value so that if the new selection is NOT a
-        // To Do list, the reference will not be active.  This
-        // condition is a critical decision factor in manageMenus.
-        theTodoList = null;
-
-        if (ngTheNoteGroup != null) {
-            ngTheNoteGroup.preClose();
+        if (theNoteGroup != null) {
+            theNoteGroup.preClose();
         } // end if
 
         //-------------------------------------------------------------
@@ -1431,7 +1439,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         boolean isTodoBranch = theText.equals("To Do Lists");
         boolean isTopLevel = theParent.equals("App");
 
-        ngTheNoteGroup = null; // initialize
+        theNoteGroup = null; // initialize
 
         if (isTodoBranch && isTopLevel) {
             // To Do List management - select, deselect, rename, reorder, remove
@@ -1448,30 +1456,24 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(jt);
         } else if (theParent.equals("To Do Lists")) {
             // Selection of a To Do List
-            strSelectionType = "To Do List";
-            boolean foundInVector = false;
+            strSelectionType = "To Do List";  // For manageMenus
+            TodoNoteGroup tng;
 
-            // Search the TodoLeaf Vector for this list.
-            for (TodoLeaf tl : theTodoLeafVector) {
-                if (theText.equals(tl.theLeafTodoListName)) {
-                    theTodoList = tl.theLeafTodoList;
-                    foundInVector = true;
-                    break;
-                } // end if
-            } // end for
-            MemoryBank.debug("Found List in Vector: " + foundInVector);
+            // If the list has been previously loaded during this session,
+            // retrieve it from the list keeper.
+            tng = theTodoListKeeper.get(theText);
 
-            if (!foundInVector) {
-                // This just means that we can add it now.
+            // Otherwise, prepare to load it.
+            if(tng == null) {
+                log.debug("Loading " + theText + " from filesystem");
+                tng = new TodoNoteGroup(theText);
+                theTodoListKeeper.add(tng);
+            } else {
+                log.debug("Retrieved " + theText + " from the keeper");
+            }
 
-                TodoLeaf tl = new TodoLeaf(theText);
-                tl.theLeafTodoList = new TodoNoteGroup(theText);
-                theTodoList = tl.theLeafTodoList;
-                theTodoLeafVector.addElement(tl);
-            } // end if
-            ngTheNoteGroup = theTodoList;
-
-            rightPane.setViewportView(theTodoList);
+            theNoteGroup = tng;
+            rightPane.setViewportView(theNoteGroup);
         } else if (theText.equals("Goals")) {
             if (theGoalPanel == null) {
                 theGoalPanel = new GoalPanel();
@@ -1493,28 +1495,28 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroup();
             }
-            ngTheNoteGroup = theAppDays;
+            theNoteGroup = theAppDays;
             theAppDays.setChoice(currentDateChoice);
             rightPane.setViewportView(theAppDays);
         } else if (theText.equals("Month Notes")) {
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroup();
             }
-            ngTheNoteGroup = theAppMonths;
+            theNoteGroup = theAppMonths;
             theAppMonths.setChoice(currentDateChoice);
             rightPane.setViewportView(theAppMonths);
         } else if (theText.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroup();
             }
-            ngTheNoteGroup = theAppYears;
+            theNoteGroup = theAppYears;
             theAppYears.setChoice(currentDateChoice);
             rightPane.setViewportView(theAppYears);
         } else if (theText.equals("Upcoming Events")) {
             if (theEvents == null) {
                 theEvents = new EventNoteGroup();
             }
-            ngTheNoteGroup = theEvents;
+            theNoteGroup = theEvents;
             rightPane.setViewportView(theEvents);
         } else if (node.isNodeAncestor(nodeSearchResults)) {
             strSelectionType = "Search Result";
@@ -1563,8 +1565,8 @@ public class AppTree extends JPanel implements TreeSelectionListener {
                 // Now remove the node, even if it has children.
                 removeSearchNode((SearchResultNode) node);
             } else {
-                ngTheNoteGroup = srn.srg;
-                rightPane.setViewportView(ngTheNoteGroup);
+                theNoteGroup = srn.srg;
+                rightPane.setViewportView(theNoteGroup);
             } // end if
         } else {
             // Any other as-yet unhandled node on the tree.
@@ -1574,7 +1576,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(jp);
         } // end if/else if
 
-        mb.manageMenus(strSelectionType);
+        amb.manageMenus(strSelectionType);
         showWorkingDialog(false);
     } // end treeSelectionChanged
 
@@ -1666,7 +1668,6 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     } // end valueChanged
 
     private int writeExportFile() {
-
         try {
             // Make a unique filename for the results
             String strResultsFileName = "Export" + AppUtil.getTimestamp();
@@ -1694,183 +1695,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         return 0;  // Success
     }//end writeExportFile
 
-
-    //------------------------------------------------------------
-    // Inner classes
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    // Class Name:  TodoListHandler
-    //
-    //------------------------------------------------------------
-    private final class TodoListHandler {
-        private DefaultMutableTreeNode theTodoBranch;
-
-        public TodoListHandler(DefaultMutableTreeNode dmtn) {
-            theTodoBranch = dmtn;
-        } // end constructor
-
-
-        //----------------------------------------------------------------
-        // Method Name:  renameTreeNode
-        //
-        // called by the saveAs, below.
-        //----------------------------------------------------------------
-        private void renameTreeNode(String oldname, String newname) {
-            boolean changeWasMade = false;
-            int numLeaves = theTodoBranch.getChildCount();
-            DefaultMutableTreeNode leafLink;
-
-            leafLink = theTodoBranch.getFirstLeaf();
-
-            // Search the leaves for the old name.
-            while (numLeaves-- > 0) {
-                String leaf = leafLink.toString();
-                if (leaf.equals(oldname)) {
-                    MemoryBank.dbg("Renaming tree node from " + oldname);
-                    MemoryBank.debug(" to " + newname);
-                    changeWasMade = true;
-                    leafLink.setUserObject(newname);
-                    break;
-                } // end if
-
-                leafLink = leafLink.getNextLeaf();
-            } // end while
-
-            if (!changeWasMade) return;
-
-            // Force the renamed node to redisplay, which also
-            //   causes its deselection.
-            treeModel.nodeStructureChanged(theTodoBranch);
-        } // end renameTreeNode
-
-
-        //-------------------------------------------------------
-        // Method Name:  saveAs
-        //
-        // Called from the menu bar.
-        //-------------------------------------------------------
-        private void saveAs() {
-            Frame f = JOptionPane.getFrameForComponent(tree);
-
-            String thePrompt = "Please enter the new list name";
-            int q = JOptionPane.QUESTION_MESSAGE;
-            String newName = JOptionPane.showInputDialog(f, thePrompt, "Save As", q);
-
-            // The user cancelled; return with no complaint.
-            if (newName == null) return;
-
-            newName = newName.trim(); // eliminate outer space.
-
-            // Test new name validity.
-            if (!TodoBranchHelper.nameCheck(newName, f)) return;
-
-            // Get the current file name -
-            String oldName = theTodoList.getGroupFilename();
-            oldName = TodoNoteGroup.prettyName(oldName);
-
-            // If the new name equals the old name, just do as the user
-            //   has asked and don't tell them that they are an idiot.
-            if (newName.equals(oldName)) {
-                theTodoList.preClose();
-                return;
-            } // end if
-
-            // Check to see if the destination file name already exists.
-            // If so then complain and refuse to do the saveAs.
-
-            // Note:
-            //--------------------------------------------------------------
-            // Other applications might offer the option of overwriting
-            // the existing file.  This was considered and rejected
-            // because of the possibility of overwriting a file that
-            // is currently open.  We could check for that as well, but
-            // decided not to because - why should we go to heroic
-            // efforts to handle a user request where it seems like
-            // they may not understand what it is they are asking for.
-            // This condition of 'save as' is the same approach that was
-            // taken in the 'rename' handling in the TodoListManager.
-
-            // If we refuse the operation due to a preexisting destination
-            // file name then the user has several recourses, depending on
-            // what it was they really wanted to do - they could delete
-            // the preexisting file or rename it, after which a second
-            // attempt at this operation would succeed, or they could
-            // realize that they had been having a senior moment and
-            // abandon the effort, or they could choose a different
-            // new name and try again, etc.
-            //--------------------------------------------------------------
-            String newFilename = MemoryBank.userDataDirPathName + File.separatorChar;
-            newFilename += newName + ".todolist";
-
-            if ((new File(newFilename)).exists()) {
-                ems = "A list named " + newName + " already exists!\n";
-                ems += "  operation cancelled.";
-                JOptionPane.showMessageDialog(f, ems,
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            } // end if
-
-            // Now change the name and save.
-            //------------------------------------
-            MemoryBank.debug("Saving " + oldName + " as " + newName);
-            theTodoList.setFileName(newName);
-
-            // Before we save, ensure that the 'old' file is not removed.
-            AppUtil.localArchive(true);
-            theTodoList.preClose();
-            AppUtil.localArchive(false);
-
-            // Rename the leaf.
-            renameTreeNode(oldName, newName);
-
-            // Removal from the Vector is needed, to force a file reload in the case that
-            // the user reselects the original list after this operation.
-            // Otherwise, upon reselection it
-            // would be found in the vector and displayed with any changes that had been made
-            // before the saveAs, even though the file on the filesystem does not
-            //   (and should not) have those changes.
-            removeLeafFromVector(oldName);
-
-            // Do not let the 'old' list save itself when we go back and
-            //   reselect this node; lose the last handle to it and let the
-            //   garbage collector do its thing.
-            theTodoList = null;
-
-            // Reselect this tree node because after renameTreeNode
-            //   there is no current selection.  This will also have
-            //   the effect of once again correctly setting theTodoList.
-            tree.setSelectionRow(appOpts.theSelectionRow);
-        } // end saveAs
-
-    } // end class TodoListHandler
-
-
-    //------------------------------------------------------------
-    // Class Name:  TodoLeaf
-    //
-    //------------------------------------------------------------
-    private final class TodoLeaf {
-        private String theLeafTodoListName;
-        private TodoNoteGroup theLeafTodoList;
-
-        TodoLeaf(String s) {
-            theLeafTodoListName = s;
-            theLeafTodoList = null;
-        } // end constructor
-    } // end class TodoLeaf
-
-    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
-        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
-        for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){
-            newRoot.add(deepClone((DefaultMutableTreeNode)childEnum.nextElement()));
-        }
-        return newRoot;
-    }
-
 } // end AppTree class
-
 
 interface iconKeeper {
     public abstract AppIcon getDefaultIcon();

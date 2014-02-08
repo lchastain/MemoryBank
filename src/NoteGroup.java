@@ -857,7 +857,8 @@ public abstract class NoteGroup extends JPanel {
             MemoryBank.debug("NoteGroup.saveGroup: old filename = " + strGroupFilename);
             if (MemoryBank.archive) {
                 MemoryBank.debug("  Archiving: " + shortName());
-                // Note: need to implement archiving
+                // Note: need to implement archiving but for now, what happens
+                // is what does not happen - we do not delete the old version.
             } else {
                 f = new File(strGroupFilename);
                 if (!deleteFile(f)) {

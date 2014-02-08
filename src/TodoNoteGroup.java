@@ -9,12 +9,10 @@
  *   the TodoList.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.*;
 import java.io.*;
 import java.util.Date;
 
@@ -23,6 +21,7 @@ import javax.swing.filechooser.*;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static final long serialVersionUID = 1L;
+    private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
 
     // Values used in sorting.
     public static final int TOP = 0;
@@ -69,12 +68,15 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end static
 
     public TodoNoteGroup(String fname) {
-        super("Todo Item");
+        super("Todo Item"); // Sets the default subject, in case items are moved to another group type.
         //super("Todo Item", 10);
+
+        setName(fname.trim()); // The component-level name is null, otherwise.
+        log.debug("Constructing: " + getName());
 
         enc.remove(0); // Remove the subjectChooser.
         // We may want to make this operation less numeric in the future,
-        //   but this works for now and no ENC changes are expected.
+        //   but this works for now and no ENC structural changes are expected.
 
         strTheGroupFilename = MemoryBank.userDataDirPathName + File.separatorChar;
         strTheGroupFilename += fname + ".todolist";
@@ -280,7 +282,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end makeNewNote
 
 
-    public int merge(String mergeFile) {
+    public void merge() {
+        String mergeFile = chooseFileName("Merge");
+        if (mergeFile == null) return;
+
         Exception e = null;
         FileInputStream fis = null;
         ObjectInputStream ois = null;
@@ -319,7 +324,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             //   items off the list.  The 'lastVisibleNoteIndex' in that case
             //   will not accurately reflect the true number of items.
             // Do nothing other than close; this is not a 'real' problem
-            //   anymore since todo items are only loaded into pre-existing
+            //   anymore since to do items are only loaded into pre-existing
             //   NoteComponents and not actually created.
             try {
                 assert ois != null;
@@ -339,13 +344,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             JOptionPane.showMessageDialog(
                     JOptionPane.getFrameForComponent(this), ems, "Error",
                     JOptionPane.ERROR_MESSAGE);
-            return 1;
+            return;
         } // end if
         setGroupChanged();
         preClose();
         updateGroup();  // need to check column order???
         myVars = (TodoListProperties) objGroupProperties;
-        return 0;
     } // end merge
 
 
@@ -378,17 +382,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Method Name:  prettyName
     //
     // A formatter for a filename specifier - drop off the path
-    //   prefix and/or trailing '.todolist', if present.
+    //   prefix and/or trailing '.todolist', if present.  Note
+    //   that this method name was chosen so as to not conflict with
+    //   the 'getName' of the Component ancestor of this class.
     //-----------------------------------------------------------------
     public static String prettyName(String s) {
-        int i;
-        char slash = File.separatorChar;
-
-        i = s.lastIndexOf(slash);
-        if (i != -1) {
-            s = s.substring(i + 1);
-        } // end if
-
+        int i = s.lastIndexOf(File.separatorChar);
+        s = s.substring(i + 1);
         i = s.lastIndexOf(".todolist");
         if (i == -1) return s;
         return s.substring(0, i);
@@ -512,16 +512,108 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     //-----------------------------------------------------------------
+    // Method Name:  saveAs
+    //
+    // Called (indirectly) from the menu bar.
+    // Prompts the user for a new list name, checks it for validity,
+    // then if ok, saves the file with that name.
+    //-----------------------------------------------------------------
+    public boolean saveAs() {
+        Frame f = JOptionPane.getFrameForComponent(this);
+
+        String thePrompt = "Please enter the new list name";
+        int q = JOptionPane.QUESTION_MESSAGE;
+        String newName = JOptionPane.showInputDialog(f, thePrompt, "Save As", q);
+
+        // The user cancelled; return with no complaint.
+        if (newName == null) return false;
+
+        newName = newName.trim(); // eliminate outer space.
+
+        // Test new name validity.
+        if (!TodoBranchHelper.nameCheck(newName, f)) return false;
+
+        // Get the current list name -
+        String oldName = getName();
+
+        // If the new name equals the old name, just do the save as the user
+        //   has asked and don't tell them that they are an idiot.  But no
+        //   other actions on the filesystem or the tree will be taken.
+        if (newName.equals(oldName)) {
+            preClose();
+            return false;
+        } // end if
+
+        // Check to see if the destination file name already exists.
+        // If so then complain and refuse to do the saveAs.
+
+        // Note:
+        //--------------------------------------------------------------
+        // Other applications might offer the option of overwriting
+        // the existing file.  This was considered and rejected
+        // because of the possibility of overwriting a file that
+        // is currently open.  We could check for that as well, but
+        // decided not to because - why should we go to heroic
+        // efforts to handle a user request where it seems like
+        // they may not understand what it is they are asking for.
+        // This is the same approach that was
+        // taken in the 'rename' handling.
+
+        // If we refuse the operation due to a preexisting destination
+        // file name then the user has several recourses, depending on
+        // what it was they really wanted to do - they could delete
+        // the preexisting file or rename it, after which a second
+        // attempt at this operation would succeed, or they could
+        // realize that they had been having a senior moment and
+        // abandon the effort, or they could choose a different
+        // new name and try again, etc.
+        //--------------------------------------------------------------
+        String newFilename = MemoryBank.userDataDirPathName + File.separatorChar;
+        newFilename += newName + ".todolist";
+
+        if ((new File(newFilename)).exists()) {
+            ems = "A list named " + newName + " already exists!\n";
+            ems += "  operation cancelled.";
+            JOptionPane.showMessageDialog(f, ems,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } // end if
+
+        // Now change the name and save.
+        //------------------------------------
+        log.debug("Saving " + oldName + " as " + newName);
+
+        // 'setFileName' wants the 'pretty' name as parameter, even though we already
+        // have its long form from when we checked for pre-existence, above.  But one
+        // other HUGE consideration is that it also sets the name of the component
+        // itself, which translates into an in-place change of the name of the list
+        // held by the TodoListKeeper.  Unfortunately, that list will still have the
+        // old title, so it still needs to be removed from the keeper.  The calling
+        // context will take care of that.
+        setFileName(newName);
+
+        // Since this is effectively a new file, before we save we need to ensure that
+        // the app will not fail in an attempt to remove the (nonexistent) old file.
+        AppUtil.localArchive(true);
+        preClose();
+        AppUtil.localArchive(false);
+
+        return true;
+    } // end saveAs
+
+
+    //-----------------------------------------------------------------
     // Method Name:  setFileName
     //
-    // Provided as a way for a calling context to do a 'save as'.
+    // Provided as support for a 'save as' functionality.
     //  (By calling this first, then just calling 'save').  Any
     //  checking for validity is responsibility of calling context.
     //-----------------------------------------------------------------
     public void setFileName(String fname) {
         strTheGroupFilename = MemoryBank.userDataDirPathName + File.separatorChar;
-        strTheGroupFilename += fname + ".todolist";
+        strTheGroupFilename += fname.trim() + ".todolist";
 
+        setName(fname.trim());  // Keep the 'pretty' name in the component.
         setGroupChanged();
     } // end setFileName
 
@@ -882,7 +974,7 @@ class TodoListProperties implements Serializable {
     public Dimension frameSize;  // Size of the Frame
     public int scrollerPos;      // Position the Frame is vertically scrolled to.
     public Point todoPos;        // Position of the Frame on the full screen
-    public String listTitle;     // Title of the todo list
+    public String listTitle;     // Title of the to do list
     public int numberOfItems;    // How many items in the list
     public String column1Label;
     public String column2Label;

@@ -61,7 +61,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
     // This method will return a TreePath for the provided String,
     // regardless of whether or not it really is a node on the tree.
-    public static TreePath getPathFor(JTree jt, String s) {
+    public static TreePath getTodoPathFor(JTree jt, String s) {
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
         DefaultMutableTreeNode clonedRoot = AppTree.deepClone(theRoot);
@@ -175,9 +175,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
             if (f.exists()) {
                 try {
                     String longCaseName = f.getCanonicalPath();
-                    int theSep = longCaseName.lastIndexOf(File.separatorChar);
-                    int theDot = longCaseName.lastIndexOf(".todolist");
-                    name = longCaseName.substring(theSep+1, theDot);
+                    name = TodoNoteGroup.prettyName(longCaseName);
                 } catch (IOException ioe) {
                     System.out.println(ioe.getMessage());
                 }
@@ -308,6 +306,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nc.nodeName + " to " + nc.renamedTo);
                     } // end if
+                    MemoryBank.getAppTree().getTodoListKeeper().remove(nc.nodeName);
                 } catch (SecurityException se) {
                     ems += se.getMessage() + System.lineSeparator();
                 } catch (Exception ue) {  // User Exception
@@ -336,7 +335,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nc.nodeName);
                     } // end if
-                    MemoryBank.getAppTree().removeLeafFromVector(nc.nodeName);
+                    MemoryBank.getAppTree().getTodoListKeeper().remove(nc.nodeName);
                 } catch (SecurityException se) {
                     ems += se.getMessage() + System.lineSeparator();
                 } catch (Exception ue) {  // User Exception
@@ -478,4 +477,60 @@ public class TodoBranchHelper implements TreeBranchHelper {
         return true;
     } // end nameCheck
 
-}
+    //----------------------------------------------------------------
+    // Method Name:  renameTodoListLeaf
+    //
+    // Call this method to do a 'programmatic' rename of a TodoList
+    // node on the Tree.  It operates only on the MemoryBank tree and
+    // not with any corresponding files; you can do that separately,
+    // before or after this, if needed.
+
+    // A calling context should verify the validity of the newname
+    // before coming here.  See the 'save as' methodology for a good
+    // example.
+    //----------------------------------------------------------------
+    public static void renameTodoListLeaf(String oldname, String newname) {
+        boolean changeWasMade = false;
+        JTree jt = MemoryBank.getAppTree().getTree();
+        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
+        DefaultMutableTreeNode theTodoBranch = getTodoNode(theRoot);
+
+        // The tree is set for single-selection, so the selection will not be a collection but
+        // a single value.  Nonetheless, Swing only provides a get for min and max and either
+        // one will work for us.  Note that the TreePath returned by getSelectionPath()
+        // will probably NOT work for reselection after we do the rename.
+        int returnToRow = jt.getMaxSelectionRow();
+
+        int numLeaves = theTodoBranch.getChildCount();
+        DefaultMutableTreeNode leafLink;
+
+        leafLink = theTodoBranch.getFirstLeaf();
+
+        // Search the leaves for the old name.
+        while (numLeaves-- > 0) {
+            String leaf = leafLink.toString();
+            if (leaf.equals(oldname)) {
+                String msg = "Renaming tree node from " + oldname;
+                msg += " to " + newname;
+                log.debug(msg);
+                changeWasMade = true;
+                leafLink.setUserObject(newname);
+                break;
+            } // end if
+
+            leafLink = leafLink.getNextLeaf();
+        } // end while
+
+        if (!changeWasMade) return;
+
+        // Force the renamed node to redisplay,
+        // which also causes its deselection.
+        tm.nodeStructureChanged(theTodoBranch);
+
+        // Reselect this tree node.
+        jt.setSelectionRow(returnToRow);
+
+    } // end renameTodoList
+
+} // end class TodoBranchHelper
