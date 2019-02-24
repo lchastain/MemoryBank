@@ -2,6 +2,25 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+2/23/2019 2127 - App has been working on Adele since the last entry; don't remember what was needed, back then, or even
+what exactly the problem was since I didn't say.  But now have started a new, post-retirement dev session and it is
+working from IJ.  Now will work here only to fix problems, while the main effort will go towards a new, client-server
+architecture, initial name 'WhatWhen', and going into a separate, new IJ project.  Will copy/steal from here as needed.
+Will do a git commit now, so 'set' the current state.  It looks like that hasn't been done since 2014, possibly even
+longer.
+
+6/6/2018 1023 - Back here now, trying to get the new laptop (Adele) to work with this program.  It is running
+on Java 10 but upon upgrading here, do not see the problem.  Need to dig deeper, to find it.  Intent is to restart
+work here upon full retirement, but not there yet; this is just whatever is needed to run the app on the laptop.
+
+3/20/2016 0810 Throttling of my dev work at CA, has sent me back to here as the best alternative to being
+able to work ahead.  Highest concern was that the yearview was no longer sized correctly; found now that
+it probably is, but the pane separator is taking space from it.  And I had done that because of having had so many
+search results that there was an added vertical scrollbar, and its width caused the appearance of a horizontal
+sb on the app tree, which I eliminated by moving over the pane separator.  So a quick, operational workaround is to
+reduce the search results until the sb goes away, then restore the separator to its orig value.  Long-term - unknown.
+Code changes so far today have been cosmetic, while I was refamiliarizing with the app.  Git update not (yet) needed.
+
 2/7/2014 1916 - Have spent all day on reworking the vector of todolists and the saveAs
 functionality, and I very much like the end result but there has been a dramatic change
 in the inner workings, mostly due to the removal of the TodoLeaf class, which had been

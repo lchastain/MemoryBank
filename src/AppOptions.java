@@ -9,7 +9,6 @@ import java.util.Vector;
 //   selection, etc.
 //-------------------------------------------------------------------------
 class AppOptions implements Serializable {
-    //static final long serialVersionUID = -7794718588806876785L;
     static final long serialVersionUID = 1654764549994200454L;
 
     boolean ViewsExpanded;

@@ -1,39 +1,9 @@
 /* ***************************************************************************
- *
- * File:  $Id: log.java,v 1.8 2006/07/22 02:06:46 lee Exp $
- *
- * Author:  D. Lee Chastain
- *
- * $Log: log.java,v $
- * Revision 1.8  2006/07/22 02:06:46  lee
- * Changes in support of the new data/component Note hierarchy.
- *
- * Revision 1.7  2006/02/20 00:52:47  lee
- * Converted from JTabbedPane to a JTree.
- *
- * Revision 1.6  2005/10/15 14:40:36  lee
- * Startup changes in debug printing and JFrame initialization.
- *
- * Revision 1.5  2005/09/05 23:08:08  lee
- * Moved screenSize from log to MonthView; now only used in MonthView.
- *
- * Revision 1.4  2005/09/05 15:23:58  lee
- * Changes to support the addition and use of a splash screen.
- *
- * Revision 1.3  2005/08/07 15:33:59  lee
- * Moved the code for 'setDataLocations' out of main and into its own method,
- * for access by other class test drivers.
- *
- * Revision 1.2  2005/07/31 17:54:41  lee
- * Changes in support of new architecture with NoteGroup as a base class
- * rather than an interface.  To significantly reduce code duplication and
- * prepare for additional 'NoteGroup' classes.
- *
+ The application 'main'.
+ Maintains a searchable database of date/time-related notes, events, and activities.  Can be used as a planning tool
+ and a chronological reference.  Data persistence is done via local filesystem; backups and cloud support is provided
+ via 3rd party services such as Dropbox but data location is not yet configurable.
  ****************************************************************************/
-/** Maintains a searchable database of date/time-related notes,
- events, and activities.  Can be used as a planning tool
- and a chronological reference.
- */
 
 import javax.swing.JFrame;
 import java.awt.*;
@@ -275,43 +245,7 @@ public class MemoryBank {
         System.out.println(Thread.currentThread().getStackTrace()[3].toString());
     } // end event
 
-/*
-// Put this in a 'view' base class....
-  public static boolean[][] findDataDays(int year) {
-    boolean hasDataArray[][] = new boolean [12][31];
-    // Will need to normalize the month integers from 0-11 to 1-12 
-    //   and the day integers from 0-30 to 1-31
 
-    // System.out.println("Searching for data in the year: " + year);
-    String FileName = location + File.separatorChar + year;
-    // System.out.println("Looking in " + FileName);
-
-    String foundFiles[] = null;
-
-    File f = new File(FileName);
-    if(f.exists()) {
-      if(f.isDirectory()) {
-        foundFiles = f.list(new logFileFilter("D"));
-        f = null; // free the file
-      } // end if directory
-    } // end if exists
-
-    if(foundFiles == null) return hasDataArray;
-    int month, day;
-
-    // System.out.println("Found:");
-    for(int i=0; i<foundFiles.length; i++) {
-      month = Integer.parseInt(foundFiles[i].substring(1,3));
-      day = Integer.parseInt(foundFiles[i].substring(3,5));
-      // System.out.println("  " + foundFiles[i]);
-      // System.out.println("\tMonth: " + month + "\tDay: " + day);
-      hasDataArray[month-1][day-1] = true;
-    } // end for i
-
-    return hasDataArray;
-  } // end findDataDays
-*/
-  
     //-----------------------------------------------------------------------
     // Method Name: getDateString
     //
@@ -653,12 +587,11 @@ public class MemoryBank {
 
 
     public static void main(String[] args) {
-        String s;
-
+        String s; // holds the startup flag(s).
 
         // Hold our place in line, on the taskbar.
         logFrame = new JFrame("Memory Bank:");
-        logFrame.setLocation(-1000, -1000);
+        logFrame.setLocation(-1000, -1000);  // Offscreen; not ready to be seen, yet.
         logFrame.setVisible(true);
 
         //---------------------------------------------------------------
@@ -741,6 +674,8 @@ public class MemoryBank {
         update("Creating the Log Tree");
         appTree = new AppTree(logFrame, appOpts);
         logFrame.setContentPane(appTree);
+
+        //SwingUtilities.updateComponentTreeUI(logFrame); this causes a stacktrace from java.awt.Container
 
         update("Laying out graphical components");
         logFrame.pack();
