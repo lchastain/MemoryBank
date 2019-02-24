@@ -14,7 +14,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.Serializable;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -401,54 +400,3 @@ public abstract class IconNoteComponent extends NoteComponent {
     } // end class NoteIcon
 
 } // end class IconNoteComponent
-
-
-// Embedded Data class
-//-------------------------------------------------------------------
-//
-class IconNoteData extends NoteData implements Serializable {
-    private static final long serialVersionUID = -4747292791676343443L;
-
-    protected String iconFileString;
-    protected boolean showIconOnMonthBoolean;
-
-    public IconNoteData() {
-        super();
-    } // end constructor
-
-
-    // The copy constructor (clone)
-    public IconNoteData(IconNoteData ind) {
-        super(ind);
-
-        iconFileString = ind.iconFileString;
-        showIconOnMonthBoolean = ind.showIconOnMonthBoolean;
-    } // end constructor
-
-
-    protected void clear() {
-        super.clear();
-        iconFileString = null;
-        showIconOnMonthBoolean = false;
-    } // end clear
-
-
-    public String getIconFileString() {
-        return iconFileString;
-    }
-
-    public boolean getShowIconOnMonthBoolean() {
-        return showIconOnMonthBoolean;
-    }
-
-    public void setIconFileString(String val) {
-        iconFileString = val;
-    }
-
-    public void setShowIconOnMonthBoolean(boolean val) {
-        showIconOnMonthBoolean = val;
-    }
-
-} // end class IconNoteData
-
-

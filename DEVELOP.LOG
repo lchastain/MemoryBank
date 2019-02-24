@@ -2,11 +2,29 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+2/24/2019 1142 - Ok, now see / remember.  Back in June, tried to get the latest (2018 build) to run on Adele.  It starts
+up ok but hangs on configuring the tree, unable to find some referenced logging class(es).  So the 'fix' was to go back
+to the 2014 build.  Then, moved on to other priorities and left it that way.  So now, can try harder.  The latest run
+from within IJ - does not have the priority button problem of going forward for a right mouse click, so the expected
+solution here is to do a good, latest build and put it into place.
+1152 - The first problem was the classpath to the external jars I brought in, now in C:\jars, and the fact that I was
+running from a script file that had not been updated to supply that path.  But the wrong priority direction problem
+is still there, probably fixed since the 2014 build, or just needs a rebuild under this now much later version of Java.
+Command-line building is not working, several errors/complaints.  But it works ok from IJ?
+1500 - Solved command-line build by extracting IconNoteData out to its own file, vs being embedded in the component file.
+Other xNoteData elements don't complain; not sure why this one did.  Maybe due to inheritance?
+1550 - Solved the PriorityButton always-increasing problem, sort of.  The behavior comes from Java 10, whereas my IJ is
+older now and cannot go beyond Java 8, so it still works correctly.  So for now, only, the fix is to change the launch
+shortcut so that it uses Java 8 vs Java 10.  ie, no code change was needed.  During this investigation, made a few more
+mbank.jar files, the latest one was taken from IJ output.  That's how we got here, in case it comes up in the future.
+And it matters somewhat, because Java 8 cannot run code built by Java 10, so I did update the shortcut and the batch
+files for command-line management.
+
 2/23/2019 2127 - App has been working on Adele since the last entry; don't remember what was needed, back then, or even
 what exactly the problem was since I didn't say.  But now have started a new, post-retirement dev session and it is
 working from IJ.  Now will work here only to fix problems, while the main effort will go towards a new, client-server
 architecture, initial name 'WhatWhen', and going into a separate, new IJ project.  Will copy/steal from here as needed.
-Will do a git commit now, so 'set' the current state.  It looks like that hasn't been done since 2014, possibly even
+Will do a git commit now, to 'set' the current state.  It looks like that hasn't been done since 2014, possibly even
 longer.
 
 6/6/2018 1023 - Back here now, trying to get the new laptop (Adele) to work with this program.  It is running
