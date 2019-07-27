@@ -41,7 +41,7 @@ import javax.swing.JScrollPane;
 
 
 public abstract class NoteGroup extends JPanel {
-    static final long serialVersionUID = 1L;
+    //static final long serialVersionUID = 1L;
 
     // Status report codes for Load / Save
     public static final int INITIAL = 500;

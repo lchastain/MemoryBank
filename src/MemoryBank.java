@@ -504,22 +504,21 @@ public class MemoryBank {
     //   subdirectory.  Security of user data files will be provided by the
     //   OS, filesystem, and local security policies.
     //
-    // Note:  To see the debug info in this method, use the -Ddebug runtime
-    //   option; the -debug parameter to MemoryBank is interpreted in main, only
-    //   after this method is run.
-    //-----------------------------------------------------------------------
+    // Note:  the -debug parameter to MemoryBank is interpreted in main only
+    //   after this method is run, so we do not use it here.
+    // -----------------------------------------------------------------------
     public static void setDataLocations() {
         // User data - personal notes, different for each user.
+        String currentDir = System.getProperty("user.dir");
+        System.out.println("The current working directory is: " + currentDir);
         File f = new File("appData"); // Look first in current dir.
         String loc;
         if (f.exists()) {
-            String current = System.getProperty("user.dir");
-            loc = current + File.separatorChar + "appData";
+            loc = currentDir + File.separatorChar + "appData";
         } else {
-            String userHome = System.getProperty("user.home");
+            String userHome = System.getProperty("user.home"); // Home directory.
             loc = userHome + File.separatorChar + "mbankData";
         }
-        debug("Setting user data location to: " + loc);
         System.out.println("Setting user data location to: " + loc);
         if (!setUserDataDirPathName(loc)) {  // Some validity testing here..
             System.exit(0);
@@ -527,17 +526,16 @@ public class MemoryBank {
 
         // Program data - icons, images, etc, the same for every user.
         f = new File("icons"); // Look first in current dir.
-        String userDir = System.getProperty("user.dir");
         if (f.exists()) {
-            logHome = userDir;
-            debug("MemoryBank Home = " + logHome);
+            logHome = currentDir;
+            System.out.println("MemoryBank Home = " + logHome);
         } else {
             // Explicitly setting logHome for now.
-            logHome = "C:\\Program Files\\MemoryBank";
-            debug("EXPLICIT MemoryBank Home = " + logHome);
+            logHome = "C:\\Program Files\\Memory Bank";
+            System.out.println("EXPLICIT MemoryBank Home = " + logHome);
         } // end if
 
-        f = new File(logHome + "/icons");
+        f = new File(logHome + File.separatorChar + "icons");
         if (!f.exists()) {
             errorOut("Cannot find program data!");
         } // end if

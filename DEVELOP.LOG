@@ -2,6 +2,32 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+3/10/2019 1434 - Now relatively stable with the two parallel projects and the ways to run them, and have
+ documented much of the configuration, so now it is time to forge ahead with new functionalities.  The first
+ one is to allow different users, and it should use the same underlying auth method and store for both the
+ web app and the desktop app.  Since it is a 'wrapper' type of functionality that will access the underlying
+ auth store via the web, it can go into the new project rather than here.  Overall app-related, it seems that
+ the WebSwing access method will be the best for both a desktop app as well as a web one, so that the 'real'
+ java class files can be hidden in either case.  This would call for a change here, to develop a custom
+ browser window that automatically goes to the webswing app only.  That can come much later; can still use
+ the pure-desktop app in the meanwhile.
+
+3/6/2019 0820 - Have been looking into getting tomcat to host webswing along with my ww app, and webswing to
+ serve out this swing app, along with a Grand Jury duty distraction (that evaporated yesterday).  There is some
+ trouble with setting the location for program data, and I have just seen that my debug printouts do not work
+ because the debug parameter is not evaluated until after the data locations are set.  So - considering options
+ and will make a change here, then redeploy the mbank.jar to webswing under tomcat.  The process to get this all
+ up and working was not a smooth one, and has not yet been documented for repeatability, but that is needed.
+
+3/3/2019 1728 - The idea to host my WebSwing server via heroku - not going to work, because that solution is a
+ Ruby On Rails (RoR) site, and more importantly, to get heroku to take code requires it to come from GitHub.  So -
+ I may just put a link there, that connects us back to my new site that could eventually be hosted on domain.net.
+ Meanwhile, can host it locally until I decide to put up the $$ needed for hosting.
+
+3/1/2019 - Working with the switchover project (WhatWhen) - found WebSwing, that can run THIS app as-is!  So now,
+ looking for a way to merge the two projects, keeping web stuff in that one and keeping this app working the way
+ it always has, with new work as needed and without the need to change the data storage methodology (much).
+
 2/24/2019 1142 - Ok, now see / remember.  Back in June, tried to get the latest (2018 build) to run on Adele.  It starts
 up ok but hangs on configuring the tree, unable to find some referenced logging class(es).  So the 'fix' was to go back
 to the 2014 build.  Then, moved on to other priorities and left it that way.  So now, can try harder.  The latest run
