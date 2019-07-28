@@ -359,7 +359,7 @@ public class SearchResultGroup extends NoteGroup {
     //  checking for validity is responsibility of calling context.
     //-----------------------------------------------------------------
     public void setFileName(String fname) {
-        strTheGroupFilename = MemoryBank.userDataDirPathName + File.separatorChar;
+        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
         strTheGroupFilename += fname + ".SearchResult";
 
         setGroupChanged();

@@ -148,7 +148,8 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
         System.out.println("main method of MonthNoteGroup started.");
 
         MemoryBank.debug = true;
-        MemoryBank.setDataLocations();
+        MemoryBank.setProgramDataLocation();
+        MemoryBank.setUserDataHome("g01@doughmain.net");
 
         final MonthNoteGroup dn = new MonthNoteGroup();
 

@@ -42,7 +42,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     public TodoListProperties myVars; // Variables - flags and settings
 
     static {
-        filechooser = new JFileChooser(MemoryBank.userDataDirPathName);
+        filechooser = new JFileChooser(MemoryBank.userDataHome);
         ff = new javax.swing.filechooser.FileFilter() {
             public boolean accept(File f) {
                 if (f != null) {
@@ -78,7 +78,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // We may want to make this operation less numeric in the future,
         //   but this works for now and no ENC structural changes are expected.
 
-        strTheGroupFilename = MemoryBank.userDataDirPathName + File.separatorChar;
+        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
         strTheGroupFilename += fname + ".todolist";
 
         tmc = new ThreeMonthColumn();
@@ -154,8 +154,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Check here to see if directory changed, reset if so.
         // System.out.println("Final directory: " + s);
-        if (!s.equals(MemoryBank.userDataDirPathName)) {
-            filechooser.setCurrentDirectory(new File(MemoryBank.userDataDirPathName));
+        if (!s.equals(MemoryBank.userDataHome)) {
+            filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome));
             badPlace = true;
         } // end if
 
@@ -168,7 +168,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                         "Warning", JOptionPane.WARNING_MESSAGE);
                 return null;
             } else {
-                return MemoryBank.userDataDirPathName + File.separatorChar
+                return MemoryBank.userDataHome + File.separatorChar
                         + prettyName(filechooser.getSelectedFile().getAbsolutePath()) + ".todolist";
             } // end if badPlace
         } else return null;
@@ -568,7 +568,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // abandon the effort, or they could choose a different
         // new name and try again, etc.
         //--------------------------------------------------------------
-        String newFilename = MemoryBank.userDataDirPathName + File.separatorChar;
+        String newFilename = MemoryBank.userDataHome + File.separatorChar;
         newFilename += newName + ".todolist";
 
         if ((new File(newFilename)).exists()) {
@@ -610,7 +610,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //  checking for validity is responsibility of calling context.
     //-----------------------------------------------------------------
     public void setFileName(String fname) {
-        strTheGroupFilename = MemoryBank.userDataDirPathName + File.separatorChar;
+        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
         strTheGroupFilename += fname.trim() + ".todolist";
 
         setName(fname.trim());  // Keep the 'pretty' name in the component.

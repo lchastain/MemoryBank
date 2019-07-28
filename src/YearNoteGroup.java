@@ -147,7 +147,8 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
         System.out.println("main method of YearNoteGroup started.");
 
         MemoryBank.debug = true;
-        MemoryBank.setDataLocations();
+        MemoryBank.setProgramDataLocation();
+        MemoryBank.setUserDataHome("g01@doughmain.net");
 
         final YearNoteGroup dn = new YearNoteGroup();
 

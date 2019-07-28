@@ -819,7 +819,7 @@ class TodoNoteData extends NoteData implements Serializable {
             MemoryBank.debug("  Source image is: " + src.getPath());
             int imagesIndex = iconFileString.indexOf("images");
             String destFileName = "icons/" + iconFileString.substring(imagesIndex + 7);
-            destFileName = MemoryBank.userDataDirPathName + "/" + destFileName;
+            destFileName = MemoryBank.userDataHome + "/" + destFileName;
             File dest = new File(destFileName);
             String theParentDir = dest.getParent();
             File f = new File(theParentDir);

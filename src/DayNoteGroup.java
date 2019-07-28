@@ -135,7 +135,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     public static void loadDefaults() {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + defaultFileName;
+        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
         FileInputStream fis;
         String tmp = null;
@@ -257,7 +257,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     private static void saveDefaults() {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + defaultFileName;
+        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         MemoryBank.debug("Saving day option data in " + defaultFileName);
         try {
             FileOutputStream fos = new FileOutputStream(FileName);

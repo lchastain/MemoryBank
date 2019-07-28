@@ -302,12 +302,12 @@ public class EventNoteGroup extends NoteGroup
     //   group of notes is loaded / saved.
     // -------------------------------------------------------------------
     public String getGroupFilename() {
-        return MemoryBank.userDataDirPathName + "/UpcomingEvents";
+        return MemoryBank.userDataHome + "/UpcomingEvents";
     }// end getGroupFilename
 
 
     public static void loadDefaults() {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + defaultFileName;
+        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
         FileInputStream fis = null;
         String tmp = null;
@@ -395,7 +395,7 @@ public class EventNoteGroup extends NoteGroup
 
 
     private static void saveDefaults() {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + defaultFileName;
+        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         MemoryBank.debug("Saving Event default data in " + defaultFileName);
         try {
             FileOutputStream fos = new FileOutputStream(FileName);

@@ -347,10 +347,10 @@ public abstract class IconNoteComponent extends NoteComponent {
                     String destFileName;
                     if(iconsIndex >= 0) {
                         destFileName = iconFileName.substring(iconsIndex);
-                        destFileName = MemoryBank.userDataDirPathName + "/" + destFileName;
+                        destFileName = MemoryBank.userDataHome + "/" + destFileName;
                     } else {
                         // need to drop off the drive, convert filesep chars?
-                        destFileName = MemoryBank.userDataDirPathName + "/" + iconFileName;
+                        destFileName = MemoryBank.userDataHome + "/" + iconFileName;
                     }
                     System.out.println("destFileName = " + destFileName);
                     File dest = new File(destFileName);

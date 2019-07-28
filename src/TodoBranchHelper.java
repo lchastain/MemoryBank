@@ -169,7 +169,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     private static String nameAdjust(String name) {
         name = name.trim();
         if(!name.isEmpty()) {
-            String newNamedFile = MemoryBank.userDataDirPathName + File.separatorChar;
+            String newNamedFile = MemoryBank.userDataHome + File.separatorChar;
             newNamedFile += name + ".todolist";
             File f = new File(newNamedFile);
             if (f.exists()) {
@@ -221,7 +221,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
         // Check to see if the destination file name already exists.
         // If so then complain and refuse to do the rename.
-        String newNamedFile = MemoryBank.userDataDirPathName + File.separatorChar;
+        String newNamedFile = MemoryBank.userDataHome + File.separatorChar;
         newNamedFile += theName.trim() + ".todolist";
 
         if ((new File(newNamedFile)).exists()) {
@@ -240,7 +240,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         ArrayList<String> theChoices = new ArrayList<String>();
 
         // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(MemoryBank.userDataDirPathName);
+        File dataDir = new File(MemoryBank.userDataHome);
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
@@ -292,7 +292,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         String deleteWarning = null;
         boolean doDelete = false;
         ems = "";
-        String basePath = MemoryBank.userDataDirPathName + File.separatorChar;
+        String basePath = MemoryBank.userDataHome + File.separatorChar;
         for(Object nco: changes) {
             NodeChange nc = (NodeChange) nco;
             System.out.println(nco.toString());
@@ -436,7 +436,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // conflict with any 'legal' existing file in this directory, so if
         // there is any problem at all then we can report a failure.
 
-        String theFilename = MemoryBank.userDataDirPathName + File.separatorChar + theName + ".test";
+        String theFilename = MemoryBank.userDataHome + File.separatorChar + theName + ".test";
         File f = new File(theFilename);
         MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
         boolean b = false; // Used only for 'greening' the code.

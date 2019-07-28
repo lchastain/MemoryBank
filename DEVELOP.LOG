@@ -2,6 +2,11 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+7/28/2019 0646 - Restarted, in Izhevsk, while still awaiting household shipment.  Continuing the addition of
+ having multiple users, the front end is ready to provide a new user id so now this app needs to be able to
+ receive it upon startup.  But - need to refamiliarize myself with this app before making possibly
+ catastrophic changes.  First baby-step:  broke apart setting of program data loc from user data loc.
+
 3/10/2019 1434 - Now relatively stable with the two parallel projects and the ways to run them, and have
  documented much of the configuration, so now it is time to forge ahead with new functionalities.  The first
  one is to allow different users, and it should use the same underlying auth method and store for both the

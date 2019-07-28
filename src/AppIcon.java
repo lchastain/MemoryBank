@@ -49,7 +49,7 @@ public class AppIcon extends ImageIcon {
         //   (short) path, so we need to prefix it with the
         //   path to the user's data.
         if (iconsIndex == 0) {
-            filename = MemoryBank.userDataDirPathName + "/" + filename;
+            filename = MemoryBank.userDataHome + "/" + filename;
             iconsIndex = filename.indexOf("icons");
         } // end if
 

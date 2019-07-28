@@ -35,7 +35,7 @@ class SearchResultNode extends DefaultMutableTreeNode implements Serializable {
 
             // Note: an earlier version sent the full path in 's'.  Now,
             //   we expect to only have the filename.
-            String strFilePath = MemoryBank.userDataDirPathName + File.separatorChar;
+            String strFilePath = MemoryBank.userDataHome + File.separatorChar;
 //      srg = new SearchResultGroup(strFilePath + strFileName, intGroupSize);
             srg = new SearchResultGroup(strFilePath + strFileName);
         } // end else

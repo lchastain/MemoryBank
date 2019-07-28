@@ -102,7 +102,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         dlgWorkingDialog = new JDialog(theFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
-        String strWorkingIcon = MemoryBank.userDataDirPathName + File.separatorChar;
+        String strWorkingIcon = MemoryBank.userDataHome + File.separatorChar;
         strWorkingIcon += "icons/animated/const_anim.gif";
         lbl.setIcon(new AppIcon(strWorkingIcon));
         lbl.setVerticalTextPosition(JLabel.TOP);
@@ -404,7 +404,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         for (String s : appOpts.todoLists) {
 
             // First check to see that the file is 'here'.
-            theName = MemoryBank.userDataDirPathName + File.separatorChar + s + ".todolist";
+            theName = MemoryBank.userDataHome + File.separatorChar + s + ".todolist";
             if (new File(theName).exists()) {
                 MemoryBank.debug("  Adding List: " + s);
 
@@ -490,8 +490,8 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         // We do a recursive directory search and each
         //   file is examined as soon as it is found,
         //   provided that it passes the file-level filters.
-        MemoryBank.debug("Data location is: " + MemoryBank.userDataDirPathName);
-        File f = new File(MemoryBank.userDataDirPathName);
+        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
+        File f = new File(MemoryBank.userDataHome);
         exportDataDir(f, 0); // Indirectly fills the exportDataVector
         writeExportFile();
 
@@ -758,8 +758,8 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             tree.addTreeSelectionListener(this);
 
             // Remove any extraneous '.sresults' files.
-            MemoryBank.debug("Data location is: " + MemoryBank.userDataDirPathName);
-            File theDir = new File(MemoryBank.userDataDirPathName);
+            MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
+            File theDir = new File(MemoryBank.userDataHome);
             File theFiles[] = theDir.listFiles();
             assert theFiles != null;
             int howmany = theFiles.length;
@@ -848,7 +848,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     //
     //------------------------------------------------------------------------
     private void saveOpts() {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "app.options";
+        String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
         MemoryBank.debug("Saving application option data in " + FileName);
 
         try {
@@ -1230,8 +1230,8 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         // We do a recursive directory search and each
         //   file is examined as soon as it is found,
         //   provided that it passes the file-level filters.
-        MemoryBank.debug("Data location is: " + MemoryBank.userDataDirPathName);
-        File f = new File(MemoryBank.userDataDirPathName);
+        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
+        File f = new File(MemoryBank.userDataHome);
         scanDataDir(f, 0); // Indirectly fills the foundDataVector
         noteDataVector = foundDataVector;
 
@@ -1244,7 +1244,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         String strResultsFileName = "S" + AppUtil.getTimestamp();
         strResultsFileName += ".sresults";
 
-        String strResultsPath = MemoryBank.userDataDirPathName + File.separatorChar;
+        String strResultsPath = MemoryBank.userDataHome + File.separatorChar;
         System.out.println(strResultsFileName + " results: " + foundDataVector.size());
 
         // Make the File, then save the results into it.
@@ -1536,7 +1536,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
                 //   and that newer search results will not be stored with
                 //   the full path in the first place.
                 String s = SearchResultNode.prettyName(srn.strFileName);
-                s = MemoryBank.userDataDirPathName + File.separatorChar + s;
+                s = MemoryBank.userDataHome + File.separatorChar + s;
                 s += ".sresults";
 
                 if (new File(s).exists()) {
@@ -1673,7 +1673,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             String strResultsFileName = "Export" + AppUtil.getTimestamp();
             strResultsFileName += ".txt";
 
-            String strResultsPath = MemoryBank.userDataDirPathName + File.separatorChar;
+            String strResultsPath = MemoryBank.userDataHome + File.separatorChar;
             System.out.println(strResultsFileName + " results: " + exportDataVector.size());
 
             // Make the File, then save the results into it.

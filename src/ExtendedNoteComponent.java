@@ -83,7 +83,7 @@ public class ExtendedNoteComponent extends JPanel {
         if (space > -1) s = defaultSubject.substring(0, space);
         else s = defaultSubject;
         s += "Subjects";
-        FileName = MemoryBank.userDataDirPathName + File.separatorChar + s;
+        FileName = MemoryBank.userDataHome + File.separatorChar + s;
 
         loadSubjects(); // There may or may not be any.
         subjectChooser = new JComboBox<String>(subjects);

@@ -32,7 +32,7 @@ public class MemoryBank {
     public static boolean event;
     public static boolean init;
     public static boolean timing;
-    public static String userDataDirPathName; // User data top-level directory 'mbankData'
+    public static String userDataHome; // User data top-level directory 'mbankData'
     public static String logHome;  // For finding icons & images
     private static AppOptions appOpts;     // saved/loaded
     private static AppTree appTree;
@@ -55,7 +55,8 @@ public class MemoryBank {
         //--------------------------------------
         // Establish the locations for data.
         //--------------------------------------
-        setDataLocations();
+        setProgramDataLocation();
+        setUserDataHome("g01@doughmain.net");
 
         // Load the user settings
         appOpts = new AppOptions(); // Start with default values.
@@ -124,7 +125,7 @@ public class MemoryBank {
         FileInputStream fis;
         AppOptions tmp;
 
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + "app.options";
+        String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
 
         try {
             fis = new FileInputStream(FileName);
@@ -439,7 +440,7 @@ public class MemoryBank {
         } // end if exists
 
         if (answer) {
-            userDataDirPathName = s;
+            userDataHome = s;
         } else {  // Build up and display an informative error message.
             JPanel le = new JPanel(new GridLayout(5, 1, 0, 0));
 
@@ -494,20 +495,41 @@ public class MemoryBank {
   */
 
 
-    //-----------------------------------------------------------------------
-    // Method Name: setDataLocations
+    // -----------------------------------------------------------------------
+    // Method Name: setProgramDataLocation
     //
-    // Called by MemoryBank main and class test drivers.
-    //
-    // Establish the locations for data.
-    //   User data will be in the user's home directory under a 'MemoryBank'
-    //   subdirectory.  Security of user data files will be provided by the
-    //   OS, filesystem, and local security policies.
+    // Set the filesystem location for program data - 'logHome'.
+    // Look first in the current directory.  This allows the program data to come
+    // from a development location.  If not found then set it explicitly to the default
+    // location but test that it is valid, by checking for the 'icons' subdirectory.
     //
     // Note:  the -debug parameter to MemoryBank is interpreted in main only
     //   after this method is run, so we do not use it here.
     // -----------------------------------------------------------------------
-    public static void setDataLocations() {
+    public static void setProgramDataLocation() {
+        String currentDir = System.getProperty("user.dir");
+        System.out.println("The current working directory is: " + currentDir);
+
+        // Program data - icons, images, etc, the same for every user.
+        File f = new File("icons"); // Look first in current dir.
+        if (f.exists()) {  // This logic is far from infallible...
+            logHome = currentDir;
+            System.out.println("MemoryBank Home = " + logHome);
+        } else {
+            // Explicitly setting logHome for now.
+            logHome = "C:\\Program Files\\Memory Bank"; // need to use System calls here, vs hard-coded C:\
+            System.out.println("EXPLICIT MemoryBank Home = " + logHome);
+
+            // But test to see if we have icons available at that location -
+            f = new File(logHome + File.separatorChar + "icons");
+            if (!f.exists()) {
+                errorOut("Cannot find program data!");
+            } // end if
+        } // end if
+    } // end setProgramDataLocation
+
+
+    public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
         String currentDir = System.getProperty("user.dir");
         System.out.println("The current working directory is: " + currentDir);
@@ -520,26 +542,60 @@ public class MemoryBank {
             loc = userHome + File.separatorChar + "mbankData";
         }
         System.out.println("Setting user data location to: " + loc);
-        if (!setUserDataDirPathName(loc)) {  // Some validity testing here..
+
+        boolean answer = true;
+        f = new File(loc);
+        if (f.exists()) {
+            if (!f.isDirectory()) {
+                // System.out.println("Error - file in place of directory: " + loc);
+                answer = false;
+            } // end if directory
+        } else {
+            // No need for a prompt for OK to create - this will only occur at startup.
+            if (!f.mkdirs()) {
+                // System.out.println("Error - Could not create directory: " + loc);
+                answer = false;
+            } // end if
+        } // end if exists
+
+        if (answer) {
+            userDataHome = loc;
+        } else {  // Build up and display an informative error message.
+            JPanel le = new JPanel(new GridLayout(5, 1, 0, 0));
+
+            String oneline;
+            oneline = "The MemoryBank program was not able to access or create:";
+            JLabel el1 = new JLabel(oneline);
+            JLabel el2 = new JLabel(loc, JLabel.CENTER);
+            oneline = "This could be due to insufficient permissions ";
+            oneline += "or a problem with the file system.";
+            JLabel el3 = new JLabel(oneline);
+            oneline = "Please try again with a different location, or see";
+            oneline += " your system administrator";
+            JLabel el4 = new JLabel(oneline);
+            oneline = "if you believe the location is a valid one.";
+            JLabel el5 = new JLabel(oneline, JLabel.CENTER);
+
+            el1.setFont(Font.decode("Dialog-bold-14"));
+            el2.setFont(Font.decode("Dialog-bold-14"));
+            el3.setFont(Font.decode("Dialog-bold-14"));
+            el4.setFont(Font.decode("Dialog-bold-14"));
+            el5.setFont(Font.decode("Dialog-bold-14"));
+
+            le.add(el1);
+            le.add(el2);
+            le.add(el3);
+            le.add(el4);
+            le.add(el5);
+
+            JOptionPane.showMessageDialog(null, le,
+                    "Problem with specified location", JOptionPane.ERROR_MESSAGE);
+        } // end if
+
+        if (!answer) {  // Some validity testing here..
             System.exit(0);
         } // end if
-
-        // Program data - icons, images, etc, the same for every user.
-        f = new File("icons"); // Look first in current dir.
-        if (f.exists()) {
-            logHome = currentDir;
-            System.out.println("MemoryBank Home = " + logHome);
-        } else {
-            // Explicitly setting logHome for now.
-            logHome = "C:\\Program Files\\Memory Bank";
-            System.out.println("EXPLICIT MemoryBank Home = " + logHome);
-        } // end if
-
-        f = new File(logHome + File.separatorChar + "icons");
-        if (!f.exists()) {
-            errorOut("Cannot find program data!");
-        } // end if
-    } // end setDataLocations
+    } // end setUserDataHome
 
 
     //-----------------------------------------------------------------

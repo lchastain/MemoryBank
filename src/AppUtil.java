@@ -62,7 +62,7 @@ public class AppUtil {
         // and the day integers from 0-30 to 1-31
 
         // System.out.println("Searching for data in the year: " + year);
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar + year;
+        String FileName = MemoryBank.userDataHome + File.separatorChar + year;
         // System.out.println("Looking in " + FileName);
 
         String foundFiles[] = null;
@@ -101,7 +101,7 @@ public class AppUtil {
     public static String findFilename(GregorianCalendar cal, String which) {
         String foundFiles[] = null;
         String lookfor = which;
-        String fileName = MemoryBank.userDataDirPathName + File.separatorChar;
+        String fileName = MemoryBank.userDataHome + File.separatorChar;
         fileName += String.valueOf(cal.get(Calendar.YEAR));
 
         // System.out.println("Looking in " + fileName);
@@ -135,7 +135,7 @@ public class AppUtil {
         // the directory might exist but be empty; also allowed.
         if((foundFiles != null) && (foundFiles.length > 0)) {
             if(foundFiles.length == 1) {
-                fileName = MemoryBank.userDataDirPathName + File.separatorChar;
+                fileName = MemoryBank.userDataHome + File.separatorChar;
                 fileName += String.valueOf(cal.get(Calendar.YEAR));
                 fileName += File.separatorChar;
                 fileName += foundFiles[0];
@@ -529,7 +529,7 @@ public class AppUtil {
     // over there, since this method (and findFilename) is their only 'client'.
     // -----------------------------------------------------------------
     public static String makeFilename(GregorianCalendar cal, String which) {
-        String FileName = MemoryBank.userDataDirPathName + File.separatorChar;
+        String FileName = MemoryBank.userDataHome + File.separatorChar;
         FileName += String.valueOf(cal.get(Calendar.YEAR));
 
         FileName += File.separatorChar;

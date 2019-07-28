@@ -932,7 +932,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // Location
         lblLocation.setFont(Font.decode("Dialog-bold-12"));
 
-        strLocFilename = MemoryBank.userDataDirPathName + File.separatorChar + "UpcomingLocations";
+        strLocFilename = MemoryBank.userDataHome + File.separatorChar + "UpcomingLocations";
         rectTmp = comboxLocation.getBounds();
         remove(comboxLocation);
         loadLocations();
