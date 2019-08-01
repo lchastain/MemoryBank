@@ -600,7 +600,6 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         else if (what.equals("Review...")) System.out.println("Review was selected.");
         else if (what.startsWith("Save As")) saveTodoListAs();
         else if (what.equals("Today")) showToday();
-        else if (what.equals("Set Look and Feel...")) showPlafDialog();  // move to MemoryBank?
         else if (what.equals("undo")) {
             String s = appOpts.theSelection;
             if (s.equals("Day Notes")) theAppDays.recalc();
@@ -614,8 +613,18 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         } // end if/else
     } // end handleMenuBar
 
+    // Thursday, 1 August 2019
+    // This method and the PlafSelectionPanel are being deprecated for use by the MemoryBank app.
+    // But the concept is still too cool to just throw away so the deactivated code stays here, for now.
+    //   removed from the AppMenuBar, View menu:    menuView.add(new JMenuItem("Set Look and Feel..."));
+    //   removed from the AppMenuBar, Event menu:   menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
+    //   removed from the AppMenuBar, View Date menu:    menuViewDate.add(new JMenuItem("Set Look and Feel..."));
+    //   removed from this file, the HandleMenuBar method:
+    //      else if (what.equals("Set Look and Feel...")) showPlafDialog();
+
+
     private void showPlafDialog() {
-        PlafEditorPanel pep = new PlafEditorPanel();
+        PlafSelectionPanel pep = new PlafSelectionPanel();
         int doit = JOptionPane.showConfirmDialog(
                 theFrame, pep,
                 "Select a new Look and Feel", JOptionPane.OK_CANCEL_OPTION);
@@ -628,6 +637,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         //myVars = to.getValues();
 
         try {
+            UIDefaults uidefaults = UIManager.getLookAndFeelDefaults();
             UIManager.setLookAndFeel(pep.getSelectedPlaf());
             appOpts.thePlaf = pep.getSelectedPlaf();
             SwingUtilities.updateComponentTreeUI(theFrame);
@@ -637,7 +647,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
             // I think it may be happening because of my implementation of the custom
             // scrollpane (need to find/review that code).  Seems to go thru without any other
             // trouble, tho, so we may be able to ignore this indefinitely.
-            //System.out.println("updatedComponentTreeUI"); // Shows that the above succeeded.
+            System.out.println("updatedComponentTreeUI"); // Shows that the above succeeded.
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
             //e.printStackTrace();
@@ -1696,10 +1706,4 @@ public class AppTree extends JPanel implements TreeSelectionListener {
     }//end writeExportFile
 
 } // end AppTree class
-
-interface iconKeeper {
-    public abstract AppIcon getDefaultIcon();
-
-    public abstract void setDefaultIcon(AppIcon li);
-} // end iconKeeper
 

@@ -61,18 +61,15 @@ public class AppMenuBar extends JMenuBar{
         menuEditTodo.add(new JMenuItem("Set Options..."));
 
         menuView = new JMenu("View");
-        menuView.add(new JMenuItem("Set Look and Feel..."));
 
         menuViewEvent = new JMenu("View");
         // Don't leave Today here...
         menuViewEvent.add(new JMenuItem("Today"));
         // menuViewEvent.add(new JMenuItem("Date Format"));
         menuViewEvent.add(new JMenuItem("Refresh"));
-        menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
 
         menuViewDate = new JMenu("View");
         menuViewDate.add(new JMenuItem("Today"));
-        menuViewDate.add(new JMenuItem("Set Look and Feel..."));
 
         menuHelp = new JMenu("Help");
         menuHelp.add(new JMenuItem("Contents"));
@@ -163,6 +160,7 @@ public class AppMenuBar extends JMenuBar{
             menuFileTodoBranch.setVisible(true);
         } else if (strMenuType.equals("To Do List")) { // A List
             menuFile.setVisible(false);
+            menuView.setVisible(false);
             menuFileTodo.setVisible(true);
             menuEditTodo.setVisible(true);
         } // end if

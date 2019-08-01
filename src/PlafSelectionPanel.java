@@ -7,14 +7,14 @@ import java.util.HashMap;
 // A panel that shows a list of the Pluggable Look and Feels that are currently
 // installed on the system, and allows the user to make a new selection.  The
 // calling context must make the change, if any.
-public class PlafEditorPanel extends JPanel implements ActionListener {
+public class PlafSelectionPanel extends JPanel implements ActionListener {
     static final long serialVersionUID = 1L;
 
     private String selectedPlaf;
     private ButtonGroup bg;
     private HashMap<String, String> hm;
 
-    public PlafEditorPanel() {
+    public PlafSelectionPanel() {
         UIManager.LookAndFeelInfo[] lafiArray = UIManager.getInstalledLookAndFeels();
         // A null or zero count array result does not seem possible.
         // Defer handling of those cases until proven otherwise.

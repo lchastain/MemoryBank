@@ -52,33 +52,22 @@ public class MemoryBank {
     //   items developed here (such as the tempCalendar)
     //   without going thru the MemoryBank.main.
     static {
-        //--------------------------------------
-        // Establish the locations for data.
-        //--------------------------------------
         setProgramDataLocation();
-        setUserDataHome("g01@doughmain.net");
 
-        // Load the user settings
         appOpts = new AppOptions(); // Start with default values.
-        loadOpts(); // If available, overrides defaults.
-        System.out.println("Pane separator: " + appOpts.paneSeparator);
 
         // Set the Look and Feel
         try {
-            if(appOpts.thePlaf != null) {
-                UIManager.setLookAndFeel(appOpts.thePlaf);
-                System.out.println("Setting plaf to: " + appOpts.thePlaf);
-            } else {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }
+            String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+            System.out.println("Setting plaf to: " + thePlaf);
+            UIManager.setLookAndFeel(thePlaf);
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
             e.printStackTrace();
         }
 
         // Global setting for tool tips
-        UIManager.put("ToolTip.font",
-                new FontUIResource("SansSerif", Font.BOLD, 12));
+        UIManager.put("ToolTip.font", new FontUIResource("SansSerif", Font.BOLD, 12));
 
         amColor = Color.blue;
         pmColor = Color.black;
@@ -111,7 +100,9 @@ public class MemoryBank {
     } // end static
 
 
-    public static AppTree getAppTree() { return appTree; }
+    public static AppTree getAppTree() {
+        return appTree;
+    }
 
     //------------------------------------------------------
     // Method Name: loadOpts
@@ -536,10 +527,10 @@ public class MemoryBank {
         File f = new File("appData"); // Look first in current dir.
         String loc;
         if (f.exists()) {
-            loc = currentDir + File.separatorChar + "appData";
+            loc = currentDir + File.separatorChar + "appData" + File.separatorChar + userEmail;
         } else {
             String userHome = System.getProperty("user.home"); // Home directory.
-            loc = userHome + File.separatorChar + "mbankData";
+            loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
         }
         System.out.println("Setting user data location to: " + loc);
 
@@ -642,6 +633,7 @@ public class MemoryBank {
 
     public static void main(String[] args) {
         String s; // holds the startup flag(s).
+        String userEmail = "default.user@elseware.com";
 
         // Hold our place in line, on the taskbar.
         logFrame = new JFrame("Memory Bank:");
@@ -676,7 +668,7 @@ public class MemoryBank {
         if (args.length > 0)
             System.out.println("Number of args: " + args.length);
 
-        for (String arg : args) {
+        for (String arg : args) { // Cycling thru them this way, position is irrelevant.
             s = arg;
 
             if (s.equals("-debug")) {
@@ -691,18 +683,28 @@ public class MemoryBank {
             } else if (s.equals("-timing")) {
                 if (!timing) System.out.println("Timing printouts on.");
                 timing = true;
+            } else if (s.indexOf('@') > 0) {
+                userEmail = s;
             } else {
                 System.out.println("Parameter not handled: [" + s + "]");
             } // end if/else
         } // end for i
 
+        setUserDataHome(userEmail);
+
+        // Load the user settings
+        loadOpts(); // If available, overrides defaults.
+
+// Change the opts to JSON data, after loading, do a debug printout of ALL, not just the pane separator.
+
+        System.out.println("Pane separator: " + appOpts.paneSeparator);
 
         //--------------------------------------
         // Specify logFrame attributes
         //--------------------------------------
         update("Setting Window variables");
         String userName = System.getProperty("user.name");
-        logFrame.setTitle("Memory Bank for: " + userName);
+        logFrame.setTitle("Memory Bank for: " + userEmail);
         logFrame.getRootPane().setOpaque(false);
 
 // Attributes to store and retrieve:
@@ -713,7 +715,7 @@ public class MemoryBank {
 // custom icon?
 
         // Use our own icon -
-        AppIcon theAppIcon = new AppIcon("icons/icon_not.gif");
+        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + "icon_not.gif");
         theAppIcon = AppIcon.scaleIcon(theAppIcon);
         logFrame.setIconImage(theAppIcon.getImage());
 
@@ -722,14 +724,14 @@ public class MemoryBank {
                 System.exit(0);
             }
         });
+        // This is so that our own handler can collect and save all changes.
+        // Don't worry, the window still closes.
         logFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         //--------------------------------------
 
         update("Creating the Log Tree");
         appTree = new AppTree(logFrame, appOpts);
         logFrame.setContentPane(appTree);
-
-        //SwingUtilities.updateComponentTreeUI(logFrame); this causes a stacktrace from java.awt.Container
 
         update("Laying out graphical components");
         logFrame.pack();

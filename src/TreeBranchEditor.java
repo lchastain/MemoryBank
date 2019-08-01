@@ -102,6 +102,7 @@ public class TreeBranchEditor extends JPanel
 
     // If the helper's getChoices() has not been implemented,
     // then make our own, from the provided branch.
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private ArrayList<String> getChoices() {
         theChoices = myHelper.getChoices();
         if(theChoices != null) return theChoices;
@@ -134,6 +135,7 @@ public class TreeBranchEditor extends JPanel
         leftScroller.setViewportView(jt);
     } // end showTree
 
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private void expandTree(JTree tree) {
         DefaultMutableTreeNode root =
                 (DefaultMutableTreeNode)tree.getModel().getRoot();
@@ -393,6 +395,7 @@ public class TreeBranchEditor extends JPanel
     // a click of the 'Cancel' button, but that is not a selective fix and will undo ALL
     // changes for the entire editing session.  Oh well.  Renaming logic is a b*tch.
     class BranchEditorModel extends DefaultTreeModel {
+        static final long serialVersionUID = -1L;
         private String originalName;
 
         public BranchEditorModel(TreeNode treeNode, boolean b) {

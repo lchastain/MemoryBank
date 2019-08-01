@@ -28,7 +28,7 @@ public interface TreeBranchHelper {
     public boolean makeParents();
 
     // The handler for the 'Apply' button.
-    public void doApply(MutableTreeNode mtn, ArrayList changes);
+    public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes);
 
     // What text appears on the 'Remove' button.  Ex:  'Delete', 'Remove', or
     // something else.  If your implementation returns a null, the editor will

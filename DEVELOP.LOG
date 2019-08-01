@@ -2,6 +2,11 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/01/2019 1133 - Good progress since last entry; creation of new users - done, without a real connection
+ yet to the web front end.  Lots of design thoughts on how to proceed with both projects, but can let
+ the web one go slower for now while I fix other app issues such as the long-running PLAF problem, and
+ updating the code to Java 8 (even though it's up to v10, at this writing).
+
 7/28/2019 0646 - Restarted, in Izhevsk, while still awaiting household shipment.  Continuing the addition of
  having multiple users, the front end is ready to provide a new user id so now this app needs to be able to
  receive it upon startup.  But - need to refamiliarize myself with this app before making possibly

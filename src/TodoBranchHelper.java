@@ -25,17 +25,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-// TODO
-// Remove the old todolistHandler.
-//      first move menu handling to here
-//          save as...
-//      then can remove.
-// Use the branch editor for all other appropriate branches.
-// Fix the startup debug messages (user data loc)
-// Test showAbout after removing all search results, then test again - toggle?
-// app user name
-
-
 public class TodoBranchHelper implements TreeBranchHelper {
     static final long serialVersionUID = -1L;
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
@@ -285,7 +274,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     // tasks from the list?  In that case, the branch may no longer accurately
     // represent the true state of the todolist files and the user will be informed.
     @Override
-    public void doApply(MutableTreeNode mtn, ArrayList changes) {
+    public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         if(todoIndex == -1) return;
 
         // Handle 'To Do' file renamings and deletions

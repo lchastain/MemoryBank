@@ -503,8 +503,3 @@ public class ThreeMonthColumn extends JPanel {
 } // end class ThreeMonthColumn
 
 
-//Interface for operations that should occur when a date is selected.
-interface DateSelection {
-    public abstract void dateSelected(Date d);
-} // end DateSelection
-
