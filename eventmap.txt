@@ -1,0 +1,85 @@
+Notes Interfaces (Day Notes, Month Notes, Todo Lists, Events, etc)
+
+NoteGroup (base class):
+
+ 1. Event: Double-click in a text area
+    Handler: NoteComponent.java$NoteTextField.mouseClicked
+    Expected Action: Bring up the Extended Note
+
+ 2. Event: Press Enter while a text area is highlighted.
+    Handler: NoteComponent.java  actionPerformed
+    Handler: NoteComponent.java  keyTyped
+    Expected Action: Bring up the Extended Note
+
+ 3. Event: Double-click on a 'Time' field
+    Handler: NoteComponent.java$NoteTimeLabel.mouseClicked
+    Expected Action: Bring up the TimeChooser
+
+ 4. Event: Click on the icon field
+    Handler: IconNoteComponent.java$NoteIcon.mouseClicked
+    Expected Action: Bring up the IconChooser in the 'Icons' dir.
+
+ 5. Event: Up or Down arrow key while line is 'active'.
+    Handler:  NoteComponent.java NoteTextField constructor new KeyAdapter
+    Expected Action: TransferFocus
+
+ 6. Event: FocusLost from a NoteComponent line
+    Handler:  NoteComponent$NoteTextField.focusLost
+    Expected Action:  NoteComponent.noteActivated (may call 'clear')
+      which then calls  NoteGroup.setActiveNote(this, false);
+
+ 7. Event: FocusGained from a NoteComponent line
+    Handler:  NoteComponent$NoteTextField.focusGained
+    Expected Action:  NoteComponent.setInactive
+      which then calls  NoteGroup.setActiveNote(this, true);
+
+ 8. Event: Right-click on text
+    Handler: NoteComponent$NoteTextField.mouseClicked
+    Expected Action: Calls 'resetPopup'; an overridable method
+      to define and bring up the popup menu.  
+
+
+
+To-do Lists:
+
+ 1. Event: Right-click on text (see NoteGroup item 8)
+    Handler: NoteComponent$NoteTextField.mouseClicked
+    Expected Action: Calls overriding 'resetPopup' in TodoNoteComponent,
+      to define and bring up a popup menu with more selections than the base.  
+
+ 2. Event: 'Move To Selected Date' selection on the Text popup menu
+    Handler: TodoNoteComponent$PopHandler.actionPerformed
+    Expected Action: A call to moveIt which calls NoteGroup.addNote
+
+
+Upcoming Events:
+ 1. Event: Menubar - Select View/Refresh
+    Handler: An anonymous actionlistener in the AppTree constructor
+    Expected Action: Fires off a new thread with a call to handleMenuBar(),
+      that in turn makes a call to EventNoteGroup.refresh().
+
+ 2. Event: Double-click in a text area
+    Expected Action: Brings up the EventEditorPanel
+
+
+Search Results:
+ 1. Event: Click on a column heading (for sorting)
+    Handler: SearchResultHeader$HeaderButton.mouseClicked
+    Expected Action: A call to doSorting() which in turn calls the correct
+      sort method in SearchResultGroup, via the HeaderButton 'parent'.
+    
+
+
+AppTree:
+ 1. Event: Click on 'To Do Lists'
+    Handler: AppTree$TreeSelectionChanged
+    Expected Action: A call to theTodoListHandler.showListManager()
+
+
+Memory Bank:
+ 1. Event:  Menu Item selections (various)
+    Handler: An anonymous actionlistener in the AppTree constructor
+    Expected Action: A call to AppTree.handleMenuBar(String) with the menu item text.
+
+
+

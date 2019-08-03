@@ -2,6 +2,23 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/02/2019 0520 - The updating to Java 8 that I referred to yesterday - really meant clearing up the
+  92 build warnings that were being reported.  Did that, but then realized that this is exactly the
+  kind of changes that need to be tested, since I have no idea what might have been broken in that
+  undertaking.  It all seems ok now but I don't want to publish/use the current build until I have
+  a higher confidence in it.  So - testing?
+ 0612 - Looked at the existing tests - all manual.  Ran thru them and they do cover the areas that
+  were touched, so confidence is back but with no new features there is still no reason to publish
+  the latest code.  Now considering how/when to insert an AUTOMATED test framework, similar to what
+  has only been started over in the WW project.
+ 1007 .. and to do that requires a restructuring of my files, which changes the type and causes
+  data reads to fail.  So - is it already time to do a full data conversion?  Probably.
+ 1033 - Maybe not; the earlier move had added packages.  I undid that and used windows explorer
+  to create the subdirectories and do the move, then it worked again.  All files had to be re-added
+  to git, tho.
+ 1535 - Testing is inserted and working, with the preexisting data forms.  Made a NoteData class
+  test file, got it up to 100% coverage.  Others to follow (eventually).
+
 8/01/2019 1133 - Good progress since last entry; creation of new users - done, without a real connection
  yet to the web front end.  Lots of design thoughts on how to proceed with both projects, but can let
  the web one go slower for now while I fix other app issues such as the long-running PLAF problem, and

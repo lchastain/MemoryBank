@@ -1,0 +1,67 @@
+------------------------------------------------------------
+ Behavioral Tests:
+------------------------------------------------------------
+Compile / run with the debug printing activated.
+For each test activity, verify that the debug printing
+  shows that the correct methods are being called,
+  in the correct order, the correct number of times.
+Bring up DayNotes (standalone, not part of Log)
+
+ Test Case A: Note Addition
+ 1.  Add notes until interface is full, by typing a
+     key and then pressing the DOWN key, alternately,
+     until the scrollbar appears and two or more notes
+     are outside the scroll view.
+ 2.  Verify that the scrollbar scrolls as needed, and
+     focus wraps around as needed when keyboard
+     navigation is used, and that keyboard navigation
+     works as expected (as well as mouse navigation).
+
+ Test Case B: Popup menu for the Text Field
+ 1.  Right-click in a text field that is two or more
+     notes distant from the current focus.  Verify that
+     the popup menu appears.  Repeat this step using
+     different notes.
+ 2.  Left-click on a note and make sure that the popup
+     goes away and focus changes to the note you clicked.
+ 3.  Bring up the popup menu, then use UP/DOWN arrows to
+     navigate to the next field.  Verify menu goes away.
+
+
+ Test Case C: Time Format Toggle
+ 1.  Enter six notes for the day
+ 2.  Clear the time on one note.
+ 3.  Clear entire note on another note.
+ 4.  Toggle format, observe expected behavior.
+ 5.  Continue entering notes until max is reached,
+     repeat the above tests.
+ 6.  Verify correct operation for last note whether it 
+     has been cleared or not.
+ 7.  Verify that a cleared time can be saved and restored.
+
+
+ Test Case D: Icon
+ 1.  Clear the Icon, Set as default, verify on same day plus a 
+     previously saved day.
+
+ Test Case E: Consistent Look & Feel
+ There is a large visual difference in the scrollbar between the
+ Windows L&F and the one provided by default.  This test case is
+ needed to ensure that all interfaces are consistent.
+ 1.  Add notes until the scrollbar appears.  Verify it is gray.
+       (vs a mottled blue)
+ 2.  Call up the popup menus, verify blue when selected 
+       (vs light blue)
+ 3.  Call up the Icon selector, check the scrollbar there.
+ 4.  Call up an extended note, look at the Subject selector.
+
+
+
+
+
+
+
+
+
+
+

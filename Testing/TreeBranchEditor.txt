@@ -1,0 +1,43 @@
+TreeBranchEditor
+
+Run the TreeBranchEditorExample app.  It has 17 possible selections, three of which are preselected.
+
+Test:  Sub-branch creation
+---------------------------------------------------
+1.	Select all other items (thereby adding them to the bottom of the tree).
+2.	Mouse-select the 5 items above the last two in the tree, move the group up to the ‘those’ leaf,
+    and drop into there.
+3.	Verify:  ‘those’ becomes a branch of the tree, containing the 5 moved leaves.
+4.	Verify:  the selection checkbox (and text) for ‘those’ is disabled.
+5.  Verify:  the deletion button for 'those' disappears; the checkbox remains in the same location.
+6.	Verify:  All other items remain selected; the ones that were moved as well as those before and after
+    them, in the list of choices.
+
+Test:  Branch back into leaf conversions
+---------------------------------------------------
+1.  Select one or more items, to add them to the existing tree.
+2.  Move one item into another.  Do this on two different drop targets.
+3.  On one of the two new branches, drag (and drop) the child away
+4.  Verify:  The branch becomes a leaf, its selection checkbox is reenabled
+    and the delete button restored, in the list of choices.
+5.  Deselect the child on the remaining new branch.
+6.  Verify:  The branch becomes a leaf, its selection checkbox is reenabled
+    and the delete button restored, in the list of choices.
+
+
+Test:  Rename rejected
+    where multiple files go to the same name - first one ok, rest not.
+    where the new name is not in the tree but is an unselected choice.
+    failure of a 'rename from' condition - set by the helper.
+        'An Example Branch' (the root)
+    failure of a 'rename to' condition - set by the helper.
+        'thine'
+
+Test:  Rename accepted
+    after getting past the rejection conditions above - the selection list changes,
+        along with the text in the tree.  Checkbox remains checked.
+    The rename action appears in the changeList (viewable after 'Apply').
+
+Test:  Removal of a sub-branch
+    Should not be attemptable; verify that it has no 'Remove' control.
+

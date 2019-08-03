@@ -1,0 +1,42 @@
+TodoBranchHelper
+
+Run the Memory Bank app.  Test data conditions unknown, tho.
+
+
+Test:  Sub-branch creation
+---------------------------------------------------
+1.  Should not be possible.  Drag one list onto another,
+    drop there and verify it goes back to original loc.
+
+Test:  Close the editor after 'Apply'
+---------------------------------------------------
+1.  Click 'Apply', verify that you go to the 'About' view.
+2.  This should happen every time 'Apply' is clicked but this is the only time
+    it needs verification.
+
+Test:  Branch reordering
+---------------------------------------------------
+1.  Move one list to another place in the branch.
+2.  Click 'Cancel', verify that the list goes back to its original location.
+3.  Move it again, this time click 'Apply'.
+4.  Verify:  on the left 'tree' view, the list moves to where you placed it.
+5.  Recall the branch editor, verify that it starts in the same condition as the
+    left side view.
+6.  Click Cancel - verify no change (the moved list does not go back to its
+    original location).
+
+Test:  File renaming
+---------------------------------------------------
+    To a deleted list - no, during the same editing session; but yes, after that one was 'Apply'ed.
+
+Test:  File deletion
+---------------------------------------------------
+    After a rename - the rename occurs first, whether or not delete is agreed to.
+        is this ok?  think so but feels wrong.
+
+
+Test:   Clear Entire List does not remove the list
+    The test title is the desired behavior; unlike an empty 'new' list, an empty
+    list that has been cleared will still have a file on the filesystem.
+    (because of options? - don't know but it is working as desired.)
+
