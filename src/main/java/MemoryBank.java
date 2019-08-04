@@ -2,7 +2,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.swing.JFrame;
 import java.awt.*;
 import java.io.*;      // File, InputStream, OutputStream, ...
 import java.text.*;    // SimpleDateFormat, DateFormatSymbols
@@ -33,7 +32,7 @@ public class MemoryBank {
     public static String userDataHome; // User data top-level directory 'mbankData'
     public static String logHome;  // For finding icons & images
     private static AppOptions appOpts;     // saved/loaded
-    private static AppTree appTree;
+    private static AppTreePanel appTreePanel;
 
     //----------------------------------------------------------
     // Members used in more than one method but only by 'MemoryBank':
@@ -99,16 +98,15 @@ public class MemoryBank {
     } // end static
 
 
-    public static AppTree getAppTree() {
-        return appTree;
+    public static AppTreePanel getAppTreePanel() {
+        return appTreePanel;
     }
 
     //------------------------------------------------------
     // Method Name: loadOpts
     //
-    // Load the last known state of the tree, if any.  This
-    //  includes which nodes are expanded and which additional
-    //  leaves have been added.
+    // Load the last known state of the app.  This includes
+    //  info about the tree as well as other settings.
     //------------------------------------------------------
     private static void loadOpts() {
         Exception e = null;
@@ -734,8 +732,8 @@ public class MemoryBank {
         //--------------------------------------
 
         update("Creating the Log Tree");
-        appTree = new AppTree(logFrame, appOpts);
-        logFrame.setContentPane(appTree);
+        appTreePanel = new AppTreePanel(logFrame, appOpts);
+        logFrame.setContentPane(appTreePanel);
 
         update("Laying out graphical components");
         logFrame.pack();
@@ -751,7 +749,8 @@ public class MemoryBank {
         //---------------------------------------------------------------------
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
-                getAppTree().preClose();
+                //getAppTreePanel().preClose();  // Trying this out (8/4/19) - may not need 'getAppTreePanel' in this context.
+                appTreePanel.preClose();
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);

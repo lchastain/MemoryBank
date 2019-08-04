@@ -2,7 +2,7 @@
  A custom TreeBranchHelper, in support of the TreeBranchEditor actions on
  the TodoBranch.  In addition to the interface methods, there are several
  static methods that support other actions on the TodoBranch, that will be
- called by the AppTree or other branches.  For actions on the TodoLists
+ called by the AppTreePanel or other branches.  For actions on the TodoLists
  themselves (such as save, load, etc), see the TodoNoteGroup class.
 
 */
@@ -48,7 +48,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     public static TreePath getTodoPathFor(JTree jt, String s) {
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode clonedRoot = AppTree.deepClone(theRoot);
+        DefaultMutableTreeNode clonedRoot = AppTreePanel.deepClone(theRoot);
         DefaultMutableTreeNode theTodoNode = getTodoNode(clonedRoot);
 
         DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(s);
@@ -290,7 +290,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nc.nodeName + " to " + nc.renamedTo);
                     } // end if
-                    MemoryBank.getAppTree().getTodoListKeeper().remove(nc.nodeName);
+                    MemoryBank.getAppTreePanel().getTodoListKeeper().remove(nc.nodeName);
                 } catch (SecurityException se) {
                     ems += se.getMessage() + System.lineSeparator();
                 } catch (Exception ue) {  // User Exception
@@ -319,7 +319,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nc.nodeName);
                     } // end if
-                    MemoryBank.getAppTree().getTodoListKeeper().remove(nc.nodeName);
+                    MemoryBank.getAppTreePanel().getTodoListKeeper().remove(nc.nodeName);
                 } catch (SecurityException se) {
                     ems += se.getMessage() + System.lineSeparator();
                 } catch (Exception ue) {  // User Exception
@@ -352,7 +352,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // for them but by having them do that, they reset the editor to the new official branch
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
-        MemoryBank.getAppTree().showAbout();
+        MemoryBank.getAppTreePanel().showAbout();
 
     }  // end doApply
 
@@ -405,7 +405,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         } // end if
 
         // Check to see if a file with this name already exists?
-        //   No; for an 'add' the AppTree can handle that situation
+        //   No; for an 'add' the AppTreePanel can handle that situation
         //   by simply opening it, a kind of back-door selection.
 
         // Note - I thought it would be a good idea to check for 'illegal'
@@ -475,7 +475,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     //----------------------------------------------------------------
     public static void renameTodoListLeaf(String oldname, String newname) {
         boolean changeWasMade = false;
-        JTree jt = MemoryBank.getAppTree().getTree();
+        JTree jt = MemoryBank.getAppTreePanel().getTree();
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
         DefaultMutableTreeNode theTodoBranch = getTodoNode(theRoot);

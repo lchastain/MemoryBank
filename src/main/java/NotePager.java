@@ -263,7 +263,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             lbCurrentPage.setVisible(false);
         } else {
 //      myNoteGroup.transferFocusUpCycle();
-            AppTree.ltTheTree.requestFocusInWindow();
+            AppTreePanel.ltTheTree.requestFocusInWindow();
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");
                 if (intCurrentPage > 1) {

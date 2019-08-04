@@ -255,8 +255,8 @@ public class SearchResultComponent extends NoteComponent {
         // MouseListener methods
         //---------------------------------------------------------
         public void mouseClicked(MouseEvent e) {
-            AppUtil.localDebug(true); // off in AppTree.selectFoundIn
-            AppTree.ltTheTree.showFoundIn(mySearchResultData);
+            AppUtil.localDebug(true); // off in AppTreePanel.selectFoundIn
+            AppTreePanel.ltTheTree.showFoundIn(mySearchResultData);
         } // end mouseClicked
 
         public void mouseEntered(MouseEvent e) {
@@ -295,7 +295,7 @@ public class SearchResultComponent extends NoteComponent {
 
             if (leftClicked) {
                 leftClicked = false;
-            } else if (rightClicked) {
+            } else {
                 rightClicked = false;
             } // end if
 

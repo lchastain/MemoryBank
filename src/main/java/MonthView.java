@@ -65,7 +65,7 @@ public class MonthView extends JLayeredPane {
     private int initialMonth;
     private int initialYear;
     private int initialDay;
-    private AppTree parent;
+    private AppTreePanel parent;
     private boolean hasDataArray[][];
     private Dimension minSize;
 
@@ -100,7 +100,7 @@ public class MonthView extends JLayeredPane {
     // Note: construction by itself will not be enough; you will need to
     //   call 'setChoice' afterwards, prior to display.
     //--------------------------------------------------------------------
-    MonthView(AppTree l) {
+    MonthView(AppTreePanel l) {
         super();
         parent = l;
         initial = new Date();

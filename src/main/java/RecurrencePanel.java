@@ -1661,6 +1661,7 @@ public class RecurrencePanel extends JPanel implements
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (Exception ex) {
             System.out.println("Failed loading L&F: ");
+            //noinspection ThrowablePrintedToSystemOut
             System.out.println(ex);
         }
         JFrame jf = new JFrame();

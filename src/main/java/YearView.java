@@ -39,7 +39,7 @@ public class YearView extends JPanel implements ActionListener {
     private int Year;               // numerous
     private YearBox yearBox;        // BottomPanel constructor
     private static SimpleDateFormat sdf;
-    private AppTree parent;
+    private AppTreePanel parent;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-16");
@@ -71,7 +71,8 @@ public class YearView extends JPanel implements ActionListener {
         sdf.applyPattern("EEEE, MMMM d, yyyy");
     } // end static
 
-    YearView(AppTree l) {
+    @SuppressWarnings("MagicConstant")
+    YearView(AppTreePanel l) {
         super(new BorderLayout());
         parent = l;
         initial = new Date();
@@ -554,9 +555,9 @@ public class YearView extends JPanel implements ActionListener {
                     "80", "81", "82", "83", "84", "85", "86", "87", "88", "89",
                     "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"};
 
-            for (int i = 0; i < nums.length; i++) {
-                y1.addItem(nums[i]);
-                y2.addItem(nums[i]);
+            for (String num : nums) {
+                y1.addItem(num);
+                y2.addItem(num);
             } // end for i
 
             select(init);

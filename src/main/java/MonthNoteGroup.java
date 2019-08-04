@@ -76,7 +76,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     } // end recalc
 
 
-    // This is called from AppTree.
+    // This is called from AppTreePanel.
     public void setChoice(Date d) {
 
         // If the new day is the same as the current one - return.
@@ -105,15 +105,14 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
 
-        if (s.equals("XXX")) {
-        } else if (s.equals("-")) {
+        // One of the two mutually exclusive conditions below is expected
+        // to be true but if neither then we just ignore the action.
+        if (s.equals("-")) {
             setOneBack();
-        } else if (s.equals("+")) {
+        }
+        if (s.equals("+")) {
             setOneForward();
-        } else {
-            (new Exception("Unhandled action!")).printStackTrace();
-            System.exit(1);
-        } // end if
+        }
 
         recalc();
     } // end mouseClicked
@@ -121,12 +120,12 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
-        if (s.equals("XXX")) {
-        } else if (s.equals("-")) {
+        if (s.equals("-")) {
             s = "Click here to see previous month";
-        } else if (s.equals("+")) {
+        }
+        if (s.equals("+")) {
             s = "Click here to see next month";
-        } // end if
+        }
         setMessage(s);
     } // end mouseEntered
 

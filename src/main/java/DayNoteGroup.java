@@ -226,7 +226,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     // Method Name: recalc
     //
     // Repaints the display.
-    // called from AppTree for an 'undo' menu item selection.
+    // called from AppTreePanel for an 'undo' menu item selection.
     // This can be removed after we have a real 'undo'.
     //--------------------------------------------------------------
     public void recalc() {
@@ -253,7 +253,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end saveDefaults
 
 
-    // This is called from AppTree.
+    // This is called from AppTreePanel.
     public void setChoice(Date d) {
         if (blnNoteAdded) {
             // This ensures that we will reload the day, even

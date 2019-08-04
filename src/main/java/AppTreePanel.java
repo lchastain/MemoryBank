@@ -27,11 +27,11 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
-public class AppTree extends JPanel implements TreeSelectionListener {
+public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L;
-    private static Logger log = LoggerFactory.getLogger(AppTree.class);
+    private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
 
-    public static AppTree ltTheTree;
+    public static AppTreePanel ltTheTree;
     private JFrame theFrame;
 
     private static final int LIST_GONE = -3; // used in constr, createTree
@@ -86,7 +86,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
 
     private boolean blnRestoringSelection;
 
-    public AppTree(JFrame aFrame, AppOptions appOpts) {
+    public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
         amb = new AppMenuBar();
         theFrame = aFrame;
@@ -139,7 +139,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------------
         // Note - if you need cascading menus in the future, use
         //   the recursive version of this as implemented in
-        //   LogPane.java, a now archived predecessor to AppTree.
+        //   LogPane.java, a now archived predecessor to AppTreePanel.
         //---------------------------------------------------------
         int numMenus = amb.getMenuCount();
         // MemoryBank.debug("Number of menus found: " + numMenus);
@@ -215,7 +215,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         } // end if
 
         blnRestoringSelection = false;
-    } // end constructor for AppTree
+    } // end constructor for AppTreePanel
 
 
     // Adds a search result branch to the tree.
@@ -1299,7 +1299,7 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         currentDateChoice = new Date();
 
         String theCurrentView = tp.getLastPathComponent().toString();
-        System.out.println("AppTree.showToday path=" + theCurrentView);
+        System.out.println("AppTreePanel.showToday path=" + theCurrentView);
 
         if (theCurrentView.equals("Year View")) {
             theYearView.setChoice(currentDateChoice);
@@ -1701,5 +1701,5 @@ public class AppTree extends JPanel implements TreeSelectionListener {
         return 0;  // Success
     }//end writeExportFile
 
-} // end AppTree class
+} // end AppTreePanel class
 

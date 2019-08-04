@@ -54,7 +54,7 @@ To-do Lists:
 
 Upcoming Events:
  1. Event: Menubar - Select View/Refresh
-    Handler: An anonymous actionlistener in the AppTree constructor
+    Handler: An anonymous actionlistener in the AppTreePanel constructor
     Expected Action: Fires off a new thread with a call to handleMenuBar(),
       that in turn makes a call to EventNoteGroup.refresh().
 
@@ -70,16 +70,16 @@ Search Results:
     
 
 
-AppTree:
+AppTreePanel:
  1. Event: Click on 'To Do Lists'
-    Handler: AppTree$TreeSelectionChanged
+    Handler: AppTreePanel$TreeSelectionChanged
     Expected Action: A call to theTodoListHandler.showListManager()
 
 
 Memory Bank:
  1. Event:  Menu Item selections (various)
-    Handler: An anonymous actionlistener in the AppTree constructor
-    Expected Action: A call to AppTree.handleMenuBar(String) with the menu item text.
+    Handler: An anonymous actionlistener in the AppTreePanel constructor
+    Expected Action: A call to AppTreePanel.handleMenuBar(String) with the menu item text.
 
 
 

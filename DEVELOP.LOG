@@ -123,13 +123,13 @@ be removed, because it still has the old title and so it should be reloaded.  It
 to understand all that was and now is happening and why (along with rewriting it), and then after all that
 understanding it only made sense to comment in the 'new' way, so that is why I'm putting
 the 'where we came from' info here - just don't want to lose the history of it all.
-The AppTree file is now at just over 1700 lines, down from > 2400.
+The AppTreePanel file is now at just over 1700 lines, down from > 2400.
 May stop this work for a while, now.  Taxes are next on my to do list.
 
 2/6/2014 1749 - All name checking code has been adopted and the TodoListManager has been
 removed.  In the todoListHandler there was a 'selectList' method used by the handler for
 a click on Search Results 'found in', that is now supported by the TodoBranchHelper, invoked
-by a one-liner from the AppTree.  The important difference from the original behavior is that
+by a one-liner from the AppTreePanel.  The important difference from the original behavior is that
 the old way would add the todolist as a node into the tree if it was not already there.  The
 new way does not do that.  It was a DESIGN DECISION that the original behavior was intrusive;
 if I wanted to select that 'old' list, I would have, and now I have to go back and edit the
@@ -294,7 +294,7 @@ converting to interfaces wherever the possibility for that is found.  When the a
 more ready for prime-time, it would then have at least one deliverable version, and the next phase
 of work would all be towards going cross-platform, only.
 
-1/9/2014 1002 - Finished 'greening' many classes, including the program Main and the AppTree.  Then
+1/9/2014 1002 - Finished 'greening' many classes, including the program Main and the AppTreePanel.  Then
 while looking at xlint complaints, saw output from the RecurrencePanel (events) so went there to see
 how it functions - the L&F is all off (mostly too short containers for text labels), and verified
 this is also the case when running from the older jar file.  Suspecting that this is a Win7 issue

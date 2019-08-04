@@ -3,9 +3,6 @@ import org.junit.Before;
 
 import java.util.Date;
 
-/**
- * Created by Lee on 8/2/2019.
- */
 public class NoteDataTest extends TestCase {
     Date started = new Date();
     NoteData nd;
