@@ -37,8 +37,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private static final int LIST_GONE = -3; // used in constr, createTree
 
     private static AppMenuBar amb;
-    protected SearchResultComponent src;   // SearchResultData
-    protected ThreeMonthColumn tmc;        // DateSelection (interface)
     //-------------------------------------------------------------------
 
     private JTree tree;
@@ -66,7 +64,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private AppImage abbowt;
     private JSplitPane splitPane;
 
-    private static String ems;               // Error Message String
     private static Date currentDateChoice;
     private DefaultMutableTreeNode theRootNode;
     private SearchResultNode nodeSearchResults;
@@ -169,7 +166,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         JScrollPane treeView = new JScrollPane(tree);
 
         // Create the viewing pane and start with the 'about' graphic.
-        abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif", false);
+        abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif");
         JPanel aboutPanel = new JPanel(new GridBagLayout());
         aboutPanel.add(abbowt); // Nested the image in a panel with a flexible layout, for centering.
         rightPane = new JScrollPane(aboutPanel);
@@ -713,7 +710,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (e != null) {
             // e.printStackTrace();
-            ems = "Error in loading " + theDayFile.getName() + " !\n";
+            String ems = "Error in loading " + theDayFile.getName() + " !\n";
             ems = ems + e.toString();
             ems = ems + "\nNote data load operation aborted.";
             JOptionPane.showMessageDialog(this,
@@ -725,15 +722,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     //------------------------------------------------------------
     // Method Name:  preClose
-    //
+    // Purpose:  Preserves any unsaved changes to the current noteGroup
+    //   and updates the current state of the panel into the app options,
+    //   in advance of saving the options during app shutdown.
     //------------------------------------------------------------
     public void preClose() {
-        // Only for the currently active NoteGroup; any others would
+        // The currently active NoteGroup may need this; any others would
         //   have been saved when the view changed away from them.
         if (theNoteGroup != null) theNoteGroup.preClose();
 
         updateTreeState(true); // Update appOpts
-        saveOpts();
     } // end preClose
 
 
@@ -847,44 +845,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         return 0;  // Success
     }//end saveNoteData
-
-
-    //------------------------------------------------------------------------
-    // Method Name:  saveOpts
-    //
-    //------------------------------------------------------------------------
-    private void saveOpts() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
-        MemoryBank.debug("Saving application option data in " + FileName);
-
-        try {
-            FileOutputStream fos = new FileOutputStream(FileName);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(appOpts);
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            // This method is only called internally from preClose.  Since
-            // preClose is to be called via a shutdown hook that is not going to
-            // wait around for the user to 'OK' an error dialog, any error in saving
-            // will only be reported in a printout via MemoryBank.debug because
-            // otherwise the entire process will hang up waiting for the user's 'OK'
-            // on the dialog that will NOT be showing.
-
-            // A normal user will not see the debug error printout but
-            // they will most likely see other popups such as filesystem full, access
-            // denied, etc, that a sysadmin type can resolve for them, that will
-            // also fix this issue.
-            ems = ioe.getMessage();
-            ems = ems + "\nMemory Bank options save operation aborted.";
-            MemoryBank.debug(ems);
-            // This popup caused a hangup and the vm had to be 'kill'ed.
-            // JOptionPane.showMessageDialog(null,
-            //    ems, "Error", JOptionPane.ERROR_MESSAGE);
-            // Yes, even though the parent was null.
-        } // end try/catch
-    } // end saveOpts
 
 
     //------------------------------------------------------------------------

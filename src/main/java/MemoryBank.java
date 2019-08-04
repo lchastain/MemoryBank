@@ -751,11 +751,45 @@ public class MemoryBank {
             public void run() {
                 //getAppTreePanel().preClose();  // Trying this out (8/4/19) - may not need 'getAppTreePanel' in this context.
                 appTreePanel.preClose();
+                saveOpts();
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
-
     } // end main
+
+    private static void saveOpts() {
+        String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
+        MemoryBank.debug("Saving application option data in " + FileName);
+
+        try {
+            FileOutputStream fos = new FileOutputStream(FileName);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(appOpts);
+            oos.flush();
+            oos.close();
+            fos.close();
+        } catch (IOException ioe) {
+            // This method is only called internally from preClose.  Since
+            // preClose is to be called via a shutdown hook that is not going to
+            // wait around for the user to 'OK' an error dialog, any error in saving
+            // will only be reported in a printout via MemoryBank.debug because
+            // otherwise the entire process will hang up waiting for the user's 'OK'
+            // on the dialog that will NOT be showing.
+
+            // A normal user will not see the debug error printout but
+            // they will most likely see other popups such as filesystem full, access
+            // denied, etc, that a sysadmin type can resolve for them, that will
+            // also fix this issue.
+            String ems = ioe.getMessage();
+            ems = ems + "\nMemory Bank options save operation aborted.";
+            MemoryBank.debug(ems);
+            // This popup caused a hangup and the vm had to be 'kill'ed.
+            // JOptionPane.showMessageDialog(null,
+            //    ems, "Error", JOptionPane.ERROR_MESSAGE);
+            // Yes, even though the parent was null.
+        } // end try/catch
+    } // end saveOpts
+
 
     public static String toJsonString(Object theObject) {
         String theJson = "";

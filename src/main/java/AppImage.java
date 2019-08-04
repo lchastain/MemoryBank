@@ -61,21 +61,9 @@ public final class AppImage extends JPanel {
     } // end constructor
 
 
-    public AppImage(Image i) {
-        this();
-        setImage(i);
-    } // end constructor
-
-
     public AppImage(String imageFile) {
         this();
-        setImage(getToolkit().getImage(imageFile));
-    } // end constructor
-
-
-    public AppImage(String imageFile, boolean b) {
-        this();
-        doScale = b;
+        doScale = false;
         setImage(getToolkit().getImage(imageFile));
     } // end constructor
 
@@ -189,12 +177,13 @@ public final class AppImage extends JPanel {
 
         AppImage li = new AppImage();
 
+        // Construct a list of five images (although one is null) -
         Image images[] = new Image[]{
-                new AppIcon("icons/icon_not.gif").getImage(),
+                new AppIcon(MemoryBank.logHome + "/icons/icon_not.gif").getImage(),
                 new ImageIcon(MemoryBank.logHome + "/images/ABOUT.gif").getImage(),
                 null,
-                new AppIcon("icons/acro.ico").getImage(),
-                new AppIcon("icons/new8.gif").getImage()
+                new AppIcon(MemoryBank.logHome + "/icons/acro.ico").getImage(),
+                new AppIcon(MemoryBank.logHome + "/icons/new8.gif").getImage()
         };
 
         // Make the frame and add ourselves to it.
@@ -202,6 +191,7 @@ public final class AppImage extends JPanel {
         imageFrame.getContentPane().add(li);
         imageFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
+        // Here is our way out; this is not a very interesting app.
         imageFrame.addWindowListener(
                 new WindowAdapter() {
                     public void windowClosing(WindowEvent we) {
@@ -212,21 +202,25 @@ public final class AppImage extends JPanel {
 
         // Center the Frame in the available screen area
         imageFrame.pack();
+        imageFrame.setSize(300, 300);
         imageFrame.setLocationRelativeTo(null);
 
         imageFrame.setVisible(true);
 
         int i = 0;
         int theWait;  // How many milliseconds to pause.
+        boolean neverFalse = true;
 
-        while (true) {
-            theWait = 10000;
-            if (images[i] == null) theWait = 3000;
+        // Go into an endless loop, showing the defined images.
+        while (neverFalse) {
+            theWait = 10000; // Ten seconds between images.
+            if (images[i] == null) theWait = 3000; // Unless image is null, then three secs.
             li.setImage(images[i++]);
 
             try {
                 Thread.sleep(theWait);
             } catch (Exception e) {
+                neverFalse = false;
             }
 
             if (i == images.length) i = 0;
