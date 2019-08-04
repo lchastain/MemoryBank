@@ -12,11 +12,12 @@
 //            Global and commented it out, here.
 //
 
+import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;           // Vector, Date
-import javax.swing.*;
-import javax.swing.border.*;
+import java.util.Date;
+import java.util.Vector;
 
 public class DateFormatBar extends Container implements ClingSource {
     private static final long serialVersionUID = -3266518622496644984L;
@@ -349,12 +350,18 @@ public class DateFormatBar extends Container implements ClingSource {
 
         String posString = getOrderFromFormat();
         if (posString.equals("")) return visibility; // visibility remains 0
-        if (posString.indexOf("1") != -1) visibility += 1;
-        if (posString.indexOf("3") != -1) visibility += 4;
-        if (posString.indexOf("4") != -1) visibility += 8;
-        if (posString.indexOf("5") != -1) visibility += 16;
-        if (posString.indexOf("6") != -1) visibility += 32;
-        if (posString.indexOf("7") != -1) visibility += 64;
+        if (posString.contains("1")) visibility += 1;
+        // Not working here atm, but just saw this and shouldn't there be a case for a '2' value?
+        // It looks like there was one at one point but it got removed, referencing a
+        // HeaderButton number two (hb2).  I understand the reluctance to renumber all the remaining
+        // hb items, but numerically here the next progression would be += 2, so the real question
+        // is - Is this working correctly, and if so - how/why?
+        // TODO - add tests.  And eliminate this bothersome gap or explain why not.
+        if (posString.contains("3")) visibility += 4;
+        if (posString.contains("4")) visibility += 8;
+        if (posString.contains("5")) visibility += 16;
+        if (posString.contains("6")) visibility += 32;
+        if (posString.contains("7")) visibility += 64;
         return visibility;
     } // end getVisibilityFromFormat
 

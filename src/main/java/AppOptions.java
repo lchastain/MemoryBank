@@ -39,5 +39,7 @@ class AppOptions implements Serializable {
         theSelectionRow = ((AppOptions) theObject).theSelectionRow;
         todoLists = ((AppOptions) theObject).todoLists;
         searchResults = ((AppOptions) theObject).searchResults;
+        paneSeparator = ((AppOptions) theObject).paneSeparator;
     } // end constructor
+
 } // end class AppOptions

@@ -6,10 +6,12 @@
  horizontal Drag and Drop functionality, hence the 'Dnd' name.
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;         // Vector
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.Vector;
 
 
 public class DndLayout extends GridLayout implements MouseListener,
@@ -56,7 +58,7 @@ public class DndLayout extends GridLayout implements MouseListener,
             if (ncols == 0) return;
 
             int otherWidths = 0;
-            int stretchWidth = 0;
+            int stretchWidth;
             Component comp;
             Insets insets = parent.getInsets();
             int c;
@@ -104,7 +106,7 @@ public class DndLayout extends GridLayout implements MouseListener,
 
         assert v != null;
         for (int i = 0; i < v.size(); i++) {
-            c = (Component) v.elementAt(i);
+            c = v.elementAt(i);
             if (col == 0) c.getParent().add(c, 0); // Z order
             y = c.getLocation().y;
             c.setLocation(x, y);
@@ -159,7 +161,7 @@ public class DndLayout extends GridLayout implements MouseListener,
         // System.out.println("DndLayout.resetActualPosition Clingons.size = " + ClingOns.size());
 
         for (int i = 0; i < ClingOns.size(); i++) {
-            Component c = (Component) ClingOns.elementAt(i);
+            Component c = ClingOns.elementAt(i);
             clingLayout = (DndLayout) (c.getParent().getLayout());
             clingLayout.resetActualPosition();
             clingLayout.Dragging = false;

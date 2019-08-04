@@ -1,3 +1,7 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.swing.JFrame;
 import java.awt.*;
 import java.io.*;      // File, InputStream, OutputStream, ...
@@ -11,6 +15,7 @@ public class MemoryBank {
     // Static members that are developed prior
     //   to running 'main':
     //-------------------------------------------------
+    private static ObjectMapper mapper = new ObjectMapper();
     public static final int SAME_DAY = 0;
     public static final int NEXT_DAY = 1;
     public static final int PREV_DAY = 2;
@@ -45,6 +50,7 @@ public class MemoryBank {
     //   items developed here (such as the tempCalendar)
     //   without going thru the MemoryBank.main.
     static {
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         setProgramDataLocation();
 
         appOpts = new AppOptions(); // Start with default values.
@@ -689,6 +695,10 @@ public class MemoryBank {
         // Load the user settings
         loadOpts(); // If available, overrides defaults.
 
+        // Temporary; this is not the change we need; need to change what is stored and retrieved,
+        // then the printout will not need a conversion.
+        System.out.println("JSON appOpts: " + toJsonString(appOpts));
+
 // Change the opts to JSON data, after loading, do a debug printout of ALL, not just the pane separator.
 
         System.out.println("Pane separator: " + appOpts.paneSeparator);
@@ -747,6 +757,17 @@ public class MemoryBank {
         Runtime.getRuntime().addShutdownHook(logPreClose);
 
     } // end main
+
+    public static String toJsonString(Object theObject) {
+        String theJson = "";
+        try {
+            theJson = mapper.writeValueAsString(theObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return theJson;
+    }
+
 } // end class MemoryBank
 
 

@@ -2,8 +2,24 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/03/2019 0741 - Reviewing test docs, help docs, etc - have decided to delete the earlier .ppt version
+  of the logDesign; the later .pptx has one additional slide, with the 'about' graphic not having
+  a version number.  Otherwise they were identical except for format of the file.  Also removing
+  'The Captain's Log'.ppt, because it is outdated and we're still a long way from marketing.  The
+  slides it contained were just a subset of what's still in logDesign, but we'll need something
+  better if the time ever comes to promote the app.  Removing also the LogDocList.doc.  It only
+  lists two other docs that had been done to that point (and are still valid), plus some long-ago
+  future planned docs, that I no longer intend to produce:
+             VDD?
+             SUM – possibly an HTML compilation that can double as context-sensitive help.
+             Requirements – What is needed
+             Software Design Description – How it will be done, design decisions
+             Test Plan
+  Those types of docs came from DoD type projects and now that I'm out of that kind of environment,
+  I don't want to try to copy them.  Need to keep working to find the best approach.
+
 8/02/2019 0520 - The updating to Java 8 that I referred to yesterday - really meant clearing up the
-  92 build warnings that were being reported.  Did that, but then realized that this is exactly the
+  92 Xlint warnings that were being reported.  Did that, but then realized that this is exactly the
   kind of changes that need to be tested, since I have no idea what might have been broken in that
   undertaking.  It all seems ok now but I don't want to publish/use the current build until I have
   a higher confidence in it.  So - testing?
