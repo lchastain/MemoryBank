@@ -1,9 +1,11 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
 import java.io.*;      // File, InputStream, OutputStream, ...
+import java.nio.charset.StandardCharsets;
 import java.text.*;    // SimpleDateFormat, DateFormatSymbols
 import java.util.*;    // Vector, Date
 import javax.swing.*;
@@ -102,13 +104,37 @@ public class MemoryBank {
         return appTreePanel;
     }
 
+
+    private static void loadOptsJson() {
+        Exception e = null;
+        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
+
+        try {
+            String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
+            appOpts = mapper.readValue(text, AppOptions.class);
+            System.out.println("appOpts from JSON file: " + toJsonString(appOpts));
+        } catch (IOException ioe) {
+            e = ioe;
+            e.printStackTrace();
+        }
+
+        if (e != null) {
+            String ems = "Error in loading " + filename + " !\n";
+            ems = ems + e.toString();
+            ems = ems + "\nOptions load operation aborted.";
+            JOptionPane.showMessageDialog(null,
+                    ems, "Error", JOptionPane.ERROR_MESSAGE);
+        } // end if
+    } // end loadOpts
+
+
     //------------------------------------------------------
     // Method Name: loadOpts
     //
     // Load the last known state of the app.  This includes
     //  info about the tree as well as other settings.
     //------------------------------------------------------
-    private static void loadOpts() {
+    private static void loadOpts() throws IOException {
         Exception e = null;
         FileInputStream fis;
         //AppOptions tmp;
@@ -123,20 +149,16 @@ public class MemoryBank {
             appOpts = new AppOptions(tmp);
             ois.close();
             fis.close();
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
+
+            // Temporary; this is not the change we need; need to change what is stored and retrieved,
+            // then the printout will not need a conversion.
+            System.out.println("JSON appOpts: " + toJsonString(appOpts));
+        } catch (ClassCastException | ClassNotFoundException | InvalidClassException | EOFException eeee) {
+            e = eeee;
         } catch (FileNotFoundException fnfe) {
             // not a problem; use defaults.
             debug("User tree options not found; using defaults");
-        } catch (EOFException eofe) {
-            e = eofe;
-        } catch (IOException ioe) {
-            e = ioe;
-        } // end try/catch
+        }  // end try/catch
 
         if (e != null) {
             String ems = "Error in loading " + FileName + " !\n";
@@ -466,24 +488,6 @@ public class MemoryBank {
     } // end setUserDataDirPathName
 
 
-  /*/----------------------------------------------------------------------
-  // Inner class
-  //----------------------------------------------------------------------
-  static class logFileFilter implements FilenameFilter {
-    String which;
-
-    logFileFilter(String s) {
-      which = s;
-    } // end constructor
-
-    public boolean accept(File dir, String name) {
-      if(name.startsWith(which)) return true;
-      return false;
-    } // end accept
-  } // end class logFileFilter
-  */
-
-
     // -----------------------------------------------------------------------
     // Method Name: setProgramDataLocation
     //
@@ -691,15 +695,8 @@ public class MemoryBank {
         setUserDataHome(userEmail);
 
         // Load the user settings
-        loadOpts(); // If available, overrides defaults.
-
-        // Temporary; this is not the change we need; need to change what is stored and retrieved,
-        // then the printout will not need a conversion.
-        System.out.println("JSON appOpts: " + toJsonString(appOpts));
-
-// Change the opts to JSON data, after loading, do a debug printout of ALL, not just the pane separator.
-
-        System.out.println("Pane separator: " + appOpts.paneSeparator);
+        //loadOpts(); // If available, overrides defaults.
+        loadOptsJson();  // TODO Next time:  remove the old one, take its name.
 
         //--------------------------------------
         // Specify logFrame attributes
@@ -751,11 +748,41 @@ public class MemoryBank {
             public void run() {
                 //getAppTreePanel().preClose();  // Trying this out (8/4/19) - may not need 'getAppTreePanel' in this context.
                 appTreePanel.preClose();
-                saveOpts();
+                //saveOpts();
+                saveOptsJson(); // temp
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
     } // end main
+
+    private static void saveOptsJson() {
+        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
+        MemoryBank.debug("Saving application option data in " + filename);
+
+        try (FileWriter writer = new FileWriter(filename);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+            bw.write(toJsonString(appOpts));
+        } catch (IOException ioe) {
+            // Since saveOpts is to be called via a shutdown hook that is not going to
+            // wait around for the user to 'OK' an error dialog, any error in saving
+            // will only be reported in a printout via MemoryBank.debug because
+            // otherwise the entire process will hang up waiting for the user's 'OK'
+            // on the dialog that will NOT be showing.
+
+            // A normal user will not see the debug error printout but
+            // they will most likely see other popups such as filesystem full, access
+            // denied, etc, that a sysadmin type can resolve for them, that will
+            // also fix this issue.
+            String ems = ioe.getMessage();
+            ems = ems + "\nMemory Bank options save operation aborted.";
+            MemoryBank.debug(ems);
+            // This popup caused a hangup and the vm had to be 'kill'ed.
+            // JOptionPane.showMessageDialog(null,
+            //    ems, "Error", JOptionPane.ERROR_MESSAGE);
+            // Yes, even though the parent was null.
+        } // end try/catch
+    } // end saveOpts
+
 
     private static void saveOpts() {
         String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
@@ -769,8 +796,7 @@ public class MemoryBank {
             oos.close();
             fos.close();
         } catch (IOException ioe) {
-            // This method is only called internally from preClose.  Since
-            // preClose is to be called via a shutdown hook that is not going to
+            // Since saveOpts is to be called via a shutdown hook that is not going to
             // wait around for the user to 'OK' an error dialog, any error in saving
             // will only be reported in a printout via MemoryBank.debug because
             // otherwise the entire process will hang up waiting for the user's 'OK'
@@ -794,7 +820,7 @@ public class MemoryBank {
     public static String toJsonString(Object theObject) {
         String theJson = "";
         try {
-            theJson = mapper.writeValueAsString(theObject);
+            theJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theObject);
         } catch (Exception e) {
             e.printStackTrace();
         }

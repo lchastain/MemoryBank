@@ -84,7 +84,7 @@ public abstract class NoteGroup extends JPanel {
         addNoteAllowed = true;
         intHighestNoteComponentIndex = pageSize - 1;
 
-        vectGroupData = new Vector<NoteData>();
+        vectGroupData = new Vector<>();
         jsp = new JScrollPane();
         JScrollBar jsb = new JScrollBar();
 
@@ -211,7 +211,7 @@ public abstract class NoteGroup extends JPanel {
             //   return below indicates the presence of an unreadable data file.
             if (vectNoteData.size() == 0) return false;
         } else {
-            vectNoteData = new Vector<NoteData>();
+            vectNoteData = new Vector<>();
         } // end if - if file exists
 
         // Now - add the Note to the (end of) the vector
@@ -447,7 +447,7 @@ public abstract class NoteGroup extends JPanel {
         boolean blnStartOfFile = true;
         Exception e = null;
 
-        vectNoteData = new Vector<NoteData>();
+        vectNoteData = new Vector<>();
 
         // The file's existence should have already
         //   tested true, prior to calling loadData.
@@ -479,10 +479,8 @@ public abstract class NoteGroup extends JPanel {
                     } // end if
                 } // end try/catch
             }//end while
-        } catch (ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException | InvalidClassException cnfe) {
             e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
         } catch (FileNotFoundException fnfe) {
             e = fnfe;
         } catch (EOFException eofe) { // Normal, expected.
@@ -530,7 +528,7 @@ public abstract class NoteGroup extends JPanel {
         //   itself remains the same.
         strGroupFilename = getGroupFilename();
 
-        // System.out.println("NoteGroup loadGroup: " + strGroupFilename);
+        System.out.println("NoteGroup loadGroup: " + strGroupFilename);
         // We do the 'exists' test here rather than
         //   as a 'catch' when opening, because non-existence is to be
         //   treated as a valid and normal situation.

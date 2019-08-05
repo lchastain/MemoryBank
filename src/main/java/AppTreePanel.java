@@ -1,6 +1,6 @@
 /**
- The primary control for the Memory Bank application; provides a menubar at
- the top, a 'tree' control on the left, and a viewing pane on the right
+ * The primary control for the Memory Bank application; provides a menubar at
+ * the top, a 'tree' control on the left, and a viewing pane on the right
  */
 
 // Quick-reference notes:
@@ -294,9 +294,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (choice != JOptionPane.OK_OPTION) return;
 
         // Remove the results file
-        File f = new File(node.strFileName);
+        File f = new File(node.strNodeName + ".sresults");
         if (f.exists()) {
-            if (!f.delete()) System.out.println("Failed to remove " + node.strFileName);
+            if (!f.delete()) System.out.println("Failed to remove " + node.strNodeName + ".sresults");
         }
 
         removeSearchNode(node);
@@ -419,9 +419,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(leaf);
         //intRowCounter++;
 
+//        // Restore previous search results, if any.
+//        if (appOpts.searchResults != null) {
+//            nodeSearchResults = appOpts.searchResults;
+//            trunk.add(nodeSearchResults);
+//        } // end if
+
         // Restore previous search results, if any.
-        if (appOpts.searchResults != null) {
-            nodeSearchResults = appOpts.searchResults;
+        if (!appOpts.searchResultList.isEmpty()) {
+            nodeSearchResults = new SearchResultNode(null, 0);
+
+            for (int i = 0; i < appOpts.searchResultList.size(); i++) {
+                String searchResultFilename = appOpts.searchResultList.get(i);
+                nodeSearchResults.add(new SearchResultNode(searchResultFilename, i));
+            }
             trunk.add(nodeSearchResults);
         } // end if
 
@@ -459,10 +470,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // method only does the first level.
     //----------------------------------------------------------------
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
-        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
-        for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){
-            newRoot.add(deepClone((DefaultMutableTreeNode)childEnum.nextElement()));
+    public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
+        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode) root.clone();
+        for (Enumeration childEnum = root.children(); childEnum.hasMoreElements(); ) {
+            newRoot.add(deepClone((DefaultMutableTreeNode) childEnum.nextElement()));
         }
         return newRoot;
     }
@@ -477,7 +488,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Now make a Vector that can collect the search results.
-        exportDataVector = new Vector<String>(0, 1);
+        exportDataVector = new Vector<>(0, 1);
 
         // Now scan the user's data area for data files -
         // We do a recursive directory search and each
@@ -535,7 +546,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //---------------------------------------------------------
     private void exportDataFile(File dataFile) {
         MemoryBank.debug("Searching: " + dataFile.getName());
-        noteDataVector = new Vector<NoteData>();
+        noteDataVector = new Vector<>();
         loadNoteData(dataFile);
 
         // Construct an Excel-readable string for every Note
@@ -571,8 +582,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         return retVal;
     }
 
-    public TodoListKeeper getTodoListKeeper() { return theTodoListKeeper; }
-    public JTree getTree() { return tree; }
+    public TodoListKeeper getTodoListKeeper() {
+        return theTodoListKeeper;
+    }
+
+    public JTree getTree() {
+        return tree;
+    }
 
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
@@ -632,7 +648,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         try {
             UIDefaults uidefaults = UIManager.getLookAndFeelDefaults();
             UIManager.setLookAndFeel(pep.getSelectedPlaf());
-            appOpts.thePlaf = pep.getSelectedPlaf();
+            //appOpts.thePlaf = pep.getSelectedPlaf(); // this was a String type.
             SwingUtilities.updateComponentTreeUI(theFrame);
             // It looks like a nullPointerException stack trace is being printed as a result of
             // the above command, which seems to complete successfully anyway, after that.
@@ -690,12 +706,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     } // end if
                 } // end try/catch
             }//end while
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
-        } catch (FileNotFoundException fnfe) {
-            e = fnfe;
+        } catch (ClassNotFoundException | InvalidClassException | FileNotFoundException eee) {
+            e = eee;
         } catch (EOFException eofe) { // Normal, expected.
         } catch (IOException ioe) {
             e = ioe;
@@ -853,7 +865,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //------------------------------------------------------------------------
     private void saveTodoListAs() {
         String oldName = theNoteGroup.getName();
-        if(((TodoNoteGroup) theNoteGroup).saveAs()) {
+        if (((TodoNoteGroup) theNoteGroup).saveAs()) {
             String newName = theNoteGroup.getName();
 
             // When the tree selection changes, any open NoteGroup is automatically saved,
@@ -1208,13 +1220,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Make a unique filename for the results
         String strResultsFileName = "S" + AppUtil.getTimestamp();
-        strResultsFileName += ".sresults";
 
         String strResultsPath = MemoryBank.userDataHome + File.separatorChar;
         System.out.println(strResultsFileName + " results: " + foundDataVector.size());
 
         // Make the File, then save the results into it.
-        File rf = new File(strResultsPath + strResultsFileName);
+        File rf = new File(strResultsPath + strResultsFileName + ".sresults");
         saveNoteData(rf); // Saves ob1kenoby and then the noteDataVector
 
         // Make a new tree node for these results and select it
@@ -1430,7 +1441,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             tng = theTodoListKeeper.get(theText);
 
             // Otherwise, prepare to load it.
-            if(tng == null) {
+            if (tng == null) {
                 log.debug("Loading " + theText + " from filesystem");
                 tng = new TodoNoteGroup(theText);
                 theTodoListKeeper.add(tng);
@@ -1493,7 +1504,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             //   the Search Result Group will not be null.  Otherwise,
             //   instruct the node to read in the file.
             if (srn.srg == null) {
-                System.out.println("name: " + srn.strFileName + " size: " + srn.intGroupSize);
+                System.out.println("name: " + srn.strNodeName + ".sresults size: " + srn.intGroupSize);
 
                 // Strip the path from the node's filename, then rebuild it.
                 // This is to handle the case where the results file was moved
@@ -1501,12 +1512,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 //   only needed currently (2/27/2008) for transitional data
                 //   and that newer search results will not be stored with
                 //   the full path in the first place.
-                String s = SearchResultNode.prettyName(srn.strFileName);
-                s = MemoryBank.userDataHome + File.separatorChar + s;
+                String s = MemoryBank.userDataHome + File.separatorChar + srn.strNodeName;
                 s += ".sresults";
 
                 if (new File(s).exists()) {
-                    // As a transient type, the srg was not reestablished during a load.
+                    // The srg does not get established until the search result is selected.
                     srn.srg = new SearchResultGroup(s);
                 } // end if there is a file
             } // end if
@@ -1578,13 +1588,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Preserve the active To Do Lists
         DefaultMutableTreeNode theTodoNode = TodoBranchHelper.getTodoNode(theRootNode);
         DefaultMutableTreeNode leafLink;
-        int numLeaves;
+        int numLists;
         appOpts.todoLists.clear();
 
-        numLeaves = theTodoNode.getChildCount();
-        if (numLeaves > 0) {
+        numLists = theTodoNode.getChildCount();
+        if (numLists > 0) {
             leafLink = theTodoNode.getFirstLeaf();
-            while (numLeaves-- > 0) {
+            while (numLists-- > 0) {
                 String s = leafLink.toString();
                 //MemoryBank.debug("  Preserving list: " + s);
                 appOpts.todoLists.addElement(s);
@@ -1592,10 +1602,23 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end while
         } // end if
 
-        //------------------------------------------
-
         // Preserve the active Search Results
-        appOpts.searchResults = nodeSearchResults;
+        DefaultMutableTreeNode theSearchResultNode = SearchResultNode.getSearchResultNode(theRootNode);
+        int numResults;
+        appOpts.searchResultList.clear();
+
+        numResults = theSearchResultNode.getChildCount();
+        if (numResults > 0) {
+            leafLink = theSearchResultNode.getFirstLeaf();
+            while (numResults-- > 0) {
+                String s = leafLink.toString();
+                MemoryBank.debug("  Preserving search result: " + s);
+                appOpts.searchResultList.addElement(s);
+                leafLink = leafLink.getNextLeaf();
+            } // end while
+        } // end if
+
+
     } // end updateTreeState
 
     //-------------------------------------------------------------

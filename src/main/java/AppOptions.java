@@ -17,8 +17,7 @@ class AppOptions implements Serializable {
     String theSelection;
     int theSelectionRow;
     Vector<String> todoLists;
-    SearchResultNode searchResults;
-    String thePlaf;     // The chosen Look and Feel (full class name)
+    Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
 
     public AppOptions() {
@@ -27,8 +26,8 @@ class AppOptions implements Serializable {
         TodoListsExpanded = false;
         theSelection = null;
         theSelectionRow = -1;
-        todoLists = new Vector<String>(0, 1);
-        searchResults = null;
+        todoLists = new Vector<>(0, 1);
+        searchResultList = new Vector<>(0, 1);
     } // end constructor
 
     public AppOptions(Object theObject) {
@@ -38,7 +37,7 @@ class AppOptions implements Serializable {
         theSelection = ((AppOptions) theObject).theSelection;
         theSelectionRow = ((AppOptions) theObject).theSelectionRow;
         todoLists = ((AppOptions) theObject).todoLists;
-        searchResults = ((AppOptions) theObject).searchResults;
+        searchResultList = ((AppOptions) theObject).searchResultList;
         paneSeparator = ((AppOptions) theObject).paneSeparator;
     } // end constructor
 

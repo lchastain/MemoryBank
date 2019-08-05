@@ -5,7 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.*;
-//import java.util.Date;
 
 import javax.swing.*;
 
@@ -31,8 +30,9 @@ public class SearchResultGroup extends NoteGroup {
         // We may want to make this operation less numeric in the future,
         //   but this works for now and no ENC changes are expected.
 
+        // The filename was constructed properly by the AppTreePanel, and
+        // provided to us here upon selection of the corresponding tree leaf.
         strTheGroupFilename = fname;
-
         updateGroup(); // This is where the file gets loaded
         myVars = (SearchResultGroupProperties) objGroupProperties;
         checkColumnOrder();
