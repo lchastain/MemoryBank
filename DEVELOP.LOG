@@ -2,6 +2,12 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/06/2019 1346 - Added another test but this time needed a resource.  Getting the test file to
+  read from a standard resources directory was hell - there were internet examples of how but
+  none worked, until finally found in IntelliJ, module settings to specify a location for
+  'Test Resources'.  That was a mandatory prereq.  Future tests should have fewer problems
+  in this area.
+
 8/03/2019 0741 - Reviewing test docs, help docs, etc - have decided to delete the earlier .ppt version
   of the logDesign; the later .pptx has one additional slide, with the 'about' graphic not having
   a version number.  Otherwise they were identical except for format of the file.  Also removing

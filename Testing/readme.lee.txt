@@ -12,4 +12,8 @@ project.  The goal is to eventually convert everything here over to that type of
 files and folder here as well as the 'TestDrivers' folder and file, and instead document the new tests
 in a more industry-standard way.
 
+To generate a test file for a class that does not yet have one:
+  In IntelliJ, with the class open - menu Navigation, select 'Test' and generate a new file from there.
+ 	Note that the Test option goes away once the Test is created.
+
 

@@ -7,7 +7,6 @@ public class NoteDataTest extends TestCase {
     Date started = new Date();
     NoteData nd;
 
-    @Before
     public void setUp() throws Exception {
         nd = new NoteData();
         nd.setNoteString("This is it");
@@ -17,7 +16,6 @@ public class NoteDataTest extends TestCase {
         nd.setExtendedNoteWidthInt(400);
         nd = new NoteData(nd); // Get the copy constructor involved too.
     }
-
 
     public void testClear() throws Exception {
         nd.clear();

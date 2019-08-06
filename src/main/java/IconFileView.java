@@ -9,6 +9,10 @@ import javax.swing.filechooser.*;
 
 public class IconFileView extends FileView {
 
+    // The getName and getIcon methods are not called directly by MemoryBank, but indirectly by
+    //   the filesystem when displaying a file selection dialog for icon-type files.
+
+    // We provide our own name specifier, to drop off the extension.
     public String getName(File f) {
         String s = f.getName();
         String name = s;
@@ -20,7 +24,8 @@ public class IconFileView extends FileView {
         return name;
     }
 
-    // When we do not override, the System FileView for the chosen L&F will provide.
+    // When we do not override, the System FileView for the chosen L&F will provide this
+    // for us, but we just don't want it.
     public Boolean isTraversable(File f) {
         return null;
     }
@@ -32,15 +37,12 @@ public class IconFileView extends FileView {
     http://stackoverflow.com/questions/6489978/java-early-access-download-what-does-fcs-means
         FCS - First Customer Shipment
     //=======================================================================================*/
-    public String getDescription(File f) {
-        return null;
-    }
 
-    public String getTypeDescription(File f) {
-        return null;
-    }
-    //=========================================================================================
+    public String getDescription(File f) { return null; }
+    public String getTypeDescription(File f) { return null; }
 
+    // This reads in each file and sends back an icon to be displayed in the file selector, vs the default
+    //   which does not always do that for all the file types that we specify below.
     public Icon getIcon(File f) {
         String extension = getExtension(f);
         Icon icon = null;
@@ -61,7 +63,7 @@ public class IconFileView extends FileView {
         return icon;
     } // end getIcon
 
-    public static String getExtension(File f) {
+    private static String getExtension(File f) {
         String ext = null;
         String s = f.getName();
         int i = s.lastIndexOf('.');

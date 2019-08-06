@@ -36,7 +36,6 @@ public class AppIcon extends ImageIcon {
         //   path to the user's data.
         if (iconsIndex == 0) {
             filename = MemoryBank.userDataHome + "/" + filename;
-            iconsIndex = filename.indexOf("icons");
         } // end if
 
         // Convert file separator characters, if needed.
@@ -61,10 +60,8 @@ public class AppIcon extends ImageIcon {
             myImage = Toolkit.getDefaultToolkit().getImage(filename);
         } // end if
 
-        // The 'description' is used when saving -
-        // but when would we be saving?  Used how?  HEY!
-        setDescription(filename.substring(iconsIndex));
-
+        // Consider just ending at this point; move the 'load and set' to the calling context, or add
+        // another level of objects, for 'myImage'
         if (myImage == null) return;
         loadImage(myImage);  // Order matters..
         setImage(myImage);
