@@ -24,7 +24,7 @@ public class MemoryBank {
     public static Color amColor;
     public static Color pmColor;
     public static boolean archive;
-    public static boolean military;
+    public static boolean military; // Set by DayNoteGroup.  Preserved in appOpts.
     public static GregorianCalendar tempCalendar;
     public static SimpleDateFormat sdf;
     public static boolean debug;
@@ -37,7 +37,10 @@ public class MemoryBank {
     private static AppTreePanel appTreePanel;
 
     //----------------------------------------------------------
-    // Members used in more than one method but only by 'MemoryBank':
+    // Private members used in more than one method but only by 'MemoryBank':
+    //   (this file does not define any class, so all of its members
+    //      must be static)
+
     //----------------------------------------------------------
     private static JFrame logFrame;
     private static AppSplash splash;
@@ -45,6 +48,7 @@ public class MemoryBank {
     private static int percs[] = {20, 25, 45,
             50, 60, 90, 100};
     private static int updateNum = 0;
+    private static String appIconFileName;
 
     // This section is needed for test drivers that
     //   will try to instantiate objects that need
@@ -104,7 +108,6 @@ public class MemoryBank {
         return appTreePanel;
     }
 
-
     private static void loadOptsJson() {
         Exception e = null;
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
@@ -113,6 +116,10 @@ public class MemoryBank {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             appOpts = mapper.readValue(text, AppOptions.class);
             System.out.println("appOpts from JSON file: " + toJsonString(appOpts));
+            military = appOpts.military; // This one is accessed by other classes.
+        } catch (FileNotFoundException fnfe) {
+            // not a problem; use defaults.
+            debug("User tree options not found; using defaults");
         } catch (IOException ioe) {
             e = ioe;
             e.printStackTrace();
@@ -530,9 +537,11 @@ public class MemoryBank {
         String loc;
         if (f.exists()) {
             loc = currentDir + File.separatorChar + "appData" + File.separatorChar + userEmail;
+            appIconFileName = "notepad.gif";
         } else {
             String userHome = System.getProperty("user.home"); // Home directory.
             loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
+            appIconFileName = "icon_not.gif";
         }
         System.out.println("Setting user data location to: " + loc);
 
@@ -647,21 +656,21 @@ public class MemoryBank {
         //---------------------------------------------------------------
         ImageIcon myImage = new ImageIcon(logHome + "/images/ABOUT.gif");
         splash = new AppSplash(myImage);
-//        splash.setVisible(true);
-//        logApplicationShowing = false;
-//        new Thread(new Runnable() {
-//            public void run() {
-//                try {
-//                    while (!logApplicationShowing) {
-//                        Thread.sleep(1000);
-//                    } // end while
-//                } catch (Exception e) {
-//                    System.out.println("Exception: " + e.getMessage());
-//                }
-//                splash.setVisible(false);
-//                splash = null;
-//            } // end run
-//        }).start();
+        splash.setVisible(true);
+        logApplicationShowing = false;
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    while (!logApplicationShowing) {
+                        Thread.sleep(1000);
+                    } // end while
+                } catch (Exception e) {
+                    System.out.println("Exception: " + e.getMessage());
+                }
+                splash.setVisible(false);
+                splash = null;
+            } // end run
+        }).start();
 
         //---------------------------------------------------------------
         // Evaluate input parameters, if any.
@@ -694,27 +703,25 @@ public class MemoryBank {
 
         setUserDataHome(userEmail);
 
-        // Load the user settings
+        // Load the user settings - will not exist for new user but if available, can override defaults.
         //loadOpts(); // If available, overrides defaults.
         loadOptsJson();  // TODO Next time:  remove the old one, take its name.
+        // New attributes to store and retrieve (future work):
+        // size of main frame         - only if it makes sense after the future sizing work is done.
+        // location of main frame     - only if it makes sense after the future sizing work is done.
+        // user's preferred Log name (vs the system's user name) - needs a dialog to take in the new string.
 
         //--------------------------------------
         // Specify logFrame attributes
         //--------------------------------------
         update("Setting Window variables");
-        String userName = System.getProperty("user.name");
         logFrame.setTitle("Memory Bank for: " + userEmail);
         logFrame.getRootPane().setOpaque(false);
 
-// Attributes to store and retrieve:
-// size of main frame
-// location of main frame
-// user's preferred Log name (vs the system's user name)
-// MemoryBank.military (now that it was dropped from day options)
-// custom icon?
-
         // Use our own icon -
-        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + "icon_not.gif");
+//        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + "icon_not.gif");
+//        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + "notepad.gif");
+        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + appIconFileName);
         theAppIcon = AppIcon.scaleIcon(theAppIcon);
         logFrame.setIconImage(theAppIcon.getImage());
 
@@ -758,6 +765,8 @@ public class MemoryBank {
     private static void saveOptsJson() {
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
         MemoryBank.debug("Saving application option data in " + filename);
+
+        appOpts.military = military; // Capture the latest setting for this prior to saving.
 
         try (FileWriter writer = new FileWriter(filename);
              BufferedWriter bw = new BufferedWriter(writer)) {

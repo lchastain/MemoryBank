@@ -115,6 +115,9 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end getNoteComponent
 
 
+    // Currently this only holds the defaultIconFileString.
+    // Holding the 'military' boolean in MemoryBank.appOpts because more than one
+    //   context needs access to it, but this is the only place where it gets set.
     public static void loadDefaults() {
         String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
@@ -127,19 +130,13 @@ public class DayNoteGroup extends CalendarNoteGroup
             tmp = (String) ois.readObject();
             ois.close();
             fis.close();
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
+        } catch (ClassCastException | ClassNotFoundException | InvalidClassException | EOFException eeee) {
+            e = eeee;
         } catch (FileNotFoundException fnfe) {
             // not a problem; create one using program defaults.
             MemoryBank.debug(defaultFileName + " file not found; using program defaults");
             saveDefaults();
             return;
-        } catch (EOFException eofe) {
-            e = eofe;
         } catch (IOException ioe) {
             e = ioe;
         } // end try/catch

@@ -7,6 +7,12 @@ import java.util.Vector;
 // The purpose of this class is to preserve the current state of the
 //   application - JTree expanded nodes, variable leaf names, current
 //   selection, etc.
+//
+// Considered for storage but not implemented:
+// 1.  A custom icon for the app
+//     Not that useful for the trouble; a true user will be using a browser.
+//     Also, do not want to proliferate different appearances of this somewhat
+//     critical component; it could confuse support people, when we get to that point.
 //-------------------------------------------------------------------------
 class AppOptions implements Serializable {
     static final long serialVersionUID = 1654764549994200454L;
@@ -19,6 +25,7 @@ class AppOptions implements Serializable {
     Vector<String> todoLists;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
+    boolean military;
 
     public AppOptions() {
         ViewsExpanded = false;
@@ -28,6 +35,7 @@ class AppOptions implements Serializable {
         theSelectionRow = -1;
         todoLists = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
+        military = false;
     } // end constructor
 
     public AppOptions(Object theObject) {
@@ -39,6 +47,7 @@ class AppOptions implements Serializable {
         todoLists = ((AppOptions) theObject).todoLists;
         searchResultList = ((AppOptions) theObject).searchResultList;
         paneSeparator = ((AppOptions) theObject).paneSeparator;
+        military = ((AppOptions) theObject).military;
     } // end constructor
 
 } // end class AppOptions
