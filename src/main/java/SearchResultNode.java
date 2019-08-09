@@ -1,6 +1,4 @@
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.io.File;
-import java.io.Serializable;
 import java.util.Enumeration;
 
 //-------------------------------------------------------------------------
@@ -10,7 +8,7 @@ import java.util.Enumeration;
 // The first one (top level) will have a null filename and the
 //   node name will be 'Search Results'.
 //-------------------------------------------------------------------------
-class SearchResultNode extends DefaultMutableTreeNode {
+public class SearchResultNode extends DefaultMutableTreeNode {
 
     public String strNodeName;
     public int intGroupSize;
@@ -29,6 +27,7 @@ class SearchResultNode extends DefaultMutableTreeNode {
     } // end constructor
 
 
+    @SuppressWarnings("rawtypes")
     public static DefaultMutableTreeNode getSearchResultNode(DefaultMutableTreeNode theRoot) {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();

@@ -887,7 +887,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         else if (myVars.whenNoKey == STAY) MemoryBank.dbg("STAY");
         MemoryBank.dbg("\n");
 
-
         for (int i = 0; i < (items - 1); i++) {
             todoData1 = (TodoNoteData) vectGroupData.elementAt(i);
             if (todoData1 == null) str1 = "";

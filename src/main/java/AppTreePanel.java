@@ -1,6 +1,6 @@
-/**
- * The primary control for the Memory Bank application; provides a menubar at
- * the top, a 'tree' control on the left, and a viewing pane on the right
+/*
+  The primary control for the Memory Bank application; provides a menubar at
+  the top, a 'tree' control on the left, and a viewing pane on the right
  */
 
 // Quick-reference notes:
@@ -31,7 +31,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
 
-    public static AppTreePanel ltTheTree;
+    static AppTreePanel ltTheTree;
     private JFrame theFrame;
 
     private static final int LIST_GONE = -3; // used in constr, createTree
@@ -218,7 +218,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Adds a search result branch to the tree.
     //   s = the visible name
     //   i = number of results
-    public void addSearchResult(String s, int i) {
+    private void addSearchResult(String s, int i) {
         // Remove the tree selection listener while we
         //   rebuild this portion of the tree.
         tree.removeTreeSelectionListener(this);
@@ -261,7 +261,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Removes the associated results file and then calls the
     //   method to remove the search result leaf.
     //-------------------------------------------------------
-    public void closeSearchResult() {
+    private void closeSearchResult() {
         // Obtain a reference to the current tree selection.
         SearchResultNode node = (SearchResultNode)
                 tree.getLastSelectedPathComponent();
@@ -469,8 +469,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Used to fully clone a tree node, since the system-provided
     // method only does the first level.
     //----------------------------------------------------------------
-    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    public static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
+    @SuppressWarnings("rawtypes")
+    static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
         DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode) root.clone();
         for (Enumeration childEnum = root.children(); childEnum.hasMoreElements(); ) {
             newRoot.add(deepClone((DefaultMutableTreeNode) childEnum.nextElement()));
@@ -513,7 +513,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private void exportDataDir(File theDir, int level) {
         MemoryBank.dbg("Scanning " + theDir.getName());
 
-        File theFiles[] = theDir.listFiles();
+        File[] theFiles = theDir.listFiles();
         assert theFiles != null;
         int howmany = theFiles.length;
         MemoryBank.debug("\t\tFound " + howmany + " data files");
@@ -611,10 +611,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Today")) showToday();
         else if (what.equals("undo")) {
             String s = appOpts.theSelection;
-            if (s.equals("Day Notes")) theAppDays.recalc();
-            else if (s.equals("Month Notes")) theAppMonths.recalc();
-            else if (s.equals("Year Notes")) theAppYears.recalc();
-            else theNoteGroup.updateGroup(); // reload without save
+            switch (s) {
+                case "Day Notes":
+                    theAppDays.recalc();
+                    break;
+                case "Month Notes":
+                    theAppMonths.recalc();
+                    break;
+                case "Year Notes":
+                    theAppYears.recalc();
+                    break;
+                default:
+                    theNoteGroup.updateGroup(); // reload without save
+                    break;
+            }
         } else {
             AppUtil.localDebug(true);
             MemoryBank.debug("  " + what);
@@ -630,8 +640,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   removed from the AppMenuBar, View Date menu:    menuViewDate.add(new JMenuItem("Set Look and Feel..."));
     //   removed from this file, the HandleMenuBar method:
     //      else if (what.equals("Set Look and Feel...")) showPlafDialog();
-
-
     private void showPlafDialog() {
         PlafSelectionPanel pep = new PlafSelectionPanel();
         int doit = JOptionPane.showConfirmDialog(
@@ -770,6 +778,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             tree.removeTreeSelectionListener(this);
             theRootNode.remove(nodeSearchResults);
             nodeSearchResults = null;
+            tree.clearSelection();  // This may still not be good enough to clear the last selection.
             resetTreeState();
             tree.addTreeSelectionListener(this);
 
@@ -798,9 +807,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //------------------------------------------------------------------
     // Method Name: resetTreeState
     //
-    // Call this method after changes have been made to the tree, so
-    //   that they will be displayed while retaining original branch
-    //   expansions.
+    // Call this method after changes have been made to the tree, to
+    //   cause a repaint.  The first line below does that all by itself,
+    //   but it also results in a tree with all nodes collapsed.  So the
+    //   rest of this medhod is needed to re-expand any nodes that
+    //   should have stayed that way.
     //------------------------------------------------------------------
     private void resetTreeState() {
         treeModel.nodeStructureChanged(theRootNode); // collapses branches
@@ -1060,9 +1071,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   without any other tree selection in between, it will
     //   restore the original selection.  To implement this
     //   'toggle' functionality, it is also necessary to capture
-    //   and restore the expanded/collapsed state, possibly
-    //   overriding the user's more recent settings if they had
-    //   made such changes without also making a new selection.
+    //   the expanded/collapsed state of the tree on the first
+    //   'About' and then restore it on the second call, possibly
+    //   overriding the user's changes if they had made tree
+    //   changes after the first 'About' without also making a new
+    //   tree selection.  This happens because the tree state is
+    //   reset whenever the About graphic is shown.  Acceptable.
     //--------------------------------------------------------------
     public void showAbout() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
@@ -1070,6 +1084,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (node == null) {
             // Reset tree to the state it was in before.
+            blnRestoringSelection = true;
             if (appOpts.ViewsExpanded) tree.expandPath(viewPath);
             else tree.collapsePath(viewPath);
             if (appOpts.NotesExpanded) tree.expandPath(notePath);
@@ -1082,7 +1097,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             updateTreeState(false);
             tree.clearSelection();
 
-            // A 'nesting' trick, to get the image centered in the JScrollPane
+            // A 'nesting/scaling' trick, to get the image centered in the JScrollPane
             JPanel jp = new JPanel(new GridBagLayout());
             jp.add(abbowt);
             rightPane.setViewportView(jp);
@@ -1316,14 +1331,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //-----------------------------------------------------------
     // Method Name: showWorkingDialog
     //
-    // Shows a small animated gif as a 'Working...' message,
-    //   in a modal dialog.  Call this method before you start
+    // This method will either show or hide a small modal
+    //   dialog with an animated gif and a 'Working...' message.
+    //   Call this method with 'true' before you start
     //   a potentially long task that the user must wait for,
-    //   then call:  dlgWorkingDialog.setVisible(false);
-    //   to go on.
+    //   then call it with 'false' to go on.
     //-----------------------------------------------------------
-    public static void showWorkingDialog(boolean b) {
-        if (b) {
+    public static void showWorkingDialog(boolean showIt) {
+        if (showIt) {
             // Create a new thread and setVisible within the thread.
             new Thread(new Runnable() {
                 public void run() {
@@ -1333,20 +1348,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else {
             new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        while (!dlgWorkingDialog.isShowing()) {
-                            // First, wait for it to appear.
-                            Thread.sleep(100);
-                        } // end while
-                    } catch (Exception e) {
-                        System.out.println("Exception: " + e.getMessage());
-                    }
-
-                    // Then kill it.
                     dlgWorkingDialog.setVisible(false);
                 }
             }).start();
-        } // end if show else hide
+        } // end if show - else hide
     } // end showWorkingDialog
 
 
@@ -1360,7 +1365,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // We have started to handle the user's request; now
         //   disallow further input until we're finished.
-        showWorkingDialog(true);
+        if(!blnRestoringSelection) showWorkingDialog(true);
 
         // Update the current selection row
         appOpts.theSelectionRow = tree.getMaxSelectionRow();
@@ -1418,6 +1423,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         theNoteGroup = null; // initialize
 
+        //<editor-fold desc="Description">
         if (isTodoBranch && isTopLevel) {
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
@@ -1522,16 +1528,18 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end if
 
             if (srn.srg == null) {
-                // We just attempted to load it; if still null then
+                // We just attempted to load it, so if it is still null then
                 //   it means the file is not there or not accessible.
 
-                // Show a warning that the node will be removed, UNLESS
-                //   this is a 'restore selection' operation that occurs
-                //   during program start, in which case we just remove
-                //   it without notice because there is already a modal
-                //   dialog running.
+                // We can show a notice about what went wrong and what we're
+                // going to do about it, but that will only be helpful if
+                // the user had just asked to see the search results, and NOT
+                // in the case where this situation arose during a program
+                // restart where the missing search results just happen to be
+                // the last selection that had been made during a previous run,
+                // and now it is being restored, possibly several days later.
                 if (!blnRestoringSelection) {
-                    // The user clicked on this node
+                    // The user just now clicked on this node
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the search results.\n" +
                                     "This search results selection will be removed.",
@@ -1551,6 +1559,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             jp.add(new JLabel(theText));
             rightPane.setViewportView(jp);
         } // end if/else if
+        //</editor-fold>
 
         amb.manageMenus(strSelectionType);
         showWorkingDialog(false);
@@ -1617,7 +1626,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 leafLink = leafLink.getNextLeaf();
             } // end while
         } // end if
-
 
     } // end updateTreeState
 

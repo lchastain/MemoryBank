@@ -12,11 +12,10 @@ import java.util.Vector;
 // 1.  A custom icon for the app
 //     Not that useful for the trouble; a true user will be using a browser.
 //     Also, do not want to proliferate different appearances of this somewhat
-//     critical component; it could confuse support people, when we get to that point.
+//     critical component; it could confuse support people, when we get to the
+//     point of having support people.
 //-------------------------------------------------------------------------
-class AppOptions implements Serializable {
-    static final long serialVersionUID = 1654764549994200454L;
-
+class AppOptions {
     boolean ViewsExpanded;
     boolean NotesExpanded;
     boolean TodoListsExpanded;
