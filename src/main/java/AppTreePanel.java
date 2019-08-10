@@ -61,7 +61,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private Vector<String> exportDataVector;
     private TodoListKeeper theTodoListKeeper;  // keeper of all loaded 'to do' lists.
     private SearchPanel spTheSearchPanel;
-    private AppImage abbowt;
+    private JPanel aboutPanel;
     private JSplitPane splitPane;
 
     private static Date currentDateChoice;
@@ -166,8 +166,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         JScrollPane treeView = new JScrollPane(tree);
 
         // Create the viewing pane and start with the 'about' graphic.
-        abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif");
-        JPanel aboutPanel = new JPanel(new GridBagLayout());
+        AppImage abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif");
+        aboutPanel = new JPanel(new GridBagLayout());
         aboutPanel.add(abbowt); // Nested the image in a panel with a flexible layout, for centering.
         rightPane = new JScrollPane(aboutPanel);
 
@@ -582,7 +582,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         return retVal;
     }
 
-    public TodoListKeeper getTodoListKeeper() {
+    TodoListKeeper getTodoListKeeper() {
         return theTodoListKeeper;
     }
 
@@ -714,11 +714,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     } // end if
                 } // end try/catch
             }//end while
-        } catch (ClassNotFoundException | InvalidClassException | FileNotFoundException eee) {
-            e = eee;
         } catch (EOFException eofe) { // Normal, expected.
-        } catch (IOException ioe) {
-            e = ioe;
+        } catch (ClassNotFoundException | IOException ee) {
+            e = ee;
         } finally {
             try {
                 if (ois != null) ois.close();
@@ -768,24 +766,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //   to changing the tree selection.
         theNoteGroup = null;
 
-        // Select the Search Results branch
-        TreeNode[] pathToRoot = nodeSearchResults.getPath();
-        tree.setSelectionPath(new TreePath(pathToRoot));
-
-        // Check to see if any Search Results are left; if not then:
+        // Check to see if any Search Results are left; if not then remove that node as well:
         if (nodeSearchResults.getChildCount() == 0) {
             //   Remove the 'Search Results' node.
             tree.removeTreeSelectionListener(this);
             theRootNode.remove(nodeSearchResults);
             nodeSearchResults = null;
-            tree.clearSelection();  // This may still not be good enough to clear the last selection.
             resetTreeState();
             tree.addTreeSelectionListener(this);
 
-            // Remove any extraneous '.sresults' files.
+            //region Remove any extraneous '.sresults' files.
             MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
             File theDir = new File(MemoryBank.userDataHome);
-            File theFiles[] = theDir.listFiles();
+            File[] theFiles = theDir.listFiles();
             assert theFiles != null;
             int howmany = theFiles.length;
             MemoryBank.debug("\t\tFound " + howmany + " data files");
@@ -797,9 +790,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     }
                 } // end if
             } // end for
+            //endregion
 
             // With no more search results remaining, display the 'About' view.
             showAbout();
+        } else {  // Select the Search Results branch
+            TreeNode[] pathToRoot = nodeSearchResults.getPath();
+            blnRestoringSelection = true; // Not really, but we don't want a separate thread for this trivial change.
+            tree.setSelectionPath(new TreePath(pathToRoot));
         } // end if
     } // end removeSearchNode
 
@@ -918,7 +916,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private void scanDataDir(File theDir, int level) {
         MemoryBank.dbg("Scanning " + theDir.getName());
 
-        File theFiles[] = theDir.listFiles();
+        File[] theFiles = theDir.listFiles();
         assert theFiles != null;
         int howmany = theFiles.length;
         MemoryBank.debug("\t\tFound " + howmany + " data files");
@@ -994,7 +992,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //---------------------------------------------------------
     private void searchDataFile(File dataFile) {
         MemoryBank.debug("Searching: " + dataFile.getName());
-        noteDataVector = new Vector<NoteData>();
+        noteDataVector = new Vector<>();
         loadNoteData(dataFile);
 
         //  if(true) return; // early bailout; if you only needed to load.
@@ -1078,11 +1076,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   tree selection.  This happens because the tree state is
     //   reset whenever the About graphic is shown.  Acceptable.
     //--------------------------------------------------------------
-    public void showAbout() {
+    void showAbout() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
                 tree.getLastSelectedPathComponent();
 
-        if (node == null) {
+        // Examine the rightPane to see if the About graphic is already shown, or not.
+        // There are simpler ways (such as aboutPanel.isShowing(), but that does not
+        // work with the toggle test.
+        JViewport viewport = rightPane.getViewport();
+        JComponent theContent = (JComponent)viewport.getView();
+
+        if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
             // Reset tree to the state it was in before.
             blnRestoringSelection = true;
             if (appOpts.ViewsExpanded) tree.expandPath(viewPath);
@@ -1097,10 +1101,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             updateTreeState(false);
             tree.clearSelection();
 
-            // A 'nesting/scaling' trick, to get the image centered in the JScrollPane
-            JPanel jp = new JPanel(new GridBagLayout());
-            jp.add(abbowt);
-            rightPane.setViewportView(jp);
+            // Show it.
+            rightPane.setViewportView(aboutPanel);
 
             amb.manageMenus("");
         } // end if
@@ -1108,7 +1110,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
 
     // Called from YearView or MonthView, mouse dbl-click on date.
-    public void showDay() {
+    void showDay() {
         MemoryBank.debug("showDay called.");
         tree.setSelectionPath(dayNotesPath);
     } // end showDay
@@ -1118,7 +1120,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Method Name:  showFoundIn
     //
     //------------------------------------------------------------
-    public void showFoundIn(SearchResultData srd) {
+    void showFoundIn(SearchResultData srd) {
         // Determine the treepath to be shown, based on
         //   the result's file name/path.
         String fname = srd.getFileFoundIn().getName();
@@ -1165,7 +1167,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end showFoundIn
 
 
-    public void showHelp() {
+    private void showHelp() {
         try {
             String s = MemoryBank.logHome + File.separatorChar;
             Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
@@ -1175,7 +1177,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end showHelp
 
 
-    public void showMonth() {
+    void showMonth() {
         MemoryBank.debug("showMonth called.");
         // This method is called from an external context.
         tree.setSelectionPath(monthViewPath);
@@ -1217,7 +1219,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Now make a Vector that can collect the search results.
-        foundDataVector = new Vector<NoteData>(0, 1);
+        foundDataVector = new Vector<>(0, 1);
 
         // Now scan the user's data area for data files -
         // We do a recursive directory search and each
@@ -1646,10 +1648,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (blnRestoringSelection) {
             // We don't need to handle this event from a separate
             //   thread because we don't need the 'working' dialog
-            //   when restoring a previous selection because this
-            //   only happens during program restart, when
-            //   we already have a progress bar with the
-            //   'Restoring Previous Selection' message.
+            //   when restoring a previous selection because the
+            //   corresponding file, if any, would have already
+            //   been accessed and loaded.  Although there is one
+            //   exception to that, at program restart but in that
+            //   case we have the main progress bar.
             treeSelectionChanged(tp);
         } else {
             // This is a user-directed selection;

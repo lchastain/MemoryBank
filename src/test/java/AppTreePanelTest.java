@@ -4,16 +4,16 @@ import javax.swing.*;
 
 public class AppTreePanelTest extends TestCase {
     private AppTreePanel atp;
-
-    // No significance to this value other than it needs to be a row that
-    // we know for a fact will be there, even for a brand-new AppTreePanel.
-    // In this case we've chosen a relatively low (safer) value, currently
-    // should be 'Notes', with the first two being singles, and 'Views' collapsed.
-    //int theSelectionRow = 3;
-    private int theSelectionRow = 3;
+    private int theSelectionRow;
 
     public void setUp() throws Exception {
         super.setUp();
+
+        // No significance to this value other than it needs to be a row that
+        // we know for a fact will be there, even for a brand-new AppTreePanel.
+        // In this case we've chosen a relatively low (safer) value, currently
+        // should be 'Notes', with the first two being singles, and 'Views' collapsed.
+        theSelectionRow = 3;
         atp = new AppTreePanel(new JFrame(), new AppOptions());
     }
 
@@ -45,6 +45,8 @@ public class AppTreePanelTest extends TestCase {
 
     }
 
+    // THIS TEST is not unit test, but functional.  MOVE it, after
+    // a new test module is ready for it.  Restore a showAbout (only) here.
     // Test that showing the About graphic will do that, and then
     // if selected again and it is already showing, it will go
     // back to the previous tree selection.
