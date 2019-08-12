@@ -95,7 +95,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         dlgWorkingDialog = new JDialog(theFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
-        String strWorkingIcon = MemoryBank.userDataHome + File.separatorChar;
+        String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
         strWorkingIcon += "icons/animated/const_anim.gif";
         lbl.setIcon(new AppIcon(strWorkingIcon));
         lbl.setVerticalTextPosition(JLabel.TOP);
@@ -479,6 +479,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     }
 
     private void doExport() {
+        dlgWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
         showWorkingDialog(true); // Show the 'Working...' dialog
 
         // Make sure that the most recent changes, if any,
@@ -841,7 +842,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   it has none then prior to calling this method ob1kenoby should
     //   be set to null; otherwise it should be that properties object.
     //--------------------------------------------------------------
-    private int saveNoteData(File theFile) {
+    private void saveNoteData(File theFile) {
 
         try {
             FileOutputStream fos = new FileOutputStream(theFile);
@@ -861,10 +862,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             fos.close();
         } catch (IOException ioe) {
             ioe.printStackTrace(System.err);
-            return 1; // Problem
         }//end try/catch
 
-        return 0;  // Success
     }//end saveNoteData
 
 
@@ -1210,6 +1209,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             return;
         } // end if no search location was specified.
 
+        dlgWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
         showWorkingDialog(true); // Show the 'Working...' dialog
 
         // Make sure that the most recent changes, if any,
@@ -1337,9 +1337,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   dialog with an animated gif and a 'Working...' message.
     //   Call this method with 'true' before you start
     //   a potentially long task that the user must wait for,
-    //   then call it with 'false' to go on.
+    //   then call it with 'false' to go on.  It is static
+    //   in order to give access to external classes such
+    //   as group headers, that need to wait for sorting.
     //-----------------------------------------------------------
-    public static void showWorkingDialog(boolean showIt) {
+    static void showWorkingDialog(boolean showIt) {
         if (showIt) {
             // Create a new thread and setVisible within the thread.
             new Thread(new Runnable() {
@@ -1350,6 +1352,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else {
             new Thread(new Runnable() {
                 public void run() {
+                    // Give the 'visible' time to complete, before going invisible.
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     dlgWorkingDialog.setVisible(false);
                 }
             }).start();
@@ -1367,6 +1375,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // We have started to handle the user's request; now
         //   disallow further input until we're finished.
+        dlgWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
         if(!blnRestoringSelection) showWorkingDialog(true);
 
         // Update the current selection row

@@ -5,7 +5,7 @@ DESIGN DECISIONs (upper-cased in text below for a quick search).
 8/09/2019 1045 - Problems in timing with running the 'showAbout' toggle test.  Kept failing for no
   good reason, but very intermittent; would always pass if all tests in the file were run.  Online
   search suggested getting a later version of IJ, so did that, for this project only.  It did fix
-  the test issues although one sleep was still needed.
+  the test issues although one sleep is still needed.
 
 8/06/2019 1346 - Added another test but this time needed a resource.  Getting the test file to
   read from a standard resources directory was supposed to be trivial - there were internet examples

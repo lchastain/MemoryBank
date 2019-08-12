@@ -1,1 +1,6 @@
-This 
+Removing a SearchResultNode can come from either a SearchResult 'Close' operation, or the selection
+of a node that has no corresponding data file.
+
+closeSearchResult
+  removeSearchNode
+    showAbout

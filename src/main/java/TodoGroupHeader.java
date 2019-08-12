@@ -6,10 +6,12 @@
  the subsequent ordering of the columns.
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;           // Vector
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Vector;
 
 public class TodoGroupHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
@@ -21,12 +23,12 @@ public class TodoGroupHeader extends Container implements ClingSource {
     private HeaderButton hb4;  // Deadline   // No longer used.
     private DndLayout headerLayout;
 
-    public int hb1Width;
-    public int hb2Width;
-    public int hb3Width;
-    public int hb4Width;
+    private int hb1Width;
+    private int hb2Width;
+    private int hb3Width;
+    private int hb4Width;
 
-    public TodoGroupHeader(TodoNoteGroup p) {
+    TodoGroupHeader(TodoNoteGroup p) {
         super();
         parent = p;
         hb1Width = 0;
@@ -154,7 +156,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         return s;
     } // end getColumnHeader
 
-    public int getColumnOrder() {
+    private int getColumnOrder() {
         int i = 0;
         HeaderButton hb;
 
@@ -189,7 +191,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
     } // end getPreferredSize
 
 
-    public void resetVisibility() {
+    void resetVisibility() {
         hb1.setVisible(parent.myVars.showPriority);
     } // end resetVisibility
 
@@ -200,7 +202,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         private static final long serialVersionUID = 2569185275948640387L;
         String prompt;
 
-        public HeaderButton(String s) {
+        HeaderButton(String s) {
             super(s);
             addMouseListener(this);
         } // end constructor
@@ -226,7 +228,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
             AppTreePanel.showWorkingDialog(false);
         } // end doSorting
 
-        public void doUserHeader() {
+        void doUserHeader() {
             String s1 = getText();
             String s2 = defaultLabel;
 
