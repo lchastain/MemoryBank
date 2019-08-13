@@ -47,6 +47,7 @@ public class AppTreePanelTest extends TestCase {
 
     // THIS TEST is not unit test, but functional.  MOVE it, after
     // a new test module is ready for it.  Restore a showAbout (only) here.
+    //
     // Test that showing the About graphic will do that, and then
     // if selected again and it is already showing, it will go
     // back to the previous tree selection.

@@ -45,7 +45,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
     // This method will return a TreePath for the provided String,
     // regardless of whether or not it really is a node on the tree.
-    public static TreePath getTodoPathFor(JTree jt, String s) {
+    static TreePath getTodoPathFor(JTree jt, String s) {
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
         DefaultMutableTreeNode clonedRoot = AppTreePanel.deepClone(theRoot);
@@ -63,7 +63,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     }
 
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    public static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
+    static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();
 
@@ -76,7 +76,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         return dmtn;
     }
 
-    public static void addNewList(JTree jt) {
+    static void addNewList(JTree jt) {
         String newName = "";
         String prompt = "Enter a name for the new To Do List";
         String title = "Add a new To Do List";

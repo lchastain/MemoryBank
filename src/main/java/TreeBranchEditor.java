@@ -1,13 +1,17 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TreeBranchEditor extends JPanel
         implements ItemListener, ActionListener, TreeModelListener {
@@ -78,6 +82,22 @@ public class TreeBranchEditor extends JPanel
         showTree();     // Sets the content of the leftScroller
         showChoices();  // Sets the content of the rightScroller
 
+        // We set the preferred vertical sizes to something unrealistically low, so that when the
+        // interface is loaded and it comes out larger, the vertical scroll pane kicks in.
+        Dimension d1 = leftScroller.getPreferredSize();
+        Dimension d2 = rightScroller.getPreferredSize();
+        leftScroller.setPreferredSize( new Dimension( d1.width, 100 ) );
+        leftScroller.revalidate();
+        rightScroller.setPreferredSize( new Dimension( d2.width, 100 ) );
+        rightScroller.revalidate();
+
+        // Remember that centerPanel is a split pane, in the center of a BorderLayout.
+        // The left side will always contain either the same elements or fewer, than the
+        //   right.  Further, the ones on the left require less height.  So - you might
+        //   think that there is no need to provide a separate scroller for the left side.
+        //   But that is wrong, in the case where the list of leaves is so long that you
+        //   could scroll to the bottom on the right side and if they scrolled together
+        //   you might not see ANY portion of the tree on the left.
         centerPanel.setLeftComponent(leftScroller);
         centerPanel.setRightComponent(rightScroller);
 
@@ -134,7 +154,7 @@ public class TreeBranchEditor extends JPanel
         }
     }
 
-    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
+    @SuppressWarnings("rawtypes")
     private void showChoices() {
         // Create lists of pre-selected items from the existing branch.
         Enumeration dfe = myBranch.depthFirstEnumeration();

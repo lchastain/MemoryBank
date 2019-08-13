@@ -77,7 +77,7 @@ public abstract class NoteGroup extends JPanel {
         this(defaultSubject, PAGE_SIZE);
     } // end constructor 1
 
-    NoteGroup(String defaultSubject, int intPageSize) {
+    private NoteGroup(String defaultSubject, int intPageSize) {
         super(new BorderLayout());
         pageSize = intPageSize;
         enc = new ExtendedNoteComponent(defaultSubject);

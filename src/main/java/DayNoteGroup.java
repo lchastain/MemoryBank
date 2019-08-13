@@ -1,17 +1,12 @@
 /**  This class displays a group of DayNoteComponent.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
-import java.util.*;
-
-import javax.swing.*;
+import java.util.Date;
 
 public class DayNoteGroup extends CalendarNoteGroup
         implements iconKeeper, MouseListener {
@@ -22,7 +17,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //   for this class is called.  The only way that is possible
     //   is to assign it during the static section of this class.
     //------------------------------------------------------------------
-    public static String defaultIconFileString; // Accessed by MonthView.
+    static String defaultIconFileString; // Accessed by MonthView.
     private static AppIcon defaultIcon;
     private static String defaultFileName;
     //------------------------------------------------------------------
@@ -30,7 +25,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     private static JLabel dayTitle;
 
     // Set by other NoteGroups (Event, Todo)
-    public static boolean blnNoteAdded;
+    static boolean blnNoteAdded;
 
     static {
         // Create the window title
@@ -96,7 +91,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end constructor
 
 
-    public String getChoiceString() {
+    private String getChoiceString() {
         return sdf.format(choice);
     } // end getChoiceString
 
@@ -118,7 +113,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     // Currently this only holds the defaultIconFileString.
     // Holding the 'military' boolean in MemoryBank.appOpts because more than one
     //   context needs access to it, but this is the only place where it gets set.
-    public static void loadDefaults() {
+    private static void loadDefaults() {
         String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
         FileInputStream fis;
@@ -130,15 +125,13 @@ public class DayNoteGroup extends CalendarNoteGroup
             tmp = (String) ois.readObject();
             ois.close();
             fis.close();
-        } catch (ClassCastException | ClassNotFoundException | InvalidClassException | EOFException eeee) {
-            e = eeee;
         } catch (FileNotFoundException fnfe) {
             // not a problem; create one using program defaults.
             MemoryBank.debug(defaultFileName + " file not found; using program defaults");
             saveDefaults();
             return;
-        } catch (IOException ioe) {
-            e = ioe;
+        } catch (ClassCastException | ClassNotFoundException | IOException eee) {
+            e = eee;
         } // end try/catch
 
         if (e != null) {

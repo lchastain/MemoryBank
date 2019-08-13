@@ -7,20 +7,19 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.*;
 import java.util.Date;
-
-import javax.swing.*;
-import javax.swing.filechooser.*;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
 
     // Values used in sorting.
-    public static final int TOP = 0;
-    public static final int BOTTOM = 1;
+    private static final int TOP = 0;
+    static final int BOTTOM = 1;
     public static final int STAY = 2;
     public static final int INORDER = 123;
 
@@ -28,7 +27,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     public static JFileChooser filechooser;
     public static javax.swing.filechooser.FileFilter ff;
 
-    private ThreeMonthColumn tmc;
+    private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 
     private String strTheGroupFilename;
@@ -37,6 +36,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     public TodoListProperties myVars; // Variables - flags and settings
 
     static {
+        // The File Chooser supports the 'merge' functionality.
         filechooser = new JFileChooser(MemoryBank.userDataHome);
         ff = new javax.swing.filechooser.FileFilter() {
             public boolean accept(File f) {
@@ -64,7 +64,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     public TodoNoteGroup(String fname) {
         super("Todo Item"); // Sets the default subject, in case items are moved to another group type.
-        //super("Todo Item", 10);
 
         setName(fname.trim()); // The component-level name is null, otherwise.
         log.debug("Constructing: " + getName());
