@@ -867,7 +867,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end sortPriority
 
 
-    public void sortText(int direction) {
+    void sortText(int direction) {
         TodoNoteData todoData1, todoData2;
         String str1, str2;
         boolean doSwap;

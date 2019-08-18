@@ -4,15 +4,15 @@ class IconNoteData extends NoteData implements Serializable {
     private static final long serialVersionUID = -4747292791676343443L;
 
     protected String iconFileString;
-    protected boolean showIconOnMonthBoolean;
+    boolean showIconOnMonthBoolean;
 
-    public IconNoteData() {
+    IconNoteData() {
         super();
     } // end constructor
 
 
     // The copy constructor (clone)
-    public IconNoteData(IconNoteData ind) {
+    IconNoteData(IconNoteData ind) {
         super(ind);
 
         iconFileString = ind.iconFileString;
@@ -31,7 +31,7 @@ class IconNoteData extends NoteData implements Serializable {
         return iconFileString;
     }
 
-    public boolean getShowIconOnMonthBoolean() {
+    boolean getShowIconOnMonthBoolean() {
         return showIconOnMonthBoolean;
     }
 
@@ -39,7 +39,7 @@ class IconNoteData extends NoteData implements Serializable {
         iconFileString = val;
     }
 
-    public void setShowIconOnMonthBoolean(boolean val) {
+    void setShowIconOnMonthBoolean(boolean val) {
         showIconOnMonthBoolean = val;
     }
 

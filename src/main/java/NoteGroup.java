@@ -1,5 +1,6 @@
-/**  NoteGroup provides a container for the management of
- a NoteComponent collection.
+/**
+ * NoteGroup provides a container for the management of
+ * a NoteComponent collection.
  */
 
 import javax.swing.*;
@@ -32,27 +33,27 @@ public abstract class NoteGroup extends JPanel {
     //=============================================================
     protected static String ems;     // Error Message String
     protected ExtendedNoteComponent enc;
-    protected boolean addNoteAllowed;
-    protected int borderWidth = 2;
-    protected int lastVisibleNoteIndex = 0;
-    protected int pageSize;
+    boolean addNoteAllowed;
+    private int borderWidth = 2;
+    int lastVisibleNoteIndex = 0;
+    int pageSize;
 
     // Child classes that check this variable should test for a
     //   value >= SUCCEEDED; if true, the count of records written
     //   may be obtained by: (intSaveGroupStatus - SUCCEEDED)
-    protected int intSaveGroupStatus = INITIAL;
+    int intSaveGroupStatus = INITIAL;
 
     // Container for graphical members - limited to pageSize
     protected JPanel groupNotesListPanel;
 
     // Container for a paging control
-    protected NotePager npThePager;
+    NotePager npThePager;
 
     // Container for the (complete collection of) Group data objects
     protected Vector<NoteData> vectGroupData;
 
     // The properties for the group - cast to proper class
-    protected Object objGroupProperties;
+    Object objGroupProperties;
     //=============================================================
 
     // Private members
@@ -720,7 +721,7 @@ public abstract class NoteGroup extends JPanel {
     //
     // Sets the remaining unloaded note lines (if any) to invisible.
     //--------------------------------------------------------------
-    public void resetVisibility() {
+    private void resetVisibility() {
         NoteComponent tempNote;
 
         for (int i = lastVisibleNoteIndex + 1; i <= intHighestNoteComponentIndex; i++) {
@@ -728,6 +729,76 @@ public abstract class NoteGroup extends JPanel {
             tempNote.setVisible(false);
         } // end for i
     } // end resetVisibility
+
+
+    //--------------------------------------------------------------------
+    private static int saveDataJson(String theFilename, Vector<NoteData> vectNoteData, Object objProperties) {
+        FileWriter writer = null;
+        BufferedWriter bw = null;
+        Exception e = null;
+        int notesWritten = 0;
+        Object[] theGroup;  // A new 'wrapper' for the Properties + List
+        Vector<NoteData> trimmedList = new Vector<>();
+
+        // Xfer the 'good' data over to a new, temporary Vector.
+        for (NoteData tempNoteData : vectNoteData) {
+
+            // This can happen with an 'empty' NoteGroup.
+            if (tempNoteData == null) continue;
+
+            // Don't save if there is no significant primary text.
+            if (tempNoteData.getNoteString().trim().equals("")) continue;
+
+            // Add each 'good' note to the 'keeper' list.
+            trimmedList.add(tempNoteData);
+        }
+
+
+        // Construct the content, convert it to JSON, and write the file
+        notesWritten = trimmedList.size();
+        if(notesWritten > 0) {
+            try {
+                writer = new FileWriter(theFilename + ".json");
+                bw = new BufferedWriter(writer);
+
+                if (objProperties != null) {
+                    theGroup = new Object[2];
+                    theGroup[0] = objProperties;
+                    theGroup[1] = trimmedList;
+                    //bw.write(MemoryBank.toJsonString(objProperties));
+                } else {
+                    theGroup = new Object[1];
+                    theGroup[0] = trimmedList;
+                } // end if there is a properties object
+
+                bw.write(MemoryBank.toJsonString(theGroup));
+
+            } catch (IOException ioe) {
+                // This is a catch-all for other problems that may
+                // arise, such as finding a directory of the
+                // same name, or not having write permission.
+                e = ioe;
+            } finally {
+                if (e != null) {
+                    // This one may have been ignorable; print the message and see.
+                    System.out.println("Exception: " + e.getMessage());
+                } // end if there was an exception
+                // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
+                try {
+                    if (bw != null) {
+                        bw.flush();
+                        bw.close(); // Also closes the wrapped FileWriter
+                    }
+                } catch (IOException ioe) {
+                    // This one would be much more serious - raise a 'louder' alarm.
+                    ioe.printStackTrace(System.err);
+                } // end try/catch
+            } // end try/catch
+
+        }
+
+        return notesWritten;
+    } // end saveData
 
 
     //--------------------------------------------------------------------
@@ -884,6 +955,9 @@ public abstract class NoteGroup extends JPanel {
         //   in the pager only after the other paging actions are done.
         //----------------------------------------------------------------
 
+        // The logic below will allow for a file with properties but no
+        // notes.  This might be a todo list with no items, yet, which
+        // is allowed.
         Object tmpProperties = getProperties();
         int notesWritten = 0;
 
@@ -891,6 +965,7 @@ public abstract class NoteGroup extends JPanel {
         if ((tmpProperties != null) || (vectGroupData.size() > 0)) {
             // Now save the notes from the vectGroupData.
             notesWritten = saveData(strGroupFilename, vectGroupData, tmpProperties);
+            int nw = saveDataJson(strGroupFilename, vectGroupData, tmpProperties);
         } // end if
 
         // We didn't try to write a file if there was no data, but an error

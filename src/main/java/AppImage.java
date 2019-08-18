@@ -18,6 +18,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 public final class AppImage extends JPanel {
     private static final long serialVersionUID = 6216448968617689802L;
@@ -179,11 +180,11 @@ public final class AppImage extends JPanel {
 
         // Construct a list of five images (although one is null) -
         Image images[] = new Image[]{
-                new AppIcon(MemoryBank.logHome + "/icons/icon_not.gif").getImage(),
-                new ImageIcon(MemoryBank.logHome + "/images/ABOUT.gif").getImage(),
+                new AppIcon(MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar + "icon_not.gif").getImage(),
+                new ImageIcon(MemoryBank.logHome + File.separatorChar + "images" + File.separatorChar + "ABOUT.gif").getImage(),
                 null,
-                new AppIcon(MemoryBank.logHome + "/icons/acro.ico").getImage(),
-                new AppIcon(MemoryBank.logHome + "/icons/new8.gif").getImage()
+                new AppIcon(MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar + "acro.ico").getImage(),
+                new AppIcon(MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar + "new8.gif").getImage()
         };
 
         // Make the frame and add ourselves to it.

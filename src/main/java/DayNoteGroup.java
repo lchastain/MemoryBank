@@ -17,7 +17,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //   for this class is called.  The only way that is possible
     //   is to assign it during the static section of this class.
     //------------------------------------------------------------------
-    static String defaultIconFileString; // Accessed by MonthView.
+    static String defaultIconFileName; // Accessed by MonthView.
     private static AppIcon defaultIcon;
     private static String defaultFileName;
     //------------------------------------------------------------------
@@ -34,19 +34,20 @@ public class DayNoteGroup extends CalendarNoteGroup
         dayTitle.setForeground(Color.white);
         dayTitle.setFont(Font.decode("Serif-bold-20"));
 
-        defaultIconFileString = "icons/icon_not.gif";
+        defaultIconFileName = MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar;
+        defaultIconFileName += "icon_not.gif";
         defaultFileName = "DayNoteDefaults";
         blnNoteAdded = false;
 
         // This will override the defaults only if the load is good.
         loadDefaults();
 
-        if (defaultIconFileString.equals("")) {
+        if (defaultIconFileName.equals("")) {
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
             defaultIcon = new AppIcon();
         } else {
-            MemoryBank.debug("Default DayNoteComponent Icon: " + defaultIconFileString);
-            defaultIcon = new AppIcon(defaultIconFileString);
+            MemoryBank.debug("Default DayNoteComponent Icon: " + defaultIconFileName);
+            defaultIcon = new AppIcon(defaultIconFileName);
             defaultIcon = AppIcon.scaleIcon(defaultIcon);
         } // end if/else
 
@@ -139,8 +140,8 @@ public class DayNoteGroup extends CalendarNoteGroup
             return;
         } // end if
 
-        defaultIconFileString = tmp;
-        MemoryBank.debug("Loaded Default icon: " + defaultIconFileString);
+        defaultIconFileName = tmp;
+        MemoryBank.debug("Loaded Default icon: " + defaultIconFileName);
     } // end loadDefaults
 
 
@@ -228,12 +229,12 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     private static void saveDefaults() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
+        String FileName = MemoryBank.logHome + File.separatorChar + defaultFileName;
         MemoryBank.debug("Saving day option data in " + defaultFileName);
         try {
             FileOutputStream fos = new FileOutputStream(FileName);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(defaultIconFileString);
+            oos.writeObject(defaultIconFileName);
             oos.flush();
             oos.close();
             fos.close();
@@ -267,7 +268,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //----------------------------------------------------
     public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
-        defaultIconFileString = li.getDescription();
+        defaultIconFileName = li.getDescription();
         saveDefaults();
         setGroupChanged();
         preClose();

@@ -1,20 +1,10 @@
 /**  An intermediate class, extended by both Day Notes and Events.
  */
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
-
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 
 public abstract class IconNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
@@ -313,7 +303,7 @@ public abstract class IconNoteComponent extends NoteComponent {
 
                 showIconPopup(e);  // Show the popup menu
 
-                // Double click, left mouse button.
+            // Double click, left mouse button.
             } else if (e.getClickCount() == 2) {
                 System.out.print(""); // Don't care.
             } else { // Single Left Mouse Button
@@ -334,7 +324,7 @@ public abstract class IconNoteComponent extends NoteComponent {
                     // change, even if the source icon file does.  So - we preserve it
                     // in its original form, in the user's data location.  Of course,
                     // if a 'new' icon comes into system data, replacing one that used to have that
-                    // name, this 'solution' wlll cause the app to always display the old
+                    // name, this 'solution' will cause the app to always display the old
                     // one.  This obviously still needs work - perhaps need to also save
                     // the image..
                     File src = new File(iconFileName);
@@ -342,10 +332,10 @@ public abstract class IconNoteComponent extends NoteComponent {
                     String destFileName;
                     if(iconsIndex >= 0) {
                         destFileName = iconFileName.substring(iconsIndex);
-                        destFileName = MemoryBank.userDataHome + "/" + destFileName;
+                        destFileName = MemoryBank.userDataHome + File.separatorChar + destFileName;
                     } else {
                         // need to drop off the drive, convert filesep chars?
-                        destFileName = MemoryBank.userDataHome + "/" + iconFileName;
+                        destFileName = MemoryBank.userDataHome + File.separatorChar + iconFileName;
                     }
                     System.out.println("destFileName = " + destFileName);
                     File dest = new File(destFileName);

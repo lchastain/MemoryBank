@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.io.Serializable;
 
 public class TodoListProperties implements Serializable {
@@ -31,9 +30,9 @@ public class TodoListProperties implements Serializable {
     public String itemFont;
     public String deadFont;
 
-    public Dimension frameSize;  // Size of the Frame
+//    public Dimension frameSize;  // Size of the Frame
     public int scrollerPos;      // Position the Frame is vertically scrolled to.
-    public Point todoPos;        // Position of the Frame on the full screen
+//    public Point todoPos;        // Position of the Frame on the full screen
     public String listTitle;     // Title of the to do list
     public int numberOfItems;    // How many items in the list
     public String column1Label;
@@ -62,10 +61,10 @@ public class TodoListProperties implements Serializable {
         whenNoKey = TodoNoteGroup.BOTTOM;
 
         // This only matters to the stand-alone 'todo'.
-        frameSize = new Dimension(700, 480);
+//        frameSize = new Dimension(700, 480);
 
         scrollerPos = 0;
-        todoPos = new Point(100, 50);
+//        todoPos = new Point(100, 50);
         listTitle = "To Do List";
         numberOfItems = 15;
         column1Label = "Priority";

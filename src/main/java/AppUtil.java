@@ -5,17 +5,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import javax.swing.JOptionPane;
-
 public class AppUtil {
 
-    public static GregorianCalendar calTemp;
+    static GregorianCalendar calTemp;
 
     public static SimpleDateFormat sdf;
 
     private static Boolean blnGlobalArchive;
 
     private static Boolean blnGlobalDebug;
+
+    // This is a global flag that Test methods can check, to see if the defalt Notifier
+    // should be replaced with one that does not wait for user interaction with a JOptionPane.
+    // Reason to do that: so that all tests can run without user interaction.
+    // Reason to not do that: maximize test coverage.
+    // This flag is changed manually as needed for the desired effect, with Tests running afterwards.
+    static Boolean blnReplaceNotifiers = true;
 
     static {
         sdf = new SimpleDateFormat();
@@ -51,9 +56,10 @@ public class AppUtil {
         } // end try/catch
     } // end copy
 
+
     // Put this in a 'view' base class....
-    public static boolean[][] findDataDays(int year) {
-        boolean hasDataArray[][] = new boolean[12][31];
+    static boolean[][] findDataDays(int year) {
+        boolean[][] hasDataArray = new boolean[12][31];
         // Will need to normalize the month integers from 0-11 to 1-12
         // and the day integers from 0-30 to 1-31
 
@@ -61,7 +67,7 @@ public class AppUtil {
         String FileName = MemoryBank.userDataHome + File.separatorChar + year;
         // System.out.println("Looking in " + FileName);
 
-        String foundFiles[] = null;
+        String[] foundFiles = null;
 
         File f = new File(FileName);
         if (f.exists()) {
@@ -94,7 +100,7 @@ public class AppUtil {
     // unique for the indicated timeframe.
     // If no file exists, the return string is empty ("").
     // -----------------------------------------------------------------
-    public static String findFilename(GregorianCalendar cal, String which) {
+    static String findFilename(GregorianCalendar cal, String which) {
         String foundFiles[] = null;
         String lookfor = which;
         String fileName = MemoryBank.userDataHome + File.separatorChar;
@@ -130,16 +136,14 @@ public class AppUtil {
         // a valid condition that needs no further action.  Similarly,
         // the directory might exist but be empty; also allowed.
         if((foundFiles != null) && (foundFiles.length > 0)) {
-            if(foundFiles.length == 1) {
-                fileName = MemoryBank.userDataHome + File.separatorChar;
-                fileName += String.valueOf(cal.get(Calendar.YEAR));
-                fileName += File.separatorChar;
-                fileName += foundFiles[0];
-            }   else {
-                String ems = "File list contained multiple entries.";
-                JOptionPane.showMessageDialog(null, ems, "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+            // Previously we tried to handle the case of more than one file found for the same
+            // name prefix, but the JOptionPane error dialog cannot be shown here (possibly
+            // because it referenced a null parentComponent).  Further, if this occurs at
+            // startup then we'd never get past the splash screen.  So - we just take the first one.
+            fileName = MemoryBank.userDataHome + File.separatorChar;
+            fileName += String.valueOf(cal.get(Calendar.YEAR));
+            fileName += File.separatorChar;
+            fileName += foundFiles[0];
         }
         return fileName;
     } // end findFilename
@@ -247,7 +251,7 @@ public class AppUtil {
     // and truncated to a maximum of 'l' lines. If 'l' is
     // zero, the result is not truncated.
     // -------------------------------------------------------------
-    public static String getBrokenString(String s, int n, int l) {
+    static String getBrokenString(String s, int n, int l) {
         String strTheBrokenString;
         String strNextLine;
 
@@ -524,7 +528,7 @@ public class AppUtil {
     // BUT - there is no reason that those two could not also move
     // over there, since this method (and findFilename) is their only 'client'.
     // -----------------------------------------------------------------
-    public static String makeFilename(GregorianCalendar cal, String which) {
+    static String makeFilename(GregorianCalendar cal, String which) {
         String FileName = MemoryBank.userDataHome + File.separatorChar;
         FileName += String.valueOf(cal.get(Calendar.YEAR));
 
@@ -558,7 +562,9 @@ public class AppUtil {
         } // end constructor
 
         public boolean accept(File dir, String name) {
-            return name.startsWith(which);
+            boolean b1 = name.startsWith(which);
+            boolean b2 = !name.endsWith(".json");
+            return b1&b2;
         } // end accept
     } // end class logFileFilter
 

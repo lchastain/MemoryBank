@@ -1,20 +1,13 @@
 /**  User interface to manage notes associated with a Year.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static final long serialVersionUID = 1L;
@@ -79,7 +72,8 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     public void setChoice(Date d) {
 
         // If the new day is the same as the current one - return.
-        if (sdf.format(getChoice()).equals(sdf.format(d))) return;
+        Date myChoice = getChoice();
+        if (sdf.format(myChoice).equals(sdf.format(d))) return;
 
         super.setChoice(d);
         updateHeader();

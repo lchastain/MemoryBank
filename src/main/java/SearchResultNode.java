@@ -9,6 +9,7 @@ import java.util.Enumeration;
 //   node name will be 'Search Results'.
 //-------------------------------------------------------------------------
 public class SearchResultNode extends DefaultMutableTreeNode {
+    private static final long serialVersionUID = 1L; // inherited Serializable but do not use.
 
     public String strNodeName;
     public int intGroupSize;

@@ -1,7 +1,7 @@
 import javax.swing.*;
 
 public class AppMenuBar extends JMenuBar{
-    static final long serialVersionUID = 1L;
+//    static final long serialVersionUID = 1L;
 
     private static JMenu menuEditDay;
     private static JMenu menuEditMonth;

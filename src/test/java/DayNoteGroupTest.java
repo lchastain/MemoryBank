@@ -1,67 +1,87 @@
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-public class DayNoteGroupTest extends TestCase {
-    DayNoteGroup dng;
+class DayNoteGroupTest {
+    private DayNoteGroup dng;
 
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() {
         MemoryBank.setUserDataHome("lex@doughmain.net");
         dng = new DayNoteGroup();
     }
 
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         dng = null;
     }
 
-    public void testGetChoiceString() {
+    @Test
+    void testGetChoiceString() {
     }
 
-    public void testGetDefaultIcon() {
+    @Test
+    void testGetDefaultIcon() {
     }
 
-    public void testGetNoteComponent() {
+    @Test
+    void testGetNoteComponent() {
     }
 
-    public void testMakeNewNote() {
+    @Test
+    void testMakeNewNote() {
     }
 
-    public void testMouseClicked() {
+    @Test
+    void testMouseClicked() {
     }
 
-    public void testMouseEntered() {
+    @Test
+    void testMouseEntered() {
     }
 
-    public void testMouseExited() {
+    @Test
+    void testMouseExited() {
     }
 
-    public void testMousePressed() {
+    @Test
+    void testMousePressed() {
     }
 
-    public void testMouseReleased() {
+    @Test
+    void testMouseReleased() {
     }
 
-    public void testRecalc() {
+    @Test
+    void testRecalc() {
     }
 
-    public void testSetChoice() {
+    @Test
+    void testSetChoice() {
         Date d = new Date();
         dng.setChoice(d);
     }
 
-    public void testSetDefaultIcon() {
+    @Test
+    void testSetDefaultIcon() {
     }
 
-    public void testShiftDown() {
+    @Test
+    void testShiftDown() {
     }
 
-    public void testShiftUp() {
+    @Test
+    void testShiftUp() {
     }
 
-    public void testToggleMilitary() {
+    @Test
+    void testToggleMilitary() {
     }
 
-    public void testUpdateHeader() {
+    @Test
+    void testUpdateHeader() {
     }
 }

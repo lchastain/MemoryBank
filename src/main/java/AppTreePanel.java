@@ -28,7 +28,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class AppTreePanel extends JPanel implements TreeSelectionListener {
-    static final long serialVersionUID = 1L;
+//    static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
 
     static AppTreePanel ltTheTree;
@@ -36,7 +36,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     private static final int LIST_GONE = -3; // used in constr, createTree
 
-    private static AppMenuBar amb;
+    static AppMenuBar amb;
+    private Notifier optionPane;
     //-------------------------------------------------------------------
 
     private JTree tree;
@@ -91,12 +92,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         ltTheTree = this;
         this.appOpts = appOpts;
 
-        // Make the 'Working...' dialog.
+        //<editor-fold desc="Make the 'Working...' dialog">
         dlgWorkingDialog = new JDialog(theFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
         String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
-        strWorkingIcon += "icons/animated/const_anim.gif";
+        strWorkingIcon += "icons" + File.separatorChar + "animated" + File.separatorChar + "const_anim.gif";
         lbl.setIcon(new AppIcon(strWorkingIcon));
         lbl.setVerticalTextPosition(JLabel.TOP);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
@@ -104,14 +105,18 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         dlgWorkingDialog.pack();
         dlgWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         dlgWorkingDialog.setLocationRelativeTo(this);
+        //</editor-fold>
 
-        // Initialize the Search Panel from a new thread.
+        //<editor-fold desc="Initialize the Search Panel from a new thread">
         nodeSearchResults = null;
         new Thread(new Runnable() {
             public void run() {
                 spTheSearchPanel = new SearchPanel();
             }
         }).start();
+        //</editor-fold>
+
+        optionPane = new Notifier() { }; // Uses all default methods.
 
         //---------------------------------------------------
         // Create the menubar handler, but fire it from a
@@ -129,8 +134,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 }).start(); // Start the thread
             }
         };
-        //---------------------------------------------------
-
         //---------------------------------------------------------
         // Add the above handler to all menu items.
         //---------------------------------------------------------
@@ -1059,6 +1062,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end for
     }//end searchDataFile
 
+    // Used by test methods
+    public void setNotifier(Notifier newNotifier) {
+        optionPane = newNotifier;
+    }
 
     //--------------------------------------------------------------
     // Method Name:  showAbout
@@ -1131,8 +1138,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 String s;
                 s = "Error in loading " + pn + " !\n";
                 s += "The original list no longer exists.";
-                JOptionPane.showMessageDialog(this,
-                        s, "Error", JOptionPane.ERROR_MESSAGE);
+                optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 // The beauty of this action is that the path we are
                 // selecting does not actually have to be present
@@ -1278,7 +1284,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   a common method between all 5 groups, like isToday()
     //   or choiceIsDate(today).
     //--------------------------------------------------------
-    public void showToday() {
+    void showToday() {
         // Make sure that the most recent changes, if any, are preserved.
         preClose();
 

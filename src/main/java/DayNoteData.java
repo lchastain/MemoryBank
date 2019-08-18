@@ -3,16 +3,16 @@ import java.util.Date;
 
 class DayNoteData extends IconNoteData implements Serializable {
     private static final long serialVersionUID = -2202469274687602102L;
-    protected Date timeOfDayDate;
+    private Date timeOfDayDate;
 
-    public DayNoteData() {
+    DayNoteData() {
         super();
     } // end constructor
 
 
     // Alternate constructor, for starting
     //   with common base class data.
-    public DayNoteData(IconNoteData ind) {
+    DayNoteData(IconNoteData ind) {
         super(ind);
         // In this case, the invoking context is responsible for
         //   making an additional call to setTimeOfDayDate().
@@ -20,7 +20,7 @@ class DayNoteData extends IconNoteData implements Serializable {
 
 
     // The copy constructor (clone)
-    public DayNoteData(DayNoteData dnd) {
+    DayNoteData(DayNoteData dnd) {
         super(dnd);
 
         timeOfDayDate = dnd.timeOfDayDate;
@@ -33,11 +33,11 @@ class DayNoteData extends IconNoteData implements Serializable {
     } // end clear
 
 
-    public Date getTimeOfDayDate() {
+    Date getTimeOfDayDate() {
         return timeOfDayDate;
     }
 
-    public void setTimeOfDayDate(Date value) {
+    void setTimeOfDayDate(Date value) {
         timeOfDayDate = value;
     }
 

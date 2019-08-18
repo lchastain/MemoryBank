@@ -1,31 +1,23 @@
 /**  Representation of a single Day Note.
  */
+/**  Representation of a single Day Note.
+ */
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
-
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 
 public class DayNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
 
-    public static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
+    private static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
 
     // The Members
     private DayNoteData myDayNoteData;
-    protected NoteTimeLabel noteTimeLabel;
-    protected int myTimeAmPm = Calendar.AM_PM;
+    private NoteTimeLabel noteTimeLabel;
+    private int myTimeAmPm = Calendar.AM_PM;
     private Date myTime;
 
     // Private static values that are accessed from multiple contexts.
@@ -142,7 +134,7 @@ public class DayNoteComponent extends IconNoteComponent {
 
     // This method is called in response to a 'military' toggle
     //   as well as when initializing or updating the time.
-    public void resetTimeLabel() {
+    void resetTimeLabel() {
         if (myTime == null) {
             // The following statement could be needed if a DayNoteComponent had
             //   had its time cleared, and then it was being shifted up or down.

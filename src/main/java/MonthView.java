@@ -201,7 +201,7 @@ public class MonthView extends JLayeredPane {
                     iconFileString = tempDayData.getIconFileString();
                     if (iconFileString == null) {
                         // The default
-                        iconFileString = DayNoteGroup.defaultIconFileString;
+                        iconFileString = DayNoteGroup.defaultIconFileName;
                     } // end if
 
                     if (iconFileString.equals("")) {

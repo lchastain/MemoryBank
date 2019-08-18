@@ -3,13 +3,14 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 
-import java.awt.*;
-import java.io.*;      // File, InputStream, OutputStream, ...
-import java.nio.charset.StandardCharsets;
-import java.text.*;    // SimpleDateFormat, DateFormatSymbols
-import java.util.*;    // Vector, Date
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
+import java.awt.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class MemoryBank {
     //-------------------------------------------------
@@ -771,39 +772,7 @@ public class MemoryBank {
         try (FileWriter writer = new FileWriter(filename);
              BufferedWriter bw = new BufferedWriter(writer)) {
             bw.write(toJsonString(appOpts));
-        } catch (IOException ioe) {
-            // Since saveOpts is to be called via a shutdown hook that is not going to
-            // wait around for the user to 'OK' an error dialog, any error in saving
-            // will only be reported in a printout via MemoryBank.debug because
-            // otherwise the entire process will hang up waiting for the user's 'OK'
-            // on the dialog that will NOT be showing.
-
-            // A normal user will not see the debug error printout but
-            // they will most likely see other popups such as filesystem full, access
-            // denied, etc, that a sysadmin type can resolve for them, that will
-            // also fix this issue.
-            String ems = ioe.getMessage();
-            ems = ems + "\nMemory Bank options save operation aborted.";
-            MemoryBank.debug(ems);
-            // This popup caused a hangup and the vm had to be 'kill'ed.
-            // JOptionPane.showMessageDialog(null,
-            //    ems, "Error", JOptionPane.ERROR_MESSAGE);
-            // Yes, even though the parent was null.
-        } // end try/catch
-    } // end saveOpts
-
-
-    private static void saveOpts() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
-        MemoryBank.debug("Saving application option data in " + FileName);
-
-        try {
-            FileOutputStream fos = new FileOutputStream(FileName);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(appOpts);
-            oos.flush();
-            oos.close();
-            fos.close();
+            bw.flush();
         } catch (IOException ioe) {
             // Since saveOpts is to be called via a shutdown hook that is not going to
             // wait around for the user to 'OK' an error dialog, any error in saving

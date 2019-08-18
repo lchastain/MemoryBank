@@ -2,10 +2,19 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/16/2019 2129 - Finally got the JUnit libraries upgraded to ver. 5, had to learn that extending
+  a TestCase, and setup/teardown are no longer supported.  This will cascade changes through all
+  the test files done so far, and possibly in the other project as well.  But it's progress.
+  The key info was that it's no longer a single jar file, but several, but the best way to get
+  the right grouping is to search for junit-jupiter, then take a version number for that one
+  only and then it (as an overall package) pulls in all the rest such as the api, engine, etc.
+  With the selection of: org.junit.jupiter:junit-jupiter:5.5.1, I got a total of 8 jar files.
+
 8/09/2019 1045 - Problems in timing with running the 'showAbout' toggle test.  Kept failing for no
   good reason, but very intermittent; would always pass if all tests in the file were run.  Online
   search suggested getting a later version of IJ, so did that, for this project only.  It did fix
-  the test issues although one sleep is still needed.
+  the Null Exceptions although one sleep is still needed (in the test) because the tests drive the app
+  faster than it would happen under user control.
 
 8/06/2019 1346 - Added another test but this time needed a resource.  Getting the test file to
   read from a standard resources directory was supposed to be trivial - there were internet examples

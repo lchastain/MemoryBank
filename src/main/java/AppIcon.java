@@ -21,7 +21,7 @@ public class AppIcon extends ImageIcon {
         // Note: Do not construct with null - handle prior.
         MemoryBank.debug("Constructing AppIcon: " + a_filename);
         Image myImage = null;
-        String filename = a_filename.toLowerCase();
+        String filename = a_filename.toLowerCase(); // Not sure why I cared about this...
 
         // If this icon is being constructed for the iconChooser (or
         //   as a result of an iconChooser 'choice'), then 'filename'
@@ -30,15 +30,16 @@ public class AppIcon extends ImageIcon {
         // Get the position of 'icons' in filename.
         int iconsIndex = filename.indexOf("icons");
 
-        // If this icon is being reconstructed from saved
-        //   user data then 'filename' will be a relative
-        //   (short) path, so we need to prefix it with the
-        //   path to the user's data.
+        // The filename will only start with 'icons' when it is being reconstructed
+        // from saved user data.  So make the full path for it, by prefixing the
+        // user's data location, where they will have their own set of icons.
         if (iconsIndex == 0) {
-            filename = MemoryBank.userDataHome + "/" + filename;
+            filename = MemoryBank.userDataHome + File.separatorChar + filename;
+            iconsIndex = filename.indexOf("icons");
         } // end if
 
-        // Convert file separator characters, if needed.
+        // Convert file separator characters, if needed.  This makes for file system
+        // compatibility (even though we only expect to serve from one type of OS).
         char sep = File.separatorChar;
         if (sep != '/') filename = filename.replace(sep, '/');
 
@@ -59,6 +60,11 @@ public class AppIcon extends ImageIcon {
         } else {
             myImage = Toolkit.getDefaultToolkit().getImage(filename);
         } // end if
+
+        // The 'description' is used when saving - this is tricky; the description is picked up by the iconNoteComponent
+        // when the rest of the icon appears to come thru as null, but with the filename hidden in the description, we
+        // can restore it as needed.  See also:  iconNoteComponent.mouseClicked and setIcon.
+        setDescription(filename.substring(iconsIndex));
 
         // Consider just ending at this point; move the 'load and set' to the calling context, or add
         // another level of objects, for 'myImage'

@@ -38,7 +38,7 @@ public class CalendarNoteGroup extends NoteGroup {
     } // end constructor
 
 
-    // A NoteGroup does not have a 'choice'.
+    // A NoteGroup does not have a 'choice'; a CalendarNoteGroup does.
     public Date getChoice() {
         return choice;
     }
