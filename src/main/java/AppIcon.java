@@ -27,7 +27,7 @@ public class AppIcon extends ImageIcon {
         //   as a result of an iconChooser 'choice'), then 'filename'
         //   will be the full path to the icon file in Program Data.
 
-        // Get the position of 'icons' in filename.
+        // Get the position of 'icons' in filename.  But it will not be there at all, for Test data.
         int iconsIndex = filename.indexOf("icons");
 
         // The filename will only start with 'icons' when it is being reconstructed
@@ -61,13 +61,17 @@ public class AppIcon extends ImageIcon {
             myImage = Toolkit.getDefaultToolkit().getImage(filename);
         } // end if
 
-        // The 'description' is used when saving - this is tricky; the description is picked up by the iconNoteComponent
-        // when the rest of the icon appears to come thru as null, but with the filename hidden in the description, we
-        // can restore it as needed.  See also:  iconNoteComponent.mouseClicked and setIcon.
-        setDescription(filename.substring(iconsIndex));
+        // The 'description' IS used when saving - this is tricky; it may appear that this is not needed but the
+        // description is picked up by the iconNoteComponent when the rest of the icon appears to come thru as null.
+        // With the filename hiding in the place of the description, we can restore it as needed.
+        // See also:  iconNoteComponent.mouseClicked and setIcon.
+        if(iconsIndex > 0) {
+            // Only set the description if the icon comes from a 'planned' location.
+            // Otherwise we don't need a description, as in the case of Test data.
+            setDescription(filename.substring(iconsIndex));
+        }
 
-        // Consider just ending at this point; move the 'load and set' to the calling context, or add
-        // another level of objects, for 'myImage'
+        // Consider just ending at this point; could move the 'load and set' to the calling context.
         if (myImage == null) return;
         loadImage(myImage);  // Order matters..
         setImage(myImage);

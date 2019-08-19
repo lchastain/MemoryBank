@@ -3,9 +3,9 @@
 //   The modification mainly involves the addition of support for
 //   Windows .ico files.
 
-import java.io.File;
 import javax.swing.*;
-import javax.swing.filechooser.*;
+import javax.swing.filechooser.FileView;
+import java.io.File;
 
 public class IconFileView extends FileView {
 
@@ -54,10 +54,9 @@ public class IconFileView extends FileView {
                     extension.equals("gif") ||
                     extension.equals("tiff") ||
                     extension.equals("tif") ||
-                    extension.equals("ico") ||
-                    extension.equals("png")) {
+                    extension.equals("ico") || extension.equals("png")) {
                 AppIcon ai = new AppIcon(f.getPath());
-                if(ai.getImage() != null) icon = AppIcon.scaleIcon(ai);
+                if (ai.getImage() != null) icon = AppIcon.scaleIcon(ai);
             }
         } // end if extension not null
         return icon;
