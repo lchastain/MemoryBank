@@ -28,7 +28,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class AppTreePanel extends JPanel implements TreeSelectionListener {
-//    static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
 
     static AppTreePanel ltTheTree;
@@ -1295,22 +1295,23 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         String theCurrentView = tp.getLastPathComponent().toString();
         System.out.println("AppTreePanel.showToday path=" + theCurrentView);
 
-        if (theCurrentView.equals("Year View")) {
-            theYearView.setChoice(currentDateChoice);
-            return;
-        } else if (theCurrentView.equals("Month View")) {
-            theMonthView.setChoice(currentDateChoice);
-            return;
-        } else if (theCurrentView.equals("Day Notes")) {
-            theAppDays.setChoice(currentDateChoice);
-            return;
-        } else if (theCurrentView.equals("Month Notes")) {
-            theAppMonths.setChoice(currentDateChoice);
-            return;
-        } else if (theCurrentView.equals("Year Notes")) {
-            theAppYears.setChoice(currentDateChoice);
-            return;
-        } // end if
+        switch (theCurrentView) {
+            case "Year View":
+                theYearView.setChoice(currentDateChoice);
+                return;
+            case "Month View":
+                theMonthView.setChoice(currentDateChoice);
+                return;
+            case "Day Notes":
+                theAppDays.setChoice(currentDateChoice);
+                return;
+            case "Month Notes":
+                theAppMonths.setChoice(currentDateChoice);
+                return;
+            case "Year Notes":
+                theAppYears.setChoice(currentDateChoice);
+                return;
+        }
 
         // If we got thru to here, it means that we were already
         //   displaying today's date when the user requested us
@@ -1329,7 +1330,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end showToday
 
 
-    public void showWeek() {
+    void showWeek() {
         MemoryBank.debug("showWeek called.");
         // This method is called from an external context.
         tree.setSelectionPath(weekViewPath);
@@ -1403,19 +1404,25 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             String theLastSelection = tp.getLastPathComponent().toString();
             MemoryBank.debug("Last Selection was: " + theLastSelection);
 
-            if (theLastSelection.equals("Year View")) {
-                Date d = theYearView.getChoice();
-                // Unlike the others, a YearView choice MAY be null.
-                if (d != null) currentDateChoice = d;
-            } else if (theLastSelection.equals("Month View")) {
-                currentDateChoice = theMonthView.getChoice();
-            } else if (theLastSelection.equals("Day Notes")) {
-                currentDateChoice = theAppDays.getChoice();
-            } else if (theLastSelection.equals("Month Notes")) {
-                currentDateChoice = theAppMonths.getChoice();
-            } else if (theLastSelection.equals("Year Notes")) {
-                currentDateChoice = theAppYears.getChoice();
-            } // end if
+            switch (theLastSelection) {
+                case "Year View":
+                    Date d = theYearView.getChoice();
+                    // Unlike the others, a YearView choice MAY be null.
+                    if (d != null) currentDateChoice = d;
+                    break;
+                case "Month View":
+                    currentDateChoice = theMonthView.getChoice();
+                    break;
+                case "Day Notes":
+                    currentDateChoice = theAppDays.getChoice();
+                    break;
+                case "Month Notes":
+                    currentDateChoice = theAppMonths.getChoice();
+                    break;
+                case "Year Notes":
+                    currentDateChoice = theAppYears.getChoice();
+                    break;
+            }
             //-------------------------------------------------------------
         } // end if
 

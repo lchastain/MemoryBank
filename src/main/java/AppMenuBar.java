@@ -1,7 +1,7 @@
 import javax.swing.*;
 
 public class AppMenuBar extends JMenuBar{
-//    static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L; // JMenuBar wants this but we will not serialize.
 
     private static JMenu menuEditDay;
     private static JMenu menuEditMonth;
@@ -113,7 +113,7 @@ public class AppMenuBar extends JMenuBar{
 
     // Given a string to indicate what 'mode' we are in,
     // display the menus that are appropriate to that mode.
-    public void manageMenus(String strMenuType) {
+    void manageMenus(String strMenuType) {
         // Set a default of having the 'File' and 'View' menus only;
         //   let the specific cases below make any needed alterations.
         //-----------------------------------------
@@ -129,40 +129,51 @@ public class AppMenuBar extends JMenuBar{
         menuViewEvent.setVisible(false);
         menuViewDate.setVisible(false);
 
-        if (strMenuType.equals("Day Notes")) { // Day Notes
-            menuEditDay.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Month Notes")) { // Month Notes
-            menuEditMonth.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Month View")) { // Month View
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Year View")) { // Year View
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Search Result")) { // Search Results
-            menuFile.setVisible(false);
-            menuFileSearchResult.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true); // Temporary; should go away.
-        } else if (strMenuType.equals("Year Notes")) { // Year Notes
-            menuEditYear.setVisible(true);
-            menuView.setVisible(false);
-            menuViewDate.setVisible(true);
-        } else if (strMenuType.equals("Upcoming Events")) { // Upcoming Events
-            menuView.setVisible(false);
-            menuViewEvent.setVisible(true);
-        } else if (strMenuType.equals("To Do Lists")) { // TodoBranchHelper
-            menuFile.setVisible(false);
-            menuFileTodoBranch.setVisible(true);
-        } else if (strMenuType.equals("To Do List")) { // A List
-            menuFile.setVisible(false);
-            menuView.setVisible(false);
-            menuFileTodo.setVisible(true);
-            menuEditTodo.setVisible(true);
-        } // end if
+        switch (strMenuType) {
+            case "Day Notes":  // Day Notes
+                menuEditDay.setVisible(true);
+                menuView.setVisible(false);
+                menuViewDate.setVisible(true);
+                break;
+            case "Month Notes":  // Month Notes
+                menuEditMonth.setVisible(true);
+                menuView.setVisible(false);
+                menuViewDate.setVisible(true);
+                break;
+            case "Month View":  // Month View
+                menuView.setVisible(false);
+                menuViewDate.setVisible(true);
+                break;
+            case "Year View":  // Year View
+                menuView.setVisible(false);
+                menuViewDate.setVisible(true);
+                break;
+            case "Search Result":  // Search Results
+                menuFile.setVisible(false);
+                menuFileSearchResult.setVisible(true);
+                menuView.setVisible(false);
+                menuViewDate.setVisible(true); // Temporary; should go away.
+
+                break;
+            case "Year Notes":  // Year Notes
+                menuEditYear.setVisible(true);
+                menuView.setVisible(false);
+                menuViewDate.setVisible(true);
+                break;
+            case "Upcoming Events":  // Upcoming Events
+                menuView.setVisible(false);
+                menuViewEvent.setVisible(true);
+                break;
+            case "To Do Lists":  // TodoBranchHelper
+                menuFile.setVisible(false);
+                menuFileTodoBranch.setVisible(true);
+                break;
+            case "To Do List":  // A List
+                menuFile.setVisible(false);
+                menuView.setVisible(false);
+                menuFileTodo.setVisible(true);
+                menuEditTodo.setVisible(true);
+                break;
+        }
     } // end manageMenus
 } // end class AppMenuBar
