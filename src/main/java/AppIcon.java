@@ -89,19 +89,19 @@ public class AppIcon extends ImageIcon {
     // Method Name: scaleIcon
     //
     //-----------------------------------------------------
-    public static AppIcon scaleIcon(AppIcon li) {
+    public static void scaleIcon(AppIcon theIcon) {
         int theHeight, theWidth;
 
         boolean scaleIt = false;
-        Image tmpImg = li.getImage();
+        Image tmpImg = theIcon.getImage();
 
-        theHeight = li.getIconHeight();
+        theHeight = theIcon.getIconHeight();
         if (theHeight > 36) {
             theHeight = 36;
             scaleIt = true;
         } // end if
 
-        theWidth = li.getIconWidth();
+        theWidth = theIcon.getIconWidth();
         if (theWidth > 36) {
             theWidth = 36;
             scaleIt = true;
@@ -110,8 +110,7 @@ public class AppIcon extends ImageIcon {
         if (scaleIt) tmpImg = tmpImg.
                 getScaledInstance(theWidth, theHeight, Image.SCALE_SMOOTH);
 
-        li.setImage(tmpImg);
-        return li;
+        theIcon.setImage(tmpImg);
     } // end scaleIcon
 
 } // end class AppIcon

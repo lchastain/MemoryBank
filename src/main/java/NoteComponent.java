@@ -1,55 +1,56 @@
 /**  Representation of a single Note.
  */
 
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.border.SoftBevelBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
-
-import javax.swing.*;
-import javax.swing.event.*;   // DocumentListener
-import javax.swing.border.*;
 
 public class NoteComponent extends JPanel {
     private static final long serialVersionUID = 1L;
 
     // The Members
     private NoteData nd;
-    protected NoteTextField noteTextField;
+    NoteTextField noteTextField;
 
     // Needed by container classes to set their scrollbar unit increment.
     // BUT - change to protected and make daynote use/override it
-    public static final int NOTEHEIGHT = 24;
+    static final int NOTEHEIGHT = 24;
 
-    protected static final int NEEDS_TEXT = 77;    // Arbitrary values
-    public static final int HAS_BASE_TEXT = 88;
-    public static final int HAS_EXT_TEXT = 99;
+    static final int NEEDS_TEXT = 77;    // Arbitrary values
+    static final int HAS_BASE_TEXT = 88;
+    static final int HAS_EXT_TEXT = 99;
 
     // Static values that are accessed from multiple contexts.
-    protected static Border offBorder;
-    protected static Border redBorder;
-    protected static Border highBorder;
-    protected static Border lowBorder;
+    private static Border offBorder;
+    static Border redBorder;
+    static Border highBorder;
+    static Border lowBorder;
     protected static JPopupMenu popup;
 
     // This is a workaround for the restriction on
     //   the use of 'this' in a static context.  We can
     //   now get past the compile-time issues, and just
     //   have to be sure and set the value at runtime.
-    protected static NoteComponent ncTheNoteComponent;
+    static NoteComponent ncTheNoteComponent;
 
     // Internal Variables needed by more than one method -
     protected NoteGroup myNoteGroup;
     protected boolean initialized = false;
-    protected boolean noteChanged = false;
+    private boolean noteChanged = false;
     protected int index;
-    protected static JMenuItem miClearLine;
+    static JMenuItem miClearLine;
 
     static {
         //-----------------------------------
         // Create the borders.
         //-----------------------------------
-        //offBorder = BorderFactory.createLineBorder(Color.gray, 2);
         offBorder = LineBorder.createGrayLineBorder();
-        //offBorder = new EmptyBorder(0,3,0,0);
         redBorder = BorderFactory.createLineBorder(Color.red, 2);
         highBorder = new SoftBevelBorder(BevelBorder.RAISED);
         lowBorder = new SoftBevelBorder(BevelBorder.LOWERED);
@@ -574,7 +575,7 @@ public class NoteComponent extends JPanel {
         } // end removeUpdate
 
         public void changedUpdate(DocumentEvent e) {
-            // System.out.println("changedUpdate: " + e.toString());
+            System.out.println("changedUpdate: " + e.toString());
             getNoteData().setNoteString(getText());
             setNoteChanged();
         } // end changedUpdate
@@ -694,9 +695,6 @@ public class NoteComponent extends JPanel {
             String s = jm.getText();
             if (s.equals("Clear Line")) {
                 ncTheNoteComponent.clear();
-//        ncTheNoteComponent.myNoteGroup.reportComponentChange(ncTheNoteComponent, false);
-// moved to 'clear' 3/4/2008 - remove these lines if all is still working
-// after a while.        
             } else {
                 System.out.println(s);
             } // end if/else

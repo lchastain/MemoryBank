@@ -1,22 +1,14 @@
 /**  Representation of a single Day Note.
  */
 
-import java.awt.AWTEvent;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Date;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 
 public class TodoNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
@@ -399,7 +391,8 @@ public class TodoNoteComponent extends NoteComponent {
             return Priority;
         }
 
-        public int setPriority(int value) {
+        int setPriority(int value) {
+            if(!initialized) return -1;
             if (value < 0) return -1;
             if (value > myNoteGroup.getMaxPriority()) return -1;
             Priority = value;
@@ -562,6 +555,7 @@ public class TodoNoteComponent extends NoteComponent {
 
 
         public void setStatus(int i) {
+            if (!initialized) return;
             if (i < 0) return;
             if (i > TodoNoteData.TODO_OBE) return;
 

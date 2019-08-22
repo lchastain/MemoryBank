@@ -2,6 +2,9 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+
+
+
 8/16/2019 2129 - Finally got the JUnit libraries upgraded to ver. 5, had to learn that extending
   a TestCase, and setup/teardown are no longer supported.  This will cascade changes through all
   the test files done so far, and possibly in the other project as well.  But it's progress.

@@ -5,7 +5,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NoteDataTest {
+public class NoteDataTest {
     private NoteData nd;
 
     @BeforeEach

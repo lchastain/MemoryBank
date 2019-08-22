@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -228,13 +229,13 @@ public abstract class NoteGroup extends JPanel {
     //
     // Clear all data and the interface.
     //----------------------------------------------------------------
-    public void clearGroupData() {
+    void clearGroupData() {
         transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
         vectGroupData.clear();
         groupChanged = true;
-        saveGroup();
-        updateGroup();
+        saveGroup();   // Save the empty group (which will remove the file, if one exists).
+        updateGroup(); // This will fix the display when it tries to load a data file.
         groupNotesListPanel.invalidate(); // sometimes anomalous graphics remain.
         groupNotesListPanel.validate();   // sometimes anomalous graphics remain.
     } // end clearGroupData
@@ -243,25 +244,31 @@ public abstract class NoteGroup extends JPanel {
     //----------------------------------------------------------------
     // Method Name: clearPage
     //
-    // Clear data from all Notes in the interface.  It is possible
-    //   that one or more single lines have previously been cleared.
-    //   If so, do nothing on those lines.
+    // Clear data from all Notes in the interface.
+    // This does not update the components that are displayed, just
+    //  the underlying data objects.
     //----------------------------------------------------------------
-    public void clearPage() {
-        NoteComponent tempNote;
-
+    private void clearPage() {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
-        tempNote = (NoteComponent) groupNotesListPanel.getComponent(0);
-        if (tempNote.initialized) tempNote.clear();
 
-        for (int i = 1; i <= lastVisibleNoteIndex; i++) {
-            tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-            if (tempNote.initialized) tempNote.clear();
+        // A previous iteration of this method would only clear notes that had been
+        // initialized.  That condition takes as much overhead as just doing it, so
+        // the condition was removed.  It may have been a holdover from when there
+        // was an indeterminate number of notes in the interface.
+        for (int i = 0; i <= lastVisibleNoteIndex; i++) {
+            NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
+            tempNote.clear();
         } // end for
     } // end clearPage
 
 
     private boolean deleteFile(File f) {
+        // There are a couple of cases where we could try to delete a file that is not there.
+        // For example, when a NoteGroup had been started but then cleared, before it ever got
+        // saved in the first place.  Changes detected but no notes written upon leaving the
+        // group so it would try to delete a (non-existent) file.
+        if(!f.exists()) return true;
+
         if (!f.delete()) {
             (new Exception("File removal exception!")).printStackTrace();
             ems = "Error - unable to remove: " + f.getName();
@@ -733,7 +740,7 @@ public abstract class NoteGroup extends JPanel {
 
     //--------------------------------------------------------------------
     private static int saveDataJson(String theFilename, Vector<NoteData> vectNoteData, Object objProperties) {
-        FileWriter writer = null;
+        //FileWriter writer = null;
         BufferedWriter bw = null;
         Exception e = null;
         int notesWritten = 0;
@@ -754,24 +761,24 @@ public abstract class NoteGroup extends JPanel {
         }
 
 
-        // Construct the content, convert it to JSON, and write the file
-        notesWritten = trimmedList.size();
-        if(notesWritten > 0) {
+        // Wrap the remaining content, convert it to JSON, and write the file
+        if(trimmedList.size() > 0) {
             try {
-                writer = new FileWriter(theFilename + ".json");
+                FileOutputStream fileStream = new FileOutputStream(new File(theFilename + ".json"));
+                OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
                 bw = new BufferedWriter(writer);
 
                 if (objProperties != null) {
                     theGroup = new Object[2];
                     theGroup[0] = objProperties;
                     theGroup[1] = trimmedList;
-                    //bw.write(MemoryBank.toJsonString(objProperties));
                 } else {
                     theGroup = new Object[1];
                     theGroup[0] = trimmedList;
                 } // end if there is a properties object
 
                 bw.write(MemoryBank.toJsonString(theGroup));
+                notesWritten = trimmedList.size(); // This is only set AFTER the write.
 
             } catch (IOException ioe) {
                 // This is a catch-all for other problems that may
@@ -968,8 +975,10 @@ public abstract class NoteGroup extends JPanel {
             int nw = saveDataJson(strGroupFilename, vectGroupData, tmpProperties);
         } // end if
 
-        // We didn't try to write a file if there was no data, but an error
-        //   may have left a created file with no records.
+        // We didn't try to write a file if there was no data, but there are cases where
+        // a file might already be out there, that shouldn't be -
+        // for example, when all notes have been individually cleared out, or if a
+        // file was created for writing but then the writes failed.
         if (notesWritten == 0)
             if (tmpProperties == null) deleteFile(new File(strGroupFilename));
 

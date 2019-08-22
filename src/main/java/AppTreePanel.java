@@ -204,14 +204,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         MemoryBank.update("Restoring the previous selection");
         blnRestoringSelection = true;
         if (appOpts.theSelectionRow >= 0)
+            // If there is a 'good' value stored as the previous selection.
+            // But the value COULD be higher than any 'legal' value - still need to handle that (or explain why it's ok)
             tree.setSelectionRow(appOpts.theSelectionRow);
         else {
+            // There are a few cases where there would be no previous selection.
+            // Ex: Showing the About graphic, First-time-ever for this user, lost or corrupted AppOptions.
+            // In these cases leave as-is and the view will go to the About graphic.
+
+            // One other case, if the previous selection was a todo list that is no longer there.
+            // In this case the tree has been recreated without it, so go to the todo branch.
             if (appOpts.theSelectionRow == LIST_GONE) {
                 appOpts.theSelectionRow = tree.getRowForPath(todoPath);
                 tree.setSelectionRow(appOpts.theSelectionRow);
             } // end if
-            // Note - the 'else' here is that there was not a selection;
-            //  ie, the first time run.  In that case, leave as-is.
         } // end if
 
         blnRestoringSelection = false;
@@ -1586,7 +1592,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         amb.manageMenus(strSelectionType);
-        showWorkingDialog(false);
+        if(!blnRestoringSelection) showWorkingDialog(false);
     } // end treeSelectionChanged
 
 

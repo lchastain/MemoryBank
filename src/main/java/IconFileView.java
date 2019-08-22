@@ -45,7 +45,7 @@ public class IconFileView extends FileView {
     //   which does not always do that for all the file types that we specify below.
     public Icon getIcon(File f) {
         String extension = getExtension(f);
-        Icon icon = null;
+        Icon icon = null; // Return type is an interface, not a class.
 
         // System.out.println("Path is: " + f.getPath());
         if (extension != null) {
@@ -56,7 +56,10 @@ public class IconFileView extends FileView {
                     extension.equals("tif") ||
                     extension.equals("ico") || extension.equals("png")) {
                 AppIcon ai = new AppIcon(f.getPath());
-                if (ai.getImage() != null) icon = AppIcon.scaleIcon(ai);
+                if (ai.getImage() != null) {
+                    AppIcon.scaleIcon(ai);
+                    icon = ai;
+                }
             }
         } // end if extension not null
         return icon;

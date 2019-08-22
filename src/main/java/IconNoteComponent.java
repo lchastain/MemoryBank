@@ -9,21 +9,21 @@ import java.io.File;
 public abstract class IconNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
 
-    public static final int ICONNOTEHEIGHT = 38; // 24 is too small for icons.
+    static final int ICONNOTEHEIGHT = 38; // 24 is too small for icons.
 
     // The Members
-    protected NoteIcon noteIcon;
+    NoteIcon noteIcon;
 
     // Private static values that are accessed from multiple contexts.
-    protected static IconFileChooser iconChooser;
-    protected static JCheckBoxMenuItem siombMi;
-    protected static JMenuItem sadMi;
-    protected static JMenuItem resetMi;
-    protected static JMenuItem blankMi;
-    protected static JPopupMenu iconPopup;
+    private static IconFileChooser iconChooser;
+    private static JCheckBoxMenuItem siombMi;
+    private static JMenuItem sadMi;
+    private static JMenuItem resetMi;
+    private static JMenuItem blankMi;
+    private static JPopupMenu iconPopup;
 
     // A reference to the container that holds this component
-    protected iconKeeper myContainer;
+    private iconKeeper myContainer;
 
 
     static {
@@ -108,17 +108,18 @@ public abstract class IconNoteComponent extends NoteComponent {
     //
     // This is the NoteComponent (vs NoteIcon/JLabel) method.
     //-----------------------------------------------------
-    public void setIcon(AppIcon li) {
-        if ((li != myContainer.getDefaultIcon()) && (li != null)) {
-            // Do not save the default icon's filename.
-            //  (and scaling should have been done in the myNoteGroup).
-            String s = li.getDescription();
+    public void setIcon(AppIcon theIcon) {
+        // We don't want to save the name of the default icon, and it should have
+        //   already been scaled by the container for which it is the default.
+        // Otherwise, use the description as the icon's file name, and scale the icon.
+        if ((theIcon != myContainer.getDefaultIcon()) && (theIcon != null)) {
+            String s = theIcon.getDescription();
             ((IconNoteData) getNoteData()).setIconFileString(s);
             noteIcon.theIconFile = s;
-            li = AppIcon.scaleIcon(li);
+            AppIcon.scaleIcon(theIcon);
         } // end if
 
-        noteIcon.setIcon(li);
+        noteIcon.setIcon(theIcon);
     } // end setIcon
 
 

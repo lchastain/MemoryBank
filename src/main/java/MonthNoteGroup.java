@@ -1,20 +1,13 @@
 /**  User interface to manage notes associated with a Month.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static final long serialVersionUID = 1L;
@@ -92,7 +85,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     //
     // This header contains only a formatted date string.
     //--------------------------------------------------------------
-    public void updateHeader() {
+    private void updateHeader() {
         // Generate new title from current choice.
         monthTitle.setText(sdf.format(getChoice()));
     } // end updateHeader

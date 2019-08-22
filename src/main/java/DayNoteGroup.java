@@ -48,7 +48,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         } else {
             MemoryBank.debug("Default DayNoteComponent Icon: " + defaultIconFileName);
             defaultIcon = new AppIcon(defaultIconFileName);
-            defaultIcon = AppIcon.scaleIcon(defaultIcon);
+            AppIcon.scaleIcon(defaultIcon);
         } // end if/else
 
         MemoryBank.init();

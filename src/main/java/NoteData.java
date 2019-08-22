@@ -5,11 +5,11 @@ class NoteData implements Serializable {
     private static final long serialVersionUID = 5299342314918199917L;
 
     private Date dateLastMod;
-    protected String noteString;
-    protected String subjectString;
+    String noteString;
+    String subjectString;
     protected String extendedNoteString;
-    protected int extendedNoteWidthInt;
-    protected int extendedNoteHeightInt;
+    int extendedNoteWidthInt;
+    int extendedNoteHeightInt;
 
     public NoteData() {
         super();  // whatever happens for a generic object...
@@ -33,16 +33,16 @@ class NoteData implements Serializable {
     protected void clear() {
         noteString = "";
 
-        // initialize subject to null to indicate that a default should
-        // be used.  A value of "" should stay "".
-        subjectString = null;
+        // initialize subject to null to indicate that a group-specified default subject should be used.
+        // If someone actually enters a value of "" then that's what they will get, vs the default.
+        subjectString = null;  // null, not "".
 
         extendedNoteString = "";
         extendedNoteWidthInt = 300;
         extendedNoteHeightInt = 200;
     } // end clear
 
-    public int getExtendedNoteHeightInt() {
+    int getExtendedNoteHeightInt() {
         return extendedNoteHeightInt;
     }
 
@@ -50,7 +50,7 @@ class NoteData implements Serializable {
         return extendedNoteString;
     }
 
-    public int getExtendedNoteWidthInt() {
+    int getExtendedNoteWidthInt() {
         return extendedNoteWidthInt;
     }
 
@@ -63,7 +63,7 @@ class NoteData implements Serializable {
         return noteString;
     }
 
-    public Date getLastModDate() {
+    Date getLastModDate() {
         return dateLastMod;
     }
 
@@ -71,11 +71,11 @@ class NoteData implements Serializable {
         return subjectString;
     }
 
-    public boolean hasText() {
+    boolean hasText() {
         return !noteString.trim().equals("") || !extendedNoteString.trim().equals("");
     } // end hasText()
 
-    public void setExtendedNoteHeightInt(int val) {
+    void setExtendedNoteHeightInt(int val) {
         extendedNoteHeightInt = val;
     }
 
@@ -84,11 +84,11 @@ class NoteData implements Serializable {
         dateLastMod = new Date();
     }
 
-    public void setExtendedNoteWidthInt(int val) {
+    void setExtendedNoteWidthInt(int val) {
         extendedNoteWidthInt = val;
     }
 
-    public void setNoteString(String value) {
+    void setNoteString(String value) {
         noteString = value;
         dateLastMod = new Date();
     }

@@ -186,7 +186,7 @@ public class MemoryBank {
     //               specifies whether called from the static section
     //               or the constructor.
     //
-    // Recommended Usage: Call this method as the last line of the
+    // Recommended Usage: Call this method as the last line of a
     //                    constructor or static section.  Gives an
     //                    indication that the relevant section has
     //                    executed, and also can help in performance
@@ -720,10 +720,8 @@ public class MemoryBank {
         logFrame.getRootPane().setOpaque(false);
 
         // Use our own icon -
-//        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + "icon_not.gif");
-//        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + "notepad.gif");
         AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + appIconFileName);
-        theAppIcon = AppIcon.scaleIcon(theAppIcon);
+        AppIcon.scaleIcon(theAppIcon);
         logFrame.setIconImage(theAppIcon.getImage());
 
         logFrame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -795,7 +793,7 @@ public class MemoryBank {
     } // end saveOpts
 
 
-    public static String toJsonString(Object theObject) {
+    static String toJsonString(Object theObject) {
         String theJson = "";
         try {
             theJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theObject);

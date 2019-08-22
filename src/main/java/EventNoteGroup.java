@@ -2,15 +2,12 @@
 
  */
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.util.*;
-
-import javax.swing.*;
+import java.util.Date;
 
 public class EventNoteGroup extends NoteGroup
         implements iconKeeper, DateSelection {
@@ -47,7 +44,7 @@ public class EventNoteGroup extends NoteGroup
         } else {
             MemoryBank.debug("Default EventNoteComponent Icon: " + defaultIconFileString);
             defaultIcon = new AppIcon(defaultIconFileString);
-            defaultIcon = AppIcon.scaleIcon(defaultIcon);
+           AppIcon.scaleIcon(defaultIcon);
         } // end if/else
     } // end static section
 
