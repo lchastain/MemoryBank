@@ -96,12 +96,11 @@ public class AppUtil {
     // Method Name: findFilename
     //
     // Given a Calendar and a type of file to look for, this method
-    // will return the appropriate filename if it exists and is
-    // unique for the indicated timeframe.
+    // will return the appropriate filename if a file exists for the indicated timeframe.
     // If no file exists, the return string is empty ("").
     // -----------------------------------------------------------------
     static String findFilename(GregorianCalendar cal, String which) {
-        String foundFiles[] = null;
+        String[] foundFiles = null;
         String lookfor = which;
         String fileName = MemoryBank.userDataHome + File.separatorChar;
         fileName += String.valueOf(cal.get(Calendar.YEAR));
@@ -160,7 +159,7 @@ public class AppUtil {
     // If the parsing operations trip over a bad format,
     // a null will be returned.
     // -----------------------------------------------------------
-    public static Date getDateFromFilename(File f) {
+    static Date getDateFromFilename(File f) {
         String strAbsolutePath = f.getAbsolutePath();
         String strTheName = f.getName();
 
@@ -252,8 +251,8 @@ public class AppUtil {
     // zero, the result is not truncated.
     // -------------------------------------------------------------
     static String getBrokenString(String s, int n, int l) {
-        String strTheBrokenString;
-        String strNextLine;
+        StringBuilder strTheBrokenString;
+        StringBuilder strNextLine;
 
         int intLastBreak; // Index into the strNextLine
         int intCurrentCharCount; // Number of chars this line
@@ -269,12 +268,12 @@ public class AppUtil {
         int intLength = s.length();
         int intLineCount = 1;
 
-        byte aryTheChars[] = s.getBytes();
+        byte[] aryTheChars = s.getBytes();
 
         // Look through the character array and
         // insert line breaks as needed.
-        strTheBrokenString = "";
-        strNextLine = "";
+        strTheBrokenString = new StringBuilder();
+        strNextLine = new StringBuilder();
         intLastBreak = -1;
         intCurrentCharCount = 0;
         for (i = 0; i < intLength; i++) {
@@ -284,22 +283,22 @@ public class AppUtil {
             // Did we encounter a linefeed ?
             if (aryTheChars[i] == '\n') {
                 // First, take the line up to (not including) the lf.
-                strTheBrokenString += strNextLine;
-                strNextLine = "";
+                strTheBrokenString.append(strNextLine);
+                strNextLine = new StringBuilder();
 
                 // Now, bail if we're at the line limit.
                 if ((l > 0) && (intLineCount >= l))
                     break;
 
                 // Otherwise, add the lf
-                strTheBrokenString += '\n';
+                strTheBrokenString.append('\n');
                 intLineCount++;
 
                 // And reset the counts
                 intCurrentCharCount = 0;
                 intLastBreak = -1;
             } else {
-                strNextLine += (char) aryTheChars[i];
+                strNextLine.append((char) aryTheChars[i]);
             } // end if this char is a linefeed
 
             if (aryTheChars[i] == ' ') {
@@ -317,35 +316,35 @@ public class AppUtil {
             if (intCurrentCharCount > n) {
                 if (intLastBreak > 0) {
                     // We can break at the last whitespace
-                    strTheBrokenString += strNextLine.substring(0, intLastBreak + 1);
-                    strNextLine = strNextLine.substring(intLastBreak + 1);
+                    strTheBrokenString.append(strNextLine.substring(0, intLastBreak + 1));
+                    strNextLine = new StringBuilder(strNextLine.substring(intLastBreak + 1));
                     intLastBreak = -1;
                     intCurrentCharCount = strNextLine.length();
                 } else {
                     // The string has no logical breaks; just break here.
-                    strTheBrokenString += strNextLine.substring(0, n + 1);
-                    strNextLine = strNextLine.substring(n + 1); // one char
+                    strTheBrokenString.append(strNextLine.substring(0, n + 1));
+                    strNextLine = new StringBuilder(strNextLine.substring(n + 1)); // one char
                     intCurrentCharCount = strNextLine.length();
                 } // end if we had a good place to break the line
 
                 // Now, bail if we're at the line limit.
                 if ((l > 0) && (intLineCount >= l)) {
-                    strNextLine = "";
+                    strNextLine = new StringBuilder();
                     break;
                 }
 
                 // Otherwise, insert an lf and keep going
                 intLineCount++;
-                strTheBrokenString += '\n';
+                strTheBrokenString.append('\n');
             } // end if we need to break the line
         } // end for i
 
         // Take the remaining last partial line, if any.
-        strTheBrokenString += strNextLine;
+        strTheBrokenString.append(strNextLine);
 
         // System.out.println("Final line count: " + intLineCount);
 
-        return strTheBrokenString;
+        return strTheBrokenString.toString();
     } // end getBrokenString
 
     //--------------------------------------------------------
@@ -410,42 +409,42 @@ public class AppUtil {
     //   and time in the format:  yyyyMMddHHmmSS
     // Used in unique filename creation.
     //--------------------------------------------------------
-    public static String getTimestamp() {
-        String s;
+    static String getTimestamp() {
+        StringBuilder s;
 
         calTemp.setTime(new Date());
 
         int year = calTemp.get(Calendar.YEAR);
-        s = String.valueOf(year);
+        s = new StringBuilder(String.valueOf(year));
 
         // This should not be necessary unless the system time is hosed...
         while (s.length() < 4) {
-            s = "0" + s;
+            s.insert(0, "0");
         } // end while
 
-        s += getMonthIntString(calTemp.get(Calendar.MONTH));
+        s.append(getMonthIntString(calTemp.get(Calendar.MONTH)));
 
         int date = calTemp.get(Calendar.DATE);
         if (date < 10)
-            s += "0";
-        s += String.valueOf(date);
+            s.append("0");
+        s.append(String.valueOf(date));
 
         int hour = calTemp.get(Calendar.HOUR_OF_DAY);
         if (hour < 10)
-            s += "0";
-        s += String.valueOf(hour);
+            s.append("0");
+        s.append(String.valueOf(hour));
 
         int minute = calTemp.get(Calendar.MINUTE);
         if (minute < 10)
-            s += "0";
-        s += String.valueOf(minute);
+            s.append("0");
+        s.append(String.valueOf(minute));
 
         int second = calTemp.get(Calendar.SECOND);
         if (second < 10)
-            s += "0";
-        s += String.valueOf(second);
+            s.append("0");
+        s.append(String.valueOf(second));
 
-        return s;
+        return s.toString();
     } // end getTimestamp
 
     // -------------------------------------------------------

@@ -11,11 +11,11 @@ NoteGroup (base class):
     Handler: NoteComponent.java  keyTyped
     Expected Action: Bring up the Extended Note
 
- 3. Event: Double-click on a 'Time' field
+ 3. Event: Double-click on a 'Time' field (only applies to DayNoteComponent)
     Handler: NoteComponent.java$NoteTimeLabel.mouseClicked
     Expected Action: Bring up the TimeChooser
 
- 4. Event: Click on the icon field
+ 4. Event: Click on the icon field  (only applies to an IconNoteComponent)
     Handler: IconNoteComponent.java$NoteIcon.mouseClicked
     Expected Action: Bring up the IconChooser in the 'Icons' dir.
 

@@ -18,20 +18,20 @@ public class MemoryBank {
     //   to running 'main':
     //-------------------------------------------------
     private static ObjectMapper mapper = new ObjectMapper();
-    public static final int SAME_DAY = 0;
-    public static final int NEXT_DAY = 1;
-    public static final int PREV_DAY = 2;
+    static final int SAME_DAY = 0;
+    private static final int NEXT_DAY = 1;
+    private static final int PREV_DAY = 2;
 
-    public static Color amColor;
-    public static Color pmColor;
-    public static boolean archive;
-    public static boolean military; // Set by DayNoteGroup.  Preserved in appOpts.
+    static Color amColor;
+    static Color pmColor;
+    static boolean archive;
+    static boolean military; // Set by DayNoteGroup.  Preserved in appOpts.
     public static GregorianCalendar tempCalendar;
     public static SimpleDateFormat sdf;
     public static boolean debug;
     public static boolean event;
     public static boolean init;
-    public static boolean timing;
+    private static boolean timing;
     public static String userDataHome; // User data top-level directory 'mbankData'
     public static String logHome;  // For finding icons & images
     private static AppOptions appOpts;     // saved/loaded
@@ -105,11 +105,11 @@ public class MemoryBank {
     } // end static
 
 
-    public static AppTreePanel getAppTreePanel() {
+    static AppTreePanel getAppTreePanel() {
         return appTreePanel;
     }
 
-    private static void loadOptsJson() {
+    private static void loadOpts() {
         Exception e = null;
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
 
@@ -128,48 +128,6 @@ public class MemoryBank {
 
         if (e != null) {
             String ems = "Error in loading " + filename + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\nOptions load operation aborted.";
-            JOptionPane.showMessageDialog(null,
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-        } // end if
-    } // end loadOpts
-
-
-    //------------------------------------------------------
-    // Method Name: loadOpts
-    //
-    // Load the last known state of the app.  This includes
-    //  info about the tree as well as other settings.
-    //------------------------------------------------------
-    private static void loadOpts() throws IOException {
-        Exception e = null;
-        FileInputStream fis;
-        //AppOptions tmp;
-        Object tmp;
-
-        String FileName = MemoryBank.userDataHome + File.separatorChar + "app.options";
-
-        try {
-            fis = new FileInputStream(FileName);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            tmp = ois.readObject();
-            appOpts = new AppOptions(tmp);
-            ois.close();
-            fis.close();
-
-            // Temporary; this is not the change we need; need to change what is stored and retrieved,
-            // then the printout will not need a conversion.
-            System.out.println("JSON appOpts: " + toJsonString(appOpts));
-        } catch (ClassCastException | ClassNotFoundException | InvalidClassException | EOFException eeee) {
-            e = eeee;
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; use defaults.
-            debug("User tree options not found; using defaults");
-        }  // end try/catch
-
-        if (e != null) {
-            String ems = "Error in loading " + FileName + " !\n";
             ems = ems + e.toString();
             ems = ems + "\nOptions load operation aborted.";
             JOptionPane.showMessageDialog(null,
@@ -247,7 +205,7 @@ public class MemoryBank {
      * then exit the application when the user presses OK.
      */
     //------------------------------------------------------------------
-    public static void errorOut(String s) {
+    private static void errorOut(String s) {
         s += "\nThe MemoryBank program will terminate now.";
         JOptionPane.showMessageDialog(logFrame, s, "Error!",
                 JOptionPane.ERROR_MESSAGE);
@@ -280,7 +238,7 @@ public class MemoryBank {
 
     // Given a Date/Time format that is unique to the MemoryBank program,
     //  return the requested field from that format.
-    public static String getFieldFromFormat(int i, String initialFormat) {
+    static String getFieldFromFormat(int i, String initialFormat) {
         String s;
         int end = initialFormat.indexOf("|");
         if (end == -1) s = "";
@@ -385,13 +343,13 @@ public class MemoryBank {
     } // end getSeparatorFromFormat
 
 
-    public static String minuteToString(int minutes) {
+    static String minuteToString(int minutes) {
         if (minutes < 10) return "0" + String.valueOf(minutes);
         else return String.valueOf(minutes);
     } // end minuteToString
 
 
-    public static String hourToString(int hour) {
+    static String hourToString(int hour) {
         String s;
         if (military) {
             if (hour < 10) s = "0" + String.valueOf(hour);
@@ -406,7 +364,7 @@ public class MemoryBank {
     } // end hourToString
 
 
-    public static String makeTimeString() {
+    static String makeTimeString() {
         int minute = tempCalendar.get(Calendar.MINUTE);
 
         // Hour portion
@@ -427,7 +385,7 @@ public class MemoryBank {
     //  Return value indicates whether or not there was
     //  a day rollover.  Use other methods to access the
     //  resultant Calendar, if desired.
-    public static int modMinute(Date d, int m) {
+    static int modMinute(Date d, int m) {
         tempCalendar.setTime(d);
         int minutes = tempCalendar.get(Calendar.MINUTE);
         int dayStart = tempCalendar.get(Calendar.DAY_OF_MONTH);
@@ -533,7 +491,7 @@ public class MemoryBank {
     public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
         String currentDir = System.getProperty("user.dir");
-        System.out.println("The current working directory is: " + currentDir);
+        MemoryBank.debug("The current working directory is: " + currentDir);
         File f = new File("appData"); // Look first in current dir.
         String loc;
         if (f.exists()) {
@@ -544,7 +502,7 @@ public class MemoryBank {
             loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
             appIconFileName = "icon_not.gif";
         }
-        System.out.println("Setting user data location to: " + loc);
+        MemoryBank.debug("Setting user data location to: " + loc);
 
         boolean answer = true;
         f = new File(loc);
@@ -606,7 +564,7 @@ public class MemoryBank {
     //
     // Description:  Prints the input parameter with a timestamp.
     //-----------------------------------------------------------------
-    public static void timing(String s) {
+    private static void timing(String s) {
         if (timing) System.out.println(new Date() + "  " + s);
     } // end timing
 
@@ -704,9 +662,8 @@ public class MemoryBank {
 
         setUserDataHome(userEmail);
 
-        // Load the user settings - will not exist for new user but if available, can override defaults.
-        //loadOpts(); // If available, overrides defaults.
-        loadOptsJson();  // TODO Next time:  remove the old one, take its name.
+
+        loadOpts();  // Load the user settings - will not exist for new user but if available, can override defaults.
         // New attributes to store and retrieve (future work):
         // size of main frame         - only if it makes sense after the future sizing work is done.
         // location of main frame     - only if it makes sense after the future sizing work is done.
@@ -740,6 +697,9 @@ public class MemoryBank {
 
         update("Laying out graphical components");
         logFrame.pack();
+        Dimension d = logFrame.getSize();
+        System.out.println("Default Frame Size: " + d.toString());
+        logFrame.setSize(850, 600);  // explicit
 
         logFrame.setLocationRelativeTo(null); // Center
         logFrame.setVisible(true);

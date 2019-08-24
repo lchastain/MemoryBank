@@ -605,10 +605,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("About")) showAbout();
         else if (what.equals("Add New List...")) TodoBranchHelper.addNewList(tree);
         else if (what.equals("Close")) closeSearchResult();
-        else if (what.equals("Clear Day")) theAppDays.clearGroupData();
-        else if (what.equals("Clear Month")) theAppMonths.clearGroupData();
-        else if (what.equals("Clear Year")) theAppYears.clearGroupData();
-        else if (what.equals("Clear Entire List")) theNoteGroup.clearGroupData();
+        else if (what.equals("Clear Day")) theAppDays.clearGroup();
+        else if (what.equals("Clear Month")) theAppMonths.clearGroup();
+        else if (what.equals("Clear Year")) theAppYears.clearGroup();
+        else if (what.equals("Clear Entire List")) theNoteGroup.clearGroup();
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Export")) doExport();
         else if (what.equals("Search...")) showSearchDialog();

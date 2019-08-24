@@ -5,9 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 
-public class ToggleAboutTest {
+class ToggleAboutTest {
     private static AppTreePanel atp;
-    private JTree theTree;
     private int theSelectionRow;
     private AppMenuBar amb;
 
@@ -26,14 +25,11 @@ public class ToggleAboutTest {
         // In this case we've chosen a relatively low (safer) value, currently
         // should be 'Notes', with the first two being singles, and 'Views' collapsed.
         theSelectionRow = 3;
-
-        theTree = atp.getTree();
         amb = AppTreePanel.amb;
     }
 
     @AfterEach
     void tearDown() throws InterruptedException {
-        theTree = null;
         amb = null;
         // These tests drive the app faster than it would go if it was only under user control.
         Thread.sleep(200); // Otherwise we see NullPointerExceptions after tests pass.

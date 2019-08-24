@@ -15,8 +15,8 @@ public class AppTreePanelTest implements Notifier {
     @BeforeAll
     static void meFirst() {
         // The problem with just having this in the BeforeEach was that we started
-        // multiple JMenuItem listeners and not all of them would go away before
-        // they were activated by other tests, causing much confusion.
+        // multiple JMenuItem listeners with each new atp, and not all of them would
+        // go away before they were activated by other tests, causing much confusion.
         atp = new AppTreePanel(new JFrame(), new AppOptions());
     }
 
@@ -65,11 +65,15 @@ public class AppTreePanelTest implements Notifier {
         // No assertions needed here; we're just assuring coverage.
     }
 
+    // VERIFY that this is still needed - the functional test also covers this code.
+    // But - if there were to be a failure, wouldn't a simpler test be able to track
+    // down the problem more easily?
+
     // A critical assumption, currently, is that if no node of the
     // tree is selected, it means that the About graphic is shown.
     // Future dev on the tree MAY offer other cases where the
     // selection is null and if so, this could need rework.
-    public void testShowAbout() throws Exception {
+    public void testShowAbout() {
         JTree theTree = atp.getTree();
         int[] theRows;
 
@@ -170,32 +174,36 @@ public class AppTreePanelTest implements Notifier {
         JMenuItem jmi = getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
         //atp.showHelp("badFile"); // This is NOT throwing an exception, but putting up a 'cant find file' window/message.
+        System.out.println("End testShowHelp");
     }
 
     @Test
-    public void testShowMonth() throws Exception {
+    void testShowMonth() throws Exception {
         atp.showMonth();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Month View");
+        System.out.println("End testShowMonth");
     }
 
     @Test
-    public void testShowToday() throws Exception {
+    void testShowToday() throws Exception {
         atp.showToday();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         // Not sure what else to look for, here.  We would need to know what view
         // was previously showing, so we could get its choice and do a compare.
         // Doesn't seem necessary.
+        System.out.println("End testShowToday");
     }
 
     @Test
-    public void testShowWeek() throws Exception {
+    void testShowWeek() throws Exception {
         atp.showWeek();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Week View");
+        System.out.println("End testShowWeek");
     }
 
 }

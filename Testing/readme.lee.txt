@@ -22,12 +22,29 @@ Run configurations, to run either All or one, and if you want a specific groupin
 capability and make a Run configuration for that one suite class.  The possibility of Suites makes
 the 'run all' option less-and-less attractive, and as more tests of different flavors come on line,
 running ALL tests will become counter-productive and altogether undesirable.
+Update 8/24 and continuing on that note, now find that the context menu on each subdirectory gives an
+option to run all the tests in it.  It did NOT seem to offer that option before, and now I don't
+even see the 'all' option.  Possibly this happened upon project reload or IJ restart.  So it reduces
+the need for suites but not entirely; a suite could still be a subset of all the tests in a directory,
+or could even span directories.
 
-Note that tests are run either command-line java, or via Intellij.  There is no 'mvn test' capability
-because the project is not (yet?) mavenized.
+Note that tests are run via Intellij.  There is no 'mvn test' capability
+because the project is not (yet?) mavenized.  A command-line pure Java approach is also possible but
+too unwieldly given the classpath requirements to point to a test class.
+
+
+Test classes and suites annotated with @RunWith(JUnitPlatform.class) cannot be executed directly on the JUnit Platform
+(or as a "JUnit 5" test as documented in some IDEs). Such classes and suites can only be executed using JUnit 4 infrastructure.
 
 It took a while to understand that JUnit5 test suites are just the embedded (vintage) backwards
 compatibility for JUnit4; you cannot do away with the @RunWith, but you do need to change which
 library provides it, and IntelliJ will always first suggests the earlier libs so that's a
 problem if you don't already know what you need.  Hours of internet research and I got it working
 but couldn't say exactly how; many new libraries were downloaded and referenced.
+
+What seems like excessive blank lines in the IntelliJ console when running tests - comes from the framework itself,
+adding one blank line before each test and one after.  So if your test has NO output, running it will still display
+two blank lines.  Several tests like this run back-to-back will appear to have produced several blank lines into
+the console.  Then there is another one before the "Process finished" line.  For now - live with it.
+
+

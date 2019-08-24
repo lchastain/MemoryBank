@@ -1,4 +1,3 @@
-import java.io.Serializable;
 import java.util.Vector;
 
 //-------------------------------------------------------------------------
@@ -26,7 +25,7 @@ class AppOptions {
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
     boolean military;
 
-    public AppOptions() {
+    AppOptions() {
         ViewsExpanded = false;
         NotesExpanded = false;
         TodoListsExpanded = false;

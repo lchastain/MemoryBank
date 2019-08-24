@@ -46,6 +46,7 @@ public class AppIcon extends ImageIcon {
         if (filename.endsWith(".ico")) {
             try {
                 List<BufferedImage> images = ICODecoder.read(new File(filename));
+                // Leave this, until we find what's making the blank lines in between two of these during test runs.
                 System.out.println("ico file image count: " + images.size());
                 myImage = images.get(0);
             } catch (IOException ioe) {

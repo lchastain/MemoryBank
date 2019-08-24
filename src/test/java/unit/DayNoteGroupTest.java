@@ -19,45 +19,45 @@ class DayNoteGroupTest {
         dng = null;
     }
 
-    @Test
-    void testGetChoiceString() {
-    }
-
-    @Test
-    void testGetDefaultIcon() {
-    }
-
-    @Test
-    void testGetNoteComponent() {
-    }
-
-    @Test
-    void testMakeNewNote() {
-    }
-
-    @Test
-    void testMouseClicked() {
-    }
-
-    @Test
-    void testMouseEntered() {
-    }
-
-    @Test
-    void testMouseExited() {
-    }
-
-    @Test
-    void testMousePressed() {
-    }
-
-    @Test
-    void testMouseReleased() {
-    }
-
-    @Test
-    void testRecalc() {
-    }
+//    @Test
+//    void testGetChoiceString() {
+//    }
+//
+//    @Test
+//    void testGetDefaultIcon() {
+//    }
+//
+//    @Test
+//    void testGetNoteComponent() {
+//    }
+//
+//    @Test
+//    void testMakeNewNote() {
+//    }
+//
+//    @Test
+//    void testMouseClicked() {
+//    }
+//
+//    @Test
+//    void testMouseEntered() {
+//    }
+//
+//    @Test
+//    void testMouseExited() {
+//    }
+//
+//    @Test
+//    void testMousePressed() {
+//    }
+//
+//    @Test
+//    void testMouseReleased() {
+//    }
+//
+//    @Test
+//    void testRecalc() {
+//    }
 
     @Test
     void testSetChoice() {
@@ -65,23 +65,23 @@ class DayNoteGroupTest {
         dng.setChoice(d);
     }
 
-    @Test
-    void testSetDefaultIcon() {
-    }
-
-    @Test
-    void testShiftDown() {
-    }
-
-    @Test
-    void testShiftUp() {
-    }
-
-    @Test
-    void testToggleMilitary() {
-    }
-
-    @Test
-    void testUpdateHeader() {
-    }
+//    @Test
+//    void testSetDefaultIcon() {
+//    }
+//
+//    @Test
+//    void testShiftDown() {
+//    }
+//
+//    @Test
+//    void testShiftUp() {
+//    }
+//
+//    @Test
+//    void testToggleMilitary() {
+//    }
+//
+//    @Test
+//    void testUpdateHeader() {
+//    }
 }

@@ -1,6 +1,3 @@
-/** This class provides the 'splash' window for the Log application.
- */
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -25,7 +22,7 @@ public class AppSplash extends JWindow {
     } // end constructor
 
 
-    public void setProgress(String message, int progress) {
+    void setProgress(String message, int progress) {
         final int theProgress = progress;
         final String theMessage = message;
         progressBar.setValue(theProgress);

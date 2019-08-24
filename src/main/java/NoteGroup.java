@@ -1,8 +1,3 @@
-/**
- * NoteGroup provides a container for the management of
- * a NoteComponent collection.
- */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -16,18 +11,18 @@ public abstract class NoteGroup extends JPanel {
     static final long serialVersionUID = 1L;
 
     // Status report codes for Load / Save
-    public static final int INITIAL = 500;
-    public static final int ONGOING = 501;
-    public static final int DELETEOLDFILEFAILED = 502;
-    public static final int DIRECTORYINMYPLACE = 503;
-    public static final int CANNOTMAKEAPATH = 504;
-    public static final int FILEINMYDIRPATH = 505;
-    public static final int OTHERFAILURE = 506;
-    public static final int SUCCEEDED = 600;
+    private static final int INITIAL = 500;
+    static final int ONGOING = 501;
+    private static final int DELETEOLDFILEFAILED = 502;
+    private static final int DIRECTORYINMYPLACE = 503;
+    private static final int CANNOTMAKEAPATH = 504;
+    private static final int FILEINMYDIRPATH = 505;
+    private static final int OTHERFAILURE = 506;
+    private static final int SUCCEEDED = 600;
 
     // Directions for Sort operations
-    protected static final int ASCENDING = 0;
-    protected static final int DESCENDING = 1;
+    static final int ASCENDING = 0;
+    static final int DESCENDING = 1;
 
     //=============================================================
     // Members that child classes may access directly
@@ -153,7 +148,7 @@ public abstract class NoteGroup extends JPanel {
     //   there are no more hidden notes to show, in which case it will
     //   create a new page.
     //----------------------------------------------------------------------
-    public void activateNextNote(int noteIndex) {
+    void activateNextNote(int noteIndex) {
         if (noteIndex < lastVisibleNoteIndex) return;  // already showing.
 
         if (lastVisibleNoteIndex < intHighestNoteComponentIndex) {
@@ -225,41 +220,41 @@ public abstract class NoteGroup extends JPanel {
 
 
     //----------------------------------------------------------------
-    // Method Name: clearGroupData
+    // Method Name: clearGroup
     //
     // Clear all data and the interface.
     //----------------------------------------------------------------
-    void clearGroupData() {
+    void clearGroup() {
         transferFocusUpCycle(); // Otherwise can get unwanted focus events.
-        clearPage();
+        clearData();
         vectGroupData.clear();
         groupChanged = true;
         saveGroup();   // Save the empty group (which will remove the file, if one exists).
-        updateGroup(); // This will fix the display when it tries to load a data file.
+        updateGroup(); // The display will be cleared when it tries to load a data file.
         groupNotesListPanel.invalidate(); // sometimes anomalous graphics remain.
         groupNotesListPanel.validate();   // sometimes anomalous graphics remain.
-    } // end clearGroupData
+    } // end clearGroup
 
 
     //----------------------------------------------------------------
-    // Method Name: clearPage
+    // Method Name: clearData
     //
     // Clear data from all Notes in the interface.
     // This does not update the components that are displayed, just
     //  the underlying data objects.
     //----------------------------------------------------------------
-    private void clearPage() {
+    private void clearData() {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
 
         // A previous iteration of this method would only clear notes that had been
-        // initialized.  That condition takes as much overhead as just doing it, so
-        // the condition was removed.  It may have been a holdover from when there
-        // was an indeterminate number of notes in the interface.
+        // initialized.  Testing for that condition first on every note takes more overhead
+        // than just doing it to some that don't need it, so the condition was removed.  It may have been
+        // a holdover from when there was an indeterminate number of notes in the interface.
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
             tempNote.clear();
         } // end for
-    } // end clearPage
+    } // end clearData
 
 
     private boolean deleteFile(File f) {
@@ -377,7 +372,7 @@ public abstract class NoteGroup extends JPanel {
     // -------------------------------------------------------------------
     public abstract String getGroupFilename();
 
-    protected int getHighestNoteComponentIndex() {
+    int getHighestNoteComponentIndex() {
         return intHighestNoteComponentIndex;
     }
 
@@ -422,7 +417,7 @@ public abstract class NoteGroup extends JPanel {
     //
     // Called by the pager control
     //--------------------------------------------------------------------
-    public void gotoPage(int pageTo) {
+    void gotoPage(int pageTo) {
         MemoryBank.debug("Paging To Page: " + pageTo);
         // We do a saveGroup here vs an unloadInterface, because:
         //   1.  We can skip it if there were no changes (fast).
@@ -487,13 +482,9 @@ public abstract class NoteGroup extends JPanel {
                     } // end if
                 } // end try/catch
             }//end while
-        } catch (ClassNotFoundException | InvalidClassException cnfe) {
-            e = cnfe;
-        } catch (FileNotFoundException fnfe) {
-            e = fnfe;
         } catch (EOFException eofe) { // Normal, expected.
-        } catch (IOException ioe) {
-            e = ioe;
+        } catch (ClassNotFoundException | IOException ee) {
+            e = ee;
         } finally {
             try {
                 if (ois != null) ois.close();
@@ -536,15 +527,15 @@ public abstract class NoteGroup extends JPanel {
         //   itself remains the same.
         strGroupFilename = getGroupFilename();
 
-        System.out.println("NoteGroup loadGroup: " + strGroupFilename);
+        MemoryBank.debug("NoteGroup loadGroup: " + strGroupFilename);
         // We do the 'exists' test here rather than
         //   as a 'catch' when opening, because non-existence is to be
-        //   treated as a valid and normal situation.
+        //   treated as a valid, normal and frequent situation.
         if (!new File(strGroupFilename).exists()) {
             // Setting the name to 'empty' IS needed; it is examined when
             //   saving and if non-empty, the old file is deleted first.  Of
-            //   course, if the file does not exist, we don't want to let it
-            //   try to do that.
+            //   course, if the file already does not exist, we don't want
+            //   to let it try to do that.
             strGroupFilename = "";
             return;
         } // end if
@@ -681,7 +672,7 @@ public abstract class NoteGroup extends JPanel {
     } // end pageNumberChanged
 
 
-    protected void postSort() {
+    void postSort() {
         // Display the same page, now with possibly different contents.
         loadInterface(npThePager.getCurrentPage());
         resetVisibility();
@@ -699,7 +690,7 @@ public abstract class NoteGroup extends JPanel {
     } // end preClose
 
 
-    protected void preSort() {
+    void preSort() {
         // Preserve current interface changes before sorting.
         unloadInterface(npThePager.getCurrentPage());
     } // end preSort
@@ -734,21 +725,20 @@ public abstract class NoteGroup extends JPanel {
         for (int i = lastVisibleNoteIndex + 1; i <= intHighestNoteComponentIndex; i++) {
             tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
             tempNote.setVisible(false);
+            tempNote.initialized = false;  // this is new (8/24/2019)
+            // needed for the ClearGroupTest but also may fix other current issues such as ability to add extended text to a non-note, priority changes, etc.
         } // end for i
     } // end resetVisibility
 
+    int getNoteCount() {
+        return vectGroupData.size();
+    }
 
-    //--------------------------------------------------------------------
-    private static int saveDataJson(String theFilename, Vector<NoteData> vectNoteData, Object objProperties) {
-        //FileWriter writer = null;
-        BufferedWriter bw = null;
-        Exception e = null;
-        int notesWritten = 0;
-        Object[] theGroup;  // A new 'wrapper' for the Properties + List
+    Vector<NoteData> getCondensedInfo() {
         Vector<NoteData> trimmedList = new Vector<>();
 
         // Xfer the 'good' data over to a new, temporary Vector.
-        for (NoteData tempNoteData : vectNoteData) {
+        for (NoteData tempNoteData : vectGroupData) {
 
             // This can happen with an 'empty' NoteGroup.
             if (tempNoteData == null) continue;
@@ -759,7 +749,16 @@ public abstract class NoteGroup extends JPanel {
             // Add each 'good' note to the 'keeper' list.
             trimmedList.add(tempNoteData);
         }
+        return trimmedList;
+    }
 
+    //--------------------------------------------------------------------
+    private int saveDataJson(String theFilename, Object objProperties) {
+        BufferedWriter bw = null;
+        Exception e = null;
+        int notesWritten = 0;
+        Object[] theGroup;  // A new 'wrapper' for the Properties + List
+        Vector<NoteData> trimmedList = getCondensedInfo();
 
         // Wrap the remaining content, convert it to JSON, and write the file
         if(trimmedList.size() > 0) {
@@ -839,6 +838,9 @@ public abstract class NoteGroup extends JPanel {
                     continue;
                 } // end if
 
+                // POSSIBLE problem here - a SearchResultGroup CAN be saved with no data; just its properties.
+                // see if this needs a fix, and add possibly a test.
+
                 // Don't save if no significant text.
                 if (tempNoteData.getNoteString().trim().equals(""))
                     if (tempNoteData.getExtendedNoteString().trim().equals(""))
@@ -849,15 +851,13 @@ public abstract class NoteGroup extends JPanel {
                 MemoryBank.debug("NoteGroup.saveData - wrote note " + notesWritten);
             } // end for each data item in the vector
 
-        } catch (FileNotFoundException fnfe) {
+        } catch (IOException fnfe) {
             // 'not found' is actually expected for cases where we are
             // writing a new file, and it will not throw this exception.
             // The exception is a catch-all for other problems that may
             // arise, such as finding a directory of the
             // same name, or not having write permission.
             e = fnfe;
-        } catch (IOException ioe) {
-            e = ioe;
         } finally {
             try {
                 if (oos != null) oos.flush();
@@ -972,7 +972,7 @@ public abstract class NoteGroup extends JPanel {
         if ((tmpProperties != null) || (vectGroupData.size() > 0)) {
             // Now save the notes from the vectGroupData.
             notesWritten = saveData(strGroupFilename, vectGroupData, tmpProperties);
-            int nw = saveDataJson(strGroupFilename, vectGroupData, tmpProperties);
+            int nw = saveDataJson(strGroupFilename, tmpProperties);
         } // end if
 
         // We didn't try to write a file if there was no data, but there are cases where
@@ -994,7 +994,7 @@ public abstract class NoteGroup extends JPanel {
     } // end saveGroup
 
 
-    public void setGroupHeader(Container c) {
+    void setGroupHeader(Container c) {
         jsp.setColumnHeaderView(c);
     } // end setGroupHeader
 
@@ -1119,7 +1119,7 @@ public abstract class NoteGroup extends JPanel {
 
 
     // Returns a short (no path) version of the strGroupFilename
-    public String shortName() {
+    private String shortName() {
         String s = strGroupFilename;
         int ix = s.lastIndexOf(File.separatorChar);
         if (ix != -1) s = s.substring(ix + 1);
@@ -1127,14 +1127,14 @@ public abstract class NoteGroup extends JPanel {
     } // end shortName
 
 
-    protected void sortLastMod(int direction) {
+    void sortLastMod(int direction) {
 
         // Preserve current interface changes before sorting.
         unloadInterface(npThePager.getCurrentPage());
 
         // Do the sort
         LastModComparator lmc = new LastModComparator(direction);
-        Collections.sort(vectGroupData, lmc);
+        vectGroupData.sort(lmc);
 
         // Display the same page, now with possibly different contents.
         loadInterface(npThePager.getCurrentPage());
@@ -1142,14 +1142,14 @@ public abstract class NoteGroup extends JPanel {
     } // end sortLastMod
 
 
-    protected void sortNoteString(int direction) {
+    void sortNoteString(int direction) {
 
         // Preserve current interface changes before sorting.
         unloadInterface(npThePager.getCurrentPage());
 
         // Do the sort
         NoteStringComparator nsc = new NoteStringComparator(direction);
-        Collections.sort(vectGroupData, nsc);
+        vectGroupData.sort(nsc);
 
         // Display the same page, now with possibly different contents.
         loadInterface(npThePager.getCurrentPage());
@@ -1214,7 +1214,7 @@ public abstract class NoteGroup extends JPanel {
     //   the calling context should first call 'preClose'.
     //----------------------------------------------------
     public void updateGroup() {
-        clearPage(); // Clears the data (not Components) from the interface.
+        clearData(); // Clears the data (not Components) from the interface.
 
         // This is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition
@@ -1235,7 +1235,7 @@ public abstract class NoteGroup extends JPanel {
     } // end updateGroup
 
 
-    class LastModComparator implements Comparator<NoteData> {
+    static class LastModComparator implements Comparator<NoteData> {
         int direction;
 
         LastModComparator(int d) {
@@ -1263,7 +1263,7 @@ public abstract class NoteGroup extends JPanel {
     } // end class LastModComparator
 
 
-    class NoteStringComparator implements Comparator<NoteData> {
+    static class NoteStringComparator implements Comparator<NoteData> {
         int direction;
 
         NoteStringComparator(int d) {

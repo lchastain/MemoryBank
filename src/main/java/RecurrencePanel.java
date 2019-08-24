@@ -1,17 +1,12 @@
-/****************************************************************/
-/*                      RecurrencePanel	                            */
-/*                                                              */
-/****************************************************************/
 
+import javax.swing.*;
+import javax.swing.text.AbstractDocument;
 import java.awt.*;
+import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.awt.event.*;
-
-import javax.swing.*;
-import javax.swing.text.AbstractDocument;
 
 /**
  * Summary description for RecurrencePanel
@@ -116,23 +111,30 @@ public class RecurrencePanel extends JPanel implements
         if (strSource == null) return;
 
         // System.out.println(strSource);
-        if (strSource.equals("txtfDayInterval")) {
-            rbtnDay.setSelected(true);
-            txtfDayInterval.requestFocus();
-        } else if (strSource.equals("txtfWeekInterval")) {
-            rbtnWeek.setSelected(true);
-            txtfWeekInterval.requestFocus();
-        } else if (strSource.equals("txtfMonthInterval")) {
-            rbtnMonth.setSelected(true);
-            txtfMonthInterval.requestFocus();
-        } else if (strSource.equals("txtfStopAfter")) {
-            rbtnStopAfter.setSelected(true);
-            txtfStopAfter.requestFocus();
-        } else if (strSource.equals("comboxMonth")) {
-            rbtnMonth.setSelected(true);
-        } else if (strSource.equals("comboxYear")) {
-            rbtnYear.setSelected(true);
-        } // end if
+        switch (strSource) {
+            case "txtfDayInterval":
+                rbtnDay.setSelected(true);
+                txtfDayInterval.requestFocus();
+                break;
+            case "txtfWeekInterval":
+                rbtnWeek.setSelected(true);
+                txtfWeekInterval.requestFocus();
+                break;
+            case "txtfMonthInterval":
+                rbtnMonth.setSelected(true);
+                txtfMonthInterval.requestFocus();
+                break;
+            case "txtfStopAfter":
+                rbtnStopAfter.setSelected(true);
+                txtfStopAfter.requestFocus();
+                break;
+            case "comboxMonth":
+                rbtnMonth.setSelected(true);
+                break;
+            case "comboxYear":
+                rbtnYear.setSelected(true);
+                break;
+        }
     } // end focusGained
 
     public void focusLost(FocusEvent e) {
@@ -189,10 +191,20 @@ public class RecurrencePanel extends JPanel implements
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
             while (!strMonthPattern.toLowerCase().contains(strWhichOne)) {
-                if (strWhichOne.equals("first")) strWhichOne = "second";
-                else if (strWhichOne.equals("second")) strWhichOne = "third";
-                else if (strWhichOne.equals("third")) strWhichOne = "fourth";
-                else strWhichOne = "keep going...";
+                switch (strWhichOne) {
+                    case "first":
+                        strWhichOne = "second";
+                        break;
+                    case "second":
+                        strWhichOne = "third";
+                        break;
+                    case "third":
+                        strWhichOne = "fourth";
+                        break;
+                    default:
+                        strWhichOne = "keep going...";
+                        break;
+                }
 
                 calTmp.add(Calendar.DATE, 1); // add a day
 
@@ -219,10 +231,20 @@ public class RecurrencePanel extends JPanel implements
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
             while (!strMonthPattern.contains(strWhichOne)) {
-                if (strWhichOne.equals("first")) strWhichOne = "second";
-                else if (strWhichOne.equals("second")) strWhichOne = "third";
-                else if (strWhichOne.equals("third")) strWhichOne = "fourth";
-                else strWhichOne = "keep going...";
+                switch (strWhichOne) {
+                    case "first":
+                        strWhichOne = "second";
+                        break;
+                    case "second":
+                        strWhichOne = "third";
+                        break;
+                    case "third":
+                        strWhichOne = "fourth";
+                        break;
+                    default:
+                        strWhichOne = "keep going...";
+                        break;
+                }
 
                 calTmp.add(Calendar.DATE, 1); // add a day
 
@@ -263,10 +285,20 @@ public class RecurrencePanel extends JPanel implements
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
             while (!strMonthPattern.contains(strWhichOne)) {
-                if (strWhichOne.equals("first")) strWhichOne = "second";
-                else if (strWhichOne.equals("second")) strWhichOne = "third";
-                else if (strWhichOne.equals("third")) strWhichOne = "fourth";
-                else strWhichOne = "keep going...";
+                switch (strWhichOne) {
+                    case "first":
+                        strWhichOne = "second";
+                        break;
+                    case "second":
+                        strWhichOne = "third";
+                        break;
+                    case "third":
+                        strWhichOne = "fourth";
+                        break;
+                    default:
+                        strWhichOne = "keep going...";
+                        break;
+                }
 
                 dateGood = calTmp.getTime();
                 calTmp.add(Calendar.DATE, 7); // add a week
@@ -419,11 +451,11 @@ public class RecurrencePanel extends JPanel implements
         JLabel jLabel6 = new JLabel();
         rbtnMonth = new JRadioButton();
         txtfMonthInterval = new JTextField();
-        comboxMonth = new JComboBox<String>();
+        comboxMonth = new JComboBox<>();
         JPanel pnlMonth = new JPanel();
         //-----
         rbtnYear = new JRadioButton();
-        comboxYear = new JComboBox<String>();
+        comboxYear = new JComboBox<>();
         JPanel pnlYear = new JPanel();
         //-----
         pnlEnd = new JPanel();
@@ -754,7 +786,7 @@ public class RecurrencePanel extends JPanel implements
     } // end isRecurrenceValid
 
 
-    public static boolean isWeekday(Calendar cal) {
+    static boolean isWeekday(Calendar cal) {
         boolean result = true;
         if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) result = false;
         if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) result = false;
@@ -1560,7 +1592,7 @@ public class RecurrencePanel extends JPanel implements
     } // end showTheData
 
 
-    public void shuffleDays() {
+    private void shuffleDays() {
         // Interpret the dateStart Day
         calTmp.setTime(dateStart);
         switch (calTmp.get(Calendar.DAY_OF_WEEK)) {

@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class DayNoteComponentTest {
     DayNoteComponent dnc;
 
@@ -32,29 +30,29 @@ class DayNoteComponentTest {
         dnc.clear();
     }
 
-    @Test
-    void getNoteData() {
-    }
-
-    @Test
-    void getPreferredSize() {
-    }
-
-    @Test
-    void initialize() {
-    }
-
-    @Test
-    void makeDataObject() {
-    }
-
-    @Test
-    void noteActivated() {
-    }
-
-    @Test
-    void resetComponent() {
-    }
+//    @Test
+//    void getNoteData() {
+//    }
+//
+//    @Test
+//    void getPreferredSize() {
+//    }
+//
+//    @Test
+//    void initialize() {
+//    }
+//
+//    @Test
+//    void makeDataObject() {
+//    }
+//
+//    @Test
+//    void noteActivated() {
+//    }
+//
+//    @Test
+//    void resetComponent() {
+//    }
 
     @Test
     void setIcon() {
@@ -64,27 +62,27 @@ class DayNoteComponentTest {
         dnc.setIcon(new AppIcon(testFile.getPath()));
     }
 
-    @Test
-    void resetTimeLabel() {
-    }
-
-    @Test
-    void setNoteData() {
-    }
-
-    @Test
-    void testSetNoteData() {
-    }
-
-    @Test
-    void shiftDown() {
-    }
-
-    @Test
-    void shiftUp() {
-    }
-
-    @Test
-    void swap() {
-    }
+//    @Test
+//    void resetTimeLabel() {
+//    }
+//
+//    @Test
+//    void setNoteData() {
+//    }
+//
+//    @Test
+//    void testSetNoteData() {
+//    }
+//
+//    @Test
+//    void shiftDown() {
+//    }
+//
+//    @Test
+//    void shiftUp() {
+//    }
+//
+//    @Test
+//    void swap() {
+//    }
 }
