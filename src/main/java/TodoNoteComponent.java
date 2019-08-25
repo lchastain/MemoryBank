@@ -1,6 +1,3 @@
-/**  Representation of a single Day Note.
- */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,11 +19,11 @@ public class TodoNoteComponent extends NoteComponent {
     private static JMenuItem miClearPriority;
     private static JMenuItem miMoveToToday;
     private static JMenuItem miMoveToSelectedDate;
-    public static ImageIcon todo_done;
-    public static ImageIcon todo_inprog;
-    public static ImageIcon todo_wait;
-    public static ImageIcon todo_query;
-    public static ImageIcon todo_obe;
+    private static ImageIcon todo_done;
+    private static ImageIcon todo_inprog;
+    private static ImageIcon todo_wait;
+    private static ImageIcon todo_query;
+    private static ImageIcon todo_obe;
 
 
     static {
@@ -100,14 +97,16 @@ public class TodoNoteComponent extends NoteComponent {
     // Clears both the Graphical elements and the underlying data.
     //-----------------------------------------------------------------
     public void clear() {
-        super.clear();
+        // We need to clear out our own members before clearing the base component.
         if (pbThePriorityButton != null) pbThePriorityButton.clear();
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
-        initialized = true;  // We don't want to make a new one..
+        super.clear(); // this also sets the component 'initialized' to false
+        // but we don't want to make a new one, so -
+        initialized = true;
     } // end clear
 
 
-    public static String getIconFilename(int i) {
+    static String getIconFilename(int i) {
         char c = File.separatorChar;
         String iString = MemoryBank.logHome + c + "images" + c;
 
@@ -148,11 +147,11 @@ public class TodoNoteComponent extends NoteComponent {
         return myTodoNoteData;
     } // end getNoteData
 
-    public JComponent getPriorityButton() {
+    JComponent getPriorityButton() {
         return pbThePriorityButton;
     }
 
-    public JComponent getStatusButton() {
+    JComponent getStatusButton() {
         return sbTheStatusButton;
     }
 
@@ -173,7 +172,7 @@ public class TodoNoteComponent extends NoteComponent {
     //   interface or a specific Component, so the 'refresh' is needed and it
     //   is not possible to leave a gap because the entire list was reloaded.
     //--------------------------------------------------------------------------
-    public void moveIt(boolean useDate) {
+    private void moveIt(boolean useDate) {
         MemoryBank.debug("Moving...");
         MemoryBank.debug("  To Date = " + useDate);
 
@@ -376,8 +375,6 @@ public class TodoNoteComponent extends NoteComponent {
 
             setFont(Font.decode("Monospaced-bold-12"));
             addMouseListener(this);
-//      if(myTodoNoteData == null) setPriority(0);
-//      else setPriority(myTodoNoteData.getPriority());
             disableEvents(AWTEvent.FOCUS_EVENT_MASK + AWTEvent.COMPONENT_EVENT_MASK
                     + AWTEvent.ACTION_EVENT_MASK + AWTEvent.MOUSE_MOTION_EVENT_MASK
                     + AWTEvent.ITEM_EVENT_MASK);
@@ -391,16 +388,15 @@ public class TodoNoteComponent extends NoteComponent {
             return Priority;
         }
 
-        int setPriority(int value) {
-            if(!initialized) return -1;
-            if (value < 0) return -1;
-            if (value > myNoteGroup.getMaxPriority()) return -1;
+        void setPriority(int value) {
+            if(!initialized) return;
+            if (value < 0) return;
+            if (value > myNoteGroup.getMaxPriority()) return;
             Priority = value;
             if (Priority == 0) setText("  ");
             else setText(String.valueOf(Priority));
             myTodoNoteData.setPriority(Priority);
 
-            return Priority;
         } // end setPriority
 
         //----------------------------------------------
@@ -565,7 +561,7 @@ public class TodoNoteComponent extends NoteComponent {
         } // end setStatus
 
 
-        public void showStatusIcon() {
+        void showStatusIcon() {
             switch (theStatus) {
                 case TodoNoteData.TODO_STARTED:
                     setIcon(null);
@@ -670,15 +666,20 @@ public class TodoNoteComponent extends NoteComponent {
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             // System.out.println(s);
-            if (s.equals("Clear Priority")) {
-                tnc.pbThePriorityButton.clear();
-            } else if (s.equals("Move To Today")) {
-                tnc.moveIt(false);
-            } else if (s.equals("Move To Selected Date")) {
-                tnc.moveIt(true);
-            } else { // A way of showing new menu items with no action (yet).
-                System.out.println(s);
-            } // end if/else if
+            switch (s) {
+                case "Clear Priority":
+                    tnc.pbThePriorityButton.clear();
+                    break;
+                case "Move To Today":
+                    tnc.moveIt(false);
+                    break;
+                case "Move To Selected Date":
+                    tnc.moveIt(true);
+                    break;
+                default:  // A way of showing new menu items with no action (yet).
+                    System.out.println(s);
+                    break;
+            }
             tnc.myNoteGroup.setGroupChanged();
         } // end actionPerformed
     } // end class PopHandler

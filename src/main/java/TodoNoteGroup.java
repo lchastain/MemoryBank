@@ -1,9 +1,3 @@
-/**  This class displays a group of TodoNoteComponent.
- *   It is named to be consistent with other 'Group'
- *   classes in this app, but you may think of it as
- *   the TodoList.
- */
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +14,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Values used in sorting.
     private static final int TOP = 0;
     static final int BOTTOM = 1;
-    public static final int STAY = 2;
-    public static final int INORDER = 123;
+    private static final int STAY = 2;
+    static final int INORDER = 123;
 
-    public TodoGroupHeader listHeader;
+    private TodoGroupHeader listHeader;
     public static JFileChooser filechooser;
-    public static javax.swing.filechooser.FileFilter ff;
+    private static javax.swing.filechooser.FileFilter ff;
 
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
@@ -46,7 +40,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                     int i = filename.lastIndexOf('.');
                     if (i > 0 && i < filename.length() - 1) {
                         String extension = filename.substring(i + 1);
-                        if (extension.equals("todolist")) return true;
+                        return extension.equals("todolist");
                     } // end if
                 } // end if
                 return false;
@@ -139,7 +133,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end checkColumnOrder
 
 
-    public static String chooseFileName(String buttonLabel) {
+    private static String chooseFileName(String buttonLabel) {
         int returnVal = filechooser.showDialog(null, buttonLabel);
         boolean badPlace = false;
 
@@ -204,7 +198,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     }// end getGroupFilename
 
 
-    public int getMaxPriority() {
+    int getMaxPriority() {
         return myVars.maxPriority;
     } // end getMaxPriority
 
@@ -304,12 +298,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             } // end for i
             ois.close();
             fis.close();
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
         } catch (FileNotFoundException fnfe) {
             System.out.println(mergeFile + " was not found!  Merge cancelled.");
         } catch (EOFException eofe) {
@@ -327,8 +315,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             } catch (Exception ex) {
                 System.out.println("Exception: " + ex.getMessage());
             }
-        } catch (IOException ioe) {
-            e = ioe;
+        } catch (ClassCastException | ClassNotFoundException | IOException eee) {
+            e = eee;
         } // end try/catch
 
         if (e != null) {
@@ -411,7 +399,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             outFile = new PrintWriter(new BufferedWriter
                     (new FileWriter(dumpFileName)), true);
         } catch (IOException e) {
-            System.out.println(e);
+            e.printStackTrace();
             System.exit(0);
         } // end try/catch
 
@@ -467,20 +455,20 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                 extText = tnd.getExtendedNoteString();
                 if (!extText.equals("")) {
                     String indent = "    ";
-                    String rs = indent; // ReturnString
+                    StringBuilder rs = new StringBuilder(indent); // ReturnString
 
                     for (int j = 0; j < extText.length(); j++) {
                         if (extText.substring(j).startsWith("\t"))
-                            rs = rs + "        "; // convert tabs to 8 spaces.
+                            rs.append("        "); // convert tabs to 8 spaces.
                         else if (extText.substring(j).startsWith("\n"))
-                            rs = rs + "\n" + indent;
+                            rs.append("\n").append(indent);
                         else
-                            rs = rs + extText.substring(j, j + 1);
+                            rs.append(extText.substring(j, j + 1));
                         // The 'j+1' will not exceed string length when j=length
                         //  because 'substring' works with one less on the 2nd int.
                     } // end for j
 
-                    extText = rs;
+                    extText = rs.toString();
                     outFile.println(extText);
                 } // end if
             } // end if
@@ -512,7 +500,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
     //-----------------------------------------------------------------
-    public boolean saveAs() {
+    boolean saveAs() {
         Frame f = JOptionPane.getFrameForComponent(this);
 
         String thePrompt = "Please enter the new list name";
@@ -603,7 +591,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //  (By calling this first, then just calling 'save').  Any
     //  checking for validity is responsibility of calling context.
     //-----------------------------------------------------------------
-    public void setFileName(String fname) {
+    private void setFileName(String fname) {
         strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
         strTheGroupFilename += fname.trim() + ".todolist";
 
@@ -645,7 +633,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //  Several actions needed when a line has
     //    either gone active or inactive.
     //--------------------------------------------------------------
-    public void showComponent(TodoNoteComponent nc, boolean b) {
+    private void showComponent(TodoNoteComponent nc, boolean b) {
         if (b) {
             tNoteComponent = nc;
             TodoNoteData tnd = (TodoNoteData) nc.getNoteData();
@@ -662,7 +650,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end showComponent
 
 
-    public void sortDeadline(int direction) {
+    void sortDeadline(int direction) {
         TodoNoteData todoData1, todoData2;
         TodoNoteComponent todoComponent1, todoComponent2;
         int i, j;
@@ -801,7 +789,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end sortDeadline
 
 
-    public void sortPriority(int direction) {
+    void sortPriority(int direction) {
         TodoNoteData todoData1, todoData2;
         int pri1, pri2;
         boolean doSwap;

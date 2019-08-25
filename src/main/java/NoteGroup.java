@@ -726,7 +726,8 @@ public abstract class NoteGroup extends JPanel {
             tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
             tempNote.setVisible(false);
             tempNote.initialized = false;  // this is new (8/24/2019)
-            // needed for the ClearGroupTest but also may fix other current issues such as ability to add extended text to a non-note, priority changes, etc.
+            // was needed for the ClearGroupTest.  Later, found that this changed the way that
+            // some components must be cleared - base class last, now, IF they care about 'initialized'.
         } // end for i
     } // end resetVisibility
 
