@@ -1,9 +1,9 @@
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.io.*;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 public class AppUtil {
 
@@ -21,6 +21,7 @@ public class AppUtil {
     // Reason to not do that: maximize test coverage.
     // This flag is changed manually as needed for the desired effect, with Tests running afterwards.
     static Boolean blnReplaceNotifiers = true;
+    // NOT checking this now; not sure it's really needed since
 
     static {
         sdf = new SimpleDateFormat();
@@ -566,5 +567,21 @@ public class AppUtil {
             return b1&b2;
         } // end accept
     } // end class logFileFilter
+
+
+    public static TreePath getPath(TreeNode treeNode) {
+        TreeNode tn = treeNode;
+        List<Object> nodes = new ArrayList<Object>();
+        if (tn != null) {
+            nodes.add(tn);
+            tn = tn.getParent();
+            while (tn != null) {
+                nodes.add(0, tn);
+                tn = tn.getParent();
+            }
+        }
+
+        return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
+    }
 
 } // end class AppUtil

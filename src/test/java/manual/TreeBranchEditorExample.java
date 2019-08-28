@@ -4,7 +4,7 @@ import javax.swing.tree.MutableTreeNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class TBH implements TreeBranchHelper {
+class EditorHelper implements TreeBranchHelper {
     @Override
     public boolean allowRenameFrom(String theName) {
         if(theName.equals("An Example Branch")) {
@@ -77,7 +77,7 @@ public class TreeBranchEditorExample {
         dmtn.add(new DefaultMutableTreeNode("that"));
         dmtn.add(new DefaultMutableTreeNode("these"));
         dmtn.add(new DefaultMutableTreeNode("when"));
-        TreeBranchEditor tbe = new TreeBranchEditor(dmtn, new TBH());
+        TreeBranchEditor tbe = new TreeBranchEditor(dmtn, new EditorHelper());
 
         // Make the frame and add ourselves to it.
         JFrame testFrame = new JFrame("TreeBranchEditorExample Test");

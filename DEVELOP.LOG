@@ -2,8 +2,30 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/27/2019 1036 - Have instituted a methodology whereby I can test methods that require user
+  interaction via a JOptionPane, without needing to have that interaction - ie, an interface
+  with default methods that are the same as the utility class.  But in the Test area there
+  is a class that implements the interface, with methods that only do a printout vs showing a
+  modal dialog.  In the AppUtil area I had a boolean flag that test methods could check, to see
+  if they should use the new Notifier interface, or let it default.  Reason not to use it was to increase
+  code coverage, but that coverage will only be the now disconnected single-line usages of
+  the standard JOptionPane, and testing that is Java's concern, not mine, so I will probably
+  just take the small coverage hit and stop using that flag.  But keep it for a while...
 
-
+8/26/2019 0630 - Have had good test progress over the last week+ as well as some issues fixed,
+  although found that most of those were caused by recent work.  Now, need to begin working with
+  pre-existing test data to test capabilities that need to alter that data.  But to be
+  repeatable and consistent, will need to either generate that data on the fly or have it
+  already 'canned' and able to reset it after each use.  Some on-the-fly test data has already
+  been made and the tests can remain working that way, but the more complex tests need too
+  much data to take that approach.  So - hope to be able to use the 'Test Resources' folder
+  to hold a complete user account that is pre-populated with test/example data.  The
+  challenge here is to both make the data but also to implement the clearing / reset of it.
+  For content, planning to use my new 'jondo' user; he can double as both a Marketing and
+  Test user.  The test resource may be (carefully) updated each time more info is added
+  to his Marketing data area.  The jondo user was referenced in a todo list item to
+  develop test data (moved to a day note on 8/25).  His data development is currently in
+  progress and will be ongoing indefinitely.
 
 8/16/2019 2129 - Finally got the JUnit libraries upgraded to ver. 5, had to learn that extending
   a TestCase, and setup/teardown are no longer supported.  This will cascade changes through all

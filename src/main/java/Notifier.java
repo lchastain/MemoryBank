@@ -10,23 +10,9 @@ public interface Notifier {
        JOptionPane.showMessageDialog(parentComponent, message, title, messageType);
    }
 
-//    default void showMessageDialog(Component parentComponent, Object message, String title, int messageType) {
-//
-//        Method m = null;
-//        Class<JOptionPane> c = JOptionPane.class;
-//        try {
-//            m = c.getMethod("showMessageDialog", Component.class, Object.class, String.class, int.class);
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if(m != null) {
-//            try {
-//                m.invoke(this, parentComponent, message, title, messageType);
-//            } catch (IllegalAccessException | InvocationTargetException ee) {
-//                ee.printStackTrace();
-//            }
-//        }
-//    }
+   default int showOptionDialog(Component parentComponent, Object message, String title, int optionType, int messageType, Icon icon, Object[] options, Object initialValue) {
+       return JOptionPane.showOptionDialog(parentComponent, message, title, optionType, messageType, icon, options, initialValue);
+   }
+
 }
 

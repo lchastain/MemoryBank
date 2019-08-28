@@ -96,7 +96,8 @@ public class TodoNoteComponent extends NoteComponent {
     //
     // Clears both the Graphical elements and the underlying data.
     //-----------------------------------------------------------------
-    public void clear() {
+    @Override
+    protected void clear() {
         // We need to clear out our own members before clearing the base component.
         if (pbThePriorityButton != null) pbThePriorityButton.clear();
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
@@ -147,11 +148,11 @@ public class TodoNoteComponent extends NoteComponent {
         return myTodoNoteData;
     } // end getNoteData
 
-    JComponent getPriorityButton() {
+    PriorityButton getPriorityButton() {
         return pbThePriorityButton;
     }
 
-    JComponent getStatusButton() {
+    StatusButton getStatusButton() {
         return sbTheStatusButton;
     }
 
@@ -549,6 +550,12 @@ public class TodoNoteComponent extends NoteComponent {
             return d;
         } // end getPreferredSize
 
+
+        // Added this 8/28/2019 for tests, but expect it will be needed in future endeavors
+        // such as goal percentage completion calculations, if not other features.
+        public int getStatus() {
+            return theStatus;
+        }
 
         public void setStatus(int i) {
             if (!initialized) return;

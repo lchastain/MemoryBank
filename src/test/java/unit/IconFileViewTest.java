@@ -7,10 +7,10 @@ import javax.swing.*;
 import java.io.File;
 
 class IconFileViewTest {
-    IconFileView ifv;
+    private IconFileView ifv;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         ifv = new IconFileView();
     }
 
@@ -20,7 +20,7 @@ class IconFileViewTest {
     }
 
     @Test
-    void testGetName() throws Exception {
+    void testGetName() {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 
@@ -30,25 +30,28 @@ class IconFileViewTest {
     }
 
     @Test
-    void testIsTraversable() throws Exception {
+    void testIsTraversable() {
+        // The provided File does not matter; we want a null in every case.
         Boolean b = ifv.isTraversable(new File("nofile"));
         assert b == null;
     }
 
     @Test
-    void testGetDescription() throws Exception {
+    void testGetDescription() {
+        // The provided File does not matter; we want a null in every case.
         String s = ifv.getDescription(new File("nofile"));
         assert s == null;
     }
 
     @Test
-    void testGetTypeDescription() throws Exception {
+    void testGetTypeDescription() {
+        // The provided File does not matter; we want a null in every case.
         String s = ifv.getTypeDescription(new File("nofile"));
         assert s == null;
     }
 
     @Test
-    void testGetIcon() throws Exception {
+    void testGetIcon() {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 

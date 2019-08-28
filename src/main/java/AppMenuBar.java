@@ -109,6 +109,7 @@ public class AppMenuBar extends JMenuBar{
         add(menuHelp);
         // mb.setHelpMenu(menuHelp);  // Not implemented in Java 1.4.2 ...
         // Still not implemented in Java 1.5.0_03
+        // In Java 1.8, throws a Not Implemented exception
     }
 
     // Given a string to indicate what 'mode' we are in,

@@ -1,20 +1,13 @@
-/**  This class displays a group of SearchResultComponent.
- */
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.io.*;
-
 import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 
 public class SearchResultGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
 
     private JLabel resultsTitle;
     private JLabel resultsPageOf;
-    private JLabel searchSummary;
-    public SearchResultHeader listHeader;
+    private SearchResultHeader listHeader;
 
     private String strTheGroupFilename;
 
@@ -81,12 +74,12 @@ public class SearchResultGroup extends NoteGroup {
         headingRow2.add(resultsPageOf, "West");
 
         // Show the search summary
-        searchSummary = new JLabel();
+        JLabel searchSummary = new JLabel();
         searchSummary.setHorizontalAlignment(JLabel.CENTER);
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
         searchSummary.setText(SearchPanel.getSummary(myVars.sps));
-        System.out.println();
+//        System.out.println();
         headingRow2.add(searchSummary, "Center");
         //----------------------------------------------------------
 
@@ -181,15 +174,13 @@ public class SearchResultGroup extends NoteGroup {
     // Method Name: makeNewNote
     //
     // Called by the NoteGroup (base class) constructor.  This
-    //   is just the visual component; no actual data yet.  The
-    //   reason for providing the data component parameter is
-    //   that it is required by the base class constructor.
+    //   is just the visual component; no actual data yet.
     //-------------------------------------------------------------------
     protected JComponent makeNewNote(int i) {
         if (i == 0) myVars = new SearchResultGroupProperties();
-        SearchResultComponent tnc = new SearchResultComponent(this, i);
-        tnc.setVisible(false);
-        return tnc;
+        SearchResultComponent src = new SearchResultComponent(this, i);
+        src.setVisible(false);
+        return src;
     } // end makeNewNote
 
 
@@ -200,9 +191,11 @@ public class SearchResultGroup extends NoteGroup {
     //   been reordered.  If so, set groupChanged.
     // Then call the base class method.
     //----------------------------------------------------------------------
-    protected void preClose() {
-        super.preClose();
-    } // end preClose
+    // THIS does not do what the comment above says it does.  In fact, seems not needed.
+    // disabling, 8/25/2019
+//    protected void preClose() {
+//        super.preClose();
+//    } // end preClose
 
 
     //-----------------------------------------------------------------

@@ -1,51 +1,67 @@
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AppTreePanelTest implements Notifier {
     private static AppTreePanel atp;
-    private JTree theTree;
-    private int theSelectionRow;
-    private AppMenuBar amb;
+    private static JTree theTree;
+    private static int theSelectionRow;
+    private static AppMenuBar amb;
 
     @BeforeAll
-    static void meFirst() {
-        // The problem with just having this in the BeforeEach was that we started
-        // multiple JMenuItem listeners with each new atp, and not all of them would
-        // go away before they were activated by other tests, causing much confusion.
-        atp = new AppTreePanel(new JFrame(), new AppOptions());
-    }
+    static void meFirst() throws IOException {
+        // Set the location for our user data (it will be created, if not already there)
+        MemoryBank.setUserDataHome("test.user@lcware.net");
 
-    @BeforeEach
-    void setUp() {
+        // Remove any pre-existing Test data
+        File testData = new File(MemoryBank.userDataHome);
+        FileUtils.cleanDirectory(testData);
+
+        // Retrieve a fresh set of test data from test resources
+        String fileName = "jondo.nonamus@lcware.net";
+        File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        FileUtils.copyDirectory(testResource, testData);
+
+        // Load up this Test user's application options
+        MemoryBank.loadOpts();
+
+        // The problem with just having this in the BeforeEach was that we started
+        // multiple JMenuItem listeners with each new atp, and each test ran so
+        // fast that not all of the listeners would have gone
+        // away before they were activated by other tests, causing some confusion.
+        atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+
+        atp.setNotifier(new TestUtil());
+        theTree = atp.getTree(); // Usage here means no unit test needed for getTree().
+        amb = AppTreePanel.amb;
+
         // No significance to this value other than it needs to be a row that
         // we know for a fact will be there, even for a brand-new AppTreePanel.
         // In this case we've chosen a relatively low (safer) value, currently
         // should be 'Notes', with the first two being singles, and 'Views' collapsed.
         theSelectionRow = 3;
-
-        if(AppUtil.blnReplaceNotifiers) atp.setNotifier(this);
-        theTree = atp.getTree(); // Usage here means no extra test needed for getTree().
-        amb = AppTreePanel.amb;
     }
 
     @AfterEach
-    void tearDown() throws InterruptedException {
-        theTree = null;
-        amb = null;
+    void restit() throws InterruptedException {
         // These tests drive the app faster than it would go if it was only under user control.
         Thread.sleep(300); // Otherwise we see NullPointerExceptions after tests pass.
     }
 
-    @Override
-    public void showMessageDialog(Component parentComponent, Object message, String title, int messageType) {
-        System.out.println(title + ":  " + message);
+    @AfterAll
+    static void tearDown() throws InterruptedException {
+        theTree = null;
+        amb = null;
     }
-
     @Test
     void testDeepClone() throws Exception {
         theTree.setSelectionRow(theSelectionRow);
@@ -55,25 +71,28 @@ public class AppTreePanelTest implements Notifier {
         assert clone.toString().equals(original.toString());
     }
 
-    public void testGetTodoListKeeper() throws Exception {
+    @Test
+    void testGetTodoListKeeper() throws Exception {
         TodoListKeeper tlk = atp.getTodoListKeeper();
         assert tlk != null;
     }
 
-    public void testPreClose() throws Exception {
+    @Test
+    void testPreClose() throws Exception {
         atp.preClose();
         // No assertions needed here; we're just assuring coverage.
     }
 
     // VERIFY that this is still needed - the functional test also covers this code.
-    // But - if there were to be a failure, wouldn't a simpler test be able to track
-    // down the problem more easily?
+    // But - if there WERE to be a failure, wouldn't this simpler test be a better
+    // tool to use to track down the problem?
 
     // A critical assumption, currently, is that if no node of the
     // tree is selected, it means that the About graphic is shown.
     // Future dev on the tree MAY offer other cases where the
     // selection is null and if so, this could need rework.
-    public void testShowAbout() {
+    @Test
+    void testShowAbout() {
         JTree theTree = atp.getTree();
         int[] theRows;
 
@@ -204,6 +223,36 @@ public class AppTreePanelTest implements Notifier {
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Week View");
         System.out.println("End testShowWeek");
+    }
+
+    @Test
+    void testCloseSearchResult() throws Exception {
+        // First, select a known search result (we know the content of our test data)
+        String theSearchResult = "S20140312131216";
+        DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        DefaultMutableTreeNode dmtn = TestUtil.getTreeNodeForString(theRoot, theSearchResult);
+        Assertions.assertNotNull(dmtn);
+        TreePath tp = AppUtil.getPath(dmtn);
+        Assertions.assertNotNull(tp);
+        theTree.setSelectionPath(tp);
+        Thread.sleep(200);
+        assert theTree.getSelectionPath().getLastPathComponent().toString().equals(theSearchResult);
+
+        // Now close it.
+        atp.closeSearchResult();
+
+        // And verify that the file for it is gone.
+        String filename = MemoryBank.userDataHome + File.separatorChar + theSearchResult + ".sresults";
+        File f = new File(filename);
+        assertFalse(f.exists());
+
+        // And verify that it is gone from the tree
+        dmtn = TestUtil.getTreeNodeForString(theRoot, "S20140312131216");
+        assertNull(dmtn);
+
+        // And that the tree selection switched up to 'Search Results'
+        assert theTree.getSelectionPath().getLastPathComponent().toString().equals("Search Results");
     }
 
 }

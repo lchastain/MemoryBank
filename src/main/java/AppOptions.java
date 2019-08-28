@@ -15,9 +15,10 @@ import java.util.Vector;
 //     point of having support people.
 //-------------------------------------------------------------------------
 class AppOptions {
-    boolean ViewsExpanded;
-    boolean NotesExpanded;
-    boolean TodoListsExpanded;
+    boolean viewsExpanded;
+    boolean notesExpanded;
+    boolean todoListsExpanded;
+    boolean searchesExpanded;
     String theSelection;
     int theSelectionRow;
     Vector<String> todoLists;
@@ -26,9 +27,10 @@ class AppOptions {
     boolean military;
 
     AppOptions() {
-        ViewsExpanded = false;
-        NotesExpanded = false;
-        TodoListsExpanded = false;
+        viewsExpanded = false;
+        notesExpanded = false;
+        todoListsExpanded = false;
+        searchesExpanded = false;
         theSelection = null;
         theSelectionRow = -1;
         todoLists = new Vector<>(0, 1);
@@ -37,9 +39,9 @@ class AppOptions {
     } // end constructor
 
     public AppOptions(Object theObject) {
-        ViewsExpanded = ((AppOptions) theObject).ViewsExpanded;
-        NotesExpanded = ((AppOptions) theObject).NotesExpanded;
-        TodoListsExpanded = ((AppOptions) theObject).TodoListsExpanded;
+        viewsExpanded = ((AppOptions) theObject).viewsExpanded;
+        notesExpanded = ((AppOptions) theObject).notesExpanded;
+        todoListsExpanded = ((AppOptions) theObject).todoListsExpanded;
         theSelection = ((AppOptions) theObject).theSelection;
         theSelectionRow = ((AppOptions) theObject).theSelectionRow;
         todoLists = ((AppOptions) theObject).todoLists;

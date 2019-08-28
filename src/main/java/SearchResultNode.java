@@ -11,9 +11,8 @@ import java.util.Enumeration;
 public class SearchResultNode extends DefaultMutableTreeNode {
     private static final long serialVersionUID = 1L; // inherited Serializable but do not use.
 
-    public String strNodeName;
-    public int intGroupSize;
-    public boolean blnExpanded;
+    String strNodeName;
+    int intGroupSize;
     public SearchResultGroup srg;
 
     public SearchResultNode(String nodename, int i) {
@@ -21,7 +20,6 @@ public class SearchResultNode extends DefaultMutableTreeNode {
         if ((nodename == null) || (nodename.equals(""))) {
             // This should only occur for the top level.
             strNodeName = "Search Results";
-            blnExpanded = true;
         } else {
             strNodeName = nodename;
         } // end else

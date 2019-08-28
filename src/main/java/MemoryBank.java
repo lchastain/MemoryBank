@@ -34,7 +34,7 @@ public class MemoryBank {
     private static boolean timing;
     public static String userDataHome; // User data top-level directory 'mbankData'
     public static String logHome;  // For finding icons & images
-    private static AppOptions appOpts;     // saved/loaded
+    static AppOptions appOpts;     // saved/loaded
     private static AppTreePanel appTreePanel;
 
     //----------------------------------------------------------
@@ -109,7 +109,7 @@ public class MemoryBank {
         return appTreePanel;
     }
 
-    private static void loadOpts() {
+    static void loadOpts() {
         Exception e = null;
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
 
@@ -714,14 +714,13 @@ public class MemoryBank {
             public void run() {
                 //getAppTreePanel().preClose();  // Trying this out (8/4/19) - may not need 'getAppTreePanel' in this context.
                 appTreePanel.preClose();
-                //saveOpts();
-                saveOptsJson(); // temp
+                saveOpts(); // temp
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
     } // end main
 
-    private static void saveOptsJson() {
+    static void saveOpts() {
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
         MemoryBank.debug("Saving application option data in " + filename);
 

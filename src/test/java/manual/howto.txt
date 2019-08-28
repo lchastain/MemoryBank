@@ -1,0 +1,24 @@
+One-stop reference for how tests are getting things done.
+
+0.  Make / get rich test data:  This is done by using the app to make the data you want, then copy that
+    entire user data collection into Test Resources.  The setup for each class can clear out existing
+    data and reestablish it from the resources.  See AppTreePanelTest setup.  There can be different
+    test user data sources (like jondo) but the chosen one gets copied to test.user@lcware.net.
+
+1.  Select a node on the main app 'tree':  instantiate an AppTreePanel, get its JTree with .getTree(), call
+    setSelectionPath or setSelectionRow on it.  Lower-level requirements are listed separately, further on.
+
+2.  Get the TreePath to a node with a known name/text:  see the testCloseSearchResult test in the
+    AppTreePanelTest class - it does that (in several steps and external static methods).
+
+3.  Get the TodoNoteGroup for a given list:  With the list name (essentially the file name) known, the
+    group may simply be constructed directly; no need to go to the JTree for it.  The constructor
+    loads the file into the group's components.
+
+
+
+Get a TodoNoteGroup from the tree:  hadn't yet figured this out...
+
+
+Get a TodoNoteComponent:  call getNoteComponent on the TodoNoteGroup instance.  Parameter needed is the zero-based index
+number into the group.

@@ -29,14 +29,12 @@ import java.util.Vector;
 
 public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
-    private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
-
     static AppTreePanel ltTheTree;
-    private JFrame theFrame;
+    static AppMenuBar amb;
 
+    private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
     private static final int LIST_GONE = -3; // used in constr, createTree
 
-    static AppMenuBar amb;
     private Notifier optionPane;
     //-------------------------------------------------------------------
 
@@ -44,11 +42,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private DefaultTreeModel treeModel;
     private JScrollPane rightPane;
 
-    private TreePath viewPath;
-    private TreePath notePath;
-    private TreePath todoPath;
-    private static JDialog dlgWorkingDialog;
+    // Paths to expandable 'parent' nodes
+    private TreePath viewsPath;
+    private TreePath notesPath;
+    private TreePath todolistsPath;
+    private TreePath searchresultsPath;
 
+    private static JDialog dlgWorkingDialog;
     private NoteGroup theNoteGroup; // A reference to the current selection
     private GoalPanel theGoalPanel;
     private DayNoteGroup theAppDays;
@@ -87,13 +87,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
         amb = new AppMenuBar();
-        theFrame = aFrame;
-        theFrame.setJMenuBar(amb);
+        aFrame.setJMenuBar(amb);
         ltTheTree = this;
         this.appOpts = appOpts;
 
         //<editor-fold desc="Make the 'Working...' dialog">
-        dlgWorkingDialog = new JDialog(theFrame, "Working", true);
+        dlgWorkingDialog = new JDialog(aFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
         String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
@@ -215,7 +214,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // One other case, if the previous selection was a todo list that is no longer there.
             // In this case the tree has been recreated without it, so go to the todo branch.
             if (appOpts.theSelectionRow == LIST_GONE) {
-                appOpts.theSelectionRow = tree.getRowForPath(todoPath);
+                appOpts.theSelectionRow = tree.getRowForPath(todolistsPath);
                 tree.setSelectionRow(appOpts.theSelectionRow);
             } // end if
         } // end if
@@ -264,21 +263,22 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //-------------------------------------------------------
     // Method Name: closeSearchResult
     //
-    // Called from the 'Close' button in the header of the
-    //   SearchResultGroup that is currently being displayed.
-    //
     // Removes the associated results file and then calls the
     //   method to remove the search result leaf.
     //-------------------------------------------------------
-    private void closeSearchResult() {
+    void closeSearchResult() {
         // Obtain a reference to the current tree selection.
-        SearchResultNode node = (SearchResultNode)
-                tree.getLastSelectedPathComponent();
-        if (node == null) return;
+        // Since the App menu provides the only 'legal' entry to this
+        // method by only showing the 'close' option when
+        // a search result is selected, it follows that the current tree selection
+        // is the search result that we want to close.
+        SearchResultNode node = (SearchResultNode) tree.getLastSelectedPathComponent();
+        if (node == null) return; // But this is here just in case someone got here another way.
 
         // Give a confirmation warning here, allowing the user to cancel.
         // If there are nodes below here, list them and explain in the
-        //   warning that they will also be removed.
+        //   warning that they will also be removed.  This could happen for
+        //   a search within search results (a future feature).
         String string1 = "Yes, remove";
         String string2 = "Cancel";
         String theWarning = "Closing these search results will remove them from \n"
@@ -292,7 +292,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // Not needed until child nodes are possible.
             System.out.println("Problem! Child nodes detected under a branch to be removed.");
         } // end if
-        int choice = JOptionPane.showOptionDialog(this,
+        int choice = optionPane.showOptionDialog(null,
                 theWarning,
                 "Confirm the 'Close' action",
                 JOptionPane.OK_CANCEL_OPTION,
@@ -303,9 +303,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (choice != JOptionPane.OK_OPTION) return;
 
         // Remove the results file
-        File f = new File(node.strNodeName + ".sresults");
+        String filename = MemoryBank.userDataHome + File.separatorChar + node.strNodeName + ".sresults";
+        File f = new File(filename);
         if (f.exists()) {
-            if (!f.delete()) System.out.println("Failed to remove " + node.strNodeName + ".sresults");
+            if (!f.delete()) {
+                System.out.println("Failed to remove " + node.strNodeName + ".sresults");
+                return; // Leave the node, if there is still a file for it.
+            }
         }
 
         removeSearchNode(node);
@@ -428,12 +432,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(leaf);
         //intRowCounter++;
 
-//        // Restore previous search results, if any.
-//        if (appOpts.searchResults != null) {
-//            nodeSearchResults = appOpts.searchResults;
-//            trunk.add(nodeSearchResults);
-//        } // end if
-
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
             nodeSearchResults = new SearchResultNode(null, 0);
@@ -451,12 +449,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         tree = new JTree(treeModel);
 
         // At creation, all paths are collapsed.  This is how we know
-        //   the (initial) row for the three expandable branches.
-        // We know the rows at this moment but later it can change, so
-        //   obtain a reliable stable reference to these nodes.
-        viewPath = tree.getPathForRow(intViewRow);
-        notePath = tree.getPathForRow(intNoteRow);
-        todoPath = tree.getPathForRow(intTodoRow);
+        //   the initial row for three of the expandable branches at
+        //   this moment but later they can change, so obtain a
+        //   reliable stable reference to these nodes.
+        viewsPath = tree.getPathForRow(intViewRow);
+        notesPath = tree.getPathForRow(intNoteRow);
+        todolistsPath = tree.getPathForRow(intTodoRow);
+
+        // This one is different; it may not even be created yet
+        // for the current user, so we need to 'look' for it.
+        searchresultsPath = AppUtil.getPath(nodeSearchResults);
 
         // Expand branches based on last saved configuration.
         resetTreeState();
@@ -650,36 +652,36 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   removed from the AppMenuBar, View Date menu:    menuViewDate.add(new JMenuItem("Set Look and Feel..."));
     //   removed from this file, the HandleMenuBar method:
     //      else if (what.equals("Set Look and Feel...")) showPlafDialog();
-    private void showPlafDialog() {
-        PlafSelectionPanel pep = new PlafSelectionPanel();
-        int doit = JOptionPane.showConfirmDialog(
-                theFrame, pep,
-                "Select a new Look and Feel", JOptionPane.OK_CANCEL_OPTION);
-
-        if (doit == -1) return; // The X on the dialog
-        if (doit == JOptionPane.CANCEL_OPTION) return;
-
-        // This is where we would set the options...
-        //boolean blnOrigShowPriority = myVars.showPriority;
-        //myVars = to.getValues();
-
-        try {
-            UIDefaults uidefaults = UIManager.getLookAndFeelDefaults();
-            UIManager.setLookAndFeel(pep.getSelectedPlaf());
-            //appOpts.thePlaf = pep.getSelectedPlaf(); // this was a String type.
-            SwingUtilities.updateComponentTreeUI(theFrame);
-            // It looks like a nullPointerException stack trace is being printed as a result of
-            // the above command, which seems to complete successfully anyway, after that.
-            // This exception is not getting trapped by the catch section below.
-            // I think it may be happening because of my implementation of the custom
-            // scrollpane (need to find/review that code).  Seems to go thru without any other
-            // trouble, tho, so we may be able to ignore this indefinitely.
-            System.out.println("updatedComponentTreeUI"); // Shows that the above succeeded.
-        } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-            //e.printStackTrace();
-        }
-    }
+//    private void showPlafDialog() {
+//        PlafSelectionPanel pep = new PlafSelectionPanel();
+//        int doit = JOptionPane.showConfirmDialog(
+//                theFrame, pep,
+//                "Select a new Look and Feel", JOptionPane.OK_CANCEL_OPTION);
+//
+//        if (doit == -1) return; // The X on the dialog
+//        if (doit == JOptionPane.CANCEL_OPTION) return;
+//
+//        // This is where we would set the options...
+//        //boolean blnOrigShowPriority = myVars.showPriority;
+//        //myVars = to.getValues();
+//
+//        try {
+//            UIDefaults uidefaults = UIManager.getLookAndFeelDefaults();
+//            UIManager.setLookAndFeel(pep.getSelectedPlaf());
+//            //appOpts.thePlaf = pep.getSelectedPlaf(); // this was a String type.
+//            SwingUtilities.updateComponentTreeUI(theFrame);
+//            // It looks like a nullPointerException stack trace is being printed as a result of
+//            // the above command, which seems to complete successfully anyway, after that.
+//            // This exception is not getting trapped by the catch section below.
+//            // I think it may be happening because of my implementation of the custom
+//            // scrollpane (need to find/review that code).  Seems to go thru without any other
+//            // trouble, tho, so we may be able to ignore this indefinitely.
+//            System.out.println("updatedComponentTreeUI"); // Shows that the above succeeded.
+//        } catch (Exception e) {
+//            System.out.println("Exception: " + e.getMessage());
+//            //e.printStackTrace();
+//        }
+//    }
 
 
     // This is a 'generic' NoteData loader that can handle the loading
@@ -822,21 +824,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   should have stayed that way.
     //------------------------------------------------------------------
     private void resetTreeState() {
-        treeModel.nodeStructureChanged(theRootNode); // collapses branches
+        treeModel.nodeStructureChanged(theRootNode); // collapses all branches
 
         // Expand branches based on last configuration.
-        if (appOpts.ViewsExpanded) tree.expandPath(viewPath);
-        if (appOpts.NotesExpanded) tree.expandPath(notePath);
-        if (appOpts.TodoListsExpanded) tree.expandPath(todoPath);
-
-        if (nodeSearchResults != null) {
-            if (nodeSearchResults.blnExpanded) {
-                // Reset the expansion state of the Search Results
-                TreeNode[] pathToRoot = nodeSearchResults.getPath();
-                TreePath path = new TreePath(pathToRoot);
-                tree.expandPath(path);
-            }
-        }
+        if (appOpts.viewsExpanded) tree.expandPath(viewsPath);
+        if (appOpts.notesExpanded) tree.expandPath(notesPath);
+        if (appOpts.todoListsExpanded) tree.expandPath(todolistsPath);
+        if (appOpts.searchesExpanded) tree.expandPath(searchresultsPath);
 
     } // end resetTreeState
 
@@ -1101,12 +1095,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
             // Reset tree to the state it was in before.
             blnRestoringSelection = true;
-            if (appOpts.ViewsExpanded) tree.expandPath(viewPath);
-            else tree.collapsePath(viewPath);
-            if (appOpts.NotesExpanded) tree.expandPath(notePath);
-            else tree.collapsePath(notePath);
-            if (appOpts.TodoListsExpanded) tree.expandPath(todoPath);
-            else tree.collapsePath(todoPath);
+            if (appOpts.viewsExpanded) tree.expandPath(viewsPath);
+            else tree.collapsePath(viewsPath);
+            if (appOpts.notesExpanded) tree.expandPath(notesPath);
+            else tree.collapsePath(notesPath);
+            if (appOpts.todoListsExpanded) tree.expandPath(todolistsPath);
+            else tree.collapsePath(todolistsPath);
             tree.setSelectionRow(appOpts.theSelectionRow);
         } else {
             // Capture the current state; we may have to 'toggle' back to it.
@@ -1338,7 +1332,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     void showWeek() {
         MemoryBank.debug("showWeek called.");
-        // This method is called from an external context.
+        // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
+        // There IS not actually a view to show, here.  The rightPane is
+        // just loaded with the text, 'Week View'.  Therefore when this node is selected directly
+        // on the tree, it does not come here but just shows the text of the request that it does
+        // not know how to handle.
         tree.setSelectionPath(weekViewPath);
     } // end showWeek
 
@@ -1453,7 +1451,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         theNoteGroup = null; // initialize
 
-        //<editor-fold desc="Description">
+        //<editor-fold desc="Actions Depending on the selection">
         if (isTodoBranch && isTopLevel) {
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
@@ -1542,12 +1540,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (srn.srg == null) {
                 System.out.println("name: " + srn.strNodeName + ".sresults size: " + srn.intGroupSize);
 
-                // Strip the path from the node's filename, then rebuild it.
-                // This is to handle the case where the results file was moved
-                //   from one filesystem/user to another.  Note that this is
-                //   only needed currently (2/27/2008) for transitional data
-                //   and that newer search results will not be stored with
-                //   the full path in the first place.
                 String s = MemoryBank.userDataHome + File.separatorChar + srn.strNodeName;
                 s += ".sresults";
 
@@ -1558,7 +1550,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end if
 
             if (srn.srg == null) {
-                // We just attempted to load it, so if it is still null then
+                // We just attempted to load it, so if it is STILL null then
                 //   it means the file is not there or not accessible.
 
                 // We can show a notice about what went wrong and what we're
@@ -1602,20 +1594,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Capture the current tree configuration
     //   and put it into appOpts (AppOptions class).
     //-------------------------------------------------
-    private void updateTreeState(boolean updateLists) {
-        appOpts.ViewsExpanded = tree.isExpanded(viewPath);
-        appOpts.NotesExpanded = tree.isExpanded(notePath);
-        appOpts.TodoListsExpanded = tree.isExpanded(todoPath);
+    void updateTreeState(boolean updateLists) {
+        appOpts.viewsExpanded = tree.isExpanded(viewsPath);
+        appOpts.notesExpanded = tree.isExpanded(notesPath);
+        appOpts.todoListsExpanded = tree.isExpanded(todolistsPath);
+        appOpts.searchesExpanded = tree.isExpanded(searchresultsPath);
 
         //System.out.println("Divider Location: " + splitPane.getDividerLocation());
         appOpts.paneSeparator = splitPane.getDividerLocation();
-
-        // Preserve the expansion state of the Search Results
-        if (nodeSearchResults != null) {
-            TreeNode[] pathToRoot = nodeSearchResults.getPath();
-            TreePath path = new TreePath(pathToRoot);
-            nodeSearchResults.blnExpanded = tree.isExpanded(path);
-        }
 
         appOpts.theSelectionRow = tree.getMaxSelectionRow();
         // Current selection text was captured when the last selection

@@ -30,7 +30,8 @@ or could even span directories.
 
 Note that tests are run via Intellij.  There is no 'mvn test' capability
 because the project is not (yet?) mavenized.  A command-line pure Java approach is also possible but
-too unwieldly given the classpath requirements to point to a test class.
+too unwieldly given the classpath requirements to point to a test class, and all the extra libraries
+that IJ/JUnit references to run the tests, that are not needed to build and run the app.
 
 
 Test classes and suites annotated with @RunWith(JUnitPlatform.class) cannot be executed directly on the JUnit Platform

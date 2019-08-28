@@ -19,7 +19,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     private TodoGroupHeader listHeader;
     public static JFileChooser filechooser;
-    private static javax.swing.filechooser.FileFilter ff;
 
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
@@ -32,7 +31,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static {
         // The File Chooser supports the 'merge' functionality.
         filechooser = new JFileChooser(MemoryBank.userDataHome);
-        ff = new javax.swing.filechooser.FileFilter() {
+        // end if
+        // end if
+        // end accept
+        // end getDescription
+        javax.swing.filechooser.FileFilter ff = new javax.swing.filechooser.FileFilter() {
             public boolean accept(File f) {
                 if (f != null) {
                     if (f.isDirectory()) return true;
@@ -463,9 +466,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                         else if (extText.substring(j).startsWith("\n"))
                             rs.append("\n").append(indent);
                         else
-                            rs.append(extText.substring(j, j + 1));
-                        // The 'j+1' will not exceed string length when j=length
-                        //  because 'substring' works with one less on the 2nd int.
+                            rs.append(extText, j, j + 1);
                     } // end for j
 
                     extText = rs.toString();
