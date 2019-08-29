@@ -277,6 +277,8 @@ public class TodoNoteComponent extends NoteComponent {
         popup.add(miClearPriority);
         popup.add(miMoveToToday);
         popup.add(miMoveToSelectedDate);
+        popup.add(miCopyToAnotherList);
+        popup.add(miMoveToAnotherList);
 
         if (myTodoNoteData.hasText()) {
             miClearLine.setEnabled(true);
@@ -307,6 +309,7 @@ public class TodoNoteComponent extends NoteComponent {
     // Overrides the base class
     // Called by a NoteGroup during a load or a shift up/down.
     //----------------------------------------------------------
+    @Override
     public void setNoteData(NoteData newNoteData) {
         setNoteData((TodoNoteData) newNoteData);
     } // end setNoteData

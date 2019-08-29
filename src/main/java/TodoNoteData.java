@@ -35,7 +35,8 @@ public class TodoNoteData extends NoteData implements Serializable {
     } // end constructor
 
 
-    public void clear() {
+    @Override
+    protected void clear() {
         super.clear();
         clearTodoNoteData();
     } // end clear

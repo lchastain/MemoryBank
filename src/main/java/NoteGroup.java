@@ -258,7 +258,9 @@ public abstract class NoteGroup extends JPanel {
             // so that they can first clear their own components.  After that, they still
             // call super.clear() which will clear the parent component and then call the
             // data-clearing method (also overridden, also calls its super).
-            if (tempNote.initialized) tempNote.clear();
+//    if (tempNote.initialized) tempNote.clear();  // 8/29/2019 remove if no further problem with new TodoLists.
+            tempNote.clear();
+
         } // end for
     } // end clearPage
 

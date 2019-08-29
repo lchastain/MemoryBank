@@ -1396,6 +1396,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             theNoteGroup.preClose();
         } // end if
 
+        //<editor-fold desc="Get the last selected Date, if any ">
         //-------------------------------------------------------------
         // There are five (5) situations where the previous selection
         //   may have allowed the user to change the displayed date.
@@ -1429,6 +1430,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             }
             //-------------------------------------------------------------
         } // end if
+        //</editor-fold>
 
         String theText = node.toString();
         String theParent = node.getParent().toString();
