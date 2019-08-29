@@ -50,19 +50,17 @@ class ClearTodoItemTest {
 
         // If the assertions to this point have passed then the underlying data for the
         // TodoNoteComponent - TodoNoteData - must also have the correct values.  We
-        // should only need to check those after the 'clear'.
+        // don't need to look there as well.
 
-        // So now - clear it.
-        tnc.clear();
+        // So now - clear the component.
+        tnc.clear();  // This also sets 'initialized' to false.
 
-        // Verify that the underlying data object still exists but has been cleared out.
+        // When a note is no longer 'initialized', its underlying
+        // data will (appear to) be null.
         TodoNoteData tnd = (TodoNoteData) tnc.getNoteData();
-        Assertions.assertNotNull(tnd);
-        Assertions.assertEquals("", tnd.getNoteString());
-        Assertions.assertEquals(0, tnd.getPriority());
-        Assertions.assertEquals(0, tnd.getStatus());
+        Assertions.assertNull(tnd);
 
-        // Verify that the visual components accurately represent the internal data
+        // Verify that the visual components accurately represent a 'cleared' state
         theTask = tnc.noteTextField.getText();
         Assertions.assertEquals("", theTask);
         thePriorityString = thePriorityButton.getText();

@@ -5,22 +5,22 @@ import java.util.Date;
 public class TodoNoteData extends NoteData implements Serializable {
     static final long serialVersionUID = 8617084685157848161L;
 
-    public static final int TODO_STARTED = 0;
-    public static final int TODO_COMPLETED = 1;
-    public static final int TODO_INPROG = 2;
-    public static final int TODO_WAITING = 3;
-    public static final int TODO_QUERY = 4;
-    public static final int TODO_OBE = 5;
+    static final int TODO_STARTED = 0;
+    static final int TODO_COMPLETED = 1;
+    static final int TODO_INPROG = 2;
+    static final int TODO_WAITING = 3;
+    static final int TODO_QUERY = 4;
+    static final int TODO_OBE = 5;
 
-    protected Date dateTodoItem;
-    protected int intPriority;
-    protected int intStatus;
-    protected String strLinkage;
+    private Date dateTodoItem;
+    private int intPriority;
+    private int intStatus;
+    private String strLinkage;
 
 
     public TodoNoteData() {
         super();
-        clearTodoNoteData();
+        clearTodoNoteData(); // sets initial values.
     } // end constructor
 
 
@@ -41,7 +41,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     } // end clear
 
 
-    public void clearTodoNoteData() {
+    private void clearTodoNoteData() {
         intPriority = 0;
         intStatus = TODO_STARTED;
         strLinkage = null;
@@ -118,7 +118,8 @@ public class TodoNoteData extends NoteData implements Serializable {
             File dest = new File(destFileName);
             String theParentDir = dest.getParent();
             File f = new File(theParentDir);
-            if (!f.exists()) f.mkdirs();
+            if (!f.exists()) //noinspection ResultOfMethodCallIgnored
+                f.mkdirs();
             if (dest.exists()) {
                 MemoryBank.debug("  Destination image is: " + src.getPath());
             } else {
@@ -160,7 +161,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         return intStatus;
     }
 
-    public String getStatusString() {
+    String getStatusString() {
         String s;
         switch (intStatus) {
             case TODO_STARTED:
@@ -200,7 +201,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         intStatus = val;
     }
 
-    public void setTodoDate(Date value) {
+    void setTodoDate(Date value) {
         dateTodoItem = value;
     }
 

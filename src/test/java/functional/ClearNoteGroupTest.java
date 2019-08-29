@@ -46,10 +46,13 @@ class ClearNoteGroupTest {
         // We use the copy-constructor of a new NoteData or else we would only
         // be setting the notestring of the same one in all three components.
         nd.setNoteString(s1);
+        mng.getNoteComponent(0).initialize(); // Alternative to the keyTyped listener.
         mng.getNoteComponent(0).setNoteData(new NoteData(nd));
         nd.setNoteString(s2);
+        mng.getNoteComponent(1).initialize(); // These 'initialize' calls increase the lastVisibleNoteIndex.
         mng.getNoteComponent(1).setNoteData(new NoteData(nd));
         nd.setNoteString(s3);
+        mng.getNoteComponent(2).initialize(); // And only the visible notes will be cleared.
         mng.getNoteComponent(2).setNoteData(new NoteData(nd));
 
         // Next, verify that the data did 'take'
@@ -62,10 +65,7 @@ class ClearNoteGroupTest {
 
         // And verify that it's 'gone' -
         // The clearing will have set the 'initialized' flag of the components, that controls whether getNoteData
-        // returns the NoteData object or just a null.  In point of fact, components 2 and 3 do
-        // still retain their NoteData objects, with the strings that were set above.  Component 1 gets immediate
-        // visibility so its data is cleared first.  The others - when reused, will have theirs cleared before
-        // going visible.
+        // returns the NoteData object or just a null.
         Assertions.assertNull(mnc1.getNoteData());
         Assertions.assertNull(mnc2.getNoteData());
         Assertions.assertNull(mnc3.getNoteData());

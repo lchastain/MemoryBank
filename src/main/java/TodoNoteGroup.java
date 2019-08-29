@@ -634,8 +634,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //  Several actions needed when a line has
     //    either gone active or inactive.
     //--------------------------------------------------------------
-    private void showComponent(TodoNoteComponent nc, boolean b) {
-        if (b) {
+    private void showComponent(TodoNoteComponent nc, boolean showit) {
+        if (showit) {
             tNoteComponent = nc;
             TodoNoteData tnd = (TodoNoteData) nc.getNoteData();
 

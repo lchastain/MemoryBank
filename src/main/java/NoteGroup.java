@@ -226,7 +226,7 @@ public abstract class NoteGroup extends JPanel {
     //----------------------------------------------------------------
     void clearGroup() {
         transferFocusUpCycle(); // Otherwise can get unwanted focus events.
-        clearData();
+        clearPage();
         vectGroupData.clear();
         groupChanged = true;
         saveGroup();   // Save the empty group (which will remove the file, if one exists).
@@ -237,24 +237,30 @@ public abstract class NoteGroup extends JPanel {
 
 
     //----------------------------------------------------------------
-    // Method Name: clearData
+    // Method Name: clearPage
     //
-    // Clear data from all Notes in the interface.
-    // This does not update the components that are displayed, just
-    //  the underlying data objects.
+    // Clear data from all Notes that are showing in the interface.
+    // This resets any components that are displayed with info,
+    //  as well as their underlying data objects.  It does not
+    //  remove components or the data object itself; just clears them.
+    //  (although - once a component is not initialized, a request for
+    //  its data will return a null, whether it's really there or not)
     //----------------------------------------------------------------
-    private void clearData() {
+    private void clearPage() {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
 
-        // A previous iteration of this method would only clear notes that had been
-        // initialized.  Testing for that condition first on every note takes more overhead
-        // than just doing it to some that don't need it, so the condition was removed.  It may have been
-        // a holdover from when there was an indeterminate number of notes in the interface.
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-            tempNote.clear();
+
+            // Only initialized components (appear to) have a data object.
+            //      (I think; 8/29/2019)
+            // The 'clear' method that is called below is overridden by child classes
+            // so that they can first clear their own components.  After that, they still
+            // call super.clear() which will clear the parent component and then call the
+            // data-clearing method (also overridden, also calls its super).
+            if (tempNote.initialized) tempNote.clear();
         } // end for
-    } // end clearData
+    } // end clearPage
 
 
     private boolean deleteFile(File f) {
@@ -725,9 +731,6 @@ public abstract class NoteGroup extends JPanel {
         for (int i = lastVisibleNoteIndex + 1; i <= intHighestNoteComponentIndex; i++) {
             tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
             tempNote.setVisible(false);
-            tempNote.initialized = false;  // this is new (8/24/2019)
-            // was needed for the ClearGroupTest.  Later, found that this changed the way that
-            // some components must be cleared - base class last, now, IF they care about 'initialized'.
         } // end for i
     } // end resetVisibility
 
@@ -973,7 +976,8 @@ public abstract class NoteGroup extends JPanel {
         if ((tmpProperties != null) || (vectGroupData.size() > 0)) {
             // Now save the notes from the vectGroupData.
             notesWritten = saveData(strGroupFilename, vectGroupData, tmpProperties);
-            int nw = saveDataJson(strGroupFilename, tmpProperties);
+// Coming soon..   disabled for now until we do the switchover.
+//            int nw = saveDataJson(strGroupFilename, tmpProperties);
         } // end if
 
         // We didn't try to write a file if there was no data, but there are cases where
@@ -1215,7 +1219,7 @@ public abstract class NoteGroup extends JPanel {
     //   the calling context should first call 'preClose'.
     //----------------------------------------------------
     public void updateGroup() {
-        clearData(); // Clears the data (not Components) from the interface.
+        clearPage(); // Clears the data (not Components) from the interface.
 
         // This is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition

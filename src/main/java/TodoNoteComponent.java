@@ -19,6 +19,8 @@ public class TodoNoteComponent extends NoteComponent {
     private static JMenuItem miClearPriority;
     private static JMenuItem miMoveToToday;
     private static JMenuItem miMoveToSelectedDate;
+    private static JMenuItem miCopyToAnotherList;
+    private static JMenuItem miMoveToAnotherList;
     private static ImageIcon todo_done;
     private static ImageIcon todo_inprog;
     private static ImageIcon todo_wait;
@@ -39,6 +41,12 @@ public class TodoNoteComponent extends NoteComponent {
 
         miMoveToSelectedDate = popup.add("Move To Selected Date");
         miMoveToSelectedDate.addActionListener(popHandler);
+
+        miCopyToAnotherList = popup.add("Copy To Another List...");
+        miCopyToAnotherList.addActionListener(popHandler);
+
+        miMoveToAnotherList = popup.add("Move To Another List...");
+        miMoveToAnotherList.addActionListener(popHandler);
 
         //------------------------
         // Make the status icons
@@ -101,9 +109,9 @@ public class TodoNoteComponent extends NoteComponent {
         // We need to clear out our own members before clearing the base component.
         if (pbThePriorityButton != null) pbThePriorityButton.clear();
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
+
+        // Clear the base component and then clear underlying data.
         super.clear(); // this also sets the component 'initialized' to false
-        // but we don't want to make a new one, so -
-        initialized = true;
     } // end clear
 
 
@@ -142,6 +150,7 @@ public class TodoNoteComponent extends NoteComponent {
     //   information into the local TodoNoteData prior to accessing it.
     //   It returns a reference to the data, not a new data object.
     //-----------------------------------------------------------------
+    @Override
     public NoteData getNoteData() {
         if (!initialized) return null;
 
@@ -156,9 +165,8 @@ public class TodoNoteComponent extends NoteComponent {
         return sbTheStatusButton;
     }
 
-
+    @Override
     protected void makeDataObject() {
-//    super.makeDataObject(); // makes nd
         myTodoNoteData = new TodoNoteData();
     } // end
 
@@ -274,17 +282,16 @@ public class TodoNoteComponent extends NoteComponent {
             miClearLine.setEnabled(true);
             miClearPriority.setEnabled(myTodoNoteData.getPriority() > 0);
             miMoveToToday.setEnabled(true);
-
-            if (myTodoNoteData.getNoteDate() != null) {
-                miMoveToSelectedDate.setEnabled(true);
-            } else {
-                miMoveToSelectedDate.setEnabled(false);
-            } // end if
+            miMoveToSelectedDate.setEnabled(myTodoNoteData.getNoteDate() != null);
+            miCopyToAnotherList.setEnabled(true);
+            miMoveToAnotherList.setEnabled(true);
         } else { // Shouldn't pop up in this case, anyway.
             miClearLine.setEnabled(false);
             miClearPriority.setEnabled(false);
             miMoveToToday.setEnabled(false);
             miMoveToSelectedDate.setEnabled(false);
+            miCopyToAnotherList.setEnabled(false);
+            miMoveToAnotherList.setEnabled(false);
         } // end if
     } // end resetPopup
 

@@ -1,4 +1,4 @@
-/**  Representation of a single Note.
+/*  Representation of a single Note.
  */
 
 import javax.swing.*;
@@ -88,24 +88,28 @@ public class NoteComponent extends JPanel {
     //-----------------------------------------------------------------
     // Method Name: clear
     //
-    // NoteComponent Clear - calls the 'clear' for all.
+    // Clear the visible text field AND clear the underlying data.
+    // Child classes will override this in order to clear their own
+    // components first, but they should call this method afterwards.
     //-----------------------------------------------------------------
     protected void clear() {
-        //  Clear the data object.  Since throughout the NoteComponent
-        //    hierarchy there is only one data object, the next lines
-        //    work for any child class's encapsulated data.
-        NoteData nd = getNoteData();
-        if (nd != null) nd.clear();
-
-        // Clear the Component
+        // Clear the (base) Component - ie, the noteTextField
         noteTextField.setText("");
         noteTextField.setForeground(Color.black);
         noteTextField.setToolTipText(null);
 
-        myNoteGroup.reportFocusChange(this, false); // Notify the NoteGroup
+        // Clear the data object.  Since child classes override the
+        //   getNoteData method, this works for them as well.
+        NoteData nd = getNoteData(); // this only works if initialized
+        if (nd != null) nd.clear();
+
+        // Notify the NoteGroup
+        myNoteGroup.reportFocusChange(this, false);
         myNoteGroup.setGroupChanged();  // Ensure a group 'save'
-        noteChanged = false;    // Reset our own state.
-        initialized = false;    // Needs to be last.
+
+        // Reset our own state and prepare this component to be reused -
+        noteChanged = false;
+        initialized = false; // after this, getNoteData() will return a null.
     } // end clear
 
 
@@ -144,6 +148,7 @@ public class NoteComponent extends JPanel {
 
         if (!initialized) return textStatus;
         NoteData tmpNoteData = getNoteData();
+        if (tmpNoteData == null) return textStatus;
 
         if (tmpNoteData.getNoteString().trim().equals("")) {
             textStatus = NEEDS_TEXT;

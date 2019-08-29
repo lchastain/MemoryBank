@@ -23,7 +23,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     static final long serialVersionUID = -1L;
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
 
-    private static StringBuilder ems;  // Error Message String
+    private static StringBuilder ems = new StringBuilder();  // Error Message String
     private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
     private JTree theTree;  // The original tree, not the one from the editor.
     private DefaultTreeModel theTreeModel;
@@ -40,7 +40,6 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
         DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
         if(dmtn != null) todoIndex = theRoot.getIndex(dmtn);
-        ems = new StringBuilder();
     }
 
     // This method will return a TreePath for the provided String,
@@ -322,11 +321,10 @@ public class TodoBranchHelper implements TreeBranchHelper {
                         throw new Exception("Unable to delete " + nc.nodeName);
                     } // end if
                     MemoryBank.getAppTreePanel().getTodoListKeeper().remove(nc.nodeName);
-                } catch (SecurityException se) {
+                } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
-                } catch (Exception ue) {  // User Exception
-                    ems.append(ue.getMessage()).append(System.lineSeparator());
-                } // end try/catch
+                }// User Exception
+// end try/catch
 
             }
         }  // end for each change
@@ -445,10 +443,8 @@ public class TodoBranchHelper implements TreeBranchHelper {
             // writable and do not need to check 'canWrite'.
 
             b = f.delete(); // So, delete the test file; name test passed.
-        } catch (IOException ioe) {
-            e = ioe;  // Identify now, handle below.
-        } catch (SecurityException se) {
-            e = se;  // Identify now, handle below.
+        } catch (IOException | SecurityException ee) {
+            e = ee;  // Identify now, handle below.
         } finally {
             if(!b) System.out.print("");
         } // end try/catch
@@ -475,7 +471,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     // before coming here.  See the 'save as' methodology for a good
     // example.
     //----------------------------------------------------------------
-    public static void renameTodoListLeaf(String oldname, String newname) {
+    static void renameTodoListLeaf(String oldname, String newname) {
         boolean changeWasMade = false;
         JTree jt = MemoryBank.getAppTreePanel().getTree();
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
