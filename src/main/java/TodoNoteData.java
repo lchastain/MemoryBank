@@ -20,7 +20,7 @@ public class TodoNoteData extends NoteData implements Serializable {
 
     public TodoNoteData() {
         super();
-        clearTodoNoteData(); // sets initial values.
+        clearTodoNoteData(); // sets default values.
     } // end constructor
 
 
@@ -28,6 +28,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     public TodoNoteData(TodoNoteData tndCopy) {
         super(tndCopy);
 
+        // These may not be default values.
         intPriority = tndCopy.intPriority;
         intStatus = tndCopy.intStatus;
         strLinkage = tndCopy.strLinkage;
@@ -41,6 +42,11 @@ public class TodoNoteData extends NoteData implements Serializable {
         clearTodoNoteData();
     } // end clear
 
+
+    @Override
+    protected NoteData copy( ) {
+        return new TodoNoteData(this);
+    }
 
     private void clearTodoNoteData() {
         intPriority = 0;
@@ -132,15 +138,14 @@ public class TodoNoteData extends NoteData implements Serializable {
 
 
         // Make all assignments
-        dnd.setExtendedNoteHeightInt(newHite);  // *
-        dnd.setExtendedNoteString(newExtText);  // *
+        dnd.setExtendedNoteHeightInt(newHite);
+        dnd.setExtendedNoteString(newExtText);
         dnd.setExtendedNoteWidthInt(extendedNoteWidthInt);
-        dnd.setIconFileString(iconFileString);  // *
+        dnd.setIconFileString(iconFileString);
         dnd.setNoteString(noteString);
-        dnd.setShowIconOnMonthBoolean(false);   // *
-        dnd.setSubjectString(subjectString);    // *
-        dnd.setTimeOfDayDate(newTimeDate);      // *
-        // The * indicates potentially new/generated info.
+        dnd.setShowIconOnMonthBoolean(false);
+        dnd.setSubjectString(subjectString);
+        dnd.setTimeOfDayDate(newTimeDate);
 
         return dnd;
     } // end getDayNoteData

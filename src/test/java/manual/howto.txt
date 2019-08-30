@@ -11,10 +11,14 @@ One-stop reference for how tests are getting things done.
 2.  Get the TreePath to a node with a known name/text:  see the testCloseSearchResult test in the
     AppTreePanelTest class - it does that (in several steps and external static methods).
 
-3.  Get the TodoNoteGroup for a given list:  With the list name (essentially the file name) known, the
+3.  Get any NoteGroup:  With the list name (essentially the file name, or close enough) known, the
     group may simply be constructed directly; no need to go to the JTree for it.  The constructor
     loads the file into the group's components.
 
+
+
+
+Set a new line in a NoteGroup - either the lastVisible, or fill in a gap
 
 
 Get a TodoNoteGroup from the tree:  hadn't yet figured this out...

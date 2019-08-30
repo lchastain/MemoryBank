@@ -42,6 +42,13 @@ class NoteData implements Serializable {
         extendedNoteHeightInt = 200;
     } // end clear
 
+    // A copy constructor cannot be called in a class-unspecified manner;
+    //   this method can be.  Child classes will override so that a calling
+    //   context does not need to know what generation it is getting.
+    protected NoteData copy() {
+        return new NoteData(this);
+    }
+
     int getExtendedNoteHeightInt() {
         return extendedNoteHeightInt;
     }

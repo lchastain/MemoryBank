@@ -1,11 +1,12 @@
-/**  Displays a calendar-based group of NoteComponent.  The
- calendar is set to one of DAY, MONTH, YEAR.
+/*  Displays a calendar-based group of NoteComponent.  The
+    calendar is set to one of DAY, MONTH, YEAR.
+
  */
 
 import java.text.SimpleDateFormat;
 import java.util.*; // Calendar, more ??
 
-public class CalendarNoteGroup extends NoteGroup {
+public abstract class CalendarNoteGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
 
     protected Date choice;
@@ -47,11 +48,8 @@ public class CalendarNoteGroup extends NoteGroup {
     //------------------------------------------------------
     // Method Name: getGroupFilename
     //
-    // This is an overridden method in the base class (NoteGroup).
-    //   Otherwise, it would have been more efficient to
-    //   simply make the calls from the calling context
-    //   rather than here.
     //------------------------------------------------------
+    @Override
     public String getGroupFilename() {
         String s;
 

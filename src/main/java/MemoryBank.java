@@ -36,6 +36,7 @@ public class MemoryBank {
     public static String logHome;  // For finding icons & images
     static AppOptions appOpts;     // saved/loaded
     private static AppTreePanel appTreePanel;
+    static NoteData clipboardNote;
 
     //----------------------------------------------------------
     // Private members used in more than one method but only by 'MemoryBank':
@@ -46,7 +47,7 @@ public class MemoryBank {
     private static JFrame logFrame;
     private static AppSplash splash;
     private static boolean logApplicationShowing;
-    private static int percs[] = {20, 25, 45,
+    private static int[] percs = {20, 25, 45,
             50, 60, 90, 100};
     private static int updateNum = 0;
     private static String appIconFileName;
@@ -278,7 +279,7 @@ public class MemoryBank {
         if (theFormat.equals("")) return "";  // never been set
         if (theFormat.equals("0")) return ""; // explicitly set to ""
 
-        String s = "";
+        StringBuilder s = new StringBuilder();
         int which;
         String theField;
 
@@ -290,18 +291,18 @@ public class MemoryBank {
             which = Integer.parseInt(order.substring(i, i + 1));
             theField = getFieldFromFormat(which, theFormat);
             if (which == 5) {
-                s += TimeFormatBar.getRealFormat(theField);
+                s.append(TimeFormatBar.getRealFormat(theField));
             } else {
-                s += theField;
-                s += getSeparatorFromFormat(theFormat, which, false);
+                s.append(theField);
+                s.append(getSeparatorFromFormat(theFormat, which, false));
             } // end if
         } // end for i
 
-        s = s.replace("#SQUOTE#", "''");
-        s = s.replace("#DQUOTE#", "\"");
-        s = s.replace("#VBAR#", "|");
+        s = new StringBuilder(s.toString().replace("#SQUOTE#", "''"));
+        s = new StringBuilder(s.toString().replace("#DQUOTE#", "\""));
+        s = new StringBuilder(s.toString().replace("#VBAR#", "|"));
         // System.out.println("The REAL format specifier is: " + s);
-        return s;
+        return s.toString();
     } // end getRealFormat
 
     // Given the known configuration of the initialFormat string,
@@ -344,7 +345,7 @@ public class MemoryBank {
 
 
     static String minuteToString(int minutes) {
-        if (minutes < 10) return "0" + String.valueOf(minutes);
+        if (minutes < 10) return "0" + minutes;
         else return String.valueOf(minutes);
     } // end minuteToString
 
@@ -352,7 +353,7 @@ public class MemoryBank {
     static String hourToString(int hour) {
         String s;
         if (military) {
-            if (hour < 10) s = "0" + String.valueOf(hour);
+            if (hour < 10) s = "0" + hour;
             else s = String.valueOf(hour);
         } else {
             if (hour > 12) s = String.valueOf(hour - 12);
@@ -465,7 +466,7 @@ public class MemoryBank {
     // Note:  the -debug parameter to MemoryBank is interpreted in main only
     //   after this method is run, so we do not use it here.
     // -----------------------------------------------------------------------
-    public static void setProgramDataLocation() {
+    private static void setProgramDataLocation() {
         String currentDir = System.getProperty("user.dir");
         System.out.println("The current working directory is: " + currentDir);
 

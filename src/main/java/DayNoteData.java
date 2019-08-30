@@ -22,7 +22,6 @@ class DayNoteData extends IconNoteData implements Serializable {
     // The copy constructor (clone)
     DayNoteData(DayNoteData dnd) {
         super(dnd);
-
         timeOfDayDate = dnd.timeOfDayDate;
     } // end constructor
 
@@ -32,6 +31,11 @@ class DayNoteData extends IconNoteData implements Serializable {
         timeOfDayDate = null;
     } // end clear
 
+
+    @Override
+    protected NoteData copy( ) {
+        return new DayNoteData(this);
+    }
 
     Date getTimeOfDayDate() {
         return timeOfDayDate;

@@ -1,12 +1,12 @@
-/**  User interface to manage notes associated with a Year.
+/*  User interface to manage notes associated with a Year.
+    This class extends from NoteGroup and uses the inherited
+    NoteComponent; there is no need for a YearNoteComponent.
  */
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Date;
 
 public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
@@ -85,7 +85,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     //
     // This header contains only a formatted date string.
     //--------------------------------------------------------------
-    public void updateHeader() {
+    private void updateHeader() {
         // Generate new title from current choice.
         yearTitle.setText(sdf.format(getChoice()));
     } // end updateHeader
@@ -133,32 +133,32 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     } // end mouseReleased
     //---------------------------------------------------------
 
-    public static void main(String[] args) {
-        System.out.println("main method of YearNoteGroup started.");
-
-        MemoryBank.debug = true;
-        MemoryBank.setProgramDataLocation();
-        MemoryBank.setUserDataHome("g01@doughmain.net");
-
-        final YearNoteGroup dn = new YearNoteGroup();
-
-        // local variable dn is accessed from within inner class; needs
-        //    to be declared final
-        JFrame f = new JFrame("YearNoteGroup Test");
-        f.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                dn.preClose();
-                System.exit(0);
-            }
-        });
-
-        dn.setChoice(new Date());
-        f.getContentPane().add(dn, "Center");
-        f.pack();
-        f.setVisible(true);
-
-        System.out.println("main method of YearNoteGroup completed.");
-    } // end main
+//    public static void main(String[] args) {
+//        System.out.println("main method of YearNoteGroup started.");
+//
+//        MemoryBank.debug = true;
+//        MemoryBank.setProgramDataLocation();
+//        MemoryBank.setUserDataHome("g01@doughmain.net");
+//
+//        final YearNoteGroup dn = new YearNoteGroup();
+//
+//        // local variable dn is accessed from within inner class; needs
+//        //    to be declared final
+//        JFrame f = new JFrame("YearNoteGroup Test");
+//        f.addWindowListener(new WindowAdapter() {
+//            public void windowClosing(WindowEvent we) {
+//                dn.preClose();
+//                System.exit(0);
+//            }
+//        });
+//
+//        dn.setChoice(new Date());
+//        f.getContentPane().add(dn, "Center");
+//        f.pack();
+//        f.setVisible(true);
+//
+//        System.out.println("main method of YearNoteGroup completed.");
+//    } // end main
 
 } // end class YearNoteGroup
 

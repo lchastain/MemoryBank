@@ -143,13 +143,6 @@ public class TodoNoteComponent extends NoteComponent {
     } // end getIconFilename
 
 
-    //-----------------------------------------------------------------
-    // Method Name: getNoteData
-    //
-    // This method is called by a TodoNoteGroup, to update interface
-    //   information into the local TodoNoteData prior to accessing it.
-    //   It returns a reference to the data, not a new data object.
-    //-----------------------------------------------------------------
     @Override
     public NoteData getNoteData() {
         if (!initialized) return null;
@@ -172,16 +165,19 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     //--------------------------------------------------------------------------
-    // Method Name: moveIt
+    // Method Name: moveToDayNote
     //
-    // Move the TodoNoteData to a Day Note.  The reason that this methodology
+    // Move the TodoNoteData to a Day Note.  That can happen with Events,
+    //   as well, but the reason that this methodology
     //   looks different from the aging of an Event is that here it is done
     //   at the individual Component level, whereas Events are aged as a group
-    //   and more than one might be affected with no viable connection to the
-    //   interface or a specific Component, so the 'refresh' is needed and it
-    //   is not possible to leave a gap because the entire list was reloaded.
+    //   and more than one might be affected with different effects on the
+    //   visible interface, so the 'refresh' is needed there and it
+    //   is not possible to leave a gap because the entire list gets reloaded.
+    //   But here - we just leave a gap (but that might change eventually, when
+    //   we get a 'todolist refresh' feature).
     //--------------------------------------------------------------------------
-    private void moveIt(boolean useDate) {
+    private void moveToDayNote(boolean useDate) {
         MemoryBank.debug("Moving...");
         MemoryBank.debug("  To Date = " + useDate);
 
@@ -212,7 +208,7 @@ public class TodoNoteComponent extends NoteComponent {
             JOptionPane.showMessageDialog(this, s,
                     "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
-    } // end moveIt
+    } // end moveToDayNote
 
 
     //----------------------------------------------------------------
@@ -272,28 +268,27 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     // This method enables/disables the popup menu items.
+    @Override
     protected void resetPopup() {
-        super.resetPopup(); // Removes non-base class items.
-        popup.add(miClearPriority);
+        super.resetPopup(); // Needed, but it removes our non-base class items.
+        popup.add(miClearPriority); // so we put them back.
         popup.add(miMoveToToday);
         popup.add(miMoveToSelectedDate);
-        popup.add(miCopyToAnotherList);
-        popup.add(miMoveToAnotherList);
 
-        if (myTodoNoteData.hasText()) {
-            miClearLine.setEnabled(true);
-            miClearPriority.setEnabled(myTodoNoteData.getPriority() > 0);
-            miMoveToToday.setEnabled(true);
-            miMoveToSelectedDate.setEnabled(myTodoNoteData.getNoteDate() != null);
-            miCopyToAnotherList.setEnabled(true);
-            miMoveToAnotherList.setEnabled(true);
-        } else { // Shouldn't pop up in this case, anyway.
-            miClearLine.setEnabled(false);
+        if(!initialized) {
             miClearPriority.setEnabled(false);
             miMoveToToday.setEnabled(false);
             miMoveToSelectedDate.setEnabled(false);
-            miCopyToAnotherList.setEnabled(false);
-            miMoveToAnotherList.setEnabled(false);
+            return;
+        }
+
+        if (myTodoNoteData.hasText()) {
+            miClearPriority.setEnabled(myTodoNoteData.getPriority() > 0);
+            miMoveToToday.setEnabled(true);
+            miMoveToSelectedDate.setEnabled(myTodoNoteData.getNoteDate() != null);
+        } else {
+            // Find out how this happens, or confirm that it does not.
+            throw new AssertionError();  // Added 8/30/2019 - remove, after this has not occurred for some time.
         } // end if
     } // end resetPopup
 
@@ -688,10 +683,10 @@ public class TodoNoteComponent extends NoteComponent {
                     tnc.pbThePriorityButton.clear();
                     break;
                 case "Move To Today":
-                    tnc.moveIt(false);
+                    tnc.moveToDayNote(false);
                     break;
                 case "Move To Selected Date":
-                    tnc.moveIt(true);
+                    tnc.moveToDayNote(true);
                     break;
                 default:  // A way of showing new menu items with no action (yet).
                     System.out.println(s);

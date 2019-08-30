@@ -15,7 +15,7 @@ public class NoteComponent extends JPanel {
     private static final long serialVersionUID = 1L;
 
     // The Members
-    private NoteData nd;
+    private NoteData myNoteData;
     NoteTextField noteTextField;
 
     // Needed by container classes to set their scrollbar unit increment.
@@ -33,9 +33,8 @@ public class NoteComponent extends JPanel {
     static Border lowBorder;
     protected static JPopupMenu popup;
 
-    // This is a workaround for the restriction on
-    //   the use of 'this' in a static context.  We can
-    //   now get past the compile-time issues, and just
+    // This is how we get around the restriction on the
+    //   use of 'this' in a static context (PopHandler).  We just
     //   have to be sure and set the value at runtime.
     static NoteComponent ncTheNoteComponent;
 
@@ -44,7 +43,10 @@ public class NoteComponent extends JPanel {
     protected boolean initialized = false;
     private boolean noteChanged = false;
     protected int index;
-    static JMenuItem miClearLine;
+    private static JMenuItem miClearLine;
+    private static JMenuItem miCutLine;
+    private static JMenuItem miCopyLine;
+    private static JMenuItem miPasteLine;
 
     static {
         //-----------------------------------
@@ -66,6 +68,12 @@ public class NoteComponent extends JPanel {
         //--------------------------------------------
         // Define the popup menus for a NoteComponent
         //--------------------------------------------
+        miCutLine = popup.add("Cut Line");
+        miCutLine.addActionListener(popHandler);
+        miCopyLine = popup.add("Copy Line");
+        miCopyLine.addActionListener(popHandler);
+        miPasteLine = popup.add("Paste Line");
+        miPasteLine.addActionListener(popHandler);
         miClearLine = popup.add("Clear Line");
         miClearLine.addActionListener(popHandler);
     } // end static section
@@ -122,13 +130,11 @@ public class NoteComponent extends JPanel {
     //-----------------------------------------------------------------
     // Method Name: getNoteData
     //
-    // Returns the data object that this component encapsulates
-    //   and manages.  Used primarily in operations at
-    //   the group level such as load, save, shift, sort, etc.
+    // Returns the data object that this component encapsulates and manages.
     //-----------------------------------------------------------------
     public NoteData getNoteData() {
         if (!initialized) return null;
-        return nd;
+        return myNoteData;
     } // end getNoteData
 
 
@@ -186,7 +192,7 @@ public class NoteComponent extends JPanel {
     //   instantiate their own data.
     //--------------------------------------------------------------
     protected void makeDataObject() {
-        nd = new NoteData();
+        myNoteData = new NoteData();
     } // end
 
 
@@ -273,11 +279,34 @@ public class NoteComponent extends JPanel {
     } // end resetMouseMessage
 
 
-    // This method is called each time before displaying the popup menu
-    //   so that child classes may override it and customize the selections.
+    // This method is called each time before displaying the popup menu.
+    //   Child classes may override it if they have additional selections,
+    //   but they can still call this one first, to handle the base items.
     protected void resetPopup() {
         popup.removeAll();
+        popup.add(miCutLine);   // the default state is 'enabled'.
+        popup.add(miCopyLine);
+        popup.add(miPasteLine);
         popup.add(miClearLine);
+
+        if(!initialized) {
+            miCutLine.setEnabled(false);
+            miCopyLine.setEnabled(false);
+            miPasteLine.setEnabled(MemoryBank.clipboardNote != null);
+            miClearLine.setEnabled(false);
+            return;
+        }
+
+        NoteData menuNoteData = getNoteData();
+        if (null != menuNoteData && menuNoteData.hasText()) {
+            miCutLine.setEnabled(true);
+            miCopyLine.setEnabled(true);
+            miPasteLine.setEnabled(false);
+            miClearLine.setEnabled(true);
+        } else {
+            // Find out how this happens, or confirm that it does not.
+            throw new AssertionError();  // Added 8/30/2019 - remove, after this has not occurred for some time.
+        }
     } // end resetPopup
 
     // Called by NoteGroup when shifting up/down.
@@ -314,17 +343,16 @@ public class NoteComponent extends JPanel {
     //   data then call 'clear' instead.
     // Child classes should override this method and then
     //   duplicate the steps rather than calling super.setNoteData.
-    //   This is because their data component (the nd equivalent)
+    //   This is because their data component (the myNoteData equivalent)
     //   will be a child class of NoteData.  In their overridden
     //   versions of resetComponent, they SHOULD call the super.
     //----------------------------------------------------------
     public void setNoteData(NoteData newNoteData) {
-        nd = newNoteData;
+        myNoteData = newNoteData;
         initialized = true;
 
         // update visual component without updating the 'lastModDate'
         resetComponent();
-
         setNoteChanged();
     } // end setNoteData
 
@@ -649,7 +677,7 @@ public class NoteComponent extends JPanel {
                 //  but is about to lose it as a result of this request.
 
                 // Do not allow the popup menu on the last visible note.
-                if (!initialized) return;
+//                if (!initialized) return;   // 8/30/2019 Commented this line to now allow popup for 'Paste', with all other options disabled.  Remove when feature complete.
 
                 // Ignore double right mouse clicks.
                 if (e.getClickCount() == 2) return;
@@ -658,8 +686,8 @@ public class NoteComponent extends JPanel {
                 // mechanism that allows the handler to be static.
                 ncTheNoteComponent = NoteComponent.this;
 
-                // Allow a child class to enable/disable, add/remove
-                //   menu items, based on which NoteComponent is active.
+                // Child classes will override resetPopup to enable/disable, add/remove
+                //   menu items, based on the data content of the active NoteComponent.
                 resetPopup();
 
                 // Show the popup menu
@@ -692,17 +720,38 @@ public class NoteComponent extends JPanel {
 
     //--------------------------------------------------------------------
 
+    // The PopHandler needs to be static; otherwise we get one for every
+    // component in the NoteGroup, and ALL of them would respond to the
+    // requesting MenuItem.
     private static class PopHandler implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (ncTheNoteComponent == null) return;
 
             JMenuItem jm = (JMenuItem) e.getSource();
-            String s = jm.getText();
-            if (s.equals("Clear Line")) {
-                ncTheNoteComponent.clear();
-            } else {
-                System.out.println(s);
-            } // end if/else
+            NoteData nd; // Needed to isolate old/source data from new/pasted.
+            String theMenuItemText = jm.getText();
+            switch (theMenuItemText) {
+                case "Cut Line":
+                    nd = ncTheNoteComponent.getNoteData();
+                    MemoryBank.clipboardNote = nd.copy();
+                    ncTheNoteComponent.clear();
+                    break;
+                case "Copy Line":
+                    nd = ncTheNoteComponent.getNoteData();
+                    MemoryBank.clipboardNote = nd.copy();
+                    break;
+                case "Paste Line":
+                    ncTheNoteComponent.initialize();
+                    // Pasting a copy allows us to do a paste multiple times without re-copying.
+                    ncTheNoteComponent.setNoteData(MemoryBank.clipboardNote.copy());
+                    break;
+                case "Clear Line":
+                    ncTheNoteComponent.clear();
+                    break;
+                default:
+                    System.out.println(theMenuItemText);
+                    break;
+            }
             ncTheNoteComponent.setNoteChanged();
         } // end actionPerformed
     } // end class PopHandler
