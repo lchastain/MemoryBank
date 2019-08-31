@@ -186,7 +186,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         tnd.setTodoDate(d);
 
         System.out.println(d);
-        tNoteComponent.setNoteData(tnd);
+        tNoteComponent.setTodoNoteData(tnd);
     } // end dateSelected
 
 
@@ -292,10 +292,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                 if (tnd.hasText()) {
                     tnc = (TodoNoteComponent) groupNotesListPanel.getComponent(lastVisibleNoteIndex);
                     if (lastVisibleNoteIndex == getHighestNoteComponentIndex()) {
-                        if (!tnc.initialized) tnc.setNoteData(tnd);
+                        if (!tnc.initialized) tnc.setTodoNoteData(tnd);
                         break;
                     } // end if
-                    tnc.setNoteData(tnd);
+                    tnc.setTodoNoteData(tnd);
                     lastVisibleNoteIndex++;
                 } // end if there is text
             } // end for i

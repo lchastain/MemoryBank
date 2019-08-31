@@ -5,12 +5,12 @@ import java.util.GregorianCalendar;
 
 public class EventNoteData extends IconNoteData {
     private static final long serialVersionUID = 9011997727379920195L;
-    public static final int START_DATE_KNOWN = 1;
-    public static final int START_TIME_KNOWN = 2;
-    public static final int END_DATE_KNOWN = 4;
-    public static final int END_TIME_KNOWN = 8;
-    public static final int START_KNOWN = START_DATE_KNOWN + START_TIME_KNOWN;
-    public static final int END_KNOWN = END_DATE_KNOWN + END_TIME_KNOWN;
+    private static final int START_DATE_KNOWN = 1;
+    private static final int START_TIME_KNOWN = 2;
+    private static final int END_DATE_KNOWN = 4;
+    private static final int END_TIME_KNOWN = 8;
+    private static final int START_KNOWN = START_DATE_KNOWN + START_TIME_KNOWN;
+    private static final int END_KNOWN = END_DATE_KNOWN + END_TIME_KNOWN;
 
     private Date dateEventStart; // Composite of both Date and Time.
     private Date dateEventEnd;   // Composite of both Date and Time.
@@ -46,25 +46,32 @@ public class EventNoteData extends IconNoteData {
 
     // The copy constructor (clone)
     public EventNoteData(EventNoteData endCopy) {
-        this();
-        this.blnRetainNote = endCopy.blnRetainNote;
-        this.dateEventEnd = endCopy.dateEventEnd;
-        this.dateEventStart = endCopy.dateEventStart;
-        this.extendedNoteHeightInt = endCopy.extendedNoteHeightInt;
-        this.extendedNoteString = endCopy.extendedNoteString;
-        this.extendedNoteWidthInt = endCopy.extendedNoteWidthInt;
-        this.iconFileString = endCopy.iconFileString;
-        this.intDatKnown = endCopy.intDatKnown;
-        this.lngDurationValue = endCopy.lngDurationValue;
-        this.noteString = endCopy.noteString;
-        this.showIconOnMonthBoolean = endCopy.showIconOnMonthBoolean;
-        this.strDateFormat = endCopy.strDateFormat;
-        this.strDurationUnits = endCopy.strDurationUnits;
-        this.strLocation = endCopy.strLocation;
-        this.strRecurrence = endCopy.strRecurrence;
-        this.subjectString = endCopy.subjectString;
+        super();
+        blnRetainNote = endCopy.blnRetainNote;
+        dateEventEnd = endCopy.dateEventEnd;
+        dateEventStart = endCopy.dateEventStart;
+        extendedNoteHeightInt = endCopy.extendedNoteHeightInt;
+        extendedNoteString = endCopy.extendedNoteString;
+        extendedNoteWidthInt = endCopy.extendedNoteWidthInt;
+        iconFileString = endCopy.iconFileString;
+        intDatKnown = endCopy.intDatKnown;
+        lngDurationValue = endCopy.lngDurationValue;
+        noteString = endCopy.noteString;
+        showIconOnMonthBoolean = endCopy.showIconOnMonthBoolean;
+        strDateFormat = endCopy.strDateFormat;
+        strDurationUnits = endCopy.strDurationUnits;
+        strLocation = endCopy.strLocation;
+        strRecurrence = endCopy.strRecurrence;
+        subjectString = endCopy.subjectString;
     } // end constructor
 
+
+    // Construct an EventNoteData from a NoteData.
+    // This is used when taking Notes from NoteData interfaces.
+    public EventNoteData(NoteData nd) {
+        super(nd);
+        clearEventNoteData();
+    } // end constructor
 
     // NOTES:
     //
@@ -81,9 +88,14 @@ public class EventNoteData extends IconNoteData {
     } // end clear
 
 
+    @Override
+    protected NoteData copy( ) {
+        return new EventNoteData(this);
+    }
+
     // This is (may be?) needed as a separate method because of base
     //  class behaviors calling base clears.
-    public void clearEventNoteData() {
+    private void clearEventNoteData() {
         dateEventStart = null;
         dateEventEnd = null;
         strDateFormat = "";
@@ -98,7 +110,7 @@ public class EventNoteData extends IconNoteData {
         return strDateFormat;
     }
 
-    public Long getDurationValue() {
+    Long getDurationValue() {
         if (strDurationUnits == null) {
             // This can happen when an EventNoteData is loaded via
             //   serialization, as opposed to construction and
@@ -113,7 +125,7 @@ public class EventNoteData extends IconNoteData {
     } // end getDurationValue
 
 
-    public String getDurationUnits() {
+    String getDurationUnits() {
         if (strDurationUnits == null) {
             // This can happen when an EventNoteData is loaded via
             //   serialization, as opposed to construction and
@@ -128,7 +140,7 @@ public class EventNoteData extends IconNoteData {
     } // end getDurationUnits
 
 
-    public Date getEndDate() {
+    Date getEndDate() {
         if (!isEndDateKnown()) return null;
 
         // If we are managing the intDatKnown variable properly
@@ -160,14 +172,14 @@ public class EventNoteData extends IconNoteData {
     //   not removable, we take the easiest route and simply
     //   return the entire EventEnd, if the time is known
     //   at all, that is.
-    public Date getEndTime() {
+    Date getEndTime() {
         if (!isEndTimeKnown()) return null;
         return dateEventEnd;
     } // end getEndTime
 
 
     // Used in Duration calculations.
-    public Date getEventEnd() {
+    Date getEventEnd() {
         return dateEventEnd;
     }
 
@@ -195,7 +207,7 @@ public class EventNoteData extends IconNoteData {
     }
 
 
-    public static String getRecurrenceSummary(String strSetting) {
+    static String getRecurrenceSummary(String strSetting) {
         if (strSetting.equals("")) return "None";
 
         String strRecurSummary = "";
@@ -214,21 +226,29 @@ public class EventNoteData extends IconNoteData {
             if (intDayCount > 1) {
                 strRecurSummary += "Repeats on " + intDayCount + " days of the week at ";
             } else {
-                if (strDescription.equals("Su")) {
-                    strRecurSummary += "Repeats on Sundays at ";
-                } else if (strDescription.equals("Mo")) {
-                    strRecurSummary += "Repeats on Mondays at ";
-                } else if (strDescription.equals("Tu")) {
-                    strRecurSummary += "Repeats on Tuesdays at ";
-                } else if (strDescription.equals("We")) {
-                    strRecurSummary += "Repeats on Wednesdays at ";
-                } else if (strDescription.equals("Th")) {
-                    strRecurSummary += "Repeats on Thursdays at ";
-                } else if (strDescription.equals("Fr")) {
-                    strRecurSummary += "Repeats on Fridays at ";
-                } else if (strDescription.equals("Sa")) {
-                    strRecurSummary += "Repeats on Saturdays at ";
-                } // end if
+                switch (strDescription) {
+                    case "Su":
+                        strRecurSummary += "Repeats on Sundays at ";
+                        break;
+                    case "Mo":
+                        strRecurSummary += "Repeats on Mondays at ";
+                        break;
+                    case "Tu":
+                        strRecurSummary += "Repeats on Tuesdays at ";
+                        break;
+                    case "We":
+                        strRecurSummary += "Repeats on Wednesdays at ";
+                        break;
+                    case "Th":
+                        strRecurSummary += "Repeats on Thursdays at ";
+                        break;
+                    case "Fr":
+                        strRecurSummary += "Repeats on Fridays at ";
+                        break;
+                    case "Sa":
+                        strRecurSummary += "Repeats on Saturdays at ";
+                        break;
+                }
             }
             strRecurSummary += strSetting.substring(1, intUnderscore1);
             strRecurSummary += " week intervals";
@@ -258,7 +278,7 @@ public class EventNoteData extends IconNoteData {
                     sdf.applyPattern("EEEE MMM dd, yyyy");
                     strRecurSummary += " and stops by ";
                     strRecurSummary += sdf.format(d);
-                } catch (Exception pe) {
+                } catch (Exception ignored) {
                 }
             }
         } // end if there is an end recurrence range
@@ -292,7 +312,7 @@ public class EventNoteData extends IconNoteData {
     //   not removable, we take the easiest route and simply
     //   return the entire EventStart, if the time is known
     //   at all, that is.
-    public Date getStartTime() {
+    Date getStartTime() {
         if (!isStartTimeKnown()) return null;
         return dateEventStart;
     } // end getStartTime
@@ -428,7 +448,7 @@ public class EventNoteData extends IconNoteData {
     //   because as soon as it goes below two there is no
     //   more recurrence at all.
     //------------------------------------------------------
-    public boolean goForward() {
+    boolean goForward() {
         if (strRecurrence.equals("")) return false;
 
         // Unlikely that this method was even called in this
@@ -440,7 +460,8 @@ public class EventNoteData extends IconNoteData {
         String strDescription;
 
         // Preserve duration so we can restore, if needed.
-        Long lngTheDuration = getDurationValue();
+        getDurationValue();
+        Long lngTheDuration;
         if (strDurationUnits.toLowerCase().startsWith("hour")) {
             lngTheDuration = lngDurationValue * 60;
         } else if (strDurationUnits.toLowerCase().startsWith("day")) {
@@ -525,7 +546,7 @@ public class EventNoteData extends IconNoteData {
                 try {
                     Date d = sdf.parse(strRecurEnd);
                     if (d.before(calTmp.getTime())) return false;
-                } catch (Exception pe) {
+                } catch (Exception ignored) {
                 }
             } // end if/else - Stop    After or By
         } // end if there is an end recurrence range
@@ -572,108 +593,140 @@ public class EventNoteData extends IconNoteData {
         int intMonth = calTmp.get(Calendar.MONTH);
 
         // Examine the user-selected recurrence pattern.
-        if (Character.isDigit(strMonthPattern.charAt(4))) {
-            // If the pattern is the simple numeric, then we are done.
-        } else if (strMonthPattern.toLowerCase().contains("weekend")) {
-            // System.out.println("generalized - weekend");
-            // Now set the calendar to the first one in this month -
-            calTmp.set(Calendar.DAY_OF_MONTH, 1);
-            while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
-            dateGood = calTmp.getTime();
-            // System.out.println("Adjusted to correct day: " + calTmp.getTime());
-
-            while (!strMonthPattern.toLowerCase().contains(strWhichOne)) {
-                if (strWhichOne.equals("first")) strWhichOne = "second";
-                else if (strWhichOne.equals("second")) strWhichOne = "third";
-                else if (strWhichOne.equals("third")) strWhichOne = "fourth";
-                else strWhichOne = "keep going...";
-
-                calTmp.add(Calendar.DATE, 1); // add a day
-
-                // and keep going, if we need to,
-                // to get to the next weekend day.
+        if (!Character.isDigit(strMonthPattern.charAt(4))) {
+            // If the pattern is the simple numeric, then we are done.  Otherwise -
+            if (strMonthPattern.toLowerCase().contains("weekend")) {
+                // System.out.println("generalized - weekend");
+                // Now set the calendar to the first one in this month -
+                calTmp.set(Calendar.DAY_OF_MONTH, 1);
                 while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+                dateGood = calTmp.getTime();
+                // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
-                // System.out.println(strWhichOne + " " + calTmp.getTime());
-                if (calTmp.get(Calendar.MONTH) != intMonth) {
-                    // System.out.println("Shot past - resetting.");
-                    calTmp.setTime(dateGood);
-                    break;
-                } else {
-                    if (!RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
-                } // end if/else
-            } // end while
-            dateTheEndDate = calTmp.getTime();
-        } else if (strMonthPattern.toLowerCase().contains("weekday")) {
-            // System.out.println("generalized - weekday");
-            // Now set the calendar to the first one in this month -
-            calTmp.set(Calendar.DAY_OF_MONTH, 1);
-            while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
-            dateGood = calTmp.getTime();
-            // System.out.println("Adjusted to correct day: " + calTmp.getTime());
+                while (!strMonthPattern.toLowerCase().contains(strWhichOne)) {
+                    switch (strWhichOne) {
+                        case "first":
+                            strWhichOne = "second";
+                            break;
+                        case "second":
+                            strWhichOne = "third";
+                            break;
+                        case "third":
+                            strWhichOne = "fourth";
+                            break;
+                        default:
+                            strWhichOne = "keep going...";
+                            break;
+                    }
 
-            while (!strMonthPattern.contains(strWhichOne)) {
-                if (strWhichOne.equals("first")) strWhichOne = "second";
-                else if (strWhichOne.equals("second")) strWhichOne = "third";
-                else if (strWhichOne.equals("third")) strWhichOne = "fourth";
-                else strWhichOne = "keep going...";
+                    calTmp.add(Calendar.DATE, 1); // add a day
 
-                calTmp.add(Calendar.DATE, 1); // add a day
+                    // and keep going, if we need to,
+                    // to get to the next weekend day.
+                    while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
 
-                // and keep going, if we need to,
-                // to get to the next weekend day.
+                    // System.out.println(strWhichOne + " " + calTmp.getTime());
+                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                        // System.out.println("Shot past - resetting.");
+                        calTmp.setTime(dateGood);
+                        break;
+                    } else {
+                        if (!RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
+                    } // end if/else
+                } // end while
+                dateTheEndDate = calTmp.getTime();
+            } else if (strMonthPattern.toLowerCase().contains("weekday")) {
+                // System.out.println("generalized - weekday");
+                // Now set the calendar to the first one in this month -
+                calTmp.set(Calendar.DAY_OF_MONTH, 1);
                 while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
-
-                // System.out.println(strWhichOne + " " + calTmp.getTime());
-                if (calTmp.get(Calendar.MONTH) != intMonth) {
-                    // System.out.println("Shot past - resetting.");
-                    calTmp.setTime(dateGood);
-                    break;
-                } else {
-                    if (RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
-                } // end if/else
-            } // end while
-            dateTheEndDate = calTmp.getTime();
-        } else if (strMonthPattern.toLowerCase().contains("last day")) {
-            // System.out.println("last day");
-            while (true) {
                 dateGood = calTmp.getTime();
-                calTmp.add(Calendar.DATE, 1); // add a day
+                // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
-                if (calTmp.get(Calendar.MONTH) != intMonth) {
-                    // System.out.println("Shot past - resetting.");
-                    calTmp.setTime(dateGood);
-                    break;
-                } // end if
-            } // end while
-            dateTheEndDate = calTmp.getTime();
-        } else {
-            // System.out.println("specific day");
-            // Now set the calendar to the first one in this month -
-            calTmp.set(Calendar.DAY_OF_MONTH, 1);
-            while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
-                calTmp.add(Calendar.DATE, 1);
-            } // end while
-            // System.out.println("Adjusted to correct day: " + calTmp.getTime());
+                while (!strMonthPattern.contains(strWhichOne)) {
+                    switch (strWhichOne) {
+                        case "first":
+                            strWhichOne = "second";
+                            break;
+                        case "second":
+                            strWhichOne = "third";
+                            break;
+                        case "third":
+                            strWhichOne = "fourth";
+                            break;
+                        default:
+                            strWhichOne = "keep going...";
+                            break;
+                    }
 
-            while (!strMonthPattern.contains(strWhichOne)) {
-                if (strWhichOne.equals("first")) strWhichOne = "second";
-                else if (strWhichOne.equals("second")) strWhichOne = "third";
-                else if (strWhichOne.equals("third")) strWhichOne = "fourth";
-                else strWhichOne = "keep going...";
+                    calTmp.add(Calendar.DATE, 1); // add a day
 
-                dateGood = calTmp.getTime();
-                calTmp.add(Calendar.DATE, 7); // add a week
+                    // and keep going, if we need to,
+                    // to get to the next weekend day.
+                    while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
 
-                // System.out.println(strWhichOne + " " + calTmp.getTime());
-                if (calTmp.get(Calendar.MONTH) != intMonth) {
-                    // System.out.println("Shot past - resetting.");
-                    calTmp.setTime(dateGood);
-                    break;
-                } // end if
-            } // end while
-            dateTheEndDate = calTmp.getTime();
-        } // end if/else - general or specific or last
+                    // System.out.println(strWhichOne + " " + calTmp.getTime());
+                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                        // System.out.println("Shot past - resetting.");
+                        calTmp.setTime(dateGood);
+                        break;
+                    } else {
+                        if (RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
+                    } // end if/else
+                } // end while
+                dateTheEndDate = calTmp.getTime();
+            } else if (strMonthPattern.toLowerCase().contains("last day")) {
+                // System.out.println("last day");
+                while (true) {
+                    dateGood = calTmp.getTime();
+                    calTmp.add(Calendar.DATE, 1); // add a day
+
+                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                        // System.out.println("Shot past - resetting.");
+                        calTmp.setTime(dateGood);
+                        break;
+                    } // end if
+                } // end while
+                dateTheEndDate = calTmp.getTime();
+            } else {
+                // System.out.println("specific day");
+                // Now set the calendar to the first one in this month -
+                calTmp.set(Calendar.DAY_OF_MONTH, 1);
+                while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
+                    calTmp.add(Calendar.DATE, 1);
+                } // end while
+                // System.out.println("Adjusted to correct day: " + calTmp.getTime());
+
+                while (!strMonthPattern.contains(strWhichOne)) {
+                    switch (strWhichOne) {
+                        case "first":
+                            strWhichOne = "second";
+                            break;
+                        case "second":
+                            strWhichOne = "third";
+                            break;
+                        case "third":
+                            strWhichOne = "fourth";
+                            break;
+                        default:
+                            strWhichOne = "keep going...";
+                            break;
+                    }
+
+                    dateGood = calTmp.getTime();
+                    calTmp.add(Calendar.DATE, 7); // add a week
+
+                    // System.out.println(strWhichOne + " " + calTmp.getTime());
+                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                        // System.out.println("Shot past - resetting.");
+                        calTmp.setTime(dateGood);
+                        break;
+                    } // end if
+                } // end while
+                dateTheEndDate = calTmp.getTime();
+            } // end if/else - general or specific or last
+        }
+
 
         return dateTheEndDate;
     } // end goForwardMonths
@@ -718,7 +771,7 @@ public class EventNoteData extends IconNoteData {
     //
     // Compares the known Event start to the current time.
     //---------------------------------------------------------
-    public boolean hasStarted() {
+    boolean hasStarted() {
         Date datNow = new Date();
 
         if (!isStartDateKnown()) return false;
@@ -755,9 +808,8 @@ public class EventNoteData extends IconNoteData {
     } // end isAnyUnknown
 
 
-    public boolean isEndDateKnown() {
-        boolean b = (intDatKnown & END_DATE_KNOWN) == END_DATE_KNOWN;
-        return b;
+    boolean isEndDateKnown() {
+        return (intDatKnown & END_DATE_KNOWN) == END_DATE_KNOWN;
     }
 
 
@@ -767,7 +819,7 @@ public class EventNoteData extends IconNoteData {
     // Answers the question - does the event
     //   end on the same day that it started?
     //---------------------------------------------------
-    public boolean isEndSameDay() {
+    private boolean isEndSameDay() {
         if (!isStartDateKnown()) return false; // Can't determine == no
         if (!isEndDateKnown()) return false;
 
@@ -777,26 +829,22 @@ public class EventNoteData extends IconNoteData {
 
         calTmp.setTime(dateEventEnd);
         if (calTmp.get(Calendar.YEAR) != intTheYear) return false;
-        if (calTmp.get(Calendar.DAY_OF_YEAR) != intTheDay) return false;
-        return true;
+        return calTmp.get(Calendar.DAY_OF_YEAR) == intTheDay;
     } // end isEndSameDay
 
 
-    public boolean isEndTimeKnown() {
-        boolean b = (intDatKnown & END_TIME_KNOWN) == END_TIME_KNOWN;
-        return b;
+    boolean isEndTimeKnown() {
+        return (intDatKnown & END_TIME_KNOWN) == END_TIME_KNOWN;
     } // end isEndTimeKnown
 
 
     public boolean isStartDateKnown() {
-        boolean b = (intDatKnown & START_DATE_KNOWN) == START_DATE_KNOWN;
-        return b;
+        return (intDatKnown & START_DATE_KNOWN) == START_DATE_KNOWN;
     }
 
 
-    public boolean isStartTimeKnown() {
-        boolean b = (intDatKnown & START_TIME_KNOWN) == START_TIME_KNOWN;
-        return b;
+    boolean isStartTimeKnown() {
+        return (intDatKnown & START_TIME_KNOWN) == START_TIME_KNOWN;
     }
 
 
@@ -807,8 +855,7 @@ public class EventNoteData extends IconNoteData {
     //   are known; otherwise returns false.
     //---------------------------------------------------------
     public boolean isTimesKnown() {
-        boolean b = (isStartTimeKnown() && isEndTimeKnown());
-        return b;
+        return (isStartTimeKnown() && isEndTimeKnown());
     } // end isTimesKnown
 
 
@@ -824,7 +871,7 @@ public class EventNoteData extends IconNoteData {
     //   will be in units of Minutes, since this is currently
     //   the finest granularity of the EventEditor.
     //-----------------------------------------------------------
-    private boolean recalcDuration() {
+    private void recalcDuration() {
         boolean blnDatePair = isStartDateKnown() & isEndDateKnown();
         boolean blnTimePair = isStartTimeKnown() & isEndTimeKnown();
         boolean blnAnyKnown;
@@ -838,18 +885,18 @@ public class EventNoteData extends IconNoteData {
 
         // First, cover the 11 cases where we know we can't.
         //---------------------------------------------------------
-        if (dateEventEnd == null) return false;   // 4 cases
-        if (dateEventStart == null) return false; // 4 cases
+        if (dateEventEnd == null) return;   // 4 cases
+        if (dateEventStart == null) return; // 4 cases
         // (but one of the 8 is an overlap so there are still 4 more)
 
         // Start (Date known, Time not), End (Date not, Time known)
         // Start (Date not, Time known), End (Date known, Time not)
-        if (blnAnyKnown && !blnDatePair && !blnTimePair) return false;
+        if (blnAnyKnown && !blnDatePair && !blnTimePair) return;
 
         // We know both times but only one or the other date
         if (blnTimePair) {
-            if (isStartDateKnown() && !isEndDateKnown()) return false;
-            if (!isStartDateKnown() && isEndDateKnown()) return false;
+            if (isStartDateKnown() && !isEndDateKnown()) return;
+            if (!isStartDateKnown() && isEndDateKnown()) return;
         }
         //---------------------------------------------------------
 
@@ -904,7 +951,7 @@ public class EventNoteData extends IconNoteData {
                     strDurationUnits = "week";
 
                     if (lngDurationValue > 99999) { // Just too big to show.
-                        return false;
+                        return;
                     }
                 } // end if Days is too small a unit
             } // end if Hours is too small a unit
@@ -982,7 +1029,6 @@ public class EventNoteData extends IconNoteData {
 
         if (lngDurationValue > 1) strDurationUnits += "s";
 
-        return true;
     } // end recalcDuration
 
 
@@ -1205,7 +1251,7 @@ public class EventNoteData extends IconNoteData {
     //   is false.  Otherwise the setting is accepted and the
     //   return value is true.
     //------------------------------------------------------------
-    public boolean setEndTime(Date d) {
+    boolean setEndTime(Date d) {
         if (d == null) { // The user is 'un-setting' the time.
             if (isEndTimeKnown()) intDatKnown -= END_TIME_KNOWN;
 
@@ -1280,7 +1326,7 @@ public class EventNoteData extends IconNoteData {
         strRecurrence = s;
     }
 
-    public void setRetainNote(boolean b) {
+    void setRetainNote(boolean b) {
         blnRetainNote = b;
     }
 
@@ -1370,7 +1416,7 @@ public class EventNoteData extends IconNoteData {
     //   creating any 'phantom' ones that may be generated by a
     //   time-only setting when the Date field is initialized.
     //------------------------------------------------------------
-    public boolean setStartTime(Date d) {
+    boolean setStartTime(Date d) {
         if (d == null) { // The user is 'un-setting' the time.
             if (isStartTimeKnown()) intDatKnown -= START_TIME_KNOWN;
 

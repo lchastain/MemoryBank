@@ -10,7 +10,6 @@ class IconNoteData extends NoteData implements Serializable {
         super();
     } // end constructor
 
-
     // The copy constructor (clone)
     IconNoteData(IconNoteData ind) {
         super(ind);
@@ -19,6 +18,11 @@ class IconNoteData extends NoteData implements Serializable {
         showIconOnMonthBoolean = ind.showIconOnMonthBoolean;
     } // end constructor
 
+    // Construct an IconNoteData from a NoteData
+    // The result will just have the default icon.
+    IconNoteData(NoteData nd) {
+        super(nd);
+    } // end constructor
 
     protected void clear() {
         super.clear();

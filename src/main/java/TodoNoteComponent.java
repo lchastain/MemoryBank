@@ -298,39 +298,28 @@ public class TodoNoteComponent extends NoteComponent {
     } // end resetVisibility
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // Overrides the base class
-    // Called by a NoteGroup during a load or a shift up/down.
-    //----------------------------------------------------------
     @Override
     public void setNoteData(NoteData newNoteData) {
-        setNoteData((TodoNoteData) newNoteData);
+        if (newNoteData instanceof TodoNoteData) {  // same type, but cast is still needed
+            setTodoNoteData((TodoNoteData) newNoteData);
+        } else { // Not 'my' type, but we can make it so.
+            setTodoNoteData(new TodoNoteData(newNoteData));
+        }
     } // end setNoteData
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // OverLoads the base class
-    // Called by a NoteGroup during a load or a shift up/down.
-    //----------------------------------------------------------
-    public void setNoteData(TodoNoteData newNoteData) {
+    void setTodoNoteData(TodoNoteData newNoteData) {
         myTodoNoteData = newNoteData;
-        initialized = true;
 
-        // update visual components....
+        // update visual components...
+        initialized = true;  // without updating the 'lastModDate'
         resetComponent();
-
         setNoteChanged();
-    } // end setNoteData
+    } // end setTodoNoteData
 
 
-    //------------------------------------------------------------------
-    // Method Name: swap
-    //
-    //------------------------------------------------------------------
+    // Exchange data content between this component and the input parameter.
+    @Override
     public void swap(NoteComponent tnc) {
         // Get a reference to the two data objects
         TodoNoteData tnd1 = (TodoNoteData) this.getNoteData();
@@ -350,7 +339,7 @@ public class TodoNoteComponent extends NoteComponent {
         else tnc.setNoteData(tnd1);
 
         if (tnd2 == null) this.clear();
-        else this.setNoteData(tnd2);
+        else this.setTodoNoteData(tnd2);
 
         myNoteGroup.setGroupChanged();
     } // end swap

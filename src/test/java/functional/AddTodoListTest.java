@@ -59,17 +59,17 @@ class AddTodoListTest {
         tnd.setPriority(2);
         tnd.setStatus(2);
         // For TodoNoteComponents, setNoteData also initializes.
-        tng.getNoteComponent(0).setNoteData(new TodoNoteData(tnd));
+        tng.getNoteComponent(0).setTodoNoteData(new TodoNoteData(tnd));
 
         tnd.setNoteString(s2);
         tnd.setPriority(3);
         tnd.setStatus(3);
-        tng.getNoteComponent(1).setNoteData(new TodoNoteData(tnd));
+        tng.getNoteComponent(1).setTodoNoteData(new TodoNoteData(tnd));
 
         tnd.setNoteString(s3);
         tnd.setPriority(4);
         tnd.setStatus(4);
-        tng.getNoteComponent(2).setNoteData(new TodoNoteData(tnd));
+        tng.getNoteComponent(2).setTodoNoteData(new TodoNoteData(tnd));
 
         // Now, verify that the data did get into the group.
         Assertions.assertEquals(tnc1.getNoteData().noteString, s1);

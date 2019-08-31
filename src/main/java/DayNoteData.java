@@ -25,6 +25,14 @@ class DayNoteData extends IconNoteData implements Serializable {
         timeOfDayDate = dnd.timeOfDayDate;
     } // end constructor
 
+    // Construct a DayNoteData from a NoteData.
+    // This is used when taking Notes from NoteData interfaces.
+    // The result will get a new time and the default icon.
+    DayNoteData(NoteData nd) {
+        super(nd);
+        timeOfDayDate = new Date();
+    }
+
 
     protected void clear() {
         super.clear();

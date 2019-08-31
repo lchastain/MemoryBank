@@ -337,21 +337,21 @@ public class NoteComponent extends JPanel {
     //----------------------------------------------------------
     // Method Name: setNoteData
     //
-    // Called directly by a NoteGroup during a load, and
-    //   indirectly (via swap) for a shift up/down.
-    // Do not send a null; if you want to 'un' set the note
-    //   data then call 'clear' instead.
+    // Set the data for this component.  Do not send a null; if you want
+    //   to unset the NoteData then call 'clear' instead.
     // Child classes should override this method and then
-    //   duplicate the steps rather than calling super.setNoteData.
+    //   duplicate the needed steps rather than calling super.setNoteData.
     //   This is because their data component (the myNoteData equivalent)
-    //   will be a child class of NoteData.  In their overridden
-    //   versions of resetComponent, they SHOULD call the super.
+    //   will be a child class of NoteData and not the instance that is
+    //   affected here.  But in their overridden
+    //   versions of resetComponent in order to show the change, they
+    //   SHOULD call the super so that the changes here will also be seen.
     //----------------------------------------------------------
     public void setNoteData(NoteData newNoteData) {
         myNoteData = newNoteData;
-        initialized = true;
 
-        // update visual component without updating the 'lastModDate'
+        // show the updated noteString
+        initialized = true; // but do not update the 'lastModDate'
         resetComponent();
         setNoteChanged();
     } // end setNoteData
@@ -722,7 +722,10 @@ public class NoteComponent extends JPanel {
 
     // The PopHandler needs to be static; otherwise we get one for every
     // component in the NoteGroup, and ALL of them would respond to the
-    // requesting MenuItem.
+    // "one" requesting MenuItem.
+    // This is because the menu items are also static, so the same JMenuItem
+    // is being shown for each NoteComponent, with either a single ActionListener,
+    // or several of them if this class were not also static.
     private static class PopHandler implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (ncTheNoteComponent == null) return;

@@ -35,6 +35,12 @@ public class TodoNoteData extends NoteData implements Serializable {
         dateTodoItem = tndCopy.dateTodoItem;
     } // end constructor
 
+    // Construct a TodoNoteData from a NoteData.
+    // This is used when taking Notes from NoteData interfaces.
+    public TodoNoteData(NoteData nd) {
+        super(nd);
+        clearTodoNoteData(); // sets default values.
+    } // end constructor
 
     @Override
     protected void clear() {
@@ -63,7 +69,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     //   a DayNoteData, for moving to a specific date.
     // Note that although a Day does not usually hold its correct calendar date
     //   in the 'time' field, in this case it must, in order for
-    //   NoteGroup.addNote to place it in the correct file.
+    //   NoteGroup.addNote to place it into the correct file.
     //-------------------------------------------------------------
     public DayNoteData getDayNoteData(boolean useDate) {
         DayNoteData dnd = new DayNoteData();

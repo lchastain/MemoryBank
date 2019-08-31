@@ -29,6 +29,17 @@ class NoteData implements Serializable {
         this.dateLastMod = ndCopy.dateLastMod;
     } // end constructor
 
+    // Construct a NoteData from a TodoNoteData.
+    public NoteData(TodoNoteData ndCopy) {
+        this();
+        this.noteString = ndCopy.noteString;
+        this.subjectString = ndCopy.subjectString;
+        this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
+        this.extendedNoteString = ndCopy.extendedNoteString;
+        this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
+        this.dateLastMod = ndCopy.getLastModDate();
+    } // end constructor
+
 
     protected void clear() {
         noteString = "";
@@ -44,7 +55,8 @@ class NoteData implements Serializable {
 
     // A copy constructor cannot be called in a class-unspecified manner;
     //   this method can be.  Child classes will override so that a calling
-    //   context does not need to know what generation it is getting.
+    //   context does not need to know what generation of NoteData it is
+    //   really getting, just that it will look like a NoteData.
     protected NoteData copy() {
         return new NoteData(this);
     }

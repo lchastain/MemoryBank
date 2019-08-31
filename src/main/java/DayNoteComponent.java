@@ -1,8 +1,5 @@
-/**  Representation of a single Day Note.
+/*  Representation of a single Day Note.
  */
-/**  Representation of a single Day Note.
- */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -21,9 +18,9 @@ public class DayNoteComponent extends IconNoteComponent {
     private Date myTime;
 
     // Private static values that are accessed from multiple contexts.
-    protected static JMenuItem clearTimeMi;
-    protected static JMenuItem setTimeMi;
-    protected static JPopupMenu timePopup;
+    private static JMenuItem clearTimeMi;
+    private static JMenuItem setTimeMi;
+    private static JPopupMenu timePopup;
 
     static {
         //-----------------------------------
@@ -160,38 +157,35 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end resetTimeLabel
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // Overrides the base class
-    //----------------------------------------------------------
+    @Override
+    // Set the data for this component.  Do not send a null; if you want
+    //   to unset the NoteData then call 'clear' instead.
     public void setNoteData(NoteData newNoteData) {
-        setNoteData((DayNoteData) newNoteData);
+        if(newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
+            setDayNoteData((DayNoteData) newNoteData);
+        } else if (newNoteData instanceof TodoNoteData) {
+            setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData(false));
+        } else if(newNoteData instanceof EventNoteData) {
+            setDayNoteData(((EventNoteData) newNoteData).getDayNoteData());
+        } else {
+            setDayNoteData(new DayNoteData(newNoteData));
+        }
     } // end setNoteData
 
 
     //----------------------------------------------------------
     // Method Name: setNoteData
     //
-    // An overload of the method in the base class.
-    // Called directly by a NoteGroup during a load, and
-    //   indirectly (via swap) for a shift up/down.
-    // Do not send a null; if you want to 'un' set the note
-    //   data then call 'clear' instead.
+    // Called by the overridden setNoteData and the 'swap' method.
     //----------------------------------------------------------
-    public void setNoteData(DayNoteData newNoteData) {
-
-        // AppUtil.localDebug(true);
+    private void setDayNoteData(DayNoteData newNoteData) {
         myDayNoteData = newNoteData;
-        initialized = true;
-
         myTime = newNoteData.getTimeOfDayDate();
         MemoryBank.debug("My time: " + myTime);
 
-        // update visual components without updating the 'lastModDate'
+        // update visual components...
+        initialized = true;  // without updating the 'lastModDate'
         resetComponent();
-        // AppUtil.localDebug(false);
-
         setNoteChanged();
     } // end setNoteData
 
@@ -245,10 +239,10 @@ public class DayNoteComponent extends IconNoteComponent {
         if (dnd2 != null) dnd2 = new DayNoteData(dnd2);
 
         if (dnd1 == null) dnc.clear();
-        else dnc.setNoteData(dnd1);
+        else dnc.setDayNoteData(dnd1);
 
         if (dnd2 == null) this.clear();
-        else this.setNoteData(dnd2);
+        else this.setDayNoteData(dnd2);
 
         myNoteGroup.setGroupChanged();
     } // end swap
@@ -291,7 +285,7 @@ public class DayNoteComponent extends IconNoteComponent {
         } // end getPreferredSize
 
 
-        protected void setInactive() {
+        void setInactive() {
             setBorder(highBorder);
             isActive = false;
         } // end setInactive
@@ -334,7 +328,7 @@ public class DayNoteComponent extends IconNoteComponent {
         //   is displayed, any previous component listeners must
         //   first be removed and then this one is added.
         //------------------------------------------------------------
-        public void showTimePopup(MouseEvent me) {
+        void showTimePopup(MouseEvent me) {
             ActionListener[] ala;
 
             ala = clearTimeMi.getActionListeners();
@@ -355,18 +349,23 @@ public class DayNoteComponent extends IconNoteComponent {
         public void actionPerformed(ActionEvent e) {
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
-            if (s.equals("Clear Line")) {
-                clear();
-            } else if (s.equals("Clear Time")) {
-                // Do not set myTime to null; just clear the visual indicator.
-                //  This leaves the note still initialized; critical to decisions
-                //  made at load time.
-                noteTimeLabel.clear();
-            } else if (s.equals("Set Time")) {
-                noteTimeLabel.showTimeChooser();
-            } else {  // Nothing else expected so print it out -
-                System.out.println(s);
-            } // end if/else if
+            switch (s) {
+                case "Clear Line":
+                    clear();
+                    break;
+                case "Clear Time":
+                    // Do not set myTime to null; just clear the visual indicator.
+                    //  This leaves the note still initialized; critical to decisions
+                    //  made at load time.
+                    noteTimeLabel.clear();
+                    break;
+                case "Set Time":
+                    noteTimeLabel.showTimeChooser();
+                    break;
+                default:   // Nothing else expected so print it out -
+                    System.out.println(s);
+                    break;
+            }
 
             setNoteChanged();
         } // end actionPerformed

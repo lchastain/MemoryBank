@@ -57,27 +57,22 @@ public class EventNoteComponent extends IconNoteComponent {
     } // end resetMouseMessage
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // Overrides the base class
-    //----------------------------------------------------------
+    @Override
     public void setNoteData(NoteData newNoteData) {
-        setNoteData((EventNoteData) newNoteData);
+        if (newNoteData instanceof EventNoteData) {  // same type, but cast is still needed
+            setEventNoteData((EventNoteData) newNoteData);
+        } else { // Not 'my' type, but we can make it so.
+            setEventNoteData(new EventNoteData(newNoteData));
+        }
     } // end setNoteData
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    //----------------------------------------------------------
-    public void setNoteData(EventNoteData newNoteData) {
+    void setEventNoteData(EventNoteData newNoteData) {
         myEventNoteData = newNoteData;
-        initialized = true;
 
-        // update visual components without updating the 'lastModDate'
+        // update visual components...
+        initialized = true;  // without updating the 'lastModDate'
         resetComponent();
-
         setNoteChanged();
     } // end setNoteData
 
@@ -101,7 +96,7 @@ public class EventNoteComponent extends IconNoteComponent {
         else enc.setNoteData(end1);
 
         if (end2 == null) this.clear();
-        else this.setNoteData(end2);
+        else this.setEventNoteData(end2);
 
         myNoteGroup.setGroupChanged();
     } // end swap

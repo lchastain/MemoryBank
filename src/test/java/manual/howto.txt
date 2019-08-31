@@ -1,28 +1,26 @@
 One-stop reference for how tests are getting things done.
 
-0.  Make / get rich test data:  This is done by using the app to make the data you want, then copy that
-    entire user data collection into Test Resources.  The setup for each class can clear out existing
-    data and reestablish it from the resources.  See AppTreePanelTest setup.  There can be different
-    test user data sources (like jondo) but the chosen one gets copied to test.user@lcware.net.
+0.  Make / get rich test data:  This is done by using the app to make the data you want, then manually
+    copy that entire user data collection into Test Resources.  The setup for each class can clear out
+    existing data and reestablish it from the resources.  See AppTreePanelTest setup.  There can be
+    different test user data sources (like jondo) but at test runtime the specified one gets copied to
+    the development area data repo, under test.user@lcware.net.  Then later you can just run the app
+    as that user, to see the effects of your test.
 
 1.  Select a node on the main app 'tree':  instantiate an AppTreePanel, get its JTree with .getTree(), call
-    setSelectionPath or setSelectionRow on it.  Lower-level requirements are listed separately, further on.
+    setSelectionPath or setSelectionRow on it.  How you get the path or the row if you don't already know
+    which one you want - find those answers below.
 
 2.  Get the TreePath to a node with a known name/text:  see the testCloseSearchResult test in the
-    AppTreePanelTest class - it does that (in several steps and external static methods).
+    AppTreePanelTest class - it does that (in several steps and two external static methods).
 
 3.  Get any NoteGroup:  With the list name (essentially the file name, or close enough) known, the
-    group may simply be constructed directly; no need to go to the JTree for it.  The constructor
-    loads the file into the group's components.
+    group may simply be constructed directly; no need to instantiate the AppTreePanel to get the JTree;
+    the tree is not needed if you only want to call group methods.  The constructor of the group loads
+    the file into the group's components.
 
+4.  Set a line in a NoteGroup (new or existing) - get the corresponding NoteComponent and call its
+    'setNoteData' method.  Call initialize() on it first, if needed.
 
-
-
-Set a new line in a NoteGroup - either the lastVisible, or fill in a gap
-
-
-Get a TodoNoteGroup from the tree:  hadn't yet figured this out...
-
-
-Get a TodoNoteComponent:  call getNoteComponent on the TodoNoteGroup instance.  Parameter needed is the zero-based index
-number into the group.
+5.  Get a NoteComponent:  call getNoteComponent on the NoteGroup instance.  Parameter needed is the
+    zero-based index number into the group.

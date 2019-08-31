@@ -1,4 +1,4 @@
-/**  Manage notes on upcoming events.
+/*  Manage notes on upcoming events.
 
  */
 
@@ -81,7 +81,7 @@ public class EventNoteGroup extends NoteGroup
     //   off.  If they were not aged at all, or only aged forward, the
     //   return value is false.
     // -------------------------------------------------------------------
-    public boolean ageEvents() {
+    private boolean ageEvents() {
         boolean blnDropThisEvent;
         boolean blnAnEventWasAgedOff = false;
 
@@ -194,7 +194,7 @@ public class EventNoteGroup extends NoteGroup
         //   then set the start, then set that duration ?
 
         // System.out.println(d);
-        eNoteComponent.setNoteData(end);
+        eNoteComponent.setEventNoteData(end);
         theHeader.setEventSummary(end.getSummary());
     } // end dateSelected
 
@@ -298,7 +298,7 @@ public class EventNoteGroup extends NoteGroup
     }// end getGroupFilename
 
 
-    public static void loadDefaults() {
+    private static void loadDefaults() {
         String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
         FileInputStream fis = null;
@@ -310,21 +310,13 @@ public class EventNoteGroup extends NoteGroup
             tmp = (String) ois.readObject();
             ois.close();
             fis.close();
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
         } catch (FileNotFoundException fnfe) {
             // not a problem; create one using program defaults.
             MemoryBank.debug(defaultFileName + " file not found; using program defaults");
             saveDefaults();
             return;
-        } catch (EOFException eofe) {
+        } catch (ClassCastException | ClassNotFoundException | IOException eofe) {
             e = eofe;
-        } catch (IOException ioe) {
-            e = ioe;
         }// end try/catch
 
         if (e != null) {
@@ -423,7 +415,7 @@ public class EventNoteGroup extends NoteGroup
     //  Several actions needed when a line has
     //    either gone active or inactive.
     //--------------------------------------------------------------
-    public void showComponent(EventNoteComponent nc, boolean b) {
+    private void showComponent(EventNoteComponent nc, boolean b) {
         if (b) {
             eNoteComponent = nc;
             EventNoteData end = (EventNoteData) nc.getNoteData();

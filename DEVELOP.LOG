@@ -2,6 +2,14 @@ Development notes for MemoryBank - record of roadblocks, accomplishments, and
 DESIGN DECISIONs (upper-cased in text below for a quick search).
 (If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
 
+8/31/2019 0846 - While implementing the cut/copy/paste feature, discovered that I was commenting
+  that my same-named setNoteData methods (with a different type in the param) were written as
+  overloads (vs Override) - but an overload (no annotation needed)is provided as a way to update an
+  api without disruption to your clients (of which I have none, not being an api) - so of course I
+  changed the comment, and to remove any confusion, renamed those methods to setDayNoteData and
+  setTodoNoteData and setEventNoteData.  They are called by either the overridden
+  setNoteData method, or by the overridden swap method.
+
 8/27/2019 1036 - Have instituted a methodology whereby I can test methods that require user
   interaction via a JOptionPane, without needing to have that interaction - ie, an interface
   with default methods that are the same as the utility class.  But in the Test area there
