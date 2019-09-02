@@ -1,4 +1,4 @@
-/**
+/*
  This class is a collection of labels in a horizontal line to be
  used as the header for a TodoNoteGroup.  The labels are
  formatted and mouse-activated to appear like buttons.  The columns
@@ -75,6 +75,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
     // Overrode this Container method in order to capture the column
     //   order change as a 'group changed' event.
     //----------------------------------------------------------------
+    @Override
     public void doLayout() {
         super.doLayout();
 
@@ -105,7 +106,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
         Container cTheContainer = parent.groupNotesListPanel;
         int rows = cTheContainer.getComponentCount();
-        Vector<JComponent> ClingOns = new Vector<JComponent>(rows, 1);
+        Vector<JComponent> ClingOns = new Vector<>(rows, 1);
 
         HeaderButton hb = (HeaderButton) comp;
 
@@ -118,19 +119,24 @@ public class TodoGroupHeader extends Container implements ClingSource {
             // System.out.println("TodoGroupHeader: hb.defaultLabel = " + hb.defaultLabel);
 
             // We still need to change the order, based on actual order.
-            if (hb.defaultLabel.equals("Priority")) {
-                compTempComp = tnc.getPriorityButton();
-            } else if (hb.defaultLabel.equals("To Do Text")) {
-                compTempComp = tnc.getNoteTextField();
-            } else if (hb.defaultLabel.equals("Status")) {
-                compTempComp = tnc.getStatusButton();
-            } else {
-                // Now that there are only 3, this will throw an exception
-                //   if it ever gets here.  Left it in to show me the problem
-                //   in case it ever happens, and also so that the compiler
-                //   believes that compTempComp will always have a value.
-                compTempComp = (JComponent) tnc.getComponent(3);
-            } // end if
+            switch (hb.defaultLabel) {
+                case "Priority":
+                    compTempComp = tnc.getPriorityButton();
+                    break;
+                case "To Do Text":
+                    compTempComp = tnc.getNoteTextField();
+                    break;
+                case "Status":
+                    compTempComp = tnc.getStatusButton();
+                    break;
+                default:
+                    // Now that there are only 3, this will throw an exception
+                    //   if it ever gets here.  Left it in to show me the problem
+                    //   in case it ever happens, and also so that the compiler
+                    //   believes that compTempComp will always have a value.
+                    compTempComp = (JComponent) tnc.getComponent(3);
+                    break;
+            }
             ClingOns.addElement(compTempComp);
         } // end for i
         return ClingOns;
@@ -215,14 +221,22 @@ public class TodoGroupHeader extends Container implements ClingSource {
         //   (in the main processing thread) can return immediately and allow
         //   the animation in the working dialog graphic to display correctly.
         //----------------------------------------------------------------------
-        public void doSorting(int shift) {
+        void doSorting(int shift) {
             if (defaultLabel.equals("Status")) return; // Non-sortable column
 
             AppTreePanel.showWorkingDialog(true);
 
-            if (defaultLabel.equals("Priority")) parent.sortPriority(shift);
-            else if (defaultLabel.equals("To Do Text")) parent.sortText(shift);
-            else if (defaultLabel.equals("Deadline")) parent.sortDeadline(shift);
+            switch (defaultLabel) {
+                case "Priority":
+                    parent.sortPriority(shift);
+                    break;
+                case "To Do Text":
+                    parent.sortText(shift);
+                    break;
+//                case "Deadline":    See the note in the commented-out TodoNoteGroup.sortDeadline()
+//                    parent.sortDeadline(shift);
+//                    break;
+            }
 
             parent.setGroupChanged();
             AppTreePanel.showWorkingDialog(false);

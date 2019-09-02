@@ -1,44 +1,33 @@
 //
 //
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.AbstractDocument;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TodoOpts extends JTabbedPane {
     private static final long serialVersionUID = -8478940342870392492L;
 
+    // TODO - AFTER a todo list data save is no longer serialized (ie data save/load converted to JSON) - rename printPanel class to PrintPanel.
     private PriorityPanel priorityPanel;
     private printPanel pp;
-    private SortPanel sp;
-    private TodoListProperties tlp;
+    private SortPanel sortPanel;
+    private TodoListProperties todoListProperties;
 
-    public TodoOpts(TodoListProperties o) {
+    public TodoOpts(TodoListProperties todoListProperties) {
         super();
-        tlp = o;
+        this.todoListProperties = todoListProperties;
         priorityPanel = new PriorityPanel();
         pp = new printPanel();
-        sp = new SortPanel(tlp.whenNoKey);
+        sortPanel = new SortPanel(this.todoListProperties.whenNoKey);
         addTab("Priority", null, priorityPanel,
                 "Set priority visibility and limit");
         addTab("Print", null, pp, "Configure the printout");
-        addTab("Sort", null, sp, "How to Sort");
+        addTab("Sort", null, sortPanel, "How to Sort");
     } // end constructor
 
     public TodoListProperties getValues() {
@@ -48,7 +37,7 @@ public class TodoOpts extends JTabbedPane {
         //----------------------------------------------------
         // Priority panel
         //----------------------------------------------------
-        tlp.showPriority = priorityPanel.cb1.isSelected();
+        todoListProperties.showPriority = priorityPanel.cb1.isSelected();
 
         // Idiot-proofing...
         userInt = priorityPanel.tf1.getText().trim();
@@ -61,16 +50,16 @@ public class TodoOpts extends JTabbedPane {
             digit = userInt.substring(1, 2);
             if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        tlp.maxPriority = new Integer(userInt);
+        todoListProperties.maxPriority = new Integer(userInt);
 
         // Print panel
-        tlp.pHeader = pp.cb1.isSelected();
-        tlp.pFooter = pp.cb2.isSelected();
-        tlp.pBorder = pp.cb3.isSelected();
-        tlp.pCSpace = pp.cb4.isSelected();
-        tlp.pPriority = pp.cb5.isSelected();
-        tlp.pDeadline = pp.cb6.isSelected();
-        tlp.pEText = pp.cb7.isSelected();
+        todoListProperties.pHeader = pp.cb1.isSelected();
+        todoListProperties.pFooter = pp.cb2.isSelected();
+        todoListProperties.pBorder = pp.cb3.isSelected();
+        todoListProperties.pCSpace = pp.cb4.isSelected();
+        todoListProperties.pPriority = pp.cb5.isSelected();
+        todoListProperties.pDeadline = pp.cb6.isSelected();
+        todoListProperties.pEText = pp.cb7.isSelected();
 
         // Idiot-proofing...
         userInt = pp.tf2.getText().trim();
@@ -82,15 +71,21 @@ public class TodoOpts extends JTabbedPane {
             digit = userInt.substring(1, 2);
             if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        tlp.pCutoff = new Integer(userInt);
+        todoListProperties.pCutoff = new Integer(userInt);
 
-        tlp.lineSpace = pp.sp.getValue();
+        todoListProperties.lineSpace = pp.sp.getValue();
 
         // Sort panel
-        tlp.whenNoKey = sp.getNoKey();
+        todoListProperties.whenNoKey = sortPanel.getNoKey();
 
-        return tlp;
+        return todoListProperties;
     } // end getValues
+
+    void setNewProperties(TodoListProperties newProperties) {
+        todoListProperties = newProperties;
+        priorityPanel = new PriorityPanel();
+        sortPanel = new SortPanel(todoListProperties.whenNoKey);
+    }
 
     class PriorityPanel extends JPanel implements ChangeListener {
         private static final long serialVersionUID = -7260327081749645585L;
@@ -99,7 +94,7 @@ public class TodoOpts extends JTabbedPane {
         JPanel fp;
         JTextField tf1;  // Max Priority
 
-        public PriorityPanel() {
+        PriorityPanel() {
             super(new BorderLayout());
             cb1 = new JCheckBox("Show Priority");
             cb1.setFont(new Font("Serif", Font.BOLD, 16));
@@ -130,7 +125,7 @@ public class TodoOpts extends JTabbedPane {
             });
 
             tf1.setFont(new Font("Serif", Font.BOLD, 16));
-            tf1.setText(String.valueOf(tlp.maxPriority));
+            tf1.setText(String.valueOf(todoListProperties.maxPriority));
             //------------------------------------------------------------------
             fp.add(tf1);
 
@@ -138,7 +133,7 @@ public class TodoOpts extends JTabbedPane {
 
             fp.setVisible(false);
             cb1.addChangeListener(this);
-            cb1.setSelected(tlp.showPriority);
+            cb1.setSelected(todoListProperties.showPriority);
         } // end constructor
 
         public void stateChanged(ChangeEvent ce) {
@@ -160,7 +155,7 @@ public class TodoOpts extends JTabbedPane {
         JTextField tf2;
         spacing sp;
 
-        public printPanel() {
+        printPanel() {
             setLayout(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
@@ -175,13 +170,13 @@ public class TodoOpts extends JTabbedPane {
             cb5 = new JCheckBox("Priority");
             cb6 = new JCheckBox("Deadline");
             cb7 = new JCheckBox("Extended Text");
-            cb1.setSelected(tlp.pHeader);
-            cb2.setSelected(tlp.pFooter);
-            cb3.setSelected(tlp.pBorder);
-            cb4.setSelected(tlp.pCSpace);
-            cb5.setSelected(tlp.pPriority);
-            cb6.setSelected(tlp.pDeadline);
-            cb7.setSelected(tlp.pEText);
+            cb1.setSelected(todoListProperties.pHeader);
+            cb2.setSelected(todoListProperties.pFooter);
+            cb3.setSelected(todoListProperties.pBorder);
+            cb4.setSelected(todoListProperties.pCSpace);
+            cb5.setSelected(todoListProperties.pPriority);
+            cb6.setSelected(todoListProperties.pDeadline);
+            cb7.setSelected(todoListProperties.pEText);
             p1.add(cb1);
             p1.add(cb2);
             p1.add(cb3);
@@ -195,12 +190,12 @@ public class TodoOpts extends JTabbedPane {
             JPanel p3 = new JPanel();
             p3.add(new JLabel("Priority Cutoff"));
             tf2 = new JTextField(2);
-            tf2.setText(String.valueOf(tlp.pCutoff));
+            tf2.setText(String.valueOf(todoListProperties.pCutoff));
             p3.add(tf2);
             add(p3, gbc);
             gbc.gridy++;
 
-            sp = new spacing(tlp.lineSpace);
+            sp = new spacing(todoListProperties.lineSpace);
             add(sp, gbc);
             gbc.gridy++;
         } // end constructor
@@ -212,7 +207,7 @@ public class TodoOpts extends JTabbedPane {
             JRadioButton o;
             JRadioButton t;
 
-            public spacing(int start) {
+            spacing(int start) {
                 setLayout(new FlowLayout(FlowLayout.LEFT));
 
                 z = new JRadioButton("0");
@@ -242,14 +237,14 @@ public class TodoOpts extends JTabbedPane {
         } // end class spacing
     } // end class printPanel
 
-    class SortPanel extends JPanel {
+    static class SortPanel extends JPanel {
         private static final long serialVersionUID = 571253855183342953L;
 
         JRadioButton t;
         JRadioButton b;
         JRadioButton s;
 
-        public SortPanel(int noKey) {
+        SortPanel(int noKey) {
             setLayout(new GridLayout(4, 0));
             JLabel prompt = new JLabel("Sorting rule for items with no sort key:");
 
@@ -273,7 +268,7 @@ public class TodoOpts extends JTabbedPane {
             add(s);
         } // end constructor
 
-        public int getNoKey() {
+        int getNoKey() {
             if (t.isSelected()) return 0;
             if (b.isSelected()) return 1;
             if (s.isSelected()) return 2;

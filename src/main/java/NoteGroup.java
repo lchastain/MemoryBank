@@ -661,7 +661,7 @@ public abstract class NoteGroup extends JPanel {
     // This is called from the constructor; should be overridden by
     //   child classes.
     //-------------------------------------------------------------------
-    protected JComponent makeNewNote(int i) {
+    JComponent makeNewNote(int i) {
         NoteComponent nc = new NoteComponent(this, i);
         nc.setVisible(false);
         return nc;
@@ -710,15 +710,15 @@ public abstract class NoteGroup extends JPanel {
     // Called by NoteComponent group members when they gain or lose focus.
     // Mechanism whereby this container may 'know' which Note is currently
     //   active so that it may then access its data and set other visuals
-    //   accordingly.   Override - not needed in this base class.  Was
-    //   not written as abstract because child classes may not need it.
+    //   accordingly.   Override it - it is not needed in this base class.  Was
+    //   not written as abstract because child classes may also not need it.
     //   The actual Events are focusGained and focusLost on the JTextField
     //   of the base NoteComponent, but that member is not directly
     //   available to NoteGroup children, and giving focus handlers
     //   to NoteComponent would still not cross this 'bridge' to their
     //   container, a NoteGroup.
     //----------------------------------------------------------------------
-    protected void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
+    void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
     } // end reportComponentChange
 
 

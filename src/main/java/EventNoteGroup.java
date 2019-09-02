@@ -301,7 +301,7 @@ public class EventNoteGroup extends NoteGroup
     private static void loadDefaults() {
         String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
-        FileInputStream fis = null;
+        FileInputStream fis;
         String tmp = null;
 
         try {
@@ -333,7 +333,8 @@ public class EventNoteGroup extends NoteGroup
     // Method Name: makeNewNote
     //
     // -------------------------------------------------------------------
-    public JComponent makeNewNote(int i) {
+    @Override
+    JComponent makeNewNote(int i) {
         EventNoteComponent newNote = new EventNoteComponent(this, i);
         newNote.setVisible(false);
         return newNote;
@@ -344,12 +345,13 @@ public class EventNoteGroup extends NoteGroup
     // Method Name: reportFocusChange
     //
     // Called by the NoteComponent that gained or lost focus.
-    // Overrides the (no-op) base class behavior in order to
+    // This overrides the (no-op) base class behavior in order to
     //   intercept those events.
     //-------------------------------------------------------------------
-    protected void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
+    @Override
+    void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
         showComponent((EventNoteComponent) nc, noteIsActive);
-    } // end reportComponentChange
+    } // end reportFocusChange
 
 
     //----------------------------------------------------------------------

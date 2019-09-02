@@ -1,10 +1,18 @@
-Development notes for MemoryBank - record of roadblocks, accomplishments, and
-DESIGN DECISIONs (upper-cased in text below for a quick search).
-(If this project ever gets uploaded to GitHub, remove this file from git and manage separately)
+Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
+DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
+
+9/02/2019 1034 - While trying to develop more complete test coverage for TodoNoteGroup, keep
+  running into roadblocks due to old / rarely used or disabled code - namely usages around
+  deadline sorting, and the printList.  Considering removing or disabling large chunks of code,
+  but very reluctant to do so.  Alternatives are to repair the code (which may require serious
+  redesign), or to allow the coverage to stay low and live with the IJ complaints.
+  (Can't live with the IJ complaints, and can't stand to have it think that I don't have the
+  coverage).  Ok, so will do a disable by comment-out, and add more comments to explain,
+  with an eye towards some sort of code repairs in the hopefully not too distant future.
 
 8/31/2019 0846 - While implementing the cut/copy/paste feature, discovered that I was commenting
   that my same-named setNoteData methods (with a different type in the param) were written as
-  overloads (vs Override) - but an overload (no annotation needed)is provided as a way to update an
+  overloads (vs Override) - but an overload (no annotation needed) is used as a way to update an
   api without disruption to your clients (of which I have none, not being an api) - so of course I
   changed the comment, and to remove any confusion, renamed those methods to setDayNoteData and
   setTodoNoteData and setEventNoteData.  They are called by either the overridden

@@ -428,22 +428,22 @@ public class AppUtil {
         int date = calTemp.get(Calendar.DATE);
         if (date < 10)
             s.append("0");
-        s.append(String.valueOf(date));
+        s.append(date);
 
         int hour = calTemp.get(Calendar.HOUR_OF_DAY);
         if (hour < 10)
             s.append("0");
-        s.append(String.valueOf(hour));
+        s.append(hour);
 
         int minute = calTemp.get(Calendar.MINUTE);
         if (minute < 10)
             s.append("0");
-        s.append(String.valueOf(minute));
+        s.append(minute);
 
         int second = calTemp.get(Calendar.SECOND);
         if (second < 10)
             s.append("0");
-        s.append(String.valueOf(second));
+        s.append(second);
 
         return s.toString();
     } // end getTimestamp
@@ -458,7 +458,7 @@ public class AppUtil {
     // ok, this is kludgy but not sure if the 'fix' is
     // in the coding or just the comments. It works.
     // -------------------------------------------------------
-    public static void localArchive(boolean b) {
+    static void localArchive(boolean b) {
         if (b) {
             // Preserve the original setting
             blnGlobalArchive = MemoryBank.archive;
@@ -571,7 +571,7 @@ public class AppUtil {
 
     public static TreePath getPath(TreeNode treeNode) {
         TreeNode tn = treeNode;
-        List<Object> nodes = new ArrayList<Object>();
+        List<Object> nodes = new ArrayList<>();
         if (tn != null) {
             nodes.add(tn);
             tn = tn.getParent();

@@ -11,7 +11,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class AppTreePanelTest implements Notifier {
+public class AppTreePanelTest {
     private static AppTreePanel atp;
     private static JTree theTree;
     private static int theSelectionRow;
@@ -19,7 +19,7 @@ public class AppTreePanelTest implements Notifier {
 
     @BeforeAll
     static void meFirst() throws IOException {
-        // Set the location for our user data (it will be created, if not already there)
+        // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
 
         // Remove any pre-existing Test data
@@ -58,12 +58,12 @@ public class AppTreePanelTest implements Notifier {
     }
 
     @AfterAll
-    static void tearDown() throws InterruptedException {
+    static void tearDown() {
         theTree = null;
         amb = null;
     }
     @Test
-    void testDeepClone() throws Exception {
+    void testDeepClone() {
         theTree.setSelectionRow(theSelectionRow);
         TreePath treePath = theTree.getSelectionPath();
         DefaultMutableTreeNode original = (DefaultMutableTreeNode) treePath.getLastPathComponent();
@@ -72,13 +72,13 @@ public class AppTreePanelTest implements Notifier {
     }
 
     @Test
-    void testGetTodoListKeeper() throws Exception {
+    void testGetTodoListKeeper() {
         TodoListKeeper tlk = atp.getTodoListKeeper();
         assert tlk != null;
     }
 
     @Test
-    void testPreClose() throws Exception {
+    void testPreClose() {
         atp.preClose();
         // No assertions needed here; we're just assuring coverage.
     }
@@ -115,7 +115,7 @@ public class AppTreePanelTest implements Notifier {
 
 
     @Test
-    void testShowDay() throws Exception {
+    void testShowDay() {
         atp.showDay();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
@@ -142,7 +142,7 @@ public class AppTreePanelTest implements Notifier {
     // NOT a real test; this is just here to spit out the menu hierarchy so that
     // during 'real' test development, we will know what MenuItem should be retrieved
     // by the local getMenuItem function, so that it can be 'clicked'.
-    public void showMenus() throws Exception {
+    public void showMenus() {
         int numMenus = amb.getMenuCount();
         MemoryBank.debug("Number of menus found: " + numMenus);
         for (int i = 0; i < numMenus; i++) {
@@ -161,7 +161,7 @@ public class AppTreePanelTest implements Notifier {
     // A utility function to retrieve a specified JMenuItem.
     // Calling contexts will perform a 'doClick' on the returned value.
     JMenuItem getMenuItem(String menu, String text) {
-        JMenu jm = null;
+        JMenu jm;
         JMenuItem jmi = null;
 
         int numMenus = amb.getMenuCount();
@@ -189,7 +189,7 @@ public class AppTreePanelTest implements Notifier {
     // the user to close the window.  For a test case, this is obviously not an
     // acceptable outcome.  Live with it until the Help feature is refactored.
     @Test
-    void testShowHelp() throws Exception {
+    void testShowHelp() {
         JMenuItem jmi = getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
         //atp.showHelp("badFile"); // This is NOT throwing an exception, but putting up a 'cant find file' window/message.
@@ -197,7 +197,7 @@ public class AppTreePanelTest implements Notifier {
     }
 
     @Test
-    void testShowMonth() throws Exception {
+    void testShowMonth() {
         atp.showMonth();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
@@ -206,7 +206,7 @@ public class AppTreePanelTest implements Notifier {
     }
 
     @Test
-    void testShowToday() throws Exception {
+    void testShowToday() {
         atp.showToday();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
@@ -217,7 +217,7 @@ public class AppTreePanelTest implements Notifier {
     }
 
     @Test
-    void testShowWeek() throws Exception {
+    void testShowWeek() {
         atp.showWeek();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;

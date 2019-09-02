@@ -1,4 +1,4 @@
-/**  This class displays a group of DayNoteComponent.
+/*  This class displays a group of DayNoteComponent.
  */
 
 import javax.swing.*;
@@ -40,9 +40,11 @@ public class DayNoteGroup extends CalendarNoteGroup
         blnNoteAdded = false;
 
         // This will override the defaults only if the load is good.
-        loadDefaults();
+        loadDefaults(); // May provide a different default icon.
 
         if (defaultIconFileName.equals("")) {
+            // It IS possible that the user wants no default icon, has set it
+            // that way and we have just loaded in their setting.
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
             defaultIcon = new AppIcon();
         } else {
@@ -104,7 +106,8 @@ public class DayNoteGroup extends CalendarNoteGroup
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
-    // Gives containers some access.
+    // Returns a DayNoteComponent that can be accessed by
+    // both containers and tests.
     //--------------------------------------------------------
     public DayNoteComponent getNoteComponent(int i) {
         return (DayNoteComponent) groupNotesListPanel.getComponent(i);
@@ -149,36 +152,34 @@ public class DayNoteGroup extends CalendarNoteGroup
     // Method Name: makeNewNote
     //
     //-------------------------------------------------------------------
-    protected JComponent makeNewNote(int i) {
+    @Override
+    JComponent makeNewNote(int i) {
         DayNoteComponent dnc = new DayNoteComponent(this, i);
         dnc.setVisible(false);
         return dnc;
     } // end makeNewNote
 
-
-    //---------------------------------------------------------
-    // MouseListener methods
-    //---------------------------------------------------------
+    //<editor-fold desc="MouseListener methods">
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
 
-        if (s.equals("-")) {
-            setOneBack();
-        } else if (s.equals("+")) {
-            setOneForward();
-        } else if (s.equals("12")) {
-            toggleMilitary();
-            source.setText("24");
-            return;
-        } else if (s.equals("24")) {
-            toggleMilitary();
-            source.setText("12");
-            return;
-        } else {
-            (new Exception("Unhandled action!")).printStackTrace();
-            System.exit(1);
-        } // end if
+        switch (s) {
+            case "+":
+                setOneForward();
+                break;
+            case "-":
+                setOneBack();
+                break;
+            case "12":
+                toggleMilitary();
+                source.setText("24");
+                return;
+            case "24":
+                toggleMilitary();
+                source.setText("12");
+                return;
+        }
 
         updateGroup();
         updateHeader();
@@ -187,31 +188,30 @@ public class DayNoteGroup extends CalendarNoteGroup
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
-        if (s.equals("XXX")) {
-            System.out.print(""); // To avoid the IJ complaint about an empty 'if'.
-        } else if (s.equals("-")) {
-            s = "Click here to see previous day";
-        } else if (s.equals("+")) {
-            s = "Click here to see next day";
-        } else if (s.equals("12")) {
-            s = "Click here to see time in 12 hour format";
-        } else if (s.equals("24")) {
-            s = "Click here to see time in 24 hour format";
-        } // end if
+        switch (s) {
+            case "+":
+                s = "Click here to see next day";
+                break;
+            case "-":
+                s = "Click here to see previous day";
+                break;
+            case "12":
+                s = "Click here to see time in 12 hour format";
+                break;
+            case "24":
+                s = "Click here to see time in 24 hour format";
+                break;
+        }
         setMessage(s);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
         setMessage(" ");
     }
-
-    public void mousePressed(MouseEvent e) {
-    } // end mousePressed
-
-    public void mouseReleased(MouseEvent e) {
-    } // end mouseReleased
+    public void mousePressed(MouseEvent e) { }
+    public void mouseReleased(MouseEvent e) { }
     //---------------------------------------------------------
-
+    //</editor-fold>
 
     //--------------------------------------------------------------
     // Method Name: recalc
@@ -229,7 +229,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     private static void saveDefaults() {
-        String FileName = MemoryBank.logHome + File.separatorChar + defaultFileName;
+        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         MemoryBank.debug("Saving day option data in " + defaultFileName);
         try {
             FileOutputStream fos = new FileOutputStream(FileName);
@@ -305,7 +305,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //
     // This is called from the 12/24 button
     //--------------------------------------------------------------
-    public void toggleMilitary() {
+    private void toggleMilitary() {
         MemoryBank.military = !MemoryBank.military;
         // Need to reprint all time labels -
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
@@ -320,7 +320,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //   the coding from the calling contexts above, and also to
     //   help them be more readable.
     //--------------------------------------------------------------
-    public void updateHeader() {
+    private void updateHeader() {
         // Generate new title from current choice.
         dayTitle.setText(getChoiceString());
     } // end updateHeader

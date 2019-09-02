@@ -18,23 +18,20 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static final int INORDER = 123;
 
     private TodoGroupHeader listHeader;
-    public static JFileChooser filechooser;
-
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 
     private String strTheGroupFilename;
+    private static Notifier optionPane;
+    public static FileChooser filechooser;
 
     // This is saved/loaded
     public TodoListProperties myVars; // Variables - flags and settings
 
     static {
         // The File Chooser supports the 'merge' functionality.
-        filechooser = new JFileChooser(MemoryBank.userDataHome);
-        // end if
-        // end if
-        // end accept
-        // end getDescription
+        filechooser = new FileChooser() {};
+        filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome));
         javax.swing.filechooser.FileFilter ff = new javax.swing.filechooser.FileFilter() {
             public boolean accept(File f) {
                 if (f != null) {
@@ -74,6 +71,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
+        optionPane = new Notifier() { }; // Uses all default methods.
 
         // Create the window title
         JLabel lblListTitle = new JLabel();
@@ -155,13 +153,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                 // Warn user that they are not allowed to navigate.
                 ems = "Navigation outside of your data directory is not allowed!";
                 ems += "\n           " + buttonLabel + " operation cancelled.";
-                JOptionPane.showMessageDialog(null, ems,
+                optionPane.showMessageDialog(null, ems,
                         "Warning", JOptionPane.WARNING_MESSAGE);
                 return null;
             } else {
-                return MemoryBank.userDataHome + File.separatorChar
-                        + prettyName(filechooser.getSelectedFile().getAbsolutePath()) + ".todolist";
-            } // end if badPlace
+                return filechooser.getSelectedFile().getAbsolutePath();
+            } // end if badPlace / else
         } else return null;
     } // end chooseFileName
 
@@ -229,43 +226,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     //-------------------------------------------------------------------
-    // Method Name: loadNoteComponent
-    //
-    // In this case, a TodoNoteComponent.
-    //-------------------------------------------------------------------
-//  public boolean loadNoteComponent(ObjectInputStream ois, int i) 
-//    throws EOFException, ClassNotFoundException, IOException  {
-//
-//    TodoNoteComponent tempNote;
-//    TodoNoteData tempNoteData;
-//
-//    // AppUtil.localDebug(true);
-//
-//    // Before reading the first item from a To do List, we need
-//    //   to get (and read past) the TodoListProperties.
-//    if(i==0) {
-//      myVars = (TodoListProperties) ois.readObject();
-//      checkColumnOrder();
-//    } // end if
-//    
-//    tempNoteData = (TodoNoteData) ois.readObject();
-//    
-//    MemoryBank.debug("  Loaded index " + i + " ID: " + tempNoteData.getNoteId());
-//    tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-//    tempNote.setNoteData(tempNoteData);
-//    tempNote.setVisible(true);
-//    
-//    // AppUtil.localDebug(false);
-//    return true;
-//  } // end loadNoteComponent
-
-
-    //-------------------------------------------------------------------
     // Method Name: makeNewNote
     //
     // Called by the NoteGroup (base class) constructor
     //-------------------------------------------------------------------
-    protected JComponent makeNewNote(int i) {
+    @Override
+    JComponent makeNewNote(int i) {
         if (i == 0) myVars = new TodoListProperties();
         TodoNoteComponent tnc = new TodoNoteComponent(this, i);
         tnc.setVisible(false);
@@ -344,6 +310,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Overrides the base class no-op method, to ensure the group
     //   columns are displayed in the correct order.
     //------------------------------------------------------------------
+    @Override
     protected void pageNumberChanged() {
         if (tNoteComponent != null) showComponent(tNoteComponent, false);
 
@@ -380,118 +347,126 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end prettyName
 
 
-    //--------------------------------------------------------------------------
-    // Method Name: printList
-    //
-    //--------------------------------------------------------------------------
-    public void printList() {
-        int t = strTheGroupFilename.lastIndexOf(".todolist");
-        String dumpFileName;    // Formatted text for printout
-        dumpFileName = strTheGroupFilename.substring(0, t) + ".dump";
-
-        PrintWriter outFile = null;
-        TodoNoteComponent tnc;
-        TodoNoteData tnd;
-        int i;
-        int Priority;
-        String todoText;
-        String extText;
-
-        // Open the output file.
-        try {
-            outFile = new PrintWriter(new BufferedWriter
-                    (new FileWriter(dumpFileName)), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } // end try/catch
-
-        int listSize = lastVisibleNoteIndex;
-        // System.out.println("listSize = " + listSize);
-
-        for (i = 0; i < listSize; i++) {
-            tnc = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-            tnd = (TodoNoteData) tnc.getNoteData();
-
-            // Print no priorities higher than pCutoff
-            Priority = tnd.getPriority();
-            if (myVars.pCutoff < Priority) continue;
-
-            // Do not print items with no primary text
-            todoText = tnd.getNoteString().trim();
-            if (todoText.equals("")) continue;
-
-            // spacing after the previous line.  By placing it here, there
-            //   will be none after the last line.
-            if (i > 0)
-                for (int j = 0; j < myVars.lineSpace; j++) outFile.println("");
-
-            // Completion space
-            if (myVars.pCSpace) outFile.print("_______ ");
-
-            // Priority
-            if (myVars.pPriority) {
-                outFile.print("(");
-                if (Priority < 10) outFile.print(" "); // leading space
-                outFile.print(Priority + ")  ");
-            } // end if
-
-            // Deadline
-            if (myVars.pDeadline) {
-                String pdead = "";  // tnc.getDeadText();
-
-                if (!pdead.equals("")) {
-                    // use the rest of the line for the deadline
-                    outFile.println(pdead);
-
-                    // indent the next line to account for:
-                    if (myVars.pCSpace) outFile.print("        "); // Completion Space
-                    if (myVars.pPriority) outFile.print("      "); // Priority
-                } // end if
-            } // end if
-
-            // To Do Text
-            outFile.println(todoText);
-
-            // Extended Text
-            if (myVars.pEText) {
-                extText = tnd.getExtendedNoteString();
-                if (!extText.equals("")) {
-                    String indent = "    ";
-                    StringBuilder rs = new StringBuilder(indent); // ReturnString
-
-                    for (int j = 0; j < extText.length(); j++) {
-                        if (extText.substring(j).startsWith("\t"))
-                            rs.append("        "); // convert tabs to 8 spaces.
-                        else if (extText.substring(j).startsWith("\n"))
-                            rs.append("\n").append(indent);
-                        else
-                            rs.append(extText, j, j + 1);
-                    } // end for j
-
-                    extText = rs.toString();
-                    outFile.println(extText);
-                } // end if
-            } // end if
-        } // end for i
-        outFile.close();
-
-        TextFilePrinter tfp = new TextFilePrinter(dumpFileName,
-                JOptionPane.getFrameForComponent(this));
-        tfp.setOptions(myVars.pHeader, myVars.pFooter, myVars.pBorder);
-        tfp.setVisible(true);
-    } // end printList
+    // Disabled this 9/02/2019 so that it does not pull down code coverage for tests.
+    // If you REALLY REALLY need it, uncomment here and in the TodoGroupHeader to re-enable.
+    // Did write a test for it (but then disabled it too) because as the feature is currently
+    // written it needs user interaction with a Print dialog and we don't yet have an
+    // interface like Notifier or FileChooser to overcome that.  Of course such an interface
+    // could quickly be written but this feature itself is in serious question - its usage
+    // and usefulness appears to be near-none, and there are some known problems with it
+    // (SCR0066)
+    // Did not just remove entirely because the work to create this method was significant, and
+    // it may become relevant and usable again at some point.  So - keep this here but disabled
+    // until it is either repaired or we know for a FACT that it will never again be needed.
+//    public void printList() {
+//        int t = strTheGroupFilename.lastIndexOf(".todolist");
+//        String dumpFileName;    // Formatted text for printout
+//        dumpFileName = strTheGroupFilename.substring(0, t) + ".dump";
+//
+//        PrintWriter outFile = null;
+//        TodoNoteComponent tnc;
+//        TodoNoteData tnd;
+//        int i;
+//        int Priority;
+//        String todoText;
+//        String extText;
+//
+//        // Open the output file.
+//        try {
+//            outFile = new PrintWriter(new BufferedWriter
+//                    (new FileWriter(dumpFileName)), true);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.exit(0);
+//        } // end try/catch
+//
+//        int listSize = lastVisibleNoteIndex;
+//        // System.out.println("listSize = " + listSize);
+//
+//        for (i = 0; i < listSize; i++) {
+//            tnc = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//            tnd = (TodoNoteData) tnc.getNoteData();
+//
+//            // Print no priorities higher than pCutoff
+//            Priority = tnd.getPriority();
+//            if (myVars.pCutoff < Priority) continue;
+//
+//            // Do not print items with no primary text
+//            todoText = tnd.getNoteString().trim();
+//            if (todoText.equals("")) continue;
+//
+//            // spacing after the previous line.  By placing it here, there
+//            //   will be none after the last line.
+//            if (i > 0)
+//                for (int j = 0; j < myVars.lineSpace; j++) outFile.println("");
+//
+//            // Completion space
+//            if (myVars.pCSpace) outFile.print("_______ ");
+//
+//            // Priority
+//            if (myVars.pPriority) {
+//                outFile.print("(");
+//                if (Priority < 10) outFile.print(" "); // leading space
+//                outFile.print(Priority + ")  ");
+//            } // end if
+//
+//            // Deadline
+//            if (myVars.pDeadline) {
+//                String pdead = "";  // tnc.getDeadText();
+//
+//                if (!pdead.equals("")) {
+//                    // use the rest of the line for the deadline
+//                    outFile.println(pdead);
+//
+//                    // indent the next line to account for:
+//                    if (myVars.pCSpace) outFile.print("        "); // Completion Space
+//                    if (myVars.pPriority) outFile.print("      "); // Priority
+//                } // end if
+//            } // end if
+//
+//            // To Do Text
+//            outFile.println(todoText);
+//
+//            // Extended Text
+//            if (myVars.pEText) {
+//                extText = tnd.getExtendedNoteString();
+//                if (!extText.equals("")) {
+//                    String indent = "    ";
+//                    StringBuilder rs = new StringBuilder(indent); // ReturnString
+//
+//                    for (int j = 0; j < extText.length(); j++) {
+//                        if (extText.substring(j).startsWith("\t"))
+//                            rs.append("        "); // convert tabs to 8 spaces.
+//                        else if (extText.substring(j).startsWith("\n"))
+//                            rs.append("\n").append(indent);
+//                        else
+//                            rs.append(extText, j, j + 1);
+//                    } // end for j
+//
+//                    extText = rs.toString();
+//                    outFile.println(extText);
+//                } // end if
+//            } // end if
+//        } // end for i
+//        outFile.close();
+//
+//        TextFilePrinter tfp = new TextFilePrinter(dumpFileName,
+//                JOptionPane.getFrameForComponent(this));
+//        tfp.setOptions(myVars.pHeader, myVars.pFooter, myVars.pBorder);
+//        tfp.setVisible(true);
+//    } // end printList
 
     //-------------------------------------------------------------------
     // Method Name: reportFocusChange
     //
     // Called by the NoteComponent that gained or lost focus.
-    // Overrides the (no-op) base class behavior in order to
+    // This overrides the (no-op) base class behavior in order to
     //   intercept those events.
     //-------------------------------------------------------------------
-    protected void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
+    @Override
+    void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
         showComponent((TodoNoteComponent) nc, noteIsActive);
-    } // end reportComponentChange
+    } // end reportFocusChange
 
 
     //-----------------------------------------------------------------
@@ -506,7 +481,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         String thePrompt = "Please enter the new list name";
         int q = JOptionPane.QUESTION_MESSAGE;
-        String newName = JOptionPane.showInputDialog(f, thePrompt, "Save As", q);
+        String newName = optionPane.showInputDialog(f, thePrompt, "Save As", q);
 
         // The user cancelled; return with no complaint.
         if (newName == null) return false;
@@ -530,8 +505,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Check to see if the destination file name already exists.
         // If so then complain and refuse to do the saveAs.
 
-        // Note:
-        //--------------------------------------------------------------
         // Other applications might offer the option of overwriting
         // the existing file.  This was considered and rejected
         // because of the possibility of overwriting a file that
@@ -539,17 +512,16 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // decided not to because - why should we go to heroic
         // efforts to handle a user request where it seems like
         // they may not understand what it is they are asking for.
-        // This is the same approach that was
-        // taken in the 'rename' handling.
+        // This is the same approach that was taken in the 'rename' handling.
 
-        // If we refuse the operation due to a preexisting destination
-        // file name then the user has several recourses, depending on
+        // After we refuse the operation due to a preexisting destination
+        // file name the user has several recourses, depending on
         // what it was they really wanted to do - they could delete
         // the preexisting file or rename it, after which a second
         // attempt at this operation would succeed, or they could
         // realize that they had been having a senior moment and
         // abandon the effort, or they could choose a different
-        // new name and try again, etc.
+        // new name and try again.
         //--------------------------------------------------------------
         String newFilename = MemoryBank.userDataHome + File.separatorChar;
         newFilename += newName + ".todolist";
@@ -557,7 +529,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         if ((new File(newFilename)).exists()) {
             ems = "A list named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
-            JOptionPane.showMessageDialog(f, ems,
+            optionPane.showMessageDialog(f, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } // end if
@@ -601,19 +573,34 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end setFileName
 
 
+    // Used by test methods
+    public void setNotifier(Notifier newNotifier) {
+        optionPane = newNotifier;
+    }
+
+    public void setFilechooser(FileChooser newFileChooser) {
+        filechooser = newFileChooser;
+    }
+
     public void setOptions() {
         TodoNoteComponent tempNote;
 
-        TodoOpts to = new TodoOpts(myVars);
-        int doit = JOptionPane.showConfirmDialog(
-                JOptionPane.getFrameForComponent(this), to,
+        // Preserve original value
+        boolean blnOrigShowPriority = myVars.showPriority;
+
+        // Construct the Option Panel (TodoOpts) using the current TodoListProperties
+        TodoOpts todoOpts = new TodoOpts(myVars);
+
+        // Show a dialog whereby the options can be changed
+        int doit = optionPane.showConfirmDialog(
+                JOptionPane.getFrameForComponent(this), todoOpts,
                 "Set Options", JOptionPane.OK_CANCEL_OPTION);
 
         if (doit == -1) return; // The X on the dialog
         if (doit == JOptionPane.CANCEL_OPTION) return;
 
-        boolean blnOrigShowPriority = myVars.showPriority;
-        myVars = to.getValues();
+        // Get the values back out of the Option Panel
+        myVars = todoOpts.getValues();
         setGroupChanged();
 
         // Was there a reset-worthy change?
@@ -651,143 +638,153 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end showComponent
 
 
-    void sortDeadline(int direction) {
-        TodoNoteData todoData1, todoData2;
-        TodoNoteComponent todoComponent1, todoComponent2;
-        int i, j;
-        long lngDate1, lngDate2;
-        int sortMethod = 0;
-        int items = lastVisibleNoteIndex;
-        MemoryBank.debug("TodoNoteGroup sortDeadline - Number of items in list: " + items);
-
-        // Bitmapping of the 6 possible sorting variants.
-        //  Zero-values are ASCENDING, STAY (but that is not the default)
-        if (direction == DESCENDING) sortMethod += 4;
-        if (myVars.whenNoKey == TOP) sortMethod += 1;
-        if (myVars.whenNoKey == BOTTOM) sortMethod += 2;
-
-        switch (sortMethod) {
-            case 0:         // ASCENDING, STAY
-                // System.out.println("Sorting: Deadline, ASCENDING, STAY");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
-                    if (todoData1 == null) lngDate1 = 0;
-                    else lngDate1 = todoData1.getNoteDate().getTime();
-                    if (lngDate1 == 0) continue; // No key; skip.
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
-                        if (todoData2 == null) lngDate2 = 0;
-                        else lngDate2 = todoData2.getNoteDate().getTime();
-                        if (lngDate2 == 0) continue; // No key; skip.
-                        if (lngDate1 > lngDate2) {
-                            lngDate1 = lngDate2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 1:         // ASCENDING, TOP
-                // System.out.println("Sorting: Deadline, ASCENDING, TOP");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
-                    if (todoData1 == null) lngDate1 = 0;
-                    else lngDate1 = todoData1.getNoteDate().getTime();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
-                        if (todoData2 == null) lngDate2 = 0;
-                        else lngDate2 = todoData2.getNoteDate().getTime();
-                        if (lngDate1 > lngDate2) {
-                            lngDate1 = lngDate2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 2:         // ASCENDING, BOTTOM
-                // System.out.println("Sorting: Deadline, ASCENDING, BOTTOM");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
-                    if (todoData1 == null) lngDate1 = 0;
-                    else lngDate1 = todoData1.getNoteDate().getTime();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
-                        if (todoData2 == null) lngDate2 = 0;
-                        else lngDate2 = todoData2.getNoteDate().getTime();
-                        if (((lngDate1 > lngDate2) && (lngDate2 != 0)) || (lngDate1 == 0)) {
-                            lngDate1 = lngDate2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 4:         // DESCENDING, STAY
-                // System.out.println("Sorting: Deadline, DESCENDING, STAY");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
-                    if (todoData1 == null) lngDate1 = 0;
-                    else lngDate1 = todoData1.getNoteDate().getTime();
-                    if (lngDate1 == 0) continue; // No key; skip.
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
-                        if (todoData2 == null) lngDate2 = 0;
-                        else lngDate2 = todoData2.getNoteDate().getTime();
-                        if (lngDate2 == 0) continue; // No key; skip.
-                        if (lngDate1 < lngDate2) {
-                            lngDate1 = lngDate2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 5:         // DESCENDING, TOP
-                // System.out.println("Sorting: Deadline, DESCENDING, TOP");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
-                    if (todoData1 == null) lngDate1 = 0;
-                    else lngDate1 = todoData1.getNoteDate().getTime();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
-                        if (todoData2 == null) lngDate2 = 0;
-                        else lngDate2 = todoData2.getNoteDate().getTime();
-                        if (((lngDate1 < lngDate2) && (lngDate1 != 0)) || (lngDate2 == 0)) {
-                            lngDate1 = lngDate2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 6:         // DESCENDING, BOTTOM
-                // System.out.println("Sorting: Deadline, DESCENDING, BOTTOM");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
-                    if (todoData1 == null) lngDate1 = 0;
-                    else lngDate1 = todoData1.getNoteDate().getTime();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
-                        if (todoData2 == null) lngDate2 = 0;
-                        else lngDate2 = todoData2.getNoteDate().getTime();
-                        if (lngDate1 < lngDate2) {
-                            lngDate1 = lngDate2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-        } // end switch sortMethod
-        //thisFrame.getContentPane().validate();
-    } // end sortDeadline
+    // Disabled this 9/02/2019 so that it does not pull down code coverage for tests.
+    // Did not write a test for it because the feature is in serious question -
+    // Did not just remove entirely because the work to create this method was significant, and
+    // it may become relevant again at some point.  Currently a 'deadline' is not seen as
+    // that in a Todolist, but we do still set a Date on a Todo item that roughly means 'do
+    // this on or before this date', and we may want to become more specific as to what that
+    // date really means - deadline is only one option; it could also mean 'do after', or
+    // 'do on exactly this date and not before or after', and possibly other variants, and
+    // possibly tied in with linkages.  So - keep this here but disabled until those questions
+    // are answered or we know for a FACT that it will never again be needed.
+//    void sortDeadline(int direction) {
+//        TodoNoteData todoData1, todoData2;
+//        TodoNoteComponent todoComponent1, todoComponent2;
+//        int i, j;
+//        long lngDate1, lngDate2;
+//        int sortMethod = 0;
+//        int items = lastVisibleNoteIndex;
+//        MemoryBank.debug("TodoNoteGroup sortDeadline - Number of items in list: " + items);
+//
+//        // Bitmapping of the 6 possible sorting variants.
+//        //  Zero-values are ASCENDING, STAY (but that is not the default)
+//        if (direction == DESCENDING) sortMethod += 4;
+//        if (myVars.whenNoKey == TOP) sortMethod += 1;
+//        if (myVars.whenNoKey == BOTTOM) sortMethod += 2;
+//
+//        switch (sortMethod) {
+//            case 0:         // ASCENDING, STAY
+//                // System.out.println("Sorting: Deadline, ASCENDING, STAY");
+//                for (i = 0; i < (items - 1); i++) {
+//                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
+//                    if (todoData1 == null) lngDate1 = 0;
+//                    else lngDate1 = todoData1.getNoteDate().getTime();
+//                    if (lngDate1 == 0) continue; // No key; skip.
+//                    for (j = i + 1; j < items; j++) {
+//                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
+//                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
+//                        if (todoData2 == null) lngDate2 = 0;
+//                        else lngDate2 = todoData2.getNoteDate().getTime();
+//                        if (lngDate2 == 0) continue; // No key; skip.
+//                        if (lngDate1 > lngDate2) {
+//                            lngDate1 = lngDate2;
+//                            todoComponent1.swap(todoComponent2);
+//                        } // end if
+//                    } // end for j
+//                } // end for i
+//                break;
+//            case 1:         // ASCENDING, TOP
+//                // System.out.println("Sorting: Deadline, ASCENDING, TOP");
+//                for (i = 0; i < (items - 1); i++) {
+//                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
+//                    if (todoData1 == null) lngDate1 = 0;
+//                    else lngDate1 = todoData1.getNoteDate().getTime();
+//                    for (j = i + 1; j < items; j++) {
+//                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
+//                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
+//                        if (todoData2 == null) lngDate2 = 0;
+//                        else lngDate2 = todoData2.getNoteDate().getTime();
+//                        if (lngDate1 > lngDate2) {
+//                            lngDate1 = lngDate2;
+//                            todoComponent1.swap(todoComponent2);
+//                        } // end if
+//                    } // end for j
+//                } // end for i
+//                break;
+//            case 2:         // ASCENDING, BOTTOM
+//                // System.out.println("Sorting: Deadline, ASCENDING, BOTTOM");
+//                for (i = 0; i < (items - 1); i++) {
+//                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
+//                    if (todoData1 == null) lngDate1 = 0;
+//                    else lngDate1 = todoData1.getNoteDate().getTime();
+//                    for (j = i + 1; j < items; j++) {
+//                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
+//                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
+//                        if (todoData2 == null) lngDate2 = 0;
+//                        else lngDate2 = todoData2.getNoteDate().getTime();
+//                        if (((lngDate1 > lngDate2) && (lngDate2 != 0)) || (lngDate1 == 0)) {
+//                            lngDate1 = lngDate2;
+//                            todoComponent1.swap(todoComponent2);
+//                        } // end if
+//                    } // end for j
+//                } // end for i
+//                break;
+//            case 4:         // DESCENDING, STAY
+//                // System.out.println("Sorting: Deadline, DESCENDING, STAY");
+//                for (i = 0; i < (items - 1); i++) {
+//                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
+//                    if (todoData1 == null) lngDate1 = 0;
+//                    else lngDate1 = todoData1.getNoteDate().getTime();
+//                    if (lngDate1 == 0) continue; // No key; skip.
+//                    for (j = i + 1; j < items; j++) {
+//                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
+//                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
+//                        if (todoData2 == null) lngDate2 = 0;
+//                        else lngDate2 = todoData2.getNoteDate().getTime();
+//                        if (lngDate2 == 0) continue; // No key; skip.
+//                        if (lngDate1 < lngDate2) {
+//                            lngDate1 = lngDate2;
+//                            todoComponent1.swap(todoComponent2);
+//                        } // end if
+//                    } // end for j
+//                } // end for i
+//                break;
+//            case 5:         // DESCENDING, TOP
+//                // System.out.println("Sorting: Deadline, DESCENDING, TOP");
+//                for (i = 0; i < (items - 1); i++) {
+//                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
+//                    if (todoData1 == null) lngDate1 = 0;
+//                    else lngDate1 = todoData1.getNoteDate().getTime();
+//                    for (j = i + 1; j < items; j++) {
+//                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
+//                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
+//                        if (todoData2 == null) lngDate2 = 0;
+//                        else lngDate2 = todoData2.getNoteDate().getTime();
+//                        if (((lngDate1 < lngDate2) && (lngDate1 != 0)) || (lngDate2 == 0)) {
+//                            lngDate1 = lngDate2;
+//                            todoComponent1.swap(todoComponent2);
+//                        } // end if
+//                    } // end for j
+//                } // end for i
+//                break;
+//            case 6:         // DESCENDING, BOTTOM
+//                // System.out.println("Sorting: Deadline, DESCENDING, BOTTOM");
+//                for (i = 0; i < (items - 1); i++) {
+//                    todoComponent1 = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+//                    todoData1 = (TodoNoteData) todoComponent1.getNoteData();
+//                    if (todoData1 == null) lngDate1 = 0;
+//                    else lngDate1 = todoData1.getNoteDate().getTime();
+//                    for (j = i + 1; j < items; j++) {
+//                        todoComponent2 = (TodoNoteComponent) groupNotesListPanel.getComponent(j);
+//                        todoData2 = (TodoNoteData) todoComponent2.getNoteData();
+//                        if (todoData2 == null) lngDate2 = 0;
+//                        else lngDate2 = todoData2.getNoteDate().getTime();
+//                        if (lngDate1 < lngDate2) {
+//                            lngDate1 = lngDate2;
+//                            todoComponent1.swap(todoComponent2);
+//                        } // end if
+//                    } // end for j
+//                } // end for i
+//                break;
+//        } // end switch sortMethod
+//        //thisFrame.getContentPane().validate();
+//    } // end sortDeadline
 
 
     void sortPriority(int direction) {
