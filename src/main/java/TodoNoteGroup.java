@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -5,7 +7,9 @@ import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Vector;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static final long serialVersionUID = 1L;
@@ -30,24 +34,21 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     static {
         // The File Chooser supports the 'merge' functionality.
-        filechooser = new FileChooser() {};
+        filechooser = new FileChooser() {
+        };
         filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome));
         javax.swing.filechooser.FileFilter ff = new javax.swing.filechooser.FileFilter() {
             public boolean accept(File f) {
                 if (f != null) {
                     if (f.isDirectory()) return true;
                     String filename = f.getName().toLowerCase();
-                    int i = filename.lastIndexOf('.');
-                    if (i > 0 && i < filename.length() - 1) {
-                        String extension = filename.substring(i + 1);
-                        return extension.equals("todolist");
-                    } // end if
+                    return filename.startsWith("todo_");
                 } // end if
                 return false;
             } // end accept
 
             public String getDescription() {
-                return "To Do lists (*.todolist)";
+                return "To Do lists (todo_*.json)";
             } // end getDescription
         };
         filechooser.addChoosableFileFilter(ff);
@@ -67,11 +68,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         //   but this works for now and no ENC structural changes are expected.
 
         strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
-        strTheGroupFilename += fname + ".todolist";
+        strTheGroupFilename += "todo_" + fname + ".json";
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
-        optionPane = new Notifier() { }; // Uses all default methods.
+        optionPane = new Notifier() {
+        }; // Uses all default methods.
 
         // Create the window title
         JLabel lblListTitle = new JLabel();
@@ -218,7 +220,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
-    // Gives containers some access.
+    // Returns a TodoNoteComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
     //--------------------------------------------------------
     public TodoNoteComponent getNoteComponent(int i) {
         return (TodoNoteComponent) groupNotesListPanel.getComponent(i);
@@ -240,6 +243,42 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     public void merge() {
+        String mergeFile = chooseFileName("Merge");
+        if (mergeFile == null) return;
+
+        try {
+            String text = FileUtils.readFileToString(new File(mergeFile), StandardCharsets.UTF_8.name());
+            Object[] theGroup = AppUtil.mapper.readValue(text, Object[].class);
+            //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+            Vector<TodoNoteData> mergeVector;
+            mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
+            });
+            System.out.println("Number of Items to merge in: " + mergeVector.size());
+            for (TodoNoteData tnd : mergeVector) {
+                if (tnd.hasText()) {
+                    TodoNoteComponent tnc = (TodoNoteComponent) groupNotesListPanel.getComponent(lastVisibleNoteIndex);
+                    tnc.setTodoNoteData(tnd); // this sets his 'initialized' to true
+                    if (lastVisibleNoteIndex == getHighestNoteComponentIndex()) break;
+                    lastVisibleNoteIndex++;
+                } // end if there is text
+            } // end for
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            String ems = "Error in loading " + mergeFile + " !\n";
+            ems = ems + ex.getMessage();
+            ems = ems + "\nList merge operation aborted.";
+            JOptionPane.showMessageDialog(
+                    JOptionPane.getFrameForComponent(this), ems, "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        } // end try/catch
+
+        setGroupChanged();
+        preClose();
+        updateGroup();  // need to check column order???
+    } // end merge
+
+    public void oldMerge() {
         String mergeFile = chooseFileName("Merge");
         if (mergeFile == null) return;
 
@@ -330,20 +369,33 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end pageNumberChanged
 
 
+    @Override
+    protected void preClose() {
+        saveProperties();
+        super.preClose();
+    }
+
     //-----------------------------------------------------------------
     // Method Name:  prettyName
     //
     // A formatter for a filename specifier - drop off the path
-    //   prefix and/or trailing '.todolist', if present.  Note
+    //   prefix and/or trailing '.json', if present.  Note
     //   that this method name was chosen so as to not conflict with
     //   the 'getName' of the Component ancestor of this class.
     //-----------------------------------------------------------------
-    public static String prettyName(String s) {
-        int i = s.lastIndexOf(File.separatorChar);
-        s = s.substring(i + 1);
-        i = s.lastIndexOf(".todolist");
-        if (i == -1) return s;
-        return s.substring(0, i);
+    public static String prettyName(String theLongName) {
+        int i = theLongName.lastIndexOf(File.separatorChar);
+        String thePrettyName = theLongName;
+        if (i > 0) { // if it has the sep char then it also has the 'todo_'
+            thePrettyName = theLongName.substring(i + 6);
+        } else {  // we may only be prettifying the filename, vs path+filename.
+            if (theLongName.startsWith("todo_")) {
+                thePrettyName = theLongName.substring(5);
+            }
+        }
+        i = thePrettyName.lastIndexOf(".json");
+        if (i == -1) return thePrettyName;
+        return thePrettyName.substring(0, i);
     } // end prettyName
 
 
@@ -524,7 +576,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // new name and try again.
         //--------------------------------------------------------------
         String newFilename = MemoryBank.userDataHome + File.separatorChar;
-        newFilename += newName + ".todolist";
+        newFilename += "todo_" + newName + ".json";
 
         if ((new File(newFilename)).exists()) {
             ems = "A list named " + newName + " already exists!\n";
@@ -556,6 +608,14 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         return true;
     } // end saveAs
 
+    private void saveProperties() {
+        // Update the header text of the columns.
+        myVars.column1Label = listHeader.getColumnHeader(1);
+        myVars.column2Label = listHeader.getColumnHeader(2);
+        myVars.column3Label = listHeader.getColumnHeader(3);
+        myVars.columnOrder = listHeader.getColumnOrder();
+    } // end saveProperties
+
 
     //-----------------------------------------------------------------
     // Method Name:  setFileName
@@ -566,12 +626,19 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-----------------------------------------------------------------
     private void setFileName(String fname) {
         strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
-        strTheGroupFilename += fname.trim() + ".todolist";
+        strTheGroupFilename += "todo_" + fname.trim() + ".json";
 
         setName(fname.trim());  // Keep the 'pretty' name in the component.
         setGroupChanged();
     } // end setFileName
 
+
+    @Override
+    void setGroupData(Object[] theGroup) {
+        myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListProperties.class);
+        vectGroupData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
+        });
+    }
 
     // Used by test methods
     public void setNotifier(Notifier newNotifier) {

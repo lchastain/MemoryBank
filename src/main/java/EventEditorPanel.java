@@ -1,22 +1,16 @@
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Vector;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.text.AbstractDocument;
 
 /**
  * Summary description for EventEditorPanel
@@ -195,7 +189,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     } // end addLocation
 
 
-    public void btnDateFormat_actionPerformed(ActionEvent ae) {
+    private void btnDateFormat_actionPerformed(ActionEvent ae) {
         String s = ae.getActionCommand();
         System.out.print(this.getClass().getName());
         System.out.println(" - unhandled action: " + s);
@@ -204,13 +198,13 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     }
 
 
-    public void btnRecurrence_actionPerformed() {
+    private void btnRecurrence_actionPerformed() {
         showRecurrenceDialog();
     }
 
 
     // Put info from the interface into the EventNoteData object
-    public void collectTheData(EventNoteData end) {
+    void collectTheData(EventNoteData end) {
 
         end.setExtendedNoteString(getExtText());
 
@@ -353,9 +347,9 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     // are specified.  If the setting is incomplete it will return
     // null.
     //--------------------------------------------------------------
-    public Long getDurationSetting() {
+    private Long getDurationSetting() {
         String strValue = txtfDurationValue.getText();
-        String strUnits = comboxDurationUnits.getSelectedItem().toString();
+        String strUnits = Objects.requireNonNull(comboxDurationUnits.getSelectedItem()).toString();
         long lngDuration;
 
         if (strValue.trim().equals("")) return null; // No Value
@@ -398,7 +392,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //   Components (ie, it will not be called for an unknown
     //   reason, and so there is no need to check for one ...)
     //-----------------------------------------------------------
-    public void handleDateTimeClicked(MouseEvent e) {
+    private void handleDateTimeClicked(MouseEvent e) {
         int m = e.getModifiers();
         Component source = (Component) e.getSource();
         String s = source.getName();
@@ -419,115 +413,121 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         tmpNoteData.setEndDate(dateEventEndDate);
         tmpNoteData.setEndTime(dateEventEndTime);
 
-        if (s.equals("Start Date")) {
-            if (rightClick) {
-                if (dateEventStartDate == null) return; // already cleared.
-                tmpNoteData.setStartDate(null);
-                dateEventStartDate = null;
-                strRecurrenceSetting = "";
-            } else {
-                if (dateEventStartDate != null) yvDateChooser.setChoice(dateEventStartDate);
-                else yvDateChooser.setChoice(null);
-                showDateDialog("Select a Start Date for the Event");
-                if (tmpNoteData.setStartDate(yvDateChooser.getChoice())) {
-                    if ((dateEventStartDate == null) ||
-                            (tmpNoteData.getStartDate().getTime() !=
-                                    dateEventStartDate.getTime())) {
-                        // The above comparison must be between milliseconds, not objects.
-                        dateEventStartDate = tmpNoteData.getStartDate();
-                        strRecurrenceSetting = "";
-                    } // end if not setting to the same date.
+        switch (s) {
+            case "Start Date":
+                if (rightClick) {
+                    if (dateEventStartDate == null) return; // already cleared.
+                    tmpNoteData.setStartDate(null);
+                    dateEventStartDate = null;
+                    strRecurrenceSetting = "";
                 } else {
-                    strTmp = "<html>The Event cannot start after it ends.<br>";
-                    strTmp += "Your selection of ";
-                    strTmp += sdf.format(yvDateChooser.getChoice());
-                    strTmp += " has been discarded.</html>";
+                    if (dateEventStartDate != null) yvDateChooser.setChoice(dateEventStartDate);
+                    else yvDateChooser.setChoice(null);
+                    showDateDialog("Select a Start Date for the Event");
+                    if (tmpNoteData.setStartDate(yvDateChooser.getChoice())) {
+                        if ((dateEventStartDate == null) ||
+                                (tmpNoteData.getStartDate().getTime() !=
+                                        dateEventStartDate.getTime())) {
+                            // The above comparison must be between milliseconds, not objects.
+                            dateEventStartDate = tmpNoteData.getStartDate();
+                            strRecurrenceSetting = "";
+                        } // end if not setting to the same date.
+                    } else {
+                        strTmp = "<html>The Event cannot start after it ends.<br>";
+                        strTmp += "Your selection of ";
+                        strTmp += sdf.format(yvDateChooser.getChoice());
+                        strTmp += " has been discarded.</html>";
 
-                    JLabel lblTmp = new JLabel(strTmp);
-                    lblTmp.setFont(Font.decode("Dialog-bold-12"));
-                    JOptionPane.showMessageDialog(this, lblTmp,
-                            "Start Date Selection Error", JOptionPane.ERROR_MESSAGE);
+                        JLabel lblTmp = new JLabel(strTmp);
+                        lblTmp.setFont(Font.decode("Dialog-bold-12"));
+                        JOptionPane.showMessageDialog(this, lblTmp,
+                                "Start Date Selection Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-            }
-            resetStartPanel();
-        } else if (s.equals("End Date")) {
-            if (rightClick) {
-                if (dateEventEndDate == null) return;
-                tmpNoteData.setEndDate(null);
-                dateEventEndDate = null;
-            } else {
-                if (dateEventEndDate != null) yvDateChooser.setChoice(dateEventEndDate);
-                else yvDateChooser.setChoice(null);
-                showDateDialog("Select an End Date for the Event");
-                if (tmpNoteData.setEndDate(yvDateChooser.getChoice())) {
-                    dateEventEndDate = tmpNoteData.getEndDate();
+                resetStartPanel();
+                break;
+            case "End Date":
+                if (rightClick) {
+                    if (dateEventEndDate == null) return;
+                    tmpNoteData.setEndDate(null);
+                    dateEventEndDate = null;
                 } else {
-                    strTmp = "<html>The Event cannot end before it starts.<br>";
-                    strTmp += "Your selection of ";
-                    strTmp += sdf.format(yvDateChooser.getChoice());
-                    strTmp += " has been discarded.</html>";
+                    if (dateEventEndDate != null) yvDateChooser.setChoice(dateEventEndDate);
+                    else yvDateChooser.setChoice(null);
+                    showDateDialog("Select an End Date for the Event");
+                    if (tmpNoteData.setEndDate(yvDateChooser.getChoice())) {
+                        dateEventEndDate = tmpNoteData.getEndDate();
+                    } else {
+                        strTmp = "<html>The Event cannot end before it starts.<br>";
+                        strTmp += "Your selection of ";
+                        strTmp += sdf.format(yvDateChooser.getChoice());
+                        strTmp += " has been discarded.</html>";
 
-                    JLabel lblTmp = new JLabel(strTmp);
-                    lblTmp.setFont(Font.decode("Dialog-bold-12"));
-                    JOptionPane.showMessageDialog(this, lblTmp,
-                            "End Date Selection Error", JOptionPane.ERROR_MESSAGE);
+                        JLabel lblTmp = new JLabel(strTmp);
+                        lblTmp.setFont(Font.decode("Dialog-bold-12"));
+                        JOptionPane.showMessageDialog(this, lblTmp,
+                                "End Date Selection Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-            }
-            resetEndPanel();
-        } else if (s.equals("Start Time")) {
-            if (rightClick) {
-                if (dateEventStartTime == null) return;
-                tmpNoteData.setStartTime(null);
-                dateEventStartTime = null;
-            } else {
-                if (dateEventStartTime != null) tcTimeChooser = new TimeChooser(dateEventStartTime);
-                else tcTimeChooser = new TimeChooser();
-                showTimeDialog("Select a Start Time");
-
-                if (tmpNoteData.setStartTime(dateTimeSetting)) {
-                    dateEventStartTime = tmpNoteData.getStartTime();
+                resetEndPanel();
+                break;
+            case "Start Time":
+                if (rightClick) {
+                    if (dateEventStartTime == null) return;
+                    tmpNoteData.setStartTime(null);
+                    dateEventStartTime = null;
                 } else {
-                    strTmp = "<html>The Event cannot start after it ends.<br>";
-                    strTmp += "Your selection of ";
-                    strTmp += MemoryBank.makeTimeString();
-                    strTmp += " has been discarded.</html>";
+                    if (dateEventStartTime != null) tcTimeChooser = new TimeChooser(dateEventStartTime);
+                    else tcTimeChooser = new TimeChooser();
+                    showTimeDialog("Select a Start Time");
 
-                    JLabel lblTmp = new JLabel(strTmp);
-                    lblTmp.setFont(Font.decode("Dialog-bold-12"));
-                    JOptionPane.showMessageDialog(this, lblTmp,
-                            "Start Time Selection Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } // end if
-            resetStartPanel();
-        } else if (s.equals("End Time")) {
-            if (rightClick) {
-                if (dateEventEndTime == null) return;
-                tmpNoteData.setEndTime(null);
-                dateEventEndTime = null;
-            } else {
-                if (dateEventEndTime != null) tcTimeChooser = new TimeChooser(dateEventEndTime);
-                else tcTimeChooser = new TimeChooser();
-                showTimeDialog("Select an End Time");
+                    if (tmpNoteData.setStartTime(dateTimeSetting)) {
+                        dateEventStartTime = tmpNoteData.getStartTime();
+                    } else {
+                        strTmp = "<html>The Event cannot start after it ends.<br>";
+                        strTmp += "Your selection of ";
+                        strTmp += MemoryBank.makeTimeString();
+                        strTmp += " has been discarded.</html>";
 
-                if (tmpNoteData.setEndTime(dateTimeSetting)) {
-                    dateEventEndTime = tmpNoteData.getEndTime();
+                        JLabel lblTmp = new JLabel(strTmp);
+                        lblTmp.setFont(Font.decode("Dialog-bold-12"));
+                        JOptionPane.showMessageDialog(this, lblTmp,
+                                "Start Time Selection Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } // end if
+                resetStartPanel();
+                break;
+            case "End Time":
+                if (rightClick) {
+                    if (dateEventEndTime == null) return;
+                    tmpNoteData.setEndTime(null);
+                    dateEventEndTime = null;
                 } else {
-                    strTmp = "<html>The Event cannot end before it starts.<br>";
-                    strTmp += "Your selection of ";
-                    strTmp += MemoryBank.makeTimeString();
-                    strTmp += " has been discarded.</html>";
+                    if (dateEventEndTime != null) tcTimeChooser = new TimeChooser(dateEventEndTime);
+                    else tcTimeChooser = new TimeChooser();
+                    showTimeDialog("Select an End Time");
 
-                    JLabel lblTmp = new JLabel(strTmp);
-                    lblTmp.setFont(Font.decode("Dialog-bold-12"));
-                    JOptionPane.showMessageDialog(this, lblTmp,
-                            "End Time Selection Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } // end if
-            resetEndPanel();
-        } else { // ... but we left this section in anyway.
-            System.out.print(this.getClass().getName());
-            System.out.println(" - unhandled action: " + s);
-        } // end if
+                    if (tmpNoteData.setEndTime(dateTimeSetting)) {
+                        dateEventEndTime = tmpNoteData.getEndTime();
+                    } else {
+                        strTmp = "<html>The Event cannot end before it starts.<br>";
+                        strTmp += "Your selection of ";
+                        strTmp += MemoryBank.makeTimeString();
+                        strTmp += " has been discarded.</html>";
+
+                        JLabel lblTmp = new JLabel(strTmp);
+                        lblTmp.setFont(Font.decode("Dialog-bold-12"));
+                        JOptionPane.showMessageDialog(this, lblTmp,
+                                "End Time Selection Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } // end if
+                resetEndPanel();
+                break;
+            default:  // ... but we left this section in anyway.
+                System.out.print(this.getClass().getName());
+                System.out.println(" - unhandled action: " + s);
+                break;
+        }
 
 //    resetDuration(tmpNoteData);
         String strUnits = tmpNoteData.getDurationUnits();
@@ -555,9 +555,9 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         lblNotes = new JLabel();
         chkboxRetainNote = new JCheckBox();
         txtfDurationValue = new JTextField();
-        comboxLocation = new JComboBox<String>();
-        jComboBox2 = new JComboBox<String>(); // Needed to hold this place because Subjects not yet loaded.
-        comboxDurationUnits = new JComboBox<String>();
+        comboxLocation = new JComboBox<>();
+        jComboBox2 = new JComboBox<>(); // Needed to hold this place because Subjects not yet loaded.
+        comboxDurationUnits = new JComboBox<>();
         JTextArea jTextArea1 = new JTextArea();
         spaneNotes = new JScrollPane();
         btnRecurrence = new JButton();
@@ -642,12 +642,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // 
         btnDateFormat.setText("Date Format");
         btnDateFormat.setToolTipText("Click here to specify a different format for the displayed Dates and/or Times");
-        btnDateFormat.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                btnDateFormat_actionPerformed(e);
-            }
-
-        });
+        btnDateFormat.addActionListener(this::btnDateFormat_actionPerformed);
         // 
         // contentPane 
         // 
@@ -728,13 +723,13 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     // Method Name: loadLocations
     //
     //-------------------------------------------------------------
-    public void loadLocations() {
+    private void loadLocations() {
         Exception e = null;
         FileInputStream fis = null;
         ObjectInputStream ois = null;
         String loc;
 
-        locations = new Vector<String>(6, 1);
+        locations = new Vector<>(6, 1);
 
         try {
             fis = new FileInputStream(strLocFilename);
@@ -746,12 +741,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                 locations.addElement(loc);
                 MemoryBank.debug("  loaded subject: " + loc);
             } // end while
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
         } catch (FileNotFoundException fnfe) {
             // not a problem; expected first time for each user.
             // So - set some defaults.
@@ -767,8 +756,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
             } catch (IOException ioe) {   // This one's a throw-away.
                 ioe.printStackTrace(); // not handled but not (entirely) ignored...
             } // end try/catch
-        } catch (IOException ioe) {
-            e = ioe;
         } catch (Exception ex) {
             e = ex;
         } // end try/catch
@@ -930,7 +917,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         rectTmp = comboxLocation.getBounds();
         remove(comboxLocation);
         loadLocations();
-        comboxLocation = new JComboBox<String>(locations);
+        comboxLocation = new JComboBox<>(locations);
         comboxLocation.setFont(Font.decode("Serif-bold-12"));
         comboxLocation.setMaximumRowCount(maxLocations);
         comboxLocation.setEditable(true);
@@ -955,8 +942,12 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         spaneNotes.validate();
     } // end reinitializeComponent
 
+    // Needed to add this after moving from a JDialog to a JOptionPane.
+    public Dimension getPreferredSize() {
+        return new Dimension(getMinimumSize());
+    }
 
-    public void resetEndPanel() {
+    private void resetEndPanel() {
         boolean datePast = false;
 
         // Set the Date button text
@@ -1014,7 +1005,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         } // end if
     } // end resetEndPanel
 
-    public void resetStartPanel() {
+    private void resetStartPanel() {
         boolean datePast = false;
 
         // Set the Date button text
@@ -1091,7 +1082,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     } // end resetStartPanel
 
 
-    public void saveLocations() {
+    private void saveLocations() {
         MemoryBank.debug("Saving locations: " + locationsChanged);
         if (!locationsChanged) return;
 
@@ -1183,7 +1174,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
 
     // Set the interface fields per the input data.
-    public void showTheData(EventNoteData end) {
+    public void showTheData(@NotNull EventNoteData end) {
 
         // Load the interface with the correct data
         //------------------------------------------------

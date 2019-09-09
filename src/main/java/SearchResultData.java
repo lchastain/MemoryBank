@@ -1,3 +1,4 @@
+import java.beans.Transient;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
@@ -21,6 +22,11 @@ public class SearchResultData extends NoteData implements Serializable {
 
     private File fileFoundIn;
 
+    // The JSON mapper wants uses this one; IntelliJ doesn't know.
+    public SearchResultData() {
+        super();
+    } // end default constructor
+
     // Called during a search - the other members will be set
     //   explicitly, in subsequent method calls.
     public SearchResultData(NoteData nd) {
@@ -36,7 +42,7 @@ public class SearchResultData extends NoteData implements Serializable {
     } // end constructor
 
 
-    public File getFileFoundIn() {
+    File getFileFoundIn() {
         return fileFoundIn;
     }
 
@@ -52,8 +58,12 @@ public class SearchResultData extends NoteData implements Serializable {
     //   sources, decided to use alpha months rather than numeric
     //   because it "reads" best and does not affect sorting
     //   which uses the 'dateNoteWhen'.
+    //   Had to annotate as Transient, else the JSON mapper picks this
+    //   up and runs it when saving a file.  Then the loader doesn't
+    //   recognize it as a class member, and raises an Exception.
     //-----------------------------------------------------
-    public String getFoundIn() {
+    @Transient
+    String getFoundIn() {
         String retstr; // RETurn STRing
 
         String fname = fileFoundIn.getName();
@@ -101,11 +111,11 @@ public class SearchResultData extends NoteData implements Serializable {
         return retstr;
     } // end getFoundIn
 
-    public void setFileFoundIn(File f) {
+    void setFileFoundIn(File f) {
         fileFoundIn = f;
     }
 
-    public void setNoteDate(Date value) {
+    void setNoteDate(Date value) {
         dateNoteWhen = value;
     }
 

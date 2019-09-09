@@ -1,6 +1,39 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+9/08/2019 1632 - Working on the JSON conversion, a question came up - why do we have an
+  Export capability?  What is/was it needed for?  A bit of research going back >10 years,
+  and I find that at that time I was tempted away from Java and wanted to make the app
+  into a 'module' of the code I was working on at the time for Overwatch (called AXP; think
+  it's short for AXIS-PRO which is still probably an acronym but it was in the same ballpark
+  as MFWS - the MultiFunction Work  Station and DCGS - Defense Control Ground Station).  But
+  that was all Windows/C# - based, and the proprietary Java serialization
+  of all my data would not just load in, so there was going to be a porting needed and
+  to do that, first needed an Export capability.  The AXP did have the ability to import
+  data from Excel csv files, so that was the target of the Export and the line-length
+  restriction there was the reason I made the 'Data Archive' directory to hold too-long
+  extended notes, until I could hand-jam these exceptions into the new platform.  But
+  now - that effort is long-since dropped and I'm in the midst of a conversion of the
+  data to JSON which may well serve the same purpose as well as all the other reasons
+  I'm doing it, so - rather than fix the Export, will probably just remove it.  May
+  be able to archive it, the same way I plan to keep the older DataFixes from this
+  point onward.
+
+9/05/2019 0609 - The conversion of NoteGroup data started yesterday and it looks to have
+  uncovered a new problem - even though the saving was previously (easily) done and seemed to
+  be working well, it turns out that the loading is much more problematic because the class
+  of the JSON-ified data being loaded in is not known to the parent NoteGroup.  Previously
+  that info came from the serialization and NoteGroup didn't look at it at that point; just
+  slammed it into a vector that the child classes work with.  Now, the JSON mapper needs to
+  know what to convert it to, before we would be able to get it into a Vector.  But we
+  don't want to (and maybe cannot?) start introducing child classes into the parent, so
+  it seems like a possible solution here is to offload at least a part of the data loading
+  back to the children, as a new override.  Working this angle now...
+ 0958 Yes, got that to work.  New method:  setGroupData, after the group loader was able
+  to at least load the files into an array of Object that all the children can access.
+  It's working now for SearchResultGroup and its properties, after having to run the
+  DataFix again to remove a should-have-been transient field.
+
 9/02/2019 1034 - While trying to develop more complete test coverage for TodoNoteGroup, keep
   running into roadblocks due to old / rarely used or disabled code - namely usages around
   deadline sorting, and the printList.  Considering removing or disabling large chunks of code,
@@ -9,6 +42,11 @@ DESIGN DECISIONs are below but current ones are now kept separately, in the WW p
   (Can't live with the IJ complaints, and can't stand to have it think that I don't have the
   coverage).  Ok, so will do a disable by comment-out, and add more comments to explain,
   with an eye towards some sort of code repairs in the hopefully not too distant future.
+ 1455 Different subject - code backups.  Hadn't been a concern since 2014 but now it is, and
+  will continue to be.  With the earlier archives all buried under UberArchive/Sheba, seems
+  like I need to start a new one.  Doing that now - added an Archive directory under workspace.
+  Copied the current work in progress to it, as well as over to Dropbox (just to preserve
+  current; may not archive it).
 
 8/31/2019 0846 - While implementing the cut/copy/paste feature, discovered that I was commenting
   that my same-named setNoteData methods (with a different type in the param) were written as

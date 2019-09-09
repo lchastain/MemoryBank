@@ -167,12 +167,11 @@ public class TodoNoteComponent extends NoteComponent {
     //--------------------------------------------------------------------------
     // Method Name: moveToDayNote
     //
-    // Move the TodoNoteData to a Day Note.  That can happen with Events,
-    //   as well, but the reason that this methodology
-    //   looks different from the aging of an Event is that here it is done
+    // Move the TodoNoteData to a Day Note.  This happens with Events,
+    //   as well, but here it is done
     //   at the individual Component level, whereas Events are aged as a group
     //   and more than one might be affected with different effects on the
-    //   visible interface, so the 'refresh' is needed there and it
+    //   visible interface, so the group 'refresh' is needed there and it
     //   is not possible to leave a gap because the entire list gets reloaded.
     //   But here - we just leave a gap (but that might change eventually, when
     //   we get a 'todolist refresh' feature).
@@ -195,7 +194,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (theFilename.equals("")) {
             theFilename = AppUtil.makeFilename(AppUtil.calTemp, "D");
         } // end if
-        success = NoteGroup.addNote(theFilename, dnd);
+        success = AppUtil.addNote(theFilename, dnd);
 
         if (success) {
             MemoryBank.debug("Move succeeded");

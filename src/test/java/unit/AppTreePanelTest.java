@@ -20,7 +20,7 @@ public class AppTreePanelTest {
     @BeforeAll
     static void meFirst() throws IOException {
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -134,7 +134,7 @@ public class AppTreePanelTest {
         mySrd.setFileFoundIn(new File("2008/D0927_20170927175850"));
         atp.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
-        mySrd.setFileFoundIn(new File("Long Term.todolist"));
+        mySrd.setFileFoundIn(new File("Long Term.todolist.json"));
         atp.showFoundIn(mySrd);
     }
 

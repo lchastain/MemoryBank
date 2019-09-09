@@ -1,28 +1,15 @@
-/**
+
+/*
  A pairing of a TextArea that contains a 'note', with
  a ComboBox that shows the note's 'Subject'.  Subjects are loaded
  and managed at this level, although they can be set from a calling
  context, to any value including one not in the list.
- */
+*/
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.Frame;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 import java.util.Vector;
-
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 public class ExtendedNoteComponent extends JPanel {
     private static final long serialVersionUID = 2901865483988763694L;
@@ -44,7 +31,7 @@ public class ExtendedNoteComponent extends JPanel {
 
     public ExtendedNoteComponent(String defaultSubject) {
         super(new BorderLayout());
-        subjects = new Vector<String>(6, 1);
+        subjects = new Vector<>(6, 1);
         body = new JTextArea(10, 20) {
             // To stop the compiler from whining -
             private static final long serialVersionUID = 2465964677978447062L;
@@ -72,7 +59,7 @@ public class ExtendedNoteComponent extends JPanel {
         FileName = MemoryBank.userDataHome + File.separatorChar + s;
 
         loadSubjects(); // There may or may not be any.
-        subjectChooser = new JComboBox<String>(subjects);
+        subjectChooser = new JComboBox<>(subjects);
         subjectChooser.setEditable(true);
         subjectChooser.setFont(Font.decode("Serif-bold-12"));
         // Note: too large of font here causes display problems.
@@ -87,7 +74,7 @@ public class ExtendedNoteComponent extends JPanel {
 
 
     // Called by internal methods only.
-    protected void addSubject(String s) {
+    void addSubject(String s) {
         MemoryBank.debug("Adding subject: [" + s + "]");
         //------------------------------------------------------------------
         // Do not want to add the subject to the file in these cases.
@@ -128,7 +115,7 @@ public class ExtendedNoteComponent extends JPanel {
     // This is needed to acquire typed text.
     // Called from a higher context because there are no locally
     //   handled events that are relevant.
-    public void checkSubject() {
+    void checkSubject() {
         String theSubject = (String) subjectChooser.getEditor().getItem();
         // Note: Cannot use '.getSelectedItem()' above, because it may have
         //   just been typed in and not be in the list, therefore it is not
@@ -144,23 +131,24 @@ public class ExtendedNoteComponent extends JPanel {
     } // end checkSubject
 
 
-    public String getExtText() {
+    String getExtText() {
         return body.getText();
     }
 
 
     public String getSubject() {
+        if (mySubject == null) return null;
         if (mySubject.equals(theDefaultSubject)) return null;
         else return mySubject;
     } // end getSubject
 
 
-    public int getSubjectCount() {
+    int getSubjectCount() {
         return subjects.size();
     } // end getSubjectCount
 
 
-    public void setExtText(String s) {
+    void setExtText(String s) {
         body.setText(s);
     } // end setExtText
 
@@ -182,7 +170,7 @@ public class ExtendedNoteComponent extends JPanel {
     // Method Name: loadSubjects
     //
     //-------------------------------------------------------------
-    public void loadSubjects() {
+    private void loadSubjects() {
         Exception e = null;
         FileInputStream fis = null;
         ObjectInputStream ois = null;
@@ -200,12 +188,6 @@ public class ExtendedNoteComponent extends JPanel {
                 subjects.addElement(subj);
                 // MemoryBank.debug("  loaded subject: " + subj);
             } // end while
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
         } catch (FileNotFoundException fnfe) {
             // not a problem; expected (very) first time for each user.
         } catch (EOFException eofe) {
@@ -216,8 +198,8 @@ public class ExtendedNoteComponent extends JPanel {
             } catch (IOException ioe) {   // This one's a throw-away.
                 ioe.printStackTrace(); // not handled but not (entirely) ignored...
             } // end try/catch
-        } catch (IOException ioe) {
-            e = ioe;
+        } catch (ClassCastException | ClassNotFoundException | IOException eee) {
+            e = eee;
         } // end try/catch
 
         if (e != null) {
@@ -232,9 +214,9 @@ public class ExtendedNoteComponent extends JPanel {
 
 
     // This needs to be called from a higher context
-    public int saveSubjects() {
+    void saveSubjects() {
         MemoryBank.debug("Saving subjects: " + subjectsChanged);
-        if (!subjectsChanged) return 0;
+        if (!subjectsChanged) return;
 
         MemoryBank.debug("Saving subject data in " + FileName);
         try {
@@ -251,9 +233,7 @@ public class ExtendedNoteComponent extends JPanel {
             subjectsChanged = false;
         } catch (IOException ioe) {
             ioe.printStackTrace(System.err);
-            return 1;
         } // end try/catch
-        return 0;
     } // end saveSubjects
 
 } // end class ExtendedNoteComponent

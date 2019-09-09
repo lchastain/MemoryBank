@@ -1,0 +1,4 @@
+Word and Excel files here are not in git.  It might be nice if they were, but for .doc and .xls file types it just
+confuses the repo and offers nothing that you don't also get with DropBox.
+
+A LOT of work is needed in the info here.

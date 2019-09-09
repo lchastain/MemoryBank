@@ -15,7 +15,6 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static JLabel monthTitle;
 
     static {
-
         // Create the window title
         monthTitle = new JLabel();
         monthTitle.setHorizontalAlignment(JLabel.CENTER);

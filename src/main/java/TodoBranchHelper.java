@@ -39,7 +39,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         todoIndex = -1;
 
         DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
-        if(dmtn != null) todoIndex = theRoot.getIndex(dmtn);
+        if (dmtn != null) todoIndex = theRoot.getIndex(dmtn);
     }
 
     // This method will return a TreePath for the provided String,
@@ -66,7 +66,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();
 
-        while(bfe.hasMoreElements()) {
+        while (bfe.hasMoreElements()) {
             dmtn = (DefaultMutableTreeNode) bfe.nextElement();
             if (dmtn.toString().equals("To Do Lists")) {
                 break;
@@ -103,15 +103,15 @@ public class TodoBranchHelper implements TreeBranchHelper {
             // not add this choice to the branch if it is already there.
             boolean addNodeToBranch = true;
             newList = (DefaultMutableTreeNode) getChild(dmtn, newName);
-            if(newList == null) {
+            if (newList == null) {
                 newList = new DefaultMutableTreeNode(newName);
             } else {
                 addNodeToBranch = false;
             }
 
-            if(addNodeToBranch) {
+            if (addNodeToBranch) {
                 // Ensure that the new name meets our requirements.
-                if(!nameCheck(newName, jt)) return;
+                if (!nameCheck(newName, jt)) return;
 
                 // Add the new list name to the tree
                 dmtn.add(newList);
@@ -129,7 +129,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private static MutableTreeNode getChild(DefaultMutableTreeNode dmtn, String name) {
         Enumeration children = dmtn.children();
-        while(children.hasMoreElements()) {
+        while (children.hasMoreElements()) {
             DefaultMutableTreeNode achild = (DefaultMutableTreeNode) children.nextElement();
             if (achild.toString().equals(name)) {
                 return achild;
@@ -150,21 +150,22 @@ public class TodoBranchHelper implements TreeBranchHelper {
     // consider that to be an error).  So for an example of changing case via a rename:
     // 'upper' ==> 'UPPER' could be accomplished by 'upper' ==> 'upper1' ==> "UPPER".
     private static String nameAdjust(String name) {
-        name = name.trim();
-        if(!name.isEmpty()) {
+        String adjustedName;
+        adjustedName = name.trim();
+        if (!adjustedName.isEmpty()) {
             String newNamedFile = MemoryBank.userDataHome + File.separatorChar;
-            newNamedFile += name + ".todolist";
+            newNamedFile += "todo_" + adjustedName + ".json";
             File f = new File(newNamedFile);
             if (f.exists()) {
                 try {
                     String longCaseName = f.getCanonicalPath();
-                    name = TodoNoteGroup.prettyName(longCaseName);
+                    adjustedName = TodoNoteGroup.prettyName(longCaseName);
                 } catch (IOException ioe) {
                     System.out.println(ioe.getMessage());
                 }
             }
         }
-        return name;
+        return adjustedName;
     }
 
 
@@ -185,7 +186,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
     @Override
     public boolean allowRenameFrom(String theName) {
-        if(theName.equals("To Do Lists")) {
+        if (theName.equals("To Do Lists")) {
             JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the root!");
             return false;
         }
@@ -197,7 +198,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     public boolean allowRenameTo(String theName) {
         // If theName is also our 'renameFrom' name then the whole thing is a no-op.
         // No need to put out a complaint about that; just return a false.
-        if(theName.trim().equals(renameFrom)) return false;
+        if (theName.trim().equals(renameFrom)) return false;
         // But we do support case-sensitive filesystems, so if 'case' is the only difference
         // between the two names then we will fall thru to the 'file exists' complaint, on a
         // case-insensitive filesystem.
@@ -205,7 +206,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // Check to see if the destination file name already exists.
         // If so then complain and refuse to do the rename.
         String newNamedFile = MemoryBank.userDataHome + File.separatorChar;
-        newNamedFile += theName.trim() + ".todolist";
+        newNamedFile += "todo_" + theName.trim() + ".json";
 
         if ((new File(newNamedFile)).exists()) {
             ems.setLength(0);
@@ -228,22 +229,22 @@ public class TodoBranchHelper implements TreeBranchHelper {
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
-                    // known that the 'MemoryBank.location' will not under normal program
-                    // operation contain any directory ending in '.todolist'.
+                    // known that the 'MemoryBank.userDataHome' will not under normal program
+                    // operation contain any directory with a name starting with 'todo_'.
                     public boolean accept(File f, String s) {
-                        return s.endsWith(".todolist");
+                        return s.startsWith("todo_");
                     }
                 }
         );
 
         // Create the list of files.
-        if(theFileList != null) {
+        if (theFileList != null) {
             log.debug("Number of todolist files found: " + theFileList.length);
             int theDot;
             String theFile;
             for (String afile : theFileList) {
-                theDot = afile.lastIndexOf(".todolist");
-                theFile = afile.substring(0, theDot);
+                theDot = afile.lastIndexOf(".json");
+                theFile = afile.substring(5, theDot); // start after the 'todo_'
 
                 theChoices.add(theFile);
             } // end for
@@ -272,20 +273,20 @@ public class TodoBranchHelper implements TreeBranchHelper {
     // represent the true state of the todolist files and the user will be informed.
     @Override
     public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
-        if(todoIndex == -1) return;
+        if (todoIndex == -1) return;
 
         // Handle 'To Do' file renamings and deletions
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
         String basePath = MemoryBank.userDataHome + File.separatorChar;
-        for(Object nco: changes) {
+        for (Object nco : changes) {
             NodeChange nc = (NodeChange) nco;
             System.out.println(nco.toString());
-            if(nc.changeType == NodeChange.RENAMED) {
+            if (nc.changeType == NodeChange.RENAMED) {
                 // Now attempt the rename
-                String oldNamedFile = basePath + nc.nodeName + ".todolist";
-                String newNamedFile = basePath + nc.renamedTo + ".todolist";
+                String oldNamedFile = basePath + "todo_" + nc.nodeName + ".json";
+                String newNamedFile = basePath + "todo_" + nc.renamedTo + ".json";
                 File f = new File(oldNamedFile);
 
                 try {
@@ -295,26 +296,25 @@ public class TodoBranchHelper implements TreeBranchHelper {
                     MemoryBank.getAppTreePanel().getTodoListKeeper().remove(nc.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
-                }// User Exception
-// end try/catch
+                } // end try/catch
 
-            }   else if(nc.changeType == NodeChange.REMOVED) {
+            } else if (nc.changeType == NodeChange.REMOVED) {
 
-                if(deleteWarning == null) {
+                if (deleteWarning == null) {
                     deleteWarning = "Deletions of 'To Do' Lists cannot be undone.";
                     deleteWarning += System.lineSeparator() + "Are you sure?";
 
                     doDelete = JOptionPane.showConfirmDialog(theTree, deleteWarning,
-                        "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                            "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
                 }
 
                 // The end result of a 'No' will be that the leaves will have already been
                 // removed from the branch but they will still be available for reselection
                 // in the list of choices during future branch edit sessions.
-                if(!doDelete) continue;
+                if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile = basePath + nc.nodeName + ".todolist";
+                String deleteFile = basePath + "todo_" + nc.nodeName + ".json";
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
@@ -366,7 +366,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     //
     // Check for the following 'illegal' file naming conditions:
     //   No entry, or whitespace only.
-    //   The name ends in '.todolist'.
+    //   The name ends in '.json'.
     //   The name contains more than MAX_FILENAME_LENGTH chars.
     //   The filesystem refuses to create a file with this name.
     //
@@ -386,8 +386,8 @@ public class TodoBranchHelper implements TreeBranchHelper {
         } // end if
 
         // Refuse unwanted help.
-        if (theName.endsWith(".todolist")) {
-            ems.append("The name you supply cannot end in '.todolist'");
+        if (theName.endsWith(".json")) {
+            ems.append("The name you supply cannot end in '.json'");
         } // end if
 
         // Check for legal max length.
@@ -446,7 +446,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         } catch (IOException | SecurityException ee) {
             e = ee;  // Identify now, handle below.
         } finally {
-            if(!b) System.out.print("");
+            if (!b) System.out.print("");
         } // end try/catch
 
         // Handle Exceptions, if any.

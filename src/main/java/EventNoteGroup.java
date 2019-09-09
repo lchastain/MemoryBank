@@ -2,12 +2,15 @@
 
  */
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.Date;
+import java.util.Vector;
 
 public class EventNoteGroup extends NoteGroup
         implements iconKeeper, DateSelection {
@@ -26,6 +29,7 @@ public class EventNoteGroup extends NoteGroup
     private static String defaultIconFileString;
     private static AppIcon defaultIcon;
     private static String defaultFileName;
+    private static Notifier optionPane;
 
     private ThreeMonthColumn tmc;
     private EventHeader theHeader;
@@ -66,6 +70,7 @@ public class EventNoteGroup extends NoteGroup
         pnl1.add(tmc);
         add(pnl1, BorderLayout.EAST);
 
+        optionPane = new Notifier() { }; // Uses all default methods.
         refresh();
     }// end constructor
 
@@ -108,7 +113,7 @@ public class EventNoteGroup extends NoteGroup
                     if (theFilename.equals("")) {
                         theFilename = AppUtil.makeFilename(AppUtil.calTemp, "D");
                     } // end if
-                    boolean success = addNote(theFilename, dnd);
+                    boolean success = AppUtil.addNote(theFilename, dnd);
 
                     // Although we test the result for success or fail, this
                     //   action could be one of potentially hundreds, and one
@@ -246,7 +251,7 @@ public class EventNoteGroup extends NoteGroup
     } // end doSort
 
 
-    protected boolean editExtendedNoteComponent(NoteData nd) {
+    protected boolean editExtendedNoteComponent0(NoteData nd) {
         // Make a dialog window to show the ExtendedNoteComponent
         Frame f = JOptionPane.getFrameForComponent(this);
         JDialog tempwin = new JDialog(f, true);
@@ -281,6 +286,32 @@ public class EventNoteGroup extends NoteGroup
         return true; // need to vary this...
     } // end editExtendedNoteComponent
 
+    @Override
+    protected boolean editExtendedNoteComponent(NoteData noteData) {
+        // Show the ExtendedNoteComponent (EventEditorPanel)
+
+        // Cast the input parameter to its full potential.
+        EventNoteData eventNoteData = (EventNoteData) noteData;
+
+        // Send the current data to the Event Editor dialog.
+        ((EventEditorPanel) enc).showTheData(eventNoteData);
+
+        int doit = optionPane.showConfirmDialog(
+                JOptionPane.getFrameForComponent(this),
+                enc,
+                noteData.getNoteString(),
+                JOptionPane.OK_CANCEL_OPTION);
+
+        if (doit == -1) return false; // The X on the dialog
+        if (doit == JOptionPane.CANCEL_OPTION) return false;
+
+        // Get the data from the Event Editor dialog.
+        enc.checkSubject();
+        ((EventEditorPanel) enc).collectTheData(eventNoteData);
+
+        return true; // need to vary this...
+    } // end editExtendedNoteComponent
+
 
     public AppIcon getDefaultIcon() {
         return defaultIcon;
@@ -294,7 +325,8 @@ public class EventNoteGroup extends NoteGroup
     //   group of notes is loaded / saved.
     // -------------------------------------------------------------------
     public String getGroupFilename() {
-        return MemoryBank.userDataHome + "/UpcomingEvents";
+        return MemoryBank.userDataHome + "/UpcomingEvents.json";
+        //return MemoryBank.userDataHome + "/UpcomingEvents";
     }// end getGroupFilename
 
 
@@ -410,6 +442,16 @@ public class EventNoteGroup extends NoteGroup
         updateGroup();
     }// end setDefaultIcon
 
+
+    @Override
+    void setGroupData(Object[] theGroup) {
+        vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() { });
+    }
+
+    // Used by test methods
+    public void setNotifier(Notifier newNotifier) {
+        optionPane = newNotifier;
+    }
 
     //--------------------------------------------------------------
     // Method Name: showComponent

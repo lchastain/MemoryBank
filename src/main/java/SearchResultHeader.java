@@ -1,4 +1,4 @@
-/**
+/*
  This class is a collection of labels in a horizontal line to be
  used as the header for a SearchResultGroup.  The labels are
  formatted and mouse-activated to appear like buttons.  The columns
@@ -6,10 +6,12 @@
  the subsequent ordering of the columns.
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;           // Vector
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Vector;
 
 public class SearchResultHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
@@ -21,10 +23,10 @@ public class SearchResultHeader extends Container implements ClingSource {
     private HeaderButton hb4;  // Deadline   // No longer used.
     private DndLayout headerLayout;
 
-    public int hb1Width;
-    public int hb2Width;
-    public int hb3Width;
-    public int hb4Width;
+    private int hb1Width;
+    private int hb2Width;
+    private int hb3Width;
+    private int hb4Width;
 
     public SearchResultHeader(SearchResultGroup p) {
         super();
@@ -103,7 +105,7 @@ public class SearchResultHeader extends Container implements ClingSource {
 
         Container cTheContainer = parent.groupNotesListPanel;
         int rows = cTheContainer.getComponentCount();
-        Vector<JComponent> ClingOns = new Vector<JComponent>(rows, 1);
+        Vector<JComponent> ClingOns = new Vector<>(rows, 1);
 
         HeaderButton hb = (HeaderButton) comp;
 
@@ -116,26 +118,31 @@ public class SearchResultHeader extends Container implements ClingSource {
             // System.out.println("SearchResultHeader: hb.defaultLabel = " + hb.defaultLabel);
 
             // We still need to change the order, based on actual order.
-            if (hb.defaultLabel.equals("Found In")) {
-                compTempComp = tnc.getFoundInButton();
-            } else if (hb.defaultLabel.equals("Note Text")) {
-                compTempComp = tnc.getNoteTextField();
-            } else if (hb.defaultLabel.equals("Last Mod")) {
-                compTempComp = tnc.getLastModLabel();
-            } else {
-                // Now that there are only 3, this will throw an exception
-                //   if it ever gets here.  Left it in to show me the problem
-                //   in case it ever happens, and also so that the compiler
-                //   believes that compTempComp will always have a value.
-                compTempComp = (JComponent) tnc.getComponent(3);
-            } // end if
+            switch (hb.defaultLabel) {
+                case "Found In":
+                    compTempComp = tnc.getFoundInButton();
+                    break;
+                case "Note Text":
+                    compTempComp = tnc.getNoteTextField();
+                    break;
+                case "Last Mod":
+                    compTempComp = tnc.getLastModLabel();
+                    break;
+                default:
+                    // Now that there are only 3, this will throw an exception
+                    //   if it ever gets here.  Left it in to show me the problem
+                    //   in case it ever happens, and also so that the compiler
+                    //   believes that compTempComp will always have a value.
+                    compTempComp = (JComponent) tnc.getComponent(3);
+                    break;
+            }
             ClingOns.addElement(compTempComp);
         } // end for i
         return ClingOns;
     } // end getClingons
 
 
-    public String getColumnHeader(int i) {
+    String getColumnHeader(int i) {
         String s = null;
         switch (i) {
             case 1:
@@ -196,7 +203,7 @@ public class SearchResultHeader extends Container implements ClingSource {
         private static final long serialVersionUID = 1L;
         String prompt;
 
-        public HeaderButton(String s) {
+        HeaderButton(String s) {
             super(s);
             addMouseListener(this);
         } // end constructor
@@ -209,7 +216,8 @@ public class SearchResultHeader extends Container implements ClingSource {
         //   (in the main processing thread) can return immediately and allow
         //   the animation in the working dialog graphic to display correctly.
         //----------------------------------------------------------------------
-        public void doSorting(int shift) {
+        void doSorting(int shift) {
+            if (defaultLabel.equals("Found In")) return;
             AppTreePanel.showWorkingDialog(true);
             if (defaultLabel.equals("Note Text")) parent.sortNoteString(shift);
             else if (defaultLabel.equals("Last Mod")) parent.sortLastMod(shift);
@@ -217,7 +225,7 @@ public class SearchResultHeader extends Container implements ClingSource {
             AppTreePanel.showWorkingDialog(false);
         } // end doSorting
 
-        public void doUserHeader() {
+        void doUserHeader() {
             String s1 = getText();
             String s2 = defaultLabel;
 
@@ -288,10 +296,12 @@ public class SearchResultHeader extends Container implements ClingSource {
         } // end mouseClicked
 
         public void mouseEntered(MouseEvent e) {
-            String s;
-            s = "Click to Sort by " + getText();
-
-            parent.setMessage(s);
+            String theHeaderText = getText();
+            if(defaultLabel.equals("Found In")) {
+                parent.setMessage("Sorry, unable to sort by '" + theHeaderText + "'.");
+            } else {
+                parent.setMessage("Click to Sort by " + theHeaderText + " and shift-click to sort descending.");
+            }
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {

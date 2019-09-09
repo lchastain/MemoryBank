@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -89,7 +92,7 @@ public class EventNoteData extends IconNoteData {
 
 
     @Override
-    protected NoteData copy( ) {
+    protected NoteData copy() {
         return new EventNoteData(this);
     }
 
@@ -183,6 +186,7 @@ public class EventNoteData extends IconNoteData {
         return dateEventEnd;
     }
 
+    @JsonIgnore
     public Date getEventStart() {
         return dateEventStart;
     }
@@ -202,12 +206,12 @@ public class EventNoteData extends IconNoteData {
         return strRecurrence;
     }
 
+    @JsonIgnore
     public boolean getRetainNote() {
         return blnRetainNote;
     }
 
-
-    static String getRecurrenceSummary(String strSetting) {
+    static String getRecurrenceSummary(@NotNull String strSetting) {
         if (strSetting.equals("")) return "None";
 
         String strRecurSummary = "";
@@ -324,6 +328,7 @@ public class EventNoteData extends IconNoteData {
     // Returns a textual description of the event, in
     //   an HTML-formatted string.
     //---------------------------------------------------
+    @JsonIgnore
     public String getSummary() {
         String strTmp;
         String strTheSummary = "";
@@ -744,6 +749,7 @@ public class EventNoteData extends IconNoteData {
     //   in the 'time' field, in this case it must, in order for
     //   NoteGroup.addNote to place it in the correct file.
     //----------------------------------------------------------------
+    @JsonIgnore
     public DayNoteData getDayNoteData() {
         DayNoteData dnd = new DayNoteData(this);
         dnd.setTimeOfDayDate(dateEventStart);
@@ -787,6 +793,7 @@ public class EventNoteData extends IconNoteData {
     // Returns a true if any of the four boundary
     //   chronological fields is known.
     //------------------------------------------------------------
+    @JsonIgnore
     public boolean isAnyKnown() {
         return (intDatKnown > 0);
     } // end isAnyKnown
@@ -798,6 +805,7 @@ public class EventNoteData extends IconNoteData {
     // Returns a true if any of the four boundary
     //   chronological fields is not known.
     //------------------------------------------------------------
+    @JsonIgnore
     public boolean isAnyUnknown() {
         int total;
 
@@ -808,6 +816,7 @@ public class EventNoteData extends IconNoteData {
     } // end isAnyUnknown
 
 
+    @JsonIgnore
     boolean isEndDateKnown() {
         return (intDatKnown & END_DATE_KNOWN) == END_DATE_KNOWN;
     }
@@ -819,6 +828,7 @@ public class EventNoteData extends IconNoteData {
     // Answers the question - does the event
     //   end on the same day that it started?
     //---------------------------------------------------
+    @JsonIgnore
     private boolean isEndSameDay() {
         if (!isStartDateKnown()) return false; // Can't determine == no
         if (!isEndDateKnown()) return false;
@@ -833,16 +843,17 @@ public class EventNoteData extends IconNoteData {
     } // end isEndSameDay
 
 
+    @JsonIgnore
     boolean isEndTimeKnown() {
         return (intDatKnown & END_TIME_KNOWN) == END_TIME_KNOWN;
     } // end isEndTimeKnown
 
-
+    @JsonIgnore
     public boolean isStartDateKnown() {
         return (intDatKnown & START_DATE_KNOWN) == START_DATE_KNOWN;
     }
 
-
+    @JsonIgnore
     boolean isStartTimeKnown() {
         return (intDatKnown & START_TIME_KNOWN) == START_TIME_KNOWN;
     }
@@ -854,6 +865,7 @@ public class EventNoteData extends IconNoteData {
     // Returns true if both the Start Time and the End Time
     //   are known; otherwise returns false.
     //---------------------------------------------------------
+    @JsonIgnore
     public boolean isTimesKnown() {
         return (isStartTimeKnown() && isEndTimeKnown());
     } // end isTimesKnown

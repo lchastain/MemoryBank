@@ -1,6 +1,9 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.util.Vector;
 
 public class SearchResultGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
@@ -23,11 +26,10 @@ public class SearchResultGroup extends NoteGroup {
         // We may want to make this operation less numeric in the future,
         //   but this works for now and no ENC changes are expected.
 
-        // The filename was constructed properly by the AppTreePanel, and
+        // The filename was constructed (fully) by the AppTreePanel, and
         // provided to us here upon selection of the corresponding tree leaf.
         strTheGroupFilename = fname;
-        updateGroup(); // This is where the file gets loaded
-        myVars = (SearchResultGroupProperties) objGroupProperties;
+        updateGroup(); // This is where the file gets loaded (in the parent class)
         checkColumnOrder();
 
         // Header for the group of SearchResultComponents
@@ -39,7 +41,7 @@ public class SearchResultGroup extends NoteGroup {
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
 
-        // The First Row -
+        // The First Row -   (Title & paging control)
         //----------------------------------------------------------
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
@@ -60,7 +62,7 @@ public class SearchResultGroup extends NoteGroup {
         headingRow1.add(npThePager, "East");
         //----------------------------------------------------------
 
-        // The Second Row -
+        // The Second Row -     (record count and search text)
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
         headingRow2.setBackground(Color.blue);
@@ -79,7 +81,6 @@ public class SearchResultGroup extends NoteGroup {
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
         searchSummary.setText(SearchPanel.getSummary(myVars.sps));
-//        System.out.println();
         headingRow2.add(searchSummary, "Center");
         //----------------------------------------------------------
 
@@ -125,8 +126,10 @@ public class SearchResultGroup extends NoteGroup {
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
-    // Gives containers some access.
+    // Returns a SearchResultComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
     //--------------------------------------------------------
+    @Override
     public SearchResultComponent getNoteComponent(int i) {
         return (SearchResultComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
@@ -184,175 +187,153 @@ public class SearchResultGroup extends NoteGroup {
         return src;
     } // end makeNewNote
 
-
-    //----------------------------------------------------------------------
-    // Method Name: preClose
-    //
-    // Overrides the base class method in order to check if columns have
-    //   been reordered.  If so, set groupChanged.
-    // Then call the base class method.
-    //----------------------------------------------------------------------
-    // THIS does not do what the comment above says it does.  In fact, seems not needed.
-    // disabling, 8/25/2019
-//    protected void preClose() {
-//        super.preClose();
-//    } // end preClose
-
+    @Override
+    protected void preClose() {
+        saveProperties();
+        super.preClose();
+    }
 
     //-----------------------------------------------------------------
     // Method Name:  prettyName
     //
     // A formatter for a filename specifier - drop off the path
-    //   prefix and/or trailing '.sresults', if present.
+    //   prefix and/or trailing '.json', if present.
     //-----------------------------------------------------------------
-    public static String prettyName(String s) {
+    public static String prettyName(String longName) {
         int i;
-        char slash = File.separatorChar;
+        String newName = longName;
 
-        i = s.lastIndexOf(slash);
+        // The offset of +8 into the final part of the
+        // pathname will not only get us past the
+        // separator char but also past the 'search_'.
+        i = longName.lastIndexOf(File.separatorChar);
         if (i != -1) {
-            s = s.substring(i + 1);
+            newName = longName.substring(i + 8);
         } // end if
 
         // Even though a Windows path separator char should be a
-        //   backslash, in Java a forward slash is often also accepted.
-        i = s.lastIndexOf("/");
+        //   backslash, in Java a forward slash is often also
+        //   accepted, so the following section might
+        //   occasionally be needed.  (But HOW?  I'm the only
+        //   one coding here, and no one is entering file
+        //   paths, just search names and we don't even support
+        //   that, yet.  So maybe they will put a slash into
+        //   an as-yet unsupported search name?  This is
+        //   overkill - you should disallow that at time of
+        //   input, if it ever happens, and have a verifier at
+        //   any other point of (possibly automated) entry.
+        //   So this code is effectively useless and should
+        //   be removed.  Noted 9/8/2019 - remove after next
+        //   commit).
+        i = newName.lastIndexOf("/");
         if (i != -1) {
-            s = s.substring(i + 1);
+            newName = newName.substring(i + 8);
         } // end if
 
         // Drop the suffix
-        i = s.lastIndexOf(".sresults");
-        if (i == -1) return s;
-        return s.substring(0, i);
+        i = newName.lastIndexOf(".json");
+        if (i == -1) return newName;
+        return newName.substring(0, i);
     } // end prettyName
 
 
-    //--------------------------------------------------------------------------
-    // Method Name: printList
-    //
-    //--------------------------------------------------------------------------
-    public void printList() {
-        int t = strTheGroupFilename.lastIndexOf(".SearchResult");
-        String dumpFileName;    // Formatted text for printout
-        dumpFileName = strTheGroupFilename.substring(0, t) + ".dump";
-
-        PrintWriter outFile = null;
-        SearchResultComponent tnc;
-        SearchResultData tnd;
-        int i;
-        String todoText;
-        String extText;
-
-        // Open the output file.
-        try {
-            outFile = new PrintWriter(new BufferedWriter
-                    (new FileWriter(dumpFileName)), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } // end try/catch
-
-        int listSize = lastVisibleNoteIndex;
-        // System.out.println("listSize = " + listSize);
-
-        for (i = 0; i < listSize; i++) {
-            tnc = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-            tnd = (SearchResultData) tnc.getNoteData();
-
-            // Do not print items with no primary text
-            todoText = tnd.getNoteString().trim();
-            if (todoText.equals("")) continue;
-
-            // To Do Text
-            outFile.println(todoText);
-
-            // Extended Text
-            extText = tnd.getExtendedNoteString();
-            if (!extText.equals("")) {
-                String indent = "    ";
-                StringBuilder rs = new StringBuilder(indent); // ReturnString
-
-                for (int j = 0; j < extText.length(); j++) {
-                    if (extText.substring(j).startsWith("\t"))
-                        rs.append("        "); // convert tabs to 8 spaces.
-                    else if (extText.substring(j).startsWith("\n"))
-                        rs.append("\n").append(indent);
-                    else
-                        rs.append(extText, j, j + 1);
-                    // The 'j+1' will not exceed string length when j=length
-                    //  because 'substring' works with one less on the 2nd int.
-                } // end for j
-
-                extText = rs.toString();
-                outFile.println(extText);
-            } // end if
-        } // end for i
-        outFile.close();
-
-        TextFilePrinter tfp = new TextFilePrinter(dumpFileName,
-                JOptionPane.getFrameForComponent(this));
-        tfp.setOptions(true, true, true);
-        tfp.setVisible(true);
-    } // end printList
-
-    String formatText(String s) {
-        String indent = "    ";
-        StringBuilder rs = new StringBuilder(indent); // ReturnString
-
-        for (int i = 0; i < s.length(); i++) {
-            if (s.substring(i).startsWith("\t"))
-                rs.append("        "); // convert tabs to 8 spaces.
-            else if (s.substring(i).startsWith("\n"))
-                rs.append("\n").append(indent);
-            else
-                rs.append(s, i, i + 1);
-            // The 'i+1' will not exceed string length when i=length
-            //  because 'substring' works with one less on the 2nd int.
-        } // end for i
-        return rs.toString();
-    } // end formatText
+    // Disabled this 9/03/2019 so that it does not pull down code coverage for tests.
+    // But it appears to have never been used - there was no menu item leading here.
+    // See the comment in TodoNoteGroup.printList for additional context but this one is
+    // not exactly the same in that there is even LESS reason to use this one; I suspect
+    // that the only reason it was here was that it was a leftover from when the
+    // SearchResultGroup was first cloned from a TodoNoteGroup.  I would remove it
+    // right now except that it might help to keep as a reference if we do go ahead
+    // with any kind of remediation for the TodoNoteGroup print capability, and this
+    // one ALSO has the same problem of two consecutive dialogs popping up so it might
+    // be useful in tracking down that issue.
+    // This function can be seen / tested via the (currently-commented-out) test for it.
+//    //--------------------------------------------------------------------------
+//    // Method Name: printList
+//    //
+//    //--------------------------------------------------------------------------
+//    public void printList() {
+//        int t = strTheGroupFilename.lastIndexOf(".sresults");
+//        String dumpFileName;    // Formatted text for printout
+//        dumpFileName = strTheGroupFilename.substring(0, t) + ".dump";
+//
+//        PrintWriter outFile = null;
+//        SearchResultComponent tnc;
+//        SearchResultData tnd;
+//        int i;
+//        String todoText;
+//        String extText;
+//
+//        // Open the output file.
+//        try {
+//            outFile = new PrintWriter(new BufferedWriter
+//                    (new FileWriter(dumpFileName)), true);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.exit(0);
+//        } // end try/catch
+//
+//        int listSize = lastVisibleNoteIndex;
+//        // System.out.println("listSize = " + listSize);
+//
+//        for (i = 0; i < listSize; i++) {
+//            tnc = (SearchResultComponent) groupNotesListPanel.getComponent(i);
+//            tnd = (SearchResultData) tnc.getNoteData();
+//
+//            // Do not print items with no primary text
+//            todoText = tnd.getNoteString().trim();
+//            if (todoText.equals("")) continue;
+//
+//            // To Do Text
+//            outFile.println(todoText);
+//
+//            // Extended Text
+//            extText = tnd.getExtendedNoteString();
+//            if (!extText.equals("")) {
+//                String indent = "    ";
+//                StringBuilder rs = new StringBuilder(indent); // ReturnString
+//
+//                for (int j = 0; j < extText.length(); j++) {
+//                    if (extText.substring(j).startsWith("\t"))
+//                        rs.append("        "); // convert tabs to 8 spaces.
+//                    else if (extText.substring(j).startsWith("\n"))
+//                        rs.append("\n").append(indent);
+//                    else
+//                        rs.append(extText, j, j + 1);
+//                    // The 'j+1' will not exceed string length when j=length
+//                    //  because 'substring' works with one less on the 2nd int.
+//                } // end for j
+//
+//                extText = rs.toString();
+//                outFile.println(extText);
+//            } // end if
+//        } // end for i
+//        outFile.close();
+//
+//        TextFilePrinter tfp = new TextFilePrinter(dumpFileName,
+//                JOptionPane.getFrameForComponent(this));
+//        tfp.setOptions(true, true, true);
+//        tfp.setVisible(true);
+//    } // end printList
 
 
-    // This method is called externally, from a context that has
-    //   access to a user-specified name for these search results.
-    public void resetTitle(String s) {
-        resultsTitle.setText(s);
-    } // end resetTitle
-
+    @Override
+    void setGroupData(Object[] theGroup) {
+        myVars = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
+        vectGroupData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
+    }
 
     //--------------------------------------------------------------
     // Method Name: saveProperties
     //
     //--------------------------------------------------------------
-    protected boolean saveProperties(ObjectOutputStream oos)
-            throws IOException {
-
+    private void saveProperties() {
         // Update the header text of the columns.
         myVars.column1Label = listHeader.getColumnHeader(1);
         myVars.column2Label = listHeader.getColumnHeader(2);
         myVars.column3Label = listHeader.getColumnHeader(3);
         myVars.columnOrder = listHeader.getColumnOrder();
-
-        // Write out the SearchResultGroupProperties
-        oos.writeObject(myVars);
-        return true;
     } // end saveProperties
-
-
-    //-----------------------------------------------------------------
-    // Method Name:  setFileName
-    //
-    // Provided as a way for a calling context to do a 'save as'.
-    //  (By calling this first, then just calling 'save').  Any
-    //  checking for validity is responsibility of calling context.
-    //-----------------------------------------------------------------
-    public void setFileName(String fname) {
-        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
-        strTheGroupFilename += fname + ".SearchResult";
-
-        setGroupChanged();
-    } // end setFileName
 
 
     public void shiftDown(int index) {

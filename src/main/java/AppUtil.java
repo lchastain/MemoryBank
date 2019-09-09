@@ -1,30 +1,31 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+// This class provides static utility methods that are needed by more than one client-class in the main app.
+// It makes more sense to collect them into one utility class, than to try to decide which user class
+// should house a given method while the other user classes then have to somehow get access to it.
 public class AppUtil {
-
     static GregorianCalendar calTemp;
-
-    public static SimpleDateFormat sdf;
+    static ObjectMapper mapper = new ObjectMapper();
 
     private static Boolean blnGlobalArchive;
-
     private static Boolean blnGlobalDebug;
 
-    // This is a global flag that Test methods can check, to see if the defalt Notifier
-    // should be replaced with one that does not wait for user interaction with a JOptionPane.
-    // Reason to do that: so that all tests can run without user interaction.
-    // Reason to not do that: maximize test coverage.
-    // This flag is changed manually as needed for the desired effect, with Tests running afterwards.
-    static Boolean blnReplaceNotifiers = true;
-    // NOT checking this now; not sure it's really needed since
-
     static {
-        sdf = new SimpleDateFormat();
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setDateFormatSymbols(new DateFormatSymbols());
 
         calTemp = (GregorianCalendar) Calendar.getInstance();
@@ -34,7 +35,6 @@ public class AppUtil {
 
         calTemp.setGregorianChange(new GregorianCalendar(1752, Calendar.SEPTEMBER,
                 14).getTime());
-
     } // end static
 
     // Copies src file to dst file.
@@ -100,7 +100,7 @@ public class AppUtil {
     // will return the appropriate filename if a file exists for the indicated timeframe.
     // If no file exists, the return string is empty ("").
     // -----------------------------------------------------------------
-    static String findFilename(GregorianCalendar cal, String which) {
+    static String findFilename(@NotNull GregorianCalendar cal, String which) {
         String[] foundFiles = null;
         String lookfor = which;
         String fileName = MemoryBank.userDataHome + File.separatorChar;
@@ -546,7 +546,7 @@ public class AppUtil {
             } // end if not a Month note
         } // end if not a Year note
 
-        FileName += "_" + getTimestamp();
+        FileName += "_" + getTimestamp() + ".json";
         return FileName;
     } // end makeFilename
 
@@ -563,13 +563,13 @@ public class AppUtil {
 
         public boolean accept(File dir, String name) {
             boolean b1 = name.startsWith(which);
-            boolean b2 = !name.endsWith(".json");
+            boolean b2 = name.endsWith(".json");
             return b1&b2;
         } // end accept
     } // end class logFileFilter
 
 
-    public static TreePath getPath(TreeNode treeNode) {
+    static TreePath getPath(TreeNode treeNode) {
         TreeNode tn = treeNode;
         List<Object> nodes = new ArrayList<>();
         if (tn != null) {
@@ -583,5 +583,121 @@ public class AppUtil {
 
         return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
     }
+
+    static String toJsonString(Object theObject) {
+        String theJson = "";
+        try {
+            theJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return theJson;
+    }
+
+    // ---------------------------------------------------------------------------------
+    // Method Name: loadNoteGroupData
+    //
+    // This is a 'generic' NoteData loader that can handle the loading of data
+    //   for ANY class that is a generation of NoteGroup.  This static method
+    //   helps separate the load of the data from the various components and
+    //   methods that act upon it.
+    // ---------------------------------------------------------------------------------
+    static Object[] loadNoteGroupData(String theFilename) {
+        Object[] theGroup = null;
+        try {
+            String text = FileUtils.readFileToString(new File(theFilename), StandardCharsets.UTF_8.name());
+            theGroup = mapper.readValue(text, Object[].class);
+            //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+        } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } // end try/catch
+        return theGroup;
+    }
+
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    //---------------------------------------------------------------
+    // Method Name: addNote
+    //
+    // Add a note to a Group .
+    // A data file for the Group may or may not already exist.
+    // Note that this is a static method, meaning that it can be called
+    // from any other context without instantiating a group, and that
+    // the file being added to MAY NOT BE showing or currently loaded
+    // anywhere.  This is why the call to saveData() is needed every time.
+    // Even if there is an ongoing method processing several notes, it
+    // will still call this method one at a time and we will do a save
+    // with each and every call.
+    //
+    // Two known calling contexts: TodoNoteComponent and EventNoteGroup,
+    //   in order to add a note to a Day.
+    public static boolean addNote(String theFilename, NoteData nd) {
+        Object[] theGroup;
+
+        // Note that a full file read and write IS needed; we cannot simply do an 'append' because
+        // the new note needs to be inserted into an encapsulated ArrayList.
+        // However, a database based methodology would not have that same restriction.
+        // (note to self, for future upgrade).
+        theGroup = loadNoteGroupData(theFilename);
+
+        // No pre-existing data file is ok in this case; we'll just make one.
+        if(theGroup == null) {
+            ArrayList al = new ArrayList(); // reason for suppressing the 'rawtypes' warning.
+            theGroup = new Object[1]; // Only a DayNoteGroup gets notes added this way; no properties.
+            theGroup[0] = al;
+        }
+
+        // Now here is the cool part - we don't actually need to get the loaded data into a Vector
+        // of a specific type (even though we know that the elements are all DayNoteData); we can
+        // just add the note to the array of LinkedHashMap.
+        ((ArrayList) theGroup[0]).add(nd); // reason for suppressing the 'unchecked' warning.
+
+        int notesWritten = saveNoteGroupData(theFilename, theGroup);
+        return notesWritten >= 1;
+    } // end addNote
+
+    // ---------------------------------------------------------------------------------
+    // Method Name: saveNoteGroupData
+    //
+    // This static method is needed to separate the writing of the data to a file,
+    // from the various components and methods that display and modify it.
+    // ---------------------------------------------------------------------------------
+    static int saveNoteGroupData(String theFilename, Object[] theGroup) {
+        int notesWritten = 0;
+        BufferedWriter bw = null;
+        Exception e = null;
+        try {
+            FileOutputStream fileStream = new FileOutputStream(new File(theFilename));
+            OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
+            bw = new BufferedWriter(writer);
+            bw.write(toJsonString(theGroup));
+            // Set the number of notes written, only AFTER the write.
+            notesWritten = ((ArrayList) theGroup[theGroup.length-1]).size();
+        } catch (IOException ioe) {
+            // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
+            // same name in the directory where you want to put the file, or not having write permission.
+            e = ioe;
+        } finally {
+            if (e != null) {
+                // This one may have been ignorable; print the message and see.
+                System.out.println("Exception: " + e.getMessage());
+            } // end if there was an exception
+            // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
+            try {
+                if (bw != null) {
+                    bw.flush();
+                    bw.close(); // Also closes the wrapped FileWriter
+                }
+            } catch (IOException ioe) {
+                // This one would be more serious - raise a 'louder' alarm.
+                ioe.printStackTrace(System.err);
+            } // end try/catch
+        } // end try/catch
+
+        return notesWritten;
+    }
+
+
 
 } // end class AppUtil

@@ -1,6 +1,3 @@
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
@@ -10,14 +7,15 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class MemoryBank {
     //-------------------------------------------------
     // Static members that are developed prior
     //   to running 'main':
     //-------------------------------------------------
-    private static ObjectMapper mapper = new ObjectMapper();
     static final int SAME_DAY = 0;
     private static final int NEXT_DAY = 1;
     private static final int PREV_DAY = 2;
@@ -57,7 +55,6 @@ public class MemoryBank {
     //   items developed here (such as the tempCalendar)
     //   without going thru the MemoryBank.main.
     static {
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         setProgramDataLocation();
 
         appOpts = new AppOptions(); // Start with default values.
@@ -116,8 +113,8 @@ public class MemoryBank {
 
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
-            appOpts = mapper.readValue(text, AppOptions.class);
-            System.out.println("appOpts from JSON file: " + toJsonString(appOpts));
+            appOpts = AppUtil.mapper.readValue(text, AppOptions.class);
+            System.out.println("appOpts from JSON file: " + AppUtil.toJsonString(appOpts));
             military = appOpts.military; // This one is accessed by other classes.
         } catch (FileNotFoundException fnfe) {
             // not a problem; use defaults.
@@ -729,7 +726,7 @@ public class MemoryBank {
 
         try (FileWriter writer = new FileWriter(filename);
              BufferedWriter bw = new BufferedWriter(writer)) {
-            bw.write(toJsonString(appOpts));
+            bw.write(AppUtil.toJsonString(appOpts));
             bw.flush();
         } catch (IOException ioe) {
             // Since saveOpts is to be called via a shutdown hook that is not going to
@@ -752,16 +749,6 @@ public class MemoryBank {
         } // end try/catch
     } // end saveOpts
 
-
-    static String toJsonString(Object theObject) {
-        String theJson = "";
-        try {
-            theJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theObject);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return theJson;
-    }
 
 } // end class MemoryBank
 

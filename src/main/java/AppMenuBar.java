@@ -19,7 +19,6 @@ public class AppMenuBar extends JMenuBar{
     static {
         menuFile = new JMenu("File");
         menuFile.add(new JMenuItem("Search..."));
-        menuFile.add(new JMenuItem("Export"));
         menuFile.add(new JMenuItem("Exit"));
 
         menuFileSearchResult = new JMenu("File");

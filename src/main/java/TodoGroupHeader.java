@@ -162,7 +162,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         return s;
     } // end getColumnHeader
 
-    private int getColumnOrder() {
+    int getColumnOrder() {
         int i = 0;
         HeaderButton hb;
 

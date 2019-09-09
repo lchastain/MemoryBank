@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class SearchResultGroupProperties implements Serializable {
     public static final long serialVersionUID = 2412760123507069513L;
 
-    public SearchPanelSettings sps;
+    SearchPanelSettings sps;
 
     public String column1Label;
     public String column2Label;
@@ -22,8 +22,12 @@ public class SearchResultGroupProperties implements Serializable {
         columnOrder = 123;  // 1234
     } // end constructor
 
-    public void setSearchSettings(SearchPanelSettings s) {
+    void setSearchSettings(SearchPanelSettings s) {
         sps = s;
     } // end setSearchSettings
+
+    SearchPanelSettings getSearchPanelSettings() {
+        return sps;
+    }
 
 } // end SearchResultGroupProperties

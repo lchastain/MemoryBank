@@ -15,7 +15,7 @@ class TodoNoteGroupTest implements FileChooser {
     @BeforeAll
     static void beforeAll() throws IOException {
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -26,26 +26,15 @@ class TodoNoteGroupTest implements FileChooser {
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
         FileUtils.copyDirectory(testResource, testData);
 
-        // Load up this Test user's application options
-//        MemoryBank.loadOpts();    NEEDED?
-
         todoNoteGroup = new TodoNoteGroup("Get New Job");
         testUtil = new TestUtil();
         todoNoteGroup.setNotifier(testUtil);
     }
 
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
     @Test
     // This test looks at three code paths; one essentially a no-op, one
     // considered a user-fail, and finally the saveAs() method's happy path.
-    void saveAs() {
+    void testSaveAs() {
         // New name accepted but it wasn't a change -
         String theNewName = "Get New Job";
         testUtil.setTheAnswer(theNewName);
@@ -67,7 +56,7 @@ class TodoNoteGroupTest implements FileChooser {
         testUtil.setTheAnswer(theNewName);
         todoNoteGroup.saveAs();
         String theGroupName = todoNoteGroup.getGroupFilename();
-        Assertions.assertTrue(theGroupName.endsWith(File.separatorChar + theNewName + ".todolist"));
+        Assertions.assertTrue(theGroupName.endsWith(File.separatorChar + theNewName + ".todolist.json"));
         File f = new File(theGroupName);
         Assertions.assertTrue(f.exists());
     }
@@ -96,7 +85,7 @@ class TodoNoteGroupTest implements FileChooser {
     }
 
     @Test
-    void dateSelected() {
+    void testDateSelected() {
         // Coverage, could use some more...
         todoNoteGroup.dateSelected(new Date());
     }
@@ -111,7 +100,7 @@ class TodoNoteGroupTest implements FileChooser {
     @Override
     // A FileChooser method used by the merge method
     public File getSelectedFile() {
-        String theFile = MemoryBank.userDataHome + File.separatorChar + "New Car Shopping.todolist";
+        String theFile = MemoryBank.userDataHome + File.separatorChar + "New Car Shopping.todolist.json";
         System.out.println("File selected for Merge: " + theFile);
         return new File(theFile);
     }

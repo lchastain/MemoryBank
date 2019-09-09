@@ -1,10 +1,14 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.File;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Vector;
 
 
 public abstract class NoteGroup extends JPanel {
@@ -49,7 +53,7 @@ public abstract class NoteGroup extends JPanel {
     protected Vector<NoteData> vectGroupData;
 
     // The properties for the group - cast to proper class
-    Object objGroupProperties;
+    Object objGroupProperties;   // REMOVE this; now the child classes set their properties directly
     //=============================================================
 
     // Private members
@@ -172,53 +176,6 @@ public abstract class NoteGroup extends JPanel {
     } // end activateNextNote
 
 
-    //---------------------------------------------------------------
-    // Method Name: addNote
-    //
-    // Ideally, we could open a FileOutputStream for append, then
-    //   use an ObjectOutputStream to add the note to the end and
-    //   be done with it.  However, the OOS writes a header that
-    //   the OIS needs to read.  All these Note data files expect
-    //   to find the header only once, at the beginning, not
-    //   multiple times sprinkled randomly throughout the file.
-    //   SUN's proposed workaround is to make your own OOS but if
-    //   that were such a good idea, why don't they just alter
-    //   their own instead of saying 'works as designed?'.  Another
-    //   workaround is to get past the unwanted headers by opening
-    //   new a OIS each time you encounter one during a read.  I
-    //   find this problematic and messy.  The solution here will
-    //   be to read in the existing file and then write it back
-    //   out again with the additional note.  I know that if this
-    //   were to be happening very often, or with large data files,
-    //   it would not be acceptable.
-    // Two known calling contexts: TodoNoteComponent and EventNoteGroup.
-    //---------------------------------------------------------------
-    public static boolean addNote(String theFilename, NoteData nd) {
-        Vector<NoteData> vectNoteData;
-        Object objProperties = null;
-
-        if (new File(theFilename).exists()) {
-            // Read the existing file; objProperties MAY become populated.
-            Object[] objArray = new Object[1];
-            vectNoteData = loadData(theFilename, objArray);
-            objProperties = objArray[0];
-            // Note:  Only a SearchResultGroup can be stored with no
-            //   records (to preserve its properties) but there is
-            //   currently no need to add a record.  So, the 'false'
-            //   return below indicates the presence of an unreadable data file.
-            if (vectNoteData.size() == 0) return false;
-        } else {
-            vectNoteData = new Vector<>();
-        } // end if - if file exists
-
-        // Now - add the Note to the (end of) the vector
-        vectNoteData.addElement(nd);
-
-        // Write the file
-        return saveData(theFilename, vectNoteData, objProperties) == vectNoteData.size();
-    } // end addNote
-
-
     //----------------------------------------------------------------
     // Method Name: clearGroup
     //
@@ -270,7 +227,7 @@ public abstract class NoteGroup extends JPanel {
         // For example, when a NoteGroup had been started but then cleared, before it ever got
         // saved in the first place.  Changes detected but no notes written upon leaving the
         // group so it would try to delete a (non-existent) file.
-        if(!f.exists()) return true;
+        if (!f.exists()) return true;
 
         if (!f.delete()) {
             (new Exception("File removal exception!")).printStackTrace();
@@ -387,7 +344,8 @@ public abstract class NoteGroup extends JPanel {
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
-    // Gives children some access.
+    // Returns a NoteComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
     //--------------------------------------------------------
     public NoteComponent getNoteComponent(int i) {
         return (NoteComponent) groupNotesListPanel.getComponent(i);
@@ -439,75 +397,15 @@ public abstract class NoteGroup extends JPanel {
     } // end gotoPage
 
 
-    //--------------------------------------------------------------------
-    // Method Name: loadData
-    //
-    // This method is needed to separate the load of the data
-    //   from the diverse activities that call upon it (processing user
-    //   input, adding a note to a group, mass data-fix during a search).
-    //   The return value will be the Vector of Notes that were read,
-    //   if any.  If the file had a properties object as the first data
-    //   element, that is reflected back through the enclosing parameter.
-    //--------------------------------------------------------------------
-    private static Vector<NoteData> loadData(String theFilename, Object[] objArray) {
-        Vector<NoteData> vectNoteData;
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        Object tempObject = null;
-        NoteData tempNoteData;
-        boolean blnStartOfFile = true;
-        Exception e = null;
-
-        vectNoteData = new Vector<>();
-
-        // The file's existence should have already
-        //   tested true, prior to calling loadData.
-        try {
-            fis = new FileInputStream(theFilename);
-            ois = new ObjectInputStream(fis);
-
-            // Since there IS a file, the assumption is that
-            //  there is at least one element of data.
-            while (true) {
-                try {
-                    tempObject = ois.readObject();
-
-                    // If this is the Group properties rather than a
-                    //   NoteData, an exception will be thrown (and caught).
-                    tempNoteData = (NoteData) tempObject;
-
-                    vectNoteData.addElement(tempNoteData);
-                    blnStartOfFile = false;
-                } catch (ClassCastException cce) {
-                    // The first data element may be the group properties and not
-                    //   a NoteData.  In that case, we can assign it here
-                    //   and continue on; otherwise we have a problem.
-                    if (blnStartOfFile) {
-                        objArray[0] = tempObject;
-                    } else {
-                        e = cce;
-                        break;
-                    } // end if
-                } // end try/catch
-            }//end while
-        } catch (EOFException eofe) { // Normal, expected.
-        } catch (ClassNotFoundException | IOException ee) {
-            e = ee;
-        } finally {
-            try {
-                if (ois != null) ois.close();
-                if (fis != null) fis.close();
-            } catch (IOException ioe) {
-                System.out.println("Exception: " + ioe.getMessage());
-            } // end try/catch
-        } // end try/catch
-
-        if (e != null) {
-            e.printStackTrace(System.err);
-            // If there was a partial load, we'll allow that data.
-        } // end if
-        return vectNoteData;
-    } // end loadData
+    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of <my custom class>),
+    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
+    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them to JSON
+    // string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was  a several-line
+    // method; this is a one-liner, and my version had the possibility of throwing an Exception that needed to be caught.
+    // Child classes override this, to set the Vector content type to their own internal data class.
+    void setGroupData(Object[] theGroup)  {
+        vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() { });
+    }
 
 
     //----------------------------------------------------------------
@@ -515,6 +413,19 @@ public abstract class NoteGroup extends JPanel {
     //
     // The data file will be reloaded whenever this method is called.
     //----------------------------------------------------------------
+
+    // This method is needed to separate the load of the data
+    //   from the various components that act upon it.
+    //   Internally it comes in as an ArrayList of one or
+    //   two Objects that identify themselves as LinkedHashMaps
+    //   (although I never said that they should be).  Before
+    //   we leave here, though, we call setGroupData (overridden
+    //   by most children) that loads the data into a Vector
+    //   of Notes and the requesting group's properties, if any.
+    //--------------------------------------------------------------------
+
+
+
     private void loadGroup() {
 
         // Clear before loading
@@ -535,23 +446,19 @@ public abstract class NoteGroup extends JPanel {
         //   itself remains the same.
         strGroupFilename = getGroupFilename();
 
-        MemoryBank.debug("NoteGroup loadGroup: " + strGroupFilename);
-        // We do the 'exists' test here rather than
-        //   as a 'catch' when opening, because non-existence is to be
-        //   treated as a valid, normal and frequent situation.
-        if (!new File(strGroupFilename).exists()) {
+        MemoryBank.debug("Loading NoteGroup data from: " + strGroupFilename);
+        Object[] theGroup = AppUtil.loadNoteGroupData(strGroupFilename);
+        if(theGroup != null) {
+            //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+            setGroupData(theGroup);
+        } else {
             // Setting the name to 'empty' IS needed; it is examined when
             //   saving and if non-empty, the old file is deleted first.  Of
             //   course, if the file already does not exist, we don't want
             //   to let it try to do that.
             strGroupFilename = "";
             return;
-        } // end if
-
-        MemoryBank.debug("Loading NoteGroup data from " + shortName());
-        Object[] objArray = new Object[1];
-        vectGroupData = loadData(strGroupFilename, objArray);
-        objGroupProperties = objArray[0];
+        }
 
         Exception e = null;
         try {
@@ -736,9 +643,6 @@ public abstract class NoteGroup extends JPanel {
         } // end for i
     } // end resetVisibility
 
-    int getNoteCount() {
-        return vectGroupData.size();
-    }
 
     Vector<NoteData> getCondensedInfo() {
         Vector<NoteData> trimmedList = new Vector<>();
@@ -757,130 +661,6 @@ public abstract class NoteGroup extends JPanel {
         }
         return trimmedList;
     }
-
-    //--------------------------------------------------------------------
-    private int saveDataJson(String theFilename, Object objProperties) {
-        BufferedWriter bw = null;
-        Exception e = null;
-        int notesWritten = 0;
-        Object[] theGroup;  // A new 'wrapper' for the Properties + List
-        Vector<NoteData> trimmedList = getCondensedInfo();
-
-        // Wrap the remaining content, convert it to JSON, and write the file
-        if(trimmedList.size() > 0) {
-            try {
-                FileOutputStream fileStream = new FileOutputStream(new File(theFilename + ".json"));
-                OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
-                bw = new BufferedWriter(writer);
-
-                if (objProperties != null) {
-                    theGroup = new Object[2];
-                    theGroup[0] = objProperties;
-                    theGroup[1] = trimmedList;
-                } else {
-                    theGroup = new Object[1];
-                    theGroup[0] = trimmedList;
-                } // end if there is a properties object
-
-                bw.write(MemoryBank.toJsonString(theGroup));
-                notesWritten = trimmedList.size(); // This is only set AFTER the write.
-
-            } catch (IOException ioe) {
-                // This is a catch-all for other problems that may
-                // arise, such as finding a directory of the
-                // same name, or not having write permission.
-                e = ioe;
-            } finally {
-                if (e != null) {
-                    // This one may have been ignorable; print the message and see.
-                    System.out.println("Exception: " + e.getMessage());
-                } // end if there was an exception
-                // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
-                try {
-                    if (bw != null) {
-                        bw.flush();
-                        bw.close(); // Also closes the wrapped FileWriter
-                    }
-                } catch (IOException ioe) {
-                    // This one would be much more serious - raise a 'louder' alarm.
-                    ioe.printStackTrace(System.err);
-                } // end try/catch
-            } // end try/catch
-
-        }
-
-        return notesWritten;
-    } // end saveData
-
-
-    //--------------------------------------------------------------------
-    // Method Name: saveData
-    //
-    // This method is needed to separate the writing of the data to a file
-    //   from the diverse activities that call upon it (processing user
-    //   input, adding a note to a group, mass data-fix during a search).
-    //   The return value will be the number of Notes written to the file.
-    //--------------------------------------------------------------------
-    private static int saveData(String theFilename,
-                                Vector<NoteData> vectNoteData, Object objProperties) {
-        FileOutputStream fos = null;
-        ObjectOutputStream oos = null;
-        Exception e = null;
-        int notesWritten = 0;
-
-        // Write the file
-        try {
-            fos = new FileOutputStream(theFilename);
-            oos = new ObjectOutputStream(fos);
-
-            if (objProperties != null) {
-                oos.writeObject(objProperties);
-            } // end if there is a properties object
-
-            for (NoteData tempNoteData : vectNoteData) {
-                if (tempNoteData == null) {
-                    // This can happen with an 'empty' NoteGroup.
-                    // new Exception("Testing!").printStackTrace();
-                    continue;
-                } // end if
-
-                // POSSIBLE problem here - a SearchResultGroup CAN be saved with no data; just its properties.
-                // see if this needs a fix, and add possibly a test.
-
-                // Don't save if no significant text.
-                if (tempNoteData.getNoteString().trim().equals(""))
-                    if (tempNoteData.getExtendedNoteString().trim().equals(""))
-                        continue;
-
-                oos.writeObject(tempNoteData);
-                notesWritten++;
-                MemoryBank.debug("NoteGroup.saveData - wrote note " + notesWritten);
-            } // end for each data item in the vector
-
-        } catch (IOException fnfe) {
-            // 'not found' is actually expected for cases where we are
-            // writing a new file, and it will not throw this exception.
-            // The exception is a catch-all for other problems that may
-            // arise, such as finding a directory of the
-            // same name, or not having write permission.
-            e = fnfe;
-        } finally {
-            try {
-                if (oos != null) oos.flush();
-                if (oos != null) oos.close();
-                if (fos != null) fos.close();
-            } catch (IOException ioe) {
-                System.out.println("Exception: " + ioe.getMessage());
-            } // end try/catch
-        } // end try/catch
-
-        if (e != null) {
-            e.printStackTrace(System.err);
-        } // end if there was an exception
-
-        return notesWritten;
-    } // end saveData
-
 
     //--------------------------------------------------------------
     // Method Name: saveGroup
@@ -969,25 +749,31 @@ public abstract class NoteGroup extends JPanel {
         //----------------------------------------------------------------
 
         // The logic below will allow for a file with properties but no
-        // notes.  This might be a todo list with no items, yet, which
-        // is allowed.
-        Object tmpProperties = getProperties();
+        // notes.  This might be a todo list with no items yet, or a
+        // search that found no notes, both of which are allowed.
         int notesWritten = 0;
+        Object[] theGroup;  // A new 'wrapper' for the Properties + List
+        Vector<NoteData> trimmedList = getCondensedInfo();
+        Object groupProperties = getProperties();
+        if (groupProperties != null) {
+            theGroup = new Object[2];
+            theGroup[0] = groupProperties;
+            theGroup[1] = trimmedList;
+        } else {
+            theGroup = new Object[1];
+            theGroup[0] = trimmedList;
+        } // end if there is a properties object
 
         // If there is data to preserve, do so now.
-        if ((tmpProperties != null) || (vectGroupData.size() > 0)) {
-            // Now save the notes from the vectGroupData.
-            notesWritten = saveData(strGroupFilename, vectGroupData, tmpProperties);
-// Coming soon..   disabled for now until we do the switchover.
-//            int nw = saveDataJson(strGroupFilename, tmpProperties);
+        if ((groupProperties != null) || (trimmedList.size() > 0)) {
+            notesWritten = AppUtil.saveNoteGroupData(strGroupFilename, theGroup);
         } // end if
 
+
         // We didn't try to write a file if there was no data, but there are cases where
-        // a file might already be out there, that shouldn't be -
-        // for example, when all notes have been individually cleared out, or if a
-        // file was created for writing but then the writes failed.
-        if (notesWritten == 0)
-            if (tmpProperties == null) deleteFile(new File(strGroupFilename));
+        // a file for this data might already be out there, that shouldn't be -
+        // for example, if a file was created for writing but then the writes failed.
+        if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(strGroupFilename));
 
         if (notesWritten == vectGroupData.size()) {
             intSaveGroupStatus = SUCCEEDED + notesWritten;

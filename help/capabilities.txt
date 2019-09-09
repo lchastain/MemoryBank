@@ -1,0 +1,15 @@
+List of all supported capabilities of the Memory Bank app -
+(format here will almost certainly change; this is just to get us started - 9/8/2019)
+
+Perform a search of all user data, save resulting list and display
+    search can be keyword or date-based
+    results file name containing JSON data has the format:  search_<timestamp>.json
+    display will show where found
+
+A Todo item may be moved to Today's DayNote (via its contex menu)
+A Todo item may be assigned a related Date (via a selection on the Group's Three Month Column panel)
+A Todo item may be moved to the DayNote of its related Date, if it has one  (via its contex menu)
+A Todo item may be copied or moved to any other NoteGroup type (via its contex menu)
+
+
+

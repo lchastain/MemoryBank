@@ -1,12 +1,15 @@
 /*  This class displays a group of DayNoteComponent.
  */
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
 import java.util.Date;
+import java.util.Vector;
 
 public class DayNoteGroup extends CalendarNoteGroup
         implements iconKeeper, MouseListener {
@@ -106,8 +109,8 @@ public class DayNoteGroup extends CalendarNoteGroup
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
-    // Returns a DayNoteComponent that can be accessed by
-    // both containers and tests.
+    // Returns a DayNoteComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
     //--------------------------------------------------------
     public DayNoteComponent getNoteComponent(int i) {
         return (DayNoteComponent) groupNotesListPanel.getComponent(i);
@@ -275,6 +278,10 @@ public class DayNoteGroup extends CalendarNoteGroup
         updateGroup();
     } // end setDefaultIcon
 
+
+    void setGroupData(Object[] theGroup)  {
+        vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });
+    }
 
     public void shiftDown(int index) {
         if (index >= (lastVisibleNoteIndex - 1)) return;
