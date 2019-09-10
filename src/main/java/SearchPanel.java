@@ -1,14 +1,13 @@
-/****************************************************************/
+/* ***************************************************************/
 /*                      SearchPanel	                            */
 /*                                                              */
-/****************************************************************/
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.*;
-import javax.swing.border.*;
 
 /**
  * Summary description for SearchPanel
@@ -19,13 +18,13 @@ public class SearchPanel extends JPanel {
     // 'My' Variables declaration section
     //-------------------------------------------------------------
 
-    public static final int NOPARENS = 0;
-    public static final int PARENS1 = 1;
-    public static final int PARENS2 = 2;
+    private static final int NOPARENS = 0;
+    private static final int PARENS1 = 1;
+    private static final int PARENS2 = 2;
 
     public static final int AFTER = 3;
     public static final int BEFORE = 4;
-    public static final int BETWEEN = 5;
+    private static final int BETWEEN = 5;
 
     private int intPreferredWidth;    // See note in constructor.
     private int intPreferredHeight;   // See note in constructor.
@@ -128,7 +127,7 @@ public class SearchPanel extends JPanel {
 
         if (blnC1 == null)
             if (blnC2 == null)
-                if (blnC3 == null) return false;
+                return blnC3 != null;
 
         return true;
     } // end checkAllFalse
@@ -181,7 +180,7 @@ public class SearchPanel extends JPanel {
     //   date fields are also set.  If no setting has been made then
     //   we return the default - true.
     //--------------------------------------------------------------------
-    public boolean filterLastMod(Date d) {
+    boolean filterLastMod(Date d) {
         boolean rv = true;
         switch (getLastModSetting()) {
             case AFTER:
@@ -196,7 +195,7 @@ public class SearchPanel extends JPanel {
                 break;
         } // end switch
 
-        return rv;
+        return !rv;
     } // end filterLastMod
 
 
@@ -212,9 +211,9 @@ public class SearchPanel extends JPanel {
     //   date fields are also set.  If no setting has been made then
     //   we return the default - true.
     //--------------------------------------------------------------------
-    public boolean filterWhen(Date d) {
+    boolean filterWhen(Date d) {
         boolean rv = true;
-        if (d == null) return rv;
+        if (d == null) return false;
 
         switch (getWhenSetting()) {
             case AFTER:
@@ -229,7 +228,7 @@ public class SearchPanel extends JPanel {
                 break;
         } // end switch
 
-        return rv;
+        return !rv;
     } // end filterWhen
 
 
@@ -243,20 +242,20 @@ public class SearchPanel extends JPanel {
     //   case insensitive.  The user currently does not have the
     //   option to change this.
     //-------------------------------------------------------------------
-    public boolean foundIt(NoteData nd) {
+    boolean foundIt(NoteData nd) {
         // Remember that the Panel is for filtering OUT results; therefore
         //   the default is true (found), but if it fails even one test
         //   then the return value will be false.
 
         // Test the 'Last Mod' condition
-        if (!filterLastMod(nd.getLastModDate())) return false;
+        if (filterLastMod(nd.getLastModDate())) return false;
 
         // Test the 'Items with Dates' condition
         // File-level filtering for DayNotes, MonthNotes, etc, should
         //   have already been done prior to this point; here, it is
         //   a Note-level test.  If not relevant then the NoteDate will
         //   be null, which passes thru the filter.
-        if (!filterWhen(nd.getNoteDate())) return false;
+        if (filterWhen(nd.getNoteDate())) return false;
 
         // Construct a string to search, from the base NoteData elements.
         String s = nd.getNoteString();
@@ -328,7 +327,7 @@ public class SearchPanel extends JPanel {
 
         // Now we consider the presence or lack of the parentheses -
         if (getParens() == NOPARENS) {
-            if (checkFalseCombo(blnC1, blnC2, blnC3)) return false; // N1fc
+            return !checkFalseCombo(blnC1, blnC2, blnC3); // N1fc
             // This test covered the remaining 12 cases without parens.
         } else { // 12 more (with parens) to go -
             if (getParens() == PARENS1) { // 3 cases
@@ -353,7 +352,7 @@ public class SearchPanel extends JPanel {
 
             if (rbtnAnd2.isSelected()) { // 3 cases
                 if (!blnC1 && !blnC2 && blnC3) return false; // Pfofat (2)
-                if (!blnC1 && blnC2 && !blnC3) return false; // Pfotaf (1)
+                return blnC1 || !blnC2 || blnC3; // Pfotaf (1)
             } // end if
         } // end if/else PARENS
         return true;
@@ -388,7 +387,7 @@ public class SearchPanel extends JPanel {
         return dateWhen2;
     }
 
-    public int getLastModSetting() {
+    int getLastModSetting() {
         if (rbtnModAfter.isSelected()) return AFTER;
         if (rbtnModBefore.isSelected()) return BEFORE;
         if (rbtnModBetween.isSelected()) return BETWEEN;
@@ -426,7 +425,7 @@ public class SearchPanel extends JPanel {
     }
 
 
-    public int getParens() {
+    private int getParens() {
         if (getWord1() == null) return NOPARENS;
         if (getWord2() == null) return NOPARENS;
         if (getWord3() == null) return NOPARENS;
@@ -585,7 +584,7 @@ public class SearchPanel extends JPanel {
     } // end getSummary
 
 
-    public int getWhenSetting() {
+    private int getWhenSetting() {
         if (rbtnWhenAfter.isSelected()) return AFTER;
         if (rbtnWhenBefore.isSelected()) return BEFORE;
         if (rbtnWhenBetween.isSelected()) return BETWEEN;
@@ -748,7 +747,7 @@ public class SearchPanel extends JPanel {
     // Returns true if the user has specified at least
     //   one place to search; otherwise false.
     //----------------------------------------------------------
-    public boolean hasWhere() {
+    boolean hasWhere() {
         boolean retVal = false;
         if (chkboxGoals.isSelected()) retVal = true;
         if (chkboxDayNotes.isSelected()) retVal =  true;
@@ -783,7 +782,7 @@ public class SearchPanel extends JPanel {
         JLabel jLabel3 = new JLabel();
         lblOpenParen1 = new JLabel();
         chkboxNot1 = new JCheckBox();
-        comboxSearchText1 = new JComboBox<String>();
+        comboxSearchText1 = new JComboBox<>();
         JPanel pnlKeyword1 = new JPanel();
         //----- 
         lblOpenParen2 = new JLabel();
@@ -791,14 +790,14 @@ public class SearchPanel extends JPanel {
         rbtnAnd1 = new JRadioButton();
         rbtnOr1 = new JRadioButton();
         chkboxNot2 = new JCheckBox();
-        comboxSearchText2 = new JComboBox<String>();
+        comboxSearchText2 = new JComboBox<>();
         JPanel pnlKeyword2 = new JPanel();
         //----- 
         lblCloseParen2 = new JLabel();
         rbtnAnd2 = new JRadioButton();
         rbtnOr2 = new JRadioButton();
         chkboxNot3 = new JCheckBox();
-        comboxSearchText3 = new JComboBox<String>();
+        comboxSearchText3 = new JComboBox<>();
         JPanel pnlKeyword3 = new JPanel();
         //----- 
         pnlWhen = new JPanel();
@@ -1245,27 +1244,27 @@ public class SearchPanel extends JPanel {
         } // end if
     } // end resetDateDisplay
 
-    public boolean searchGoals() {
+    boolean searchGoals() {
         return chkboxGoals.isSelected();
     }
 
-    public boolean searchDays() {
+    boolean searchDays() {
         return chkboxDayNotes.isSelected();
     }
 
-    public boolean searchMonths() {
+    boolean searchMonths() {
         return chkboxMonthNotes.isSelected();
     }
 
-    public boolean searchYears() {
+    boolean searchYears() {
         return chkboxYearNotes.isSelected();
     }
 
-    public boolean searchEvents() {
+    boolean searchEvents() {
         return chkboxEvents.isSelected();
     }
 
-    public boolean searchLists() {
+    boolean searchLists() {
         return chkboxTodoLists.isSelected();
     }
 

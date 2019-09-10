@@ -15,7 +15,7 @@ class TodoNoteGroupTest implements FileChooser {
     @BeforeAll
     static void beforeAll() throws IOException {
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -56,7 +56,7 @@ class TodoNoteGroupTest implements FileChooser {
         testUtil.setTheAnswer(theNewName);
         todoNoteGroup.saveAs();
         String theGroupName = todoNoteGroup.getGroupFilename();
-        Assertions.assertTrue(theGroupName.endsWith(File.separatorChar + theNewName + ".todolist.json"));
+        Assertions.assertTrue(theGroupName.endsWith(File.separatorChar + "todo_" + theNewName + ".json"));
         File f = new File(theGroupName);
         Assertions.assertTrue(f.exists());
     }
@@ -100,7 +100,7 @@ class TodoNoteGroupTest implements FileChooser {
     @Override
     // A FileChooser method used by the merge method
     public File getSelectedFile() {
-        String theFile = MemoryBank.userDataHome + File.separatorChar + "New Car Shopping.todolist.json";
+        String theFile = MemoryBank.userDataHome + File.separatorChar + "todo_New Car Shopping.json";
         System.out.println("File selected for Merge: " + theFile);
         return new File(theFile);
     }

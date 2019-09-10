@@ -603,9 +603,14 @@ public class AppUtil {
     //   methods that act upon it.
     // ---------------------------------------------------------------------------------
     static Object[] loadNoteGroupData(String theFilename) {
+        // theFilename string needs to be the full path to the file.
+        return loadNoteGroupData(new File(theFilename));
+    }
+
+    static Object[] loadNoteGroupData(File theFile) {
         Object[] theGroup = null;
         try {
-            String text = FileUtils.readFileToString(new File(theFilename), StandardCharsets.UTF_8.name());
+            String text = FileUtils.readFileToString(theFile, StandardCharsets.UTF_8.name());
             theGroup = mapper.readValue(text, Object[].class);
             //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
         } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
@@ -673,7 +678,7 @@ public class AppUtil {
             bw = new BufferedWriter(writer);
             bw.write(toJsonString(theGroup));
             // Set the number of notes written, only AFTER the write.
-            notesWritten = ((ArrayList) theGroup[theGroup.length-1]).size();
+            notesWritten = ((List) theGroup[theGroup.length-1]).size();
         } catch (IOException ioe) {
             // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
             // same name in the directory where you want to put the file, or not having write permission.

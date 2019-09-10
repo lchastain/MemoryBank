@@ -1,3 +1,5 @@
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Vector;
@@ -178,8 +180,8 @@ public class DataFix {
         boolean madeChange = false; // initialize this flag
         if (strGroupFilename.endsWith("UpcomingEvents")) {
             for (NoteData tempNoteData : vectGroupData) {
-                System.out.println("Class name of data element: " + tempNoteData.getClass().getName());
-                System.out.println("EventNoteData: " + AppUtil.toJsonString(tempNoteData));
+                //System.out.println("Class name of data element: " + tempNoteData.getClass().getName());
+                //System.out.println("EventNoteData: " + AppUtil.toJsonString(tempNoteData));
                 madeChange = true;
             } // end for
         } else {
@@ -187,14 +189,14 @@ public class DataFix {
         }
 
         // For this particular fix we want to rewrite every file whether it needed fixing internally or not,
-        // so the boolean test below is not actually ever staying 'false'.  (Fools IJ, though).
+        // so the boolean test below does not actually ever evaluate to 'false'.  (Fools IJ, though).
         if (madeChange) {
             String saveFileName = getNewName(strGroupFilename);
             int nw = saveDataJson(saveFileName, objGroupProperties);
             System.out.println("   wrote " + nw + " notes to " + saveFileName);
 
             // Now get rid of the original file.
-//            if(nw > 0) FileUtils.deleteQuietly(theFile);
+            FileUtils.deleteQuietly(theFile);
         }//end if
 
     }
@@ -218,11 +220,9 @@ public class DataFix {
 
     public static void main(String[] args) {
         MemoryBank.debug = true; // Turn on all debugging printouts.
-        MemoryBank.setUserDataHome("lex@doughmain.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
 
         DataFix dataFix = new DataFix();
         dataFix.scanDataDir(new File(MemoryBank.userDataHome), 0);
-
-
     }
 }

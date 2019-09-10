@@ -14,7 +14,7 @@ class DayNoteGroupTest {
 
     @BeforeEach
     void setUp() {
-        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
         dng = new DayNoteGroup();
     }
 

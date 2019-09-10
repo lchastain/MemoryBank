@@ -697,7 +697,7 @@ public class MemoryBank {
         logFrame.pack();
         Dimension d = logFrame.getSize();
         System.out.println("Default Frame Size: " + d.toString());
-        logFrame.setSize(850, 600);  // explicit
+        logFrame.setSize(880, 600);  // explicit
 
         logFrame.setLocationRelativeTo(null); // Center
         logFrame.setVisible(true);

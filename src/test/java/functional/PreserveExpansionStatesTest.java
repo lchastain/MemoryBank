@@ -23,7 +23,7 @@ class PreserveExpansionStatesTest {
     @BeforeAll
     static void setup() throws IOException {
         // Set the test user's data location
-        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);

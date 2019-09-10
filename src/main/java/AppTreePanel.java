@@ -11,6 +11,7 @@
 // Management of search results should be rewritten to be closer to
 //   the way to do lists are handled.
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,11 +22,13 @@ import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
+
 
 public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
@@ -114,7 +117,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         }).start();
         //</editor-fold>
 
-        optionPane = new Notifier() { }; // Uses all default methods.
+        optionPane = new Notifier() {
+        }; // Uses all default methods.
 
         //---------------------------------------------------
         // Create the menubar handler, but fire it from a
@@ -509,7 +513,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
         else if (what.startsWith("Merge")) ((TodoNoteGroup) theNoteGroup).merge();
-        //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
+            //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
         else if (what.equals("Refresh")) theEvents.refresh();
         else if (what.equals("Review...")) System.out.println("Review was selected.");
         else if (what.startsWith("Save As")) saveTodoListAs();
@@ -575,71 +579,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 //            //e.printStackTrace();
 //        }
 //    }
-
-
-    // This is a 'generic' NoteData loader that can handle the loading of data
-    //   for ANY class that is a generation of NoteGroup.  It used for
-    //   searching.
-    private void loadNoteData(File theDayFile) {
-        Exception e = null;
-        Object tempObject = null;
-        NoteData tempNoteData;
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        int index = 0;
-        String s;
-
-        ob1kenoby = null;
-        try {
-            fis = new FileInputStream(theDayFile);
-            ois = new ObjectInputStream(fis);
-
-            // The assumption is that there is at
-            //  least one element of data.
-            while (true) {
-                try {
-                    tempObject = ois.readObject();
-                    tempNoteData = (NoteData) tempObject;
-
-                    s = tempObject.getClass().getName();
-                    MemoryBank.debug("    loaded " + s + " at index " + index);
-                    index++;
-                    noteDataVector.addElement(tempNoteData);
-                } catch (ClassCastException cce) {
-                    // If this is not a CalendarNoteGroup, the first data element will be
-                    //   the group properties and not a NoteData.  In that case, we can
-                    //   hold onto it for saving later, and continue on; otherwise
-                    //   we have a problem.
-                    if (index == 0) {
-                        ob1kenoby = tempObject;
-                    } else {
-                        e = cce;
-                        break;
-                    } // end if
-                } // end try/catch
-            }//end while
-        } catch (EOFException eofe) { // Normal, expected.
-        } catch (ClassNotFoundException | IOException ee) {
-            e = ee;
-        } finally {
-            try {
-                if (ois != null) ois.close();
-                if (fis != null) fis.close();
-            } catch (IOException ioe) {
-                System.out.println("Exception: " + ioe.getMessage());
-            } // end try/catch
-        }//end try/catch
-
-        if (e != null) {
-            // e.printStackTrace();
-            String ems = "Error in loading " + theDayFile.getName() + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\nNote data load operation aborted.";
-            JOptionPane.showMessageDialog(this,
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-
-        }//end if
-    }//end loadNoteData
 
 
     //------------------------------------------------------------
@@ -726,41 +665,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end resetTreeState
 
 
-    //--------------------------------------------------------------
-    // Method Name: saveNoteData
-    //
-    // This is a 'generic' NoteData save method that can handle the saving
-    //   of data for ANY NoteGroup child class.  It is used to save
-    //   search results.
-    // The 'object' at index zero may be the properties of the Group.  If
-    //   it has none then prior to calling this method ob1kenoby should
-    //   be set to null; otherwise it should be that properties object.
-    //--------------------------------------------------------------
-    private void saveNoteData(File theFile) {
-
-        try {
-            FileOutputStream fos = new FileOutputStream(theFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            // Some NoteGroups have a 'properties' object as
-            //   their first item in the file.
-            if (ob1kenoby != null) {
-                oos.writeObject(ob1kenoby);
-                ob1kenoby = null;
-            } // end if
-
-            for (NoteData tempData : noteDataVector) {
-                oos.writeObject(tempData);
-            }//end for i
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        }//end try/catch
-
-    }//end saveNoteData
-
-
     //------------------------------------------------------------------------
     // Method Name:  saveTodoListAs
     //
@@ -813,60 +717,63 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         Date dateNoteDate;
         MemoryBank.debug("Level " + level);
 
-        for (File theFile1 : theFiles) {
-            String theFile = theFile1.getName();
-            if (theFile1.isDirectory()) {
-                if (theFile.equals("Archives")) continue;
-                if (theFile.equals("icons")) continue;
-                scanDataDir(theFile1, level + 1);
+        for (File theFile : theFiles) {
+            String theFile1Name = theFile.getName();
+            if (theFile.isDirectory()) {
+                if (theFile1Name.equals("Archives")) continue;
+                if (theFile1Name.equals("icons")) continue;
+                scanDataDir(theFile, level + 1);
             } else {
                 goLook = true;
                 //dateNoteDate = null;
-                if (theFile.equals("Goals")) {
+                if (theFile1Name.equals("Goals")) {
                     if (!spTheSearchPanel.searchGoals()) {
                         goLook = false;
                     }
-                } else if (theFile.equals("UpcomingEvents")) {
+                } else if (theFile1Name.equals("UpcomingEvents.json")) {
                     if (!spTheSearchPanel.searchEvents()) {
                         goLook = false;
                     }
-                } else if (theFile.startsWith("todo_")) {
+                } else if (theFile1Name.startsWith("todo_")) {
                     if (!spTheSearchPanel.searchLists()) {
                         goLook = false;
                     }
-                } else if ((theFile.startsWith("D")) && (level > 0)) {
+                } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
                     if (!spTheSearchPanel.searchDays()) goLook = false;
-                } else if ((theFile.startsWith("M")) && (level > 0)) {
+                } else if ((theFile1Name.startsWith("M")) && (level > 0)) {
                     if (!spTheSearchPanel.searchMonths()) goLook = false;
-                } else if ((theFile.startsWith("Y")) && (level > 0)) {
+                } else if ((theFile1Name.startsWith("Y")) && (level > 0)) {
                     if (!spTheSearchPanel.searchYears()) goLook = false;
-                } else { // Files that do not contain Notes.
+                } else { // Any other file type not covered above.
+                    // This includes search results (for now - SCR0073)
                     goLook = false;
                 } // end if / else if
 
                 // Check the Note date, possibly filter out based on 'when'.
                 if (goLook) {
-                    dateNoteDate = AppUtil.getDateFromFilename(theFile1);
+                    dateNoteDate = AppUtil.getDateFromFilename(theFile);
                     if (dateNoteDate != null) {
-                        if (!spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
+                        if (spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
                     } // end if
                 } // end if
 
 
-                // The Last Modified date of the FILE is not necessarily
-                //   the same as the Note, but it CAN be considered
-                //   when looking for a last mod AFTER a certain date,
-                //   because the last mod to ANY note in the file CANNOT
-                //   be later than the last mod to the file itself.
+                // The Last Modified date of the FILE is not necessarily the same as the Note, but
+                //   it CAN be considered when looking for a last mod AFTER a certain date, because
+                //   the last mod to ANY note in the file CANNOT be later than the last mod to the
+                //   file itself.  Of course this depends on having no outside mods to the filesystem
+                //   but we assume that because this is either a dev system (and we trust all devs :)
+                //   or the app is being served from a server where only admins have access (and we
+                //   trust all admins, of course).
                 if (goLook) {
-                    Date dateLastMod = new Date(theFile1.lastModified());
+                    Date dateLastMod = new Date(theFile.lastModified());
                     if (spTheSearchPanel.getLastModSetting() == SearchPanel.AFTER) {
-                        if (!spTheSearchPanel.filterLastMod(dateLastMod)) goLook = false;
+                        if (spTheSearchPanel.filterLastMod(dateLastMod)) goLook = false;
                     } // end if
                 } // end if
 
                 if (goLook) {
-                    searchDataFile(theFile1);
+                    searchDataFile(theFile);
                 } // end if
             } // end if
         }//end for i
@@ -880,16 +787,41 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   have been done prior to this method being called.
     //---------------------------------------------------------
     private void searchDataFile(File dataFile) {
+        String theFilename = dataFile.getName();
         MemoryBank.debug("Searching: " + dataFile.getName());
         noteDataVector = new Vector<>();
-        loadNoteData(dataFile);
+
+        Object[] theGroupData = AppUtil.loadNoteGroupData(dataFile);
+        if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
+            // We don't have an instantiation of a Group, so we cannot use
+            // the overridden setGroupData() like we do when NoteGroup loads
+            // a file.  So - we'll use the filename to determine which
+            // generation of NoteData we need to recognize and convert.
+            if (theFilename.equals("UpcomingEvents.json")) {
+                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<EventNoteData>>() {
+                });
+            } else if ((theFilename.startsWith("M") && theFilename.charAt(3) == '_')) {
+                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<NoteData>>() {
+                });
+            } else if ((theFilename.startsWith("Y") && theFilename.charAt(1) == '_')) {
+                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<NoteData>>() {
+                });
+            } else if ((theFilename.startsWith("D") && theFilename.charAt(5) == '_')) {
+                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<DayNoteData>>() {
+                });
+            } else if (theFilename.startsWith("todo_")) {
+                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<TodoNoteData>>() {
+                });
+            }
+        }
 
         // Now get on with the search -
         for (NoteData ndTemp : noteDataVector) {
 
+            // If we find what we're looking for in/about this note -
             if (spTheSearchPanel.foundIt(ndTemp)) {
-                // Add this note (NOT the entire group) to the search results.
 
+                // Make new search result data for this find.
                 SearchResultData srd = new SearchResultData(ndTemp);
 
                 // The copy constructor used above will preserve the
@@ -904,9 +836,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 // It may still be null, but set it for this result
                 srd.setNoteDate(dateTmp);
 
+                // Add this search result data to our findings.
                 foundDataVector.add(srd);
 
-                // System.out.println(ndTemp.getNoteString());
             } // end if
         } // end for
     }//end searchDataFile
@@ -939,7 +871,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // There are simpler ways (such as aboutPanel.isShowing(), but that does not
         // work with the toggle test.
         JViewport viewport = rightPane.getViewport();
-        JComponent theContent = (JComponent)viewport.getView();
+        JComponent theContent = (JComponent) viewport.getView();
 
         if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
             // Reset tree to the state it was in before.
@@ -996,7 +928,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end if
         } else if (fname.equals("UpcomingEvents")) {
             tree.setSelectionPath(upcomingEventsPath);
-        } else if (!fpath.endsWith("MemoryBank")) {
+        } else if (!fpath.endsWith(MemoryBank.userDataHome)) {
             // If the path does not end at the top level data
             //   directory, then (at least at this writing) it
             //   means that we are down one of the calendar-
@@ -1087,20 +1019,26 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // We will display the results of the search, even if it found nothing.
         SearchResultGroupProperties searchResultGroupProperties = new SearchResultGroupProperties();
         searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
-        ob1kenoby = searchResultGroupProperties;
 
         // Make a unique name for the results
-        String strResultsName = AppUtil.getTimestamp();
+        String resultsName = AppUtil.getTimestamp();
+        String resultsPath = MemoryBank.userDataHome + File.separatorChar;
+        String resultsFileName = resultsPath + "search_" + resultsName + ".json";
+        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
 
-        String strResultsPath = MemoryBank.userDataHome + File.separatorChar;
-        System.out.println("Search performed at " + strResultsName + " results: " + foundDataVector.size());
-
-        // Make the File, then save the results into it.
-        File rf = new File(strResultsPath + "search_" + strResultsName + ".json");
-        saveNoteData(rf); // Saves ob1kenoby and then the noteDataVector
+        // Make a new data file to hold the searchResultData list
+        Object[] theGroup = new Object[2]; // A 'wrapper' for the Properties + List
+        theGroup[0] = searchResultGroupProperties;
+        theGroup[1] = noteDataVector;
+        int notesWritten = AppUtil.saveNoteGroupData(resultsFileName, theGroup);
+        if (foundDataVector.size() != notesWritten) {
+            System.out.println("Possible problem - wrote " + notesWritten + " results");
+        } else {
+            System.out.println("Wrote " + notesWritten + " results to " + resultsFileName);
+        }
 
         // Make a new tree node for these results and select it
-        addSearchResult(strResultsName, noteDataVector.size());
+        addSearchResult(resultsName, noteDataVector.size());
 
         showWorkingDialog(false);
     } // end doSearch
@@ -1235,7 +1173,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // We have started to handle the user's request; now
         //   disallow further input until we're finished.
         dlgWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
-        if(!blnRestoringSelection) showWorkingDialog(true);
+        if (!blnRestoringSelection) showWorkingDialog(true);
 
         // Update the current selection row
         appOpts.theSelectionRow = tree.getMaxSelectionRow();
@@ -1390,7 +1328,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 System.out.println("Search " + searchResultNode.strNodeName + " size: " + searchResultNode.intGroupSize);
 
                 String fullFileName = MemoryBank.userDataHome + File.separatorChar;
-                fullFileName += "search_" +  searchResultNode.strNodeName + ".json";
+                fullFileName += "search_" + searchResultNode.strNodeName + ".json";
 
                 if (new File(fullFileName).exists()) {
                     // The srg does not get established until the search result is selected.
@@ -1433,7 +1371,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         amb.manageMenus(strSelectionType);
-        if(!blnRestoringSelection) showWorkingDialog(false);
+        if (!blnRestoringSelection) showWorkingDialog(false);
     } // end treeSelectionChanged
 
 
@@ -1459,7 +1397,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (!updateLists) return;
 
-        // Preserve the active To Do Lists
+        // Preserve the names of the active To Do Lists in the AppOpts.
         DefaultMutableTreeNode theTodoNode = TodoBranchHelper.getTodoNode(theRootNode);
         DefaultMutableTreeNode leafLink;
         int numLists;
@@ -1476,7 +1414,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end while
         } // end if
 
-        // Preserve the active Search Results
+        // Preserve the names of the active Search Results in the AppOpts.
         DefaultMutableTreeNode theSearchResultNode = SearchResultNode.getSearchResultNode(theRootNode);
         int numResults;
         appOpts.searchResultList.clear();
@@ -1486,7 +1424,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             leafLink = theSearchResultNode.getFirstLeaf();
             while (numResults-- > 0) {
                 String s = leafLink.toString();
-                MemoryBank.debug("  Preserving search result: " + s);
+                //MemoryBank.debug("  Preserving search result: " + s);
                 appOpts.searchResultList.addElement(s);
                 leafLink = leafLink.getNextLeaf();
             } // end while

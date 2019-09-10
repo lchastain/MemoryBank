@@ -1,6 +1,9 @@
 This is a one-time-use module that will be used to convert the NoteGroup data of the main app from serialized
 objects to JSON data.
 
+YOU WILL ALSO need to hand-modify the AppOpts.json file, to remove the leading 'S' from any Search Results
+that were configured into the tree (AppOpts was converted a week or so earlier, no fixer needed).
+
 While in development and in use, the source code here will be marked as a source directory for the project.
 Afterwards, that designation will be removed and this module should be kept indefinitely as a copy source
 for future DataFix versions.

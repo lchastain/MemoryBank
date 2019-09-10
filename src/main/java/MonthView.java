@@ -1,38 +1,18 @@
-/** User interface to choose a Date from a view of a Month.
+/* User interface to choose a Date from a view of a Month.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
+import java.util.Vector;
 
 public class MonthView extends JLayeredPane {
     private static final long serialVersionUID = -1L;
@@ -66,7 +46,7 @@ public class MonthView extends JLayeredPane {
     private int initialYear;
     private int initialDay;
     private AppTreePanel parent;
-    private boolean hasDataArray[][];
+    private boolean[][] hasDataArray;
     private Dimension minSize;
 
     private static final int borderWidth = 2;
@@ -172,74 +152,43 @@ public class MonthView extends JLayeredPane {
     //   of data for the specified day.  There may be one or more
     //   null placeholders in the array.
     //---------------------------------------------------------------------
-    public Image[] getIconArray(int year, int month, int day) {
-        Exception e = null;
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        DayNoteData tempDayData;
-        //noinspection MagicConstant
+    private Image[] getIconArray(int year, int month, int day) {
         MemoryBank.tempCalendar.set(year, month, day);
 
-        String FileName = AppUtil.findFilename(MemoryBank.tempCalendar, "D");
-        if (!new File(FileName).exists()) return null;
+        String theFilename = AppUtil.findFilename(MemoryBank.tempCalendar, "D");
+        if (!new File(theFilename).exists()) return null;
 
-        MemoryBank.debug("Loading: " + FileName);
-        Image returnArray[] = new Image[5];
+        MemoryBank.debug("Loading: " + theFilename);
+        Image[] returnArray = new Image[5];
 
         int index = 0;
         boolean doit;
         String iconFileString;
 
-        try {
-            fis = new FileInputStream(FileName);
-            ois = new ObjectInputStream(fis);
-
-            while (index < 5) {
-                tempDayData = (DayNoteData) ois.readObject();
-                doit = tempDayData.getShowIconOnMonthBoolean();
-                if (doit) {
-                    iconFileString = tempDayData.getIconFileString();
-                    if (iconFileString == null) {
-                        // The default
-                        iconFileString = DayNoteGroup.defaultIconFileName;
-                    } // end if
-
-                    if (iconFileString.equals("")) {
-                        // Show this 'blank' on the month.
-                        // Possibly as a 'spacer'.
-                        returnArray[index] = null;
-                    } else {
-                        returnArray[index] = new AppIcon(iconFileString).getImage();
-                    } // end if
-
-                    index++;
-                    MemoryBank.debug("MonthView - Set icon " + index);
+        Object[] theDayGroup = AppUtil.loadNoteGroupData(theFilename);
+        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theDayGroup[0], new TypeReference<Vector<DayNoteData>>() {
+        });
+        for(DayNoteData tempDayData: theDayNotes) {
+            if (tempDayData.getShowIconOnMonthBoolean()) {
+                iconFileString = tempDayData.getIconFileString();
+                if (iconFileString == null) {
+                    // The default
+                    iconFileString = DayNoteGroup.defaultIconFileName;
                 } // end if
-            } // end while
-        } catch (ClassCastException cce) {
-            e = cce;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (InvalidClassException ice) {
-            e = ice;
-        } catch (EOFException eofe) {
-            // System.out.println("End of file reached!");
-        } catch (IOException ioe) {
-            e = ioe;
-        } finally {
-            try {
-                assert ois != null;
-                ois.close();
-                fis.close();
-            } catch (IOException ioe) {
-                e = ioe;
-            } // end try/catch
-        } // end try/catch
 
-        if (e != null) {
-            MemoryBank.debug("Error in loading " + FileName + " !");
-            return null;
-        } // end if
+                if (iconFileString.equals("")) {
+                    // Show this 'blank' on the month.
+                    // Possibly as a 'spacer'.
+                    returnArray[index] = null;
+                } else {
+                    returnArray[index] = new AppIcon(iconFileString).getImage();
+                } // end if
+
+                index++;
+                MemoryBank.debug("MonthView - Set icon " + index);
+                if(index >=4) break;
+            } // end if
+        }
 
         return returnArray;
     } // end getIconArray
@@ -295,7 +244,7 @@ public class MonthView extends JLayeredPane {
     } // end setChoice
 
 
-    public void setLabelBounds() {
+    private void setLabelBounds() {
         if (getSize().width == 0) return;
         // No need to show the label if the MonthCanvas has not yet
         //   been shown, especially since it will just be a flash on
@@ -407,7 +356,7 @@ public class MonthView extends JLayeredPane {
             String labelText;
 
             // Generate new title with month and year.
-            labelText = monthNames[visibleMonth] + " " + String.valueOf(visibleYear);
+            labelText = monthNames[visibleMonth] + " " + visibleYear;
             monthLabel.setText(labelText);
 
             // Clone the calendar so we can advance it a day at a time,
@@ -563,12 +512,12 @@ public class MonthView extends JLayeredPane {
         } // end setCal
 
 
-        public void bottomLine() {
+        void bottomLine() {
             ssH.setColor(Color.black);
         } // end bottomLine
 
 
-        public void rightLine() {
+        void rightLine() {
             ssV.setColor(Color.black);
         } // end rightLine
 
@@ -614,7 +563,7 @@ public class MonthView extends JLayeredPane {
             if (hasDataArray[visibleMonth][thisDay - 1]) {
                 offFont = hasDataFont;
                 offColor = hasDataColor;
-                Image thisDayIcons[] =
+                Image[] thisDayIcons =
                         getIconArray(visibleYear, visibleMonth, thisDay);
                 if (thisDayIcons != null) {
                     icon1.setImage(thisDayIcons[0]);
@@ -644,6 +593,7 @@ public class MonthView extends JLayeredPane {
         int x, y;
         Component comp;
 
+        @SuppressWarnings("IntegerDivisionInFloatingPointContext")
         public void layoutContainer(Container parent) {
             super.layoutContainer(parent);
 

@@ -19,8 +19,10 @@ public class AppTreePanelTest {
 
     @BeforeAll
     static void meFirst() throws IOException {
+        MemoryBank.debug = true;
+
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -54,7 +56,7 @@ public class AppTreePanelTest {
     @AfterEach
     void restit() throws InterruptedException {
         // These tests drive the app faster than it would go if it was only under user control.
-        Thread.sleep(300); // Otherwise we see NullPointerExceptions after tests pass.
+        Thread.sleep(500); // Otherwise we see NullPointerExceptions after tests pass.
     }
 
     @AfterAll
@@ -134,7 +136,7 @@ public class AppTreePanelTest {
         mySrd.setFileFoundIn(new File("2008/D0927_20170927175850"));
         atp.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
-        mySrd.setFileFoundIn(new File("Long Term.todolist.json"));
+        mySrd.setFileFoundIn(new File("todo_Long Term.json"));
         atp.showFoundIn(mySrd);
     }
 
@@ -228,7 +230,7 @@ public class AppTreePanelTest {
     @Test
     void testCloseSearchResult() throws Exception {
         // First, select a known search result (we know the content of our test data)
-        String theSearchResult = "S20140312131216";
+        String theSearchResult = "20140312131216";
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode dmtn = TestUtil.getTreeNodeForString(theRoot, theSearchResult);
@@ -248,7 +250,7 @@ public class AppTreePanelTest {
         assertFalse(f.exists());
 
         // And verify that it is gone from the tree
-        dmtn = TestUtil.getTreeNodeForString(theRoot, "S20140312131216");
+        dmtn = TestUtil.getTreeNodeForString(theRoot, "20140312131216");
         assertNull(dmtn);
 
         // And that the tree selection switched up to 'Search Results'

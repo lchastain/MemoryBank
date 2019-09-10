@@ -11,7 +11,7 @@ import java.util.Vector;
 class ClearNoteGroupTest {
     @BeforeAll
     static void setDataLocation() {
-        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
     }
 
     // Test that clearing an empty Group will not cause errors and that the group remains empty.

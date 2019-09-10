@@ -8,7 +8,6 @@ import java.util.Vector;
 public class SearchResultGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
 
-    private JLabel resultsTitle;
     private JLabel resultsPageOf;
     private SearchResultHeader listHeader;
 
@@ -47,7 +46,7 @@ public class SearchResultGroup extends NoteGroup {
         headingRow1.setBackground(Color.blue);
 
         // Create the window title
-        resultsTitle = new JLabel();
+        JLabel resultsTitle = new JLabel();
         resultsTitle.setHorizontalAlignment(JLabel.CENTER);
         resultsTitle.setForeground(Color.white);
         resultsTitle.setFont(Font.decode("Serif-bold-20"));

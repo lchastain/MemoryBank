@@ -12,7 +12,7 @@ class SearchResultGroupTest {
         MemoryBank.debug = true;
 
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("jondo.nonamus@lcware.net");
+        MemoryBank.setUserDataHome("test.user@lcware.net");
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -25,8 +25,8 @@ class SearchResultGroupTest {
 
         // We have chosen a known search result (keyword 'food') with 8 hits, so the
         // tests below will know the limitation of indices and text content.
-        String theNodeName = "S20170527123819";
-        String theFileName = MemoryBank.userDataHome + File.separatorChar + theNodeName + ".sresults.json";
+        String theNodeName = "20170527123819";
+        String theFileName = MemoryBank.userDataHome + File.separatorChar + "search_" + theNodeName + ".json";
         searchResultGroup = new SearchResultGroup(theFileName);
     }
 
