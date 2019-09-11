@@ -496,143 +496,66 @@ public class SearchResultGroup extends NoteGroup {
 //    } // end sortDeadline
 
 
+    // Originally these 'sort' methods were cloned from a sorter where it was possible that
+    // the items being sorted might not actually have a value in the field they were being sorted
+    // on.  So those cases needed to be handled and the question to ask was - if there is no sort
+    // key, where do we put this?  There were 3 possible answers - put it at the top, put it at
+    // the bottom, or just leave it where it is and sort everything else around it (stay).  So,
+    // with ASCENDING and DESCENDING, that made six different ways to sort the items.
+
+    // But here in a SearchResultGroup we never did get an option panel to allow the user to make
+    // that choice themselves, so it's always been a default, and four of the other choices were
+    // never used.  Sorting NoteComponents based on their base text, we thought that the STAY
+    // option would work best but really we can just assign it the empty string and sort anyway,
+    // so that's what's happening now and there is only one ascending and one descending way to go.
+
     public void sortText(int direction) {
         SearchResultData todoData1, todoData2;
         SearchResultComponent todoComponent1, todoComponent2;
         int i, j;
         String str1, str2;
-        int sortMethod = 0;
         int items = lastVisibleNoteIndex;
 
         // AppUtil.localDebug(true);
-
         MemoryBank.debug("SearchResultGroup sortText - Number of items in list: " + items);
 
-        // Bitmapping of the 6 possible sorting variants.
-        //  Zero-values are ASCENDING, STAY
-        if (direction == DESCENDING) sortMethod += 4;
-        switch (sortMethod) {
-            case 0:         // ASCENDING, STAY
-                MemoryBank.debug("Sorting: Text, ASCENDING, STAY");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-                    if (todoData1 == null) str1 = "";
-                    else str1 = todoData1.getNoteString().trim();
-                    if (str1.equals("")) continue; // No key; skip.
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-                        if (todoData2 == null) str2 = "";
-                        else str2 = todoData2.getNoteString().trim();
-                        if (str2.equals("")) continue; // No key; skip.
-                        if (str1.compareTo(str2) > 0) {
-                            str1 = str2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 1:         // ASCENDING, TOP
-                MemoryBank.debug("Sorting: Text, ASCENDING, TOP");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-                    if (todoData1 == null) str1 = "";
-                    else str1 = todoData1.getNoteString().trim();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-                        if (todoData2 == null) str2 = "";
-                        else str2 = todoData2.getNoteString().trim();
-                        if (str1.compareTo(str2) > 0) {
-                            str1 = str2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 2:         // ASCENDING, BOTTOM
-                MemoryBank.debug("Sorting: Text, ASCENDING, BOTTOM");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-                    if (todoData1 == null) str1 = "";
-                    else str1 = todoData1.getNoteString().trim();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-                        if (todoData2 == null) str2 = "";
-                        else str2 = todoData2.getNoteString().trim();
-                        if (((str1.compareTo(str2) > 0) && (!str2.equals(""))) || (str1.equals(""))) {
-                            str1 = str2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 4:         // DESCENDING, STAY
-                MemoryBank.debug("Sorting: Text, DESCENDING, STAY");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-                    if (todoData1 == null) str1 = "";
-                    else str1 = todoData1.getNoteString().trim();
-                    if (str1.equals("")) continue; // No key; skip.
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-                        if (todoData2 == null) str2 = "";
-                        else str2 = todoData2.getNoteString().trim();
-                        if (str2.equals("")) continue; // No key; skip.
-                        if (str1.compareTo(str2) < 0) {
-                            str1 = str2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 5:         // DESCENDING, TOP
-                MemoryBank.debug("Sorting: Text, DESCENDING, TOP");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-                    if (todoData1 == null) str1 = "";
-                    else str1 = todoData1.getNoteString().trim();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-                        if (todoData2 == null) str2 = "";
-                        else str2 = todoData2.getNoteString().trim();
-
-                        if (((str1.compareTo(str2) < 0) && (!str1.equals(""))) || (str2.equals(""))) {
-                            str1 = str2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-            case 6:         // DESCENDING, BOTTOM
-                MemoryBank.debug("Sorting: Text, DESCENDING, BOTTOM");
-                for (i = 0; i < (items - 1); i++) {
-                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-                    if (todoData1 == null) str1 = "";
-                    else str1 = todoData1.getNoteString().trim();
-                    for (j = i + 1; j < items; j++) {
-                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-                        if (todoData2 == null) str2 = "";
-                        else str2 = todoData2.getNoteString().trim();
-                        if (str1.compareTo(str2) < 0) {
-                            str1 = str2;
-                            todoComponent1.swap(todoComponent2);
-                        } // end if
-                    } // end for j
-                } // end for i
-                break;
-        } // end switch sortMethod
-
+        if(direction == ASCENDING) {
+            MemoryBank.debug("Sorting: Text, ASCENDING");
+            for (i = 0; i < (items - 1); i++) {
+                todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
+                todoData1 = (SearchResultData) todoComponent1.getNoteData();
+                if (todoData1 == null) str1 = "";
+                else str1 = todoData1.getNoteString().trim();
+                for (j = i + 1; j < items; j++) {
+                    todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
+                    todoData2 = (SearchResultData) todoComponent2.getNoteData();
+                    if (todoData2 == null) str2 = "";
+                    else str2 = todoData2.getNoteString().trim();
+                    if (str1.compareTo(str2) > 0) {
+                        str1 = str2;
+                        todoComponent1.swap(todoComponent2);
+                    } // end if
+                } // end for j
+            } // end for i
+        } else {
+            MemoryBank.debug("Sorting: Text, DESCENDING");
+            for (i = 0; i < (items - 1); i++) {
+                todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
+                todoData1 = (SearchResultData) todoComponent1.getNoteData();
+                if (todoData1 == null) str1 = "";
+                else str1 = todoData1.getNoteString().trim();
+                for (j = i + 1; j < items; j++) {
+                    todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
+                    todoData2 = (SearchResultData) todoComponent2.getNoteData();
+                    if (todoData2 == null) str2 = "";
+                    else str2 = todoData2.getNoteString().trim();
+                    if (str1.compareTo(str2) < 0) {
+                        str1 = str2;
+                        todoComponent1.swap(todoComponent2);
+                    } // end if
+                } // end for j
+            } // end for i
+        }
         // AppUtil.localDebug(false);
     } // end sortText
 
