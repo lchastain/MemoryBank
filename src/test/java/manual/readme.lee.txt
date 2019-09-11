@@ -46,6 +46,8 @@ but couldn't say exactly how; many new libraries were downloaded and referenced.
 What seems like excessive blank lines in the IntelliJ console when running tests - comes from the framework itself,
 adding one blank line before each test and one after.  So if your test has NO output, running it will still display
 two blank lines.  Several tests like this run back-to-back will appear to have produced several blank lines into
-the console.  Then there is another one before the "Process finished" line.  For now - live with it.
+the console.  Then there is another one before the "Process finished" line.  But that is only for the 'full' listing;
+in the test results window you can select individual tests and then the window shows output for only the selected
+test.
 
 

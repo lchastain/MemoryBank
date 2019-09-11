@@ -1,13 +1,21 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
-DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
+Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
+
+9/10/2019 0938 - Have archived the Export code, as well as reintegrated all the notes that
+  had been too big to fit into Excel so they were kept in a Data Archive directory, with
+  the original note indicating the new file name where the rest of the info was kept.  Now,
+  the notes are re-expanded and all references to external .txt files are removed, as well
+  as the .txt files themselves and the Data Archive directory they were held in.  The new
+  JSON data approach is implemented and published, and pre-existing data is converted.
 
 9/08/2019 1632 - Working on the JSON conversion, a question came up - why do we have an
   Export capability?  What is/was it needed for?  A bit of research going back >10 years,
   and I find that at that time I was tempted away from Java and wanted to make the app
   into a 'module' of the code I was working on at the time for Overwatch (called AXP; think
   it's short for AXIS-PRO which is still probably an acronym but it was in the same ballpark
-  as MFWS - the MultiFunction Work  Station and DCGS - Defense Control Ground Station).  But
-  that was all Windows/C# - based, and the proprietary Java serialization
+  as MFWS - the MultiFunction Work Station which was a component of DCGS - the Distributed
+  Common Ground/surface System).
+  But that was all Windows/C# - based, and the proprietary Java serialization
   of all my data would not just load in, so there was going to be a porting needed and
   to do that, first needed an Export capability.  The AXP did have the ability to import
   data from Excel csv files, so that was the target of the Export and the line-length

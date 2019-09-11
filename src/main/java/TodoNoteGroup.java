@@ -205,6 +205,17 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end getMaxPriority
 
 
+    //--------------------------------------------------------
+    // Method Name: getNoteComponent
+    //
+    // Returns a TodoNoteComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
+    //--------------------------------------------------------
+    public TodoNoteComponent getNoteComponent(int i) {
+        return (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+    } // end getNoteComponent
+
+
     //--------------------------------------------------------------
     // Method Name: getProperties
     //
@@ -217,15 +228,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end getProperties
 
 
-    //--------------------------------------------------------
-    // Method Name: getNoteComponent
-    //
-    // Returns a TodoNoteComponent that can be used to manipulate
-    // component state as well as set/get underlying data.
-    //--------------------------------------------------------
-    public TodoNoteComponent getNoteComponent(int i) {
-        return (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-    } // end getNoteComponent
+    // Provided for Tests
+    ThreeMonthColumn getThreeMonthColumn() {
+        return tmc;
+    }
 
 
     //-------------------------------------------------------------------

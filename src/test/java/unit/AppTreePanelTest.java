@@ -5,8 +5,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -185,17 +184,57 @@ public class AppTreePanelTest {
     }
 
     // This does test the showHelp function, but that feature is not anywhere near
-    // ready for production and will be redone.  Meanwhile this test runs it and
-    // one unwanted result is that a Help-file viewer window is left open (as it
-    // is by the main app, as well).  In the main app 'normal' usage, it is up to
-    // the user to close the window.  For a test case, this is obviously not an
-    // acceptable outcome.  Live with it until the Help feature is refactored.
+    // ready for production and will be redone.  When the method executes in the main
+    // app, a Help-file viewer window is left open where under 'normal' usage, it is
+    // up to the user to close.  But for a test case this is obviously not an acceptable
+    // outcome so we ask the external Windows (platform-specific) executable 'taskkill'
+    // to get rid of the window for us.
+    // As an FYI, however, while the command was under development and I was trying
+    // various syntax to use with 'exec' and none were working, I needed to see the
+    // output/complaint that the taskkill process was emitting.  But running it from
+    // a test case, I saw nothing in the output.  This is the reason for all the extra
+    // reading and printout of the process's stdout and stderr streams.  Now that code
+    // is no longer needed here but I'm leaving it as an example that could definitely
+    // be useful in other contexts.
     @Test
     void testShowHelp() {
         JMenuItem jmi = getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
-        //atp.showHelp("badFile"); // This is NOT throwing an exception, but putting up a 'cant find file' window/message.
-        System.out.println("End testShowHelp");
+        try {
+            // Sleep, long enough for the help window to appear.
+            // This is because it runs in a different thread and we can get to our
+            // task killer before it ever comes up, then it stays.
+            Thread.sleep(200);
+            // Kill the help window -
+            Process process = Runtime.getRuntime().exec("taskkill /FI \"WindowTitle eq XML Notepad Help\" /T /F");
+
+            // The rest of this is just to get the feedback from TASKKILL, if any.
+            InputStream is = process.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+
+            while ((line = br.readLine()) != null && !line.isEmpty()) {
+                System.out.println(line);
+                System.out.flush();
+            }
+
+            InputStream es = process.getErrorStream();
+            InputStreamReader esr = new InputStreamReader(es);
+            BufferedReader br2 = new BufferedReader(esr);
+
+            while ((line = br2.readLine()) != null && !line.isEmpty()) {
+                System.out.println(line);
+                System.out.flush();
+            }
+
+            int exitVal = process.waitFor();
+            System.out.println("Process exitValue: " + exitVal);
+
+            System.out.println("End testShowHelp");
+        } catch (IOException | InterruptedException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
     @Test

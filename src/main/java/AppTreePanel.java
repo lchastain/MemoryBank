@@ -958,6 +958,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             String s = MemoryBank.logHome + File.separatorChar;
             Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
         } catch (IOException ioe) {
+            // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
             MemoryBank.debug(ioe.getMessage());
         } // end try/catch
     } // end showHelp

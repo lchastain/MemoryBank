@@ -8,11 +8,12 @@
 // 07/05/2005 Changed reference to images location.
 // 10/07/2004 Removed the inner class AlterButton.
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ThreeMonthColumn extends JPanel {
     private static final long serialVersionUID = 6264848411961477735L;
@@ -27,7 +28,7 @@ public class ThreeMonthColumn extends JPanel {
 
     // Variables needed by more than one method -
     private Date choice;            // constructor, event handling, numerous
-    private DayLabel dl;            // recalc, event handling
+    private DayLabel dayLabel;      // recalc, event handling
     private MonthColumn monthColumn;
 
     private GregorianCalendar cal;
@@ -56,7 +57,7 @@ public class ThreeMonthColumn extends JPanel {
 
 
     // Set the value of the 'middle' month.
-    public void setBaseDate(Date d) {
+    void setBaseDate(Date d) {
         cal.setTime(d);
         monthColumn.recalc();
     } // end setBaseDate
@@ -66,16 +67,16 @@ public class ThreeMonthColumn extends JPanel {
     public void setChoice(Date d) {
         choice = d;
         if (choice == null) {
-            if (dl != null) {
-                dl.reset();   // turn off current highlight
-                dl = null;
+            if (dayLabel != null) {
+                dayLabel.reset();   // turn off current highlight
+                dayLabel = null;
             } // end if
         } else {
             monthColumn.showChoice(choice);
         } // end if
     } // end setChoice
 
-    public void setSubscriber(DateSelection ds) {
+    void setSubscriber(DateSelection ds) {
         twimc = ds;
     }
 
@@ -89,7 +90,7 @@ public class ThreeMonthColumn extends JPanel {
         MonthCanvas middleMonth;
         MonthCanvas postMonth;
 
-        public MonthColumn() {
+        MonthColumn() {
             super(new GridLayout(3, 1));
             preCal = (GregorianCalendar) Calendar.getInstance();
             middleCal = (GregorianCalendar) Calendar.getInstance();
@@ -128,7 +129,7 @@ public class ThreeMonthColumn extends JPanel {
 
         } // end recalc
 
-        public void showChoice(Date d) {
+        void showChoice(Date d) {
 
             //----------------------------------------------------------
             // Make a temporary Calendar that we can use to get the
@@ -198,7 +199,7 @@ public class ThreeMonthColumn extends JPanel {
                 public void mouseClicked(MouseEvent e) {
                     LabelButton source = (LabelButton) e.getSource();
 
-                    if (dl != null) dl.reset();   // turn off current highlight
+                    if (dayLabel != null) dayLabel.reset();   // turn off current highlight
 
                     if (source == downAb) cal.add(Calendar.MONTH, 1);
                     if (source == upAb) cal.add(Calendar.MONTH, -1);
@@ -266,7 +267,7 @@ public class ThreeMonthColumn extends JPanel {
             add(p2, BorderLayout.CENTER);
         } // end constructor
 
-        public void showAlterButtons(int which) {
+        void showAlterButtons(int which) {
             switch (which) {
                 case BOTH:
                     downAb.setVisible(true);
@@ -289,7 +290,7 @@ public class ThreeMonthColumn extends JPanel {
             // Generate new title with month and year.
             int theMonth = mc_cal.get(Calendar.MONTH);
             int theYear = mc_cal.get(Calendar.YEAR);
-            String labelText = monthNames[theMonth] + " " + String.valueOf(theYear);
+            String labelText = monthNames[theMonth] + " " + theYear;
             monthLabel.setText(labelText);
 
             // Clone the calendar so we can advance it a day at a time,
@@ -353,9 +354,9 @@ public class ThreeMonthColumn extends JPanel {
                 tmpDl = (DayLabel) p2.getComponent(i);
                 // System.out.println("Comparing to: " + tmpDl.day);
                 if (tmpDl.getText().equals(String.valueOf(theDay))) {
-                    if (dl != null) dl.reset();
-                    dl = tmpDl;
-                    dl.highlight();
+                    if (dayLabel != null) dayLabel.reset();
+                    dayLabel = tmpDl;
+                    dayLabel.highlight();
                     return;
                 } // end if
             } // end for i
@@ -367,7 +368,7 @@ public class ThreeMonthColumn extends JPanel {
     } // end MonthCanvas
 
     class DayLabel extends JLabel implements MouseListener {
-        private static final long serialVersionUID = -4274327839537935918L;
+        //private static final long serialVersionUID = -4274327839537935918L;
 
         int day;
         GregorianCalendar dcal;
@@ -401,11 +402,10 @@ public class ThreeMonthColumn extends JPanel {
             dcal = c;
             addMouseListener(this);
             day = dcal.get(Calendar.DAY_OF_MONTH);
-            if (day == -1) return;
             setText(String.valueOf(day));
         } // end setCal
 
-        public void setCal() {
+        void setCal() {
             dcal = null;
             removeMouseListener(this);
             setText("");
@@ -427,17 +427,17 @@ public class ThreeMonthColumn extends JPanel {
             // System.out.println("dcal is: " + dcal.getTime());
 
             // Manage the highlighting.
-            if (dl == this) {  // Selected this one again.
+            if (dayLabel == this) {  // Selected this one again.
                 // This implements an on/off 'toggle'.
-                dl.reset();
-                dl = null;
+                dayLabel.reset();
+                dayLabel = null;
                 choice = null;
             } else {  // A different previous selection, or none at all.
                 // Turn off the previous, if any.
-                if (dl != null) dl.reset();
+                if (dayLabel != null) dayLabel.reset();
 
-                dl = this;
-                dl.highlight();
+                dayLabel = this;
+                dayLabel.highlight();
             } // end if
 
             if (twimc != null) twimc.dateSelected(choice);
@@ -482,15 +482,9 @@ public class ThreeMonthColumn extends JPanel {
         Exception e = null;
         try {
             UIManager.setLookAndFeel(laf);
-        } catch (UnsupportedLookAndFeelException ulafe) {
-            e = ulafe;
-        } catch (InstantiationException iee) {
-            e = iee;
-        } catch (ClassNotFoundException cnfe) {
-            e = cnfe;
-        } catch (IllegalAccessException iae) {
-            e = iae;
-        } // end try/catch
+        } catch (UnsupportedLookAndFeelException | InstantiationException | ClassNotFoundException | IllegalAccessException eeee) {
+            e = eeee;
+        }  // end try/catch
         if(e != null) System.out.println("Exception: " + e.getMessage());
         SwingUtilities.updateComponentTreeUI(dc);
 

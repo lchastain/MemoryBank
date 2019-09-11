@@ -78,6 +78,10 @@ public class NoteComponent extends JPanel {
         miClearLine.addActionListener(popHandler);
     } // end static section
 
+    @Override
+    public boolean hasFocus() {
+        return noteTextField.hasFocus();
+    }
 
     NoteComponent(NoteGroup ng, int i) {
         // This constructor will make NEW items only; loading of
@@ -281,7 +285,7 @@ public class NoteComponent extends JPanel {
 
     // This method is called each time before displaying the popup menu.
     //   Child classes may override it if they have additional selections,
-    //   but they can still call this one first, to handle the base items.
+    //   but they can still call this one first, to add the base items.
     protected void resetPopup() {
         popup.removeAll();
         popup.add(miCutLine);   // the default state is 'enabled'.
