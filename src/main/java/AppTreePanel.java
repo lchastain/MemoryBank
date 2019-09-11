@@ -492,6 +492,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         return newRoot;
     }
 
+    // Used by Test
+    NoteGroup getTheNoteGroup() {
+        return theNoteGroup;
+    }
+
     TodoListKeeper getTodoListKeeper() {
         return theTodoListKeeper;
     }

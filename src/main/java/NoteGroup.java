@@ -223,13 +223,13 @@ public abstract class NoteGroup extends JPanel {
 
 
     private boolean deleteFile(File f) {
-        // There are a couple of cases where we could try to delete a file that is not there.
-        // For example, when a NoteGroup had been started but then cleared, before it ever got
-        // saved in the first place.  Changes detected but no notes written upon leaving the
-        // group so it would try to delete a (non-existent) file.
-        if (!f.exists()) return true;
-
-        if (!f.delete()) {
+        // There are a couple of cases where we could try to delete a file that is not there
+        // in the first place.  So - we verify that the file is really there and only if it is
+        // do we try to delete it.  Then we check for existence again because the deletion can
+        // occasionally return a false negative (because of gc/timing issues?).
+        // But File.delete does not ever return a false positive (that I've seen).
+        // The user is only notified of a problem if the file still exists.
+        if (f.exists() && !f.delete() && f.exists()) {
             (new Exception("File removal exception!")).printStackTrace();
             ems = "Error - unable to remove: " + f.getName();
             JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),

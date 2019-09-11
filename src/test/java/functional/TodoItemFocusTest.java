@@ -51,9 +51,9 @@ class TodoItemFocusTest {
         Date originalDateSelected = todoNoteComponent4.getNoteData().getNoteDate();
         todoNoteComponent4.setActive();
 
-        // Give the 'show' thread time to display the JFrame.
+        // Allow some time to display the JFrame.
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
