@@ -730,7 +730,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 scanDataDir(theFile, level + 1);
             } else {
                 goLook = true;
-                //dateNoteDate = null;
                 if (theFile1Name.equals("Goals")) {
                     if (!spTheSearchPanel.searchGoals()) {
                         goLook = false;
@@ -798,6 +797,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         Object[] theGroupData = AppUtil.loadNoteGroupData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
+            NoteData.loading = true; // We don't want to affect the lastModDates!
+
             // We don't have an instantiation of a Group, so we cannot use
             // the overridden setGroupData() like we do when NoteGroup loads
             // a file.  So - we'll use the filename to determine which
@@ -818,6 +819,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<TodoNoteData>>() {
                 });
             }
+            NoteData.loading = false; // Restore normal lastModDate updating.
         }
 
         // Now get on with the search -
@@ -1121,7 +1123,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         rightPane.setViewportView(dayTitle);
     } // end showToday
 
-
     void showWeek() {
         MemoryBank.debug("showWeek called.");
         // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
@@ -1166,7 +1167,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             }).start();
         } // end if show - else hide
     } // end showWorkingDialog
-
 
     private void treeSelectionChanged(TreePath tp) {
         String strSelectionType; // used in menu management

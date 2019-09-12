@@ -280,7 +280,9 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     void setGroupData(Object[] theGroup)  {
+        NoteData.loading = true; // We don't want to affect the lastModDates!
         vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });
+        NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
     public void shiftDown(int index) {

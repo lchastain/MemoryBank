@@ -1,9 +1,6 @@
-import java.io.Serializable;
 import java.util.Date;
 
-class NoteData implements Serializable {
-    //private static final long serialVersionUID = 5299342314918199917L;
-
+class NoteData {
     private Date dateLastMod;
     String noteString;
     String subjectString;

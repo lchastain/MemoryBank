@@ -577,8 +577,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     @Override
     void setGroupData(Object[] theGroup) {
         myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListProperties.class);
+        NoteData.loading = true; // We don't want to affect the lastModDates!
         vectGroupData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
         });
+        NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
     // Used by test methods

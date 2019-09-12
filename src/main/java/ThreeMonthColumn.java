@@ -368,7 +368,7 @@ public class ThreeMonthColumn extends JPanel {
     } // end MonthCanvas
 
     class DayLabel extends JLabel implements MouseListener {
-        //private static final long serialVersionUID = -4274327839537935918L;
+        private static final long serialVersionUID = 1L; // Demanded by JLabel
 
         int day;
         GregorianCalendar dcal;

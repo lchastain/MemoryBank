@@ -445,7 +445,9 @@ public class EventNoteGroup extends NoteGroup
 
     @Override
     void setGroupData(Object[] theGroup) {
+        NoteData.loading = true; // We don't want to affect the lastModDates!
         vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() { });
+        NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
     // Used by test methods

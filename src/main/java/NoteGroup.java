@@ -401,10 +401,12 @@ public abstract class NoteGroup extends JPanel {
     // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
     // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them to JSON
     // string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was  a several-line
-    // method; this is a one-liner, and my version had the possibility of throwing an Exception that needed to be caught.
-    // Child classes override this, to set the Vector content type to their own internal data class.
+    // method; this conversion is a one-liner, and my version had the possibility of throwing an Exception that needed
+    // to be caught.  Child classes override this, to set the Vector content type to their own internal data class.
     void setGroupData(Object[] theGroup)  {
+        NoteData.loading = true; // We don't want to affect the lastModDates!
         vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() { });
+        NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
 
