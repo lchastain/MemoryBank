@@ -6,10 +6,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 
 class DayNoteComponentTest {
-    DayNoteComponent dnc;
+    private DayNoteComponent dnc;
 
     @BeforeEach
     void setUp() {
+        MemoryBank.setUserDataHome("test.user@lcware.net");
         dnc = new DayNoteComponent(new DayNoteGroup() {
             @Override
             public String getGroupFilename() {
