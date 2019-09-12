@@ -1,13 +1,13 @@
-/**  Representation of a single Day Note.
+/*  Representation of a single Search Result.
  */
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.swing.JComponent;
 
 public class SearchResultComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
@@ -15,7 +15,7 @@ public class SearchResultComponent extends NoteComponent {
     // The Members
     private SearchResultData mySearchResultData;
     private FoundInButton fibTheFoundInButton;
-    private LastModLabel lmlTheLastModLabel;
+    private LastModLabel lastModLabel;
     private SearchResultGroup myNoteGroup; // status msgs & change notification
 
     SearchResultComponent(SearchResultGroup ng, int i) {
@@ -27,17 +27,17 @@ public class SearchResultComponent extends NoteComponent {
 
         setEditable(false);
         fibTheFoundInButton = new FoundInButton();
-        lmlTheLastModLabel = new LastModLabel();
+        lastModLabel = new LastModLabel();
 
         //----------------------------------------------------------
         // Graphical elements
         //----------------------------------------------------------
-        // Note: The dndLayout does not care about any name other
-        //   than 'Stretch', but something must be provided.  Only
-        //   one component can be the one to be stretched.
+        // Note: The dndLayout does not care about any component name other
+        //   than 'Stretch', but something must be provided for each one.
+        //   Only one component can be the one to be stretched.
         add(fibTheFoundInButton, "fib");
         add(noteTextField, "Stretch"); // will resize along with container
-        add(lmlTheLastModLabel, "sb");
+        add(lastModLabel, "sb");
 
         MemoryBank.init();
     } // end constructor
@@ -51,7 +51,7 @@ public class SearchResultComponent extends NoteComponent {
     public void clear() {
         super.clear();
         fibTheFoundInButton.clear();
-        lmlTheLastModLabel.clear();
+        lastModLabel.clear();
     } // end clear
 
 
@@ -64,12 +64,12 @@ public class SearchResultComponent extends NoteComponent {
         return mySearchResultData;
     } // end getNoteData
 
-    public JComponent getFoundInButton() {
+    JComponent getFoundInButton() {
         return fibTheFoundInButton;
     }
 
-    public JComponent getLastModLabel() {
-        return lmlTheLastModLabel;
+    JComponent getLastModLabel() {
+        return lastModLabel;
     }
 
     public void initialize() {
@@ -92,7 +92,7 @@ public class SearchResultComponent extends NoteComponent {
         //   be going through the base layout class 'add' method.
         add(fibTheFoundInButton, pos.indexOf("1"));
         add(noteTextField, pos.indexOf("2"));
-        add(lmlTheLastModLabel, pos.indexOf("3"));
+        add(lastModLabel, pos.indexOf("3"));
 
         // This was needed after paging was implemented.
         noteTextField.transferFocusUpCycle();  // new 3/19/2008
@@ -125,7 +125,7 @@ public class SearchResultComponent extends NoteComponent {
             strModDate = sdf.format(d);
         } // end if
 
-        lmlTheLastModLabel.setText(strModDate);
+        lastModLabel.setText(strModDate);
     } // end resetComponent
 
 
@@ -204,7 +204,7 @@ public class SearchResultComponent extends NoteComponent {
     protected class FoundInButton extends LabelButton implements MouseListener {
         private static final long serialVersionUID = 1L;
 
-        public static final int intWidth = 120;
+        static final int intWidth = 120;
 
         // Note: These two variables are used to obtain a finer granularity
         //   of mouse events than reported by the JVM - mouseReleased should
@@ -304,11 +304,10 @@ public class SearchResultComponent extends NoteComponent {
 
     } // end class FoundInButton
 
-
     protected class LastModLabel extends LabelButton {
         private static final long serialVersionUID = 1L;
 
-        public static final int intWidth = 80;
+        static final int intWidth = 80;
 
         public LastModLabel() {
             super();
@@ -340,7 +339,6 @@ public class SearchResultComponent extends NoteComponent {
 
 
         public void clear() {
-//      setIcon(null);
             setText("");
         } // end clear
 

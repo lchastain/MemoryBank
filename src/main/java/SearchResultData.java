@@ -22,7 +22,7 @@ public class SearchResultData extends NoteData implements Serializable {
 
     private File fileFoundIn;
 
-    // The JSON mapper wants uses this one; IntelliJ doesn't know.
+    // The JSON mapper uses this one during a load; IntelliJ doesn't find a usage.
     public SearchResultData() {
         super();
     } // end default constructor

@@ -2,7 +2,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 class NoteData implements Serializable {
-    private static final long serialVersionUID = 5299342314918199917L;
+    //private static final long serialVersionUID = 5299342314918199917L;
 
     private Date dateLastMod;
     String noteString;
@@ -10,10 +10,10 @@ class NoteData implements Serializable {
     protected String extendedNoteString;
     int extendedNoteWidthInt;
     int extendedNoteHeightInt;
+    static boolean loading = false;
 
     public NoteData() {
-        super();  // whatever happens for a generic object...
-        dateLastMod = new Date();
+        if(!loading) dateLastMod = new Date();
         clear();
     } // end constructor
 
@@ -39,7 +39,6 @@ class NoteData implements Serializable {
         this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
         this.dateLastMod = ndCopy.getLastModDate();
     } // end constructor
-
 
     protected void clear() {
         noteString = "";
@@ -100,7 +99,7 @@ class NoteData implements Serializable {
 
     public void setExtendedNoteString(String val) {
         extendedNoteString = val;
-        dateLastMod = new Date();
+        if(!loading) dateLastMod = new Date();
     }
 
     void setExtendedNoteWidthInt(int val) {
@@ -109,11 +108,11 @@ class NoteData implements Serializable {
 
     void setNoteString(String value) {
         noteString = value;
-        dateLastMod = new Date();
+        if(!loading) dateLastMod = new Date();
     }
 
     public void setSubjectString(String value) {
         subjectString = value;
-        dateLastMod = new Date();
+        if(!loading) dateLastMod = new Date();
     }
 } // end class NoteData
