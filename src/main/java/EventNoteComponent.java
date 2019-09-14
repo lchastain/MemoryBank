@@ -4,13 +4,14 @@
 
 public class EventNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
+    private EventNoteGroup myNoteGroup;
 
     // The Member
     private EventNoteData myEventNoteData;
 
     EventNoteComponent(EventNoteGroup eng, int i) {
         super(eng, i);
-
+        myNoteGroup = eng;
         MemoryBank.init();
     } // end constructor
 
@@ -36,6 +37,11 @@ public class EventNoteComponent extends IconNoteComponent {
         myEventNoteData = new EventNoteData();
     } // end makeDataObject
 
+    @Override
+    protected void noteActivated(boolean blnIAmOn) {
+        myNoteGroup.showComponent(this, blnIAmOn);
+        super.noteActivated(blnIAmOn);
+    }
 
     protected void resetMouseMessage(int textStatus) {
         String s = " ";

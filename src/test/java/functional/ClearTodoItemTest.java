@@ -53,12 +53,11 @@ class ClearTodoItemTest {
         // don't need to look there as well.
 
         // So now - clear the component.
-        tnc.clear();  // This also sets 'initialized' to false.
+        tnc.clear();
 
-        // When a note is no longer 'initialized', its underlying
-        // data will (appear to) be null.
         TodoNoteData tnd = (TodoNoteData) tnc.getNoteData();
-        Assertions.assertNull(tnd);
+        Assertions.assertNotNull(tnd);
+        Assertions.assertEquals("", tnd.getNoteString());
 
         // Verify that the visual components accurately represent a 'cleared' state
         theTask = tnc.noteTextField.getText();

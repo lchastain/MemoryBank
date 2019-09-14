@@ -61,8 +61,8 @@ public class DayNoteComponent extends IconNoteComponent {
     // Clears both the Graphical elements and the underlying data.
     //-----------------------------------------------------------------
     protected void clear() {
-        super.clear();
         noteTimeLabel.clear();  // Clear the Time Label
+        super.clear();
     } // end clear
 
 
@@ -107,13 +107,13 @@ public class DayNoteComponent extends IconNoteComponent {
     //-------------------------------------------------------------------
     // Method Name: noteActivated
     //
-    // Overrides the (no-op) base class behavior.
     //-------------------------------------------------------------------
+    @Override
     protected void noteActivated(boolean noteIsActive) {
-        super.noteActivated(noteIsActive);
         if (!noteIsActive) {
             noteTimeLabel.setInactive();
         } // end if
+        super.noteActivated(noteIsActive);
     } // end noteActivated
 
 
@@ -123,9 +123,10 @@ public class DayNoteComponent extends IconNoteComponent {
     // Called after a change to the encapsulated data, to show
     //   the visual effects of the change.
     //----------------------------------------------------------
+    @Override
     protected void resetComponent() {
-        super.resetComponent(); // the Icon (from there, the note text)
         resetTimeLabel();
+        super.resetComponent(); // the Icon (from there, the note text)
     } // end resetComponent
 
 

@@ -1,4 +1,4 @@
-/**  An intermediate class, extended by both Day Notes and Events.
+/*  An intermediate class, extended by both Day Notes and Events.
  */
 
 import javax.swing.*;
@@ -77,8 +77,8 @@ public abstract class IconNoteComponent extends NoteComponent {
     // Clears both the Graphical elements and the underlying data.
     //-----------------------------------------------------------------
     protected void clear() {
-        super.clear();
         noteIcon.clear();       // Clear the Icon
+        super.clear();
     } // end clear
 
 
@@ -189,7 +189,7 @@ public abstract class IconNoteComponent extends NoteComponent {
         //   is displayed, any previous component listeners must
         //   first be removed and then this one is added.
         //------------------------------------------------------------
-        public void showIconPopup(MouseEvent me) {
+        void showIconPopup(MouseEvent me) {
             ActionListener[] ala;
 
             ala = sadMi.getActionListeners();
@@ -234,56 +234,61 @@ public abstract class IconNoteComponent extends NoteComponent {
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             IconNoteData myIconNoteData = ((IconNoteData) getNoteData());
-            if (s.equals("Reset Icon")) {
-                myIconNoteData.setIconFileString(null);
-                myIconNoteData.setShowIconOnMonthBoolean(false);
-                setIcon(myContainer.getDefaultIcon());
-            } else if (s.equals("Blank Icon")) {
-                myIconNoteData.setIconFileString("");
-                noteIcon.setIcon(null);
-                noteIcon.theIconFile = "";
-                myIconNoteData.setShowIconOnMonthBoolean(false);
-            } else if (s.equals("Set As Default")) {
+            switch (s) {
+                case "Reset Icon":
+                    myIconNoteData.setIconFileString(null);
+                    myIconNoteData.setShowIconOnMonthBoolean(false);
+                    setIcon(myContainer.getDefaultIcon());
+                    break;
+                case "Blank Icon":
+                    myIconNoteData.setIconFileString("");
+                    noteIcon.setIcon(null);
+                    noteIcon.theIconFile = "";
+                    myIconNoteData.setShowIconOnMonthBoolean(false);
+                    break;
+                case "Set As Default":
 
-                // Get a reference to the icon.
-                AppIcon tmpIcon;
-                tmpIcon = (AppIcon) noteIcon.getIcon();
+                    // Get a reference to the icon.
+                    AppIcon tmpIcon;
+                    tmpIcon = (AppIcon) noteIcon.getIcon();
 
-                // Set the description.
-                MemoryBank.dbg("The new default icon's description is: ");
-                if (tmpIcon == null) {
-                    // The user is setting a 'blank' to be default.
-                    tmpIcon = new AppIcon();
-                    MemoryBank.debug("<blank>");
-                } else {
-                    // The description did not come thru when
-                    //   getting the Icon from a JLabel, above.
-                    // So, we get it from the NoteIcon data.
-                    tmpIcon.setDescription(noteIcon.theIconFile);
-                    MemoryBank.debug(noteIcon.theIconFile);
-                } // end if
+                    // Set the description.
+                    MemoryBank.dbg("The new default icon's description is: ");
+                    if (tmpIcon == null) {
+                        // The user is setting a 'blank' to be default.
+                        tmpIcon = new AppIcon();
+                        MemoryBank.debug("<blank>");
+                    } else {
+                        // The description did not come thru when
+                        //   getting the Icon from a JLabel, above.
+                        // So, we get it from the NoteIcon data.
+                        tmpIcon.setDescription(noteIcon.theIconFile);
+                        MemoryBank.debug(noteIcon.theIconFile);
+                    } // end if
 
-                // Set the new default icon and tell the container to update,
-                //   which will reload all visual components.
-                myContainer.setDefaultIcon(tmpIcon);
+                    // Set the new default icon and tell the container to update,
+                    //   which will reload all visual components.
+                    myContainer.setDefaultIcon(tmpIcon);
 
-                // Adjust underlying data.
-                // Now that this icon is the default -
-                // ------------------------
-                // Do not show it on Month.  We don't need to unset the
-                //   menu item check box, since that is set each time
-                //   prior to menu display, based on the underlying data.
-                myIconNoteData.setShowIconOnMonthBoolean(false);
+                    // Adjust underlying data.
+                    // Now that this icon is the default -
+                    // ------------------------
+                    // Do not show it on Month.  We don't need to unset the
+                    //   menu item check box, since that is set each time
+                    //   prior to menu display, based on the underlying data.
+                    myIconNoteData.setShowIconOnMonthBoolean(false);
 
-                // Make sure the data indicates that this component
-                //   should use the 'default' icon.
-                myIconNoteData.setIconFileString(null);
+                    // Make sure the data indicates that this component
+                    //   should use the 'default' icon.
+                    myIconNoteData.setIconFileString(null);
 
-            } else if (s.equals("Show on Month")) {
-                myIconNoteData.setShowIconOnMonthBoolean(siombMi.getState());
-            } else { // ignore anything else
-                return;
-            } // end if/else
+                    break;
+                case "Show on Month":
+                    myIconNoteData.setShowIconOnMonthBoolean(siombMi.getState());
+                    break;
+                default:  // ignore anything else
+                    return;
+            }
 
             setNoteChanged();
         } // end actionPerformed

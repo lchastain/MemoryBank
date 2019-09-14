@@ -19,8 +19,6 @@ public class TodoNoteComponent extends NoteComponent {
     private static JMenuItem miClearPriority;
     private static JMenuItem miMoveToToday;
     private static JMenuItem miMoveToSelectedDate;
-    private static JMenuItem miCopyToAnotherList;
-    private static JMenuItem miMoveToAnotherList;
     private static ImageIcon todo_done;
     private static ImageIcon todo_inprog;
     private static ImageIcon todo_wait;
@@ -42,10 +40,10 @@ public class TodoNoteComponent extends NoteComponent {
         miMoveToSelectedDate = popup.add("Move To Selected Date");
         miMoveToSelectedDate.addActionListener(popHandler);
 
-        miCopyToAnotherList = popup.add("Copy To Another List...");
+        JMenuItem miCopyToAnotherList = popup.add("Copy To Another List...");
         miCopyToAnotherList.addActionListener(popHandler);
 
-        miMoveToAnotherList = popup.add("Move To Another List...");
+        JMenuItem miMoveToAnotherList = popup.add("Move To Another List...");
         miMoveToAnotherList.addActionListener(popHandler);
 
         //------------------------
@@ -164,6 +162,12 @@ public class TodoNoteComponent extends NoteComponent {
     } // end
 
 
+    @Override
+    protected void noteActivated(boolean blnIAmOn) {
+        myNoteGroup.showComponent(this, blnIAmOn);
+        super.noteActivated(blnIAmOn);
+    }
+
     //--------------------------------------------------------------------------
     // Method Name: moveToDayNote
     //
@@ -239,10 +243,9 @@ public class TodoNoteComponent extends NoteComponent {
     //   the visual effects of the change.
     //----------------------------------------------------------
     protected void resetComponent() {
-        super.resetComponent(); // the note text
-
         pbThePriorityButton.setPriority(myTodoNoteData.getPriority());
         sbTheStatusButton.setStatus(myTodoNoteData.getStatus());
+        super.resetComponent(); // the note text
     } // end resetComponent
 
 

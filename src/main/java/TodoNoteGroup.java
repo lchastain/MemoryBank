@@ -449,18 +449,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 //        tfp.setVisible(true);
 //    } // end printList
 
-    //-------------------------------------------------------------------
-    // Method Name: reportFocusChange
-    //
-    // Called by the NoteComponent that gained or lost focus.
-    // This overrides the (no-op) base class behavior in order to
-    //   intercept those events.
-    //-------------------------------------------------------------------
-    @Override
-    void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
-        showComponent((TodoNoteComponent) nc, noteIsActive);
-    } // end reportFocusChange
-
 
     //-----------------------------------------------------------------
     // Method Name:  saveAs
@@ -631,7 +619,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //  Several actions needed when a line has
     //    either gone active or inactive.
     //--------------------------------------------------------------
-    private void showComponent(TodoNoteComponent nc, boolean showit) {
+    void showComponent(TodoNoteComponent nc, boolean showit) {
         if (showit) {
             tNoteComponent = nc;
             TodoNoteData tnd = (TodoNoteData) nc.getNoteData();

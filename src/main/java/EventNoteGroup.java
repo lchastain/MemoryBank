@@ -209,9 +209,10 @@ public class EventNoteGroup extends NoteGroup
     //
     // Sorting is done ascending only, with unsortables
     //   collected at the 'bottom' of the list.  Note that
-    //   preSort() and postSort() are not needed; alternative
-    //   methods are used in refresh(), where this method
-    //   is called from.
+    //   preSort() is not needed; this method is only called
+    //   from refresh(), where a preClose() is done, which
+    //   calls the saveGroup(), which calls unloadInterface(),
+    //   which is what happens during a preSort().
     //---------------------------------------------------------
     private void doSort() {
         EventNoteData ndNoteData1, ndNoteData2;
@@ -373,19 +374,6 @@ public class EventNoteGroup extends NoteGroup
     } // end makeNewNote
 
 
-    //-------------------------------------------------------------------
-    // Method Name: reportFocusChange
-    //
-    // Called by the NoteComponent that gained or lost focus.
-    // This overrides the (no-op) base class behavior in order to
-    //   intercept those events.
-    //-------------------------------------------------------------------
-    @Override
-    void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
-        showComponent((EventNoteComponent) nc, noteIsActive);
-    } // end reportFocusChange
-
-
     //----------------------------------------------------------------------
     // Method Name: refresh
     //
@@ -400,7 +388,7 @@ public class EventNoteGroup extends NoteGroup
 
         // Call 'ageEvents'
         if (ageEvents()) {
-            // If any event was removed, save and reload to clean up the interface.
+            // If any event was removed, save and reload are needed again, to clean up the interface.
             preClose();
             updateGroup();
         } // end if
@@ -461,7 +449,7 @@ public class EventNoteGroup extends NoteGroup
     //  Several actions needed when a line has
     //    either gone active or inactive.
     //--------------------------------------------------------------
-    private void showComponent(EventNoteComponent nc, boolean b) {
+    void showComponent(EventNoteComponent nc, boolean b) {
         if (b) {
             eNoteComponent = nc;
             EventNoteData end = (EventNoteData) nc.getNoteData();

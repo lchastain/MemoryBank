@@ -179,7 +179,7 @@ public abstract class NoteGroup extends JPanel {
     //----------------------------------------------------------------
     // Method Name: clearGroup
     //
-    // Clear all data and the interface.
+    // Clear all data (which may span more than one page) and the interface.
     //----------------------------------------------------------------
     void clearGroup() {
         transferFocusUpCycle(); // Otherwise can get unwanted focus events.
@@ -216,7 +216,8 @@ public abstract class NoteGroup extends JPanel {
             // call super.clear() which will clear the parent component and then call the
             // data-clearing method (also overridden, also calls its super).
 //    if (tempNote.initialized) tempNote.clear();  // 8/29/2019 remove if no further problem with new TodoLists.
-            tempNote.clear();
+            tempNote.clear(); // Clear does not un-initialize.
+            tempNote.initialized = false; // Because we are clearing the 'page'.
 
         } // end for
     } // end clearPage
@@ -613,24 +614,6 @@ public abstract class NoteGroup extends JPanel {
     } // end preSort
 
 
-    //----------------------------------------------------------------------
-    // Method Name: reportFocusChange
-    //
-    // Called by NoteComponent group members when they gain or lose focus.
-    // Mechanism whereby this container may 'know' which Note is currently
-    //   active so that it may then access its data and set other visuals
-    //   accordingly.   Override it - it is not needed in this base class.  Was
-    //   not written as abstract because child classes may also not need it.
-    //   The actual Events are focusGained and focusLost on the JTextField
-    //   of the base NoteComponent, but that member is not directly
-    //   available to NoteGroup children, and giving focus handlers
-    //   to NoteComponent would still not cross this 'bridge' to their
-    //   container, a NoteGroup.
-    //----------------------------------------------------------------------
-    void reportFocusChange(NoteComponent nc, boolean noteIsActive) {
-    } // end reportComponentChange
-
-
     //--------------------------------------------------------------
     // Method Name: resetVisibility
     //
@@ -955,10 +938,9 @@ public abstract class NoteGroup extends JPanel {
     //-------------------------------------------------------------------
     // Method Name: unloadInterface
     //
-    // This method transfers the visible notes from the page to the
-    //   correct place in the data vector.  It should be called any
-    //   time there has been a change and the view is changing away
-    //   from the page (a paging event, during a save, etc).
+    // This method transfers the visible notes from the page to their
+    //   correct places in the data vector.  It should be called
+    //   during the 'save' process.
     //-------------------------------------------------------------------
     private void unloadInterface(int currentPage) {
         if (currentPage == 0) return; // Pager not yet reset.
@@ -970,31 +952,33 @@ public abstract class NoteGroup extends JPanel {
         System.out.print("NoteGroup.unloadInterface into vector index " + startIndex);
         System.out.println(" to " + endIndex);
 
-        // Take note of the current size of the vector; we may have just
-        //   added several records on screen, that were not there when
-        //   we initially loaded the file so the vector does not currently
-        //   have a place for them.  This will help to determine if a note
+        // vectGroupData size can be less than lastVisibleNoteIndex (during a Todo
+        // List Merge, for example) and it is the upper boundary that should be
+        // used to determine the highest usable index into the vectGroupData.
+        // The index will tell us whether a note
         //   should be replaced, or just added to the end of the vector.
-
-        // NOTE: 3/14/2008 - trying to 'add as we go' - in NoteComponent.
-        //   So - see the 'else' note, below
         int maxDataIndex = vectGroupData.size() - 1;
 
-        NoteComponent tempNote;
-        NoteData tempData;
+        NoteComponent tempNoteComponent;
+        NoteData tempNoteData;
 
+        // Scan the interface, and adjust the vectGroupData Vector so that it
+        // matches.  Don't be tempted to just rebuild from the current interface
+        // vs this more surgical approach; that does not take into account the
+        // fact that the Vector may span more than the one visible page.
         int panelIndex = 0;
         for (int i = startIndex; i <= endIndex; i++) {
-            tempNote = (NoteComponent) groupNotesListPanel.getComponent(panelIndex++);
-            tempData = tempNote.getNoteData();
-            if (tempData != null) {
-                // The last, uninitialized note may have null data.
+            tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex++);
+            tempNoteData = tempNoteComponent.getNoteData();
+            if (tempNoteData != null) {
+                // The last visible (uninitialized) note has null data.
                 if (i <= maxDataIndex) {
-                    vectGroupData.setElementAt(tempNote.getNoteData(), i);
+                   vectGroupData.setElementAt(tempNoteData, i);
                 } else {
-                    // this should not happen now that we add as we go, in NoteComponent.
+                    // This happens during a TodoList merge operation; one or more
+                    // new items being added all at once.
                     System.out.println("NoteGroup.unloadInterface: Adding new element!");
-                    vectGroupData.addElement(tempNote.getNoteData());
+                    vectGroupData.addElement(tempNoteData);
                 } // end if
             } // end if
         } // end for i

@@ -116,12 +116,16 @@ public class NoteComponent extends JPanel {
         if (nd != null) nd.clear();
 
         // Notify the NoteGroup
-        myNoteGroup.reportFocusChange(this, false);
         myNoteGroup.setGroupChanged();  // Ensure a group 'save'
 
         // Reset our own state and prepare this component to be reused -
         noteChanged = false;
-        initialized = false; // after this, getNoteData() will return a null.
+
+        // Trying a disable (9/13/2019) because a cleared line was being treated as
+        // uninitialized during the insertUpdate, and at that point a new entry was
+        // added to the vectGroupData when it should have been reused.
+        // Expecting other things to fail, now.... yes, clearGroup had an issue, but fixed it.
+  //      initialized = false; // after this, getNoteData() will return a null.
     } // end clear
 
 
@@ -178,13 +182,16 @@ public class NoteComponent extends JPanel {
     // Method Name: initialize
     //
     // Called when a note first has data entered into it by the user.
+    // It should NOT be called again, even if the note has been cleared.
+    // An exception to that is if the entire Group has been cleared then
+    // the data for all components has also been cleared, and this method
+    // can be called again for those components.
     //---------------------------------------------------------------------
     protected void initialize() {
         makeDataObject();
         initialized = true;
         myNoteGroup.vectGroupData.addElement(getNoteData());
         myNoteGroup.activateNextNote(index);
-        myNoteGroup.reportFocusChange(this, true);
     } // end initialize
 
 
@@ -197,7 +204,7 @@ public class NoteComponent extends JPanel {
     //--------------------------------------------------------------
     protected void makeDataObject() {
         myNoteData = new NoteData();
-    } // end
+    }
 
 
     //--------------------------------------------------------------
@@ -208,8 +215,7 @@ public class NoteComponent extends JPanel {
     //   group.
     //
     // Child classes may override this method in order to add
-    //   to it but they should probably call this
-    //   one before going on with their new business.
+    //   to it but they should probably call this one after that.
     //--------------------------------------------------------------
     protected void noteActivated(boolean blnIAmOn) {
         if (!blnIAmOn) {
@@ -227,8 +233,6 @@ public class NoteComponent extends JPanel {
                     if (nd.extendedNoteString.trim().equals("")) clear();
                 } // end if
         } // end if
-
-        myNoteGroup.reportFocusChange(this, blnIAmOn);
     } // end noteActivated
 
 
@@ -345,7 +349,7 @@ public class NoteComponent extends JPanel {
     //   to unset the NoteData then call 'clear' instead.
     // Child classes should override this method and then
     //   duplicate the needed steps rather than calling super.setNoteData.
-    //   This is because their data component (the myNoteData equivalent)
+    //   This is because their DATA component (the myNoteData equivalent)
     //   will be a child class of NoteData and not the instance that is
     //   affected here.  But in their overridden
     //   versions of resetComponent in order to show the change, they
