@@ -24,3 +24,10 @@ One-stop reference for how tests are getting things done.
 
 5.  Get a NoteComponent:  call getNoteComponent on the NoteGroup instance.  Parameter needed is the
     zero-based index number into the group.
+
+6.  Load a DayNoteGroup with the notes from a specific day:
+    Normal construction of the group (no params), then call setChoice() with a given Date.
+    Construct a Calendar using YEAR/MNONTH/DAY, then get that Date with getTime().   See ReuseNoteTest.testReuseDayNote()
+
+
+

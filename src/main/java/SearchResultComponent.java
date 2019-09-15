@@ -55,12 +55,9 @@ public class SearchResultComponent extends NoteComponent {
     } // end clear
 
 
-    //-----------------------------------------------------------------
-    // Method Name: getNoteData
-    //
-    //-----------------------------------------------------------------
+    @Override
     public NoteData getNoteData() {
-        if (!initialized) return null;
+//        if (!initialized) return null;
         return mySearchResultData;
     } // end getNoteData
 

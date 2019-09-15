@@ -62,13 +62,13 @@ class ClearNoteGroupTest {
 
         // Now clear it -
         mng.clearGroup();
+        // But be aware that each component may still have a data member.
 
-        // And verify that it's 'gone' -
-        // The clearing will have set the 'initialized' flag of the components, that controls whether getNoteData
-        // returns the NoteData object or just a null.
-        Assertions.assertNull(mnc1.getNoteData());
-        Assertions.assertNull(mnc2.getNoteData());
-        Assertions.assertNull(mnc3.getNoteData());
+        // And then verify that it's data is 'gone' from the group -
+        // The clearing of the group will have cleared the 'initialized' flag of each of the components.
+        Assertions.assertFalse(mnc1.initialized);
+        Assertions.assertFalse(mnc2.initialized);
+        Assertions.assertFalse(mnc3.initialized);
         theInfo = mng.getCondensedInfo();
         Assertions.assertEquals(0, theInfo.size());
     }
@@ -121,21 +121,17 @@ class ClearNoteGroupTest {
         Assertions.assertTrue(new File(strGroupFilename).exists());
 
         // Now clear the group -
-        mng.clearGroup();
+        mng.clearGroup();  // Clears the interface and the Vector for it.
+        // But be aware that each component may still have a data member.
 
         // And verify that there is no longer a file for it
         Assertions.assertFalse(new File(strGroupFilename).exists());
 
         // And then verify that it's data is 'gone' from the group -
-        // The clearing will have set the 'initialized' flag of the components, that controls whether getNoteData
-        // returns the NoteData object or just a null.  In point of fact, components 2 and 3 do
-        // still retain their NoteData objects, with the strings that were set above.  But component 1 gets immediate
-        // visibility so its data really is cleared.  The others - when reused, will have theirs cleared before
-        // going visible.  But here we are only concerned with the return value of getNoteData, not whether or
-        // not the component's text field is still retaining the last string it contained.
-        Assertions.assertNull(mnc1.getNoteData());
-        Assertions.assertNull(mnc2.getNoteData());
-        Assertions.assertNull(mnc3.getNoteData());
+        // The clearing of the group will have cleared the 'initialized' flag of each of the components.
+        Assertions.assertFalse(mnc1.initialized);
+        Assertions.assertFalse(mnc2.initialized);
+        Assertions.assertFalse(mnc3.initialized);
         Vector<NoteData> theInfo = mng.getCondensedInfo();
         Assertions.assertEquals(0, theInfo.size());
     }

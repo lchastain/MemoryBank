@@ -16,14 +16,9 @@ public class EventNoteComponent extends IconNoteComponent {
     } // end constructor
 
 
-    //-----------------------------------------------------------------
-    // Method Name: getNoteData
-    //
-    // This method is called to update information into the local
-    //   EventNoteData prior to accessing it.
-    //-----------------------------------------------------------------
+    @Override
     public NoteData getNoteData() {
-        if (!initialized) return null;
+//        if (!initialized) return null;
         // Extended note data was already updated, since it was collected
         //   from a modal dialog.
 

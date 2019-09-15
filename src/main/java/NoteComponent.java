@@ -120,12 +120,7 @@ public class NoteComponent extends JPanel {
 
         // Reset our own state and prepare this component to be reused -
         noteChanged = false;
-
-        // Trying a disable (9/13/2019) because a cleared line was being treated as
-        // uninitialized during the insertUpdate, and at that point a new entry was
-        // added to the vectGroupData when it should have been reused.
-        // Expecting other things to fail, now.... yes, clearGroup had an issue, but fixed it.
-  //      initialized = false; // after this, getNoteData() will return a null.
+        initialized = false;
     } // end clear
 
 
@@ -141,7 +136,7 @@ public class NoteComponent extends JPanel {
     // Returns the data object that this component encapsulates and manages.
     //-----------------------------------------------------------------
     public NoteData getNoteData() {
-        if (!initialized) return null;
+//        if (!initialized) return null;
         return myNoteData;
     } // end getNoteData
 
@@ -181,6 +176,10 @@ public class NoteComponent extends JPanel {
     //---------------------------------------------------------------------
     // Method Name: initialize
     //
+    // Associates a new data object with this NoteComponent (if it does not
+    //   already have one), and enables the next NoteComponent to accept text
+    //   entry.
+    //
     // Called when a note first has data entered into it by the user.
     // It should NOT be called again, even if the note has been cleared.
     // An exception to that is if the entire Group has been cleared then
@@ -188,10 +187,13 @@ public class NoteComponent extends JPanel {
     // can be called again for those components.
     //---------------------------------------------------------------------
     protected void initialize() {
-        makeDataObject();
-        initialized = true;
-        myNoteGroup.vectGroupData.addElement(getNoteData());
+        NoteData theData = getNoteData();
+        if(theData == null) {
+            makeDataObject();
+            myNoteGroup.vectGroupData.addElement(getNoteData());
+        }
         myNoteGroup.activateNextNote(index);
+        initialized = true;
     } // end initialize
 
 
@@ -200,7 +202,8 @@ public class NoteComponent extends JPanel {
     //
     // Each child of this class (that manages a child of the
     //   NoteData class) should override this method and
-    //   instantiate their own data.
+    //   instantiate their own data.  Those overrides
+    //   should not call super().
     //--------------------------------------------------------------
     protected void makeDataObject() {
         myNoteData = new NoteData();
@@ -210,25 +213,19 @@ public class NoteComponent extends JPanel {
     //--------------------------------------------------------------
     // Method Name: noteActivated
     //
-    // This method is called when a line either gains or loses
-    //   focus.  It reports the event back to the encapsulating
-    //   group.
+    // This method is called when a line either gains or loses focus.
     //
-    // Child classes may override this method in order to add
-    //   to it but they should probably call this one after that.
+    // Child classes may override this method in order to do their
+    //   own thing but they should probably call this one after that.
     //--------------------------------------------------------------
     protected void noteActivated(boolean blnIAmOn) {
         if (!blnIAmOn) {
             if (noteChanged)
                 if (noteTextField.getText().trim().equals("")) {
-                    // If the line had been cleared then getNoteData
-                    //   will return null.
                     NoteData nd = getNoteData();
-                    if (nd == null) return;
+                    if (nd == null) return; // Can this still happen?
 
-                    // On the other hand, its text fields may have been
-                    //   individually deleted, in which case we should
-                    //   do the clear to enforce the rule that notes must
+                    //   Here we enforce the rule that notes must
                     //   have text before they can have additional features.
                     if (nd.extendedNoteString.trim().equals("")) clear();
                 } // end if
@@ -478,7 +475,7 @@ public class NoteComponent extends JPanel {
 
                 // This is done in order to initialize the component -
                 public void keyTyped(KeyEvent ke) {
-                    MemoryBank.event();
+                    //MemoryBank.event();
                     if (initialized) return;
 
                     char kc = ke.getKeyChar();

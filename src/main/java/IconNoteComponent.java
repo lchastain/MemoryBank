@@ -98,8 +98,8 @@ public abstract class IconNoteComponent extends NoteComponent {
 
 
     protected void initialize() {
-        super.initialize();
         setIcon(myContainer.getDefaultIcon());
+        super.initialize();
     } // end initialize
 
 

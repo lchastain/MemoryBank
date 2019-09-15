@@ -49,52 +49,58 @@ class TodoItemFocusTest {
         TodoNoteComponent todoNoteComponent3 = todoNoteGroup.getNoteComponent(3);
         TodoNoteComponent todoNoteComponent4 = todoNoteGroup.getNoteComponent(4);
         Date originalDateSelected = todoNoteComponent4.getNoteData().getNoteDate();
-        todoNoteComponent4.setActive();
 
         // Allow some time to display the JFrame.
         try {
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        // We check two items, just to be sure that all NoteComponents don't just say
-        // they have Focus whether they actually do or not.  We want to see one
+
+        // Put the focus on a note -
+        todoNoteComponent4.setActive();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Now we check two items, just to be sure that all NoteComponents don't just
+        // say they have Focus whether they actually do or not.  We want to see one
         // false and (the right) one true.  This is our 'starting' point.
         Assertions.assertFalse(todoNoteComponent3.hasFocus());
         Assertions.assertTrue(todoNoteComponent4.hasFocus());
 
         // Now, make a Date selection on the Three Month Column.
         // Note that if the new selection month is not already visible you will probably not
-        // see any change here, since TMC scrolling is done upon selection of a new item (or
-        // by the 'arrow' controls).  External setting of the Date like we do here is allowed
+        // see any change here, since TMC scrolling while an item is selected is only done
+        // by the 'arrow' controls.  Programmatic setting of the Date like we do here is allowed
         // but there is no need for a headless driver to 'see' the control scrolled to show
         // the new month; just that the new selection was accepted.
 
         // NOTE - I don't like the above comment.  It may be true but it would still be better to
         // drive this test as closely
-        // as possible to how a user would take action and see the results.  So I don't
-        // trust that the test methodology is capturing the true need, here.
-        //
-        // One slightly more easily done variant is to set the orig selection and new selection so
-        // that both are on the same month or at most one month away.  Then TMC scrolling is out of
-        // the picture and you would at least see the highlighting move from the old day to the new one.
-        Date today = new Date();
-        todoNoteGroup.getThreeMonthColumn().setChoice(today); // Normally done by a mouse press.
-        todoNoteGroup.dateSelected(today); // Normally the mousePressed would have done this for us.
-
-        // Enable this when you want to see the result - currently no result IS seen; working on that...
-        // Ok, not working on it.  Thinking on it.  9/11/2019
-        //
-        // ... and what I'm thinking is that it might be better to get my Date usages throughout the entire
+        // as possible to how a user would take action and SEE the results.  So I don't
+        // trust that the test methodology is capturing the true need, here. ie,
+        // the test SHOULD use the arrows.
+        // For that, we need to set Dates that are a certain known and constant distance apart, cannot
+        // just lazily use 'today' as the new selection date.
+        // BUT - I'm thinking is that it might be better to first get my Date usages throughout the entire
         // app updated to Java 8 requirements, before trying harder here and in many other places that need
         // testing.  For now, this test works and --appears-- to fulfill the test requirement but the concept
         // of 'focus' is difficult to ensure that it's really being exercised if we cannot also see the
         // results, so making the entire app visually driveable is yet another maybe-prerequisite to doing a
-        // better job here.
+        // better job here.  And to do that - ?? - maybe have known mouse coordinates, and use MouseEvents?
         //
+        Date today = new Date();
+        todoNoteGroup.getThreeMonthColumn().setChoice(today); // Normally done by a mouse press.
+        todoNoteGroup.dateSelected(today); // Normally the mousePressed would have done this for us.
+
+        // Enable this when you want to see the result.
         //
 //        try {
-//            Thread.sleep(4000);
+//            Thread.sleep(2000);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }

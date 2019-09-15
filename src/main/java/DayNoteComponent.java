@@ -70,14 +70,22 @@ public class DayNoteComponent extends IconNoteComponent {
     // Method Name: getNoteData
     //
     // Returns the data object that this component encapsulates
-    //   and manages.  Used primarily in operations at
-    //   the group level such as load, save, shift, sort, etc.
+    //   and manages.
     //-----------------------------------------------------------------
+    @Override
     public NoteData getNoteData() {
-        if (!initialized) return null;
+//        if (!initialized) return null;  // 9/14/2019 - This was disabled in ALL NoteComponents
+        // while resolving SCR0065; not related to the issues below,
+        // except that it allowed the null possibility to become a problem.
 
         // DO NOT do this here....  6/17/2007
-        myDayNoteData.setTimeOfDayDate(myTime);
+        // 9/14/2019 - now, myDayNoteData could be null.  Disabled the line below.
+//        myDayNoteData.setTimeOfDayDate(myTime);
+
+        // Note 9/15/2019 - with the disabling of the above line and possible remediation of that by
+        // adding an assignment of:     timeOfDayDate = new Date(); to two DayNoteData constructors,
+        // we appear to be in obeyance with the above comment from 2007.  Remove all comments from
+        // here after two or more cycles show no further problems.
 
         return myDayNoteData;
     } // end getNoteData
@@ -93,9 +101,9 @@ public class DayNoteComponent extends IconNoteComponent {
 
 
     protected void initialize() {
-        super.initialize();
         myTime = new Date();
         resetTimeLabel();
+        super.initialize();
     } // end initialize
 
 

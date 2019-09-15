@@ -7,6 +7,7 @@ class DayNoteData extends IconNoteData implements Serializable {
 
     DayNoteData() {
         super();
+        timeOfDayDate = new Date();
     } // end constructor
 
 
@@ -14,8 +15,7 @@ class DayNoteData extends IconNoteData implements Serializable {
     //   with common base class data.
     DayNoteData(IconNoteData ind) {
         super(ind);
-        // In this case, the invoking context is responsible for
-        //   making an additional call to setTimeOfDayDate().
+        timeOfDayDate = new Date();
     } // end constructor
 
 
