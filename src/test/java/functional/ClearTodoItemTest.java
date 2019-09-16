@@ -6,6 +6,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
+// This test is to verify that a given Todo item can be cleared.
+// This addresses the problem that was originally reported via
+// SCRs 0047 and 0051.
+
+
 class ClearTodoItemTest {
 
     @BeforeAll

@@ -621,7 +621,6 @@ public class AppUtil {
     }
 
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     //---------------------------------------------------------------
     // Method Name: addNote
     //
@@ -637,6 +636,7 @@ public class AppUtil {
     //
     // Two known calling contexts: TodoNoteComponent and EventNoteGroup,
     //   in order to add a note to a Day.
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static boolean addNote(String theFilename, NoteData nd) {
         Object[] theGroup;
 

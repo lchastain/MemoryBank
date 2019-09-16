@@ -102,6 +102,9 @@ public class DayNoteComponent extends IconNoteComponent {
 
     protected void initialize() {
         myTime = new Date();
+        if(myDayNoteData != null) {
+            myDayNoteData.setTimeOfDayDate(myTime);
+        }
         resetTimeLabel();
         super.initialize();
     } // end initialize

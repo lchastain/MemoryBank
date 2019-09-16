@@ -12,6 +12,10 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// This test is to verify that the state of the expandable / collapsible
+// nodes of the tree can be restored.  SCR0054.
+
+
 class PreserveExpansionStatesTest {
     private AppTreePanel atp;
     private JTree theTree;

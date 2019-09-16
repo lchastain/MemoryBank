@@ -176,23 +176,28 @@ public class NoteComponent extends JPanel {
     //---------------------------------------------------------------------
     // Method Name: initialize
     //
-    // Associates a new data object with this NoteComponent (if it does not
-    //   already have one), and enables the next NoteComponent to accept text
+    // 'initialized' means that a NoteComponent has had text entered into
+    //    its noteString.  This helps to reduce the work of the keyTyped
+    //    handler.
+    //
+    // Aside from setting this critical flag, this method asociates a new
+    //   data object with this NoteComponent (if it does not already have
+    //   one), adds the data component to the group data Vector (if it is
+    //   not already there), and enables the next NoteComponent to accept text
     //   entry.
     //
     // Called when a note first has data entered into it by the user.
-    // It should NOT be called again, even if the note has been cleared.
-    // An exception to that is if the entire Group has been cleared then
-    // the data for all components has also been cleared, and this method
-    // can be called again for those components.
     //---------------------------------------------------------------------
     protected void initialize() {
         NoteData theData = getNoteData();
-        if(theData == null) {
-            makeDataObject();
+        if (theData == null) makeDataObject();
+        if (index >= myNoteGroup.lastVisibleNoteIndex) {
+            // A NoteComponent will lose initialization and visible text if cleared,
+            //   but will retain its data object.  We only want to add 'new' data
+            //   to the group Vector.
             myNoteGroup.vectGroupData.addElement(getNoteData());
+            myNoteGroup.activateNextNote(index);
         }
-        myNoteGroup.activateNextNote(index);
         initialized = true;
     } // end initialize
 
@@ -294,7 +299,7 @@ public class NoteComponent extends JPanel {
         popup.add(miPasteLine);
         popup.add(miClearLine);
 
-        if(!initialized) {
+        if (!initialized) {
             miCutLine.setEnabled(false);
             miCopyLine.setEnabled(false);
             miPasteLine.setEnabled(MemoryBank.clipboardNote != null);

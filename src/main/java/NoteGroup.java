@@ -220,6 +220,7 @@ public abstract class NoteGroup extends JPanel {
             tempNote.initialized = false; // Because we are clearing the 'page'.
 
         } // end for
+        lastVisibleNoteIndex = -1; // This helps, when going to save (delete) an associated file.
     } // end clearPage
 
 
@@ -449,7 +450,11 @@ public abstract class NoteGroup extends JPanel {
         //   itself remains the same.
         strGroupFilename = getGroupFilename();
 
-        MemoryBank.debug("Loading NoteGroup data from: " + strGroupFilename);
+        if(strGroupFilename.isEmpty()) {
+            MemoryBank.debug("No data file to load, for: " + this.getClass().getName());
+        } else {
+            MemoryBank.debug("Loading NoteGroup data from: " + strGroupFilename);
+        }
         Object[] theGroup = AppUtil.loadNoteGroupData(strGroupFilename);
         if(theGroup != null) {
             //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
