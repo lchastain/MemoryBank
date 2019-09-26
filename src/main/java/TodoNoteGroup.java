@@ -625,9 +625,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             TodoNoteData tnd = (TodoNoteData) nc.getNoteData();
 
             // Show the previously selected date
-            if (tnd.getNoteDate() != null) {
-                tmc.setBaseDate(tnd.getNoteDate());
-                tmc.setChoice(tnd.getNoteDate());
+            if (tnd.getTodoDate() != null) {
+                tmc.setBaseDate(tnd.getTodoDate());
+                tmc.setChoice(tnd.getTodoDate());
             }
         } else {
             tNoteComponent = null;

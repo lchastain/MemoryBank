@@ -1,7 +1,13 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 class NoteData {
-    private Date dateLastMod;
+    @JsonIgnore
+    private Date dateLastMod; // This can be removed after all data is converted.
+
+    private String zdtLastModString;
     String noteString;
     String subjectString;
     protected String extendedNoteString;
@@ -10,7 +16,7 @@ class NoteData {
     static boolean loading = false;
 
     public NoteData() {
-        if(!loading) dateLastMod = new Date();
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         clear();
     } // end constructor
 
@@ -23,7 +29,7 @@ class NoteData {
         this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
-        this.dateLastMod = ndCopy.dateLastMod;
+        this.zdtLastModString = ndCopy.zdtLastModString;
     } // end constructor
 
     // Construct a NoteData from a TodoNoteData.
@@ -34,7 +40,7 @@ class NoteData {
         this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
         this.extendedNoteString = ndCopy.extendedNoteString;
         this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
-        this.dateLastMod = ndCopy.getLastModDate();
+        this.zdtLastModString = ndCopy.getLastModDate().toString();
     } // end constructor
 
     protected void clear() {
@@ -57,6 +63,11 @@ class NoteData {
         return new NoteData(this);
     }
 
+    ZonedDateTime getLastModDate() {
+        if(zdtLastModString == null) return null;
+        return ZonedDateTime.parse(zdtLastModString);
+    }
+
     int getExtendedNoteHeightInt() {
         return extendedNoteHeightInt;
     }
@@ -69,17 +80,8 @@ class NoteData {
         return extendedNoteWidthInt;
     }
 
-    // This one is only used by certain child classes
-    protected Date getNoteDate() {
-        return null;
-    }
-
     public String getNoteString() {
         return noteString;
-    }
-
-    Date getLastModDate() {
-        return dateLastMod;
     }
 
     public String getSubjectString() {
@@ -96,7 +98,7 @@ class NoteData {
 
     public void setExtendedNoteString(String val) {
         extendedNoteString = val;
-        if(!loading) dateLastMod = new Date();
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
     void setExtendedNoteWidthInt(int val) {
@@ -105,11 +107,12 @@ class NoteData {
 
     void setNoteString(String value) {
         noteString = value;
-        if(!loading) dateLastMod = new Date();
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
     public void setSubjectString(String value) {
         subjectString = value;
-        if(!loading) dateLastMod = new Date();
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
+
 } // end class NoteData

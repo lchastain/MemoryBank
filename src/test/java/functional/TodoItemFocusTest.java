@@ -48,7 +48,7 @@ class TodoItemFocusTest {
         // Getting initial states
         TodoNoteComponent todoNoteComponent3 = todoNoteGroup.getNoteComponent(3);
         TodoNoteComponent todoNoteComponent4 = todoNoteGroup.getNoteComponent(4);
-        Date originalDateSelected = todoNoteComponent4.getNoteData().getNoteDate();
+        Date originalDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
 
         // Allow some time to display the JFrame.
         try {
@@ -61,7 +61,7 @@ class TodoItemFocusTest {
         todoNoteComponent4.setActive();
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -107,7 +107,7 @@ class TodoItemFocusTest {
 
         // Verify that we now have selected a different day on the TMC, but we still
         // have focus on the selected Todo item.
-        Date currentDateSelected = todoNoteComponent4.getNoteData().getNoteDate();
+        Date currentDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
         Assertions.assertNotSame(originalDateSelected, currentDateSelected);
         Assertions.assertSame(today, currentDateSelected);
         Assertions.assertTrue(todoNoteComponent4.hasFocus());

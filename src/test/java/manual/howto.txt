@@ -29,5 +29,9 @@ One-stop reference for how tests are getting things done.
     Normal construction of the group (no params), then call setChoice() with a given Date.
     Construct a Calendar using YEAR/MNONTH/DAY, then get that Date with getTime().   See ReuseNoteTest.testReuseDayNote()
 
+7.  Convert a java.time.ZonedDateTime to java.util.Date:  Date.from(java.time.ZonedDateTime.now().toInstant());
+    and the other direction:  ZonedDateTime zdt = ZonedDateTime.ofInstant(dateTmp.toInstant(), theZone.toZoneId());
+    where dateTmp is your Date, and theZone was made by something like:
+        TimeZone theZone = TimeZone.getTimeZone("America/Phoenix"); // Sierra Vista, Tucson AZ
 
 

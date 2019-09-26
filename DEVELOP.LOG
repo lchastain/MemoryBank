@@ -1,6 +1,46 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+9/26/2019 1209 - The Data Fix for Last Mod Date is in and published.  Quite a bit of TimeZone
+  work / manipulation was needed because I also took care of DayNoteDate timeOfDayDate, as
+  well as removing the base class setNoteDate and changing the TodoNoteData method that
+  was trying to use it.  All tests still running
+
+9/23/2019 0650 - Have been fighting a head cold for the past four days; not always thinking
+  clearly, BUT - while working on the DataFix for lastModDate, have seen that SearchResultData
+  has a 'dateNoteWhen' that means different things depending on where the search result comes
+  from.  For a calendar-based note it's a date that has a Note but for todo lists it is either
+  a future planned deadline/due date, or not specified and is set to null.  For events it is the
+  same; some future start date, or null, although for an Event this is a more rare case.  So why
+  do we want to have a data member that tracks the date a calendar note came from but for other
+  types may or may not hold a future (no associated notes) date?  I don't think we do, actually.
+  The purpose of dateNoteWhen appears to have been as a sort key to be used when sorting search
+  results on the 'Found In' heading, which is now DISABLED - (comment excerpt, soon to be removed)
+    //   9/22/2019 - Not sure when it happened, but we no longer sort on 'Found In', and this
+    //   non-feature is solidified by the tooltip text on the header
+    //   that says 'Sorry, unable to sort by 'Found In''.  Must have
+    //   coded that at some point, so - is there still a need for
+    //   dateNoteWhen?  Or do we want to bring back sorting on it?
+  So here's my current determination - get rid of 'dateNoteWhen' and get rid of the getNoteDate()
+  methods in NoteData, TodoNoteData, EventNoteData, and SearchResultData.  Consider having a NEW
+  transient member (called foundInSortKey?) that uses the fileFoundIn info to develop the text
+  on which to sort.  Consider a revision to formatting of the 'Found In' column of a
+  SearchResultGroup, so that the sort key can be shown there, as-is.  Calendar-based notes could
+  be shown as 'yyyy-mm-dd', which best supports an alphanumeric sort.  And eventually, bring back
+  sorting on 'Found In'.
+
+9/22/2019 0317 - Discovered several days ago, that the dateLastMod has been broken, for years,
+  and that any original setting before 2014 was lost during a data fix at that time, as well as
+  targeted corruption/updates to current date each time a file was loaded and then saved.  Even
+  if what remains is somehow trustable, the current effort to update to a ZonedDateTime will be
+  complicated by the fact that no timezones were saved.  A data fix is definitely needed, just
+  not sure at this point what all it is going to do.  Leaning towards 'lying' a bit, and setting
+  the LMD to the date of the note, with a timezone fix based on where I was living at the time.
+
+9/21/2019 1829 - After a week-long break to receive houshold goods, returning to the new
+  effort to remove the usage of java.util.Date.  A good backup prior to any breakage from
+  this, is in Dropbox (for now.  Make it an official new snapshot, if needed).
+
 9/10/2019 0938 - Have archived the Export code, as well as reintegrated all the notes that
   had been too big to fit into Excel so they were kept in a Data Archive directory, with
   the original note indicating the new file name where the rest of the info was kept.  Now,

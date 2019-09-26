@@ -9,7 +9,7 @@ class NoteDataTest {
     private NoteData nd;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         nd = new NoteData();
         nd.setNoteString("This is it");
         nd.setSubjectString("tcejbus");
@@ -20,56 +20,51 @@ class NoteDataTest {
     }
 
     @Test
-    void testClear() throws Exception {
+    void testClear() {
         nd.clear();
         assertEquals(nd.getNoteString(), "");
         assertEquals(nd.getExtendedNoteHeightInt(), 200);
     }
 
     @Test
-    void testGetExtendedNoteHeightInt() throws Exception {
+    void testGetExtendedNoteHeightInt() {
         int h = nd.getExtendedNoteHeightInt();
         assertEquals(h, 300);
     }
 
     @Test
-    void testGetExtendedNoteString() throws Exception {
+    void testGetExtendedNoteString() {
         String s = nd.getExtendedNoteString();
         assertEquals(s, "This too");
     }
 
     @Test
-    void testGetExtendedNoteWidthInt() throws Exception {
+    void testGetExtendedNoteWidthInt() {
         int w = nd.getExtendedNoteWidthInt();
         assertEquals(w, 400);
     }
 
     @Test
-    void testGetNoteDate() throws Exception {
-        assertNull(nd.getNoteDate());
-    }
-
-    @Test
-    void testGetNoteString() throws Exception {
+    void testGetNoteString() {
         String s = nd.getNoteString();
         assertEquals(s, "This is it");
     }
 
     @Test
-    void testGetLastModDate() throws Exception {
+    void testGetLastModDate() {
         nd.setNoteString("I got updated!");
-        Date d = nd.getLastModDate();
-        assertEquals(d, new Date());
+        Date d = Date.from(nd.getLastModDate().toInstant());
+        assertEquals(d.toString(), new Date().toString());
     }
 
     @Test
-    void testGetSubjectString() throws Exception {
+    void testGetSubjectString() {
         String s = nd.getSubjectString();
         assertEquals(s, "tcejbus");
     }
 
     @Test
-    void testHasText() throws Exception {
+    void testHasText() {
         assertTrue(nd.hasText());
         nd.clear();
         assertFalse(nd.hasText());

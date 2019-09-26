@@ -3,6 +3,9 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+// REMEMBER - just putting new files into the Resources is not enough!  You will need to do a full
+// project rebuild, in order to pull the resources into the 'real' ('out') place where they are accessed.
+
 public class ResetTestData {
     public ResetTestData() {
     }

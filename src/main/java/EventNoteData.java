@@ -196,12 +196,6 @@ public class EventNoteData extends IconNoteData {
         return strLocation;
     }
 
-    //  @Override not needed, but trying to learn annotations..
-    @Override
-    protected Date getNoteDate() {
-        return getStartDate();
-    } // end getNoteDate
-
     public String getRecurrence() {
         return strRecurrence;
     }

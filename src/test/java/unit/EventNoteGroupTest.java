@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,8 +32,13 @@ class EventNoteGroupTest {
         eventNoteGroup.setNotifier(testUtil);
     }
 
+    @AfterAll
+    static void afterAll() throws InterruptedException {
+        Thread.sleep(1000);  // Allow for after-test GC
+    }
 
-    @Test
+
+        @Test
     void testDateSelected() {
         eventNoteGroup.dateSelected(new Date());
     }

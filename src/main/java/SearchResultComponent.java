@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 public class SearchResultComponent extends NoteComponent {
@@ -108,19 +109,17 @@ public class SearchResultComponent extends NoteComponent {
         fibTheFoundInButton.setText(mySearchResultData.getFoundIn());
 
         // Get the Last Mod date
-        Date d = mySearchResultData.getLastModDate();
+        ZonedDateTime zdtLastModDate = mySearchResultData.getLastModDate();
+        Date d = null;
+        if(zdtLastModDate != null) d = Date.from(mySearchResultData.getLastModDate().toInstant());
 
         String strModDate;
-        if (d == null) { // May happen for older (mine only) data -
-            strModDate = "";
-        } else {
             // Make a date formatter.
             SimpleDateFormat sdf = new SimpleDateFormat();
             sdf.applyPattern("MM/dd/yyyy");
 
             // Format the Last Mod date.
             strModDate = sdf.format(d);
-        } // end if
 
         lastModLabel.setText(strModDate);
     } // end resetComponent

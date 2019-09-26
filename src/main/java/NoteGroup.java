@@ -1032,11 +1032,8 @@ public abstract class NoteGroup extends JPanel {
 
             Date d1, d2;
 
-            d1 = nd1.getLastModDate();
-            d2 = nd2.getLastModDate();
-
-            if (d1 == null) d1 = calOween.getTime();
-            if (d2 == null) d2 = calOween.getTime();
+            d1 = Date.from(nd1.getLastModDate().toInstant());
+            d2 = Date.from(nd2.getLastModDate().toInstant());
 
             if (direction == ASCENDING) {
                 return d1.compareTo(d2);

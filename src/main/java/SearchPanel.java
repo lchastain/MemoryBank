@@ -248,14 +248,14 @@ public class SearchPanel extends JPanel {
         //   then the return value will be false.
 
         // Test the 'Last Mod' condition
-        if (filterLastMod(nd.getLastModDate())) return false;
+        if (filterLastMod(Date.from(nd.getLastModDate().toInstant()))) return false;
 
         // Test the 'Items with Dates' condition
         // File-level filtering for DayNotes, MonthNotes, etc, should
         //   have already been done prior to this point; here, it is
         //   a Note-level test.  If not relevant then the NoteDate will
         //   be null, which passes thru the filter.
-        if (filterWhen(nd.getNoteDate())) return false;
+//        if (filterWhen(nd.getNoteDate())) return false; - no longer possible, didn't make sense anyway.
 
         // Construct a string to search, from the base NoteData elements.
         String s = nd.getNoteString();

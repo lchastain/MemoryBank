@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
+// For SCR0038
+
 class ClearNoteGroupTest {
     @BeforeAll
     static void setDataLocation() {

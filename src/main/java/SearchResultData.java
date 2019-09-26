@@ -1,24 +1,15 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.beans.Transient;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 
 public class SearchResultData extends NoteData implements Serializable {
-    static final long serialVersionUID = -1257203205705118689L;
+    static final long serialVersionUID = 1L;
 
-    // The 'dateNoteWhen' member is used to hold the date 'choice' when
-    //   handling a click on a button in the 'Found In' column, prior
-    //   to changing to a calendar-based view.  Of course, not all
-    //   sources are calendar-based, and those that are not, do not
-    //   need this member to handle the click.  However, it is also
-    //   used as the sort key when sorting by 'Found In', since the
-    //   textual dates and file names that are displayed would not
-    //   necessarily sort in the expected order.
-    //   For Events, the 'dateEventStart' (if available) is kept here.
-    //   For Todo items, the 'dateTodoItem' (if available) is kept.
-    //   When sorting on 'Found In', if this date is still null then
-    //   the sort treats it as a 'no key' and places it ????
-    private Date dateNoteWhen;
+    @JsonIgnore
+    private Date dateNoteWhen;  // Remove this after all data fixes.
 
     private File fileFoundIn;
 
@@ -37,7 +28,6 @@ public class SearchResultData extends NoteData implements Serializable {
     // called by swap - need to set all data members now.
     public SearchResultData(SearchResultData srd) {
         super(srd);
-        dateNoteWhen = srd.getNoteDate();
         fileFoundIn = srd.getFileFoundIn();
     } // end constructor
 
@@ -46,18 +36,16 @@ public class SearchResultData extends NoteData implements Serializable {
         return fileFoundIn;
     }
 
-    protected Date getNoteDate() {
-        return dateNoteWhen;
-    }
-
     //-----------------------------------------------------
     // Method Name: getFoundIn
     //
     // Returns a short, easily readable string indicating which file
     //   this result originally comes from.  For calendar-based
     //   sources, decided to use alpha months rather than numeric
-    //   because it "reads" best and does not affect sorting
-    //   which uses the 'dateNoteWhen'.
+    //   because it "reads" best and does not affect sorting.
+
+    // BUT THAT SHOULD CHANGE - go to 'yyyy-mm-dd' or filename.
+
     //   Had to annotate as Transient, else the JSON mapper picks this
     //   up and runs it when saving a file.  Then the loader doesn't
     //   recognize it as a class member, and raises an Exception.
@@ -71,9 +59,13 @@ public class SearchResultData extends NoteData implements Serializable {
 
         retstr = fname; // as a default; will probably change, below.
 
-        if (fname.endsWith(".todolist")) {
+        if (fname.startsWith("todo_")) {
+            retstr = fname.substring(5, fname.lastIndexOf('.'));
+        } else if (fname.endsWith(".todolist")) { // Older data; remove when it's all gone.
             retstr = fname.substring(0, fname.lastIndexOf('.'));
-        } else if (fname.equals("UpcomingEvents")) {
+        } else if (fname.equals("UpcomingEvents")) { // This one needed to handle old data.  TODO - remove after all data is fixed.
+            retstr = "Upcoming";
+        } else if (fname.equals("UpcomingEvents.json")) {
             retstr = "Upcoming";
         } else if (!fpath.endsWith("MemoryBank")) {
             // If the path does not end at the top level data
@@ -113,10 +105,6 @@ public class SearchResultData extends NoteData implements Serializable {
 
     void setFileFoundIn(File f) {
         fileFoundIn = f;
-    }
-
-    void setNoteDate(Date value) {
-        dateNoteWhen = value;
     }
 
 } // end class SearchResultData

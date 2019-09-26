@@ -1,13 +1,15 @@
-import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
-class DayNoteData extends IconNoteData implements Serializable {
-    private static final long serialVersionUID = -2202469274687602102L;
+class DayNoteData extends IconNoteData {
+    private static final long serialVersionUID = 1L;
     private Date timeOfDayDate;
+    private String noteDateTimeString;
 
     DayNoteData() {
         super();
         timeOfDayDate = new Date();
+        noteDateTimeString = ZonedDateTime.now().toString();
     } // end constructor
 
 
@@ -16,6 +18,7 @@ class DayNoteData extends IconNoteData implements Serializable {
     DayNoteData(IconNoteData ind) {
         super(ind);
         timeOfDayDate = new Date();
+        noteDateTimeString = ZonedDateTime.now().toString();
     } // end constructor
 
 
@@ -23,6 +26,7 @@ class DayNoteData extends IconNoteData implements Serializable {
     DayNoteData(DayNoteData dnd) {
         super(dnd);
         timeOfDayDate = dnd.timeOfDayDate;
+        noteDateTimeString = dnd.noteDateTimeString;
     } // end constructor
 
     // Construct a DayNoteData from a NoteData.
@@ -31,12 +35,14 @@ class DayNoteData extends IconNoteData implements Serializable {
     DayNoteData(NoteData nd) {
         super(nd);
         timeOfDayDate = new Date();
+        noteDateTimeString = ZonedDateTime.now().toString();
     }
 
 
     protected void clear() {
         super.clear();
         timeOfDayDate = null;
+        noteDateTimeString = null;
     } // end clear
 
 
@@ -49,8 +55,20 @@ class DayNoteData extends IconNoteData implements Serializable {
         return timeOfDayDate;
     }
 
+    ZonedDateTime getNoteDateTime() {
+        return ZonedDateTime.parse(noteDateTimeString);
+    }
+
     void setTimeOfDayDate(Date value) {
         timeOfDayDate = value;
+    }
+
+    void setNoteDateTime(ZonedDateTime zdt) {
+        if(zdt == null) {
+            noteDateTimeString = null;
+        } else {
+            noteDateTimeString = zdt.toString();
+        }
     }
 
 } // end class DayNoteData

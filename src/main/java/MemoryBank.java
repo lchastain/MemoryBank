@@ -3,6 +3,8 @@ import org.apache.commons.io.FileUtils;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
@@ -55,6 +57,18 @@ public class MemoryBank {
     //   items developed here (such as the tempCalendar)
     //   without going thru the MemoryBank.main.
     static {
+        // These can be 'defined' in the startup command.  Ex:
+        //   java -Ddebug MemoryBank
+        debug = (System.getProperty("debug") != null);
+        event = (System.getProperty("event") != null);
+        init = (System.getProperty("init") != null);
+        timing = (System.getProperty("timing") != null);
+
+        if (debug) System.out.println("Debugging printouts on.");
+        if (event) System.out.println("Event tracing printouts on.");
+        if (init) System.out.println("Initialization trace printouts on.");
+        if (timing) System.out.println("Timing printouts on.");
+
         setProgramDataLocation();
 
         appOpts = new AppOptions(); // Start with default values.
@@ -62,7 +76,7 @@ public class MemoryBank {
         // Set the Look and Feel
         try {
             String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
-            System.out.println("Setting plaf to: " + thePlaf);
+            debug("Setting plaf to: " + thePlaf);
             UIManager.setLookAndFeel(thePlaf);
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
@@ -76,18 +90,6 @@ public class MemoryBank {
         pmColor = Color.black;
         archive = false;
         military = false; // 12 or 24 hour time display
-
-        // These can be 'defined' in the startup command.  Ex:
-        //   java -Ddebug MemoryBank
-        debug = (System.getProperty("debug") != null);
-        event = (System.getProperty("event") != null);
-        init = (System.getProperty("init") != null);
-        timing = (System.getProperty("timing") != null);
-
-        if (debug) System.out.println("Debugging printouts on.");
-        if (event) System.out.println("Event tracing printouts on.");
-        if (init) System.out.println("Initialization trace printouts on.");
-        if (timing) System.out.println("Timing printouts on.");
 
         sdf = new SimpleDateFormat();
         sdf.setDateFormatSymbols(new DateFormatSymbols());
@@ -459,23 +461,20 @@ public class MemoryBank {
     // Look first in the current directory.  This allows the program data to come
     // from a development location.  If not found then set it explicitly to the default
     // location but test that it is valid, by checking for the 'icons' subdirectory.
-    //
-    // Note:  the -debug parameter to MemoryBank is interpreted in main only
-    //   after this method is run, so we do not use it here.
     // -----------------------------------------------------------------------
     private static void setProgramDataLocation() {
         String currentDir = System.getProperty("user.dir");
-        System.out.println("The current working directory is: " + currentDir);
+        debug("The current working directory is: " + currentDir);
 
         // Program data - icons, images, etc, the same for every user.
         File f = new File("icons"); // Look first in current dir.
         if (f.exists()) {  // This logic is far from infallible...
             logHome = currentDir;
-            System.out.println("MemoryBank Home = " + logHome);
+            debug("MemoryBank Home = " + logHome);
         } else {
             // Explicitly setting logHome for now.
             logHome = "C:\\Program Files\\Memory Bank"; // need to use System calls here, vs hard-coded C:\
-            System.out.println("EXPLICIT MemoryBank Home = " + logHome);
+            debug("EXPLICIT MemoryBank Home = " + logHome);
 
             // But test to see if we have icons available at that location -
             f = new File(logHome + File.separatorChar + "icons");
@@ -489,7 +488,7 @@ public class MemoryBank {
     public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
         String currentDir = System.getProperty("user.dir");
-        MemoryBank.debug("The current working directory is: " + currentDir);
+        debug("The current working directory is: " + currentDir);
         File f = new File("appData"); // Look first in current dir.
         String loc;
         if (f.exists()) {
@@ -500,7 +499,7 @@ public class MemoryBank {
             loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
             appIconFileName = "icon_not.gif";
         }
-        MemoryBank.debug("Setting user data location to: " + loc);
+        debug("Setting user data location to: " + loc);
 
         boolean answer = true;
         f = new File(loc);
@@ -600,7 +599,6 @@ public class MemoryBank {
 
 
     public static void main(String[] args) {
-        String s; // holds the startup flag(s).
         String userEmail = "default.user@elseware.com";
 
         // Hold our place in line, on the taskbar.
@@ -636,25 +634,24 @@ public class MemoryBank {
         if (args.length > 0)
             System.out.println("Number of args: " + args.length);
 
-        for (String arg : args) { // Cycling thru them this way, position is irrelevant.
-            s = arg;
+        for (String startupFlag : args) { // Cycling thru them this way, position is irrelevant.
 
-            if (s.equals("-debug")) {
+            if (startupFlag.equals("-debug")) {
                 if (!debug) System.out.println("Debugging printouts on.");
                 debug = true;
-            } else if (s.equals("-event")) {
+            } else if (startupFlag.equals("-event")) {
                 if (!event) System.out.println("Event tracing printouts on.");
                 event = true;
-            } else if (s.equals("-init")) {
+            } else if (startupFlag.equals("-init")) {
                 if (!init) System.out.println("Initialization trace printouts on.");
                 init = true;  // Constructors and static sections.
-            } else if (s.equals("-timing")) {
+            } else if (startupFlag.equals("-timing")) {
                 if (!timing) System.out.println("Timing printouts on.");
                 timing = true;
-            } else if (s.indexOf('@') > 0) {
-                userEmail = s;
+            } else if (startupFlag.indexOf('@') > 0) {
+                userEmail = startupFlag;
             } else {
-                System.out.println("Parameter not handled: [" + s + "]");
+                System.out.println("Parameter not handled: [" + startupFlag + "]");
             } // end if/else
         } // end for i
 
@@ -679,8 +676,8 @@ public class MemoryBank {
         AppIcon.scaleIcon(theAppIcon);
         logFrame.setIconImage(theAppIcon.getImage());
 
-        logFrame.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent we) {
+        logFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
                 System.exit(0);
             }
         });

@@ -287,7 +287,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (myTodoNoteData.hasText()) {
             miClearPriority.setEnabled(myTodoNoteData.getPriority() > 0);
             miMoveToToday.setEnabled(true);
-            miMoveToSelectedDate.setEnabled(myTodoNoteData.getNoteDate() != null);
+            miMoveToSelectedDate.setEnabled(myTodoNoteData.getTodoDate() != null);
         } else {
             // Find out how this happens, or confirm that it does not.
             throw new AssertionError();  // Added 8/30/2019 - remove, after this has not occurred for some time.

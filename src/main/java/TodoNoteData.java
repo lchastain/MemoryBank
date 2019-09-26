@@ -3,7 +3,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class TodoNoteData extends NoteData implements Serializable {
-    static final long serialVersionUID = 8617084685157848161L;
+    static final long serialVersionUID = 1L;
 
     static final int TODO_STARTED = 0;
     static final int TODO_COMPLETED = 1;
@@ -12,7 +12,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     static final int TODO_QUERY = 4;
     static final int TODO_OBE = 5;
 
-    private Date dateTodoItem;
+    private Date todoDate;  // This can be a deadline or a 'do after', or ...   Set/chosen on the TMC
     private int intPriority;
     private int intStatus;
     private String strLinkage;
@@ -32,7 +32,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         intPriority = tndCopy.intPriority;
         intStatus = tndCopy.intStatus;
         strLinkage = tndCopy.strLinkage;
-        dateTodoItem = tndCopy.dateTodoItem;
+        todoDate = tndCopy.todoDate;
     } // end constructor
 
     // Construct a TodoNoteData from a NoteData.
@@ -58,7 +58,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         intPriority = 0;
         intStatus = TODO_STARTED;
         strLinkage = null;
-        dateTodoItem = null;
+        todoDate = null;
     } // end clearTodoNoteData
 
 
@@ -107,7 +107,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         //   selection the user specified.
         Date newTimeDate;
         if (useDate) {
-            newTimeDate = dateTodoItem;
+            newTimeDate = todoDate;
 
             // The user should NOT have been able to select
             // 'Move to Selected Date' if the date selection
@@ -161,8 +161,8 @@ public class TodoNoteData extends NoteData implements Serializable {
         return strLinkage;
     }
 
-    protected Date getNoteDate() {
-        return dateTodoItem;
+    Date getTodoDate() {
+        return todoDate;
     }
 
     public int getPriority() {
@@ -214,7 +214,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     }
 
     void setTodoDate(Date value) {
-        dateTodoItem = value;
+        todoDate = value;
     }
 
 } // end class TodoNoteData

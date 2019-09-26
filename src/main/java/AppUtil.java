@@ -248,10 +248,10 @@ public class AppUtil {
     //
     // This method takes a string and returns it with inserted
     // line breaks, if needed, at or before the 'n'th position
-    // and truncated to a maximum of 'l' lines. If 'l' is
+    // and truncated to a maximum of 'l' lines. If 'lingth' is
     // zero, the result is not truncated.
     // -------------------------------------------------------------
-    static String getBrokenString(String s, int n, int l) {
+    static String getBrokenString(String s, int n, int lingth) {
         StringBuilder strTheBrokenString;
         StringBuilder strNextLine;
 
@@ -262,7 +262,7 @@ public class AppUtil {
         // The calling context should NOT be sending these values -
         if (s == null)
             return null;
-        if (l < 0)
+        if (lingth < 0)
             return null;
         // Therefore our response is immediate, uninformative, and unapologetic.
 
@@ -288,7 +288,7 @@ public class AppUtil {
                 strNextLine = new StringBuilder();
 
                 // Now, bail if we're at the line limit.
-                if ((l > 0) && (intLineCount >= l))
+                if ((lingth > 0) && (intLineCount >= lingth))
                     break;
 
                 // Otherwise, add the lf
@@ -329,7 +329,7 @@ public class AppUtil {
                 } // end if we had a good place to break the line
 
                 // Now, bail if we're at the line limit.
-                if ((l > 0) && (intLineCount >= l)) {
+                if ((lingth > 0) && (intLineCount >= lingth)) {
                     strNextLine = new StringBuilder();
                     break;
                 }

@@ -792,7 +792,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //---------------------------------------------------------
     private void searchDataFile(File dataFile) {
         String theFilename = dataFile.getName();
-        MemoryBank.debug("Searching: " + dataFile.getName());
+        MemoryBank.debug("Searching: " + theFilename);
         noteDataVector = new Vector<>();
 
         Object[] theGroupData = AppUtil.loadNoteGroupData(dataFile);
@@ -835,13 +835,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 //   dateLastMod of the original note.  Members specific
                 //   to a SearchResultData must be set explicitly.
                 srd.setFileFoundIn(dataFile);
-
-                // Get the Date for this note, if available
-                Date dateTmp = ndTemp.getNoteDate();
-                if (dateTmp == null) dateTmp = AppUtil.getDateFromFilename(dataFile);
-
-                // It may still be null, but set it for this result
-                srd.setNoteDate(dateTmp);
 
                 // Add this search result data to our findings.
                 foundDataVector.add(srd);
