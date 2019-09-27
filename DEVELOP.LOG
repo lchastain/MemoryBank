@@ -4,7 +4,11 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
 9/26/2019 1209 - The Data Fix for Last Mod Date is in and published.  Quite a bit of TimeZone
   work / manipulation was needed because I also took care of DayNoteDate timeOfDayDate, as
   well as removing the base class setNoteDate and changing the TodoNoteData method that
-  was trying to use it.  All tests still running
+  was trying to use it.  All tests still running.
+ 1809 - Now, rehabilitating all previous search results by re-running the searches.  This is
+  needed because the DataFix updated all search results LMDs to current date.  With a new search,
+  the LMD of the search result is the LMD of the Note that was found, usually much earlier.
+  Noticing that searches are running almost twice as fast as before.
 
 9/23/2019 0650 - Have been fighting a head cold for the past four days; not always thinking
   clearly, BUT - while working on the DataFix for lastModDate, have seen that SearchResultData
