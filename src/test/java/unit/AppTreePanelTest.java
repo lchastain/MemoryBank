@@ -269,7 +269,7 @@ public class AppTreePanelTest {
     @Test
     void testCloseSearchResult() throws Exception {
         // First, select a known search result (we know the content of our test data)
-        String theSearchResult = "20140312131216";
+        String theSearchResult = "20190927161325";
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode dmtn = TestUtil.getTreeNodeForString(theRoot, theSearchResult);

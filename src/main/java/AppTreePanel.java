@@ -643,7 +643,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             showAbout();
         } else {  // Select the Search Results branch
             TreeNode[] pathToRoot = nodeSearchResults.getPath();
-            blnRestoringSelection = true; // Not really, but we don't want a separate thread for this trivial change.
             tree.setSelectionPath(new TreePath(pathToRoot));
         } // end if
     } // end removeSearchNode
@@ -1370,7 +1369,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         amb.manageMenus(strSelectionType);
-        if (!blnRestoringSelection) showWorkingDialog(false);
+        showWorkingDialog(false);
     } // end treeSelectionChanged
 
 

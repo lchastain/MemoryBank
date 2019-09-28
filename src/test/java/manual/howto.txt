@@ -5,7 +5,9 @@ One-stop reference for how tests are getting things done.
     existing data and reestablish it from the resources.  See AppTreePanelTest setup.  There can be
     different test user data sources (like jondo) but at test runtime the specified one gets copied to
     the development area data repo, under test.user@lcware.net.  Then later you can just run the app
-    as that user, to see the effects of your test.
+    as that user, to see the effects of your test.  Be sure to run a full build after you've made
+    changes to Test Resources; as part of the build they are picked up and moved to the 'out' directory,
+    the 'real' location for where resources come from.
 
 1.  Select a node on the main app 'tree':  instantiate an AppTreePanel, get its JTree with .getTree(), call
     setSelectionPath or setSelectionRow on it.  How you get the path or the row if you don't already know

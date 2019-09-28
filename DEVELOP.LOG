@@ -2,7 +2,7 @@ Development notes for MemoryBank - record of issues and accomplishments (not com
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
 9/26/2019 1209 - The Data Fix for Last Mod Date is in and published.  Quite a bit of TimeZone
-  work / manipulation was needed because I also took care of DayNoteDate timeOfDayDate, as
+  work / manipulation was needed because I also took care of DayNoteData.timeOfDayDate, as
   well as removing the base class setNoteDate and changing the TodoNoteData method that
   was trying to use it.  All tests still running.
  1809 - Now, rehabilitating all previous search results by re-running the searches.  This is

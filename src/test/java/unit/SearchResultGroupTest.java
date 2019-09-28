@@ -1,6 +1,7 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -24,12 +25,17 @@ class SearchResultGroupTest {
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
         FileUtils.copyDirectory(testResource, testData);
+    }
 
-        // We have chosen a known search result (keyword 'food') with 8 hits, so the
+    @BeforeEach
+    void beforeEach() throws InterruptedException {
+        // We have chosen a known search result, so the
         // tests below will know the limitation of indices and text content.
-        String theNodeName = "20170527123819";
+        String theNodeName = "20190927161325";
         String theFileName = MemoryBank.userDataHome + File.separatorChar + "search_" + theNodeName + ".json";
         searchResultGroup = new SearchResultGroup(theFileName);
+
+        Thread.sleep(200); // Tests need some settling time.
 
     }
 
