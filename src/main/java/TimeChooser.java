@@ -6,32 +6,33 @@
 //  7/10/2005 Changed all 'Global' to 'MemoryBank'.
 // 10/05/2004 Rewrote isFocusTraversable calls for jdk1.5.0
 
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 
 public class TimeChooser extends JPanel implements ActionListener {
-    private static final long serialVersionUID = -3452630303180246715L;
+    private static final long serialVersionUID = 1L;
 
     private static Border up;
     private static Border down;
-    private static TimeAlterButton hourButton;
-    private static TimeAlterButton minuteButton;
-    private static TimeAlterButton secondButton;
+    private static TimeAlterButton hoursButton;
+    private static TimeAlterButton minutesButton;
+    private static TimeAlterButton secondsButton;
     private static Font buttonFont;
 
     // Variables needed by more than one method -
-    private Date initialDate;
+    private LocalTime initialTime;
+    private LocalTime theNewTime;
     private int myTimeAmPm = Calendar.AM_PM;
 
     private boolean showSeconds;
     private boolean iAmClear;
     private JButton ampmButton;              // constructor, actionPerformed
-    private JButton nowButton;               // constructor, actionPerformed
-    private JButton clearButton;             // constructor, actionPerformed
-    private JButton resetButton;             // constructor, actionPerformed
 
     static {
         up = new BevelBorder(BevelBorder.RAISED);
@@ -40,25 +41,22 @@ public class TimeChooser extends JPanel implements ActionListener {
     } // end static section
 
     TimeChooser() {
-        this(new Date());
+        this(LocalTime.now());
     } // end constructor
 
-    TimeChooser(Date initial) {
+    TimeChooser(LocalTime initialTime) {
         super(new BorderLayout());
-        initialDate = initial;
+        this.initialTime = initialTime;
         showSeconds = false;
         iAmClear = false;
 
-        MemoryBank.tempCalendar.setTime(initialDate);
-        MemoryBank.tempCalendar.set(Calendar.SECOND, 0);
-        MemoryBank.tempCalendar.set(Calendar.MILLISECOND, 0);
+        theNewTime = this.initialTime; // The same reference, to start.
 
         ampmButton = new JButton("AM") {
-            private static final long serialVersionUID = -5963128943094472354L;
+            private static final long serialVersionUID = 1L;
 
             public Insets getMargin() {
-                Insets i = new Insets(2, 2, 2, 2);
-                return i;
+                return new Insets(2, 2, 2, 2);
             } // end getMargin
 
             public Dimension getPreferredSize() {
@@ -72,36 +70,39 @@ public class TimeChooser extends JPanel implements ActionListener {
         ampmButton.addActionListener(TimeChooser.this);
         ampmButton.setToolTipText("Toggles AM or PM");
 
-        nowButton = new JButton("Now");
+        // constructor, actionPerformed
+        JButton nowButton = new JButton("Now");
         nowButton.setMargin(new Insets(2, 2, 2, 2));
         nowButton.setFocusable(false);
         nowButton.setFont(buttonFont);
         nowButton.addActionListener(TimeChooser.this);
         nowButton.setToolTipText("Set to current time");
 
-        clearButton = new JButton(" ");
+        // constructor, actionPerformed
+        JButton clearButton = new JButton(" ");
         clearButton.setFocusable(false);
         clearButton.setFont(buttonFont);
         clearButton.addActionListener(TimeChooser.this);
         clearButton.setToolTipText("Clear the time fields");
 
-        resetButton = new JButton("Reset");
+        // constructor, actionPerformed
+        JButton resetButton = new JButton("Reset");
         resetButton.setMargin(new Insets(2, 2, 2, 2));
         resetButton.setFocusable(false);
         resetButton.setFont(buttonFont);
         resetButton.addActionListener(TimeChooser.this);
         resetButton.setToolTipText("Reset to the initial time");
 
-        hourButton = new TimeAlterButton(Calendar.HOUR);
-        minuteButton = new TimeAlterButton(Calendar.MINUTE);
-        secondButton = new TimeAlterButton(Calendar.SECOND);
+        hoursButton = new TimeAlterButton(ChronoUnit.HOURS);
+        minutesButton = new TimeAlterButton(ChronoUnit.MINUTES);
+        secondsButton = new TimeAlterButton(ChronoUnit.SECONDS);
 
         JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        northPanel.add(hourButton);
-        northPanel.add(minuteButton);
-        northPanel.add(secondButton);
+        northPanel.add(hoursButton);
+        northPanel.add(minutesButton);
+        northPanel.add(secondsButton);
         northPanel.add(new Spacer(5, 1));
         northPanel.add(ampmButton);
         southPanel.add(nowButton);
@@ -116,78 +117,90 @@ public class TimeChooser extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         JButton source = (JButton) e.getSource();
 
-        if (source.getActionCommand().equals("AM")) {
-            MemoryBank.tempCalendar.add(Calendar.HOUR, 12);
-        } else if (source.getActionCommand().equals("PM")) {
-            MemoryBank.tempCalendar.add(Calendar.HOUR, -12);
-        } else if (source.getActionCommand().equals("Now")) {
-            MemoryBank.tempCalendar.setTime(new Date());
-            iAmClear = false;
-        } else if (source.getActionCommand().equals("Reset")) {
-            MemoryBank.tempCalendar.setTime(initialDate);
-            iAmClear = false;
-        } else if (source.getActionCommand().equals(" ")) {
-            iAmClear = true;
-            hourButton.setText("  ");
-            minuteButton.setText("  ");
-            secondButton.setText("  ");
-            ampmButton.setText("  ");
-            myTimeAmPm = Calendar.AM_PM;
-        } // end if
+        switch (source.getActionCommand()) {
+            case "AM":
+            case "PM":
+                theNewTime = theNewTime.plusHours(12);
+                break;
+            case "Now":
+                theNewTime = LocalTime.now();
+                iAmClear = false;
+                break;
+            case "Reset":
+                theNewTime = initialTime;
+                iAmClear = false;
+                break;
+            case " ":
+                iAmClear = true;
+                hoursButton.setText("  ");
+                minutesButton.setText("  ");
+                secondsButton.setText("  ");
+                ampmButton.setText("  ");
+                myTimeAmPm = Calendar.AM_PM;
+                break;
+        }
         recalc();
     } // end actionPerformed
 
-    public boolean getClearBoolean() {
+    boolean getClearBoolean() {
         return iAmClear;
     }
 
-    public int getHour() {
-        return MemoryBank.tempCalendar.get(Calendar.HOUR_OF_DAY);
-    } // end getHour
-
-    public int getMinute() {
-        return MemoryBank.tempCalendar.get(Calendar.MINUTE);
-    } // end getMinute
-
-    public int getSecond() {
-        return MemoryBank.tempCalendar.get(Calendar.SECOND);
-    } // end getSecond
+    LocalTime getChoice() {
+        return theNewTime;
+    }
 
     public void recalc() {
         if (iAmClear) return;
 
-        hourButton.setText(MemoryBank.hourToString(getHour()).trim());
-        minuteButton.setText(MemoryBank.minuteToString(getMinute()));
-        secondButton.setText(MemoryBank.minuteToString(getSecond()));
+        int theHours = theNewTime.getHour();
+        String theHoursString = String.valueOf(theHours);
+        if(MemoryBank.military) {
+            if(theHours < 10) theHoursString = "0" + theHoursString;
+            if(theHours == 0) theHoursString = "00";
+        } else {
+            if(theHours > 12) theHoursString = String.valueOf(theHours - 12);
+            if(theHours == 0) theHoursString = "12";
+        }
+
+        hoursButton.setText(theHoursString);
+
+        int theMinutes = theNewTime.getMinute();
+        String theMinutesString = String.valueOf(theMinutes);
+        if(theMinutes < 10) theMinutesString = "0" + theMinutesString;
+        minutesButton.setText(theMinutesString);
 
         if (showSeconds) {
-            secondButton.setVisible(true);
+            int theSeconds = theNewTime.getSecond();
+            String theSecondsString = String.valueOf(theSeconds);
+            if(theSeconds < 10) theSecondsString = "0" + theSecondsString;
+            secondsButton.setText(theSecondsString);
+            secondsButton.setVisible(true);
         } else {
-            secondButton.setVisible(false);
+            secondsButton.setVisible(false);
         } // end if
 
         // Check AM / PM
-        int which = MemoryBank.tempCalendar.get(Calendar.AM_PM);
+        int meridian = Calendar.AM;
+        if (theNewTime.getHour() > 11) {
+            meridian = Calendar.PM;
+        }
         Color c;
-
-        if (which != myTimeAmPm) {
-            myTimeAmPm = which;
-            if (which == Calendar.AM) {
-                c = MemoryBank.amColor;
-                ampmButton.setText("AM");
-            } else {
-                c = MemoryBank.pmColor;
-                ampmButton.setText("PM");
-            } // end if
-
-            hourButton.setForeground(c);
-            minuteButton.setForeground(c);
-            secondButton.setForeground(c);
-
+        if (meridian == Calendar.AM) {
+            c = MemoryBank.amColor;
+            ampmButton.setText("AM");
+        } else {
+            c = MemoryBank.pmColor;
+            ampmButton.setText("PM");
         } // end if
+
+        hoursButton.setForeground(c);
+        minutesButton.setForeground(c);
+        secondsButton.setForeground(c);
+
     } // end recalc
 
-    public void setShowSeconds(boolean b) {
+    private void setShowSeconds(boolean b) {
         showSeconds = b;
         recalc();
     } // end setShowSeconds
@@ -195,13 +208,14 @@ public class TimeChooser extends JPanel implements ActionListener {
     // Inner class
     //----------------------------------------------------------------
     class TimeAlterButton extends JLabel implements MouseListener {
-        private static final long serialVersionUID = -4762284168787775721L;
+        private static final long serialVersionUID = 1L;
 
         private boolean iAmDepressed;
         private Depressed dp;   // A Thread to keep responding
-        private int timeField;
+        ChronoUnit timeField;
 
-        public TimeAlterButton(int t) {
+        // The 't' is Calendar.   HOUR, MINUTE, or SECOND
+        TimeAlterButton(ChronoUnit t) {
             super();
             timeField = t;
             setHorizontalAlignment(JLabel.CENTER);
@@ -245,7 +259,7 @@ public class TimeChooser extends JPanel implements ActionListener {
             if ((m & InputEvent.BUTTON3_MASK) != 0) direction = -1;
             else direction = 1;
 
-            // Since a Thread will die upon return from the rum method,
+            // Since a Thread will die upon return from the run method,
             //  need to start a new one each time.  Do not want a thread
             //  running but doing nothing but waiting for a mouse click
             //  that might not come, in a program that is busy doing many
@@ -265,10 +279,10 @@ public class TimeChooser extends JPanel implements ActionListener {
     class Depressed extends Thread {
         private int delay = 300; // milliseconds
         private boolean iAmRunning;
-        private int timeField;
+        ChronoUnit timeField;
         private int direction;
 
-        public Depressed(int t, int d) {
+        Depressed(ChronoUnit t, int d) {
             super();
             timeField = t;
             direction = d;
@@ -278,25 +292,31 @@ public class TimeChooser extends JPanel implements ActionListener {
         // A thread 'dies' upon return from run.
         public void run() {
             while (iAmRunning) {
-                MemoryBank.tempCalendar.add(timeField, direction);
+                if(direction == 1) {
+                    theNewTime = theNewTime.plus(1, timeField);
+                } else {
+                    theNewTime = theNewTime.minus(1, timeField);
+                }
                 recalc();
 
                 try {
                     sleep(delay);  // milliseconds
-                } catch (InterruptedException ie) {
+                } catch (InterruptedException ignored) {
                 }
                 if (delay > 50) delay -= 50;
                 // else delay = 0;  // This lets it go tooo fast.
             } // end while
         } // end run
 
-        public void stopit() {
+        void stopit() {
             iAmRunning = false;
         }
     } // end class Depressed
 
     public static void main(String[] args) {
         Frame dcFrame = new Frame("TimeChooser test");
+
+        MemoryBank.military = true;  // Change this,  to test.
         TimeChooser dc = new TimeChooser();
 
         dcFrame.addWindowListener(new WindowAdapter() {
@@ -309,17 +329,15 @@ public class TimeChooser extends JPanel implements ActionListener {
         String laf = UIManager.getSystemLookAndFeelClassName();
         try {
             UIManager.setLookAndFeel(laf);
-        } catch (UnsupportedLookAndFeelException ulafe) {
-        } catch (InstantiationException iee) {
-        } catch (ClassNotFoundException cnfe) {
-        } catch (IllegalAccessException iae) {
-        } // end try/catch
+        } catch (UnsupportedLookAndFeelException | IllegalAccessException | ClassNotFoundException | InstantiationException ignored) {
+        }    // end try/catch
         SwingUtilities.updateComponentTreeUI(dc);
 
         dc.setShowSeconds(true);
         dcFrame.add(dc);
         dcFrame.pack();
         dcFrame.setVisible(true);
+        dcFrame.setLocationRelativeTo(null);
     } // end main
 
 } // end class TimeChooser

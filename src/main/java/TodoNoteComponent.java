@@ -5,6 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class TodoNoteComponent extends NoteComponent {
@@ -192,17 +195,24 @@ public class TodoNoteComponent extends NoteComponent {
 
         // Prepare to preserve the item, then do so by calling addNote.
         DayNoteData dnd = myTodoNoteData.getDayNoteData(useDate);
-        AppUtil.calTemp.setTime(dnd.getTimeOfDayDate());
         String theFilename;
-        theFilename = AppUtil.findFilename(AppUtil.calTemp, "D");
+        Instant instant = Instant.ofEpochMilli(myTodoNoteData.getTodoDate().getTime());
+        LocalDateTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
         if (theFilename.equals("")) {
-            theFilename = AppUtil.makeFilename(AppUtil.calTemp, "D");
+            theFilename = AppUtil.makeFilename(ansr, "D");
         } // end if
         success = AppUtil.addNote(theFilename, dnd);
 
         if (success) {
             MemoryBank.debug("Move succeeded");
+            // We don't know if this day is already showing, or not.
+            // So the 'note added' flag is set, and when the tree view
+            // switches to DayNotes, the currently selected day will be reloaded -
+            // whether or not we just added a note to it.  But for the
+            // data - AppUtil.addNote is what added it to the file.
             DayNoteGroup.blnNoteAdded = true;
+
             clear();  // This is what creates the 'gap'.
         } else {
             MemoryBank.debug("Move failed");

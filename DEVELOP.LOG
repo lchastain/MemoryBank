@@ -1,6 +1,18 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+9/30/2019 0620 - Yet another datafix and pub was needed, to put the time separate of the
+  date, because a time can be cleared altogether, from a DayNoteData.  That was the only
+  note type affected by this one.  Did enough code changes to get the time display working
+  again, because the old 'timeOfDayDate' is now gone, and gave up on the idea of putting
+  the Note date into the DayNoteData; it would repeat for every note in the group, so should
+  be stored at a higher level.  Will defer that change until we go to a DB.  Now using a
+  LocalTime (stored as a String), because my time strings do not need any zoning info; only
+  the LMD needs that, throughout the app.  Stored as a String rather than a LocalTime,
+  because storing data in other than simplest forms has already bitten more than once;
+  this format should be guaranteed to be portable, when needed.  This simplification
+  makes the Date removal effort realizable sooner (still working it).
+
 9/26/2019 1209 - The Data Fix for Last Mod Date is in and published.  Quite a bit of TimeZone
   work / manipulation was needed because I also took care of DayNoteData.timeOfDayDate, as
   well as removing the base class setNoteDate and changing the TodoNoteData method that

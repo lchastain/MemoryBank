@@ -1,7 +1,8 @@
 Test development to this point (8/2019) has been minimal and sporadic.
 
 What is seen here are a few files files (in both .doc and .txt format) that describe the manual steps to be 
-taken in order to test some of the interfaces.  These cannot be accomplished by Unit Tests.
+taken in order to test some of the interfaces.  These cannot be accomplished by Unit Tests, but MAY be
+converted to automated functional tests at some point.
 
 The TreeBranchEditorExample.java file in TestDrivers provides an app that can be used for
 testing the TreeBranchEditor.  Instructions

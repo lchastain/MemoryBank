@@ -9,6 +9,9 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Vector;
 
@@ -107,11 +110,14 @@ public class EventNoteGroup extends NoteGroup
                 if (tempNoteData.getRetainNote()) {
                     // We save this version of the event.
                     DayNoteData dnd = tempNoteData.getDayNoteData();
-                    AppUtil.calTemp.setTime(dnd.getTimeOfDayDate());
                     String theFilename;
-                    theFilename = AppUtil.findFilename(AppUtil.calTemp, "D");
+                    Instant instant = Instant.ofEpochMilli(tempNoteData.getStartDate().getTime());
+                    LocalDateTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+                    // TODO - check the new movedToDate flag; do not move if already done once.
+
+                    theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
                     if (theFilename.equals("")) {
-                        theFilename = AppUtil.makeFilename(AppUtil.calTemp, "D");
+                        theFilename = AppUtil.makeFilename(ansr, "D");
                     } // end if
                     boolean success = AppUtil.addNote(theFilename, dnd);
 

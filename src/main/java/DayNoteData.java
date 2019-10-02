@@ -1,15 +1,18 @@
-import java.time.ZonedDateTime;
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.time.LocalTime;
 
 class DayNoteData extends IconNoteData {
     private static final long serialVersionUID = 1L;
-    private Date timeOfDayDate;
-    private String noteDateTimeString;
+
+    private String timeOfDayString;
+
+    @JsonIgnore
+    private String noteDateString;  // Need datafix to remove, before we can remove from here.
 
     DayNoteData() {
         super();
-        timeOfDayDate = new Date();
-        noteDateTimeString = ZonedDateTime.now().toString();
+        timeOfDayString = LocalTime.now().toString();
     } // end constructor
 
 
@@ -17,58 +20,43 @@ class DayNoteData extends IconNoteData {
     //   with common base class data.
     DayNoteData(IconNoteData ind) {
         super(ind);
-        timeOfDayDate = new Date();
-        noteDateTimeString = ZonedDateTime.now().toString();
+        timeOfDayString = LocalTime.now().toString();
     } // end constructor
 
 
     // The copy constructor (clone)
     DayNoteData(DayNoteData dnd) {
         super(dnd);
-        timeOfDayDate = dnd.timeOfDayDate;
-        noteDateTimeString = dnd.noteDateTimeString;
+        timeOfDayString = dnd.timeOfDayString;
     } // end constructor
 
     // Construct a DayNoteData from a NoteData.
-    // This is used when taking Notes from NoteData interfaces.
+    // This is used when taking in Notes from other NoteData-type interfaces.
     // The result will get a new time and the default icon.
     DayNoteData(NoteData nd) {
         super(nd);
-        timeOfDayDate = new Date();
-        noteDateTimeString = ZonedDateTime.now().toString();
+        timeOfDayString = LocalTime.now().toString();
     }
 
+    //=============================================================
 
     protected void clear() {
         super.clear();
-        timeOfDayDate = null;
-        noteDateTimeString = null;
+        timeOfDayString = null;
     } // end clear
 
 
     @Override
-    protected NoteData copy( ) {
+    protected NoteData copy() {
         return new DayNoteData(this);
     }
 
-    Date getTimeOfDayDate() {
-        return timeOfDayDate;
+    String getTimeOfDayString() {
+        return timeOfDayString;
     }
 
-    ZonedDateTime getNoteDateTime() {
-        return ZonedDateTime.parse(noteDateTimeString);
-    }
-
-    void setTimeOfDayDate(Date value) {
-        timeOfDayDate = value;
-    }
-
-    void setNoteDateTime(ZonedDateTime zdt) {
-        if(zdt == null) {
-            noteDateTimeString = null;
-        } else {
-            noteDateTimeString = zdt.toString();
-        }
+    void setTimeOfDayString(String value) {
+        timeOfDayString = value;
     }
 
 } // end class DayNoteData

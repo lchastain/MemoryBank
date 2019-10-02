@@ -20,7 +20,11 @@ class ClearTodoItemTest {
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
-        FileUtils.cleanDirectory(testData);
+        try {
+            FileUtils.cleanDirectory(testData);
+        } catch (Exception e) {
+            System.out.println("ignored Exception: " + e.getMessage());
+        }
 
         // Retrieve a fresh set of test data from test resources.
         // This test user has a rich set of data, includes Search Results and Todo Lists

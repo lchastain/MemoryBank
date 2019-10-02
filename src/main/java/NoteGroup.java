@@ -954,8 +954,8 @@ public abstract class NoteGroup extends JPanel {
         int startIndex = (currentPage - 1) * pageSize;
         int endIndex = (currentPage * pageSize) - (pageSize - lastVisibleNoteIndex);
 
-        System.out.print("NoteGroup.unloadInterface into vector index " + startIndex);
-        System.out.println(" to " + endIndex);
+        MemoryBank.debug("NoteGroup.unloadInterface into vector index " + startIndex);
+        MemoryBank.debug(" to " + endIndex);
 
         // vectGroupData size can be less than lastVisibleNoteIndex (during a Todo
         // List Merge, for example) and it is the upper boundary that should be

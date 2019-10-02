@@ -4,23 +4,31 @@
  */
 
 import java.text.SimpleDateFormat;
-import java.util.*; // Calendar, more ??
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public abstract class CalendarNoteGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
 
     protected Date choice;
-    protected SimpleDateFormat sdf;
+    protected DateTimeFormatter dtf;
+    protected SimpleDateFormat sdf;   // remove from child classes, first.
 
     private int calType = 0;
+    private ChronoUnit dateType;
 
     // Holds the 'current' date of the displayed Group.
+    private LocalDate myDate;
     private GregorianCalendar cal;
 
     CalendarNoteGroup(String defaultSubject) {
         super(defaultSubject);
 
-        sdf = new SimpleDateFormat();
+        sdf = new SimpleDateFormat(); // dtf done in children, not needed here.
         cal = (GregorianCalendar) Calendar.getInstance();
         // Note: getInstance at this time returns a Calendar that
         //   is actually a GregorianCalendar, but since the return
@@ -34,6 +42,10 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         if (defaultSubject.equals("Day Note")) calType = Calendar.DATE;
         if (defaultSubject.equals("Month Note")) calType = Calendar.MONTH;
         if (defaultSubject.equals("Year Note")) calType = Calendar.YEAR;
+        if (defaultSubject.equals("Day Note")) dateType = ChronoUnit.DAYS;
+        if (defaultSubject.equals("Month Note")) dateType = ChronoUnit.MONTHS;
+        if (defaultSubject.equals("Year Note")) dateType = ChronoUnit.YEARS;
+
 
         updateGroup();
     } // end constructor
@@ -53,15 +65,17 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     public String getGroupFilename() {
         String s;
 
+        // TODO - stop using the OLD methods.
+
         if (intSaveGroupStatus == ONGOING) {
-            if (calType == Calendar.DATE) s = AppUtil.makeFilename(cal, "D");
-            else if (calType == Calendar.MONTH) s = AppUtil.makeFilename(cal, "M");
-            else s = AppUtil.makeFilename(cal, "Y");
+            if (calType == Calendar.DATE) s = AppUtil.oldMakeFilename(cal, "D");
+            else if (calType == Calendar.MONTH) s = AppUtil.oldMakeFilename(cal, "M");
+            else s = AppUtil.oldMakeFilename(cal, "Y");
             return s;
         } else {  // Results of a findFilename may be "".
-            if (calType == Calendar.DATE) s = AppUtil.findFilename(cal, "D");
-            else if (calType == Calendar.MONTH) s = AppUtil.findFilename(cal, "M");
-            else s = AppUtil.findFilename(cal, "Y");
+            if (calType == Calendar.DATE) s = AppUtil.OldFindFilename(cal, "D");
+            else if (calType == Calendar.MONTH) s = AppUtil.OldFindFilename(cal, "M");
+            else s = AppUtil.OldFindFilename(cal, "Y");
             return s;
         } // end if saving else not saving
     } // end getGroupFilename

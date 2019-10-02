@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -477,7 +478,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     tmpNoteData.setStartTime(null);
                     dateEventStartTime = null;
                 } else {
-                    if (dateEventStartTime != null) tcTimeChooser = new TimeChooser(dateEventStartTime);
+                    // if (dateEventStartTime != null) tcTimeChooser = new TimeChooser(dateEventStartTime);  // temp, 9/29 while working DayNotes
+                    if (dateEventStartTime != null) tcTimeChooser = new TimeChooser(LocalTime.now());
                     else tcTimeChooser = new TimeChooser();
                     showTimeDialog("Select a Start Time");
 
@@ -486,7 +488,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     } else {
                         strTmp = "<html>The Event cannot start after it ends.<br>";
                         strTmp += "Your selection of ";
-                        strTmp += MemoryBank.makeTimeString();
+                        strTmp += tcTimeChooser.getChoice();
                         strTmp += " has been discarded.</html>";
 
                         JLabel lblTmp = new JLabel(strTmp);
@@ -503,7 +505,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     tmpNoteData.setEndTime(null);
                     dateEventEndTime = null;
                 } else {
-                    if (dateEventEndTime != null) tcTimeChooser = new TimeChooser(dateEventEndTime);
+                    // if (dateEventEndTime != null) tcTimeChooser = new TimeChooser(dateEventEndTime);  // temp, 9/29 while working DayNotes
+                    if (dateEventEndTime != null) tcTimeChooser = new TimeChooser(LocalTime.now());
                     else tcTimeChooser = new TimeChooser();
                     showTimeDialog("Select an End Time");
 
@@ -512,7 +515,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     } else {
                         strTmp = "<html>The Event cannot end before it starts.<br>";
                         strTmp += "Your selection of ";
-                        strTmp += MemoryBank.makeTimeString();
+                        strTmp += tcTimeChooser.getChoice();
                         strTmp += " has been discarded.</html>";
 
                         JLabel lblTmp = new JLabel(strTmp);

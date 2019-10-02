@@ -2,17 +2,35 @@ List of all supported capabilities of the Memory Bank app -
 (format here will almost certainly change; this is just to get us started - 9/8/2019)
 
 Year View - View a Calendar Year, one year per page, scrollable
+    Which year is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
+        for incrementing and decrementing the display by one Year.
+
 Month View - View a Calendar Month, one month per page, scrollable
+    Which month is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
+        for incrementing and decrementing the display by one Month.
 
-Make / Edit / Keep time/day based notes, with optional associated icons
-Make / Edit / Keep Month based notes
-Make / Edit / Keep Year based notes
+Day Notes   - Make / Edit / Keep time/day based notes, with optional associated icons
+    Which day is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
+        for incrementing and decrementing the display by one Day.
+    The UI shows up to 40 notes in a day.
 
-Make / Edit / Keep multiple named Todo Lists
-A Todo list item may be moved to Today's DayNote (via its contex menu)
-A Todo list item may be assigned a related Date (via a selection on the Group's Three Month Column panel)
-A Todo list item may be moved to the DayNote of its related Date, if it has one  (via its contex menu)
-A Todo list item may be copied or moved to any other NoteGroup type (via its contex menu)
+Month Notes - Make / Edit / Keep Month based notes
+
+Year Notes  - Make / Edit / Keep Year based notes
+
+Note-based interfaces:
+    Day Notes (DayNoteGroup)
+    Month Notes (MonthNoteGroup)
+    Year Notes (YearNoteGroup)
+    Todo Lists (TodoNoteGroup)
+    Upcoming Events (EventNoteGroup)
+    Search Results (SearchResultGroup)
+
+ToDo Lists  - Make / Edit / Manage multiple named Todo Lists
+    A Todo list item may be moved to Today's DayNote (via its contex menu)
+    A Todo list item may be assigned a related Date (via a selection on the Group's Three Month Column panel)
+    A Todo list item may be moved to the DayNote of its related Date, if it has one  (via its contex menu)
+    A Todo list item may be copied or moved to any other NoteGroup type (via its contex menu)
 
 Perform a search of all user data, save resulting list and display
     search can be keyword or date-based

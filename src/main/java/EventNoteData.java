@@ -2,6 +2,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -23,6 +27,8 @@ public class EventNoteData extends IconNoteData {
     private String strRecurrence;
     private int intDatKnown;   // Date And Time Known indicator.
     private boolean blnRetainNote;
+
+    transient String movedToDate;  // prevents dups.
 
     // Create a temporary Calendar variable, for get/set operations.
     private static GregorianCalendar calTmp;
@@ -746,7 +752,10 @@ public class EventNoteData extends IconNoteData {
     @JsonIgnore
     public DayNoteData getDayNoteData() {
         DayNoteData dnd = new DayNoteData(this);
-        dnd.setTimeOfDayDate(dateEventStart);
+        Instant instant = Instant.ofEpochMilli(this.getStartTime().getTime()); // This COULD be supposed to be END time.
+        // TODO - use the 'movedToDate' flag here.
+        LocalTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
+        dnd.setTimeOfDayString(ansr.toString());
         dnd.setSubjectString("Event");
 
         // Insert the Event category (if there is one) into

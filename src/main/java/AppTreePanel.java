@@ -25,6 +25,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -1086,7 +1089,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theYearView.setChoice(currentDateChoice);
                 return;
             case "Month View":
-                theMonthView.setChoice(currentDateChoice);
+                theMonthView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+//                theMonthView.setChoice(currentDateChoice);
                 return;
             case "Day Notes":
                 theAppDays.setChoice(currentDateChoice);
@@ -1200,7 +1204,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     if (d != null) currentDateChoice = d;
                     break;
                 case "Month View":
-                    currentDateChoice = theMonthView.getChoice();
+                    currentDateChoice = Date.from(theMonthView.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//                    currentDateChoice = theMonthView.getChoice();
                     break;
                 case "Day Notes":
                     currentDateChoice = theAppDays.getChoice();
@@ -1284,9 +1289,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(theYearView);
         } else if (theText.equals("Month View")) {
             if (theMonthView == null) {
-                theMonthView = new MonthView(this);
+                theMonthView = new MonthView(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+                theMonthView.setParent(this);
             }
-            theMonthView.setChoice(currentDateChoice);
             rightPane.setViewportView(theMonthView);
         } else if (theText.equals("Day Notes")) {
             if (theAppDays == null) {

@@ -1,12 +1,6 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 class NoteData {
-    @JsonIgnore
-    private Date dateLastMod; // This can be removed after all data is converted.
-
     private String zdtLastModString;
     String noteString;
     String subjectString;

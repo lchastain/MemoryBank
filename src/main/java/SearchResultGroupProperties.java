@@ -1,9 +1,6 @@
-import java.io.Serializable;
-
 // This class holds the persistent data for the SearchResultGroup
 //-----------------------------------------------------------------------
-public class SearchResultGroupProperties implements Serializable {
-    public static final long serialVersionUID = 2412760123507069513L;
+public class SearchResultGroupProperties {
 
     SearchPanelSettings sps;
 

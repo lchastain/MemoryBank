@@ -31,9 +31,28 @@ One-stop reference for how tests are getting things done.
     Normal construction of the group (no params), then call setChoice() with a given Date.
     Construct a Calendar using YEAR/MNONTH/DAY, then get that Date with getTime().   See ReuseNoteTest.testReuseDayNote()
 
-7.  Convert a java.time.ZonedDateTime to java.util.Date:  Date.from(java.time.ZonedDateTime.now().toInstant());
-    and the other direction:  ZonedDateTime zdt = ZonedDateTime.ofInstant(dateTmp.toInstant(), theZone.toZoneId());
-    where dateTmp is your Date, and theZone was made by something like:
-        TimeZone theZone = TimeZone.getTimeZone("America/Phoenix"); // Sierra Vista, Tucson AZ
+7.  Convert a to java.util.Date (myDate) to a java.time.ZonedDateTime:
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(myDate.toInstant(), theZone.toZoneId());
+            where theZone was made by something like:
+            TimeZone theZone = TimeZone.getTimeZone("America/Phoenix"); // Sierra Vista, Tucson AZ
+        Alternatively could use:  ZoneId.systemDefault()  to get a ZoneId.
+
+8.  Convert a java.util.Date to java.time.LocalTime or to LocalDate:
+    Date theDate = (whatever)
+    Instant instant = Instant.ofEpochMilli(theDate.getTime());
+    LocalTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
+    LocalDate ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
+
+9.  Convert a java.time.LocalDate to LocalDateTime:
+        LocalDateTime atTime(int hour, int minutes)  (and also seconds, optional)
+
+10. Convert a java.time.LocalDate (myLocalDate) to java.util.Date:
+        Date date = Date.from(myLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+
+11. Convert a java.time.ZonedDateTime (myZonedDateTime) to java.util.Date:
+        Date theDate = Date.from(myZonedDateTime.toInstant());
+
+
+
 
 

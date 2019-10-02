@@ -10,6 +10,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 // This class provides static utility methods that are needed by more than one client-class in the main app.
@@ -96,11 +99,55 @@ public class AppUtil {
     // -----------------------------------------------------------------
     // Method Name: findFilename
     //
-    // Given a Calendar and a type of file to look for, this method
+    // Given a LocalDate and a type of note to look for, this method
     // will return the appropriate filename if a file exists for the indicated timeframe.
     // If no file exists, the return string is empty ("").
     // -----------------------------------------------------------------
-    static String findFilename(@NotNull GregorianCalendar cal, String which) {
+    static String findFilename(LocalDate theDate, String dateType) {
+        String[] foundFiles = null;
+         String lookfor = dateType;
+        String fileName = MemoryBank.userDataHome + File.separatorChar;
+        fileName += String.valueOf(theDate.getYear());
+
+        // System.out.println("Looking in " + fileName);
+        File f = new File(fileName);
+        if (f.exists()) {  // If the Year of the Date is an existing directory -
+            if (f.isDirectory()) {
+
+                if (!dateType.equals("Y")) { // ..and if we're not looking for a YearNote -
+                    lookfor += getTimePartString(theDate.atTime(0, 0), ChronoUnit.MONTHS, '0');
+
+                    if (!dateType.equals("M")) {  // ..and if we are looking for a DayNote -
+                        lookfor += getTimePartString(theDate.atTime(0, 0), ChronoUnit.DAYS, '0');
+                    } // end if not a Month note
+                } // end if not a Year note
+                lookfor += "_";
+
+                // System.out.println("Looking for " + lookfor);
+                foundFiles = f.list(new logFileFilter(lookfor));
+            } // end if directory
+        } // end if exists
+
+        // Reset this local variable, and reuse.
+        fileName = "";
+
+        // A 'null' foundFiles only happens if directory is not there;
+        // a valid condition that needs no further action.  Similarly,
+        // the directory might exist but be empty; also allowed.
+        if ((foundFiles != null) && (foundFiles.length > 0)) {
+            // Previously we tried to handle the case of more than one file found for the same
+            // name prefix, but the JOptionPane error dialog cannot be shown here (possibly
+            // because it referenced a null parentComponent).  Further, if this occurs at
+            // startup then we'd never get past the splash screen.  So - we just take the first one.
+            fileName = MemoryBank.userDataHome + File.separatorChar;
+            fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
+            fileName += File.separatorChar;
+            fileName += foundFiles[0];
+        }
+        return fileName;
+    } // end findFilename
+
+    static String OldFindFilename(@NotNull GregorianCalendar cal, String which) {
         String[] foundFiles = null;
         String lookfor = which;
         String fileName = MemoryBank.userDataHome + File.separatorChar;
@@ -135,7 +182,7 @@ public class AppUtil {
         // A 'null' foundFiles only happens if directory is not there;
         // a valid condition that needs no further action.  Similarly,
         // the directory might exist but be empty; also allowed.
-        if((foundFiles != null) && (foundFiles.length > 0)) {
+        if ((foundFiles != null) && (foundFiles.length > 0)) {
             // Previously we tried to handle the case of more than one file found for the same
             // name prefix, but the JOptionPane error dialog cannot be shown here (possibly
             // because it referenced a null parentComponent).  Further, if this occurs at
@@ -403,6 +450,54 @@ public class AppUtil {
     } // end getMonthIntString
 
 
+    // Returns a String containing the requested portion of the input LocalDateTime.
+    // Years are expected to be 4 digits long, all other units are two digits.
+    static String getTimePartString(LocalDateTime ldt, ChronoUnit cu, Character padding) {
+
+        switch (cu) {
+            case YEARS:
+                StringBuilder theYears = new StringBuilder(String.valueOf(ldt.getYear()));
+                if(padding != null) {
+                    while(theYears.length() < 4) {
+                        theYears.insert(0, padding);
+                    }
+                }
+                return theYears.toString();
+            case MONTHS:
+                String theMonths = String.valueOf(ldt.getMonthValue());
+                if(padding != null) {
+                    if (theMonths.length() < 2) theMonths = padding + theMonths;
+                }
+                return theMonths;
+            case DAYS:
+                String theDays = String.valueOf(ldt.getDayOfMonth());
+                if(padding != null) {
+                    if (theDays.length() < 2) theDays = padding + theDays;
+                }
+                return theDays;
+            case HOURS:
+                String theHours = String.valueOf(ldt.getHour());
+                if(padding != null) {
+                    if (theHours.length() < 2) theHours = padding + theHours;
+                }
+                return theHours;
+            case MINUTES:
+                String theMinutes = String.valueOf(ldt.getMinute());
+                if(padding != null) {
+                    if (theMinutes.length() < 2) theMinutes = padding + theMinutes;
+                }
+                return theMinutes;
+            case SECONDS:
+                String theSeconds = String.valueOf(ldt.getSecond());
+                if(padding != null) {
+                    if (theSeconds.length() < 2) theSeconds = padding + theSeconds;
+                }
+                return theSeconds;
+            default:
+                throw new IllegalStateException("Unexpected value: " + cu);
+        }
+    } // end getTimePartString
+
     //--------------------------------------------------------
     // Method Name: getTimestamp
     //
@@ -411,41 +506,18 @@ public class AppUtil {
     // Used in unique filename creation.
     //--------------------------------------------------------
     static String getTimestamp() {
-        StringBuilder s;
+        StringBuilder theStamp;
 
-        calTemp.setTime(new Date());
+        LocalDateTime ldt = LocalDateTime.now();
 
-        int year = calTemp.get(Calendar.YEAR);
-        s = new StringBuilder(String.valueOf(year));
+        theStamp = new StringBuilder(getTimePartString(ldt, ChronoUnit.YEARS, null));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.MONTHS, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.DAYS, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.HOURS, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.MINUTES, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.SECONDS, '0'));
 
-        // This should not be necessary unless the system time is hosed...
-        while (s.length() < 4) {
-            s.insert(0, "0");
-        } // end while
-
-        s.append(getMonthIntString(calTemp.get(Calendar.MONTH)));
-
-        int date = calTemp.get(Calendar.DATE);
-        if (date < 10)
-            s.append("0");
-        s.append(date);
-
-        int hour = calTemp.get(Calendar.HOUR_OF_DAY);
-        if (hour < 10)
-            s.append("0");
-        s.append(hour);
-
-        int minute = calTemp.get(Calendar.MINUTE);
-        if (minute < 10)
-            s.append("0");
-        s.append(minute);
-
-        int second = calTemp.get(Calendar.SECOND);
-        if (second < 10)
-            s.append("0");
-        s.append(second);
-
-        return s.toString();
+        return theStamp.toString();
     } // end getTimestamp
 
     // -------------------------------------------------------
@@ -520,15 +592,35 @@ public class AppUtil {
     // -----------------------------------------------------------------
     // Method Name: makeFilename
     //
-    // This method develops a variable filename that depends on
-    // the type of calendar that is sent in (one of Year, Month,
-    // or specific Date). Used in saving of Calendar-based data files.
+    // This method develops a variable filename that depends on the requested
+    // noteType (one of Year, Month, or Date, specified by Y, M, or D).
+    // Examples:  Y_timestamp, M03_timestamp, D0704_timestamp.
+    // The numeric Year for these files is known by a parent directory.
+    // Used in saving of Calendar-based data files.
     // It is kept here (for now?) as opposed to the CalendarNoteGroup
     // because of the additional calls to two static methods also here.
     // BUT - there is no reason that those two could not also move
     // over there, since this method (and findFilename) is their only 'client'.
     // -----------------------------------------------------------------
-    static String makeFilename(GregorianCalendar cal, String which) {
+    static String makeFilename(LocalDateTime ldt, String noteType) {
+        StringBuilder filename = new StringBuilder(MemoryBank.userDataHome + File.separatorChar);
+        filename.append(getTimePartString(ldt, ChronoUnit.YEARS, '0'));
+        filename.append(File.separatorChar);
+        filename.append(noteType);
+
+        if (!noteType.equals("Y")) {
+            filename.append(getTimePartString(ldt, ChronoUnit.MONTHS, '0'));
+
+            if (!noteType.equals("M")) {
+                filename.append(getTimePartString(ldt, ChronoUnit.DAYS, '0'));
+            } // end if not a Month note
+        } // end if not a Year note
+
+        filename.append("_").append(getTimestamp()).append(".json");
+        return filename.toString();
+    }
+
+    static String oldMakeFilename(GregorianCalendar cal, String which) {
         String FileName = MemoryBank.userDataHome + File.separatorChar;
         FileName += String.valueOf(cal.get(Calendar.YEAR));
 
@@ -536,7 +628,7 @@ public class AppUtil {
         FileName += which;
 
         if (!which.equals("Y")) {
-            FileName += getMonthIntString(cal.get(Calendar.MONTH));
+                    FileName += getMonthIntString(cal.get(Calendar.MONTH));
 
             if (!which.equals("M")) {
                 int date = cal.get(Calendar.DATE);
@@ -564,7 +656,7 @@ public class AppUtil {
         public boolean accept(File dir, String name) {
             boolean b1 = name.startsWith(which);
             boolean b2 = name.endsWith(".json");
-            return b1&b2;
+            return b1 & b2;
         } // end accept
     } // end class logFileFilter
 
@@ -647,7 +739,7 @@ public class AppUtil {
         theGroup = loadNoteGroupData(theFilename);
 
         // No pre-existing data file is ok in this case; we'll just make one.
-        if(theGroup == null) {
+        if (theGroup == null) {
             ArrayList al = new ArrayList(); // reason for suppressing the 'rawtypes' warning.
             theGroup = new Object[1]; // Only a DayNoteGroup gets notes added this way; no properties.
             theGroup[0] = al;
@@ -678,7 +770,7 @@ public class AppUtil {
             bw = new BufferedWriter(writer);
             bw.write(toJsonString(theGroup));
             // Set the number of notes written, only AFTER the write.
-            notesWritten = ((List) theGroup[theGroup.length-1]).size();
+            notesWritten = ((List) theGroup[theGroup.length - 1]).size();
         } catch (IOException ioe) {
             // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
             // same name in the directory where you want to put the file, or not having write permission.
@@ -702,7 +794,6 @@ public class AppUtil {
 
         return notesWritten;
     }
-
 
 
 } // end class AppUtil

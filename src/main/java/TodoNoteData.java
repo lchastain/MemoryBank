@@ -126,22 +126,21 @@ public class TodoNoteData extends NoteData implements Serializable {
             File src = new File(iconFileString);
             MemoryBank.debug("  Source image is: " + src.getPath());
             int imagesIndex = iconFileString.indexOf("images");
-            String destFileName = "icons/" + iconFileString.substring(imagesIndex + 7);
-            destFileName = MemoryBank.userDataHome + "/" + destFileName;
+            String destFileName = "icons" + File.separatorChar + iconFileString.substring(imagesIndex + 7);
+            destFileName = MemoryBank.userDataHome + File.separatorChar + destFileName;
             File dest = new File(destFileName);
             String theParentDir = dest.getParent();
             File f = new File(theParentDir);
             if (!f.exists()) //noinspection ResultOfMethodCallIgnored
                 f.mkdirs();
             if (dest.exists()) {
-                MemoryBank.debug("  Destination image is: " + src.getPath());
+                MemoryBank.debug("  Destination image is: " + dest.getPath());
             } else {
                 MemoryBank.debug("  Copying to: " + destFileName);
                 AppUtil.copy(src, dest);
             } // end if
             iconFileString = dest.getPath();
         } // end if status has been set
-
 
         // Make all assignments
         dnd.setExtendedNoteHeightInt(newHite);
@@ -151,7 +150,6 @@ public class TodoNoteData extends NoteData implements Serializable {
         dnd.setNoteString(noteString);
         dnd.setShowIconOnMonthBoolean(false);
         dnd.setSubjectString(subjectString);
-        dnd.setTimeOfDayDate(newTimeDate);
 
         return dnd;
     } // end getDayNoteData

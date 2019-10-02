@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Vector;
 
@@ -63,6 +64,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     DayNoteGroup() {
         super("Day Note");
         sdf.applyPattern("EEEE, MMMM d, yyyy");
+        dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
 
         LabelButton timeFormatButton = new LabelButton("24");
         timeFormatButton.addMouseListener(this);

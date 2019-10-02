@@ -1,10 +1,11 @@
 /*  Representation of a single Day Note.
  */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalTime;
 import java.util.Calendar;
-import java.util.Date;
 
 public class DayNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
@@ -14,8 +15,6 @@ public class DayNoteComponent extends IconNoteComponent {
     // The Members
     private DayNoteData myDayNoteData;
     private NoteTimeLabel noteTimeLabel;
-    private int myTimeAmPm = Calendar.AM_PM;
-    private Date myTime;
 
     // Private static values that are accessed from multiple contexts.
     private static JMenuItem clearTimeMi;
@@ -74,19 +73,6 @@ public class DayNoteComponent extends IconNoteComponent {
     //-----------------------------------------------------------------
     @Override
     public NoteData getNoteData() {
-//        if (!initialized) return null;  // 9/14/2019 - This was disabled in ALL NoteComponents
-        // while resolving SCR0065; not related to the issues below,
-        // except that it allowed the null possibility to become a problem.
-
-        // DO NOT do this here....  6/17/2007
-        // 9/14/2019 - now, myDayNoteData could be null.  Disabled the line below.
-//        myDayNoteData.setTimeOfDayDate(myTime);
-
-        // Note 9/15/2019 - with the disabling of the above line and possible remediation of that by
-        // adding an assignment of:     timeOfDayDate = new Date(); to two DayNoteData constructors,
-        // we appear to be in obeyance with the above comment from 2007.  Remove all comments from
-        // here after two or more cycles show no further problems.
-
         return myDayNoteData;
     } // end getNoteData
 
@@ -101,12 +87,10 @@ public class DayNoteComponent extends IconNoteComponent {
 
 
     protected void initialize() {
-        myTime = new Date();
-        if(myDayNoteData != null) {
-            myDayNoteData.setTimeOfDayDate(myTime);
-        }
-        resetTimeLabel();
         super.initialize();
+
+        myDayNoteData.setTimeOfDayString(LocalTime.now().toString());
+        resetTimeLabel();
     } // end initialize
 
 
@@ -144,7 +128,10 @@ public class DayNoteComponent extends IconNoteComponent {
     // This method is called in response to a 'military' toggle
     //   as well as when initializing or updating the time.
     void resetTimeLabel() {
-        if (myTime == null) {
+        if(!initialized) return;
+
+        String timeOfDayString = myDayNoteData.getTimeOfDayString();
+        if (timeOfDayString == null || timeOfDayString.isEmpty()) {
             // The following statement could be needed if a DayNoteComponent had
             //   had its time cleared, and then it was being shifted up or down.
             noteTimeLabel.setText("     ");  // enough room for 'HH:MM'
@@ -152,20 +139,38 @@ public class DayNoteComponent extends IconNoteComponent {
             //   a time format toggle, it is not needed but no harm done.
             return;
         } // end if
-        MemoryBank.tempCalendar.setTime(myTime);
-        noteTimeLabel.setText(MemoryBank.makeTimeString());
 
-        // Check AM / PM
-        int which = MemoryBank.tempCalendar.get(Calendar.AM_PM);
-        if (which != myTimeAmPm) {
-            if (which == Calendar.AM) {
-                noteTimeLabel.setForeground(MemoryBank.amColor);
-            } else {     // Calendar.PM
-                noteTimeLabel.setForeground(MemoryBank.pmColor);
-            } // end if
+        // IntelliJ doesn't believe that the substring should be internal to the parseInt.
+        String hoursString = timeOfDayString.substring(0, 2);
+        int theHours = Integer.parseInt(hoursString);
 
-            myTimeAmPm = which;
+        String minutesString = timeOfDayString.substring(3, 5);
+        String theLabel;
+
+        int meridian = Calendar.AM;
+        if (theHours > 11) {
+            meridian = Calendar.PM;
+        }
+
+        if (MemoryBank.military) {
+            // drop out the colon and take just hours and minutes.
+            theLabel = hoursString + minutesString;
+        } else {  // Normalize to a 12-hour clock
+            if (theHours > 12) {
+                theLabel = (theHours - 12) + ":" + minutesString;
+            } else {
+                theLabel = hoursString + ":" + minutesString;
+            }
+        }
+        noteTimeLabel.setText(theLabel);
+
+        // Colorize AM / PM
+        if (meridian == Calendar.AM) {
+            noteTimeLabel.setForeground(MemoryBank.amColor);
+        } else {     // Calendar.PM
+            noteTimeLabel.setForeground(MemoryBank.pmColor);
         } // end if
+
     } // end resetTimeLabel
 
 
@@ -173,11 +178,11 @@ public class DayNoteComponent extends IconNoteComponent {
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
     public void setNoteData(NoteData newNoteData) {
-        if(newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
+        if (newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
             setDayNoteData((DayNoteData) newNoteData);
         } else if (newNoteData instanceof TodoNoteData) {
             setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData(false));
-        } else if(newNoteData instanceof EventNoteData) {
+        } else if (newNoteData instanceof EventNoteData) {
             setDayNoteData(((EventNoteData) newNoteData).getDayNoteData());
         } else {
             setDayNoteData(new DayNoteData(newNoteData));
@@ -192,8 +197,8 @@ public class DayNoteComponent extends IconNoteComponent {
     //----------------------------------------------------------
     private void setDayNoteData(DayNoteData newNoteData) {
         myDayNoteData = newNoteData;
-        myTime = newNoteData.getTimeOfDayDate();
-        MemoryBank.debug("My time: " + myTime);
+//        myTime = newNoteData.getTimeOfDayDate();
+        MemoryBank.debug("My time: " + myDayNoteData.getTimeOfDayString());
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
@@ -204,13 +209,12 @@ public class DayNoteComponent extends IconNoteComponent {
 
     protected void shiftDown() {
         if (noteTimeLabel.isActive) {
-            // add one minute
-            int dayCheck = MemoryBank.modMinute(myTime, -1);
-            if (dayCheck == MemoryBank.SAME_DAY) {
-                myTime = MemoryBank.tempCalendar.getTime();
-                resetTimeLabel();
-                DayNoteComponent.this.setNoteChanged();
-            } // end if
+            // subtract one minute
+            LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
+            lt = lt.minusMinutes(1);
+            myDayNoteData.setTimeOfDayString(lt.toString());
+            resetTimeLabel();
+            DayNoteComponent.this.setNoteChanged();
         } else {
             myNoteGroup.shiftDown(index);
         } // end if
@@ -218,13 +222,12 @@ public class DayNoteComponent extends IconNoteComponent {
 
     protected void shiftUp() {
         if (noteTimeLabel.isActive) {
-            // subtract one minute
-            int dayCheck = MemoryBank.modMinute(myTime, 1);
-            if (dayCheck == MemoryBank.SAME_DAY) {
-                myTime = MemoryBank.tempCalendar.getTime();
-                resetTimeLabel();
-                DayNoteComponent.this.setNoteChanged();
-            } // end if
+            // add one minute
+            LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
+            lt = lt.plusMinutes(1);
+            myDayNoteData.setTimeOfDayString(lt.toString());
+            resetTimeLabel();
+            DayNoteComponent.this.setNoteChanged();
         } else {
             myNoteGroup.shiftUp(index);
         } // end if
@@ -244,7 +247,7 @@ public class DayNoteComponent extends IconNoteComponent {
         //   to data objects.  If you 'get' data into a local variable
         //   and then later clear the component, you have also just
         //   cleared the data in your local variable because you never had
-        //   a separatate copy of the data object, just the reference to it.
+        //   a separate copy of the data object, just the reference to it.
 
         // So - copy the data objects.
         if (dnd1 != null) dnd1 = new DayNoteData(dnd1);
@@ -260,14 +263,14 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end swap
 
 
-    //---------------------------------------------------------
-    // End of NoteComponent specific methods
-    //---------------------------------------------------------
+//---------------------------------------------------------
+// End of NoteComponent specific methods
+//---------------------------------------------------------
 
 
-    //---------------------------------------------------------
-    // Inner Classes -
-    //---------------------------------------------------------
+//---------------------------------------------------------
+// Inner Classes -
+//---------------------------------------------------------
 
     protected class NoteTimeLabel extends JLabel implements
             ActionListener, MouseListener {
@@ -289,7 +292,7 @@ public class DayNoteComponent extends IconNoteComponent {
             setText("     ");  // enough room for 'HH:MM'
             setBorder(highBorder);
             isActive = false;
-            myTime = null;
+            if(myDayNoteData != null) myDayNoteData.setTimeOfDayString(null);
         } // end clear
 
         public Dimension getPreferredSize() {
@@ -307,9 +310,10 @@ public class DayNoteComponent extends IconNoteComponent {
             DayNoteComponent.this.setBorder(redBorder);
 
             Frame theFrame = JOptionPane.getFrameForComponent(this);
+            LocalTime theTime = LocalTime.parse(myDayNoteData.getTimeOfDayString());
 
-            TimeChooser tc = new TimeChooser(myTime);
-            int choice = JOptionPane.showConfirmDialog(
+            TimeChooser tc = new TimeChooser(theTime);
+            int result = JOptionPane.showConfirmDialog(
                     theFrame,                     // for modality
                     tc,                           // UI Object
                     "Set the time for this note", // pane title bar
@@ -318,13 +322,12 @@ public class DayNoteComponent extends IconNoteComponent {
                     null);                       // icon
 
             DayNoteComponent.this.setBorder(null);
-            if (choice != JOptionPane.OK_OPTION) return;
+            if (result != JOptionPane.OK_OPTION) return;
 
             if (tc.getClearBoolean()) clear();
             else {
-                myTime = MemoryBank.tempCalendar.getTime();
-
-                System.out.println("The date is: " + myTime);
+                myDayNoteData.setTimeOfDayString(tc.getChoice().toString());
+                System.out.println("The time is: " + tc.getChoice());
                 resetTimeLabel();
             } // end if
             DayNoteComponent.this.setNoteChanged();
@@ -416,7 +419,7 @@ public class DayNoteComponent extends IconNoteComponent {
                     if (getText().trim().equals("")) {
                         // This can happen if a previously initialized
                         //   note has had its time cleared.
-                        myTime = new Date();
+//                        myTime = new Date();
                         DayNoteComponent.this.resetTimeLabel();
                         DayNoteComponent.this.setNoteChanged();
                     } // end if

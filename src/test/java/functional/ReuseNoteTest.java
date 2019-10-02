@@ -27,42 +27,39 @@ class ReuseNoteTest {
     }
 
     @Test
-    void testReuseYearNote() {
-    }
-
-    @Test
     void testReuseDayNote() {
         DayNoteGroup dayNoteGroup = new DayNoteGroup();
 
         // Set the day to one where the note content can be used for this test.
-        Calendar theCal = new GregorianCalendar(2018, Calendar.JANUARY, 8);
+        // (we know there are 10 notes on this day).
+        Calendar theCal = new GregorianCalendar(2010, Calendar.JUNE, 8);
         dayNoteGroup.setChoice(theCal.getTime());
 
         // Get a component to clear, and clear it.
-        DayNoteComponent dayNoteComponent2 = dayNoteGroup.getNoteComponent(2);
-        dayNoteComponent2.clear();
+        // This note has a time, extendeed note, and icon
+        DayNoteComponent dayNoteComponent4 = dayNoteGroup.getNoteComponent(4);
+        dayNoteComponent4.clear();
 
         // Now reuse that component
         DayNoteData dayNoteData = new DayNoteData();
         dayNoteData.setNoteString("This is it!");
-        dayNoteComponent2.setNoteData(dayNoteData);
+        dayNoteComponent4.setNoteData(dayNoteData);
 
         // Verify that reusing the line did not add a new one (SCR0065)
         int highest = dayNoteGroup.vectGroupData.size();
-        Assertions.assertEquals(highest, 5);
+        Assertions.assertEquals(highest, 10);
 
         // Note: during dev of this test a new problem (caused by the initial fix for SCR0065)
         // was seen - that the reused note was not getting a new timestamp or default icon.
         // The fix was modified so that a reused note is effectively reinitialized and now that
-        // problem does not occur.  This part of the fix has been verified manually and will
-        // continue to be seen regularly.  Not that it doesn't deserve an automated test, just
-        // not sure how to do that here yet, AND - it would require closer examination of the
-        // time/date based data, that at this time is to be renovated throughout the entire
-        // app.  That 'renovation' / upgrade is going to take higher priority than any / all
-        // tests, because most of those tests (and probably this one) will have to change to
-        // keep up with the upgrade to Java 8+ date / time classes.  9/15/2019
-
-        // TODO - automated verification of a new timestamp and default icon.
+        // problem does not occur.
+        //
+        // These two assertions verify that the associated underlying data was correctly altered.
+        // They do not check the visual aspects of the result but unit tests for the DayNoteComponent
+        // (not yet written) will verify that the underlying data is used in the display of the info.
+        // (and for now - it all looks ok)
+        assert dayNoteData.getTimeOfDayString() != null;
+        assert dayNoteData.getIconFileString() == null;
 
         // Not needed, unless you run only this test and then want to examine the result.
         dayNoteGroup.preClose();
