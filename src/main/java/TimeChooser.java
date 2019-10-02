@@ -28,7 +28,6 @@ public class TimeChooser extends JPanel implements ActionListener {
     // Variables needed by more than one method -
     private LocalTime initialTime;
     private LocalTime theNewTime;
-    private int myTimeAmPm = Calendar.AM_PM;
 
     private boolean showSeconds;
     private boolean iAmClear;
@@ -136,7 +135,6 @@ public class TimeChooser extends JPanel implements ActionListener {
                 minutesButton.setText("  ");
                 secondsButton.setText("  ");
                 ampmButton.setText("  ");
-                myTimeAmPm = Calendar.AM_PM;
                 break;
         }
         recalc();
@@ -200,8 +198,8 @@ public class TimeChooser extends JPanel implements ActionListener {
 
     } // end recalc
 
-    private void setShowSeconds(boolean b) {
-        showSeconds = b;
+    void setShowSeconds() {
+        showSeconds = true;
         recalc();
     } // end setShowSeconds
 
@@ -312,32 +310,5 @@ public class TimeChooser extends JPanel implements ActionListener {
             iAmRunning = false;
         }
     } // end class Depressed
-
-    public static void main(String[] args) {
-        Frame dcFrame = new Frame("TimeChooser test");
-
-        MemoryBank.military = true;  // Change this,  to test.
-        TimeChooser dc = new TimeChooser();
-
-        dcFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                System.exit(0);
-            }
-        });
-
-        // Needed to override the 'metal' L&F for Swing components.
-        String laf = UIManager.getSystemLookAndFeelClassName();
-        try {
-            UIManager.setLookAndFeel(laf);
-        } catch (UnsupportedLookAndFeelException | IllegalAccessException | ClassNotFoundException | InstantiationException ignored) {
-        }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(dc);
-
-        dc.setShowSeconds(true);
-        dcFrame.add(dc);
-        dcFrame.pack();
-        dcFrame.setVisible(true);
-        dcFrame.setLocationRelativeTo(null);
-    } // end main
 
 } // end class TimeChooser
