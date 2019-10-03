@@ -9,14 +9,14 @@ class NoteData {
     int extendedNoteHeightInt;
     static boolean loading = false;
 
-    public NoteData() {
+    NoteData() {
         if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         clear();
     } // end constructor
 
 
     // The copy constructor (clone)
-    public NoteData(NoteData ndCopy) {
+    NoteData(NoteData ndCopy) {
         this();
         this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
         this.extendedNoteString = ndCopy.extendedNoteString;
@@ -27,7 +27,7 @@ class NoteData {
     } // end constructor
 
     // Construct a NoteData from a TodoNoteData.
-    public NoteData(TodoNoteData ndCopy) {
+    NoteData(TodoNoteData ndCopy) {
         this();
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
@@ -104,7 +104,7 @@ class NoteData {
         if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
-    public void setSubjectString(String value) {
+    void setSubjectString(String value) {
         subjectString = value;
         if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }

@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -759,7 +760,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 if (goLook) {
                     dateNoteDate = AppUtil.getDateFromFilename(theFile);
                     if (dateNoteDate != null) {
-                        if (spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
+                        LocalDate ld = Instant.ofEpochMilli(dateNoteDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                        if (spTheSearchPanel.filterWhen(ld)) goLook = false;
                     } // end if
                 } // end if
 
@@ -772,7 +774,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 //   or the app is being served from a server where only admins have access (and we
                 //   trust all admins, of course).
                 if (goLook) {
-                    Date dateLastMod = new Date(theFile.lastModified());
+                    LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
                     if (spTheSearchPanel.getLastModSetting() == SearchPanel.AFTER) {
                         if (spTheSearchPanel.filterLastMod(dateLastMod)) goLook = false;
                     } // end if
@@ -1285,12 +1287,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (theYearView == null) {
                 theYearView = new YearView(this);
             } // end if
+            // Might need to use currentDateChoice to set the year, here.  and above.
             theYearView.setChoice(currentDateChoice);
             rightPane.setViewportView(theYearView);
         } else if (theText.equals("Month View")) {
             if (theMonthView == null) {
                 theMonthView = new MonthView(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
                 theMonthView.setParent(this);
+            } else {
+                theMonthView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
             }
             rightPane.setViewportView(theMonthView);
         } else if (theText.equals("Day Notes")) {

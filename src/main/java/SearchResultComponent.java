@@ -6,9 +6,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 
 public class SearchResultComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
@@ -110,17 +109,13 @@ public class SearchResultComponent extends NoteComponent {
 
         // Get the Last Mod date
         ZonedDateTime zdtLastModDate = mySearchResultData.getLastModDate();
-        Date d = null;
-        if(zdtLastModDate != null) d = Date.from(mySearchResultData.getLastModDate().toInstant());
 
-        String strModDate;
-            // Make a date formatter.
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            sdf.applyPattern("MM/dd/yyyy");
+        // Make a date formatter.
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-            // Format the Last Mod date.
-            strModDate = sdf.format(d);
-
+        // Format the Last Mod date and set the label text.
+        assert zdtLastModDate != null;
+        String strModDate = dtf.format(zdtLastModDate);
         lastModLabel.setText(strModDate);
     } // end resetComponent
 

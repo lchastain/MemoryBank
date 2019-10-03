@@ -1,9 +1,9 @@
-/**
- User interface to display a full calendar year in Month/Date
- format, with capability of selection, and giving the user control
- over which year is displayed.
-
- Note 12/29/2006: added the capability to UNselect.
+/*
+ * User interface to display a full calendar year in Month/Date
+ * format, with capability of selection, and giving the user control
+ * over which year is displayed.
+ * <p>
+ * Note 12/29/2006: added the capability to UNselect.
  */
 
 //                                                                       
@@ -13,15 +13,20 @@
 //   desired, can rewrite to allow it to be 'set'.
 //                                                                       
 
-import java.awt.*;
-import java.awt.event.*;
-import java.text.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Objects;
 
 public class YearView extends JPanel implements ActionListener {
-    private static final long serialVersionUID = -4542122215704753611L;
+    private static final long serialVersionUID = 1L;
 
     // Required for use by 'static' section -
     private static String[] monthNames;
@@ -44,14 +49,14 @@ public class YearView extends JPanel implements ActionListener {
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-16");
     private static Font noDataFont = Font.decode("Dialog-plain-14");
-    private boolean hasDataArray[][];
+    private boolean[][] hasDataArray;
     private JDialog jdTheDialog;
     private int intNumSelections;
     private int intSelectionCount;
     private JButton todayButton;
 
 
-    GregorianCalendar cal;
+    private GregorianCalendar cal;
 
     private static final int borderWidth = 2;
     private static LineBorder theBorder;
@@ -224,7 +229,7 @@ public class YearView extends JPanel implements ActionListener {
     //   sometimes two dates are needed.  This method
     //   is provided so the calling context can retrieve
     //   the second choice.
-    public Date getChoice2() {
+    Date getChoice2() {
         return choice2;
     }
 
@@ -258,6 +263,14 @@ public class YearView extends JPanel implements ActionListener {
         sdf.setCalendar(cal);
         choice = cal.getTime();
     } // end reset
+
+    public void setChoice(LocalDate theChoice) {
+        Date d = null;
+        if (theChoice != null) {  // TODO - rework so that no conversion is needed.
+            d = Date.from(theChoice.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+        setChoice(d);
+    }
 
     // Called by an external controlling context.
     public void setChoice(Date d) {
@@ -538,10 +551,10 @@ public class YearView extends JPanel implements ActionListener {
         JComboBox<String> y1;
         JComboBox<String> y2;
 
-        public YearBox(String init) {
+        YearBox(String init) {
             super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-            y1 = new JComboBox<String>();
-            y2 = new JComboBox<String>();
+            y1 = new JComboBox<>();
+            y2 = new JComboBox<>();
 
             String[] nums = {
                     "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
@@ -573,7 +586,9 @@ public class YearView extends JPanel implements ActionListener {
         } // end constructor
 
         public void select(String init) {
-            while (init.length() < 4) init = "0" + init;
+            StringBuilder initBuilder = new StringBuilder(init);
+            while (initBuilder.length() < 4) initBuilder.insert(0, "0");
+            init = initBuilder.toString();
 
             y1.setSelectedItem(init.substring(0, 2));
             y2.setSelectedItem(init.substring(2, 4));
@@ -583,8 +598,8 @@ public class YearView extends JPanel implements ActionListener {
         public void itemStateChanged(ItemEvent ie) {
             int initialYear = Year;
 
-            String year = y1.getSelectedItem().toString() +
-                    y2.getSelectedItem().toString();
+            String year = Objects.requireNonNull(y1.getSelectedItem()).toString() +
+                    Objects.requireNonNull(y2.getSelectedItem()).toString();
 
             Year = Integer.parseInt(year);
 

@@ -52,16 +52,18 @@ class TodoItemFocusTest {
 
         // Allow some time to display the JFrame.
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         // Put the focus on a note -
+        // Note that selecting this one WILL have an effect on the TMC, placing it's
+        // previously selected month in the center.
         todoNoteComponent4.setActive();
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -72,7 +74,7 @@ class TodoItemFocusTest {
         Assertions.assertFalse(todoNoteComponent3.hasFocus());
         Assertions.assertTrue(todoNoteComponent4.hasFocus());
 
-        // Now, make a Date selection on the Three Month Column.
+        // Now, make a new Date selection on the Three Month Column.
         // Note that if the new selection month is not already visible you will probably not
         // see any change here, since TMC scrolling while an item is selected is only done
         // by the 'arrow' controls.  Programmatic setting of the Date like we do here is allowed
@@ -80,25 +82,24 @@ class TodoItemFocusTest {
         // the new month; just that the new selection was accepted.
 
         // NOTE - I don't like the above comment.  It may be true but it would still be better to
-        // drive this test as closely
-        // as possible to how a user would take action and SEE the results.  So I don't
-        // trust that the test methodology is capturing the true need, here. ie,
-        // the test SHOULD use the arrows.
+        // drive this test as closely as possible to how a user would take action and SEE the results.
+        // So I don't trust that the test methodology is capturing the true need, here. ie,
+        // the test SHOULD use the arrows, because those arrows could also take focus away from
+        //                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // the todoItem (except that I have coded them NOT to).
         // For that, we need to set Dates that are a certain known and constant distance apart, cannot
         // just lazily use 'today' as the new selection date.
-        // BUT - I'm thinking is that it might be better to first get my Date usages throughout the entire
-        // app updated to Java 8 requirements, before trying harder here and in many other places that need
-        // testing.  For now, this test works and --appears-- to fulfill the test requirement but the concept
+
+        // For now, this test works and --appears-- to fulfill the test requirement but the concept
         // of 'focus' is difficult to ensure that it's really being exercised if we cannot also see the
-        // results, so making the entire app visually driveable is yet another maybe-prerequisite to doing a
-        // better job here.  And to do that - ?? - maybe have known mouse coordinates, and use MouseEvents?
+        // results, so to do that - ?? - maybe have known mouse coordinates, and use MouseEvents?
+        // Maybe - refactor the TMC, to expose 'adjustment' methods that the mouse actions also call.
         //
         Date today = new Date();
         todoNoteGroup.getThreeMonthColumn().setChoice(today); // Normally done by a mouse press.
         todoNoteGroup.dateSelected(today); // Normally the mousePressed would have done this for us.
 
         // Enable this when you want to see the result.
-        //
 //        try {
 //            Thread.sleep(2000);
 //        } catch (InterruptedException e) {

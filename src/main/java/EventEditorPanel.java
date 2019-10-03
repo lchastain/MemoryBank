@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -423,7 +424,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     strRecurrenceSetting = "";
                 } else {
                     if (dateEventStartDate != null) yvDateChooser.setChoice(dateEventStartDate);
-                    else yvDateChooser.setChoice(null);
+                    else yvDateChooser.setChoice((LocalDate) null);
                     showDateDialog("Select a Start Date for the Event");
                     if (tmpNoteData.setStartDate(yvDateChooser.getChoice())) {
                         if ((dateEventStartDate == null) ||
@@ -454,7 +455,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     dateEventEndDate = null;
                 } else {
                     if (dateEventEndDate != null) yvDateChooser.setChoice(dateEventEndDate);
-                    else yvDateChooser.setChoice(null);
+                    else yvDateChooser.setChoice((LocalDate) null);
                     showDateDialog("Select an End Date for the Event");
                     if (tmpNoteData.setEndDate(yvDateChooser.getChoice())) {
                         dateEventEndDate = tmpNoteData.getEndDate();

@@ -37,20 +37,28 @@ One-stop reference for how tests are getting things done.
             TimeZone theZone = TimeZone.getTimeZone("America/Phoenix"); // Sierra Vista, Tucson AZ
         Alternatively could use:  ZoneId.systemDefault()  to get a ZoneId.
 
-8.  Convert a java.util.Date to java.time.LocalTime or to LocalDate:
+8.  Convert a Date (java.util.Date) to Local (java.time.LocalTime or to LocalDate):
     Date theDate = (whatever)
     Instant instant = Instant.ofEpochMilli(theDate.getTime());
     LocalTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
     LocalDate ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
 
-9.  Convert a java.time.LocalDate to LocalDateTime:
+9.  Convert a LocalDate (java.time.LocalDate) to LocalDateTime:
         LocalDateTime atTime(int hour, int minutes)  (and also seconds, optional)
 
-10. Convert a java.time.LocalDate (myLocalDate) to java.util.Date:
+10. Convert a LocalDate (java.time.LocalDate, 'myLocalDate') to Date (java.util.Date):
         Date date = Date.from(myLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
 
-11. Convert a java.time.ZonedDateTime (myZonedDateTime) to java.util.Date:
+11. Convert a ZonedDateTime (java.time.ZonedDateTime, 'myZonedDateTime') to Date (java.util.Date):
         Date theDate = Date.from(myZonedDateTime.toInstant());
+
+12. Convert a java.time.ZonedDateTime to java.time.LocalDateTime:
+        ZonedDateTime zdt = ZonedDateTime.now();
+        LocalDateTime ldt = zdt.toLocalDateTime();
+
+13. Convert a long (like Date.getTime()) to LocalDateTime:
+    LocalDate ld = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDate();
+
 
 
 

@@ -5,9 +5,8 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Vector;
 
 
@@ -1027,18 +1026,13 @@ public abstract class NoteGroup extends JPanel {
         } // end constructor
 
         public int compare(NoteData nd1, NoteData nd2) {
-            Calendar calOween = Calendar.getInstance();
-            calOween.set(1987, Calendar.OCTOBER, 30);
-
-            Date d1, d2;
-
-            d1 = Date.from(nd1.getLastModDate().toInstant());
-            d2 = Date.from(nd2.getLastModDate().toInstant());
+            ZonedDateTime zdt1 = nd1.getLastModDate();
+            ZonedDateTime zdt2 = nd2.getLastModDate();
 
             if (direction == ASCENDING) {
-                return d1.compareTo(d2);
+                return zdt1.compareTo(zdt2);
             } else {
-                return d2.compareTo(d1);
+                return zdt2.compareTo(zdt1);
             } // end if
         } // end compare
     } // end class LastModComparator

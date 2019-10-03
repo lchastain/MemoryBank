@@ -1,30 +1,72 @@
-import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 // This class holds the Search parameters.
 //-----------------------------------------------------------------------
-class SearchPanelSettings implements Serializable {
-    public static final long serialVersionUID = -7535946261231395347L;
+class SearchPanelSettings  {
+    boolean not1;
+    boolean not2;
+    boolean not3;
+    String word1;
+    String word2;
+    String word3;
+    boolean and1;
+    boolean and2;
+    boolean or1;
+    boolean or2;
+    boolean paren1;
+    boolean paren2;
 
-    public boolean not1;
-    public boolean not2;
-    public boolean not3;
-    public String word1;
-    public String word2;
-    public String word3;
-    public boolean and1;
-    public boolean and2;
-    public boolean or1;
-    public boolean or2;
-    public boolean paren1;
-    public boolean paren2;
+    // After a DataFix, mark all Date type as JsonIgnore
+    Date dateWhen1;
+    Date dateWhen2;
+    private String noteDateWhen1String;
+    private String noteDateWhen2String;
+    int whenChoice;
 
-    public Date dateWhen1;
-    public Date dateWhen2;
-    public int whenChoice;
+    Date dateMod1;
+    Date dateMod2;
+    private String dateLastMod1String;
+    private String dateLastMod2String;
+    int modChoice;
 
-    public Date dateMod1;
-    public Date dateMod2;
-    public int modChoice;
+    SearchPanelSettings() {
+    }
+
+    LocalDate getNoteDateWhen1() {
+        return LocalDate.parse(noteDateWhen1String);
+    }
+
+    LocalDate getNoteDateWhen2() {
+        return LocalDate.parse(noteDateWhen2String);
+    }
+
+    LocalDate getDateLastMod1() {
+        return LocalDate.parse(dateLastMod1String);
+    }
+
+    LocalDate getDateLastMod2() {
+        return LocalDate.parse(dateLastMod2String);
+    }
+
+    void setNoteDateWhen1(LocalDate value) {
+        if(value == null) return;
+        noteDateWhen1String = value.toString();
+    }
+
+    void setNoteDateWhen2(LocalDate value) {
+        if(value == null) return;
+        noteDateWhen2String = value.toString();
+    }
+
+    void setDateLastMod1(LocalDate value) {
+        if(value == null) return;
+        dateLastMod1String = value.toString();
+    }
+
+    void setDateLastMod2(LocalDate value) {
+        if(value == null) return;
+        dateLastMod2String = value.toString();
+    }
 
 } // end SearchPanelSettings
