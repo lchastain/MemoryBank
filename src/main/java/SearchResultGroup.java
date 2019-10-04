@@ -79,7 +79,7 @@ public class SearchResultGroup extends NoteGroup {
         searchSummary.setHorizontalAlignment(JLabel.CENTER);
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
-        searchSummary.setText(SearchPanel.getSummary(myVars.sps));
+        searchSummary.setText(SearchPanel.getSummary(myVars.searchPanelSettings));
         headingRow2.add(searchSummary, "Center");
         //----------------------------------------------------------
 

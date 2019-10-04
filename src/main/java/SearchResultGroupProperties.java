@@ -2,7 +2,7 @@
 //-----------------------------------------------------------------------
 public class SearchResultGroupProperties {
 
-    SearchPanelSettings sps;
+    SearchPanelSettings searchPanelSettings;
 
     public String column1Label;
     public String column2Label;
@@ -20,11 +20,7 @@ public class SearchResultGroupProperties {
     } // end constructor
 
     void setSearchSettings(SearchPanelSettings s) {
-        sps = s;
+        searchPanelSettings = s;
     } // end setSearchSettings
-
-    SearchPanelSettings getSearchPanelSettings() {
-        return sps;
-    }
 
 } // end SearchResultGroupProperties

@@ -1,5 +1,4 @@
 import java.time.LocalDate;
-import java.util.Date;
 
 // This class holds the Search parameters.
 //-----------------------------------------------------------------------
@@ -17,21 +16,13 @@ class SearchPanelSettings  {
     boolean paren1;
     boolean paren2;
 
-    // After a DataFix, mark all Date type as JsonIgnore
-    Date dateWhen1;
-    Date dateWhen2;
     private String noteDateWhen1String;
     private String noteDateWhen2String;
     int whenChoice;
 
-    Date dateMod1;
-    Date dateMod2;
     private String dateLastMod1String;
     private String dateLastMod2String;
     int modChoice;
-
-    SearchPanelSettings() {
-    }
 
     LocalDate getNoteDateWhen1() {
         return LocalDate.parse(noteDateWhen1String);
