@@ -4,6 +4,9 @@ List of all supported capabilities of the Memory Bank app -
 Year View - View a Calendar Year, one year per page, scrollable
     Which year is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
         for incrementing and decrementing the display by one Year.
+    Initial / Current date selection is shown with a red label and bold red highlight of the numeric date.
+    A single left-click on a date will select it, changing the choice label and date highlighting.
+    A single right-click on a selected date will deselect it.  The choice label goes away.
 
 Month View - View a Calendar Month, one month per page, scrollable
     Which month is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,

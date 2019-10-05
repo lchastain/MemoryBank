@@ -1,14 +1,16 @@
-
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-/**
+/*
  * Summary description for RecurrencePanel
  */
 public class RecurrencePanel extends JPanel implements
@@ -1226,9 +1228,9 @@ public class RecurrencePanel extends JPanel implements
     // Set the 'Stop By' date
     private void setStopBy() {
         // Make a dialog window to choose a date from a Year.
-        YearView yvDateChooser = new YearView(null);
+        YearView yvDateChooser = new YearView();
         if (dateStopBy == null) dateStopBy = dateStart;
-        yvDateChooser.setChoice(dateStopBy);
+        yvDateChooser.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateStopBy.getTime()), ZoneId.systemDefault()).toLocalDate());
 
         Frame f = JOptionPane.getFrameForComponent(this);
         JDialog tempwin = new JDialog(f, true);
@@ -1244,7 +1246,7 @@ public class RecurrencePanel extends JPanel implements
         // Go modal -
         tempwin.setVisible(true);
 
-        dateStopBy = yvDateChooser.getChoice();
+        dateStopBy = Date.from(yvDateChooser.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant());
         recalcEnd();
     } // end setStopBy
 

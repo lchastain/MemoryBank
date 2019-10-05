@@ -1088,7 +1088,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         switch (theCurrentView) {
             case "Year View":
-                theYearView.setChoice(currentDateChoice);
+                theYearView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
                 return;
             case "Month View":
                 theMonthView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
@@ -1201,13 +1201,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             switch (theLastSelection) {
                 case "Year View":
-                    Date d = theYearView.getChoice();
                     // Unlike the others, a YearView choice MAY be null.
-                    if (d != null) currentDateChoice = d;
+                    LocalDate yearViewChoice = theYearView.getChoice();
+                    if (yearViewChoice != null) currentDateChoice = Date.from(theYearView.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant());
                     break;
                 case "Month View":
                     currentDateChoice = Date.from(theMonthView.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant());
-//                    currentDateChoice = theMonthView.getChoice();
                     break;
                 case "Day Notes":
                     currentDateChoice = theAppDays.getChoice();
@@ -1285,10 +1284,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(theGoalPanel);
         } else if (theText.equals("Year View")) {
             if (theYearView == null) {
-                theYearView = new YearView(this);
+                theYearView = new YearView(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+                theYearView.setParent(this);
             } // end if
             // Might need to use currentDateChoice to set the year, here.  and above.
-            theYearView.setChoice(currentDateChoice);
+            theYearView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
             rightPane.setViewportView(theYearView);
         } else if (theText.equals("Month View")) {
             if (theMonthView == null) {

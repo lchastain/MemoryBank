@@ -6,9 +6,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -710,16 +708,16 @@ public class SearchPanel extends JPanel {
             // Show the date chooser dialog and set the corresponding date(s).
             if (strWhich.contains("When")) {
                 if (noteWhen1 != null) yvDateChooser.setChoice(noteWhen1);
-                else yvDateChooser.setChoice((LocalDate) null);
+                else yvDateChooser.setChoice(null);
 
                 showDateDialog(strPrompt, intChoiceCount);
                 if (blnDialogClosed) {
                     if (noteWhen1 == null) handleDateSpecChange(source, true);
                     if ((intChoiceCount == 2) && (noteWhen2 == null)) handleDateSpecChange(source, true);
                 } else {
-                    noteWhen1 = Instant.ofEpochMilli(yvDateChooser.getChoice().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                    noteWhen1 = yvDateChooser.getChoice();
                     if (intChoiceCount == 2) {
-                        LocalDate dateTmp = Instant.ofEpochMilli(yvDateChooser.getChoice2().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                        LocalDate dateTmp = yvDateChooser.getChoice2();
                         noteWhen2 = noteWhen1;
                         if (dateTmp.isBefore(noteWhen1)) noteWhen1 = dateTmp;
                         else noteWhen2 = dateTmp;
@@ -727,16 +725,16 @@ public class SearchPanel extends JPanel {
                 } // end if
             } else {  //      "Mod"
                 if (dateLastMod1 != null) yvDateChooser.setChoice(dateLastMod1);
-                else yvDateChooser.setChoice((LocalDate) null);
+                else yvDateChooser.setChoice(null);
 
                 showDateDialog(strPrompt, intChoiceCount);
                 if (blnDialogClosed) {
                     if (dateLastMod1 == null) handleDateSpecChange(source, true);
                     if ((intChoiceCount == 2) && (dateLastMod2 == null)) handleDateSpecChange(source, true);
                 } else {
-                    dateLastMod1 = Instant.ofEpochMilli(yvDateChooser.getChoice().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                    dateLastMod1 = yvDateChooser.getChoice();
                     if (intChoiceCount == 2) {
-                        LocalDate dateTmp = Instant.ofEpochMilli(yvDateChooser.getChoice2().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                        LocalDate dateTmp = yvDateChooser.getChoice2();
                         dateLastMod2 = dateLastMod1;
                         if (dateTmp.isBefore(dateLastMod1)) dateLastMod1 = dateTmp;
                         else dateLastMod2 = dateTmp;
@@ -1107,7 +1105,7 @@ public class SearchPanel extends JPanel {
      * sizes and positions.  Also additional property settings.
      */
     private void reinitializeComponent() {
-        yvDateChooser = new YearView(null);
+        yvDateChooser = new YearView(LocalDate.now());
 
         TitledBorder tb;   // For a shorter pointer to the panel borders.
 

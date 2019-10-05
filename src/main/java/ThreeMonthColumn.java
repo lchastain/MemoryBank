@@ -403,13 +403,13 @@ public class ThreeMonthColumn extends JPanel {
             addMouseListener(this);
             day = dcal.get(Calendar.DAY_OF_MONTH);
             setText(String.valueOf(day));
-        } // end setCal
+        } // end setDay
 
         void setCal() {
             dcal = null;
             removeMouseListener(this);
             setText("");
-        } // end setCal
+        } // end setDay
 
         public void mouseClicked(MouseEvent e) {
         }

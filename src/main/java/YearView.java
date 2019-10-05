@@ -6,23 +6,12 @@
  * Note 12/29/2006: added the capability to UNselect.
  */
 
-//                                                                       
-// Point of historical accuracy - for the US, the Gregorian change
-//   has been set to September, 1752.  See also - the notes associated
-//   with GregorianCalendar.java.  If a different Calendar is 
-//   desired, can rewrite to allow it to be 'set'.
-//                                                                       
-
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class YearView extends JPanel implements ActionListener {
@@ -30,21 +19,19 @@ public class YearView extends JPanel implements ActionListener {
 
     // Required for use by 'static' section -
     private static String[] monthNames;
-    private static String[] weekNames;
+    private static String[] weekdayNames;
 
     // Variables needed by more than one method -
-    private Date choice;            // constructor, event handling, numerous
-    private Date choice2;           // when 2 choices are allowed
-    private Date initial;           // constructor, event handling
-    private DayLabel dl;            // recalc, event handling
-    private DayLabel today;         // actionPerformed, recalc
+    private LocalDate theChoice;    // constructor, event handling, numerous
+    private LocalDate choice2;      // when 2 choices are allowed
+    private DayLabel activeDayLabel;            // recalc, event handling
     private JLabel titleLabel;       // constructor, event handling
     private JLabel choiceLabel;      // constructor, highlight
     private JPanel yearPanel;
-    private int Year;               // numerous
+    private int theYear;            // numerous
     private YearBox yearBox;        // BottomPanel constructor
-    private static SimpleDateFormat sdf;
-    private AppTreePanel parent;
+    private static DateTimeFormatter dtf;
+    private AppTreePanel parent = null;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-16");
@@ -54,9 +41,6 @@ public class YearView extends JPanel implements ActionListener {
     private int intNumSelections;
     private int intSelectionCount;
     private JButton todayButton;
-
-
-    private GregorianCalendar cal;
 
     private static final int borderWidth = 2;
     private static LineBorder theBorder;
@@ -70,63 +54,51 @@ public class YearView extends JPanel implements ActionListener {
                 "October", "November", "December"};
 
         // Initialize day of week names.
-        weekNames = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+        weekdayNames = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
 
-        sdf = new SimpleDateFormat();
-        sdf.applyPattern("EEEE, MMMM d, yyyy");
+        dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
     } // end static
 
-    @SuppressWarnings("MagicConstant")
-    YearView(AppTreePanel l) {
+    YearView() {
+        this(LocalDate.now());
+    }
+
+    YearView(LocalDate initial) {
+        //  @SuppressWarnings("MagicConstant")
         super(new BorderLayout());
-        parent = l;
-        initial = new Date();
         jdTheDialog = null;
         choice2 = null;
         intSelectionCount = 0;
 
         setBorder(theBorder);
 
-        cal = (GregorianCalendar) Calendar.getInstance();
-        // Note: getInstance at this time returns a Calendar that
-        //   is actually a GregorianCalendar, but since the return
-        //   type is Calendar, it must be cast in order to assign.
+        theChoice = initial;
+        theYear = initial.getYear();
 
-        cal.setGregorianChange(new GregorianCalendar(1752,
-                Calendar.SEPTEMBER, 14).getTime());
-
-        reset();
-        Year = cal.get(Calendar.YEAR);
-
-        MouseAdapter ma = new MouseAdapter() {
+        MouseAdapter alterButtonHandler = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 LabelButton source = (LabelButton) e.getSource();
                 String s = source.getText();
 
-                dl.reset();     // turn off current choice highlight
-
                 if (s.equals("-"))
-                    if (Year > 1) Year--;
+                    if (theYear > 1) theYear--;
                 if (s.equals("+"))
-                    if (Year < 9999) Year++;
+                    if (theYear < 9999) theYear++;
 
-//	int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-                yearBox.select(String.valueOf(Year));
-//	if(Year == thisYear) reset();
-//	else choice = null;  // will be set again in recalc...
-                titleLabel.setText("Year " + Year);
+                yearBox.select(String.valueOf(theYear));
+                titleLabel.setText("Year " + theYear);
 
-                recalc(Year);
+                recalc(theYear);
             } // end mouseClicked
         };// end of new MouseAdapter
 
         LabelButton prev = new LabelButton("-");
-        prev.addMouseListener(ma);
+        prev.addMouseListener(alterButtonHandler);
         prev.setPreferredSize(new Dimension(28, 28));
         prev.setFont(Font.decode("Dialog-bold-14"));
 
         LabelButton next = new LabelButton("+");
-        next.addMouseListener(ma);
+        next.addMouseListener(alterButtonHandler);
         next.setPreferredSize(new Dimension(28, 28));
         next.setFont(Font.decode("Dialog-bold-14"));
 
@@ -135,12 +107,12 @@ public class YearView extends JPanel implements ActionListener {
         p0.add(next);
         p0.add(new Spacer(25, 1));
 
-        titleLabel = new JLabel("Year " + Year);
+        titleLabel = new JLabel("Year " + theYear);
         titleLabel.setFont(Font.decode("Serif-bold-20"));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setBackground(Color.lightGray);
 
-        yearBox = new YearBox(String.valueOf(cal.get(Calendar.YEAR)));
+        yearBox = new YearBox(String.valueOf(initial.getYear()));
 
         JPanel head1 = new JPanel(new BorderLayout());
         head1.add(p0, "West");
@@ -153,10 +125,11 @@ public class YearView extends JPanel implements ActionListener {
         choiceLabel.setForeground(Color.red);
         choiceLabel.setHorizontalAlignment(JLabel.RIGHT);
 
+        LocalDate tmpLocalDate = LocalDate.of(theYear, 1, 1);
         yearPanel = new JPanel(new GridLayout(3, 4));
         for (int i = 0; i < 12; i++) {
-            cal.set(Year, i, 1);    // month is zero-based.
-            yearPanel.add(new MonthCanvas(cal));
+            yearPanel.add(new MonthCanvas(tmpLocalDate));
+            tmpLocalDate = tmpLocalDate.plusMonths(1);
         } // end for i
 
         add(yearPanel, BorderLayout.CENTER);
@@ -175,126 +148,88 @@ public class YearView extends JPanel implements ActionListener {
         bottomPanel.add(choiceLabel, "Center");
         add(bottomPanel, BorderLayout.SOUTH);
 
-        recalc(Year);
+        recalc(theYear);
     } // end constructor
 
 
     // Handler for the 'Today' button.
     public void actionPerformed(ActionEvent e) {
-        boolean doRecalc = true;
-
-        dl.reset();     // turn off current choice highlight
-
-        // Compare the currently displayed Year with 'now'.
-        int thisYear = Year;
-        reset(); // Set cal to 'today'
-        Year = cal.get(Calendar.YEAR);
-        if (Year == thisYear) doRecalc = false;
-
-        titleLabel.setText("Year " + Year);
-        yearBox.select(String.valueOf(Year));
-
-        if (!doRecalc) {
-            int day = cal.get(Calendar.DAY_OF_MONTH);
-            int month = cal.get(Calendar.MONTH);
-
-            // today will be wrong at this point in the code if
-            // this interface has been up past midnight.
-            // The fix:  recalc is the only good place to assign the
-            // 'today' DayLabel object; it needs to be called
-            // even though we may already be on the right Year.
-            if (day != today.day) doRecalc = true;
-            if (month != today.month) doRecalc = true;
-        } // end if
-
-        if (doRecalc) recalc(Year);
-        dl = today;
-        dl.highlight(); // highlight today
+        setChoice(LocalDate.now());
     } // end actionPerformed
 
 
-    // debug method...
-    protected static void calPrint(Calendar cal) {
-        System.out.print("Date:  " + cal.get(Calendar.DAY_OF_MONTH));
-        System.out.print("\tMonth: " + cal.get(Calendar.MONTH));
-        System.out.print("\tYear: " + cal.get(Calendar.YEAR));
-        System.out.print("\n");
-    } // end calPrint
-
-    public Date getChoice() {
-        return choice;
+    public LocalDate getChoice() {
+        return theChoice;
     }
 
     // When the YearView is used as a Date input dialog,
     //   sometimes two dates are needed.  This method
     //   is provided so the calling context can retrieve
     //   the second choice.
-    Date getChoice2() {
+    LocalDate getChoice2() {
         return choice2;
     }
 
+    // This is my own conversion, to numbers that matched these
+    // that were being returned by Calendar queries, now deprecated.
+    // I put this in place as a temporary remediation along the way
+    // to updating the app to new Java 8 date/time classes.
+    private int getDayOfWeekInt(LocalDate tmpDate) {
+        switch (tmpDate.getDayOfWeek()) {
+            case SUNDAY:
+                return 1;
+            case MONDAY:
+                return 2;
+            case TUESDAY:
+                return 3;
+            case WEDNESDAY:
+                return 4;
+            case THURSDAY:
+                return 5;
+            case FRIDAY:
+                return 6;
+            case SATURDAY:
+                return 7;
+        }
+        return -1;
+    }
 
     public void recalc(int year) {
         // Look for new day data, for color/font setting.
         hasDataArray = AppUtil.findDataDays(year);
 
+        LocalDate tmpLocalDate = LocalDate.of(year, 1, 1);
         for (int i = 0; i < 12; i++) {
             MonthCanvas mc = (MonthCanvas) yearPanel.getComponent(i);
-            cal.set(year, i, 1);
-            mc.recalc(cal);
+            mc.recalc(tmpLocalDate);
+            tmpLocalDate = tmpLocalDate.plusMonths(1);
         } // end for i
 
-        if (choice == null) {
+        if (theChoice == null) {
             choiceLabel.setText(" ");
         } else {
-            choiceLabel.setText(sdf.format(choice) + " ");
+            choiceLabel.setText(dtf.format(theChoice) + " ");
         }
     } // end recalc
 
-    // Reset cal and choice to current day/time, sdf to cal
-    public void reset() {
-        initial = new Date(); // in case this interface has been up past midnight.
-        cal.setTime(initial);
-
-        cal.set(Calendar.HOUR, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-
-        sdf.setCalendar(cal);
-        choice = cal.getTime();
-    } // end reset
-
-    public void setChoice(LocalDate theChoice) {
-        Date d = null;
-        if (theChoice != null) {  // TODO - rework so that no conversion is needed.
-            d = Date.from(theChoice.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
-        setChoice(d);
-    }
-
     // Called by an external controlling context.
-    public void setChoice(Date d) {
-        DayLabel tmp = today; // preserve the value of 'today'.
-        if (dl != null) dl.reset(); // turn off any previous selection.
-        if (d == null) {
-            cal.setTime(new Date());
+    public void setChoice(LocalDate theNewChoice) {
+        if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
+        if (theNewChoice == null) {
+            theChoice = LocalDate.now();
             intSelectionCount = 0;
         } else {
-            cal.setTime(d);
+            theChoice = theNewChoice;
             intSelectionCount = 1;
         }
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        choice = cal.getTime();
-        Year = cal.get(Calendar.YEAR);
-        titleLabel.setText("Year " + Year);
-        yearBox.select(String.valueOf(Year));
-        recalc(Year);
-        today = tmp;
+        theYear = theChoice.getYear();
+        titleLabel.setText("Year " + theYear);
+        yearBox.select(String.valueOf(theYear));
+        recalc(theYear);
 
-        if (d == null) {
-            dl.reset();
-            choice = null;
+        if (theNewChoice == null) {
+            activeDayLabel.reset();
+            theChoice = null;
         } // end if setting no selection
     } // end setChoice
 
@@ -305,30 +240,33 @@ public class YearView extends JPanel implements ActionListener {
         todayButton.setVisible(true);
     } // end setDialog
 
+    void setParent(AppTreePanel atp) {
+        parent = atp;
+    }
 
     public class MonthCanvas extends JPanel {
-        private static final long serialVersionUID = -8559208397000245694L;
+        private static final long serialVersionUID = 1L;
 
-        JPanel p1;
-        JPanel p2;
-        int whichOf12;
-        Date myDate;
+        JPanel monthHeader; // Row 1 = Month Name, Row 2 = (short) Weekday names
+        JPanel monthMatrix; // 7 columns by 6 rows (not all used, of course)
+        int whichOf12;      // which month we're currently working on (zero-based)
+        LocalDate myDate;   // An intial date
 
-        MonthCanvas(GregorianCalendar cal) { // constructor
+        MonthCanvas(LocalDate monthLocalDate) { // constructor
             setLayout(new BorderLayout());
             setBackground(Color.lightGray);
-            whichOf12 = cal.get(Calendar.MONTH);
-            JLabel l;
+            whichOf12 = monthLocalDate.getMonthValue() - 1;
+            JLabel tempLabel;
 
-            // Add the month label.
-            p1 = new JPanel();
-            p1.setLayout(new GridLayout(2, 1));
-            l = new JLabel(monthNames[whichOf12], JLabel.CENTER);
-            p1.setBackground(Color.black);
-            l.setBackground(Color.blue);
-            l.setForeground(Color.white);
-            l.setOpaque(true);
-            l.addMouseListener(new MouseAdapter() {
+            // Add the month label to the month header.
+            monthHeader = new JPanel();
+            monthHeader.setLayout(new GridLayout(2, 1));
+            tempLabel = new JLabel(monthNames[whichOf12], JLabel.CENTER);
+            monthHeader.setBackground(Color.black);
+            tempLabel.setBackground(Color.blue);
+            tempLabel.setForeground(Color.white);
+            tempLabel.setOpaque(true);
+            tempLabel.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
                     setChoice(myDate);
                     // System.out.println("Choice is: " + choice);
@@ -336,17 +274,17 @@ public class YearView extends JPanel implements ActionListener {
                     if (e.getClickCount() == 2) parent.showMonth();
                 } // end mousePressed
             });//end addMouseListener
-            p1.add(l);
+            monthHeader.add(tempLabel);
 
-            // Add the day of the week labels.
-            JPanel q = new JPanel();
-            q.setLayout(new GridLayout(1, weekNames.length));
-            q.setBackground(Color.gray);
-            for (String weekName : weekNames) {
-                l = new JLabel(weekName, JLabel.CENTER);
-                l.setForeground(Color.white);
-                l.setBackground(Color.gray);
-                l.addMouseListener(new MouseAdapter() {
+            // Add the day of the week labels to the month header.
+            JPanel weekdayNameHeader = new JPanel();
+            weekdayNameHeader.setLayout(new GridLayout(1, weekdayNames.length));
+            weekdayNameHeader.setBackground(Color.gray);
+            for (String dayName : weekdayNames) {
+                tempLabel = new JLabel(dayName, JLabel.CENTER);
+                tempLabel.setForeground(Color.white);
+                tempLabel.setBackground(Color.gray);
+                tempLabel.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         setChoice(myDate);
                         // System.out.println("Choice is: " + choice);
@@ -354,88 +292,91 @@ public class YearView extends JPanel implements ActionListener {
                         if (e.getClickCount() == 2) parent.showWeek();
                     } // end mousePressed
                 });//end addMouseListener
-                q.add(l);
+                weekdayNameHeader.add(tempLabel);
             } // end for i
-            p1.add(q);
-            add(p1, BorderLayout.NORTH);
+            monthHeader.add(weekdayNameHeader);
 
-            // Create a grid for the days (as many rows as needed, 7 columns).
-            p2 = new JPanel();
-            p2.setLayout(new GridLayout(0, weekNames.length));
+            // Add the month header to the canvas.
+            add(monthHeader, BorderLayout.NORTH);
 
-            // Add the days.  Enough room for 31 days across 6 rows.
+            // Create a grid for all the possible days in a month.
+            // The max number of days in any given month is 31 but mapping that onto
+            // a matrix of 7 columns (weekdays), you need at least 5 rows.  Then consider
+            // that in the first row, you could have up to 6 'blank' days, if the first
+            // of the month falls on a Saturday.  That gives us 31+6=37 slots to consider
+            // and potentially fill, but that exceeds a 7-by-5 matrix by two slots, so the
+            // matrix must be 7x6 which has 42 slots but there's no need to evaluate the
+            // ones above the 37th.  Now the numbers are not so magical, once you get the
+            // explanation.  But we process it as 1-37 vs 0-36, just for better readability.
+            // Adjustment to the layout index is made when we access the zero-based matrix.
+            monthMatrix = new JPanel();
+            monthMatrix.setLayout(new GridLayout(6, weekdayNames.length));
+
+            // Add day labels to all the possible slots; not all will be used.
             for (int i = 1; i <= 37; i++) {
-                p2.add(new DayLabel());
+                monthMatrix.add(new DayLabel());
             } // end for i
 
-            add(p2, BorderLayout.CENTER);
+            // Add the month matrix to the canvas.
+            add(monthMatrix, BorderLayout.CENTER);
 
+            // Draw a border around our canvas.  Much easier than how it was done in MonthView.
             setBorder(LineBorder.createBlackLineBorder());
         } // end constructor
 
-        public void recalc(GregorianCalendar cal) {
-            DayLabel tmp;
-            myDate = cal.getTime();
+        // This recalc may look very similar to the one in MonthView, but there are significant
+        // differences that prevent reuse without major refactoring - the drawing of a month-day
+        // requires both a 'box' and a number inside it.  Here, only a numeric label is needed.
+        // The sizes are very different, so that here the day names are shortened to two chars.
+        // You may want to evaluate the utility of having an abstract common parent class that
+        // requires a MonthCanvas and recalc, but currently I don't see enough need for it.
+        public void recalc(LocalDate thisMonth) {
+            DayLabel tmpDayLabel;
 
-            // Get the day of the week of the first day.
-            cal.set(Calendar.DAY_OF_MONTH, 1);
-            int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-            int month = cal.get(Calendar.MONTH);
+            // The expectation is that 'thisMonth' is a date on the first of the month we need to render.
+            LocalDate tmpLocalDate = thisMonth;
+            // But you can be disappointed when you have expectations; this ensures it.
+            tmpLocalDate = tmpLocalDate.withDayOfMonth(1);
 
-            // Clone this calendar
-            GregorianCalendar tmpCal = (GregorianCalendar) cal.clone();
+            int dayOfWeek = getDayOfWeekInt(tmpLocalDate); // TODO maybe - refactor so we can just use tmpLocalDate.getDayOfWeek()
 
             boolean rollover = false;
 
-            // Cycle thru all the days.
+            // Cycle thru all the (possible) days in our month layout.
             for (int i = 1; i <= 37; i++) {
 
-                //---------------------------------------------------
                 // 'blank' days in the first row, before the 1st of the month.
                 if (i < dayOfWeek) {
-                    ((DayLabel) p2.getComponent(i - 1)).setText("");
+                    ((DayLabel) monthMatrix.getComponent(i - 1)).setText("");
                     continue;
                 } // end if
 
                 // 'blank' days in the last row (or two).
                 if (rollover) { // blank out trailing days
-                    ((DayLabel) p2.getComponent(i - 1)).setText("");
+                    ((DayLabel) monthMatrix.getComponent(i - 1)).setText("");
                     continue;
                 } // end if
 
-                // leave the declaration inside the loop;
-                //    we want a new instance each time.
-                GregorianCalendar c = (GregorianCalendar) tmpCal.clone();
-                tmpCal.add(Calendar.DATE, 1);
-                if (month != tmpCal.get(Calendar.MONTH)) rollover = true;
+                // Label this day
+                tmpDayLabel = (DayLabel) monthMatrix.getComponent(i - 1);
+                tmpDayLabel.setDay(tmpLocalDate);
 
-                // Set the date - source cal is 'c'
-                tmp = (DayLabel) p2.getComponent(i - 1);
-                tmp.setCal(c);
-                //---------------------------------------------------
+                // If this day is the current choice then highlight it.
+                if (theChoice.isEqual(tmpLocalDate)) {
+                    // If the choice is this day -
+                    activeDayLabel = tmpDayLabel;
+                    activeDayLabel.highlight();
 
-                // Highlight the current choice
-                if (choice != null) {  // Take the first available day (Jan 1)
-//          choice = new Date();
-//          c.set(Calendar.MINUTE, 0);
-//          c.set(Calendar.SECOND, 0);
-//          choice = c.getTime();
-//          dl = tmp;
-//          dl.highlight();
-//        } else {
-                    if (choice.equals(c.getTime())) {
-                        // If the choice is this day -
-                        dl = tmp;
-                        dl.highlight();
+                    // today is only used in the handler for the 'Today'
+                    // button.  Although we set it here to the value of
+                    // the current choice which may not really be 'today',
+                    // that handler will detect that and call this method
+                    // again with the correct choice.
+                } // end if
 
-                        today = dl;
-                        // today is only used in the handler for the 'Today'
-                        // button.  Although we set it here to the value of
-                        // the current choice which may not really be 'today',
-                        // that handler will detect that and call this method
-                        // again with the correct choice.
-                    } // end if
-                } // end if - if choice not set
+                // Rollover test - if true, then we just processed the last visible day of this month.
+                tmpLocalDate = tmpLocalDate.plusDays(1);
+                if (thisMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
             } // end for i
         } // end recalc
 
@@ -445,11 +386,11 @@ public class YearView extends JPanel implements ActionListener {
     } // end MonthCanvas
 
     class DayLabel extends JLabel implements MouseListener {
-        private static final long serialVersionUID = -315010085213996418L;
+        private static final long serialVersionUID = 1L;
 
         int day;
         int month;
-        GregorianCalendar cal;
+        LocalDate myDate;
         Color offColor;
         Font offFont;
 
@@ -464,7 +405,7 @@ public class YearView extends JPanel implements ActionListener {
         public void highlight() {
             setForeground(Color.red);
             setFont(Font.decode("Dialog-bold-18"));
-            choiceLabel.setText(sdf.format(choice) + " ");
+            choiceLabel.setText(dtf.format(theChoice) + " ");
         } // end highlight
 
         public void reset() {
@@ -473,10 +414,10 @@ public class YearView extends JPanel implements ActionListener {
             choiceLabel.setText(" ");
         } // end reset
 
-        public void setCal(GregorianCalendar c) {
-            cal = c;
-            day = cal.get(Calendar.DAY_OF_MONTH);
-            month = cal.get(Calendar.MONTH);
+        public void setDay(LocalDate aLocalDate) {
+            myDate = aLocalDate;
+            day = myDate.getDayOfMonth();    // these may be wrong...
+            month = myDate.getMonthValue() - 1;
 
             if (hasDataArray[month][day - 1]) {
                 offFont = hasDataFont;
@@ -488,7 +429,7 @@ public class YearView extends JPanel implements ActionListener {
             setFont(offFont);
             setForeground(offColor);
             setText(String.valueOf(day));
-        } // end setCal
+        } // end setDay
 
         //---------------------------------------------
         // Mouse Listener methods
@@ -511,24 +452,24 @@ public class YearView extends JPanel implements ActionListener {
 
             if (rightClick) {
                 // Turn 'off' this DayLabel if it is right-clicked.
-                if (dl == this) {
-                    dl.reset();
-                    choice = null;
+                if (activeDayLabel == this) {
+                    activeDayLabel.reset();
+                    theChoice = null;
                     if (intSelectionCount > 0) intSelectionCount--;
                 } // end if
             } else {
-                choice2 = choice;
-                choice = cal.getTime();
+                choice2 = theChoice;  // TODO need to verify this is working...
+                theChoice = myDate;
                 intSelectionCount++;
                 // System.out.println("Choice is: " + choice);
-                // System.out.println("cal is: " + cal.getTime());
 
                 // A left-click on ANY DayLabel will turn off the previous one.
-                dl.reset();
+                activeDayLabel.reset();
 
-                dl = this;
-                dl.highlight();
+                activeDayLabel = this;
+                activeDayLabel.highlight();
 
+                // If the YearView is acting as a choice selection dialog -
                 if (jdTheDialog != null) {
                     if (intSelectionCount >= intNumSelections) {
                         System.out.println("intSelectionCount = " + intSelectionCount);
@@ -594,16 +535,16 @@ public class YearView extends JPanel implements ActionListener {
             y2.setSelectedItem(init.substring(2, 4));
         } // end select
 
-        // the ItemListener method
+        // the ItemListener method of the YearBox
         public void itemStateChanged(ItemEvent ie) {
-            int initialYear = Year;
+            int initialYear = theYear;
 
             String year = Objects.requireNonNull(y1.getSelectedItem()).toString() +
                     Objects.requireNonNull(y2.getSelectedItem()).toString();
 
-            Year = Integer.parseInt(year);
+            theYear = Integer.parseInt(year);
 
-            if (initialYear == Year) return; // selection does not represent a change.
+            if (initialYear == theYear) return; // selection does not represent a change.
             // This happens every time the control is set externally - either by
             //  a +/- key or the Today button.  By the time we arrive here to handle
             //  the change, it's already where we want it to be.
@@ -613,41 +554,18 @@ public class YearView extends JPanel implements ActionListener {
 
             System.out.println("Year = " + year);
 
-            int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-            if (Year == 0) { // reset to current, if not valid
-                Year = thisYear;
-                select(String.valueOf(Year));
+            //int thisYear = Calendar.getInstance().get(Calendar.YEAR);
+            if (theYear == 0) { // reset to current, if not valid
+                theYear = LocalDate.now().getYear();
+                select(String.valueOf(theYear));
             } // end if
 
-            dl.reset();     // turn off current choice highlight
-            titleLabel.setText("Year " + Year);
-//      choice = null;  // will be set again in recalc...
-            recalc(Year);
+            activeDayLabel.reset();     // turn off current choice highlight
+            titleLabel.setText("Year " + theYear);
+            recalc(theYear);
 
-            if (Year == thisYear) {
-                dl.reset();     // turn off highlight of the 1st.
-                reset();  // to get back to today -
-                dl = today;
-                dl.highlight();
-            } // end if
         } // end itemStateChanged
     } // end class
 
-    public static void main(String[] args) {
-        JFrame yvFrame = new JFrame("Year View Test");
-        yvFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                System.exit(0);
-            }
-        });
-
-        MemoryBank.debug = true;
-
-        YearView dcy = new YearView(null);
-
-        yvFrame.getContentPane().add(dcy, "Center");
-        yvFrame.pack();
-        yvFrame.setVisible(true);
-    } // end main
 } // end class YearView
 

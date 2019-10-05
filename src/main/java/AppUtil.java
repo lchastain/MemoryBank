@@ -19,7 +19,7 @@ import java.util.*;
 // It makes more sense to collect them into one utility class, than to try to decide which user class
 // should house a given method while the other user classes then have to somehow get access to it.
 public class AppUtil {
-    static GregorianCalendar calTemp;
+    private static GregorianCalendar calTemp;
     static ObjectMapper mapper = new ObjectMapper();
 
     private static Boolean blnGlobalArchive;
@@ -69,7 +69,7 @@ public class AppUtil {
 
         // System.out.println("Searching for data in the year: " + year);
         String FileName = MemoryBank.userDataHome + File.separatorChar + year;
-        // System.out.println("Looking in " + FileName);
+        MemoryBank.debug("Looking in " + FileName);
 
         String[] foundFiles = null;
 
@@ -452,7 +452,7 @@ public class AppUtil {
 
     // Returns a String containing the requested portion of the input LocalDateTime.
     // Years are expected to be 4 digits long, all other units are two digits.
-    static String getTimePartString(LocalDateTime ldt, ChronoUnit cu, Character padding) {
+    private static String getTimePartString(LocalDateTime ldt, ChronoUnit cu, Character padding) {
 
         switch (cu) {
             case YEARS:

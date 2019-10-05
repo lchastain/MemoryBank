@@ -7,8 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -127,7 +126,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         intPreferredHeight = getSize().height;
 
         // These interfaces only need to be created once.
-        yvDateChooser = new YearView(null);
+        yvDateChooser = new YearView();
         rpRepeatSetting = new RecurrencePanel();
 
         // Prepare our date formatter.
@@ -423,10 +422,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     dateEventStartDate = null;
                     strRecurrenceSetting = "";
                 } else {
-                    if (dateEventStartDate != null) yvDateChooser.setChoice(dateEventStartDate);
-                    else yvDateChooser.setChoice((LocalDate) null);
+                    if (dateEventStartDate != null) yvDateChooser.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateEventStartDate.getTime()), ZoneId.systemDefault()).toLocalDate());
+                    else yvDateChooser.setChoice(null);
                     showDateDialog("Select a Start Date for the Event");
-                    if (tmpNoteData.setStartDate(yvDateChooser.getChoice())) {
+                    if (tmpNoteData.setStartDate(Date.from(yvDateChooser.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
                         if ((dateEventStartDate == null) ||
                                 (tmpNoteData.getStartDate().getTime() !=
                                         dateEventStartDate.getTime())) {
@@ -454,10 +453,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     tmpNoteData.setEndDate(null);
                     dateEventEndDate = null;
                 } else {
-                    if (dateEventEndDate != null) yvDateChooser.setChoice(dateEventEndDate);
-                    else yvDateChooser.setChoice((LocalDate) null);
+                    if (dateEventEndDate != null) yvDateChooser.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateEventEndDate.getTime()), ZoneId.systemDefault()).toLocalDate());
+                    else yvDateChooser.setChoice(null);
                     showDateDialog("Select an End Date for the Event");
-                    if (tmpNoteData.setEndDate(yvDateChooser.getChoice())) {
+                    if (tmpNoteData.setEndDate(Date.from(yvDateChooser.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
                         dateEventEndDate = tmpNoteData.getEndDate();
                     } else {
                         strTmp = "<html>The Event cannot end before it starts.<br>";
