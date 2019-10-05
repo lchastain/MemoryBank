@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.*;
 
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
 import java.util.Date;
 
 class DayNoteGroupTest {
@@ -25,8 +26,7 @@ class DayNoteGroupTest {
 
     @Test
     void testSetChoice() {
-        Date d = new Date();
-        dng.setChoice(d);
+        dng.setChoice(LocalDate.now());
     }
 
     @Test

@@ -3,57 +3,34 @@
 
  */
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 public abstract class CalendarNoteGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
 
-    protected Date choice;
-    protected DateTimeFormatter dtf;
-    protected SimpleDateFormat sdf;   // remove from child classes, first.
+    LocalDate theChoice;  // Holds the 'current' date of the displayed Group.
+    DateTimeFormatter dtf;
 
-    private int calType = 0;
     private ChronoUnit dateType;
-
-    // Holds the 'current' date of the displayed Group.
-    private LocalDate myDate;
-    private GregorianCalendar cal;
 
     CalendarNoteGroup(String defaultSubject) {
         super(defaultSubject);
 
-        sdf = new SimpleDateFormat(); // dtf done in children, not needed here.
-        cal = (GregorianCalendar) Calendar.getInstance();
-        // Note: getInstance at this time returns a Calendar that
-        //   is actually a GregorianCalendar, but since the return
-        //   type is Calendar, it must be cast in order to assign.
+        theChoice = LocalDate.now();
 
-        cal.setGregorianChange(new GregorianCalendar(1752,
-                Calendar.SEPTEMBER, 14).getTime());
-
-        choice = new Date();
-
-        if (defaultSubject.equals("Day Note")) calType = Calendar.DATE;
-        if (defaultSubject.equals("Month Note")) calType = Calendar.MONTH;
-        if (defaultSubject.equals("Year Note")) calType = Calendar.YEAR;
         if (defaultSubject.equals("Day Note")) dateType = ChronoUnit.DAYS;
         if (defaultSubject.equals("Month Note")) dateType = ChronoUnit.MONTHS;
         if (defaultSubject.equals("Year Note")) dateType = ChronoUnit.YEARS;
-
 
         updateGroup();
     } // end constructor
 
 
     // A NoteGroup does not have a 'choice'; a CalendarNoteGroup does.
-    public Date getChoice() {
-        return choice;
+    public LocalDate getChoice() {
+        return theChoice;
     }
 
 
@@ -65,17 +42,15 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     public String getGroupFilename() {
         String s;
 
-        // TODO - stop using the OLD methods.
-
         if (intSaveGroupStatus == ONGOING) {
-            if (calType == Calendar.DATE) s = AppUtil.oldMakeFilename(cal, "D");
-            else if (calType == Calendar.MONTH) s = AppUtil.oldMakeFilename(cal, "M");
-            else s = AppUtil.oldMakeFilename(cal, "Y");
+            if (dateType == ChronoUnit.DAYS) s = AppUtil.makeFilename(theChoice, "D");
+            else if (dateType == ChronoUnit.MONTHS) s = AppUtil.makeFilename(theChoice, "M");
+            else s = AppUtil.makeFilename(theChoice, "Y");
             return s;
         } else {  // Results of a findFilename may be "".
-            if (calType == Calendar.DATE) s = AppUtil.OldFindFilename(cal, "D");
-            else if (calType == Calendar.MONTH) s = AppUtil.OldFindFilename(cal, "M");
-            else s = AppUtil.OldFindFilename(cal, "Y");
+            if (dateType == ChronoUnit.DAYS) s = AppUtil.findFilename(theChoice, "D");
+            else if (dateType == ChronoUnit.MONTHS) s = AppUtil.findFilename(theChoice, "M");
+            else s = AppUtil.findFilename(theChoice, "Y");
             return s;
         } // end if saving else not saving
     } // end getGroupFilename
@@ -87,24 +62,41 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     // A calling context should only make this call if it is
     //   needed, because it causes a reload of the group.
     //--------------------------------------------------------------
-    public void setChoice(Date d) {
-        cal.setTime(d);
-        choice = cal.getTime();
+    public void setChoice(LocalDate theNewChoice) {
+        theChoice = theNewChoice;
         updateGroup();
     } // end setChoice
 
 
     public void setOneBack() {
         preClose();
-        cal.add(calType, -1);
-        choice = cal.getTime();
+        switch(dateType) {
+            case DAYS:
+                theChoice = theChoice.minusDays(1);
+                break;
+            case MONTHS:
+                theChoice = theChoice.minusMonths(1);
+                break;
+            case YEARS:
+                theChoice = theChoice.minusYears(1);
+                break;
+        }
     } // end setOneBack
 
 
     public void setOneForward() {
         preClose();
-        cal.add(calType, 1);
-        choice = cal.getTime();
+        switch(dateType) {
+            case DAYS:
+                theChoice = theChoice.plusDays(1);
+                break;
+            case MONTHS:
+                theChoice = theChoice.plusMonths(1);
+                break;
+            case YEARS:
+                theChoice = theChoice.plusYears(1);
+                break;
+        }
     } // end setOneForward
 
 } // end class CalendarNoteGroup

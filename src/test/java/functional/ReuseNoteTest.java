@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 
 class ReuseNoteTest {
 
@@ -31,12 +30,11 @@ class ReuseNoteTest {
         DayNoteGroup dayNoteGroup = new DayNoteGroup();
 
         // Set the day to one where the note content can be used for this test.
-        // (we know there are 10 notes on this day).
-        Calendar theCal = new GregorianCalendar(2010, Calendar.JUNE, 8);
-        dayNoteGroup.setChoice(theCal.getTime());
+        // (we know there are 10 notes for this user on 8 June 2010).
+        dayNoteGroup.setChoice(LocalDate.of(2010, 6, 8));
 
         // Get a component to clear, and clear it.
-        // This note has a time, extendeed note, and icon
+        // This note has a time, extended note, and icon
         DayNoteComponent dayNoteComponent4 = dayNoteGroup.getNoteComponent(4);
         dayNoteComponent4.clear();
 

@@ -8,8 +8,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Vector;
 
 public class DayNoteGroup extends CalendarNoteGroup
@@ -63,7 +63,6 @@ public class DayNoteGroup extends CalendarNoteGroup
 
     DayNoteGroup() {
         super("Day Note");
-        sdf.applyPattern("EEEE, MMMM d, yyyy");
         dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
 
         LabelButton timeFormatButton = new LabelButton("24");
@@ -100,7 +99,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     private String getChoiceString() {
-        return sdf.format(choice);
+        return dtf.format(theChoice);
     } // end getChoiceString
 
 
@@ -250,17 +249,17 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     // This is called from AppTreePanel.
-    public void setChoice(Date d) {
+    public void setChoice(LocalDate theNewChoice) {
         if (blnNoteAdded) {
             // This ensures that we will reload the day, even
             //   if it is already currently loaded.
             blnNoteAdded = false; // reset the flag
         } else {
             // If the new day is the same as the current one - return.
-            if (sdf.format(choice).equals(sdf.format(d))) return;
+            if (dtf.format(theChoice).equals(dtf.format(theNewChoice))) return;
         } // end if
 
-        super.setChoice(d); // setChoice is in CalendarNoteGroup.
+        super.setChoice(theNewChoice); // setChoice is in CalendarNoteGroup.
         updateHeader();
     } // end setChoice
 

@@ -423,9 +423,8 @@ public class NoteComponent extends JPanel {
     // This class implements a text field with a red border that
     //   appears when the focus is gained.
     protected class NoteTextField extends JTextField implements ActionListener,
-            DocumentListener, FocusListener, MouseListener {
-        private static final long serialVersionUID = -2147072345512384327L;
-
+            DocumentListener, FocusListener, MouseListener, KeyListener {
+        private static final long serialVersionUID = 1L;
         public static final int minWidth = 80;
 
         public NoteTextField() {
@@ -441,57 +440,8 @@ public class NoteComponent extends JPanel {
             addActionListener(this);
             addFocusListener(this);
             getDocument().addDocumentListener(this);
-
-            addKeyListener(new KeyAdapter() {
-                public void keyPressed(KeyEvent ke) {
-                    // Turn off a previous popup, if one is showing.
-                    // This could happen if a menu was showing, then the user
-                    //   pressed a TAB, UP or DOWN key to change focus - the
-                    //   popup menu would still be up, but active for the
-                    //   previous note vs the one that appeared to be active.
-                    if (popup.isVisible()) popup.setVisible(false);
-
-                    int kp = ke.getKeyCode();
-
-                    boolean shifted = ke.isShiftDown();
-
-                    // Translate TAB / Shift-TAB into DOWN / UP
-                    if (kp == KeyEvent.VK_TAB) {
-                        kp = KeyEvent.VK_DOWN;
-                        if (shifted) {
-                            shifted = false;
-                            kp = KeyEvent.VK_UP;
-                        } // end if
-                    } // end if
-
-                    if ((kp != KeyEvent.VK_DOWN) && (kp != KeyEvent.VK_UP)) return;
-
-                    if (shifted) {
-                        // System.out.println();
-                        if (kp == KeyEvent.VK_UP) shiftUp();
-                        else shiftDown();
-                    } else {
-                        // This is done in order to have the DOWN / UP arrow keys
-                        //  behave like the TAB / SHIFT-TAB keys.
-                        if (kp == KeyEvent.VK_DOWN) NoteTextField.this.transferFocus();
-                        else NoteTextField.this.transferFocusBackward();
-                    } // end if
-                } // end keyPressed
-
-                // This is done in order to initialize the component -
-                public void keyTyped(KeyEvent ke) {
-                    //MemoryBank.event();
-                    if (initialized) return;
-
-                    char kc = ke.getKeyChar();
-                    if (kc == KeyEvent.VK_TAB) return;
-                    if (kc == KeyEvent.VK_ENTER) return;
-                    if (kc == KeyEvent.VK_BACK_SPACE) return;
-                    initialize();
-                } // end keyTyped
-            });  // end of adding a KeyListener
+            addKeyListener(this);
         } // end constructor
-
 
         // By sizing the text field to a smaller width than its container,
         //   it does not go beyond the viewable area,
@@ -657,6 +607,60 @@ public class NoteComponent extends JPanel {
 
             noteActivated(false);
         } // end focusLost
+
+        //---------------------------------------------------------
+        // KeyListener methods for the TextField
+        //---------------------------------------------------------
+        @Override
+        public void keyPressed(KeyEvent ke) {
+            // Turn off a previous popup, if one is showing.
+            // This could happen if a menu was showing, then the user
+            //   pressed a TAB, UP or DOWN key to change focus - the
+            //   popup menu would still be up, but active for the
+            //   previous note vs the one that appeared to be active.
+            if (popup.isVisible()) popup.setVisible(false);
+
+            int kp = ke.getKeyCode();
+
+            boolean shifted = ke.isShiftDown();
+
+            // Translate TAB / Shift-TAB into DOWN / UP
+            if (kp == KeyEvent.VK_TAB) {
+                kp = KeyEvent.VK_DOWN;
+                if (shifted) {
+                    shifted = false;
+                    kp = KeyEvent.VK_UP;
+                } // end if
+            } // end if
+
+            if ((kp != KeyEvent.VK_DOWN) && (kp != KeyEvent.VK_UP)) return;
+
+            if (shifted) {
+                // System.out.println();
+                if (kp == KeyEvent.VK_UP) shiftUp();
+                else shiftDown();
+            } else {
+                // This is done in order to have the DOWN / UP arrow keys
+                //  behave like the TAB / SHIFT-TAB keys.
+                if (kp == KeyEvent.VK_DOWN) NoteTextField.this.transferFocus();
+                else NoteTextField.this.transferFocusBackward();
+            } // end if
+        } // end keyPressed
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+        }
+
+        @Override
+        public void keyTyped(KeyEvent ke) {
+            if (initialized) return;
+
+            char kc = ke.getKeyChar();
+            if (kc == KeyEvent.VK_TAB) return;
+            if (kc == KeyEvent.VK_ENTER) return;
+            if (kc == KeyEvent.VK_BACK_SPACE) return;
+            initialize();
+        } // end keyTyped
 
         //---------------------------------------------------------
         // MouseListener methods for the TextField

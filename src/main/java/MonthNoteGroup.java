@@ -7,7 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static final long serialVersionUID = 1L;
@@ -28,7 +29,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
 
     MonthNoteGroup() {
         super("Month Note");
-        sdf.applyPattern("MMMM yyyy");
+        dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         LabelButton prev = new LabelButton("-");
         prev.addMouseListener(this);
@@ -64,17 +65,17 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
         updateGroup();
         updateHeader();
 
-        MemoryBank.debug("MonthNoteGroup recalc - " + sdf.format(getChoice()));
+        MemoryBank.debug("MonthNoteGroup recalc - " + dtf.format(getChoice()));
     } // end recalc
 
 
     // This is called from AppTreePanel.
-    public void setChoice(Date d) {
+    public void setChoice(LocalDate theNewChoice) {
 
-        // If the new day is the same as the current one - return.
-        if (sdf.format(getChoice()).equals(sdf.format(d))) return;
+        // If the new day puts us in the same month as the current one - return.
+        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
 
-        super.setChoice(d);
+        super.setChoice(theNewChoice);
         updateHeader();
     } // end setChoice
 
@@ -86,7 +87,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     //--------------------------------------------------------------
     private void updateHeader() {
         // Generate new title from current choice.
-        monthTitle.setText(sdf.format(getChoice()));
+        monthTitle.setText(dtf.format(getChoice()));
     } // end updateHeader
 
 
@@ -131,33 +132,6 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     public void mouseReleased(MouseEvent e) {
     } // end mouseReleased
     //---------------------------------------------------------
-
-//    public static void main(String[] args) {
-//        System.out.println("main method of MonthNoteGroup started.");
-//
-//        MemoryBank.debug = true;
-//        MemoryBank.setProgramDataLocation();
-//        MemoryBank.setUserDataHome("g01@doughmain.net");
-//
-//        final MonthNoteGroup dn = new MonthNoteGroup();
-//
-//        // local variable dn is accessed from within inner class; needs
-//        //    to be declared final
-//        JFrame f = new JFrame("MonthNoteGroup Test");
-//        f.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent we) {
-//                dn.preClose();
-//                System.exit(0);
-//            }
-//        });
-//
-//        dn.setChoice(new Date());
-//        f.getContentPane().add(dn, "Center");
-//        f.pack();
-//        f.setVisible(true);
-//
-//        System.out.println("main method of MonthNoteGroup completed.");
-//    } // end main
 
 } // end class MonthNoteGroup
 

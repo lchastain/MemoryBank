@@ -24,12 +24,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -71,7 +69,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private JPanel aboutPanel;
     private JSplitPane splitPane;
 
-    private static Date currentDateChoice;
+    private static LocalDate currentDateChoice;
     private DefaultMutableTreeNode theRootNode;
     private SearchResultNode nodeSearchResults;
 
@@ -204,7 +202,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Add the split pane to this panel.
         add(splitPane);
 
-        currentDateChoice = new Date();
+        currentDateChoice = LocalDate.now();
 
         // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
@@ -722,7 +720,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         int howmany = theFiles.length;
         MemoryBank.debug("\t\tFound " + howmany + " data files");
         boolean goLook;
-        Date dateNoteDate;
+        LocalDate dateNoteDate;
         MemoryBank.debug("Level " + level);
 
         for (File theFile : theFiles) {
@@ -760,8 +758,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 if (goLook) {
                     dateNoteDate = AppUtil.getDateFromFilename(theFile);
                     if (dateNoteDate != null) {
-                        LocalDate ld = Instant.ofEpochMilli(dateNoteDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
-                        if (spTheSearchPanel.filterWhen(ld)) goLook = false;
+                        if (spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
                     } // end if
                 } // end if
 
@@ -1081,18 +1078,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         TreePath tp = tree.getSelectionPath();
 
-        currentDateChoice = new Date();
+        currentDateChoice = LocalDate.now();
 
         String theCurrentView = tp.getLastPathComponent().toString();
         System.out.println("AppTreePanel.showToday path=" + theCurrentView);
 
         switch (theCurrentView) {
             case "Year View":
-                theYearView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+                theYearView.setChoice(currentDateChoice);
                 return;
             case "Month View":
-                theMonthView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
-//                theMonthView.setChoice(currentDateChoice);
+                theMonthView.setChoice(currentDateChoice);
                 return;
             case "Day Notes":
                 theAppDays.setChoice(currentDateChoice);
@@ -1108,15 +1104,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // If we got thru to here, it means that we were already
         //   displaying today's date when the user requested us
         //   to do so.  So - we do it bigger -
-
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.applyPattern("EEEE, MMMM d, yyyy");
-
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         JLabel dayTitle = new JLabel();
         dayTitle.setHorizontalAlignment(JLabel.CENTER);
         dayTitle.setForeground(Color.blue);
         dayTitle.setFont(Font.decode("Serif-bold-24"));
-        dayTitle.setText(sdf.format(currentDateChoice));
+        dayTitle.setText(dtf.format(currentDateChoice));
 
         rightPane.setViewportView(dayTitle);
     } // end showToday
@@ -1203,10 +1196,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 case "Year View":
                     // Unlike the others, a YearView choice MAY be null.
                     LocalDate yearViewChoice = theYearView.getChoice();
-                    if (yearViewChoice != null) currentDateChoice = Date.from(theYearView.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    if (yearViewChoice != null) currentDateChoice = theYearView.getChoice();
                     break;
                 case "Month View":
-                    currentDateChoice = Date.from(theMonthView.getChoice().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    currentDateChoice = theMonthView.getChoice();
                     break;
                 case "Day Notes":
                     currentDateChoice = theAppDays.getChoice();
@@ -1284,18 +1277,18 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(theGoalPanel);
         } else if (theText.equals("Year View")) {
             if (theYearView == null) {
-                theYearView = new YearView(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+                theYearView = new YearView(currentDateChoice);
                 theYearView.setParent(this);
             } // end if
             // Might need to use currentDateChoice to set the year, here.  and above.
-            theYearView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+            theYearView.setChoice(currentDateChoice);
             rightPane.setViewportView(theYearView);
         } else if (theText.equals("Month View")) {
             if (theMonthView == null) {
-                theMonthView = new MonthView(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+                theMonthView = new MonthView(currentDateChoice);
                 theMonthView.setParent(this);
             } else {
-                theMonthView.setChoice(LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateChoice.getTime()), ZoneId.systemDefault()).toLocalDate());
+                theMonthView.setChoice(currentDateChoice);
             }
             rightPane.setViewportView(theMonthView);
         } else if (theText.equals("Day Notes")) {

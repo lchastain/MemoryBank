@@ -200,7 +200,7 @@ public class TodoNoteComponent extends NoteComponent {
         LocalDateTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
         if (theFilename.equals("")) {
-            theFilename = AppUtil.makeFilename(ansr, "D");
+            theFilename = AppUtil.makeFilename(ansr.toLocalDate(), "D");
         } // end if
         success = AppUtil.addNote(theFilename, dnd);
 

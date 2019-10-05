@@ -117,7 +117,7 @@ public class EventNoteGroup extends NoteGroup
 
                     theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
                     if (theFilename.equals("")) {
-                        theFilename = AppUtil.makeFilename(ansr, "D");
+                        theFilename = AppUtil.makeFilename(ansr.toLocalDate(), "D");
                     } // end if
                     boolean success = AppUtil.addNote(theFilename, dnd);
 

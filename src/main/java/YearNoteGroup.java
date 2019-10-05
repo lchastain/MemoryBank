@@ -7,7 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static final long serialVersionUID = 1L;
@@ -28,7 +29,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
 
     YearNoteGroup() {
         super("Year Note");
-        sdf.applyPattern("yyyy");
+        dtf = DateTimeFormatter.ofPattern("yyyy");
 
         LabelButton prev = new LabelButton("-");
         prev.addMouseListener(this);
@@ -64,18 +65,17 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
         updateGroup();
         updateHeader();
 
-        MemoryBank.debug("YearNoteGroup recalc - " + sdf.format(getChoice()));
+        MemoryBank.debug("YearNoteGroup recalc - " + dtf.format(getChoice()));
     } // end recalc
 
 
     // This is called from AppTreePanel.
-    public void setChoice(Date d) {
+    public void setChoice(LocalDate theNewChoice) {
 
-        // If the new day is the same as the current one - return.
-        Date myChoice = getChoice();
-        if (sdf.format(myChoice).equals(sdf.format(d))) return;
+        // If the new day puts us in the same year as the current one - return.
+        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
 
-        super.setChoice(d);
+        super.setChoice(theNewChoice);
         updateHeader();
     } // end setChoice
 
@@ -87,7 +87,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     //--------------------------------------------------------------
     private void updateHeader() {
         // Generate new title from current choice.
-        yearTitle.setText(sdf.format(getChoice()));
+        yearTitle.setText(dtf.format(getChoice()));
     } // end updateHeader
 
 
@@ -132,33 +132,6 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     public void mouseReleased(MouseEvent e) {
     } // end mouseReleased
     //---------------------------------------------------------
-
-//    public static void main(String[] args) {
-//        System.out.println("main method of YearNoteGroup started.");
-//
-//        MemoryBank.debug = true;
-//        MemoryBank.setProgramDataLocation();
-//        MemoryBank.setUserDataHome("g01@doughmain.net");
-//
-//        final YearNoteGroup dn = new YearNoteGroup();
-//
-//        // local variable dn is accessed from within inner class; needs
-//        //    to be declared final
-//        JFrame f = new JFrame("YearNoteGroup Test");
-//        f.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent we) {
-//                dn.preClose();
-//                System.exit(0);
-//            }
-//        });
-//
-//        dn.setChoice(new Date());
-//        f.getContentPane().add(dn, "Center");
-//        f.pack();
-//        f.setVisible(true);
-//
-//        System.out.println("main method of YearNoteGroup completed.");
-//    } // end main
 
 } // end class YearNoteGroup
 

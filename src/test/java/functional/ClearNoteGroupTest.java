@@ -4,8 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Vector;
 
 // For SCR0038
@@ -19,12 +18,10 @@ class ClearNoteGroupTest {
     // Test that clearing an empty Group will not cause errors and that the group remains empty.
     @Test
     void testClearEmptyNoteGroup() {
-        MemoryBank.tempCalendar.setTime(new Date());
-        int thisMonth = MemoryBank.tempCalendar.get(Calendar.MONTH);
+        int thisMonth = LocalDate.now().getMonthValue();
         MonthNoteGroup mng = new MonthNoteGroup();
         mng.clearGroup();
-        MemoryBank.tempCalendar.setTime(mng.getChoice());
-        int thatMonth = MemoryBank.tempCalendar.get(Calendar.MONTH);
+        int thatMonth = mng.getChoice().getMonthValue();
         Assertions.assertEquals(thisMonth, thatMonth);
         Vector<NoteData> theInfo = mng.getCondensedInfo();
         Assertions.assertEquals(0, theInfo.size());
