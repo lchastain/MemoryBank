@@ -136,7 +136,6 @@ public class NoteComponent extends JPanel {
     // Returns the data object that this component encapsulates and manages.
     //-----------------------------------------------------------------
     public NoteData getNoteData() {
-//        if (!initialized) return null;
         return myNoteData;
     } // end getNoteData
 

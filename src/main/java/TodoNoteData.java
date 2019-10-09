@@ -71,7 +71,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     //   in the 'time' field, in this case it must, in order for
     //   NoteGroup.addNote to place it into the correct file.
     //-------------------------------------------------------------
-    public DayNoteData getDayNoteData() {
+    DayNoteData getDayNoteData() {
         DayNoteData dnd = new DayNoteData();
         String newExtText;
 

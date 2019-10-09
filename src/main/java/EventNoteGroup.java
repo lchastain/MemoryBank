@@ -134,7 +134,7 @@ public class EventNoteGroup extends NoteGroup
                 } // end if retain note
 
                 // Now adjust forward in time -
-                if (tempNoteData.getRecurrence().trim().equals("")) {
+                if (tempNoteData.getRecurrenceString().trim().equals("")) {
                     blnDropThisEvent = true;
                     break; // get out of the while loop
                 } else {
@@ -179,7 +179,7 @@ public class EventNoteGroup extends NoteGroup
             String s;
             s = "You must select an Event before a Start date can be set!";
             setMessage(s);
-            tmc.setChoice((LocalDate) null);
+            tmc.setChoice(null);
             return;
         } // end if
 
@@ -231,11 +231,11 @@ public class EventNoteGroup extends NoteGroup
 
         for (int i = 0; i < (items - 1); i++) {
             ndNoteData1 = (EventNoteData) vectGroupData.elementAt(i);
-            d1 = ndNoteData1.getEventStartDateTime().toLocalDate();
+            d1 = ndNoteData1.getStartDate();
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
                 ndNoteData2 = (EventNoteData) vectGroupData.elementAt(j);
-                d2 = ndNoteData2.getEventStartDateTime().toLocalDate();
+                d2 = ndNoteData2.getStartDate();
 
                 if ((d1 == null) || ((d2 != null) && d1.isAfter(d2))) doSwap = true;
 
@@ -469,7 +469,7 @@ public class EventNoteGroup extends NoteGroup
             theHeader.setEventSummary(end.getSummary());
         } else {
             eNoteComponent = null;
-            tmc.setChoice((LocalDate) null);
+            tmc.setChoice(null);
             theHeader.setEventSummary("Select an Event to display");
         } // end if
     } // end showComponent

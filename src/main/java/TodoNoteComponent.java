@@ -142,8 +142,6 @@ public class TodoNoteComponent extends NoteComponent {
 
     @Override
     public NoteData getNoteData() {
-//        if (!initialized) return null;
-
         return myTodoNoteData;
     } // end getNoteData
 

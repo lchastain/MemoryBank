@@ -17,14 +17,14 @@ public class EventNoteData extends IconNoteData {
     private static final int FRIDAY = 6;
     private static final int SATURDAY = 7;
 
-    private String strLocation;
+    private String locationString;
 
     private String eventStartDateString = null;
     private String eventStartTimeString;
     private String eventEndDateString = null;
     private String eventEndTimeString;
 
-    private String strRecurrence;
+    private String recurrenceString;
     private boolean blnRetainNote;
     private Long lngDurationValue;
 
@@ -59,8 +59,8 @@ public class EventNoteData extends IconNoteData {
         noteString = endCopy.noteString;
         showIconOnMonthBoolean = endCopy.showIconOnMonthBoolean;
         strDurationUnits = endCopy.strDurationUnits;
-        strLocation = endCopy.strLocation;
-        strRecurrence = endCopy.strRecurrence;
+        locationString = endCopy.locationString;
+        recurrenceString = endCopy.recurrenceString;
         subjectString = endCopy.subjectString;
     } // end constructor
 
@@ -84,8 +84,8 @@ public class EventNoteData extends IconNoteData {
         eventEndDateString = null;
         eventStartTimeString = null;
         eventEndTimeString = null;
-        strLocation = "";
-        strRecurrence = "";
+        locationString = "";
+        recurrenceString = "";
         blnRetainNote = true;
     } // end clearEventNoteData
 
@@ -160,12 +160,12 @@ public class EventNoteData extends IconNoteData {
         }
     }
 
-    public String getLocation() {
-        return strLocation;
+    String getLocationString() {
+        return locationString;
     }
 
-    public String getRecurrence() {
-        return strRecurrence;
+    String getRecurrenceString() {
+        return recurrenceString;
     }
 
     @JsonIgnore
@@ -330,7 +330,7 @@ public class EventNoteData extends IconNoteData {
         strTheSummary += ".&nbsp; &nbsp;";
 
         // Location
-        if (!strLocation.trim().equals("")) {
+        if (!locationString.trim().equals("")) {
 
             strTheSummary += "Location: ";
 
@@ -338,11 +338,11 @@ public class EventNoteData extends IconNoteData {
             //   constraints of the editor interface that provides the
             //   information - ie, font, viewable length of the text in
             //   the edit control.  There may be a better way...
-            if (strLocation.length() > 70) {
-                strTmp = strLocation.substring(0, 70);
+            if (locationString.length() > 70) {
+                strTmp = locationString.substring(0, 70);
                 strTmp += "...";
             } else {
-                strTmp = strLocation;
+                strTmp = locationString;
             } // end if too long
 
             // Convert potentially malicious characters.
@@ -367,8 +367,8 @@ public class EventNoteData extends IconNoteData {
             }
         }
 
-        if (!strRecurrence.trim().equals("")) {
-            strTheSummary += getRecurrenceSummary(strRecurrence);
+        if (!recurrenceString.trim().equals("")) {
+            strTheSummary += getRecurrenceSummary(recurrenceString);
             strTheSummary += ".";
         } // end if
 
@@ -403,7 +403,7 @@ public class EventNoteData extends IconNoteData {
     //   more recurrence at all.
     //------------------------------------------------------
     boolean goForward() {
-        if (strRecurrence.equals("")) return false;
+        if (recurrenceString.equals("")) return false;
 
         // Unlikely that this method was even called in this
         //   case, but test it to be sure since we're using
@@ -430,19 +430,19 @@ public class EventNoteData extends IconNoteData {
 
         // System.out.println("  Duration in minutes: " + lngTheDuration);
 
-        int intUnderscore1 = strRecurrence.indexOf('_');
-        int intUnderscore2 = strRecurrence.lastIndexOf('_');
+        int intUnderscore1 = recurrenceString.indexOf('_');
+        int intUnderscore2 = recurrenceString.lastIndexOf('_');
 
         // Calculate the proposed new start date
 //        calTmp.setTime(dateEventStart);
         LocalDate futureDate = theStartDate;
-        if (strRecurrence.startsWith("D")) {
-            intTheInterval = Integer.parseInt(strRecurrence.substring(1, intUnderscore1));
+        if (recurrenceString.startsWith("D")) {
+            intTheInterval = Integer.parseInt(recurrenceString.substring(1, intUnderscore1));
 //            calTmp.add(Calendar.DATE, intTheInterval);
             futureDate = futureDate.plusDays(intTheInterval);
-        } else if (strRecurrence.startsWith("W")) {
-            strDescription = strRecurrence.substring(intUnderscore1 + 1, intUnderscore2);
-            intTheInterval = Integer.parseInt(strRecurrence.substring(1, intUnderscore1));
+        } else if (recurrenceString.startsWith("W")) {
+            strDescription = recurrenceString.substring(intUnderscore1 + 1, intUnderscore2);
+            intTheInterval = Integer.parseInt(recurrenceString.substring(1, intUnderscore1));
 
             int intTmp;
             while (true) {
@@ -478,32 +478,32 @@ public class EventNoteData extends IconNoteData {
                     if (strDescription.contains("Sa")) break;
                 } // end testing to see if the day matters
             } // end while
-        } else if (strRecurrence.startsWith("M")) {
-            strDescription = strRecurrence.substring(intUnderscore1 + 1, intUnderscore2);
-            intTheInterval = Integer.parseInt(strRecurrence.substring(1, intUnderscore1));
+        } else if (recurrenceString.startsWith("M")) {
+            strDescription = recurrenceString.substring(intUnderscore1 + 1, intUnderscore2);
+            intTheInterval = Integer.parseInt(recurrenceString.substring(1, intUnderscore1));
 //            calTmp.setTime(goForwardMonths(intTheInterval, strDescription));
             futureDate = goForwardMonths(intTheInterval, strDescription); // IF startTime is not null.  ..
         } else {  // Year
-            strDescription = strRecurrence.substring(intUnderscore1 + 1, intUnderscore2);
+            strDescription = recurrenceString.substring(intUnderscore1 + 1, intUnderscore2);
 //            calTmp.setTime(goForwardMonths(12, strDescription));
             futureDate = goForwardMonths(12, strDescription); // IF startTime is not null.  ..
         } // end if
 
         // Examine our Recurrence Range End
-        if (!strRecurrence.endsWith("_")) {
+        if (!recurrenceString.endsWith("_")) {
             String strRecurEnd;
-            strRecurEnd = strRecurrence.substring(intUnderscore2 + 1);
+            strRecurEnd = recurrenceString.substring(intUnderscore2 + 1);
             if (strRecurEnd.length() < 4) {
                 // Adjust the 'Stop After' value
                 int intAfter = Integer.parseInt(strRecurEnd);
                 intAfter--; // Decrease the 'Stop After' by one
                 if (intAfter > 1) {
-                    strRecurrence = strRecurrence.substring(0, intUnderscore2 + 1);
-                    strRecurrence += String.valueOf(intAfter);
+                    recurrenceString = recurrenceString.substring(0, intUnderscore2 + 1);
+                    recurrenceString += String.valueOf(intAfter);
                 } else {
                     // Now we are down to the last one so remove the recurrence
                     //   for next time but we still goForward.
-                    strRecurrence = "";
+                    recurrenceString = "";
                 } // end if there will be more
             } else {                       // Stop By
 //                sdf.applyPattern("yyyyMMdd");
@@ -523,13 +523,13 @@ public class EventNoteData extends IconNoteData {
 //        Date dateTheNewStart = calTmp.getTime();
         // ^^^ not needed; it is immutable.
 
-        String strKeepRecurrence = strRecurrence;
+        String strKeepRecurrence = recurrenceString;
         // System.out.println("  Adjusting start date to: " + dateTheNewStart);
         setEndDate(null);
 //        setStartDate(dateTheNewStart);
         setStartDate(futureDate);
         if (lngTheDuration != null) setDuration(lngTheDuration);
-        strRecurrence = strKeepRecurrence;
+        recurrenceString = strKeepRecurrence;
 
         return true;
     } // end goForward
@@ -775,8 +775,8 @@ public class EventNoteData extends IconNoteData {
         } // end if
 
         // And append the location, if there is one.
-        if (!this.strLocation.trim().equals("")) {
-            s += "\nLocation: " + this.strLocation;
+        if (!this.locationString.trim().equals("")) {
+            s += "\nLocation: " + this.locationString;
         } // end if
         dnd.setExtendedNoteString(s);
 
@@ -1235,11 +1235,11 @@ public class EventNoteData extends IconNoteData {
     } // end setEndTime
 
     public void setLocation(String s) {
-        strLocation = s;
+        locationString = s;
     }
 
     public void setRecurrence(String s) {
-        strRecurrence = s;
+        recurrenceString = s;
     }
 
     void setRetainNote(boolean b) {
@@ -1318,7 +1318,7 @@ public class EventNoteData extends IconNoteData {
 
     public boolean setStartDate(LocalDate newStartDate) {
         if (newStartDate == null) { // The user is 'un-setting' the date.
-            strRecurrence = ""; // Recurrence not possible without a start date.
+            recurrenceString = ""; // Recurrence not possible without a start date.
             eventStartDateString = null;
             recalcDuration();
             return true;
@@ -1350,7 +1350,7 @@ public class EventNoteData extends IconNoteData {
 
         // Accept the proposed new Start date, reset recurrence, and recalculate duration.
         eventStartDateString = newStartDate.toString();
-        strRecurrence = "";
+        recurrenceString = "";
         recalcDuration();
         return true;
     } // end setStartDate

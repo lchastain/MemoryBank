@@ -324,7 +324,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         if (objTmpLoc != null) {
             String strTmpLoc = objTmpLoc.toString().trim();
             if (!strTmpLoc.equals("")) {
-                if (!strTmpLoc.equals(end.getLocation().trim())) {
+                if (!strTmpLoc.equals(end.getLocationString().trim())) {
                     // Only if this represents a change.
                     end.setLocation(strTmpLoc);
                     addLocation(strTmpLoc);
@@ -1193,7 +1193,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         chkboxRetainNote.setSelected(end.getRetainNote());
 
         // Grab the Recurrence
-        strRecurrenceSetting = end.getRecurrence();
+        strRecurrenceSetting = end.getRecurrenceString();
 
         // Note: for date and time fields, we need to set our local
         //   holding variables in addition to the interface visuals.
@@ -1217,7 +1217,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         setDurationUnits(strUnits);
 
         // Show the Location
-        comboxLocation.setSelectedItem(end.getLocation());
+        comboxLocation.setSelectedItem(end.getLocationString());
 
         // Will not do a Date Format after all, for now.
         btnDateFormat.setVisible(false);
