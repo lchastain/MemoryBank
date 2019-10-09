@@ -1,8 +1,4 @@
-import java.io.Serializable;
-
-class IconNoteData extends NoteData implements Serializable {
-    private static final long serialVersionUID = -4747292791676343443L;
-
+class IconNoteData extends NoteData {
     protected String iconFileString;
     boolean showIconOnMonthBoolean;
 
