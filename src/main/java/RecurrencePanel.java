@@ -3,9 +3,7 @@ import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -788,7 +786,15 @@ public class RecurrencePanel extends JPanel implements
     } // end isRecurrenceValid
 
 
-    static boolean isWeekday(Calendar cal) {
+    static boolean isWeekday(LocalDate theDay) {
+        boolean result = true;
+        if(theDay.getDayOfWeek() == DayOfWeek.SATURDAY) result = false;
+        if(theDay.getDayOfWeek() == DayOfWeek.SUNDAY) result = false;
+
+        return result;
+    } // end isWeekday
+
+    private static boolean isWeekday(Calendar cal) {
         boolean result = true;
         if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) result = false;
         if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) result = false;
@@ -1258,6 +1264,9 @@ public class RecurrencePanel extends JPanel implements
 
 
     // Set the interface fields per the input data.
+    public void showTheData(String strRecur, LocalDate ld) {
+        showTheData(strRecur, Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    }
     public void showTheData(String strRecur, Date d) {
         dateStart = d;
 

@@ -667,5 +667,28 @@ public class AppUtil {
         return notesWritten;
     }
 
+    // This is my own conversion, to numbers that matched these
+    // that were being returned by Calendar queries, now deprecated.
+    // I put this in place as a temporary remediation along the way
+    // to updating the app to new Java 8 date/time classes.
+    static int getDayOfWeekInt(LocalDate tmpDate) {
+        switch (tmpDate.getDayOfWeek()) {
+            case SUNDAY:
+                return 1;
+            case MONDAY:
+                return 2;
+            case TUESDAY:
+                return 3;
+            case WEDNESDAY:
+                return 4;
+            case THURSDAY:
+                return 5;
+            case FRIDAY:
+                return 6;
+            case SATURDAY:
+                return 7;
+        }
+        return -1;
+    }
 
 } // end class AppUtil

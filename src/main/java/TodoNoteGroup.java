@@ -6,9 +6,10 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Vector;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
@@ -170,21 +171,21 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //
     // Interface to the Three Month Calendar; called by the tmc.
     //-------------------------------------------------------------
-    public void dateSelected(Date d) {
-        System.out.println("LogTodo - date selected on TMC = " + d);
+    public void dateSelected(LocalDate ld) {
+        System.out.println("LogTodo - date selected on TMC = " + ld);
 
         if (tNoteComponent == null) {
             String s;
             s = "You must select an item before a date can be linked!";
             setMessage(s);
-            tmc.setChoice(null);
+            tmc.setChoice((LocalDate) null);
             return;
         } // end if
 
         TodoNoteData tnd = (TodoNoteData) (tNoteComponent.getNoteData());
-        tnd.setTodoDate(d);
+        tnd.setTodoDate(ld);
 
-        System.out.println(d);
+        System.out.println(ld);
         tNoteComponent.setTodoNoteData(tnd);
     } // end dateSelected
 
@@ -631,7 +632,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             }
         } else {
             tNoteComponent = null;
-            tmc.setChoice(null);
+            tmc.setChoice((LocalDate) null);
         } // end if
     } // end showComponent
 

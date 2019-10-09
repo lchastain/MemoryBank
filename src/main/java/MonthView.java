@@ -352,7 +352,7 @@ public class MonthView extends JLayeredPane {
 
             // Get the day of the week of the first day.
             tmpLocalDate = tmpLocalDate.withDayOfMonth(1);
-            int dayOfWeek = getDayOfWeekInt(tmpLocalDate); // my values; theirs suck.
+            int dayOfWeek = AppUtil.getDayOfWeekInt(tmpLocalDate); // my values; theirs suck.
             // TODO maybe - refactor so we can just use tmpLocalDate.getDayOfWeek()
 
             boolean rollover = false;
@@ -393,30 +393,6 @@ public class MonthView extends JLayeredPane {
             } // end for i
         } // end recalc
     } // end class MonthCanvas
-
-    // This is my own conversion, to numbers that matched these
-    // that were being returned by Calendar queries, now deprecated.
-    // I put this in place as a temporary remediation along the way
-    // to updating the app to new Java 8 date/time classes.
-    private int getDayOfWeekInt(LocalDate tmpDate) {
-        switch (tmpDate.getDayOfWeek()) {
-            case SUNDAY:
-                return 1;
-            case MONDAY:
-                return 2;
-            case TUESDAY:
-                return 3;
-            case WEDNESDAY:
-                return 4;
-            case THURSDAY:
-                return 5;
-            case FRIDAY:
-                return 6;
-            case SATURDAY:
-                return 7;
-        }
-        return -1;
-    }
 
     //============================================================
     // Description:  Representation of a Day in a month 'view'

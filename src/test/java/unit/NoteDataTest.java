@@ -78,7 +78,6 @@ class NoteDataTest {
         Assertions.assertEquals(zdt.getDayOfYear(), ldt.getDayOfYear());
         Assertions.assertEquals(zdt.getHour(), ldt.getHour());
         Assertions.assertEquals(zdt.getMinute(), ldt.getMinute());
-        Assertions.assertEquals(zdt.getSecond(), ldt.getSecond());
     }
 
     @Test

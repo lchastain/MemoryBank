@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -18,7 +19,7 @@ public class MemoryBank {
     // Static members that are developed prior
     //   to running 'main':
     //-------------------------------------------------
-    static final int SAME_DAY = 0;
+    private static final int SAME_DAY = 0;
     private static final int NEXT_DAY = 1;
     private static final int PREV_DAY = 2;
 
@@ -343,13 +344,13 @@ public class MemoryBank {
     } // end getSeparatorFromFormat
 
 
-    static String minuteToString(int minutes) {
+    private static String minuteToString(int minutes) {
         if (minutes < 10) return "0" + minutes;
         else return String.valueOf(minutes);
     } // end minuteToString
 
 
-    static String hourToString(int hour) {
+    private static String hourToString(int hour) {
         String s;
         if (military) {
             if (hour < 10) s = "0" + hour;
@@ -362,6 +363,21 @@ public class MemoryBank {
         } // end if
         return s;
     } // end hourToString
+
+
+    static String makeTimeString(LocalTime lt) {
+        int minute = lt.getMinute();
+
+        // Hour portion
+        String time = hourToString(lt.getHour());
+
+        if (!military) time += ":";
+
+        // Minutes portion
+        time += minuteToString(minute);
+
+        return time;
+    } // end makeTimeString
 
 
     static String makeTimeString() {

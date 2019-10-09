@@ -5,10 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class TodoNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
@@ -27,7 +24,6 @@ public class TodoNoteComponent extends NoteComponent {
     private static ImageIcon todo_wait;
     private static ImageIcon todo_query;
     private static ImageIcon todo_obe;
-
 
     static {
         //-----------------------------------
@@ -187,20 +183,19 @@ public class TodoNoteComponent extends NoteComponent {
         MemoryBank.debug("Moving...");
         MemoryBank.debug("  To Date = " + useDate);
 
-        if (!useDate) myTodoNoteData.setTodoDate(new Date());
+        if (!useDate) myTodoNoteData.setTodoDate(LocalDate.now());
 
         boolean success;
         String s = TodoNoteGroup.prettyName(myNoteGroup.getGroupFilename());
         myTodoNoteData.setSubjectString(s);
 
         // Prepare to preserve the item, then do so by calling addNote.
-        DayNoteData dnd = myTodoNoteData.getDayNoteData(useDate);
+        DayNoteData dnd = myTodoNoteData.getDayNoteData();
         String theFilename;
-        Instant instant = Instant.ofEpochMilli(myTodoNoteData.getTodoDate().getTime());
-        LocalDateTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
+        LocalDate theTodoDate = myTodoNoteData.getTodoDate();
+        theFilename = AppUtil.findFilename(theTodoDate, "D");
         if (theFilename.equals("")) {
-            theFilename = AppUtil.makeFilename(ansr.toLocalDate(), "D");
+            theFilename = AppUtil.makeFilename(theTodoDate, "D");
         } // end if
         success = AppUtil.addNote(theFilename, dnd);
 

@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDate;
 
 // This test is to verify that a given Todo item does not lose 'focus' when a
 // date for it is selected on the Three Month Column.  That was the problem
@@ -48,7 +48,7 @@ class TodoItemFocusTest {
         // Getting initial states
         TodoNoteComponent todoNoteComponent3 = todoNoteGroup.getNoteComponent(3);
         TodoNoteComponent todoNoteComponent4 = todoNoteGroup.getNoteComponent(4);
-        Date originalDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
+        LocalDate originalDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
 
         // Allow some time to display the JFrame.
         try {
@@ -95,11 +95,12 @@ class TodoItemFocusTest {
         // results, so to do that - ?? - maybe have known mouse coordinates, and use MouseEvents?
         // Maybe - refactor the TMC, to expose 'adjustment' methods that the mouse actions also call.
         //
-        Date today = new Date();
+        LocalDate today = LocalDate.now();
+        todoNoteGroup.getThreeMonthColumn().setBaseDate(today); // Normally done by the TodoNoteGroup.
         todoNoteGroup.getThreeMonthColumn().setChoice(today); // Normally done by a mouse press.
         todoNoteGroup.dateSelected(today); // Normally the mousePressed would have done this for us.
 
-        // Enable this when you want to see the result.
+        // Enable this when you want the result to stay longer.
 //        try {
 //            Thread.sleep(2000);
 //        } catch (InterruptedException e) {
@@ -108,7 +109,7 @@ class TodoItemFocusTest {
 
         // Verify that we now have selected a different day on the TMC, but we still
         // have focus on the selected Todo item.
-        Date currentDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
+        LocalDate currentDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
         Assertions.assertNotSame(originalDateSelected, currentDateSelected);
         Assertions.assertSame(today, currentDateSelected);
         Assertions.assertTrue(todoNoteComponent4.hasFocus());

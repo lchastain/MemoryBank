@@ -181,7 +181,7 @@ public class DayNoteComponent extends IconNoteComponent {
         if (newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
             setDayNoteData((DayNoteData) newNoteData);
         } else if (newNoteData instanceof TodoNoteData) {
-            setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData(false));
+            setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData());
         } else if (newNoteData instanceof EventNoteData) {
             setDayNoteData(((EventNoteData) newNoteData).getDayNoteData());
         } else {

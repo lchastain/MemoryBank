@@ -1,12 +1,14 @@
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Date;
+import java.time.LocalDate;
 
 class TodoNoteGroupTest implements FileChooser {
     private static TodoNoteGroup todoNoteGroup;
@@ -87,7 +89,7 @@ class TodoNoteGroupTest implements FileChooser {
     @Test
     void testDateSelected() {
         // Coverage, could use some more...
-        todoNoteGroup.dateSelected(new Date());
+        todoNoteGroup.dateSelected(LocalDate.now());
     }
 
     @Override

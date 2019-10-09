@@ -1,6 +1,6 @@
 import java.io.File;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class TodoNoteData extends NoteData implements Serializable {
     static final long serialVersionUID = 1L;
@@ -12,7 +12,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     static final int TODO_QUERY = 4;
     static final int TODO_OBE = 5;
 
-    private Date todoDate;  // This can be a deadline or a 'do after', or ...   Set/chosen on the TMC
+    private String todoDateString; // This can be a deadline or a 'do after', or ...   Set/chosen on the TMC
     private int intPriority;
     private int intStatus;
     private String strLinkage;
@@ -32,7 +32,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         intPriority = tndCopy.intPriority;
         intStatus = tndCopy.intStatus;
         strLinkage = tndCopy.strLinkage;
-        todoDate = tndCopy.todoDate;
+        todoDateString = tndCopy.todoDateString;
     } // end constructor
 
     // Construct a TodoNoteData from a NoteData.
@@ -58,7 +58,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         intPriority = 0;
         intStatus = TODO_STARTED;
         strLinkage = null;
-        todoDate = null;
+        todoDateString = null;
     } // end clearTodoNoteData
 
 
@@ -71,7 +71,7 @@ public class TodoNoteData extends NoteData implements Serializable {
     //   in the 'time' field, in this case it must, in order for
     //   NoteGroup.addNote to place it into the correct file.
     //-------------------------------------------------------------
-    public DayNoteData getDayNoteData(boolean useDate) {
+    public DayNoteData getDayNoteData() {
         DayNoteData dnd = new DayNoteData();
         String newExtText;
 
@@ -103,20 +103,6 @@ public class TodoNoteData extends NoteData implements Serializable {
         newExtText += extendedNoteString;
         //----------------------------------------------------------------
 
-        // Set the timestamp for this Note according to which menu
-        //   selection the user specified.
-        Date newTimeDate;
-        if (useDate) {
-            newTimeDate = todoDate;
-
-            // The user should NOT have been able to select
-            // 'Move to Selected Date' if the date selection
-            // was null, but we cover that case here anyway.
-            if (newTimeDate == null) newTimeDate = new Date();
-        } else { // This 'else' goes with the higher 'if', not directly above.
-            newTimeDate = new Date();
-        }
-
         // Choose an initial icon based on status, if any.
         String iconFileString = null;
         if (intStatus > 0) {
@@ -143,6 +129,7 @@ public class TodoNoteData extends NoteData implements Serializable {
         } // end if status has been set
 
         // Make all assignments
+        // TODO - the time of day should be blank, for a moved todo note.
         dnd.setExtendedNoteHeightInt(newHite);
         dnd.setExtendedNoteString(newExtText);
         dnd.setExtendedNoteWidthInt(extendedNoteWidthInt);
@@ -159,8 +146,9 @@ public class TodoNoteData extends NoteData implements Serializable {
         return strLinkage;
     }
 
-    Date getTodoDate() {
-        return todoDate;
+    LocalDate getTodoDate() {
+        if(todoDateString == null) return null;
+        return LocalDate.parse(todoDateString);
     }
 
     public int getPriority() {
@@ -211,8 +199,12 @@ public class TodoNoteData extends NoteData implements Serializable {
         intStatus = val;
     }
 
-    void setTodoDate(Date value) {
-        todoDate = value;
+    void setTodoDate(LocalDate value) {
+        if(value == null) {
+            todoDateString = null;
+        } else {
+            todoDateString = value.toString();
+        }
     }
 
 } // end class TodoNoteData

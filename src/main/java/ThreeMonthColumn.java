@@ -11,12 +11,16 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class ThreeMonthColumn extends JPanel {
-    private static final long serialVersionUID = 6264848411961477735L;
+    private static final long serialVersionUID = 1L;
 
     private static final int BOTH = 1000;
     private static final int DOWN = 1001;
@@ -56,14 +60,23 @@ public class ThreeMonthColumn extends JPanel {
     } // end constructor
 
 
+
     // Set the value of the 'middle' month.
-    void setBaseDate(Date d) {
+    void setBaseDate(LocalDate ld) {
+        cal.setTime(Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        monthColumn.recalc();
+    } // end setBaseDate
+    private void setBaseDate(Date d) {
         cal.setTime(d);
         monthColumn.recalc();
     } // end setBaseDate
 
     // Set the current choice.
     // Called internally after a up/down click, and from external.
+    public void setChoice(LocalDate ld) {
+        if(ld == null) return;  // or un-set?
+        setChoice(Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    }
     public void setChoice(Date d) {
         choice = d;
         if (choice == null) {
@@ -440,7 +453,10 @@ public class ThreeMonthColumn extends JPanel {
                 dayLabel.highlight();
             } // end if
 
-            if (twimc != null) twimc.dateSelected(choice);
+            if (twimc != null) {
+                assert choice != null;
+                twimc.dateSelected(LocalDateTime.ofInstant(Instant.ofEpochMilli(choice.getTime()), ZoneId.systemDefault()).toLocalDate());
+            }
 
         } // end mousePressed
 

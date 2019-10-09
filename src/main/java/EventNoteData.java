@@ -1,54 +1,44 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class EventNoteData extends IconNoteData {
-    private static final long serialVersionUID = 9011997727379920195L;
-    private static final int START_DATE_KNOWN = 1;
-    private static final int START_TIME_KNOWN = 2;
-    private static final int END_DATE_KNOWN = 4;
-    private static final int END_TIME_KNOWN = 8;
-    private static final int START_KNOWN = START_DATE_KNOWN + START_TIME_KNOWN;
-    private static final int END_KNOWN = END_DATE_KNOWN + END_TIME_KNOWN;
+    // Capturing these values from the old Calendar class, as it goes away -
+    private static final int SUNDAY = 1;
+    private static final int MONDAY = 2;
+    private static final int TUESDAY = 3;
+    private static final int WEDNESDAY = 4;
+    private static final int THURSDAY = 5;
+    private static final int FRIDAY = 6;
+    private static final int SATURDAY = 7;
 
-    private Date dateEventStart; // Composite of both Date and Time.
-    private Date dateEventEnd;   // Composite of both Date and Time.
-    private String strDateFormat;
     private String strLocation;
 
+    private String eventStartDateString = null;
+    private String eventStartTimeString;
+    private String eventEndDateString = null;
+    private String eventEndTimeString;
+
     private String strRecurrence;
-    private int intDatKnown;   // Date And Time Known indicator.
     private boolean blnRetainNote;
+    private Long lngDurationValue;
 
-    transient String movedToDate;  // prevents dups.
+    transient boolean movedToDay;  // prevents dups.
 
-    // Create a temporary Calendar variable, for get/set operations.
-    private static GregorianCalendar calTmp;
-    private static SimpleDateFormat sdf;
+    private static DateTimeFormatter dtf;
 
-    private static boolean blnSettingDuration;
-    private transient Long lngDurationValue;
+
+    private static transient boolean blnSettingDuration = false;
     private transient String strDurationUnits;
-
-    static {
-        sdf = new SimpleDateFormat();
-        blnSettingDuration = false;
-
-        calTmp = new GregorianCalendar();
-        calTmp.setGregorianChange(new GregorianCalendar(1752,
-                Calendar.SEPTEMBER, 14).getTime());
-    } // end static section
 
     public EventNoteData() {
         super();
+        movedToDay = false;
         clearEventNoteData();
     } // end constructor
 
@@ -57,17 +47,17 @@ public class EventNoteData extends IconNoteData {
     public EventNoteData(EventNoteData endCopy) {
         super();
         blnRetainNote = endCopy.blnRetainNote;
-        dateEventEnd = endCopy.dateEventEnd;
-        dateEventStart = endCopy.dateEventStart;
+        eventStartDateString = endCopy.eventStartDateString;
+        eventEndDateString = endCopy.eventEndDateString;
+        eventStartTimeString = endCopy.eventStartTimeString;
+        eventEndTimeString = endCopy.eventEndTimeString;
         extendedNoteHeightInt = endCopy.extendedNoteHeightInt;
         extendedNoteString = endCopy.extendedNoteString;
         extendedNoteWidthInt = endCopy.extendedNoteWidthInt;
         iconFileString = endCopy.iconFileString;
-        intDatKnown = endCopy.intDatKnown;
         lngDurationValue = endCopy.lngDurationValue;
         noteString = endCopy.noteString;
         showIconOnMonthBoolean = endCopy.showIconOnMonthBoolean;
-        strDateFormat = endCopy.strDateFormat;
         strDurationUnits = endCopy.strDurationUnits;
         strLocation = endCopy.strLocation;
         strRecurrence = endCopy.strRecurrence;
@@ -82,41 +72,27 @@ public class EventNoteData extends IconNoteData {
         clearEventNoteData();
     } // end constructor
 
-    // NOTES:
-    //
-    // When setting a date or time it is true that the fields may
-    //   have previously contained a duration.  However, (per
-    //   design requirements) ANY such setting must invalidate a
-    //   duration because it should then be recalculated.
-    //--------------------------------------------------------------
-
-
     public void clear() {
-        super.clear();
         clearEventNoteData();
+        super.clear();
     } // end clear
+
+    // This is (or may be?) needed as a separate method because we don't always want to
+    //  call the super.clear().
+    private void clearEventNoteData() {
+        eventStartDateString = null;
+        eventEndDateString = null;
+        eventStartTimeString = null;
+        eventEndTimeString = null;
+        strLocation = "";
+        strRecurrence = "";
+        blnRetainNote = true;
+    } // end clearEventNoteData
 
 
     @Override
     protected NoteData copy() {
         return new EventNoteData(this);
-    }
-
-    // This is (may be?) needed as a separate method because of base
-    //  class behaviors calling base clears.
-    private void clearEventNoteData() {
-        dateEventStart = null;
-        dateEventEnd = null;
-        strDateFormat = "";
-        strLocation = "";
-        strRecurrence = "";
-        intDatKnown = 0;
-        blnRetainNote = true;
-    } // end clearEventNoteData
-
-
-    public String getDateFormat() {
-        return strDateFormat;
     }
 
     Long getDurationValue() {
@@ -148,55 +124,41 @@ public class EventNoteData extends IconNoteData {
         return strDurationUnits;
     } // end getDurationUnits
 
-
-    Date getEndDate() {
-        if (!isEndDateKnown()) return null;
-
-        // If we are managing the intDatKnown variable properly
-        //   then the dateEventEnd should not be null...
-
-        // Initialize the temporary Calendar to the Event End
-        calTmp.setTime(dateEventEnd);
-
-        // Maximize the time of the temporary calendar to
-        //   the last possible second of this day.
-        calTmp.set(Calendar.HOUR_OF_DAY, 23);
-        calTmp.set(Calendar.MINUTE, 59);
-        calTmp.set(Calendar.SECOND, 59);
-
-        // We set the time to the last second of the day because as
-        //   an 'End Date' it may be tested against a deadline or
-        //   similar value.  In that case we don't want to be subject
-        //   to times that were set randomly set as a result of setting
-        //   a date-only value.  If the user expects that the time
-        //   component of the EventEnd is a valid value then they
-        //   should be calling 'getEventEnd' rather than this method.
-
-        // Return the Date extracted from the temporary Calendar.
-        return calTmp.getTime();
-    } // end getEndDate
-
-
-    // Note that since the associated Date is irrelevant but
-    //   not removable, we take the easiest route and simply
-    //   return the entire EventEnd, if the time is known
-    //   at all, that is.
-    Date getEndTime() {
-        if (!isEndTimeKnown()) return null;
-        return dateEventEnd;
-    } // end getEndTime
-
-
-    // Used in Duration calculations.
-    Date getEventEnd() {
-        return dateEventEnd;
+    LocalDate getEndDate() {
+        if (eventEndDateString == null) return null;
+        return LocalDate.parse(eventEndDateString);
     }
 
-    @JsonIgnore
-    public Date getEventStart() {
-        return dateEventStart;
+    LocalTime getEndTime() {
+        if(eventEndTimeString == null) return null;
+        return LocalTime.parse(eventEndTimeString);
     }
 
+    // Get the Event end, as the combination of the
+    // end date and end time (with caveats).
+    LocalDateTime getEventEndDateTime() {
+        LocalDate theEndDate = getEndDate();
+        if(theEndDate == null) return null;
+        LocalTime theEndTime = getEndTime();
+        if(theEndTime != null) {
+            return theEndDate.atTime(theEndTime);
+        } else {
+            return theEndDate.atTime(23,59,59);
+        }
+    }
+
+    // Get the Event start, as the combination of the
+    // start date and start time (with caveats).
+    LocalDateTime getEventStartDateTime() {
+        LocalDate theStartDate = getStartDate();
+        if(theStartDate == null) return null;
+        LocalTime theStartTime = getStartTime();
+        if(theStartTime != null) {
+            return theStartDate.atTime(theStartTime);
+        } else {
+            return theStartDate.atStartOfDay();
+        }
+    }
 
     public String getLocation() {
         return strLocation;
@@ -276,12 +238,15 @@ public class EventNoteData extends IconNoteData {
                 strRecurSummary += " and stops after ";
                 strRecurSummary += strRecurEnd + " times";
             } else {                       // Stop By
-                sdf.applyPattern("yyyyMMdd");
+                dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
                 try {
-                    Date d = sdf.parse(strRecurEnd);
-                    sdf.applyPattern("EEEE MMM dd, yyyy");
+//                    Date d = sdf.parse(strRecurEnd);
+                    LocalDate d = LocalDate.parse(strRecurEnd, dtf); // check this!
+                    dtf = DateTimeFormatter.ofPattern("EEEE MMM dd, yyyy");
+//                    sdf.applyPattern("EEEE MMM dd, yyyy");
                     strRecurSummary += " and stops by ";
-                    strRecurSummary += sdf.format(d);
+//                    strRecurSummary += sdf.format(d);
+                    strRecurSummary += dtf.format(d);
                 } catch (Exception ignored) {
                 }
             }
@@ -292,35 +257,15 @@ public class EventNoteData extends IconNoteData {
 
 
     // Return the Date only (no time component)
-    public Date getStartDate() {
-        if (!isStartDateKnown()) return null;
+    LocalDate getStartDate() {
+        if (eventStartDateString == null) return null;
+        return LocalDate.parse(eventStartDateString);
+    }
 
-        // If we are managing the intDatKnown variable properly
-        //   then when we get to this point the dateEventStart
-        //   should not be null...
-
-        // Initialize the temporary Calendar to the Event Start
-        calTmp.setTime(dateEventStart);
-
-        // Truncate the time from the temporary calendar
-        calTmp.set(Calendar.HOUR, 0);
-        calTmp.set(Calendar.MINUTE, 0);
-        calTmp.set(Calendar.SECOND, 0);
-
-        // Return the Date extracted from the temporary Calendar.
-        return calTmp.getTime();
-    } // end getStartDate
-
-
-    // Note that since the associated Date is irrelevant but
-    //   not removable, we take the easiest route and simply
-    //   return the entire EventStart, if the time is known
-    //   at all, that is.
-    Date getStartTime() {
-        if (!isStartTimeKnown()) return null;
-        return dateEventStart;
-    } // end getStartTime
-
+    LocalTime getStartTime() {
+        if (eventStartTimeString == null) return null;
+        return LocalTime.parse(eventStartTimeString);
+    }
 
     //---------------------------------------------------
     // Method Name: getSummary
@@ -354,19 +299,21 @@ public class EventNoteData extends IconNoteData {
         strTheSummary += strTmp;
 
         // Event Start
-        if (isStartDateKnown()) {
+        LocalDate theStartDate = getStartDate();
+        LocalTime theStartTime = getStartTime();
+        if (theStartDate != null) {
             strTheSummary += " starts on ";
-            sdf.applyPattern("EEEE MMMM dd, yyyy");
-            strTheSummary += sdf.format(dateEventStart);
-            if (isStartTimeKnown()) {
+            dtf = DateTimeFormatter.ofPattern("EEEE MMM dd, yyyy");
+            strTheSummary += dtf.format(theStartDate);
+            if (theStartTime != null) {
                 strTheSummary += " at ";
-                sdf.applyPattern("hh:mm a");
-                strTheSummary += sdf.format(dateEventStart);
+                dtf = DateTimeFormatter.ofPattern("hh:mm a");
+                strTheSummary += dtf.format(theStartTime);
             }
-        } else if (isStartTimeKnown()) {
+        } else if (theStartTime != null) {
             strTheSummary += " starts on an unknown date at ";
-            sdf.applyPattern("hh:mm a");
-            strTheSummary += sdf.format(dateEventStart);
+            dtf = DateTimeFormatter.ofPattern("hh:mm a");
+            strTheSummary += dtf.format(theStartTime);
         } else {  // unknown start date and time
             strTheSummary += " has an unknown start";
         } // end if
@@ -410,10 +357,12 @@ public class EventNoteData extends IconNoteData {
         // We may be able to say when it ends, but we
         //   should only do so if it ends on a different day
         //   (or if we do not know the start date).
-        sdf.applyPattern("EEEE MMMM dd, yyyy");
-        if (isEndDateKnown()) {
+        dtf = DateTimeFormatter.ofPattern("EEEE MMMM dd, yyyy");
+        LocalDate theEndDate = getEndDate();
+        if (theEndDate != null) {
             if (!isEndSameDay()) {
-                strTheSummary += "It ends on " + sdf.format(dateEventEnd);
+//                strTheSummary += "It ends on " + sdf.format(dateEventEnd);
+                strTheSummary += "It ends on " + dtf.format(theEndDate);
                 strTheSummary += ".&nbsp; &nbsp;";
             }
         }
@@ -459,7 +408,8 @@ public class EventNoteData extends IconNoteData {
         // Unlikely that this method was even called in this
         //   case, but test it to be sure since we're using
         //   it later and expecting it to be non-null.
-        if (dateEventStart == null) return false;
+        LocalDate theStartDate = getStartDate();
+        if (theStartDate == null) return false;
 
         int intTheInterval;
         String strDescription;
@@ -484,10 +434,12 @@ public class EventNoteData extends IconNoteData {
         int intUnderscore2 = strRecurrence.lastIndexOf('_');
 
         // Calculate the proposed new start date
-        calTmp.setTime(dateEventStart);
+//        calTmp.setTime(dateEventStart);
+        LocalDate futureDate = theStartDate;
         if (strRecurrence.startsWith("D")) {
             intTheInterval = Integer.parseInt(strRecurrence.substring(1, intUnderscore1));
-            calTmp.add(Calendar.DATE, intTheInterval);
+//            calTmp.add(Calendar.DATE, intTheInterval);
+            futureDate = futureDate.plusDays(intTheInterval);
         } else if (strRecurrence.startsWith("W")) {
             strDescription = strRecurrence.substring(intUnderscore1 + 1, intUnderscore2);
             intTheInterval = Integer.parseInt(strRecurrence.substring(1, intUnderscore1));
@@ -496,38 +448,45 @@ public class EventNoteData extends IconNoteData {
             while (true) {
                 // If we are at the end of the week, jump the
                 //   interval before we add another day.
-                intTmp = calTmp.get(Calendar.DAY_OF_WEEK);
-                if (intTmp == Calendar.SATURDAY) {
-                    if (intTheInterval > 1) calTmp.add(Calendar.DATE, 7 * (intTheInterval - 1));
+                // ok, doing that, but why?  need better comment here.
+//                intTmp = calTmp.get(Calendar.DAY_OF_WEEK);
+                intTmp = AppUtil.getDayOfWeekInt(futureDate);
+                if (intTmp == SATURDAY) {
+//                    if (intTheInterval > 1) calTmp.add(Calendar.DATE, 7 * (intTheInterval - 1));
+                    if (intTheInterval > 1) futureDate = futureDate.plusDays(7 * (intTheInterval - 1));
                 } // end if
 
-                calTmp.add(Calendar.DATE, 1); // Add one day.
+//                calTmp.add(Calendar.DATE, 1); // Add one day.
+                futureDate = futureDate.plusDays(1);
 
                 // Now check to see if it 'counts'.
-                intTmp = calTmp.get(Calendar.DAY_OF_WEEK);
-                if (intTmp == Calendar.SUNDAY) {
+//                intTmp = calTmp.get(Calendar.DAY_OF_WEEK);
+                intTmp = AppUtil.getDayOfWeekInt(futureDate);
+                if (intTmp == SUNDAY) {
                     if (strDescription.contains("Su")) break;
-                } else if (intTmp == Calendar.MONDAY) {
+                } else if (intTmp == MONDAY) {
                     if (strDescription.contains("Mo")) break;
-                } else if (intTmp == Calendar.TUESDAY) {
+                } else if (intTmp == TUESDAY) {
                     if (strDescription.contains("Tu")) break;
-                } else if (intTmp == Calendar.WEDNESDAY) {
+                } else if (intTmp == WEDNESDAY) {
                     if (strDescription.contains("We")) break;
-                } else if (intTmp == Calendar.THURSDAY) {
+                } else if (intTmp == THURSDAY) {
                     if (strDescription.contains("Th")) break;
-                } else if (intTmp == Calendar.FRIDAY) {
+                } else if (intTmp == FRIDAY) {
                     if (strDescription.contains("Fr")) break;
-                } else if (intTmp == Calendar.SATURDAY) {
+                } else if (intTmp == SATURDAY) {
                     if (strDescription.contains("Sa")) break;
                 } // end testing to see if the day matters
             } // end while
         } else if (strRecurrence.startsWith("M")) {
             strDescription = strRecurrence.substring(intUnderscore1 + 1, intUnderscore2);
             intTheInterval = Integer.parseInt(strRecurrence.substring(1, intUnderscore1));
-            calTmp.setTime(goForwardMonths(intTheInterval, strDescription));
+//            calTmp.setTime(goForwardMonths(intTheInterval, strDescription));
+            futureDate = goForwardMonths(intTheInterval, strDescription); // IF startTime is not null.  ..
         } else {  // Year
             strDescription = strRecurrence.substring(intUnderscore1 + 1, intUnderscore2);
-            calTmp.setTime(goForwardMonths(12, strDescription));
+//            calTmp.setTime(goForwardMonths(12, strDescription));
+            futureDate = goForwardMonths(12, strDescription); // IF startTime is not null.  ..
         } // end if
 
         // Examine our Recurrence Range End
@@ -547,10 +506,13 @@ public class EventNoteData extends IconNoteData {
                     strRecurrence = "";
                 } // end if there will be more
             } else {                       // Stop By
-                sdf.applyPattern("yyyyMMdd");
+//                sdf.applyPattern("yyyyMMdd");
+                dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
                 try {
-                    Date d = sdf.parse(strRecurEnd);
-                    if (d.before(calTmp.getTime())) return false;
+//                    Date d = sdf.parse(strRecurEnd);
+                    LocalDate d = LocalDate.parse(strRecurEnd, dtf);
+//                    if (d.before(calTmp.getTime())) return false;
+                    if (d.isBefore(futureDate)) return false;
                 } catch (Exception ignored) {
                 }
             } // end if/else - Stop    After or By
@@ -558,12 +520,14 @@ public class EventNoteData extends IconNoteData {
 
         // Preserve the value from calTmp from unintended changes
         //   that the other 'set' methods will make.
-        Date dateTheNewStart = calTmp.getTime();
+//        Date dateTheNewStart = calTmp.getTime();
+        // ^^^ not needed; it is immutable.
 
         String strKeepRecurrence = strRecurrence;
         // System.out.println("  Adjusting start date to: " + dateTheNewStart);
         setEndDate(null);
-        setStartDate(dateTheNewStart);
+//        setStartDate(dateTheNewStart);
+        setStartDate(futureDate);
         if (lngTheDuration != null) setDuration(lngTheDuration);
         strRecurrence = strKeepRecurrence;
 
@@ -578,24 +542,29 @@ public class EventNoteData extends IconNoteData {
     //   the specified number of input months, adjusted to
     //   fit the pattern.
     //------------------------------------------------------------
-    private Date goForwardMonths(int months, String strMonthPattern) {
-        Date dateTheEndDate;
-        calTmp.setTime(dateEventStart);
+    private LocalDate goForwardMonths(int months, String strMonthPattern) {
+//        Date dateTheEndDate;  // Where we end up, after going forward.
+        LocalDate futureDate; // Where we end up, after going forward.
+//        calTmp.setTime(dateEventStart);  // eventStartDateTime
 
         // Get our start day, for multiple uses below.
         String strWhichOne = "first";
-        int intDayOfWeek = calTmp.get(Calendar.DAY_OF_WEEK);
+//        int intDayOfWeek = calTmp.get(Calendar.DAY_OF_WEEK);
+        int intDayOfWeek = AppUtil.getDayOfWeekInt(getStartDate());
 
         // Keep the last known 'good' date, as we scan forward.
-        Date dateGood;
+//        Date dateGood;
+        LocalDate ldGood;
 
         // This calculation works for a simple numeric date and
         // does not consider the Monthly pattern.
-        calTmp.add(Calendar.MONTH, months);
-        dateTheEndDate = calTmp.getTime();
+//        calTmp.add(Calendar.MONTH, months);
+//        dateTheEndDate = calTmp.getTime();
+        futureDate = getStartDate().plusMonths(months);
 
         // Preserve the month value.
-        int intMonth = calTmp.get(Calendar.MONTH);
+//        int intMonth = calTmp.get(Calendar.MONTH);
+        int intMonth = futureDate.getMonthValue() - 1;
 
         // Examine the user-selected recurrence pattern.
         if (!Character.isDigit(strMonthPattern.charAt(4))) {
@@ -603,9 +572,12 @@ public class EventNoteData extends IconNoteData {
             if (strMonthPattern.toLowerCase().contains("weekend")) {
                 // System.out.println("generalized - weekend");
                 // Now set the calendar to the first one in this month -
-                calTmp.set(Calendar.DAY_OF_MONTH, 1);
-                while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
-                dateGood = calTmp.getTime();
+//                calTmp.set(Calendar.DAY_OF_MONTH, 1);
+                LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
+//                while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+                while (RecurrencePanel.isWeekday(tmpFutureDate)) futureDate = futureDate.plusDays(1);
+//                dateGood = calTmp.getTime();
+                ldGood = tmpFutureDate;
                 // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
                 while (!strMonthPattern.toLowerCase().contains(strWhichOne)) {
@@ -624,28 +596,38 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-                    calTmp.add(Calendar.DATE, 1); // add a day
+//                    calTmp.add(Calendar.DATE, 1); // add a day
+                    tmpFutureDate = tmpFutureDate.plusDays(1);
 
                     // and keep going, if we need to,
                     // to get to the next weekend day.
-                    while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+//                    while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+                    while (RecurrencePanel.isWeekday(tmpFutureDate)) futureDate = futureDate.plusDays(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
-                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+//                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                    if (futureDate.getMonthValue() - 1 != intMonth) {
                         // System.out.println("Shot past - resetting.");
-                        calTmp.setTime(dateGood);
+//                        calTmp.setTime(dateGood);
+                        tmpFutureDate = ldGood;
                         break;
                     } else {
-                        if (!RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
+                        //if (!RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
+                        if (!RecurrencePanel.isWeekday(tmpFutureDate)) ldGood = tmpFutureDate;
                     } // end if/else
                 } // end while
-                dateTheEndDate = calTmp.getTime();
+//                dateTheEndDate = calTmp.getTime();
+                futureDate = tmpFutureDate;
             } else if (strMonthPattern.toLowerCase().contains("weekday")) {
                 // System.out.println("generalized - weekday");
                 // Now set the calendar to the first one in this month -
-                calTmp.set(Calendar.DAY_OF_MONTH, 1);
-                while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
-                dateGood = calTmp.getTime();
+//                calTmp.set(Calendar.DAY_OF_MONTH, 1);
+                LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
+
+//                while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+                while (!RecurrencePanel.isWeekday(tmpFutureDate)) tmpFutureDate = tmpFutureDate.plusDays(1);
+//                dateGood = calTmp.getTime();
+                ldGood = tmpFutureDate;
                 // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
                 while (!strMonthPattern.contains(strWhichOne)) {
@@ -664,42 +646,59 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-                    calTmp.add(Calendar.DATE, 1); // add a day
+//                    calTmp.add(Calendar.DATE, 1); // add a day
+                    tmpFutureDate = tmpFutureDate.plusDays(1);
+
 
                     // and keep going, if we need to,
-                    // to get to the next weekend day.
-                    while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+                    // to get to the next weekday.
+//                    while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+                    while (!RecurrencePanel.isWeekday(tmpFutureDate)) tmpFutureDate = tmpFutureDate.plusDays(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
-                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+//                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                    if (tmpFutureDate.getMonthValue() - 1 != intMonth) {
                         // System.out.println("Shot past - resetting.");
-                        calTmp.setTime(dateGood);
+//                        calTmp.setTime(dateGood);
+                        tmpFutureDate = ldGood;
                         break;
                     } else {
-                        if (RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
+//                        if (RecurrencePanel.isWeekday(calTmp)) dateGood = calTmp.getTime();
+                        if (RecurrencePanel.isWeekday(tmpFutureDate)) ldGood = tmpFutureDate;
                     } // end if/else
                 } // end while
-                dateTheEndDate = calTmp.getTime();
+//                dateTheEndDate = calTmp.getTime();
+                futureDate = tmpFutureDate;
             } else if (strMonthPattern.toLowerCase().contains("last day")) {
                 // System.out.println("last day");
+                LocalDate tmpFutureDate = futureDate;
                 while (true) {
-                    dateGood = calTmp.getTime();
-                    calTmp.add(Calendar.DATE, 1); // add a day
+//                    dateGood = calTmp.getTime();
+                    ldGood = tmpFutureDate;
+//                    calTmp.add(Calendar.DATE, 1); // add a day
+                    tmpFutureDate = tmpFutureDate.plusDays(1);
 
-                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+//                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+                    if (tmpFutureDate.getMonthValue() - 1 != intMonth) {
                         // System.out.println("Shot past - resetting.");
-                        calTmp.setTime(dateGood);
+//                        calTmp.setTime(dateGood);
+                        tmpFutureDate = ldGood;
                         break;
                     } // end if
                 } // end while
-                dateTheEndDate = calTmp.getTime();
+//                dateTheEndDate = calTmp.getTime();
+                futureDate = tmpFutureDate;
             } else {
                 // System.out.println("specific day");
                 // Now set the calendar to the first one in this month -
-                calTmp.set(Calendar.DAY_OF_MONTH, 1);
-                while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
-                    calTmp.add(Calendar.DATE, 1);
-                } // end while
+//                calTmp.set(Calendar.DAY_OF_MONTH, 1);
+                LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
+//                while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
+//                    calTmp.add(Calendar.DATE, 1);
+//                } // end while
+                while (AppUtil.getDayOfWeekInt(tmpFutureDate) != intDayOfWeek) {
+                    tmpFutureDate = tmpFutureDate.plusDays(1);
+                }
                 // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
                 while (!strMonthPattern.contains(strWhichOne)) {
@@ -718,22 +717,31 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-                    dateGood = calTmp.getTime();
-                    calTmp.add(Calendar.DATE, 7); // add a week
+//                    dateGood = calTmp.getTime();
+                    ldGood = tmpFutureDate;
+//                    calTmp.add(Calendar.DATE, 7); // add a week
+                    tmpFutureDate = tmpFutureDate.plusWeeks(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
-                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+//                    if (calTmp.get(Calendar.MONTH) != intMonth) {
+//                        // System.out.println("Shot past - resetting.");
+//                        calTmp.setTime(dateGood);
+//                        break;
+//                    } // end if
+                    if (tmpFutureDate.getMonthValue() - 1 != intMonth) {
                         // System.out.println("Shot past - resetting.");
-                        calTmp.setTime(dateGood);
+                        tmpFutureDate = ldGood;
                         break;
                     } // end if
                 } // end while
-                dateTheEndDate = calTmp.getTime();
+//                dateTheEndDate = calTmp.getTime();
+                futureDate = tmpFutureDate;
             } // end if/else - general or specific or last
         }
 
 
-        return dateTheEndDate;
+//        return dateTheEndDate;
+        return futureDate;
     } // end goForwardMonths
 
 
@@ -752,9 +760,10 @@ public class EventNoteData extends IconNoteData {
     @JsonIgnore
     public DayNoteData getDayNoteData() {
         DayNoteData dnd = new DayNoteData(this);
-        Instant instant = Instant.ofEpochMilli(this.getStartTime().getTime()); // This COULD be supposed to be END time.
-        // TODO - use the 'movedToDate' flag here.
-        LocalTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
+//        Instant instant = Instant.ofEpochMilli(this.getStartTime().getTime()); // This COULD be supposed to be END time.
+        // TODO - use the 'movedToDay' flag here.
+//        LocalTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
+        LocalTime ansr = this.getStartTime();
         dnd.setTimeOfDayString(ansr.toString());
         dnd.setSubjectString("Event");
 
@@ -771,6 +780,7 @@ public class EventNoteData extends IconNoteData {
         } // end if
         dnd.setExtendedNoteString(s);
 
+        movedToDay = true;
         return dnd;
     } // end getDayNoteData
 
@@ -781,48 +791,12 @@ public class EventNoteData extends IconNoteData {
     // Compares the known Event start to the current time.
     //---------------------------------------------------------
     boolean hasStarted() {
-        Date datNow = new Date();
+        if (getStartDate() == null) return false;
+        LocalDateTime rightNow = LocalDateTime.now();
 
-        if (!isStartDateKnown()) return false;
-
-        if (isStartTimeKnown()) return datNow.after(dateEventStart);
-        else return datNow.after(getStartDate());
+        if (getStartTime() != null) return rightNow.isAfter(getStartDate().atTime(getStartTime()));
+        else return rightNow.isAfter(getStartDate().atStartOfDay());
     } // end hasStarted
-
-
-    //------------------------------------------------------------
-    // Method Name: isAnyKnown
-    //
-    // Returns a true if any of the four boundary
-    //   chronological fields is known.
-    //------------------------------------------------------------
-    @JsonIgnore
-    public boolean isAnyKnown() {
-        return (intDatKnown > 0);
-    } // end isAnyKnown
-
-
-    //------------------------------------------------------------
-    // Method Name: isAnyUnknown
-    //
-    // Returns a true if any of the four boundary
-    //   chronological fields is not known.
-    //------------------------------------------------------------
-    @JsonIgnore
-    public boolean isAnyUnknown() {
-        int total;
-
-        total = START_DATE_KNOWN + START_TIME_KNOWN +
-                END_DATE_KNOWN + END_TIME_KNOWN;
-
-        return (intDatKnown < total);
-    } // end isAnyUnknown
-
-
-    @JsonIgnore
-    boolean isEndDateKnown() {
-        return (intDatKnown & END_DATE_KNOWN) == END_DATE_KNOWN;
-    }
 
 
     //---------------------------------------------------
@@ -833,33 +807,16 @@ public class EventNoteData extends IconNoteData {
     //---------------------------------------------------
     @JsonIgnore
     private boolean isEndSameDay() {
-        if (!isStartDateKnown()) return false; // Can't determine == no
-        if (!isEndDateKnown()) return false;
+        LocalDate theStartDate = getStartDate();
+        LocalDate theEndDate = getEndDate();
+        if (theStartDate == null) return false; // Can't determine == no
+        if (theEndDate == null) return false;
 
-        calTmp.setTime(dateEventStart);
-        int intTheYear = calTmp.get(Calendar.YEAR);
-        int intTheDay = calTmp.get(Calendar.DAY_OF_YEAR);
-
-        calTmp.setTime(dateEventEnd);
-        if (calTmp.get(Calendar.YEAR) != intTheYear) return false;
-        return calTmp.get(Calendar.DAY_OF_YEAR) == intTheDay;
+        int intTheYear = theStartDate.getYear();
+        int intTheDay = theStartDate.getDayOfYear();
+        if (theEndDate.getYear() != intTheYear) return false;
+        return theEndDate.getDayOfYear() == intTheDay;
     } // end isEndSameDay
-
-
-    @JsonIgnore
-    boolean isEndTimeKnown() {
-        return (intDatKnown & END_TIME_KNOWN) == END_TIME_KNOWN;
-    } // end isEndTimeKnown
-
-    @JsonIgnore
-    public boolean isStartDateKnown() {
-        return (intDatKnown & START_DATE_KNOWN) == START_DATE_KNOWN;
-    }
-
-    @JsonIgnore
-    boolean isStartTimeKnown() {
-        return (intDatKnown & START_TIME_KNOWN) == START_TIME_KNOWN;
-    }
 
 
     //---------------------------------------------------------
@@ -869,8 +826,10 @@ public class EventNoteData extends IconNoteData {
     //   are known; otherwise returns false.
     //---------------------------------------------------------
     @JsonIgnore
-    public boolean isTimesKnown() {
-        return (isStartTimeKnown() && isEndTimeKnown());
+    private boolean isTimesKnown() {
+        LocalTime startTime = getStartTime();
+        if(startTime == null) return false;
+        return getEndTime() != null;
     } // end isTimesKnown
 
 
@@ -887,48 +846,47 @@ public class EventNoteData extends IconNoteData {
     //   the finest granularity of the EventEditor.
     //-----------------------------------------------------------
     private void recalcDuration() {
-        boolean blnDatePair = isStartDateKnown() & isEndDateKnown();
-        boolean blnTimePair = isStartTimeKnown() & isEndTimeKnown();
-        boolean blnAnyKnown;
+        LocalDate theStartDate = getStartDate();
+        LocalDate theEndDate = getEndDate();
+        LocalTime theStartTime = getStartTime();
+        LocalTime theEndTime = getEndTime();
 
-        blnAnyKnown = isStartDateKnown() || isEndDateKnown() ||
-                isStartTimeKnown() || isEndTimeKnown();
+        boolean blnDatePair = isTimesKnown();
+        boolean blnTimePair = ((theStartTime != null) && (theEndTime != null));
 
         // Defaults
         lngDurationValue = null;
         strDurationUnits = "unknown";
 
-        // First, cover the 11 cases where we know we can't.
-        //---------------------------------------------------------
-        if (dateEventEnd == null) return;   // 4 cases
-        if (dateEventStart == null) return; // 4 cases
-        // (but one of the 8 is an overlap so there are still 4 more)
+        // First, cover the 11 cases where we know we cannot calculate duration.
+        //----------------------------------------------------------------------
+        if (theStartDate == null) return;
+        if (theEndDate == null) return;
 
+        // Two more cases here -
         // Start (Date known, Time not), End (Date not, Time known)
         // Start (Date not, Time known), End (Date known, Time not)
-        if (blnAnyKnown && !blnDatePair && !blnTimePair) return;
+        if ((!blnDatePair) && (!blnTimePair)) return;
 
-        // We know both times but only one or the other date
-        if (blnTimePair) {
-            if (isStartDateKnown() && !isEndDateKnown()) return;
-            if (!isStartDateKnown() && isEndDateKnown()) return;
-        }
-        //---------------------------------------------------------
+        // Already covered -
+        // Two cases where we know both times but only one or the other date
+        //----------------------------------------------------------------------
 
         // Now, presumably, we have enough to work with.
-
         strDurationUnits = "minute";
 
         // Perform the (same) calculation for each of the remaining 6 cases.
         // If a 'placeholder' value was set in order to hold a duration
         //   value then this calculation will include it.
-        lngDurationValue = dateEventEnd.getTime() - dateEventStart.getTime();
+        //lngDurationValue = dateEventEnd.getTime() - dateEventStart.getTime();
 
         // Convert to Seconds (from milliseconds)
-        lngDurationValue /= 1000;  // Up to .999 second loss of precision.
+//        lngDurationValue /= 1000;  // Up to .999 second loss of precision.
 
         // Convert to Minutes (from seconds)
-        lngDurationValue /= 60;  // Up to 59 seconds loss of precision.
+//        lngDurationValue /= 60;  // Up to 59 seconds loss of precision.
+        assert theStartTime != null;
+        lngDurationValue = ChronoUnit.MINUTES.between(theStartTime, theEndTime);
 
         // The strict handling of user entry of known dates and times
         // is expected to prevent 'phantom' durations and to keep the
@@ -979,7 +937,7 @@ public class EventNoteData extends IconNoteData {
         // If either time component (or both) is not known then
         //   we should only show Days or Weeks, UNLESS we are
         //   here due to an explicit duration setting.
-        if (!isStartTimeKnown() || !isEndTimeKnown()) {
+        if (!isTimesKnown()) {
             if (!blnSettingDuration) blnShrink = true;
         } // end if
 
@@ -1032,13 +990,8 @@ public class EventNoteData extends IconNoteData {
         //   components; otherwise days.
         if (lngDurationValue == 0) {
             strDurationUnits = "minutes";
-            if (!isStartTimeKnown() || !isEndTimeKnown()) {
-                if (isStartDateKnown() && isEndDateKnown()) {
-                    // If we don't know one (or both) of the time fields
-                    //   but we do know the date (a duration of zero
-                    //   indicates that it is the same value in both fields).
+            if (theEndTime == null) { // (start time already proven to be known, at this point)
                     strDurationUnits = "days";
-                }
             }
         } // end if duration is zero
 
@@ -1047,10 +1000,9 @@ public class EventNoteData extends IconNoteData {
     } // end recalcDuration
 
 
-    public void setDateFormat(String s) {
-        strDateFormat = s;
+    public void setDuration(long theDuration) {
+        // just preventing compilation errors, for now.
     }
-
     //------------------------------------------------------
     // Method Name: setDuration
     //
@@ -1066,124 +1018,133 @@ public class EventNoteData extends IconNoteData {
     //   placeholder had initially been put into a Start
     //   field, it will now be placed in the End field.
     //------------------------------------------------------
-    public void setDuration(long lngDuration) {
-        long tmpLong;
-        blnSettingDuration = true;
+//    public void setDuration(long lngDuration) {
+//        long tmpLong;
+//        blnSettingDuration = true;
+//
+//        // Convert the input to milliseconds.
+//        lngDuration *= (60 * 1000);
+//
+//        // The actions taken will depend on which values
+//        //   are already known.  There are 16 unique cases.
+//        //   The line numbers in the comments refer to the
+//        //   related table in the documentation.
+//        // We DO NOT simply set our Event dates to the calculation
+//        //   results and then call the 'set' methods with those
+//        //   values, because the method calls will change them.
+//        // So, we call the 'set' methods with a new Date each time
+//        //   and only directly manipulate the Event dates when
+//        //   assigning a placeholder value, AFTERwards, because
+//        //   those methods are written to drop out such values.
+//        //--------------------------------------------------------
+//        if (intDatKnown == 0) {
+//            // Line 1 - p(SD ST ED ET)
+//            // Nothing already known; the two internal dates
+//            //   must contain 'placeholder' values, and they
+//            //   should be set without affecting the 'known'
+//            //   status tracking value (intDatKnown).
+//            dateEventStart = new Date();
+//            tmpLong = dateEventStart.getTime();
+//            dateEventEnd = new Date(tmpLong + lngDuration);
+//        } else if (intDatKnown == END_TIME_KNOWN) {
+//            // Line 2 - p(SD) & ST
+//            tmpLong = dateEventEnd.getTime();
+//            setStartTime(new Date(tmpLong - lngDuration));    // ST
+//            dateEventStart = new Date(tmpLong - lngDuration); // p(SD)
+//        } else if (intDatKnown == END_DATE_KNOWN) {
+//            // Line 3 - SD & p(ST)
+//            tmpLong = dateEventEnd.getTime();
+//            setStartDate(new Date(tmpLong - lngDuration));    // SD
+//            dateEventStart = new Date(tmpLong - lngDuration); // p(ST)
+//        } else if (intDatKnown == (END_DATE_KNOWN + END_TIME_KNOWN)) {
+//            // Line 4 - SD & ST
+//            tmpLong = dateEventEnd.getTime();
+//            setStartDate(new Date(tmpLong - lngDuration));  // SD
+//            setStartTime(new Date(tmpLong - lngDuration));  // ST
+//        } else if (intDatKnown == START_TIME_KNOWN) {
+//            // Line 5 - p(ED) & ET
+//            tmpLong = dateEventStart.getTime();
+//            setEndTime(new Date(tmpLong + lngDuration));     // ET
+//            dateEventEnd = new Date(tmpLong + lngDuration);  // p(ED)
+//        } else if (intDatKnown == (START_TIME_KNOWN + END_TIME_KNOWN)) {
+//            // Line 6 - rET & p(ED)
+//            tmpLong = dateEventStart.getTime();
+//            setEndTime(new Date(tmpLong + lngDuration));     // rET
+//            dateEventEnd = new Date(tmpLong + lngDuration);  // p(ED)
+//        } else if (intDatKnown == (START_TIME_KNOWN + END_DATE_KNOWN)) {
+//            // Line 7 - SD & ET
+//            // Less straightforward on how to proceed; here is the logic:
+//            // Add the duration to the start time so that we can have
+//            // a known end time.  Then use the composite end to get the
+//            // correct start date.
+//            tmpLong = dateEventStart.getTime();
+//            setEndTime(new Date(tmpLong + lngDuration));    // ET
+//            tmpLong = dateEventEnd.getTime();
+//            setStartDate(new Date(tmpLong - lngDuration));  // SD
+//        } else if (intDatKnown == (START_TIME_KNOWN + END_KNOWN)) {
+//            // Line 8 - SD & rST
+//            tmpLong = dateEventEnd.getTime();
+//            setStartDate(new Date(tmpLong - lngDuration));  // SD
+//            setStartTime(new Date(tmpLong - lngDuration));  // rST
+//        } else if (intDatKnown == START_DATE_KNOWN) {
+//            // Line 9 - ED & p(ET)
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration));    // ED
+//            dateEventEnd = new Date(tmpLong + lngDuration); // p(ET)
+//        } else if (intDatKnown == (START_DATE_KNOWN + END_TIME_KNOWN)) {
+//            // Line 10 - ST & ED
+//            // Less straightforward on how to proceed; here is the logic:
+//            // Subtract the duration from the end time so that we can have
+//            // a known start time.  Then use the composite start to get the
+//            // correct end date.
+//            tmpLong = dateEventEnd.getTime();
+//            setStartTime(new Date(tmpLong - lngDuration));  // ST
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration));    // ED
+//        } else if (intDatKnown == (START_DATE_KNOWN + END_DATE_KNOWN)) {
+//            // Line 11 - rED & p(ET)
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration));     // rED
+//            dateEventEnd = new Date(tmpLong + lngDuration);  // p(ET)
+//        } else if (intDatKnown == (START_DATE_KNOWN + END_KNOWN)) {
+//            // Line 12 - rSD & ST
+//            tmpLong = dateEventEnd.getTime();
+//            setStartDate(new Date(tmpLong - lngDuration));  // rSD
+//            setStartTime(new Date(tmpLong - lngDuration));  // ST
+//        } else if (intDatKnown == (START_KNOWN)) {
+//            // Line 13 - ED & ET
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration)); // ED
+//            setEndTime(new Date(tmpLong + lngDuration)); // ET
+//        } else if (intDatKnown == (START_KNOWN + END_TIME_KNOWN)) {
+//            // Line 14 - ED & rET
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration)); // ED
+//            setEndTime(new Date(tmpLong + lngDuration)); // rET
+//        } else if (intDatKnown == (START_KNOWN + END_DATE_KNOWN)) {
+//            // Line 15 - rED & ET
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration)); // rED
+//            setEndTime(new Date(tmpLong + lngDuration)); // ET
+//        } else if (intDatKnown == (START_KNOWN + END_KNOWN)) {
+//            // Line 16 - rED & rET
+//            tmpLong = dateEventStart.getTime();
+//            setEndDate(new Date(tmpLong + lngDuration)); // rED
+//            setEndTime(new Date(tmpLong + lngDuration)); // rET
+//        } // end if/else - all 16 cases
+//
+//        recalcDuration();
+//        blnSettingDuration = false;
+//    } // end setDuration
 
-        // Convert the input to milliseconds.
-        lngDuration *= (60 * 1000);
 
-        // The actions taken will depend on which values
-        //   are already known.  There are 16 unique cases.
-        //   The line numbers in the comments refer to the
-        //   related table in the documentation.
-        // We DO NOT simply set our Event dates to the calculation
-        //   results and then call the 'set' methods with those
-        //   values, because the method calls will change them.
-        // So, we call the 'set' methods with a new Date each time
-        //   and only directly manipulate the Event dates when
-        //   assigning a placeholder value, AFTERwards, because
-        //   those methods are written to drop out such values.
-        //--------------------------------------------------------
-        if (intDatKnown == 0) {
-            // Line 1 - p(SD ST ED ET)
-            // Nothing already known; the two internal dates
-            //   must contain 'placeholder' values, and they
-            //   should be set without affecting the 'known'
-            //   status tracking value (intDatKnown).
-            dateEventStart = new Date();
-            tmpLong = dateEventStart.getTime();
-            dateEventEnd = new Date(tmpLong + lngDuration);
-        } else if (intDatKnown == END_TIME_KNOWN) {
-            // Line 2 - p(SD) & ST
-            tmpLong = dateEventEnd.getTime();
-            setStartTime(new Date(tmpLong - lngDuration));    // ST
-            dateEventStart = new Date(tmpLong - lngDuration); // p(SD)
-        } else if (intDatKnown == END_DATE_KNOWN) {
-            // Line 3 - SD & p(ST)
-            tmpLong = dateEventEnd.getTime();
-            setStartDate(new Date(tmpLong - lngDuration));    // SD
-            dateEventStart = new Date(tmpLong - lngDuration); // p(ST)
-        } else if (intDatKnown == (END_DATE_KNOWN + END_TIME_KNOWN)) {
-            // Line 4 - SD & ST
-            tmpLong = dateEventEnd.getTime();
-            setStartDate(new Date(tmpLong - lngDuration));  // SD
-            setStartTime(new Date(tmpLong - lngDuration));  // ST
-        } else if (intDatKnown == START_TIME_KNOWN) {
-            // Line 5 - p(ED) & ET
-            tmpLong = dateEventStart.getTime();
-            setEndTime(new Date(tmpLong + lngDuration));     // ET
-            dateEventEnd = new Date(tmpLong + lngDuration);  // p(ED)
-        } else if (intDatKnown == (START_TIME_KNOWN + END_TIME_KNOWN)) {
-            // Line 6 - rET & p(ED)
-            tmpLong = dateEventStart.getTime();
-            setEndTime(new Date(tmpLong + lngDuration));     // rET
-            dateEventEnd = new Date(tmpLong + lngDuration);  // p(ED)
-        } else if (intDatKnown == (START_TIME_KNOWN + END_DATE_KNOWN)) {
-            // Line 7 - SD & ET
-            // Less straightforward on how to proceed; here is the logic:
-            // Add the duration to the start time so that we can have
-            // a known end time.  Then use the composite end to get the
-            // correct start date.
-            tmpLong = dateEventStart.getTime();
-            setEndTime(new Date(tmpLong + lngDuration));    // ET
-            tmpLong = dateEventEnd.getTime();
-            setStartDate(new Date(tmpLong - lngDuration));  // SD
-        } else if (intDatKnown == (START_TIME_KNOWN + END_KNOWN)) {
-            // Line 8 - SD & rST
-            tmpLong = dateEventEnd.getTime();
-            setStartDate(new Date(tmpLong - lngDuration));  // SD
-            setStartTime(new Date(tmpLong - lngDuration));  // rST
-        } else if (intDatKnown == START_DATE_KNOWN) {
-            // Line 9 - ED & p(ET)
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration));    // ED
-            dateEventEnd = new Date(tmpLong + lngDuration); // p(ET)
-        } else if (intDatKnown == (START_DATE_KNOWN + END_TIME_KNOWN)) {
-            // Line 10 - ST & ED
-            // Less straightforward on how to proceed; here is the logic:
-            // Subtract the duration from the end time so that we can have
-            // a known start time.  Then use the composite start to get the
-            // correct end date.
-            tmpLong = dateEventEnd.getTime();
-            setStartTime(new Date(tmpLong - lngDuration));  // ST
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration));    // ED
-        } else if (intDatKnown == (START_DATE_KNOWN + END_DATE_KNOWN)) {
-            // Line 11 - rED & p(ET)
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration));     // rED
-            dateEventEnd = new Date(tmpLong + lngDuration);  // p(ET)
-        } else if (intDatKnown == (START_DATE_KNOWN + END_KNOWN)) {
-            // Line 12 - rSD & ST
-            tmpLong = dateEventEnd.getTime();
-            setStartDate(new Date(tmpLong - lngDuration));  // rSD
-            setStartTime(new Date(tmpLong - lngDuration));  // ST
-        } else if (intDatKnown == (START_KNOWN)) {
-            // Line 13 - ED & ET
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration)); // ED
-            setEndTime(new Date(tmpLong + lngDuration)); // ET
-        } else if (intDatKnown == (START_KNOWN + END_TIME_KNOWN)) {
-            // Line 14 - ED & rET
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration)); // ED
-            setEndTime(new Date(tmpLong + lngDuration)); // rET
-        } else if (intDatKnown == (START_KNOWN + END_DATE_KNOWN)) {
-            // Line 15 - rED & ET
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration)); // rED
-            setEndTime(new Date(tmpLong + lngDuration)); // ET
-        } else if (intDatKnown == (START_KNOWN + END_KNOWN)) {
-            // Line 16 - rED & rET
-            tmpLong = dateEventStart.getTime();
-            setEndDate(new Date(tmpLong + lngDuration)); // rED
-            setEndTime(new Date(tmpLong + lngDuration)); // rET
-        } // end if/else - all 16 cases
-
-        recalcDuration();
-        blnSettingDuration = false;
-    } // end setDuration
+    // NOTES:
+    //
+    // When setting a date or time it is true that the fields may
+    //   have previously contained a duration.  However, (per
+    //   design requirements) ANY such setting must invalidate a
+    //   duration because it should then be recalculated.
+    //--------------------------------------------------------------
 
 
     //------------------------------------------------------------
@@ -1195,63 +1156,39 @@ public class EventNoteData extends IconNoteData {
     //   Otherwise the setting is accepted and the return value
     //   is true.
     //------------------------------------------------------------
-    public boolean setEndDate(Date d) {
-        if (d == null) { // The user is 'un-setting' the date.
-            if (isEndDateKnown()) intDatKnown -= END_DATE_KNOWN;
-            // If we also now have no time component as well, then
-            //   we can set the EventEnd to null.  If it had been
-            //   in use as a Duration placeholder then this is still
-            //   OK since without either End component, the duration
-            //   calculation cannot be made.
-            if (!isEndTimeKnown()) {
-                dateEventEnd = null;
-            } else { // Need to prevent phantom durations
-                // This will re-initialize the 'unknown' Date component
-                //   so that no unwanted duration remains.
-                setEndTime(dateEventEnd);
-            } // end if
+    public boolean setEndDate(LocalDate newEndDate) {
+        if (newEndDate == null) { // The user is 'un-setting' the date.
+            eventEndDateString = null;
             recalcDuration();
             return true;
-        }
+        } // end if UNsetting a date
 
-        // Put the input Date into the temporary calendar.
-        calTmp.setTime(d);
-
-        // Add the time component, if any.
-        //----------------------------------------------
-        if (!isEndTimeKnown()) {
-            // There is no Time component - max it out.
-            calTmp.set(Calendar.HOUR_OF_DAY, 23);
-            calTmp.set(Calendar.MINUTE, 59);
-            calTmp.set(Calendar.SECOND, 59);
-            calTmp.set(Calendar.MILLISECOND, 999);
+        // Get a temporary composite Event End, for possible comparison to the start.
+        LocalDateTime newEventEnd;
+        LocalTime endTime = getEndTime();
+        if(endTime != null) {
+            newEventEnd = newEndDate.atTime(endTime);
         } else {
-            // There IS a time component.  Extract the input Date components
-            // and then use the previous dateEventEnd (with its valid time
-            // component) as the temporary calendar's base.
-            int intYear = calTmp.get(Calendar.YEAR);
-            int intMonth = calTmp.get(Calendar.MONTH);
-            int intDay = calTmp.get(Calendar.DATE);
-
-            calTmp.setTime(dateEventEnd);
-
-            // Set the temporary calendar to the input Date
-            //   (leaving time unmodified)
-            calTmp.set(intYear, intMonth, intDay);
+            newEventEnd = newEndDate.atTime(23,59,59); // Assume end-of-day.
         }
 
-        // Get the temporary composite End, for comparison.
-        Date dateTmpEventEnd = calTmp.getTime();
+        // Continue setting up for the comparison -
+        LocalDate theStartDate = getStartDate();
+        if(theStartDate != null) { // Comparison not possible without a start date.
+            LocalDateTime eventStart;  // Make a temporary composite Event Start.
+            LocalTime startTime = getStartTime();
+            if(startTime != null) {
+                eventStart = theStartDate.atTime(startTime);
+            } else { // Assume it runs to the end of the day.
+                eventStart = theStartDate.atStartOfDay();
+            }
+            // The comparison -
+            // Ensure that the proposed new Event End is not before the current Event Start.
+            if (newEventEnd.isBefore(eventStart)) return false;
+        }
 
-        // Ensure that the proposed composite End is not before the EventStart.
-        if (isStartDateKnown() && dateTmpEventEnd.before(dateEventStart)) return false;
-
-        // Get the final Date from the temporary Calendar
-        dateEventEnd = dateTmpEventEnd;
-
-        // Set the 'known' indicator
-        intDatKnown |= END_DATE_KNOWN;
-
+        // Accept the proposed new End date and recalculate duration.
+        eventEndDateString = newEndDate.toString();
         recalcDuration();
         return true;
     } // end setEndDate
@@ -1260,75 +1197,39 @@ public class EventNoteData extends IconNoteData {
     //------------------------------------------------------------
     // Method Name: setEndTime
     //
-    // Tests the proposed new composite End against the composite
-    //   Start, if one has already been established.  If it would
-    //   be earlier then no change is made and the return value
-    //   is false.  Otherwise the setting is accepted and the
-    //   return value is true.
+    // Tests the proposed new End time for validity and if okay
+    // then the setting is accepted and the return value is true.
     //------------------------------------------------------------
-    boolean setEndTime(Date d) {
-        if (d == null) { // The user is 'un-setting' the time.
-            if (isEndTimeKnown()) intDatKnown -= END_TIME_KNOWN;
-
-            // Now either put the date component back to the default
-            //   (no time) or set the entire EventEnd to null.
-            if (isEndDateKnown()) dateEventEnd = getEndDate();
-            else dateEventEnd = null;
+    boolean setEndTime(LocalTime newEndTime) {
+        if (newEndTime == null) { // The user is 'un-setting' the time.
+            // We can just accept the setting; removal of an end time
+            // cannot result in the event starting after the event end.
+            eventEndTimeString = null;
             recalcDuration();
             return true;
-        }
+        } // end if UNsetting the end time
 
-        // Initialize the temporary Calendar to the input Date
-        calTmp.setTime(d);
-
-        // Extract the Time from the temporary calendar.
-        int intHours = calTmp.get(Calendar.HOUR_OF_DAY);
-        int intMinutes = calTmp.get(Calendar.MINUTE);
-        int intSeconds = calTmp.get(Calendar.SECOND);
-        int intMillis = 0;
-
-        // Obtain a valid Date component for the EventEnd.
-        if (isEndDateKnown()) {
-            calTmp.setTime(dateEventEnd);
-        } else {
-            calTmp.setTime(new Date());
-
-            // Prevent a 'phantom' duration -
-            if ((dateEventStart != null) && (!isStartDateKnown())) {
-                // When an unknown Start Date was initialized and retained in
-                //   order to hold a known Start Time, and then a few days
-                //   later an unknown End Date is initialized and retained
-                //   in order to hold a known End Time (we just did that,
-                //   above), the duration calculation will yield a value
-                //   greater than one day even though the user has specified
-                //   no date basis for such a result.  To normalize the
-                //   duration to less than one day, we do the following:
-                calTmp.setTime(dateEventStart);
-            }
+        // Get a temporary composite Event End, for possible comparison to the start.
+        LocalDateTime newEventEnd;
+        LocalDate theEndDate = getEndDate();
+        if (theEndDate != null) { // otherwise no comparison possible.
+            newEventEnd = theEndDate.atTime(newEndTime);
+            LocalDateTime eventStart;
+            LocalDate theStartDate = getStartDate();
+            if(theStartDate != null) { // otherwise no comparison possible.
+                LocalTime theStartTime = getStartTime();
+                if(theStartTime != null) { // otherwise it defaults to start-of-day and the composite start could
+                    // not possibly be after the end, even if start and end occur on the same day.
+                    // So this is the only logical branch where a change of the end time might be rejected.
+                    eventStart = theStartDate.atTime(theStartTime);
+                    // The comparison - Event Start must be before Event End.
+                    if(newEventEnd.isBefore(eventStart)) return false;
+                } // end if (no 'else' needed)
+            } // end if - if we have a start date
         } // end if
 
-        // Adjust to the input's time (leaving date unmodified)
-        calTmp.set(Calendar.HOUR_OF_DAY, intHours);
-        calTmp.set(Calendar.MINUTE, intMinutes);
-        calTmp.set(Calendar.SECOND, intSeconds);
-        calTmp.set(Calendar.MILLISECOND, intMillis);
-
-        // Get the temporary composite End, for comparison.
-        Date dateTmpEventEnd = calTmp.getTime();
-
-        // Ensure that the proposed composite End is not before the EventStart.
-        if (isStartDateKnown() && isEndDateKnown()) {
-            // If both dates are not known then we have
-            //   no basis for comparison.
-            if (dateTmpEventEnd.before(dateEventStart)) return false;
-        } // end if
-
-        // Set the composite EventEnd
-        dateEventEnd = dateTmpEventEnd;
-
-        // Set the 'known' indicator
-        intDatKnown |= END_TIME_KNOWN;
-
+        // Accept the proposed new End Time and recalculate duration.
+        eventEndTimeString = newEndTime.toString();
         recalcDuration();
         return true;
     } // end setEndTime
@@ -1353,63 +1254,102 @@ public class EventNoteData extends IconNoteData {
     //   be later than the composite End.  Otherwise, the setting
     //   is accepted and the return is true.
     //------------------------------------------------------------
-    public boolean setStartDate(Date d) {
-        if (d == null) { // The user is 'un-setting' the date.
-            if (isStartDateKnown()) intDatKnown -= START_DATE_KNOWN;
-            // If we also now have no time component as well, then
-            //   we can set the entire EventStart to null.  If it had
-            //   been in use as a Duration placeholder then this is
-            //   still OK since without either Start component, the
-            //   duration calculation cannot be made.
-            if (!isStartTimeKnown()) {
-                dateEventStart = null;
-            } else { // Need to prevent phantom durations
-                // This will re-initialize the 'unknown' Date component
-                //   so that no unwanted duration remains.
-                setStartTime(dateEventStart);
-            } // end if
-            strRecurrence = "";
+//    public boolean setStartDate(Date d) {
+//        if (d == null) { // The user is 'un-setting' the date.
+//            if (isStartDateKnown()) intDatKnown -= START_DATE_KNOWN;
+//            // If we also now have no time component as well, then
+//            //   we can set the entire EventStart to null.  If it had
+//            //   been in use as a Duration placeholder then this is
+//            //   still OK since without either Start component, the
+//            //   duration calculation cannot be made.
+//            if (!isStartTimeKnown()) {
+//                dateEventStart = null;
+//            } else { // Need to prevent phantom durations
+//                // This will re-initialize the 'unknown' Date component
+//                //   so that no unwanted duration remains.
+//                setStartTime(dateEventStart);
+//            } // end if
+//            strRecurrence = "";
+//            recalcDuration();
+//            return true;
+//        } // end if UNsetting a date
+//
+//        // Put the input Date into the temporary calendar.
+//        calTmp.setTime(d);
+//
+//        // Add the time component, if any.
+//        //----------------------------------------------
+//        if (!isStartTimeKnown()) {
+//            // There is no Time component - zero it out.
+//            calTmp.set(Calendar.HOUR_OF_DAY, 0);
+//            calTmp.set(Calendar.MINUTE, 0);
+//            calTmp.set(Calendar.SECOND, 0);
+//            calTmp.set(Calendar.MILLISECOND, 0);
+//        } else {
+//            // There IS a time component.  Extract the input Date components
+//            // and then use the previous dateEventStart (with its valid time
+//            // component) as the temporary calendar's base.
+//            int intYear = calTmp.get(Calendar.YEAR);
+//            int intMonth = calTmp.get(Calendar.MONTH);
+//            int intDay = calTmp.get(Calendar.DATE);
+//            calTmp.setTime(dateEventStart);
+//
+//            // Set the temporary calendar to the input Date
+//            //   (leaving time unmodified)
+//            calTmp.set(intYear, intMonth, intDay);
+//        }
+//
+//        // Get the temporary composite Start, for comparison.
+//        Date dateTmpEventStart = calTmp.getTime();
+//
+//        // Ensure that the proposed composite Start is not after the EventEnd.
+//        if (isEndDateKnown() && dateTmpEventStart.after(dateEventEnd)) return false;
+//
+//        // Get the final Date from the temporary Calendar
+//        dateEventStart = dateTmpEventStart;
+//
+//        // Set the 'known' indicator
+//        intDatKnown |= START_DATE_KNOWN;
+//
+//        strRecurrence = "";
+//        recalcDuration();
+//        return true;
+//    } // end setStartDate
+
+    public boolean setStartDate(LocalDate newStartDate) {
+        if (newStartDate == null) { // The user is 'un-setting' the date.
+            strRecurrence = ""; // Recurrence not possible without a start date.
+            eventStartDateString = null;
             recalcDuration();
             return true;
         } // end if UNsetting a date
 
-        // Put the input Date into the temporary calendar.
-        calTmp.setTime(d);
-
-        // Add the time component, if any.
-        //----------------------------------------------
-        if (!isStartTimeKnown()) {
-            // There is no Time component - zero it out.
-            calTmp.set(Calendar.HOUR_OF_DAY, 0);
-            calTmp.set(Calendar.MINUTE, 0);
-            calTmp.set(Calendar.SECOND, 0);
-            calTmp.set(Calendar.MILLISECOND, 0);
+        // Get a temporary composite Event Start, for possible comparison to the end.
+        LocalDateTime newEventStart;
+        LocalTime startTime = getStartTime();
+        if(startTime != null) {
+            newEventStart = newStartDate.atTime(startTime);
         } else {
-            // There IS a time component.  Extract the input Date components
-            // and then use the previous dateEventStart (with its valid time
-            // component) as the temporary calendar's base.
-            int intYear = calTmp.get(Calendar.YEAR);
-            int intMonth = calTmp.get(Calendar.MONTH);
-            int intDay = calTmp.get(Calendar.DATE);
-            calTmp.setTime(dateEventStart);
-
-            // Set the temporary calendar to the input Date
-            //   (leaving time unmodified)
-            calTmp.set(intYear, intMonth, intDay);
+            newEventStart = newStartDate.atStartOfDay();
         }
 
-        // Get the temporary composite Start, for comparison.
-        Date dateTmpEventStart = calTmp.getTime();
+        // Continue setting up for the comparison -
+        LocalDate theEndDate = getEndDate();
+        if(theEndDate != null) { // Comparison not possible without an end date.
+            LocalDateTime eventEnd;  // Make a temporary composite Event End.
+            LocalTime endTime = getEndTime();
+            if(endTime != null) {
+                eventEnd = theEndDate.atTime(endTime);
+            } else { // Assume it runs to the end of the day.
+                eventEnd = theEndDate.atTime(23,59,59);
+            }
+            // The comparison -
+            // Ensure that the proposed new Event Start is not after the current Event End.
+            if (newEventStart.isAfter(eventEnd)) return false;
+        }
 
-        // Ensure that the proposed composite Start is not after the EventEnd.
-        if (isEndDateKnown() && dateTmpEventStart.after(dateEventEnd)) return false;
-
-        // Get the final Date from the temporary Calendar
-        dateEventStart = dateTmpEventStart;
-
-        // Set the 'known' indicator
-        intDatKnown |= START_DATE_KNOWN;
-
+        // Accept the proposed new Start date, reset recurrence, and recalculate duration.
+        eventStartDateString = newStartDate.toString();
         strRecurrence = "";
         recalcDuration();
         return true;
@@ -1431,69 +1371,37 @@ public class EventNoteData extends IconNoteData {
     //   creating any 'phantom' ones that may be generated by a
     //   time-only setting when the Date field is initialized.
     //------------------------------------------------------------
-    boolean setStartTime(Date d) {
-        if (d == null) { // The user is 'un-setting' the time.
-            if (isStartTimeKnown()) intDatKnown -= START_TIME_KNOWN;
-
-            // Now either put the date component back to the default
-            //   (no time) or set the entire EventStart to null.
-            if (isStartDateKnown()) dateEventStart = getStartDate();
-            else dateEventStart = null;
+    boolean setStartTime(LocalTime newStartTime) {
+        if (newStartTime == null) { // The user is 'un-setting' the time.
+            // We can just accept the setting; removal of a start time
+            // cannot result in the event ending after the event start.
+            eventStartTimeString = null;
+            recalcDuration();
             return true;
-        }
+        } // end if UNsetting the start time
 
-        // Initialize the temporary Calendar to the input Date
-        calTmp.setTime(d);
-
-        // Extract the Time from the temporary calendar.
-        int intHours = calTmp.get(Calendar.HOUR_OF_DAY);
-        int intMinutes = calTmp.get(Calendar.MINUTE);
-        int intSeconds = calTmp.get(Calendar.SECOND);
-        int intMillis = 0;
-
-        // Reinitialize the temporary Calendar to the EventStart.
-        if (isStartDateKnown()) {
-            calTmp.setTime(dateEventStart);
-        } else {
-            calTmp.setTime(new Date());
-
-            // Prevent a 'phantom' duration -
-            if ((dateEventEnd != null) && (!isEndDateKnown())) {
-                // When an unknown End Date was initialized and retained in
-                //   order to hold a known End Time and then a few days
-                //   later an unknown Start Date is initialized and retained
-                //   in order to hold a known Start Time (we just did that,
-                //   above), the duration calculation will yield a negative
-                //   value because those Dates were not subjected to the
-                //   Start/End ordering checks that the user input must go
-                //   thru.  To normalize the duration to less than one day,
-                //   we do the following:
-                calTmp.setTime(dateEventEnd);
-            }
+        // Get a temporary composite Event Start, for possible comparison to the end.
+        LocalDateTime newEventStart;
+        LocalDate theStartDate = getStartDate();
+        if (theStartDate != null) { // otherwise no comparison possible.
+            newEventStart = theStartDate.atTime(newStartTime);
+            LocalDateTime eventEnd;
+            LocalDate theEndDate = getEndDate();
+            if(theEndDate != null) { // otherwise no comparison possible.
+                LocalTime theEndTime = getEndTime();
+                if(theEndTime != null) { // otherwise it defaults to end-of-day and the composite end could
+                    // not possibly be ahead of the start, even if start and end occur on the same day.
+                    // So this is the only logical branch where a change of the start time might be rejected.
+                    eventEnd = theEndDate.atTime(theEndTime);
+                    // The comparison - Event End must be after Event Start.
+                    if(newEventStart.isAfter(eventEnd)) return false;
+                } // end if (no 'else' needed)
+            } // end if - if we have a start date
         } // end if
 
-        // Adjust to the input's time (leaving date unmodified)
-        calTmp.set(Calendar.HOUR_OF_DAY, intHours);
-        calTmp.set(Calendar.MINUTE, intMinutes);
-        calTmp.set(Calendar.SECOND, intSeconds);
-        calTmp.set(Calendar.MILLISECOND, intMillis);
-
-        // Get the temporary composite Start, for comparison.
-        Date dateTmpEventStart = calTmp.getTime();
-
-        // Ensure that the proposed composite Start is not after the EventEnd.
-        if (isStartDateKnown() && isEndDateKnown()) {
-            // If both dates are not known then we have
-            //   no basis for comparison.
-            if (dateTmpEventStart.after(dateEventEnd)) return false;
-        } // end if
-
-        // Set the composite EventStart
-        dateEventStart = dateTmpEventStart;
-
-        // Set the 'known' indicator
-        intDatKnown |= START_TIME_KNOWN;
-
+        // Accept the proposed new Start Time and recalculate duration.
+        eventStartTimeString = newStartTime.toString();
+        recalcDuration(); // Any new setting of the four main components invalidates duration.
         return true;
     } // end setStartTime
 

@@ -50,7 +50,7 @@ One-stop reference for how tests are getting things done.
 11. Convert a ZonedDateTime (java.time.ZonedDateTime, 'myZonedDateTime') to Date (java.util.Date):
         Date theDate = Date.from(myZonedDateTime.toInstant());
 
-12. Convert a java.time.ZonedDateTime to java.time.LocalDateTime:
+12. Convert a ZonedDateTime to LocalDateTime:
         ZonedDateTime zdt = ZonedDateTime.now();
         LocalDateTime ldt = zdt.toLocalDateTime();
 

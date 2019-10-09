@@ -9,10 +9,8 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.Vector;
 
 public class EventNoteGroup extends NoteGroup
@@ -103,17 +101,15 @@ public class EventNoteGroup extends NoteGroup
             tempNoteData = (EventNoteData) ndTmp;
 
             s = tempNoteData.getNoteString();
-            MemoryBank.debug("Examining: " + s + " starting " + tempNoteData.getEventStart());
+            MemoryBank.debug("Examining: " + s + " starting " + tempNoteData.getEventStartDateTime());
 
             // 'Age' the event, if appropriate to do so.
             while (tempNoteData.hasStarted()) {
-                if (tempNoteData.getRetainNote()) {
+                if (tempNoteData.getRetainNote() && !tempNoteData.movedToDay) {
                     // We save this version of the event.
                     DayNoteData dnd = tempNoteData.getDayNoteData();
                     String theFilename;
-                    Instant instant = Instant.ofEpochMilli(tempNoteData.getStartDate().getTime());
-                    LocalDateTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                    // TODO - check the new movedToDate flag; do not move if already done once.
+                    LocalDateTime ansr = tempNoteData.getEventStartDateTime();
 
                     theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
                     if (theFilename.equals("")) {
@@ -131,6 +127,7 @@ public class EventNoteGroup extends NoteGroup
                     if (success) {
                         DayNoteGroup.blnNoteAdded = true;
                         MemoryBank.debug("  Retention of Event data succeeded");
+                        tempNoteData.movedToDay = true;
                     } else {
                         MemoryBank.debug("  Retention of Event data failed");
                     } // end if
@@ -148,7 +145,7 @@ public class EventNoteGroup extends NoteGroup
                         blnDropThisEvent = true;
                         break; // get out of the while loop
                     } else {
-                        MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStart());
+                        MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
                     } // end if
                 } // end if
             } // end while the event Start date is in the past
@@ -175,14 +172,14 @@ public class EventNoteGroup extends NoteGroup
     //
     // Interface to the Three Month Calendar; called by the tmc.
     //-------------------------------------------------------------
-    public void dateSelected(Date d) {
+    public void dateSelected(LocalDate selectedDate) {
         // System.out.println("LogEvents - date selected on TMC = " + d);
 
         if (eNoteComponent == null) {
             String s;
             s = "You must select an Event before a Start date can be set!";
             setMessage(s);
-            tmc.setChoice(null);
+            tmc.setChoice((LocalDate) null);
             return;
         } // end if
 
@@ -199,7 +196,7 @@ public class EventNoteGroup extends NoteGroup
         //   simply throw away any pre-existing end date.  (We already
         //   do that with recurrence when a start date is changed).
         end.setEndDate(null);
-        end.setStartDate(d);
+        end.setStartDate(selectedDate);
 
         // OR - grab the initial duration first, then null the end,
         //   then set the start, then set that duration ?
@@ -222,7 +219,7 @@ public class EventNoteGroup extends NoteGroup
     //---------------------------------------------------------
     private void doSort() {
         EventNoteData ndNoteData1, ndNoteData2;
-        Date p1, p2;
+        LocalDate d1, d2;
 
         boolean doSwap;
         int items = vectGroupData.size();
@@ -234,19 +231,19 @@ public class EventNoteGroup extends NoteGroup
 
         for (int i = 0; i < (items - 1); i++) {
             ndNoteData1 = (EventNoteData) vectGroupData.elementAt(i);
-            p1 = ndNoteData1.getEventStart();
+            d1 = ndNoteData1.getEventStartDateTime().toLocalDate();
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
                 ndNoteData2 = (EventNoteData) vectGroupData.elementAt(j);
-                p2 = ndNoteData2.getEventStart();
+                d2 = ndNoteData2.getEventStartDateTime().toLocalDate();
 
-                if ((p1 == null) || ((p2 != null) && p1.after(p2))) doSwap = true;
+                if ((d1 == null) || ((d2 != null) && d1.isAfter(d2))) doSwap = true;
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
                     vectGroupData.setElementAt(ndNoteData2, i);
                     vectGroupData.setElementAt(ndNoteData1, j);
-                    p1 = p2;
+                    d1 = d2;
                     ndNoteData1 = ndNoteData2;
                 } // end if
             } // end for j
@@ -332,8 +329,7 @@ public class EventNoteGroup extends NoteGroup
     //   group of notes is loaded / saved.
     // -------------------------------------------------------------------
     public String getGroupFilename() {
-        return MemoryBank.userDataHome + "/UpcomingEvents.json";
-        //return MemoryBank.userDataHome + "/UpcomingEvents";
+        return MemoryBank.userDataHome + File.separatorChar + "UpcomingEvents.json";
     }// end getGroupFilename
 
 
@@ -464,7 +460,7 @@ public class EventNoteGroup extends NoteGroup
             // System.out.println("Event id: [" + end.getEventId() + "]");
 
             // Show the previously selected date
-            if (end.isStartDateKnown()) {
+            if (end.getStartDate() != null) {
                 tmc.setBaseDate(end.getStartDate());
                 tmc.setChoice(end.getStartDate());
             } // end if
@@ -473,7 +469,7 @@ public class EventNoteGroup extends NoteGroup
             theHeader.setEventSummary(end.getSummary());
         } else {
             eNoteComponent = null;
-            tmc.setChoice(null);
+            tmc.setChoice((LocalDate) null);
             theHeader.setEventSummary("Select an Event to display");
         } // end if
     } // end showComponent
