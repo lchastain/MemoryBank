@@ -1,6 +1,14 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/11/2019 1106 - During all the rework for Date removals, lots of fixes needed in TimeFormat
+  Bar/Panel and also DateFormat Bar/Panel.  After doing all that and getting them to work
+  well, was looking for what calls them up and - nothing does.  It appears that they were
+  originally used to format the look of the Deadline, which has now gone away (at least for
+  now).  So what to do with these?  There is one method in MemoryBank that they use and they
+  are the only client to, that needs to move to them but otherwise nothing will complain if
+  I just move all four classes out of the codebase.  They will all move to Area51.
+
 9/30/2019 0620 - Yet another datafix and pub was needed, to put the time separate of the
   date, because a time can be cleared altogether, from a DayNoteData.  That was the only
   note type affected by this one.  Did enough code changes to get the time display working

@@ -54,8 +54,8 @@ One-stop reference for how to do certain tasks.
         ZonedDateTime zdt = ZonedDateTime.now();
         LocalDateTime ldt = zdt.toLocalDateTime();
 
-13. Convert a long (like Date.getTime()) to LocalDateTime:
-    LocalDateTime ld = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault());
+13. Convert a long (like Date.getTime()) to ZonedDateTime:
+    ZonedDateTime ld = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault());
 
 14. Convert a long (like Date.getTime()) to LocalDate:
     LocalDate ld = LocalDate.ofEpochDay(theLong);
@@ -63,8 +63,16 @@ One-stop reference for how to do certain tasks.
 15. Convert a LocalDate (myLocalDate) to long:
     long theLong = myLocalDate.toEpochDay();
 
-16. Get a long for a LocalDateTime:
+16. Convert a LocalDateTime to long:
     long dl = LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset());
+
+17. Convert a long to ZonedDateTime:
+    ZonedDateTime zdt = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault());
+
+18. Convert a long (milliseconds) to LocalDateTime:
+    LocalDateTime localDatetime = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+    ZonedDateTime jpTime = instant.atZone(ZoneId.of("Asia/Tokyo"));
 
 
 

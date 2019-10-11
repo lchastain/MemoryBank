@@ -4,20 +4,15 @@
 //   initialize prior to each display of the UI. 
 //
 //
-// Modification History:
-// ---------------------
-//  7/06/2005 Renamed Global to MemoryBank.
-//  9/06/2004 Removed the getFieldFromFormat method, which has been
-//            in Global for a while now.  Moved getDateString to 
-//            Global and commented it out, here.
-//
-
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 import java.util.Vector;
 
 public class DateFormatBar extends Container implements ClingSource {
@@ -39,7 +34,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     private String initialFormat;
 
-    private LocalDate theDate;
+    private ZonedDateTime theDate;
     private JLabel theDateLabel;
     private JPanel header;
     private JPanel fields;
@@ -192,7 +187,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     public long getDate() {
         // System.out.println("theDate = " + theDate);
-        return theDate.toEpochDay();
+        return theDate.toInstant().getEpochSecond();
     } // end getDate
 
 /*
@@ -200,8 +195,8 @@ public class DateFormatBar extends Container implements ClingSource {
     Date d = new Date(theDate);
     // System.out.println("DateFormatBar - date, format " + d + " " + theFormat);
     String s = getRealFormat(theFormat);
-    MemoryBank.sdf.applyPattern(s);
-    return MemoryBank.sdf.format(d);
+    Memory Bank.sdf.applyPattern(s);
+    return Memory Bank.sdf.format(d);
   } // end getDateString
 
   // Here is where the format is interpreted.
@@ -221,7 +216,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     for(int i=0; i<order.length(); i++) {
       which = Integer.parseInt(order.substring(i, i+1));
-      theField = MemoryBank.getFieldFromFormat(which, initialFormat);
+      theField = Memory Bank.getFieldFromFormat(which, initialFormat);
       if(which == 5) {
         s += TimeFormatBar.getRealFormat(theField);
       } else {
@@ -230,9 +225,9 @@ public class DateFormatBar extends Container implements ClingSource {
       } // end if
     } // end for i
 
-    s = MemoryBank.convert(s, "#SQUOTE#", "''");
-    s = MemoryBank.convert(s, "#DQUOTE#", "\"");
-    s = MemoryBank.convert(s, "#VBAR#", "|");
+    s = Memory Bank.convert(s, "#SQUOTE#", "''");
+    s = Memory Bank.convert(s, "#DQUOTE#", "\"");
+    s = Memory Bank.convert(s, "#VBAR#", "|");
     // System.out.println("The REAL format specifier is: " + s);
     return s;
   } // end getRealFormat
@@ -367,7 +362,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     // The date label needs to be re-calculated due to UI changes.
     public void resetDateLabel() {
-        theDateLabel.setText(MemoryBank.getDateString(getDate(), getFormat()));
+        theDateLabel.setText(FormatUtil.getDateString(getDate(), getFormat()));
     } // end resetDateLabel
 
     // Given the initialFormat, pre-select choices in the header menus
@@ -376,7 +371,7 @@ public class DateFormatBar extends Container implements ClingSource {
         String s;
         JRadioButtonMenuItem jrbmi;
 
-        s = MemoryBank.getFieldFromFormat(1, initialFormat); // Day format
+        s = FormatUtil.getFieldFromFormat(1, initialFormat); // Day format
         if (s.equals("")) s = "EEEE";  // default setting
         jrbmi = (JRadioButtonMenuItem) pop1.getComponent(3);
         if (s.equals("E")) jrbmi = (JRadioButtonMenuItem) pop1.getComponent(2);
@@ -384,7 +379,7 @@ public class DateFormatBar extends Container implements ClingSource {
         hb1.setSeparator(getSeparatorFromFormat(1, true));
         fb1.setFormat(s);
 
-        s = MemoryBank.getFieldFromFormat(3, initialFormat); // Month format
+        s = FormatUtil.getFieldFromFormat(3, initialFormat); // Month format
         if (s.equals("")) s = "MMMM";
         jrbmi = (JRadioButtonMenuItem) pop3.getComponent(5);
         if (s.equals("M")) jrbmi = (JRadioButtonMenuItem) pop3.getComponent(2);
@@ -394,7 +389,7 @@ public class DateFormatBar extends Container implements ClingSource {
         hb3.setSeparator(getSeparatorFromFormat(3, true));
         fb3.setFormat(s);
 
-        s = MemoryBank.getFieldFromFormat(4, initialFormat); // Date format
+        s = FormatUtil.getFieldFromFormat(4, initialFormat); // Date format
         if (s.equals("")) s = "d";
         jrbmi = (JRadioButtonMenuItem) pop4.getComponent(2);
         if (s.equals("dd")) jrbmi = (JRadioButtonMenuItem) pop4.getComponent(3);
@@ -402,12 +397,12 @@ public class DateFormatBar extends Container implements ClingSource {
         hb4.setSeparator(getSeparatorFromFormat(4, true));
         fb4.setFormat(s);
 
-        s = MemoryBank.getFieldFromFormat(5, initialFormat); // Time format
+        s = FormatUtil.getFieldFromFormat(5, initialFormat); // Time format
         if (s.equals("")) s = tfp.getRealFormat(tfp.getFormat());
         else s = tfp.getRealFormat(s);
         fb5.setFormat(s);
 
-        s = MemoryBank.getFieldFromFormat(6, initialFormat); // Year format
+        s = FormatUtil.getFieldFromFormat(6, initialFormat); // Year format
         if (s.equals("")) s = "yyyy";
         jrbmi = (JRadioButtonMenuItem) pop6.getComponent(3);
         if (s.equals("yy")) jrbmi = (JRadioButtonMenuItem) pop6.getComponent(2);
@@ -415,7 +410,7 @@ public class DateFormatBar extends Container implements ClingSource {
         hb6.setSeparator(getSeparatorFromFormat(6, true));
         fb6.setFormat(s);
 
-        s = MemoryBank.getFieldFromFormat(7, initialFormat); // Era format
+        s = FormatUtil.getFieldFromFormat(7, initialFormat); // Era format
         if (s.equals("")) s = "G";
         hb7.setSeparator(getSeparatorFromFormat(7, true));
         fb7.setFormat(s);
@@ -490,10 +485,11 @@ public class DateFormatBar extends Container implements ClingSource {
             initialFormat = idf;
         } // end if
 
-        tfp.setup(initialDate, MemoryBank.getFieldFromFormat(5, initialFormat));
+        tfp.setup(initialDate, FormatUtil.getFieldFromFormat(5, initialFormat));
 
 //        theDate = new Date(initialDate);
-        theDate = LocalDate.ofEpochDay(initialDate);
+        theDate = Instant.ofEpochMilli(initialDate).atZone(TimeZone.getDefault().toZoneId());
+//        theDate = LocalDate.ofEpochDay(initialDate);
         setVisibility(getVisibilityFromFormat());
         setOrder(getOrderFromFormat());
         setHeadersAndFields();
@@ -609,7 +605,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
         public void setFormat(String s) {
             format = s;
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format).withZone(TimeZone.getDefault().toZoneId());
             setText(dtf.format(theDate));
         } // end setFormat
 
@@ -760,8 +756,9 @@ public class DateFormatBar extends Container implements ClingSource {
         public void mouseClicked(MouseEvent e) {
             HeaderButton hb = (HeaderButton) e.getSource();
 
-            long dl = theDate.toEpochDay();
-            String df = MemoryBank.getFieldFromFormat(5, initialFormat);
+//            long dl = theDate.toEpochDay();
+            long dl = theDate.toInstant().getEpochSecond();
+            String df = FormatUtil.getFieldFromFormat(5, initialFormat);
             tfp.setup(dl, df);
 
             int choice = JOptionPane.showConfirmDialog(
@@ -799,6 +796,4 @@ public class DateFormatBar extends Container implements ClingSource {
         //---------------------------------------------------------
     } // end class TimeFormatListener
 } // end class DateFormatBar
-
-
 

@@ -3,11 +3,6 @@
 //   a time.  To use, instantiate once and then call setup to
 //   initialize prior to each display of the UI. 
 //
-// Modification History:
-// ---------------------
-//  7/10/2005 Changed all 'Global' to 'MemoryBank'.
-//  7/19/2004 Last date on file before a 'history' entry
-
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
@@ -16,7 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.DateFormatSymbols;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
@@ -35,7 +30,7 @@ public class TimeFormatBar extends Container implements ClingSource {
     private static FieldLabel fb4;    // AM/PM
     private static FieldLabel fb5;    // TZ (TimeZone)
 
-    private LocalDate theDate;
+    private ZonedDateTime theDateTime;
     private JLabel theDateLabel;
     private String initialFormat;
     private JPanel header;
@@ -175,18 +170,19 @@ public class TimeFormatBar extends Container implements ClingSource {
     } // end getColumnOrder
 
     public long getDate() {
-        return theDate.toEpochDay();
+        return theDateTime.toInstant().getEpochSecond();
     } // end getDate
 
     public static String getDateString(long theDate, String theFormat) {
-        LocalDate d = LocalDate.ofEpochDay(theDate);
+        ZonedDateTime d = Instant.ofEpochMilli(theDate).atZone(ZoneId.systemDefault());
         String s = getRealFormat(theFormat);
-        dtf = DateTimeFormatter.ofPattern(s);
+        dtf = DateTimeFormatter.ofPattern(s).withZone(ZoneId.systemDefault());
         return dtf.format(d);
     } // end getDateString
 
-    // TODO - why do we have one here and another in MemoryBank, that also calls this one?
+
     // Here is where the format is interpreted.
+    // why do we have one here and another in FormatUtil, that calls this one?  This needs consolidation.
     public static String getRealFormat(String theFormat) {
         // System.out.println("Format parsing: [" + theFormat + "]");
         if (theFormat.equals("")) return "";  // never been set
@@ -379,7 +375,7 @@ public class TimeFormatBar extends Container implements ClingSource {
         if (s.equals("zzzz")) jrbmi = (JRadioButtonMenuItem) pop5.getComponent(3);
         jrbmi.setSelected(true);
         hb5.setSeparator(getSeparatorFromFormat(5));
-        fb5.setFormat(s);
+//        fb5.setFormat(s);
 
     } // end setHeadersAndFields
 
@@ -449,7 +445,7 @@ public class TimeFormatBar extends Container implements ClingSource {
             initialFormat = idf;
         } // end if
 
-        theDate = LocalDate.ofEpochDay(initialDate);
+        theDateTime =  Instant.ofEpochMilli(initialDate).atZone(ZoneId.systemDefault());
         setVisibility(getVisibilityFromFormat());
         setOrder(getOrderFromFormat());
         setHeadersAndFields();
@@ -599,9 +595,10 @@ public class TimeFormatBar extends Container implements ClingSource {
         }
 
         public void setFormat(String s) {
+            if(theDateTime == null) return;
             format = s;
             dtf = DateTimeFormatter.ofPattern(format);
-            setText(dtf.format(theDate));
+            setText(dtf.format(theDateTime));
         } // end setFormat
 
         public void setText(String s) {

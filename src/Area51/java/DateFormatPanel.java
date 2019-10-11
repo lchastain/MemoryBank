@@ -2,17 +2,11 @@
 // This Panel will act as a User-Interface from which to specify
 //   the format of a date.
 //
-// Modification History:
-// ---------------------
-//  7/10/2005 Changed all 'Global' to 'MemoryBank'.  Removed the disabled method.
-//  9/06/2004 Commented out the pass-thru to dfb.getDateString; now in Global.
-//
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 public class DateFormatPanel extends JPanel implements ItemListener {
     private static final long serialVersionUID = 1L;
@@ -104,19 +98,19 @@ public class DateFormatPanel extends JPanel implements ItemListener {
         jcb7.addItemListener(this);
     } // end setCheckBoxes
 
-//    public void setup(long initialDate, String format) {
-//        // Update this panel UI and all contents.
-//        SwingUtilities.updateComponentTreeUI(this);
-//
-//        dfb.setup(initialDate, format);
-//        visibility = dfb.getVisibilityFromFormat();
-//        setCheckBoxes(); // Set checkboxes according to visibility.
-//    } // end setup
+    public void setup(long initialDate, String format) {
+        // Update this panel UI and all contents.
+        SwingUtilities.updateComponentTreeUI(this);
+
+        dfb.setup(initialDate, format);
+        visibility = dfb.getVisibilityFromFormat();
+        setCheckBoxes(); // Set checkboxes according to visibility.
+    } // end setup
 
 
     public static void main(String[] argv) {
         DateFormatPanel dfp = new DateFormatPanel();
-        long dl = LocalDate.now().toEpochDay();
+        long dl = ZonedDateTime.now().toEpochSecond();
         String df = "";
         dfp.setup(dl, df);
 
@@ -131,7 +125,7 @@ public class DateFormatPanel extends JPanel implements ItemListener {
         if (choice != JOptionPane.OK_OPTION) System.exit(0);
         df = dfp.getFormat(); // see DateFormatBar for format expl.
         dl = dfp.getDate();
-        String s = MemoryBank.getDateString(dl, df);
+        String s = FormatUtil.getDateString(dl, df);
         System.out.println("End result: " + s);
         System.exit(0);
     } // end main
