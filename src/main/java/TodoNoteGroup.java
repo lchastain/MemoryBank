@@ -172,20 +172,18 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Interface to the Three Month Calendar; called by the tmc.
     //-------------------------------------------------------------
     public void dateSelected(LocalDate ld) {
-        System.out.println("LogTodo - date selected on TMC = " + ld);
+        MemoryBank.debug("Date selected on TMC = " + ld);
 
         if (tNoteComponent == null) {
             String s;
             s = "You must select an item before a date can be linked!";
             setMessage(s);
-            tmc.setChoice((LocalDate) null);
+            tmc.setChoice(null);
             return;
         } // end if
 
         TodoNoteData tnd = (TodoNoteData) (tNoteComponent.getNoteData());
         tnd.setTodoDate(ld);
-
-        System.out.println(ld);
         tNoteComponent.setTodoNoteData(tnd);
     } // end dateSelected
 
@@ -627,12 +625,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
             // Show the previously selected date
             if (tnd.getTodoDate() != null) {
-                tmc.setBaseDate(tnd.getTodoDate());
                 tmc.setChoice(tnd.getTodoDate());
             }
         } else {
             tNoteComponent = null;
-            tmc.setChoice((LocalDate) null);
+            tmc.setChoice(null);
         } // end if
     } // end showComponent
 

@@ -2,11 +2,9 @@ import org.junit.jupiter.api.*;
 
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
-import java.util.Date;
 
 class DayNoteGroupTest {
     private DayNoteGroup dng;
-    private Date theDate;
 
     @BeforeAll
     static void ssetup() {

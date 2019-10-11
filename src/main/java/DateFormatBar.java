@@ -16,52 +16,52 @@ import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
 public class DateFormatBar extends Container implements ClingSource {
-    private static final long serialVersionUID = -3266518622496644984L;
+    private static final long serialVersionUID = 1L;
 
-    HeaderButton hb1;   // Day
-    HeaderButton hb3;   // Month
-    HeaderButton hb4;   // Date
-    HeaderButton hb5;   // Time
-    HeaderButton hb6;   // Year
-    HeaderButton hb7;   // Era
+    private HeaderButton hb1;   // Day
+    private HeaderButton hb3;   // Month
+    private HeaderButton hb4;   // Date
+    private HeaderButton hb5;   // Time
+    private HeaderButton hb6;   // Year
+    private HeaderButton hb7;   // Era
 
-    FieldLabel fb1;    // Day
-    FieldLabel fb3;    // Month
-    FieldLabel fb4;    // Date
-    FieldLabel fb5;    // Time
-    FieldLabel fb6;    // Year
-    FieldLabel fb7;    // Era
+    private FieldLabel fb1;    // Day
+    private FieldLabel fb3;    // Month
+    private FieldLabel fb4;    // Date
+    private FieldLabel fb5;    // Time
+    private FieldLabel fb6;    // Year
+    private FieldLabel fb7;    // Era
 
-    String initialFormat;
+    private String initialFormat;
 
-    long initialDate;
-    Date theDate;
-    JLabel theDateLabel;
-    JPanel header;
-    JPanel fields;
-    TimeFormatPanel tfp;
+    private LocalDate theDate;
+    private JLabel theDateLabel;
+    private JPanel header;
+    private JPanel fields;
+    private TimeFormatPanel tfp;
 
-    DfbHeaderPopup pop1;
-    DfbHeaderPopup pop3;
-    DfbHeaderPopup pop4;
-    DfbHeaderPopup pop5;
-    DfbHeaderPopup pop6;
-    DfbHeaderPopup pop7;
-    popHandler al;
+    private DfbHeaderPopup pop1;
+    private DfbHeaderPopup pop3;
+    private DfbHeaderPopup pop4;
+    private DfbHeaderPopup pop5;
+    private DfbHeaderPopup pop6;
+    private DfbHeaderPopup pop7;
+    private popHandler al;
 
     // Known maximum widths needed for columns
-    public static final int c1width = 73; // Day
-    public static final int c3width = 67; // Month
-    public static final int c4width = 35; // Date
-    public static final int c5width = 180; // Time
-    public static final int c6width = 37; // Year
-    public static final int c7width = 28; // Era
+    private static final int c1width = 73; // Day
+    private static final int c3width = 67; // Month
+    private static final int c4width = 35; // Date
+    private static final int c5width = 180; // Time
+    private static final int c6width = 37; // Year
+    private static final int c7width = 28; // Era
 
-    boolean beenMoved;
+    private boolean beenMoved;
 
     public DateFormatBar() {
         super();
@@ -174,25 +174,25 @@ public class DateFormatBar extends Container implements ClingSource {
     //   the order and visibility of columns in the header.
     public String getColumnOrder() {
         HeaderButton hb;
-        String returnString = "";
+        StringBuilder returnString = new StringBuilder();
         for (int i = 0; i < 6; i++) {
             hb = (HeaderButton) header.getComponent(i);
             if (!hb.isVisible()) continue;
-            if (hb.getText().equals(hb1.getText())) returnString += "1";
-            if (hb.getText().equals(hb3.getText())) returnString += "3";
-            if (hb.getText().equals(hb4.getText())) returnString += "4";
-            if (hb.getText().equals(hb5.getText())) returnString += "5";
-            if (hb.getText().equals(hb6.getText())) returnString += "6";
-            if (hb.getText().equals(hb7.getText())) returnString += "7";
+            if (hb.getText().equals(hb1.getText())) returnString.append("1");
+            if (hb.getText().equals(hb3.getText())) returnString.append("3");
+            if (hb.getText().equals(hb4.getText())) returnString.append("4");
+            if (hb.getText().equals(hb5.getText())) returnString.append("5");
+            if (hb.getText().equals(hb6.getText())) returnString.append("6");
+            if (hb.getText().equals(hb7.getText())) returnString.append("7");
         } // end for i
-        if (returnString.equals("")) returnString = "0";
+        if (returnString.toString().equals("")) returnString = new StringBuilder("0");
 
-        return returnString;
+        return returnString.toString();
     } // end getColumnOrder
 
     public long getDate() {
         // System.out.println("theDate = " + theDate);
-        return theDate.getTime();
+        return theDate.toEpochDay();
     } // end getDate
 
 /*
@@ -244,7 +244,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     // Given the known configuration of the initialFormat string,
     //   parse out and return the requested element.
-    public String getSeparatorFromFormat(int i, boolean trim) {
+    private String getSeparatorFromFormat(int i, boolean trim) {
         String s = getOrderFromFormat();  // String may contain "134567"
         int numFields = s.length();
         String theField = "";
@@ -278,55 +278,55 @@ public class DateFormatBar extends Container implements ClingSource {
     // Construct a format string based on the current configuration
     //   of the interface.
     public String getFormat() {
-        String s;
+        StringBuilder s;
         String order = getColumnOrder();
-        s = order;
-        if (order.equals("0")) return s;
+        s = new StringBuilder(order);
+        if (order.equals("0")) return s.toString();
         int numcols = order.length();
         for (int i = 0; i < numcols; i++) {
             if (order.substring(i, i + 1).equals("1")) {
-                s += "|" + fb1.getFormat();
+                s.append("|").append(fb1.getFormat());
                 if (hb1.separatorString.length() != 0)
-                    s += "'" + hb1.separatorString + "'";
+                    s.append("'").append(hb1.separatorString).append("'");
             } // end if
 
             if (order.substring(i, i + 1).equals("3")) {
-                s += "|" + fb3.getFormat();
+                s.append("|").append(fb3.getFormat());
                 if (hb3.separatorString.length() != 0)
-                    s += "'" + hb3.separatorString + "'";
+                    s.append("'").append(hb3.separatorString).append("'");
             } // end if
 
             if (order.substring(i, i + 1).equals("4")) {
-                s += "|" + fb4.getFormat();
+                s.append("|").append(fb4.getFormat());
                 if (hb4.separatorString.length() != 0)
-                    s += "'" + hb4.separatorString + "'";
+                    s.append("'").append(hb4.separatorString).append("'");
             } // end if
 
             // Time is a special (embedded) case.
             if (order.substring(i, i + 1).equals("5")) {
-                s += "|" + tfp.getFormat();
+                s.append("|").append(tfp.getFormat());
             } // end if
 
             if (order.substring(i, i + 1).equals("6")) {
-                s += "|" + fb6.getFormat();
+                s.append("|").append(fb6.getFormat());
                 if (hb6.separatorString.length() != 0)
-                    s += "'" + hb6.separatorString + "'";
+                    s.append("'").append(hb6.separatorString).append("'");
             } // end if
 
             if (order.substring(i, i + 1).equals("7")) {
-                s += "|" + fb7.getFormat();
+                s.append("|").append(fb7.getFormat());
                 if (hb7.separatorString.length() != 0)
-                    s += "'" + hb7.separatorString + "'";
+                    s.append("'").append(hb7.separatorString).append("'");
             } // end if
 
         } // end for i
 
         // System.out.println("The INTERNAL format specifier is: " + s);
-        initialFormat = s;
-        return s;
+        initialFormat = s.toString();
+        return s.toString();
     } // end getFormat
 
-    public String getOrderFromFormat() {
+    private String getOrderFromFormat() {
         int end = initialFormat.indexOf("|");
         if (end == -1) return "";
 
@@ -372,7 +372,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     // Given the initialFormat, pre-select choices in the header menus
     //   and set Labels on the corresponding fields.
-    public void setHeadersAndFields() {
+    private void setHeadersAndFields() {
         String s;
         JRadioButtonMenuItem jrbmi;
 
@@ -477,12 +477,14 @@ public class DateFormatBar extends Container implements ClingSource {
     //   each element are also allowed if enclosed in single quotes.
     public void setup(long idt, String idf) {
 
+        long initialDate;
         if (idf.equals("")) { // Set defaults, if necessary.
             if (initialFormat.equals("")) { // Was never set previously.
                 initialFormat = getDefault();
             } // end if
             // Keep previous format but get current date.
-            initialDate = new Date().getTime();
+//            initialDate = new Date().getTime();
+            initialDate = LocalDate.now().toEpochDay();
         } else {
             initialDate = idt;
             initialFormat = idf;
@@ -490,7 +492,8 @@ public class DateFormatBar extends Container implements ClingSource {
 
         tfp.setup(initialDate, MemoryBank.getFieldFromFormat(5, initialFormat));
 
-        theDate = new Date(initialDate);
+//        theDate = new Date(initialDate);
+        theDate = LocalDate.ofEpochDay(initialDate);
         setVisibility(getVisibilityFromFormat());
         setOrder(getOrderFromFormat());
         setHeadersAndFields();
@@ -522,7 +525,7 @@ public class DateFormatBar extends Container implements ClingSource {
         DfbHeaderPopup pop;
         private String separatorString;
 
-        public HeaderButton(DfbHeaderPopup jpm) {
+        HeaderButton(DfbHeaderPopup jpm) {
             super();
             String s = ((JLabel) jpm.getComponent(0)).getText();
             setText(s.trim());
@@ -553,7 +556,7 @@ public class DateFormatBar extends Container implements ClingSource {
             return separatorString;
         } // end getSeparator
 
-        public String getViewableSeparator() {
+        String getViewableSeparator() {
             String newSep = separatorString;
             newSep = newSep.replace("#SQUOTE#", "'");
             newSep = newSep.replace("#DQUOTE#", "\"");
@@ -579,7 +582,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
         String format;
 
-        public FieldLabel(String s) {
+        FieldLabel(String s) {
             super(s, JLabel.CENTER);
 
             format = "";
@@ -606,8 +609,8 @@ public class DateFormatBar extends Container implements ClingSource {
 
         public void setFormat(String s) {
             format = s;
-            MemoryBank.sdf.applyPattern(format);
-            setText(MemoryBank.sdf.format(theDate));
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+            setText(dtf.format(theDate));
         } // end setFormat
 
         public void setText(String s) {
@@ -618,7 +621,7 @@ public class DateFormatBar extends Container implements ClingSource {
     } // end class FieldLabel
 
     public Vector<JComponent> getClingons(Component comp) {
-        Vector<JComponent> ClingOns = new Vector<JComponent>(1, 1);
+        Vector<JComponent> ClingOns = new Vector<>(1, 1);
         if (comp == hb1) ClingOns.addElement(fb1);
         if (comp == hb3) ClingOns.addElement(fb3);
         if (comp == hb4) ClingOns.addElement(fb4);
@@ -647,6 +650,7 @@ public class DateFormatBar extends Container implements ClingSource {
                 if (jpm == pop6) hb = hb6;
                 if (jpm == pop7) hb = hb7;
 
+                assert hb != null;
                 String ss = hb.getViewableSeparator();
                 String separatorString = ss;
                 String title = "Separator Text";
@@ -694,6 +698,7 @@ public class DateFormatBar extends Container implements ClingSource {
             if (s.equals("2 digits")) nf = "yy";
             if (s.equals("4 digits")) nf = "yyyy";
 
+            assert fb != null;
             fb.setFormat(nf);
             dfb.resetDateLabel();
         } // end actionPerformed
@@ -708,7 +713,7 @@ public class DateFormatBar extends Container implements ClingSource {
         //   be accomplished by de-referencing the outer context via the 'dfb'
         //   variable, but setting it properly from the DateFormatBar
         //   constructor when it is actually instantiated.
-        public void setDfb(DateFormatBar value) {
+        void setDfb(DateFormatBar value) {
             dfb = value;
         }
     } // end class popHandler
@@ -718,7 +723,7 @@ public class DateFormatBar extends Container implements ClingSource {
     class DfbHeaderPopup extends JPopupMenu {
         private static final long serialVersionUID = -7409823293157418822L;
 
-        public DfbHeaderPopup(String[] s) {
+        DfbHeaderPopup(String[] s) {
             super();
             JMenuItem mi;
             String choice;
@@ -755,7 +760,7 @@ public class DateFormatBar extends Container implements ClingSource {
         public void mouseClicked(MouseEvent e) {
             HeaderButton hb = (HeaderButton) e.getSource();
 
-            long dl = theDate.getTime();
+            long dl = theDate.toEpochDay();
             String df = MemoryBank.getFieldFromFormat(5, initialFormat);
             tfp.setup(dl, df);
 
@@ -768,8 +773,8 @@ public class DateFormatBar extends Container implements ClingSource {
                     null);                       // icon
 
             if (choice != JOptionPane.OK_OPTION) return;
-            df = tfp.getFormat(); // see TimeFormatBar for format expl.
-            dl = tfp.getDate();
+//            df = tfp.getFormat(); // see TimeFormatBar for format expl.
+//            dl = tfp.getDate();
             // String s = TimeFormatBar.getDateString(dl, df);
             // System.out.println("End result: " + s);
             // System.out.println("Time format: " + tfp.getFormat());

@@ -11,25 +11,15 @@
 //   comes from Component, it would just be additional unneeded overhead.
 //
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.PrintGraphics;
-import java.awt.PrintJob;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.text.DateFormat;
-import java.util.Date;
+import java.awt.*;
+import java.time.LocalDate;
 import java.util.Vector;
 
 public class TextPage extends Component {
     private static final long serialVersionUID = 6610176903300017933L;
 
     // This flag is separate and listed first, for obvious reasons.
-    protected static boolean debugPrint = false; // true;
+    private static boolean debugPrint = false; // true;
 
     private static double screenResHorizontal;
     private static double screenResVertical;
@@ -83,7 +73,7 @@ public class TextPage extends Component {
     //--------------------------------------------------
     TextPage(Vector<String> lines) {
         this.lines = lines;
-        todaynow = DateFormat.getDateTimeInstance().format(new Date());
+        todaynow = LocalDate.now().toString();
 
         showHeader = true;
         showFooter = true;
@@ -94,7 +84,7 @@ public class TextPage extends Component {
     } // end constructor
     //--------------------------------------------------
 
-    public void addTextPageListener(TextPageListener tpl) {
+    void addTextPageListener(TextPageListener tpl) {
         twimc = tpl;
     } // end addTextPageListener
 
@@ -103,7 +93,7 @@ public class TextPage extends Component {
         if (debugPrint) System.out.println(s);
     } // end dbp
 
-    Rectangle inset(Rectangle r, int left, int top, int right, int bottom) {
+    private Rectangle inset(Rectangle r, int left, int top, int right, int bottom) {
         Rectangle s = new Rectangle(r);
         s.x += left;
         s.y += top;
@@ -158,7 +148,7 @@ public class TextPage extends Component {
                 (int) (11.0 * screenResVertical));
     } // end getPreferredSize
 
-    public void drawit(Graphics g) {
+    void drawit(Graphics g) {
         int Eks, Why;
         String s;
 
@@ -228,7 +218,7 @@ public class TextPage extends Component {
     //   font size and screen/page resolution in g, in an attempt to
     //   'normalize' the screen values so that it looks identical to the
     //   printout.
-    void prepareLayoutValues(Graphics g) {
+    private void prepareLayoutValues(Graphics g) {
         Dimension pageSize;
         String s, leftovers;
         int stringWidth;
@@ -378,7 +368,7 @@ public class TextPage extends Component {
     } // end setOptions
 
     // p is 0-based.
-    public boolean setPage(int p) {
+    boolean setPage(int p) {
         if (pageNumber == p) return true;
         if (p < pageCount) {
             pageNumber = p;

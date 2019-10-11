@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * Summary description for SearchPanel
@@ -30,12 +29,8 @@ public class SearchPanel extends JPanel {
     private int intPreferredWidth;    // See note in constructor.
     private int intPreferredHeight;   // See note in constructor.
     private DateTimeFormatter dtf;
-    private Date dateWhen1;
-    private Date dateWhen2;
     private LocalDate noteWhen1;
     private LocalDate noteWhen2;
-    private Date dateMod1;
-    private Date dateMod2;
     private LocalDate dateLastMod1;
     private LocalDate dateLastMod2;
     private ButtonGroup bgWhen;

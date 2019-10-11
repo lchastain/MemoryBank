@@ -7,28 +7,17 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.format.DateTimeFormatter;
 
 public class MemoryBank {
-    //-------------------------------------------------
-    // Static members that are developed prior
-    //   to running 'main':
-    //-------------------------------------------------
-    private static final int SAME_DAY = 0;
-    private static final int NEXT_DAY = 1;
-    private static final int PREV_DAY = 2;
 
     static Color amColor;
     static Color pmColor;
     static boolean archive;
     static boolean military; // Set by DayNoteGroup.  Preserved in appOpts.
-    public static GregorianCalendar tempCalendar;
-    public static SimpleDateFormat sdf;
+    public static DateTimeFormatter dtf;
     public static boolean debug;
     public static boolean event;
     public static boolean init;
@@ -38,25 +27,13 @@ public class MemoryBank {
     static AppOptions appOpts;     // saved/loaded
     private static AppTreePanel appTreePanel;
     static NoteData clipboardNote;
-
-    //----------------------------------------------------------
-    // Private members used in more than one method but only by 'MemoryBank':
-    //   (this file does not define any class, so all of its members
-    //      must be static)
-
-    //----------------------------------------------------------
     private static JFrame logFrame;
     private static AppSplash splash;
     private static boolean logApplicationShowing;
-    private static int[] percs = {20, 25, 45,
-            50, 60, 90, 100};
+    private static int[] percs = {20, 25, 45, 50, 60, 90, 100};
     private static int updateNum = 0;
     private static String appIconFileName;
 
-    // This section is needed for test drivers that
-    //   will try to instantiate objects that need
-    //   items developed here (such as the tempCalendar)
-    //   without going thru the MemoryBank.main.
     static {
         // These can be 'defined' in the startup command.  Ex:
         //   java -Ddebug MemoryBank
@@ -91,17 +68,6 @@ public class MemoryBank {
         pmColor = Color.black;
         archive = false;
         military = false; // 12 or 24 hour time display
-
-        sdf = new SimpleDateFormat();
-        sdf.setDateFormatSymbols(new DateFormatSymbols());
-
-        tempCalendar = (GregorianCalendar) Calendar.getInstance();
-        // Note: getInstance at this time returns a Calendar that
-        //   is actually a GregorianCalendar, but since the return
-        //   type is Calendar, it must be cast in order to assign.
-
-        tempCalendar.setGregorianChange(new GregorianCalendar(1752,
-                Calendar.SEPTEMBER, 14).getTime());
 
     } // end static
 
@@ -160,9 +126,9 @@ public class MemoryBank {
         mname = Thread.currentThread().getStackTrace()[3].getMethodName();
         cname = Thread.currentThread().getStackTrace()[3].getClassName();
         if (mname.equals("<init>")) {
-            System.out.println(cname + " constructor  " + new Date().toString());
+            System.out.println(cname + " constructor  " + LocalDate.now().toString());
         } else if (mname.equals("<clinit>")) {
-            System.out.println(cname + " static section  " + new Date().toString());
+            System.out.println(cname + " static section  " + LocalDate.now().toString());
         } else {
             System.out.println("Improper use of constructor trace method!");
             System.out.println(Thread.currentThread().getStackTrace()[3].toString());
@@ -230,10 +196,10 @@ public class MemoryBank {
     //
     //-----------------------------------------------------------------------
     public static String getDateString(long theDateLong, String theFormat) {
-        Date d = new Date(theDateLong);
+        LocalDate aDate = LocalDate.ofEpochDay(theDateLong);
         String s = getRealFormat(theFormat);
-        sdf.applyPattern(s);
-        return sdf.format(d);
+        dtf = DateTimeFormatter.ofPattern(s);
+        return dtf.format(aDate);
     } // end getDateString
 
 
@@ -378,40 +344,6 @@ public class MemoryBank {
 
         return time;
     } // end makeTimeString
-
-
-    static String makeTimeString() {
-        int minute = tempCalendar.get(Calendar.MINUTE);
-
-        // Hour portion
-        String time = hourToString(tempCalendar.get(Calendar.HOUR_OF_DAY));
-
-        if (!military) time += ":";
-
-        // Minutes portion
-        time += minuteToString(minute);
-
-        return time;
-    } // end makeTimeString
-
-
-    // Send in a Date and a signed integer, this method
-    //  will set its internal Calendar to that Date
-    //  adjusted in minutes by the value of the integer.
-    //  Return value indicates whether or not there was
-    //  a day rollover.  Use other methods to access the
-    //  resultant Calendar, if desired.
-    static int modMinute(Date d, int m) {
-        tempCalendar.setTime(d);
-        int minutes = tempCalendar.get(Calendar.MINUTE);
-        int dayStart = tempCalendar.get(Calendar.DAY_OF_MONTH);
-        minutes += m;
-        tempCalendar.set(Calendar.MINUTE, minutes);
-        int dayEnd = tempCalendar.get(Calendar.DAY_OF_MONTH);
-        if (dayStart == dayEnd) return SAME_DAY;
-        if (dayStart < dayEnd) return NEXT_DAY;
-        return PREV_DAY;
-    } // end modMinute
 
 
     // Called locally at startup and later at a 'change'.
@@ -578,7 +510,7 @@ public class MemoryBank {
     // Description:  Prints the input parameter with a timestamp.
     //-----------------------------------------------------------------
     private static void timing(String s) {
-        if (timing) System.out.println(new Date() + "  " + s);
+        if (timing) System.out.println(LocalDate.now() + "  " + s);
     } // end timing
 
 

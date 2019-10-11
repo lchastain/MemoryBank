@@ -9,34 +9,37 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.Properties;
+import java.util.Vector;
 
 class TextFilePrinter extends Dialog implements
         ActionListener, ItemListener, TextPageListener, WindowListener {
-    private static final long serialVersionUID = 1612001045164909137L;
+    private static final long serialVersionUID = 1L;
 
-    int currentPtSize;
-    int currentPage;
-    int Pages;
-    String filename;
-    Vector<String> lines = new Vector<String>();
+    private int currentPtSize;
+    private int currentPage;
+    private int Pages;
+    private String filename;
 
-    Button prevBtn = new Button("Prev");
-    Button nextBtn = new Button("Next");
-    Button printBtn = new Button("Print...");
-    Button closeBtn = new Button("Close");
-    TextField pageNumberField = new TextField("1");
-    TextPage preview;
-    Label l1;
-    Frame parentFrame;
+    private Button prevBtn = new Button("Prev");
+    private Button nextBtn = new Button("Next");
+    private Button printBtn = new Button("Print...");
+    private Button closeBtn = new Button("Close");
+    private TextField pageNumberField;
+    private TextPage preview;
+    private Label l1;
+    private Frame parentFrame;
     private ScrollPane sp;
 
-    TextFilePrinter(String filename) {
+    private TextFilePrinter(String filename) {
         this(filename, new Frame());
     } // end constructor
 
-    TextFilePrinter(String filename, Frame f) {
+    private TextFilePrinter(String filename, Frame f) {
         super(f, "Print Preview", true); // Dialog constructor
         parentFrame = f;
         currentPtSize = 12;
@@ -49,6 +52,7 @@ class TextFilePrinter extends Dialog implements
         this.filename = filename;
 
         // Read the file into the 'lines' vector.
+        Vector<String> lines = new Vector<>();
         try {
             String line;
             BufferedReader fis = new BufferedReader(
@@ -103,8 +107,8 @@ class TextFilePrinter extends Dialog implements
                 "10", "11", "12", "13", "14", "15", "16", "17",
                 "18", "19", "20", "21", "22", "23", "24"};
 
-        for (int i = 0; i < nums.length; i++) {
-            ps.addItem(nums[i]);
+        for (String num : nums) {
+            ps.addItem(num);
         } // end for i
         ps.select("" + currentPtSize);
         ps.addItemListener(this);
@@ -119,7 +123,7 @@ class TextFilePrinter extends Dialog implements
         setVisible(true);
     } // end constructor
 
-    public void resetSize() {
+    private void resetSize() {
         //--------------------------------------------------------
         // Set the ScrollPane size to the best viewable value.
         //--------------------------------------------------------
@@ -160,7 +164,7 @@ class TextFilePrinter extends Dialog implements
     } // end resetSize
 
     public void actionPerformed(ActionEvent evt) {
-        int pagenum = 0;
+        int pagenum;
 
         if (evt.getSource() == pageNumberField) { // Set the page.
             try {
@@ -198,8 +202,7 @@ class TextFilePrinter extends Dialog implements
                 // System.out.println("Properties after: " + prop); NO CHANGE.
 
                 int i = 0;
-                while (true) {
-                    if (preview.setPage(i++) != true) break;
+                while (preview.setPage(i++)) {
                     if (pjG == null) pjG = pj.getGraphics();
                     pjG.setColor(Color.black);
                     pjG.setPaintMode();

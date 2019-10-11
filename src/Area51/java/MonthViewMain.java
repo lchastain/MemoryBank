@@ -8,6 +8,7 @@ public class MonthViewMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
+        MemoryBank.setUserDataHome("g01@doughmain.net");
 
         LocalDate ld;
         //ld = LocalDate.of(2018, 9, 2);

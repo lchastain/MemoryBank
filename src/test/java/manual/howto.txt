@@ -1,4 +1,4 @@
-One-stop reference for how tests are getting things done.
+One-stop reference for how to do certain tasks.
 
 0.  Make / get rich test data:  This is done by using the app to make the data you want, then manually
     copy that entire user data collection into Test Resources.  The setup for each class can clear out
@@ -7,7 +7,7 @@ One-stop reference for how tests are getting things done.
     the development area data repo, under test.user@lcware.net.  Then later you can just run the app
     as that user, to see the effects of your test.  Be sure to run a full build after you've made
     changes to Test Resources; as part of the build they are picked up and moved to the 'out' directory,
-    the 'real' location for where resources come from.
+    which is the 'real' location for where resources come from.
 
 1.  Select a node on the main app 'tree':  instantiate an AppTreePanel, get its JTree with .getTree(), call
     setSelectionPath or setSelectionRow on it.  How you get the path or the row if you don't already know
@@ -55,10 +55,16 @@ One-stop reference for how tests are getting things done.
         LocalDateTime ldt = zdt.toLocalDateTime();
 
 13. Convert a long (like Date.getTime()) to LocalDateTime:
-    LocalDate ld = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDateTime ld = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault());
 
+14. Convert a long (like Date.getTime()) to LocalDate:
+    LocalDate ld = LocalDate.ofEpochDay(theLong);
 
+15. Convert a LocalDate (myLocalDate) to long:
+    long theLong = myLocalDate.toEpochDay();
 
+16. Get a long for a LocalDateTime:
+    long dl = LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset());
 
 
 

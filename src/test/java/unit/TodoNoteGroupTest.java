@@ -107,7 +107,6 @@ class TodoNoteGroupTest implements FileChooser {
         return new File(theFile);
     }
 
-
     @Test
     void testMerge() {
         // Just the coverage -

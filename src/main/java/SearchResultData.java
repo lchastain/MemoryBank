@@ -1,15 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.beans.Transient;
 import java.io.File;
-import java.io.Serializable;
-import java.util.Date;
 
-public class SearchResultData extends NoteData implements Serializable {
-    static final long serialVersionUID = 1L;
-
-    @JsonIgnore
-    private Date dateNoteWhen;  // Remove this after all data fixes.
+public class SearchResultData extends NoteData {
 
     private File fileFoundIn;
 

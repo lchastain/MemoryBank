@@ -1,40 +1,19 @@
-/****************************************************************/
-/*                      GoalPanel	                            */
-/*                                                              */
-/****************************************************************/
-
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-/**
- * Summary description for GoalPanel
- */
 public class GoalPanel extends JPanel {
-    private static final long serialVersionUID = -5407842171747841963L;
-
-    // Variables declaration
-    private JTextField txtfGoalText;
+    private static final long serialVersionUID = 1L;
     private JList<String> lstGoals;
-    private JScrollPane jspGoals;
-    private JTextArea txtaPlan;
-    private JScrollPane jspPlan;
-    private JButton jButton1;
-    private JButton jButton2;
-    private JButton jButton3;
-    private JPanel contentPane;
-    private JLabel jLabel1;
     // End of variables declaration
-
 
     public GoalPanel() {
         super();
         initializeComponent();
-
-        // reinitializeComponent();
-
         this.setVisible(true);
     }
 
@@ -48,16 +27,17 @@ public class GoalPanel extends JPanel {
     private void initializeComponent() {
         ArrayList<String> arr;
 
-        jLabel1 = new JLabel();
-        txtfGoalText = new JTextField();
-        lstGoals = new JList<String>();
-        jspGoals = new JScrollPane();
-        txtaPlan = new JTextArea();
-        jspPlan = new JScrollPane();
-        jButton1 = new JButton();
-        jButton2 = new JButton();
-        jButton3 = new JButton();
-        contentPane = this.getContentPane();
+        JLabel jLabel1 = new JLabel();
+        // Variables declaration
+        JTextField txtfGoalText = new JTextField();
+        lstGoals = new JList<>();
+        JScrollPane jspGoals = new JScrollPane();
+        JTextArea txtaPlan = new JTextArea();
+        JScrollPane jspPlan = new JScrollPane();
+        JButton jButton1 = new JButton();
+        JButton jButton2 = new JButton();
+        JButton jButton3 = new JButton();
+        JPanel contentPane = this.getContentPane();
 
         // 
         // jLabel1 

@@ -7,21 +7,16 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 // This class provides static utility methods that are needed by more than one client-class in the main app.
 // It makes more sense to collect them into one utility class, than to try to decide which user class
 // should house a given method while the other user classes then have to somehow get access to it.
 public class AppUtil {
-    private static GregorianCalendar calTemp;
     static ObjectMapper mapper = new ObjectMapper();
 
     private static Boolean blnGlobalArchive;
@@ -29,17 +24,6 @@ public class AppUtil {
 
     static {
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setDateFormatSymbols(new DateFormatSymbols());
-
-        calTemp = (GregorianCalendar) Calendar.getInstance();
-        // Note: getInstance at this time returns a Calendar that
-        // is actually a GregorianCalendar, but since the return
-        // type is Calendar, it must be cast in order to assign.
-
-        calTemp.setGregorianChange(new GregorianCalendar(1752, Calendar.SEPTEMBER,
-                14).getTime());
     } // end static
 
     // Copies src file to dst file.
@@ -671,6 +655,7 @@ public class AppUtil {
     // that were being returned by Calendar queries, now deprecated.
     // I put this in place as a temporary remediation along the way
     // to updating the app to new Java 8 date/time classes.
+    // TODO - refactor all usages of this method to use getDayOfWeek, remove this one.
     static int getDayOfWeekInt(LocalDate tmpDate) {
         switch (tmpDate.getDayOfWeek()) {
             case SUNDAY:

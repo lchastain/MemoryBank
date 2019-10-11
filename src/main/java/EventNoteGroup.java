@@ -461,7 +461,6 @@ public class EventNoteGroup extends NoteGroup
 
             // Show the previously selected date
             if (end.getStartDate() != null) {
-                tmc.setBaseDate(end.getStartDate());
                 tmc.setChoice(end.getStartDate());
             } // end if
 

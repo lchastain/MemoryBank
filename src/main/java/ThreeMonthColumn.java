@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.LocalDate;
+import java.time.Month;
 
 public class ThreeMonthColumn extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -34,6 +35,16 @@ public class ThreeMonthColumn extends JPanel {
     private LocalDate baseDate;
     private DateSelection twimc; // To Whom It May Concern - the subscriber.
 
+    static {
+        // Initialize month names.
+        monthNames = new String[]{"January", "February", "March",
+                "April", "May", "June", "July", "August", "September",
+                "October", "November", "December"};
+
+        // Initialize day of week names.
+        weekNames = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+    } // end static
+
     public ThreeMonthColumn() {
         super(new BorderLayout());
 
@@ -48,13 +59,6 @@ public class ThreeMonthColumn extends JPanel {
     } // end constructor
 
 
-
-    // Set the value of the 'middle' month.
-    void setBaseDate(LocalDate ld) {
-        baseDate = ld;
-        monthColumn.recalc();
-    } // end setBaseDate
-
     // Set the current choice.
     // Called internally after a up/down click, and from external.
     public void setChoice(LocalDate ld) {
@@ -64,10 +68,18 @@ public class ThreeMonthColumn extends JPanel {
                 dayLabel.reset();   // turn off current highlight
                 dayLabel = null;
             } // end if
-        } else {
-            // Turn on the highlight for the DayLabel matching ld -
-            monthColumn.showChoice(theChoice);
+            return;
         } // end if
+
+        int theYear = baseDate.getYear();
+        Month theMonth = baseDate.getMonth();
+        if (theYear != ld.getYear() || theMonth != ld.getMonth()) {
+            baseDate = ld;
+            monthColumn.recalc();
+        }
+
+        // Turn on the highlight for the DayLabel matching ld -
+        monthColumn.showChoice(theChoice);
     } // end setChoice
 
     void setSubscriber(DateSelection ds) {
@@ -108,10 +120,10 @@ public class ThreeMonthColumn extends JPanel {
         } // end recalc
 
         void showChoice(LocalDate ld) {
-            if(ld == null) return;
+            if (ld == null) return;
 
             int theYear = ld.getYear();
-            int theMonth = ld.getMonthValue() - 1;
+            int theMonth = ld.getMonthValue();
             int theDay = ld.getDayOfMonth();
 
             //---------------------------------------------------------------
@@ -119,17 +131,17 @@ public class ThreeMonthColumn extends JPanel {
             //---------------------------------------------------------------
             MonthCanvas mc = null;
             LocalDate searchDate = baseDate.minusMonths(1);
-            if(theYear == searchDate.getYear())
-                if (theMonth == searchDate.getMonthValue() - 1)
+            if (theYear == searchDate.getYear())
+                if (theMonth == searchDate.getMonthValue())
                     mc = (MonthCanvas) getComponent(0);
 
             if (theYear == baseDate.getYear())
-                if (theMonth == baseDate.getMonthValue() - 1)
+                if (theMonth == baseDate.getMonthValue())
                     mc = (MonthCanvas) getComponent(1);
 
             searchDate = baseDate.plusMonths(1);
-            if(theYear == searchDate.getYear())
-                if (theMonth == searchDate.getMonthValue() - 1)
+            if (theYear == searchDate.getYear())
+                if (theMonth == searchDate.getMonthValue())
                     mc = (MonthCanvas) getComponent(2);
             //---------------------------------------------------------------
 
@@ -155,11 +167,8 @@ public class ThreeMonthColumn extends JPanel {
         LabelButton downAb;
 
         MonthCanvas() {
-            // In this constructor we don't set any dates; the component is not
-            // intended to be displayed immediately upon construction.  Here, all
-            // we do is build the Panel and then you need to call setBaseDate()
-            // TODO - but setting choice and setting base always seem to be the
-            //   same; maybe need to do those here, after all.
+            // In this constructor we don't set any dates;
+            // Here, all we do is build the Panel.
             // The Month/Year label is at the CENTER of a BorderLayout JPanel.
             // In the EAST of that same JPanel is another JPanel
             // that contains the AlterButtons in their own FlowLayout.
@@ -359,7 +368,7 @@ public class ThreeMonthColumn extends JPanel {
         } // end reset
 
         public void setDay(LocalDate ld) {
-            if( ld == null) {
+            if (ld == null) {
                 myDate = null;
                 removeMouseListener(this);
                 setText("");
@@ -414,46 +423,6 @@ public class ThreeMonthColumn extends JPanel {
     public LocalDate getChoice() {
         return theChoice;
     } // end getChoice
-
-    static {
-        // Initialize month names.
-        monthNames = new String[]{"January", "February", "March",
-                "April", "May", "June", "July", "August", "September",
-                "October", "November", "December"};
-
-        // Initialize day of week names.
-        weekNames = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
-
-    } // end static
-
-//    public static void main(String[] args) {
-//        Frame dcFrame = new Frame("ThreeMonthColumn test");
-//        ThreeMonthColumn dc = new ThreeMonthColumn();
-//
-//        // Just as a test of the ability to initialize to a value -
-//        dc.setBaseDate(new GregorianCalendar(1999, 4, 12).getTime());
-//
-//        dcFrame.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent we) {
-//                System.exit(0);
-//            }
-//        });
-//
-//        // Needed to override the 'metal' L&F for Swing components.
-//        String laf = UIManager.getSystemLookAndFeelClassName();
-//        Exception e = null;
-//        try {
-//            UIManager.setLookAndFeel(laf);
-//        } catch (UnsupportedLookAndFeelException | InstantiationException | ClassNotFoundException | IllegalAccessException eeee) {
-//            e = eeee;
-//        }  // end try/catch
-//        if(e != null) System.out.println("Exception: " + e.getMessage());
-//        SwingUtilities.updateComponentTreeUI(dc);
-//
-//        dcFrame.add(dc);
-//        dcFrame.pack();
-//        dcFrame.setVisible(true);
-//    } // end main
 
 } // end class ThreeMonthColumn
 

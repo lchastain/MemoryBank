@@ -3,21 +3,23 @@
 //   the format of a time.
 //
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;            // Date
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class TimeFormatPanel extends JPanel implements ItemListener {
-    private static final long serialVersionUID = 9181129054094982937L;
+    private static final long serialVersionUID = 1L;
 
-    static TimeFormatBar tfb;
-    JCheckBox jcb1;
-    JCheckBox jcb2;
-    JCheckBox jcb3;
-    JCheckBox jcb4;
-    JCheckBox jcb5;
-    int visibility;
+    private static TimeFormatBar tfb;
+    private JCheckBox jcb1;
+    private JCheckBox jcb2;
+    private JCheckBox jcb3;
+    private JCheckBox jcb4;
+    private JCheckBox jcb5;
+    private int visibility;
 
     public TimeFormatPanel() {
         super(new BorderLayout());
@@ -66,7 +68,7 @@ public class TimeFormatPanel extends JPanel implements ItemListener {
         JCheckBox jcb = (JCheckBox) ie.getItem();
         int newState = ie.getStateChange();
         int adjust = (newState == ItemEvent.SELECTED) ? 1 : -1;
-        if (jcb == jcb1) visibility += adjust * 1;
+        if (jcb == jcb1) visibility += adjust;
         if (jcb == jcb2) visibility += adjust * 2;
         if (jcb == jcb3) visibility += adjust * 4;
         if (jcb == jcb4) visibility += adjust * 8;
@@ -75,7 +77,7 @@ public class TimeFormatPanel extends JPanel implements ItemListener {
         tfb.resetDateLabel();
     } // end itemStateChanged
 
-    public void setCheckBoxes() {
+    private void setCheckBoxes() {
         jcb1.removeItemListener(this);
         jcb2.removeItemListener(this);
         jcb3.removeItemListener(this);
@@ -102,18 +104,15 @@ public class TimeFormatPanel extends JPanel implements ItemListener {
         setCheckBoxes(); // Set checkboxes according to visibility.
     } // end setup
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
         String laf = UIManager.getSystemLookAndFeelClassName();
         try {
             UIManager.setLookAndFeel(laf);
-        } catch (UnsupportedLookAndFeelException ulafe) {
-        } catch (ClassNotFoundException cnfe) {
-        } catch (IllegalAccessException iae) {
-        } catch (InstantiationException ie) {
+        } catch (UnsupportedLookAndFeelException | InstantiationException | IllegalAccessException | ClassNotFoundException ignored) {
         }
 
         TimeFormatPanel dfp = new TimeFormatPanel();
-        long dl = new Date().getTime();
+        long dl = LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset());
         String df = "";
         dfp.setup(dl, df);
 

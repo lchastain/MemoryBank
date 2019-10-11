@@ -58,12 +58,12 @@ class TodoItemFocusTest {
         }
 
         // Put the focus on a note -
-        // Note that selecting this one WILL have an effect on the TMC, placing it's
+        // Note that selecting this one will have an effect on the TMC, placing it's
         // previously selected month in the center.
         todoNoteComponent4.setActive();
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(800);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -75,43 +75,31 @@ class TodoItemFocusTest {
         Assertions.assertTrue(todoNoteComponent4.hasFocus());
 
         // Now, make a new Date selection on the Three Month Column.
-        // Note that if the new selection month is not already visible you will probably not
-        // see any change here, since TMC scrolling while an item is selected is only done
-        // by the 'arrow' controls.  Programmatic setting of the Date like we do here is allowed
-        // but there is no need for a headless driver to 'see' the control scrolled to show
-        // the new month; just that the new selection was accepted.
-
-        // NOTE - I don't like the above comment.  It may be true but it would still be better to
-        // drive this test as closely as possible to how a user would take action and SEE the results.
-        // So I don't trust that the test methodology is capturing the true need, here. ie,
-        // the test SHOULD use the arrows, because those arrows could also take focus away from
-        //                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // We are changing the base date of the TMC by setting a new choice, but
+        // the test should probably use the arrows, because those arrows could also take focus away from
+        //                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // the todoItem (except that I have coded them NOT to).
         // For that, we need to set Dates that are a certain known and constant distance apart, cannot
         // just lazily use 'today' as the new selection date.
 
         // For now, this test works and --appears-- to fulfill the test requirement but the concept
-        // of 'focus' is difficult to ensure that it's really being exercised if we cannot also see the
-        // results, so to do that - ?? - maybe have known mouse coordinates, and use MouseEvents?
-        // Maybe - refactor the TMC, to expose 'adjustment' methods that the mouse actions also call.
-        //
+        // of 'focus' is difficult to ensure that it's really being exercised the same way a user would.
         LocalDate today = LocalDate.now();
-        todoNoteGroup.getThreeMonthColumn().setBaseDate(today); // Normally done by the TodoNoteGroup.
         todoNoteGroup.getThreeMonthColumn().setChoice(today); // Normally done by a mouse press.
         todoNoteGroup.dateSelected(today); // Normally the mousePressed would have done this for us.
 
         // Enable this when you want the result to stay longer.
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // Verify that we now have selected a different day on the TMC, but we still
         // have focus on the selected Todo item.
         LocalDate currentDateSelected = ((TodoNoteData) todoNoteComponent4.getNoteData()).getTodoDate();
         Assertions.assertNotSame(originalDateSelected, currentDateSelected);
-        Assertions.assertSame(today, currentDateSelected);
+        Assertions.assertTrue(currentDateSelected.isEqual(today));
         Assertions.assertTrue(todoNoteComponent4.hasFocus());
     }
 

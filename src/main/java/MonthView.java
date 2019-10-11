@@ -31,8 +31,6 @@ public class MonthView extends JLayeredPane {
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-20");
     private static Font noDataFont = Font.decode("Dialog-bold-16");
-    private static int visibleYear;
-    private static int visibleMonth;
     private static LocalDate displayedMonth;  // Of course it also holds a year and date
 
     // Variables needed by more than one method -
@@ -109,12 +107,12 @@ public class MonthView extends JLayeredPane {
             monthGrid.add(new DayCanvas());
         } // end for i
 
-        int initialYear = initial.getYear();
-        int initialMonth = initial.getMonthValue() - 1;
+//        int initialYear = initial.getYear();
+//        int initialMonth = initial.getMonthValue() - 1;
 
-        visibleYear = initialYear;
-        visibleMonth = initialMonth;
-        hasDataArray = AppUtil.findDataDays(visibleYear);
+//        visibleYear = initialYear;
+//        visibleMonth = initialMonth;
+//        hasDataArray = AppUtil.findDataDays(visibleYear);
 
         monthCanvas = new MonthCanvas();
         monthCanvas.setBorder(theBorder);
@@ -138,7 +136,7 @@ public class MonthView extends JLayeredPane {
         add(monthCanvas, new Integer(0));
         add(choiceLabel, new Integer(1));
 
-        setChoice(initial);
+        setChoice(initial); // The choice will not always be the displayedMonth.
     } // end constructor
 
 
@@ -216,7 +214,7 @@ public class MonthView extends JLayeredPane {
     public void setChoice(LocalDate theNewChoice) {
         // Was tempted (for better performance) to avoid the recalc, if the new choice was still on the same month
         // as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have been
-        // added to any given day of the visible month, and if we are not on the exact same day then the choice would
+        // added to any given day of this month, and if we are not on the exact same day then the choice would
         // also be wrong.  If we want to first check to see if a recalc-worthy change was made, then we would need to
         // add new flags in various places and that introduces more complexity to the feature, making it more fragile
         // and harder to maintain, with questionable improvement to performance when displaying any month with a lower
@@ -225,12 +223,14 @@ public class MonthView extends JLayeredPane {
         // Another point of streamlining could be to separate the 'drawing' of the month from icon overlays, day
         // highlighting and choice labeling, calling each one more discretely only as needed.
         activeDayCanvas.reset(); // Turn off any previous highlighting.
+
+        // Accept the new value (other than null)
         theChoice = theNewChoice;
-        visibleYear = MonthView.theChoice.getYear();
-        hasDataArray = AppUtil.findDataDays(visibleYear);
-        visibleMonth = theNewChoice.getMonthValue() - 1; // Adjusted (for now) to the old zero-based value.
-        displayedMonth = theNewChoice;
-        monthCanvas.recalc(); // only way to find the day object
+//        visibleYear = MonthView.theChoice.getYear();
+        hasDataArray = AppUtil.findDataDays(theChoice.getYear());
+//        visibleMonth = theNewChoice.getMonthValue() - 1; // Adjusted (for now) to the old zero-based value.
+        displayedMonth = theChoice;
+        monthCanvas.recalc(theChoice); // only way to find the day object
     } // end setChoice
 
     private void setLabelBounds() {
@@ -268,16 +268,18 @@ public class MonthView extends JLayeredPane {
                     String buttonText = source.getText();
 
                     activeDayCanvas.reset();     // turn off current choice highlight
+                    int currentYear = displayedMonth.getYear(); // Get this before we add/subtract
 
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
 
-                    visibleMonth = displayedMonth.getMonthValue() - 1;
-                    if (displayedMonth.getYear() != visibleYear) {
-                        visibleYear = displayedMonth.getYear();
-                        hasDataArray = AppUtil.findDataDays(visibleYear);
+//                    visibleMonth = displayedMonth.getMonthValue() - 1;
+                    // If we have scrolled into a new year, we need to update the 'hasData' info.
+                    if (currentYear != displayedMonth.getYear()) {
+//                        visibleYear = displayedMonth.getYear();
+                        hasDataArray = AppUtil.findDataDays(displayedMonth.getYear());
                     } // end if
-                    monthCanvas.recalc();
+                    monthCanvas.recalc(displayedMonth);
                 } // end mouseClicked
             };// end of new MouseAdapter
 
@@ -337,23 +339,22 @@ public class MonthView extends JLayeredPane {
             add(monthGrid, BorderLayout.CENTER);
         } // end constructor
 
-        public void recalc() {  // TODO This method can take a LocalDate, like YearView.  Then get rid of handoffs like visibleMonth.
+        public void recalc(LocalDate theDate) {
             DayCanvas tempDayCanvas;
             String labelText;
 
             // Generate new title with month and year.
-            labelText = monthNames[visibleMonth] + " " + visibleYear;
+            labelText = monthNames[theDate.getMonthValue() - 1] + " " + theDate.getYear();
             monthLabel.setText(labelText);
 
             // Get a temp date that we can advance a day at a time,
             //  both as a source for the DayCanvases below and for a rollover test.
             LocalDate tmpLocalDate = displayedMonth; // This gets us to the right year and month.
-            MemoryBank.debug("Initial calendar: " + dtf.format(displayedMonth));
+            MemoryBank.debug("Displayed Month: " + tmpLocalDate.getMonth() + " " + tmpLocalDate.getYear());
 
             // Get the day of the week of the first day.
             tmpLocalDate = tmpLocalDate.withDayOfMonth(1);
             int dayOfWeek = AppUtil.getDayOfWeekInt(tmpLocalDate); // my values; theirs suck.
-            // TODO maybe - refactor so we can just use tmpLocalDate.getDayOfWeek()
 
             boolean rollover = false;
 
@@ -388,7 +389,7 @@ public class MonthView extends JLayeredPane {
 
                 // Rollover test - if true, then this is the last day of this month.
                 tmpLocalDate = tmpLocalDate.plusDays(1);
-                if (visibleMonth != tmpLocalDate.getMonthValue() - 1) rollover = true;
+                if (displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
 
             } // end for i
         } // end recalc
@@ -412,7 +413,6 @@ public class MonthView extends JLayeredPane {
         private Spacer ssV, ssH;
         private JPanel dayGrid;
         private LocalDate myDate;
-        //private GregorianCalendar cal;
 
         DayCanvas() {
             super(new BorderLayout());
@@ -453,7 +453,6 @@ public class MonthView extends JLayeredPane {
             dayLabel.setFont(Font.decode("Dialog-bold-24"));
 
             choiceLabel.setText(dtf.format(theChoice) + " ");
-//            choiceLabel.setText(sdf.format(choice) + " ");
             MonthView.this.setLabelBounds(); // adjust the label.
         } // end highlight
 
@@ -470,15 +469,6 @@ public class MonthView extends JLayeredPane {
             bottomLine();
             rightLine();
         }
-
-//        public void setDay(GregorianCalendar cal) {
-//            this.cal = cal;
-//            update(cal);
-//            dayGrid.setVisible(true);
-//            bottomLine();
-//            rightLine();
-//        } // end setDay
-
 
         void bottomLine() {
             ssH.setColor(Color.black);
@@ -527,11 +517,11 @@ public class MonthView extends JLayeredPane {
             icon4.setImage(null);
             icon5.setImage(null);
 
-            if (hasDataArray[visibleMonth][thisDay - 1]) {
+            if (hasDataArray[displayedMonth.getMonthValue() - 1][thisDay - 1]) {
                 offFont = hasDataFont;
                 offColor = hasDataColor;
                 Image[] thisDayIcons =
-                        getIconArray(visibleYear, visibleMonth + 1, thisDay);
+                        getIconArray(displayedMonth.getYear(), displayedMonth.getMonthValue(), thisDay);
                 if (thisDayIcons != null) {
                     icon1.setImage(thisDayIcons[0]);
                     icon2.setImage(thisDayIcons[1]);
@@ -545,41 +535,7 @@ public class MonthView extends JLayeredPane {
             } // end if
             dayLabel.setFont(offFont);
             dayLabel.setForeground(offColor);
-
         } // end update
-
-//        public void update(Calendar cal) {
-//            int thisDay = cal.get(Calendar.DAY_OF_MONTH);
-//            dayLabel.setText(String.valueOf(thisDay));
-//            // System.out.println("DayCanvas update was called " +
-//            //     dayLabel.getText());
-//
-//            icon1.setImage(null);
-//            icon2.setImage(null);
-//            icon3.setImage(null);
-//            icon4.setImage(null);
-//            icon5.setImage(null);
-//
-//            if (hasDataArray[visibleMonth][thisDay - 1]) {
-//                offFont = hasDataFont;
-//                offColor = hasDataColor;
-//                Image[] thisDayIcons =
-//                        getIconArray(visibleYear, visibleMonth, thisDay);
-//                if (thisDayIcons != null) {
-//                    icon1.setImage(thisDayIcons[0]);
-//                    icon2.setImage(thisDayIcons[1]);
-//                    icon3.setImage(thisDayIcons[2]);
-//                    icon4.setImage(thisDayIcons[3]);
-//                    icon5.setImage(thisDayIcons[4]);
-//                } // end if
-//            } else {
-//                offFont = noDataFont;
-//                offColor = noDataColor;
-//            } // end if
-//            dayLabel.setFont(offFont);
-//            dayLabel.setForeground(offColor);
-//
-//        } // end update
     } // end class DayCanvas
 
 
