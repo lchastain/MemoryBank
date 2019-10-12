@@ -183,7 +183,7 @@ public class DayNoteComponent extends IconNoteComponent {
         } else if (newNoteData instanceof TodoNoteData) {
             setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData());
         } else if (newNoteData instanceof EventNoteData) {
-            setDayNoteData(((EventNoteData) newNoteData).getDayNoteData());
+            setDayNoteData(new DayNoteData((EventNoteData) newNoteData));
         } else {
             setDayNoteData(new DayNoteData(newNoteData));
         }

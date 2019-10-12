@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 
 class TodoItemFocusTest {
     private static TodoNoteGroup todoNoteGroup;
+    private static JFrame theFrame;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -35,12 +37,17 @@ class TodoItemFocusTest {
         MemoryBank.loadOpts();
 
         todoNoteGroup = new TodoNoteGroup("Get New Job");
-        JFrame theFrame = new JFrame("ItemFocusTest");
+        theFrame = new JFrame("ItemFocusTest");
         theFrame.setContentPane(todoNoteGroup);
         theFrame.pack();
         theFrame.setSize(new Dimension(800, 600));
         theFrame.setVisible(true);
         theFrame.setLocationRelativeTo(null); // Center
+    }
+
+    @AfterAll
+    static void teardown() {
+        theFrame.setVisible(false);
     }
 
     @Test

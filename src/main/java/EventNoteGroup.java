@@ -95,7 +95,6 @@ public class EventNoteGroup extends NoteGroup
         EventNoteData tempNoteData;
 
         // AppUtil.localDebug(true);
-
         for (NoteData ndTmp : vectGroupData) {
             blnDropThisEvent = false;
             tempNoteData = (EventNoteData) ndTmp;
@@ -105,9 +104,9 @@ public class EventNoteGroup extends NoteGroup
 
             // 'Age' the event, if appropriate to do so.
             while (tempNoteData.hasStarted()) {
-                if (tempNoteData.getRetainNote() && !tempNoteData.movedToDay) {
+                if (tempNoteData.getRetainNote()) {
                     // We save this version of the event.
-                    DayNoteData dnd = tempNoteData.getDayNoteData();
+                    DayNoteData dnd = new DayNoteData(tempNoteData);
                     String theFilename;
                     LocalDateTime ansr = tempNoteData.getEventStartDateTime();
 
@@ -127,25 +126,24 @@ public class EventNoteGroup extends NoteGroup
                     if (success) {
                         DayNoteGroup.blnNoteAdded = true;
                         MemoryBank.debug("  Retention of Event data succeeded");
-                        tempNoteData.movedToDay = true;
                     } else {
                         MemoryBank.debug("  Retention of Event data failed");
                     } // end if
                 } // end if retain note
 
                 // Now adjust forward in time -
-                if (tempNoteData.getRecurrenceString().trim().equals("")) {
+                if (tempNoteData.getRecurrenceString().trim().equals("")) { // No recurrence
                     blnDropThisEvent = true;
                     break; // get out of the while loop
-                } else {
+                } else {  // There is recurrence
                     if (!tempNoteData.goForward()) {
-                        // goForward also handles a recurrence of "", but the debug
-                        //   statement below is out of place in that case.
+                        // It might not have moved at all, or not enough to get past 'today'.
                         MemoryBank.dbg("  The final ocurrence is still in the past.");
                         blnDropThisEvent = true;
                         break; // get out of the while loop
                     } else {
                         MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
+                        setGroupChanged(); // Force a group save.
                     } // end if
                 } // end if
             } // end while the event Start date is in the past
@@ -160,7 +158,7 @@ public class EventNoteGroup extends NoteGroup
 
         //  Just clearing DATA (above) does not set noteChanged (nor should it,
         //    because that data may not even be loaded into a component).
-        //  So, if we can't go that route to a groupChanged, just do it explicitly.
+        //  So since we can't go that route to a groupChanged, just do it explicitly.
         if (blnAnEventWasAgedOff) setGroupChanged();
         // AppUtil.localDebug(false);
         return blnAnEventWasAgedOff;

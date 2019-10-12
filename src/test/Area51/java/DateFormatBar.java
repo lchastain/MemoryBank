@@ -58,7 +58,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     private boolean beenMoved;
 
-    public DateFormatBar() {
+    DateFormatBar() {
         super();
 
         al = new popHandler();
@@ -167,7 +167,7 @@ public class DateFormatBar extends Container implements ClingSource {
     // There are seven possible columnns, in any order.
     //   This function returns a String that describes
     //   the order and visibility of columns in the header.
-    public String getColumnOrder() {
+    private String getColumnOrder() {
         HeaderButton hb;
         StringBuilder returnString = new StringBuilder();
         for (int i = 0; i < 6; i++) {
@@ -185,7 +185,7 @@ public class DateFormatBar extends Container implements ClingSource {
         return returnString.toString();
     } // end getColumnOrder
 
-    public long getDate() {
+    long getDate() {
         // System.out.println("theDate = " + theDate);
         return theDate.toInstant().getEpochSecond();
     } // end getDate
@@ -233,13 +233,13 @@ public class DateFormatBar extends Container implements ClingSource {
   } // end getRealFormat
 */
 
-    public String getDefault() {
+    private String getDefault() {
         return "1346|EEEE', '|MMMM' '|d' '|yyyy"; // 1346
     } // end getDefault
 
     // Given the known configuration of the initialFormat string,
     //   parse out and return the requested element.
-    private String getSeparatorFromFormat(int i, boolean trim) {
+    private String getSeparatorFromFormat(int i) {
         String s = getOrderFromFormat();  // String may contain "134567"
         int numFields = s.length();
         String theField = "";
@@ -262,7 +262,6 @@ public class DateFormatBar extends Container implements ClingSource {
         if (sspos == -1) return "";
 
         String theSeparator = theField.substring(sspos);
-        if (!trim) return theSeparator;
 
         // Trim of the single quotes.
         theSeparator = theSeparator.substring(1);
@@ -272,7 +271,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     // Construct a format string based on the current configuration
     //   of the interface.
-    public String getFormat() {
+    String getFormat() {
         StringBuilder s;
         String order = getColumnOrder();
         s = new StringBuilder(order);
@@ -340,7 +339,7 @@ public class DateFormatBar extends Container implements ClingSource {
         return d;
     } // end getPreferredSize
 
-    public int getVisibilityFromFormat() {
+    int getVisibilityFromFormat() {
         int visibility = 0;
 
         String posString = getOrderFromFormat();
@@ -361,7 +360,7 @@ public class DateFormatBar extends Container implements ClingSource {
     } // end getVisibilityFromFormat
 
     // The date label needs to be re-calculated due to UI changes.
-    public void resetDateLabel() {
+    void resetDateLabel() {
         theDateLabel.setText(FormatUtil.getDateString(getDate(), getFormat()));
     } // end resetDateLabel
 
@@ -376,7 +375,7 @@ public class DateFormatBar extends Container implements ClingSource {
         jrbmi = (JRadioButtonMenuItem) pop1.getComponent(3);
         if (s.equals("E")) jrbmi = (JRadioButtonMenuItem) pop1.getComponent(2);
         jrbmi.setSelected(true);
-        hb1.setSeparator(getSeparatorFromFormat(1, true));
+        hb1.setSeparator(getSeparatorFromFormat(1));
         fb1.setFormat(s);
 
         s = FormatUtil.getFieldFromFormat(3, initialFormat); // Month format
@@ -386,7 +385,7 @@ public class DateFormatBar extends Container implements ClingSource {
         if (s.equals("MM")) jrbmi = (JRadioButtonMenuItem) pop3.getComponent(3);
         if (s.equals("MMM")) jrbmi = (JRadioButtonMenuItem) pop3.getComponent(4);
         jrbmi.setSelected(true);
-        hb3.setSeparator(getSeparatorFromFormat(3, true));
+        hb3.setSeparator(getSeparatorFromFormat(3));
         fb3.setFormat(s);
 
         s = FormatUtil.getFieldFromFormat(4, initialFormat); // Date format
@@ -394,7 +393,7 @@ public class DateFormatBar extends Container implements ClingSource {
         jrbmi = (JRadioButtonMenuItem) pop4.getComponent(2);
         if (s.equals("dd")) jrbmi = (JRadioButtonMenuItem) pop4.getComponent(3);
         jrbmi.setSelected(true);
-        hb4.setSeparator(getSeparatorFromFormat(4, true));
+        hb4.setSeparator(getSeparatorFromFormat(4));
         fb4.setFormat(s);
 
         s = FormatUtil.getFieldFromFormat(5, initialFormat); // Time format
@@ -407,16 +406,16 @@ public class DateFormatBar extends Container implements ClingSource {
         jrbmi = (JRadioButtonMenuItem) pop6.getComponent(3);
         if (s.equals("yy")) jrbmi = (JRadioButtonMenuItem) pop6.getComponent(2);
         jrbmi.setSelected(true);
-        hb6.setSeparator(getSeparatorFromFormat(6, true));
+        hb6.setSeparator(getSeparatorFromFormat(6));
         fb6.setFormat(s);
 
         s = FormatUtil.getFieldFromFormat(7, initialFormat); // Era format
         if (s.equals("")) s = "G";
-        hb7.setSeparator(getSeparatorFromFormat(7, true));
+        hb7.setSeparator(getSeparatorFromFormat(7));
         fb7.setFormat(s);
     } // end setHeadersAndFields
 
-    public void setOrder(String s) {
+    private void setOrder(String s) {
         if (s.equals("")) return;
         // System.out.println("Setting order: " + s);
         int numFields = s.length();
@@ -497,7 +496,7 @@ public class DateFormatBar extends Container implements ClingSource {
 
     } // end setup
 
-    public void setVisibility(int v) {
+    void setVisibility(int v) {
         // System.out.println("setVisibility: " + v);
         hb1.setVisible((v & 1) != 0);  // Day
         hb3.setVisible((v & 4) != 0);  // Month
@@ -560,7 +559,7 @@ public class DateFormatBar extends Container implements ClingSource {
             return newSep;
         } // end getViewableSeparator
 
-        public void setSeparator(String s) {
+        void setSeparator(String s) {
             // See explanation in same method of TimeFormatBar$HeaderButton.
             String newSep = s;
 
@@ -599,11 +598,11 @@ public class DateFormatBar extends Container implements ClingSource {
             return d;
         } // end getPreferredSize
 
-        public String getFormat() {
+        String getFormat() {
             return format;
         }
 
-        public void setFormat(String s) {
+        void setFormat(String s) {
             format = s;
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format).withZone(TimeZone.getDefault().toZoneId());
             setText(dtf.format(theDate));

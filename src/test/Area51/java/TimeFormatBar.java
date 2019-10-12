@@ -84,7 +84,7 @@ public class TimeFormatBar extends Container implements ClingSource {
         pop5 = new DfbHeaderPopup(choices);
     } // end static
 
-    public TimeFormatBar() {
+    TimeFormatBar() {
         super();
         setLayout(new GridLayout(0, 1, 0, 0));
 
@@ -145,14 +145,14 @@ public class TimeFormatBar extends Container implements ClingSource {
         add(theDateLabel);
     } // end constructor
 
-    public static String getDefault() {
+    private static String getDefault() {
         return "124!h':'!mm' '!a' '";
     } // end getDefault
 
     // There are five possible columnns, in any order.
     //   This function returns a String that describes
     //   the order and visibility of columns in the header.
-    public String getColumnOrder() {
+    private String getColumnOrder() {
         HeaderButton hb;
         StringBuilder returnString = new StringBuilder();
         for (int i = 0; i < 5; i++) {
@@ -169,11 +169,11 @@ public class TimeFormatBar extends Container implements ClingSource {
         return returnString.toString();
     } // end getColumnOrder
 
-    public long getDate() {
+    long getDate() {
         return theDateTime.toInstant().getEpochSecond();
     } // end getDate
 
-    public static String getDateString(long theDate, String theFormat) {
+    static String getDateString(long theDate, String theFormat) {
         ZonedDateTime d = Instant.ofEpochMilli(theDate).atZone(ZoneId.systemDefault());
         String s = getRealFormat(theFormat);
         dtf = DateTimeFormatter.ofPattern(s).withZone(ZoneId.systemDefault());
@@ -183,7 +183,7 @@ public class TimeFormatBar extends Container implements ClingSource {
 
     // Here is where the format is interpreted.
     // why do we have one here and another in FormatUtil, that calls this one?  This needs consolidation.
-    public static String getRealFormat(String theFormat) {
+    static String getRealFormat(String theFormat) {
         // System.out.println("Format parsing: [" + theFormat + "]");
         if (theFormat.equals("")) return "";  // never been set
         if (theFormat.equals("0")) return ""; // explicitly set to ""
@@ -258,7 +258,7 @@ public class TimeFormatBar extends Container implements ClingSource {
 
     // Construct a format string based on the current configuration
     //   of the interface.
-    public String getFormat() {
+    String getFormat() {
         StringBuilder s;
         String order = getColumnOrder();
         s = new StringBuilder(order);
@@ -320,7 +320,7 @@ public class TimeFormatBar extends Container implements ClingSource {
         return d;
     } // end getPreferredSize
 
-    public int getVisibilityFromFormat() {
+    int getVisibilityFromFormat() {
         int visibility = 0;
 
         String posString = getOrderFromFormat();
@@ -334,7 +334,7 @@ public class TimeFormatBar extends Container implements ClingSource {
     } // end getVisibilityFromFormat
 
     // The date label needs to be re-calculated due to UI changes.
-    public void resetDateLabel() {
+    void resetDateLabel() {
         theDateLabel.setText(getDateString(getDate(), getFormat()));
     } // end resetDateLabel
 
@@ -379,7 +379,7 @@ public class TimeFormatBar extends Container implements ClingSource {
 
     } // end setHeadersAndFields
 
-    public void setOrder(String s) {
+    private void setOrder(String s) {
         if (s.equals("")) return;
         // System.out.println("Setting order: " + s);
         int numFields = s.length();
@@ -452,7 +452,7 @@ public class TimeFormatBar extends Container implements ClingSource {
         resetDateLabel();
     } // end setup
 
-    public void setVisibility(int v) {
+    void setVisibility(int v) {
         hb1.setVisible((v & 1) != 0);
         hb2.setVisible((v & 2) != 0);
         hb3.setVisible((v & 4) != 0);
@@ -505,7 +505,7 @@ public class TimeFormatBar extends Container implements ClingSource {
             return d;
         } // end getPreferredSize
 
-        public String getSeparator() {
+        String getSeparator() {
             return separatorString;
         } // end getSeparator
 
@@ -518,7 +518,7 @@ public class TimeFormatBar extends Container implements ClingSource {
             return newSep;
         } // end getViewableSeparator
 
-        public void setSeparator(String s) {
+        void setSeparator(String s) {
             // There are four illegal characters in a separator string -
             //   the single quote, double quote, exclamation point, and
             //   the vertical bar.  These are all delimiters in the overall
@@ -590,11 +590,11 @@ public class TimeFormatBar extends Container implements ClingSource {
             return d;
         } // end getPreferredSize
 
-        public String getFormat() {
+        String getFormat() {
             return format;
         }
 
-        public void setFormat(String s) {
+        void setFormat(String s) {
             if(theDateTime == null) return;
             format = s;
             dtf = DateTimeFormatter.ofPattern(format);
@@ -610,7 +610,7 @@ public class TimeFormatBar extends Container implements ClingSource {
     } // end class FieldLabel
 
     public Vector<JComponent> getClingons(Component comp) {
-        Vector<JComponent> ClingOns = new Vector<JComponent>(1, 1);
+        Vector<JComponent> ClingOns = new Vector<>(1, 1);
         if (comp == hb1) ClingOns.addElement(fb1);
         if (comp == hb2) ClingOns.addElement(fb2);
         if (comp == hb3) ClingOns.addElement(fb3);

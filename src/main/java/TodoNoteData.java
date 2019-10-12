@@ -1,10 +1,7 @@
 import java.io.File;
-import java.io.Serializable;
 import java.time.LocalDate;
 
-public class TodoNoteData extends NoteData implements Serializable {
-    static final long serialVersionUID = 1L;
-
+public class TodoNoteData extends NoteData {
     static final int TODO_STARTED = 0;
     static final int TODO_COMPLETED = 1;
     static final int TODO_INPROG = 2;

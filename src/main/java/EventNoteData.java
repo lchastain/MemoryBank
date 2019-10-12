@@ -28,17 +28,13 @@ public class EventNoteData extends IconNoteData {
     private boolean blnRetainNote;
     private Long lngDurationValue;
 
-    transient boolean movedToDay;  // prevents dups.
-
     private static DateTimeFormatter dtf;
-
 
     private static transient boolean blnSettingDuration = false;
     private transient String strDurationUnits;
 
     public EventNoteData() {
         super();
-        movedToDay = false;
         clearEventNoteData();
     } // end constructor
 
@@ -403,7 +399,8 @@ public class EventNoteData extends IconNoteData {
     //   more recurrence at all.
     //------------------------------------------------------
     boolean goForward() {
-        if (recurrenceString.equals("")) return false;
+        if (recurrenceString == null) return false;
+        if (recurrenceString.trim().equals("")) return false;
 
         // Unlikely that this method was even called in this
         //   case, but test it to be sure since we're using
@@ -490,7 +487,9 @@ public class EventNoteData extends IconNoteData {
         } // end if
 
         // Examine our Recurrence Range End
-        if (!recurrenceString.endsWith("_")) {
+        if (recurrenceString.endsWith("_")) { // recurrence goes on indefinitely
+            setEndDate(null); // This shouldn't be needed, but no harm in idiot-proofing.
+        } else {  // otherwise there IS an end to it
             String strRecurEnd;
             strRecurEnd = recurrenceString.substring(intUnderscore2 + 1);
             if (strRecurEnd.length() < 4) {
@@ -505,30 +504,28 @@ public class EventNoteData extends IconNoteData {
                     //   for next time but we still goForward.
                     recurrenceString = "";
                 } // end if there will be more
-            } else {                       // Stop By
-//                sdf.applyPattern("yyyyMMdd");
+            } else {              // Stop By
                 dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
                 try {
-//                    Date d = sdf.parse(strRecurEnd);
                     LocalDate d = LocalDate.parse(strRecurEnd, dtf);
-//                    if (d.before(calTmp.getTime())) return false;
                     if (d.isBefore(futureDate)) return false;
                 } catch (Exception ignored) {
                 }
             } // end if/else - Stop    After or By
         } // end if there is an end recurrence range
 
-        // Preserve the value from calTmp from unintended changes
-        //   that the other 'set' methods will make.
-//        Date dateTheNewStart = calTmp.getTime();
-        // ^^^ not needed; it is immutable.
+        // Various sections above have calculated the appropriate new
+        // date to which to set the Start.  Now - use it.
 
+        // Preserve the recurrence from being wiped by setStartDate().
         String strKeepRecurrence = recurrenceString;
-        // System.out.println("  Adjusting start date to: " + dateTheNewStart);
-        setEndDate(null);
-//        setStartDate(dateTheNewStart);
+
+        // Adjust to the new (later) Start Date.
+        MemoryBank.debug("  Adjusting start date to: " + futureDate);
         setStartDate(futureDate);
         if (lngTheDuration != null) setDuration(lngTheDuration);
+
+        // Restore the recurrence string.
         recurrenceString = strKeepRecurrence;
 
         return true;
@@ -757,38 +754,12 @@ public class EventNoteData extends IconNoteData {
     //   in the 'time' field, in this case it must, in order for
     //   NoteGroup.addNote to place it in the correct file.
     //----------------------------------------------------------------
-    @JsonIgnore
-    public DayNoteData getDayNoteData() {
-        DayNoteData dnd = new DayNoteData(this);
-//        Instant instant = Instant.ofEpochMilli(this.getStartTime().getTime()); // This COULD be supposed to be END time.
-        // TODO - use the 'movedToDay' flag here.
-//        LocalTime ansr = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
-        LocalTime ansr = this.getStartTime();
-        dnd.setTimeOfDayString(ansr.toString());
-        dnd.setSubjectString("Event");
-
-        // Insert the Event category (if there is one) into
-        //   the extended note.
-        String s = this.extendedNoteString;
-        if (this.subjectString != null) {
-            s = this.subjectString + "\n" + s;
-        } // end if
-
-        // And append the location, if there is one.
-        if (!this.locationString.trim().equals("")) {
-            s += "\nLocation: " + this.locationString;
-        } // end if
-        dnd.setExtendedNoteString(s);
-
-        movedToDay = true;
-        return dnd;
-    } // end getDayNoteData
 
 
     //---------------------------------------------------------
     // Method Name: hasStarted
     //
-    // Compares the known Event start to the current time.
+    // Returns true if the Event start is known and earlier than the current time.
     //---------------------------------------------------------
     boolean hasStarted() {
         if (getStartDate() == null) return false;

@@ -22,7 +22,7 @@ public class PlafSelectionPanel extends JPanel implements ActionListener {
         String currentLaf = UIManager.getLookAndFeel().getName();
 
         bg = new ButtonGroup();
-        hm = new HashMap<String, String>();
+        hm = new HashMap<>();
         setLayout(new GridLayout(0, 1));
 
         for (UIManager.LookAndFeelInfo lafi : lafiArray) {

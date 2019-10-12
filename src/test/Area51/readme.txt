@@ -4,6 +4,5 @@ Where some classes previously had a 'main', the main was removed from them and r
 as a mechanism to continue allow running them stand-alone while improving test coverage percentages.
 
 Use the context menu of the 'java' directory - 'Mark Directory as' :
-  'Sources Root', to enable / run the classes here.
-  'Unmark as Sources Root', prior to running tests to collect coverage.
+  'Test Sources Root', to enable / run the classes here without affecting coverage.
 

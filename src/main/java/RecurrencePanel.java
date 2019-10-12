@@ -328,6 +328,13 @@ public class RecurrencePanel extends JPanel implements
         return dateTheEndDate;
     } // end getEndDateAfterMonths
 
+    // Needed to avoid possible NumberFormatExceptions
+    private int getIntFromTextField(JTextField jtf) {
+        String s = jtf.getText();
+        if (s == null) return 0;
+        s = s.trim();
+        return Integer.parseInt(s);
+    }
 
     public Dimension getMinimumSize() {
         return new Dimension(intPreferredWidth, intPreferredHeight);
@@ -753,14 +760,19 @@ public class RecurrencePanel extends JPanel implements
         // Week interval
         if (rbtnWeek.isSelected()) {
             strTmp = txtfWeekInterval.getText();
-            if (strTmp.equals("")) {
-                // System.out.println("Week interval is empty");
+            if (strTmp == null) {
                 blnIsIt = false;
             } else {
-                // System.out.println("Week interval: " + strTmp);
-                intInterval = Integer.parseInt(strTmp);
-                if (intInterval == 0) blnIsIt = false;
-            } // end if empty input
+                strTmp = strTmp.trim();
+                if (strTmp.equals("")) {
+                    // System.out.println("Week interval is empty");
+                    blnIsIt = false;
+                } else {
+                    // System.out.println("Week interval: " + strTmp);
+                    intInterval = Integer.parseInt(strTmp);
+                    if (intInterval == 0) blnIsIt = false;
+                } // end if empty input
+            }
         } // end if Week
 
         // Month interval
@@ -799,8 +811,8 @@ public class RecurrencePanel extends JPanel implements
 
     static boolean isWeekday(LocalDate theDay) {
         boolean result = true;
-        if(theDay.getDayOfWeek() == DayOfWeek.SATURDAY) result = false;
-        if(theDay.getDayOfWeek() == DayOfWeek.SUNDAY) result = false;
+        if (theDay.getDayOfWeek() == DayOfWeek.SATURDAY) result = false;
+        if (theDay.getDayOfWeek() == DayOfWeek.SUNDAY) result = false;
 
         return result;
     } // end isWeekday
@@ -854,19 +866,9 @@ public class RecurrencePanel extends JPanel implements
             return; // Do not End
         } // end if
 
-        int intInterval;
-        String strTmp;
-
         if (rbtnStopAfter.isSelected()) {
-            strTmp = txtfStopAfter.getText();
-            if (strTmp.equals("")) {
-                // System.out.println("Stop After is empty");
-                return; // Stop After not specified
-            } else {
-                // System.out.println("Stop After: " + strTmp);
-                intStopAfter = Integer.parseInt(strTmp);
-                if (intStopAfter == 0) return;
-            }
+            intStopAfter = getIntFromTextField(txtfStopAfter);
+            if (intStopAfter == 0) return;
         } // end if
 
         if (rbtnStopBy.isSelected()) {
@@ -884,35 +886,16 @@ public class RecurrencePanel extends JPanel implements
         // If we've made it past the check above, we can proceed
         //   as though the info we need to work with is available.
 
-        // Day interval
-        if (rbtnDay.isSelected()) {
-            strTmp = txtfDayInterval.getText();
-            // System.out.println("Day interval: " + strTmp);
-            intInterval = Integer.parseInt(strTmp);
-            recalcEndByDay(intInterval);
-        } // end if Day
-
-        // Week interval
-        if (rbtnWeek.isSelected()) {
-            strTmp = txtfWeekInterval.getText();
-            // System.out.println("Week interval: " + strTmp);
-            intInterval = Integer.parseInt(strTmp);
-            recalcEndByWeek(intInterval);
-        } // end if Week
-
-        // Month interval
-        if (rbtnMonth.isSelected()) {
-            strTmp = txtfMonthInterval.getText();
-            // System.out.println("Month interval: " + strTmp);
-            intInterval = Integer.parseInt(strTmp);
-            strTmp = (String) comboxMonth.getSelectedItem();
+        if (rbtnDay.isSelected()) {  // Day interval
+            recalcEndByDay(getIntFromTextField(txtfDayInterval));
+        } else if (rbtnWeek.isSelected()) {  // Week interval
+            recalcEndByWeek(getIntFromTextField(txtfWeekInterval));
+        } else if (rbtnMonth.isSelected()) { // Month interval
+            String strTmp = (String) comboxMonth.getSelectedItem();
             // System.out.println("Monthly pattern: " + strTmp);
-            recalcEndByMonth(intInterval, strTmp);
-        } // end if Month
-
-        // Year interval
-        if (rbtnYear.isSelected()) {
-            strTmp = (String) comboxYear.getSelectedItem();
+            recalcEndByMonth(getIntFromTextField(txtfMonthInterval), strTmp);
+        } else if (rbtnYear.isSelected()) { // Year interval
+            String strTmp = (String) comboxYear.getSelectedItem();
             // System.out.println("Yearly pattern: " + strTmp);
             recalcEndByMonth(12, strTmp);
         } // end if Year
@@ -1270,7 +1253,7 @@ public class RecurrencePanel extends JPanel implements
         // Go modal -
         tempwin.setVisible(true);
 
-        dateStopBy =yvDateChooser.getChoice();
+        dateStopBy = yvDateChooser.getChoice();
         recalcEnd();
     } // end setStopBy
 
@@ -1471,11 +1454,11 @@ public class RecurrencePanel extends JPanel implements
 //                        calTmp.add(Calendar.DATE, -1);
                         tmpDate = tmpDate.minusDays(1);
 //                        if (calTmp.get(Calendar.MONTH) == intMonth) {
-                            if (tmpDate.getMonthValue() - 1 == intMonth) {
+                        if (tmpDate.getMonthValue() - 1 == intMonth) {
 //                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) intOffset++;
 //                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) intOffset++;
-                                if (tmpDate.getDayOfWeek() == DayOfWeek.SATURDAY) intOffset++;
-                                if (tmpDate.getDayOfWeek() == DayOfWeek.SUNDAY) intOffset++;
+                            if (tmpDate.getDayOfWeek() == DayOfWeek.SATURDAY) intOffset++;
+                            if (tmpDate.getDayOfWeek() == DayOfWeek.SUNDAY) intOffset++;
                         } // end if
 //                    } while (calTmp.get(Calendar.MONTH) == intMonth);
                     } while (tmpDate.getMonthValue() - 1 == intMonth);
@@ -1635,8 +1618,7 @@ public class RecurrencePanel extends JPanel implements
                 try {
                     dateStopBy = LocalDate.parse(strRecurEnd, dtf);
                     rbtnStopBy.setSelected(true);
-                } catch (Exception pe)
-                {
+                } catch (Exception pe) {
                     System.out.println("Exception: " + pe.getMessage());
                 }
             }
