@@ -91,12 +91,26 @@ public class EventNoteData extends IconNoteData {
         return new EventNoteData(this);
     }
 
+    String getDurationUnits() {
+        if (strDurationUnits == null) {
+            // This can happen when an EventNoteData is loaded as opposed
+            //   to construction by user-direction and setting the individual
+            //   members in order.  In that case the transient values like
+            //   strDurationUnits will not have been initialized.
+            blnSettingDuration = true;
+            recalcDuration();
+            blnSettingDuration = false;
+        } // end if
+
+        return strDurationUnits;
+    } // end getDurationUnits
+
     Long getDurationValue() {
         if (strDurationUnits == null) {
-            // This can happen when an EventNoteData is loaded via
-            //   serialization, as opposed to construction and
-            //   setting the individual members.  In that case
-            //   the transient values will not have been initialized.
+            // This can happen when an EventNoteData is loaded as opposed
+            //   to construction by user-direction and setting the individual
+            //   members in order.  In that case the transient values like
+            //   strDurationUnits will not have been initialized.
             blnSettingDuration = true;
             recalcDuration();
             blnSettingDuration = false;
@@ -105,20 +119,6 @@ public class EventNoteData extends IconNoteData {
         return lngDurationValue;
     } // end getDurationValue
 
-
-    String getDurationUnits() {
-        if (strDurationUnits == null) {
-            // This can happen when an EventNoteData is loaded via
-            //   serialization, as opposed to construction and
-            //   setting the individual members.  In that case
-            //   the transient values will not have been initialized.
-            blnSettingDuration = true;
-            recalcDuration();
-            blnSettingDuration = false;
-        } // end if
-
-        return strDurationUnits;
-    } // end getDurationUnits
 
     LocalDate getEndDate() {
         if (eventEndDateString == null) return null;
@@ -357,7 +357,6 @@ public class EventNoteData extends IconNoteData {
         LocalDate theEndDate = getEndDate();
         if (theEndDate != null) {
             if (!isEndSameDay()) {
-//                strTheSummary += "It ends on " + sdf.format(dateEventEnd);
                 strTheSummary += "It ends on " + dtf.format(theEndDate);
                 strTheSummary += ".&nbsp; &nbsp;";
             }
@@ -387,11 +386,7 @@ public class EventNoteData extends IconNoteData {
     //   recurrence 'stop after' setting, if it has one) and
     //   return true, or it will find that the recurrence
     //   setting and/or range does not allow it, in which
-    //   case it will return a false.  Since the call to
-    //   this method is only made while loading, if we
-    //   return a false then we do not need to make any
-    //   other settings because the loader will not keep
-    //   the data anyway.
+    //   case it will return a false.
     //
     // In considering the 'Stop After' count, we do not need
     //   to refuse to goForward if the count is down to one
@@ -446,10 +441,8 @@ public class EventNoteData extends IconNoteData {
                 // If we are at the end of the week, jump the
                 //   interval before we add another day.
                 // ok, doing that, but why?  need better comment here.
-//                intTmp = calTmp.get(Calendar.DAY_OF_WEEK);
                 intTmp = AppUtil.getDayOfWeekInt(futureDate);
                 if (intTmp == SATURDAY) {
-//                    if (intTheInterval > 1) calTmp.add(Calendar.DATE, 7 * (intTheInterval - 1));
                     if (intTheInterval > 1) futureDate = futureDate.plusDays(7 * (intTheInterval - 1));
                 } // end if
 
@@ -487,9 +480,7 @@ public class EventNoteData extends IconNoteData {
         } // end if
 
         // Examine our Recurrence Range End
-        if (recurrenceString.endsWith("_")) { // recurrence goes on indefinitely
-            setEndDate(null); // This shouldn't be needed, but no harm in idiot-proofing.
-        } else {  // otherwise there IS an end to it
+        if (!recurrenceString.endsWith("_")) { // recurrence has an end; does not go on indefinitely.
             String strRecurEnd;
             strRecurEnd = recurrenceString.substring(intUnderscore2 + 1);
             if (strRecurEnd.length() < 4) {

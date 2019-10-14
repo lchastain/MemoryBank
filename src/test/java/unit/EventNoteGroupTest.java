@@ -59,13 +59,12 @@ class EventNoteGroupTest {
         Assertions.assertNotNull(theFileName);
     }
 
-//    @Test
-//    // TODO - need to get a data file with at least 3 items...
-//    void testEditExtendedNoteComponent() {
-//        EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroup.getNoteComponent(2);
-//        EventNoteData eventNoteData = (EventNoteData) eventNoteComponent.getNoteData();
-//        eventNoteGroup.editExtendedNoteComponent(eventNoteData);
-//    }
+    @Test
+    void testEditExtendedNoteComponent() {
+        EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroup.getNoteComponent(2);
+        EventNoteData eventNoteData = (EventNoteData) eventNoteComponent.getNoteData();
+        eventNoteGroup.editExtendedNoteComponent(eventNoteData);
+    }
 
     @Test
     void testRefresh() {

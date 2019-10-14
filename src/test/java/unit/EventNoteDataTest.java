@@ -1,13 +1,22 @@
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDate;
 
 class EventNoteDataTest {
+    private EventNoteData testEventNoteData;
 
     @BeforeEach
     void setUp() {
+        testEventNoteData = new EventNoteData();
+        testEventNoteData.setStartDate(LocalDate.of(2018, 10, 31));
+        testEventNoteData.setNoteString("Halloween");
+        testEventNoteData.setRecurrence("Y_the 31st of October_");
+        testEventNoteData.setRetainNote(true);
+        testEventNoteData.setIconFileString("icons/smiley2_pumpkin.gif");
+
     }
 
     @AfterEach
@@ -16,22 +25,27 @@ class EventNoteDataTest {
 
     @Test
     void testClear() {
+        Assertions.assertEquals("Halloween", testEventNoteData.getNoteString());
+        testEventNoteData.clear();
+        Assertions.assertEquals("", testEventNoteData.getNoteString());
     }
 
     @Test
     void testCopy() {
-    }
-
-    @Test
-    void testGetDateFormat() {
+        EventNoteData end = (EventNoteData) testEventNoteData.copy();
+        Assertions.assertEquals(end.getStartDate(), testEventNoteData.getStartDate());
     }
 
     @Test
     void testGetDurationValue() {
+        Long theDuration = testEventNoteData.getDurationValue();
+        Assertions.assertNull(theDuration); // Because we have no End Date
     }
 
     @Test
     void testGetDurationUnits() {
+        String theUnits = testEventNoteData.getDurationUnits();
+        Assertions.assertEquals(theUnits, "unknown"); // Because we have no End Date
     }
 
     @Test

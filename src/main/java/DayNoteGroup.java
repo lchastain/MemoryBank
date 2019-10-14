@@ -16,15 +16,9 @@ public class DayNoteGroup extends CalendarNoteGroup
         implements iconKeeper, MouseListener {
     private static final long serialVersionUID = 1L;
 
-    // Because of the way that NoteGroups get their NoteComponents,
-    //   the defaultIcon MUST be present BEFORE the constructor
-    //   for this class is called.  The only way that is possible
-    //   is to assign it during the static section of this class.
-    //------------------------------------------------------------------
     static String defaultIconFileName; // Accessed by MonthView.
     private static AppIcon defaultIcon;
     private static String defaultFileName;
-    //------------------------------------------------------------------
 
     private static JLabel dayTitle;
 
@@ -38,6 +32,12 @@ public class DayNoteGroup extends CalendarNoteGroup
         dayTitle.setForeground(Color.white);
         dayTitle.setFont(Font.decode("Serif-bold-20"));
 
+        // Because the parent NoteGroup class is where all NoteComponents get
+        //   made and that constructor runs before this one, the defaultIcon
+        //   (seen in a DayNoteComponent) MUST be present BEFORE that
+        //   constructor is called.  This is why we need to
+        //   assign it during the static section of this class.
+        //------------------------------------------------------------------
         defaultIconFileName = MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar;
         defaultIconFileName += "icon_not.gif";
         defaultFileName = "DayNoteDefaults";
@@ -47,8 +47,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         loadDefaults(); // May provide a different default icon.
 
         if (defaultIconFileName.equals("")) {
-            // It IS possible that the user wants no default icon, has set it
-            // that way and we have just loaded in their setting.
+            // It IS possible that the user wants no default icon.
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
             defaultIcon = new AppIcon();
         } else {

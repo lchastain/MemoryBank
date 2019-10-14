@@ -15,15 +15,21 @@ class ClearNoteGroupTest {
         MemoryBank.setUserDataHome("test.user@lcware.net");
     }
 
-    // Test that clearing an empty Group will not cause errors and that the group remains empty.
     @Test
+    // Test that clearing an empty Group will not cause errors and that the group remains empty.
     void testClearEmptyNoteGroup() {
-        int thisMonth = LocalDate.now().getMonthValue();
         MonthNoteGroup mng = new MonthNoteGroup();
-        mng.clearGroup();
-        int thatMonth = mng.getChoice().getMonthValue();
-        Assertions.assertEquals(thisMonth, thatMonth);
+
+        // First, make sure we have an empty group -
+        LocalDate theDate = LocalDate.of(1985,6,6);
+        mng.setChoice(theDate); // We don't expect any notes on this month for this user.
         Vector<NoteData> theInfo = mng.getCondensedInfo();
+        Assertions.assertEquals(0, theInfo.size());
+        // Ok, that was the setup; now run the test.
+
+        mng.clearGroup();
+        Assertions.assertEquals(theDate, mng.getChoice());
+        theInfo = mng.getCondensedInfo();
         Assertions.assertEquals(0, theInfo.size());
     }
 

@@ -330,6 +330,9 @@ public abstract class NoteGroup extends JPanel {
     } // end editExtendedNoteComponent
 
 
+    // Tests will use this; child classes can check the flag directly.
+    boolean getGroupChanged() { return groupChanged; }
+
     // -------------------------------------------------------------------
     // Method Name: getGroupFilename
     //

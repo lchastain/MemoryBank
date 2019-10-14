@@ -17,12 +17,13 @@ import java.util.List;
 // It makes more sense to collect them into one utility class, than to try to decide which user class
 // should house a given method while the other user classes then have to somehow get access to it.
 public class AppUtil {
-    static ObjectMapper mapper = new ObjectMapper();
+    static ObjectMapper mapper;
 
     private static Boolean blnGlobalArchive;
-    private static Boolean blnGlobalDebug;
+    private static Boolean blnGlobalDebug; // initially null
 
     static {
+        mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     } // end static
 
@@ -85,7 +86,7 @@ public class AppUtil {
     // -----------------------------------------------------------------
     // Method Name: findFilename
     //
-    // Given a LocalDate and a type of note to look for, this method
+    // Given a LocalDate and a type of note to look for ("D", "M", or "Y", this method
     // will return the appropriate filename if a file exists for the indicated timeframe.
     // If no file exists, the return string is empty ("").
     // -----------------------------------------------------------------
@@ -432,10 +433,13 @@ public class AppUtil {
     //   will only print out if the MemoryBank.debug boolean is true.  However,
     //   when this variable is true, the debugging printouts can be
     //   quite voluminous.  One solution is to set it to true for a
-    //   specific section of code and then back to false, but then you
-    //   may lose its original value in the process.  This method
+    //   specific section of code and then back to false, but that may
+    //   alter the original value of the MemoryBank debug value.  If it had
+    //   been false to start with then no worries but if it were true then
+    //   by looking at just a section of code, we turn off all subsequent
+    //   logging.  This method
     //   allows you to preserve the original MemoryBank.debug value while
-    //   turning debugging on for a specific section of code.
+    //   ensuring that it is on for a specific section of code.
     // Call this method in pairs - first with a 'true' parameter, then
     //   later with a 'false'.  Place the calls as 'brackets' around
     //   code that is problematic until the issues are resolved, then
@@ -572,18 +576,18 @@ public class AppUtil {
     //---------------------------------------------------------------
     // Method Name: addNote
     //
-    // Add a note to a Group .
-    // A data file for the Group may or may not already exist.
+    // Add a note to a DayNoteGroup.
     // Note that this is a static method, meaning that it can be called
-    // from any other context without instantiating a group, and that
-    // the file being added to MAY NOT BE showing or currently loaded
-    // anywhere.  This is why the call to saveData() is needed every time.
-    // Even if there is an ongoing method processing several notes, it
-    // will still call this method one at a time and we will do a save
-    // with each and every call.
+    // from any other context without first instantiating a DayNoteGroup,
+    // and that the file being added to may or may not already exist.
+    // The call to saveData() is needed every time because even if
+    // the calling context is an ongoing method processing several
+    // notes, it will still call this method one note at a time and we don't
+    // maintain a 'state' somewhere or buffer up the notes to be saved.
     //
-    // Two known calling contexts: TodoNoteComponent and EventNoteGroup,
-    //   in order to add a note to a Day.
+    // Two known calling contexts add a note to a Day: TodoNoteComponent
+    // (only does one at a time anyway) and EventNoteGroup (which works
+    // from a list but each one in the list could go to a different day).
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static boolean addNote(String theFilename, NoteData nd) {
         Object[] theGroup;
@@ -621,7 +625,7 @@ public class AppUtil {
         BufferedWriter bw = null;
         Exception e = null;
         try {
-            FileOutputStream fileStream = new FileOutputStream(new File(theFilename));
+            FileOutputStream fileStream = FileUtils.openOutputStream(new File(theFilename)); // Creates parent directories, if needed.
             OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
             bw = new BufferedWriter(writer);
             bw.write(toJsonString(theGroup));
@@ -634,7 +638,7 @@ public class AppUtil {
         } finally {
             if (e != null) {
                 // This one may have been ignorable; print the message and see.
-                System.out.println("Exception: " + e.getMessage());
+                System.err.println("Exception in AppUtil.saveNoteGroupData: \n  " + e.getMessage());
             } // end if there was an exception
             // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
             try {

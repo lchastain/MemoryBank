@@ -89,7 +89,7 @@ public class EventNoteGroup extends NoteGroup
     // -------------------------------------------------------------------
     private boolean ageEvents() {
         boolean blnDropThisEvent;
-        boolean blnAnEventWasAgedOff = false;
+        boolean blnAnEventWasAged = false;
 
         String s;
         EventNoteData tempNoteData;
@@ -135,15 +135,14 @@ public class EventNoteGroup extends NoteGroup
                 if (tempNoteData.getRecurrenceString().trim().equals("")) { // No recurrence
                     blnDropThisEvent = true;
                     break; // get out of the while loop
-                } else {  // There is recurrence
+                } else {  // There is recurrence, but not necessarily indefinite
                     if (!tempNoteData.goForward()) {
                         // It might not have moved at all, or not enough to get past 'today'.
-                        MemoryBank.dbg("  The final ocurrence is still in the past.");
-                        blnDropThisEvent = true;
+                        MemoryBank.debug("  The Event has started but is still ongoing; cannot age it yet.");
                         break; // get out of the while loop
-                    } else {
+                    } else {  // a new Event Start was set by 'goForward'
                         MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
-                        setGroupChanged(); // Force a group save.
+                        blnAnEventWasAged = true;
                     } // end if
                 } // end if
             } // end while the event Start date is in the past
@@ -151,7 +150,7 @@ public class EventNoteGroup extends NoteGroup
             if (blnDropThisEvent) {
                 MemoryBank.debug("  Aging off " + tempNoteData.getNoteString());
                 tempNoteData.clear();
-                blnAnEventWasAgedOff = true;
+                blnAnEventWasAged = true;
             } // end if
 
         } // end for - for each Event
@@ -159,9 +158,9 @@ public class EventNoteGroup extends NoteGroup
         //  Just clearing DATA (above) does not set noteChanged (nor should it,
         //    because that data may not even be loaded into a component).
         //  So since we can't go that route to a groupChanged, just do it explicitly.
-        if (blnAnEventWasAgedOff) setGroupChanged();
+        if (blnAnEventWasAged) setGroupChanged();
         // AppUtil.localDebug(false);
-        return blnAnEventWasAgedOff;
+        return blnAnEventWasAged;
     } // end ageEvents
 
 
@@ -383,14 +382,13 @@ public class EventNoteGroup extends NoteGroup
     //   data and then reloading it.
     //----------------------------------------------------------------------
     public void refresh() {
-        preClose();
+        preClose();     // Save changes
         updateGroup();
 
         // Call 'ageEvents'
         if (ageEvents()) {
-            // If any event was removed, save and reload are needed again, to clean up the interface.
-            preClose();
-            updateGroup();
+            preClose();    // Save the new states of 'aged' events.
+            updateGroup(); // Reload the group (visually removes aged-off items, if any)
         } // end if
 
         doSort();  // This action could change the current selection.
