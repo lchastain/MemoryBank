@@ -10,21 +10,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Vector;
 
-/*
- * Summary description for EventEditorPanel
- * It inherits a subject-management capability.
- */
+// An interface to edit the members of an EventNoteData.
+// It inherits a subject-management capability.
+
 public class EventEditorPanel extends ExtendedNoteComponent {
     private static final long serialVersionUID = 1L;
+
+    private EventNoteData editedEventNoteData;
 
     // Used both here and by RecurrencePanel
     public static Color backColor;
     public static Color pastColor;
     public static Color futureColor;
-
 
     // 'My' Variables declaration section
     //-------------------------------------------------------------
@@ -37,7 +36,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private LabelButton btnEndTime;
 
     // Simple data types
-    private LocalTime timeSetting;    // Holds the TimeChooser result.
     private int intPreferredWidth;    // See note in constructor.
     private int intPreferredHeight;   // See note in constructor.
     private DateTimeFormatter dtf;
@@ -55,29 +53,12 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private TimeChooser tcTimeChooser;
     private RecurrencePanel rpRepeatSetting;
 
-    // Note:  This editor can be initialized with an EventNoteData
-    // (in 'showTheData') but any changes that the user makes to
-    // the interface are not passed back thru to the initial data
-    // object.  Instead, the calling context can make a call to
-    // the 'collectTheData' method, to get any/all updates.
-
-    //  We keep all user edits either in the user-controlled components
-    //  that you can see on screen, or in variables that stay under the
-    //  hood.  From this one interface a user may invoke up to six
-    //  additional dialogs (four of them unique) from which the results
-    //  must be stored here until the 'collect' call is made.  The
-    //  variables below are used for this purpose.
-    private LocalDate eventStartDate;  // Holds only the Date.
-    private LocalTime eventStartTime;  // Holds only the Time.
-    private LocalDate eventEndDate;    // Holds only the Date.
-    private LocalTime eventEndTime;    // Holds only the Time.
-
-    private LocalDateTime eventStartDateTime;
-    private LocalDateTime eventEndDateTime;
-
+    // Note:  This editor should be initialized with an EventNoteData
+    // (by a call to 'showTheData').  Any changes that the user makes
+    // to the interface are immediately sent into the initial data
+    // object.  May want to disassociate, to allow for a 'cancel'.
 
     private String strRecurrenceSetting;  // Recurrence
-    // strDateFormatSetting
 
     // The reason for NOT immediately updating the data (as
     //   touched on in the note above) is to support a
@@ -207,181 +188,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         showRecurrenceDialog();
     }
 
-
-    // Put info from the interface into the EventNoteData object
-    void collectTheData(EventNoteData end) {
-
-        end.setExtendedNoteString(getExtText());
-
-        // For size of the Extended text; basically non-variable
-        //   but it is larger here than the default for a Note,
-        //   and if this event gets aged off and retained as a
-        //   note then this size may be better than the default.
-        //end.setExtendedNoteHeightInt(body.getHeight() + 28);
-        end.setExtendedNoteWidthInt(body.getWidth() + 10);
-        end.setExtendedNoteHeightInt(spaneNotes.getHeight() + 40);
-
-        end.setSubjectString(getSubject());
-        // We need to be able to save a blank subject, and recall it,
-        //   which is different than if you never set one in the
-        //   first place, in which case it would be null and you
-        //   should get the default subject.  So -
-        //   we allow the assignment without checking its content.
-
-        end.setRetainNote(chkboxRetainNote.isSelected());
-
-        // A composite Start is not allowed to be later than
-        //   the composite End.  But what if, during the course
-        //   of this interface being used, the End date were first
-        //   extended and then the Start date was also increased,
-        //   to a value that exceeds the original End date?
-        //   Within the interface, this was allowed but now we need
-        //   to put the results back into the 'official' data and
-        //   if we start with the new Start Date, it would not be
-        //   legal when compared to the original Event End.  The
-        //   same kind of situation could occur if we start with
-        //   updating the End Date, if the interface had been used
-        //   to decrease both dates.  So - the only way to be sure
-        //   that the updates will be accepted is to first clear
-        //   the existing data.
-        end.setStartDate(null);
-        end.setStartTime(null);
-        end.setEndDate(null);
-        end.setEndTime(null);
-
-        // Now we can use the values from this interface and do
-        //   not need to check the results.
-        end.setStartDate(eventStartDate); // even if null
-        end.setStartTime(eventStartTime); // even if null
-        end.setEndDate(eventEndDate);     // even if null
-        end.setEndTime(eventEndTime);     // even if null
-
-        //-------------------------------------------------------------
-        // Determine whether or not to try to preserve a duration.
-        //-------------------------------------------------------------
-        // The only time that data NEEDS to be re-set in order to
-        // match the current interface duration value is when that
-        // duration value exceeds the calculation that is made from
-        // the 'known' values, which indicates that the 'unknown'
-        // fields contain placeholder values that were set as a
-        // result of an explicit user duration setting.
-
-        // However, if we simply set the duration in every case then
-        // in some cases it would cause an unknown field to be calculated
-        // and marked as known.  This MUST NOT HAPPEN because this
-        // duration setting is due to a programmatic (vs user) action.
-
-        // Any duration that needs this preservation should still be
-        //   showing on the interface (because any subsequent Date/Time
-        //   setting would have reset it to the initial calculation value).
-        Long tmpLong = getDurationSetting(); // in Minutes
-        if (tmpLong != null) {
-            // Now, how can we know that the user has made this specific
-            //   entry and that it wasn't just a previous calculation result?
-            //
-            // An examination of the various cases of what remains unknown
-            //   after a duration was explicitly entered (vs a calculation),
-            //   shows that a 'placeholder' duration value can only be
-            //   present in three unique situations:
-            //   1.  Both Dates are known and both Times are not.
-            //   2.  Both Times are known and both Dates are not.
-            //   3.  No Times or Dates are known.
-            //
-            // This examination further shows that if a duration were
-            //   (re-)entered in THESE cases, no 'unknown' fields
-            //   would be marked as known (that thing that MUST NOT
-            //   HAPPEN, would not happen).  So, we will restrict this
-            //   operation to only
-            //   those three cases, and it will not matter if the
-            //   duration that we set was calculated or user-entered.
-
-            boolean blnSD = end.getStartDate() != null;
-            boolean blnST = end.getStartTime() != null;
-            boolean blnED = end.getEndDate() != null;
-            boolean blnET = end.getEndTime() != null;
-            boolean doit = false;
-
-            // Case 1
-            if ((blnSD && blnED) && (!blnST && !blnET)) {
-                doit = true;
-            }
-            // Case 2
-            if ((!blnSD && !blnED) && (blnST && blnET)) {
-                doit = true;
-            }
-            // Case 3
-            if (!(blnSD || blnST || blnED || blnET)) {
-                doit = true;
-            }
-            if (doit) end.setDuration(tmpLong);
-        }
-        //-------------------------------------------------------------
-
-        // Location
-        // Get the text from the Location combo box, whether it
-        //   was placed there via a selection or typing.
-        Object objTmpLoc = comboxLocation.getEditor().getItem();
-        if (objTmpLoc != null) {
-            String strTmpLoc = objTmpLoc.toString().trim();
-            if (!strTmpLoc.equals("")) {
-                if (!strTmpLoc.equals(end.getLocationString().trim())) {
-                    // Only if this represents a change.
-                    end.setLocation(strTmpLoc);
-                    addLocation(strTmpLoc);
-                }
-            }
-        }
-        saveLocations();
-
-        // Do this after setting the start date, since
-        //   that action clears recurrence.
-        end.setRecurrence(strRecurrenceSetting);
-    } // end collectTheData
-
-
     // This method is only here to 'fool' JFramebuilder-generated code.
     public JPanel getContentPane() {
         return this;
     }
-
-
-    //--------------------------------------------------------------
-    // Method Name: getDurationSetting
-    //
-    // Gets the settings from the interface and returns the long
-    // value corresponding to the number of duration minutes that
-    // are specified.  If the setting is incomplete it will return
-    // null.
-    //--------------------------------------------------------------
-    private Long getDurationSetting() {
-        String strValue = txtfDurationValue.getText();
-        String strUnits = Objects.requireNonNull(comboxDurationUnits.getSelectedItem()).toString();
-        long lngDuration;
-
-        if (strValue.trim().equals("")) return null; // No Value
-        if (strUnits.equals("Unknown")) return null; // No Units
-
-//  System.out.println("Value: " + txtfDurationValue.getText());
-//  System.out.println("Units: " + comboxDurationUnits.getSelectedItem().toString());
-
-        // Convert string numeric to a long -
-        try {
-            // I don't expect trouble from this conversion because of the
-            //   constraints on the entry field.  Hence, the ugly handling
-            //   of the exception that I believe we'll never see.
-            lngDuration = Long.parseLong(strValue);
-        } catch (NumberFormatException nfe) {
-            nfe.printStackTrace();
-            lngDuration = 0;
-        } // end try/catch
-
-        // Whatever duration units were specified, convert to minutes.
-        if (strUnits.equals("Hours")) lngDuration *= 60;
-        if (strUnits.equals("Days")) lngDuration *= (60 * 24);
-        if (strUnits.equals("Weeks")) lngDuration *= (60 * 24 * 7);
-
-        return lngDuration;
-    } // end getDurationSetting
 
 
     public Dimension getMinimumSize() {
@@ -396,7 +206,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //   interface.  It is invoked directly from the associated
     //   MouseListener, which is not associated with any other
     //   Components (ie, it will not be called for an unknown
-    //   reason, and so there is no need to check for one ...)
+    //   reason, so there is no need to check for one ...)
     //-----------------------------------------------------------
     private void handleDateTimeClicked(MouseEvent e) {
         int m = e.getModifiers();
@@ -407,39 +217,34 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
 
-        // Make a temporary data object so that we can collect
-        //   existing interface settings into it and then use
-        //   it to determine the validity of the current action.
-        // Note that if the interface had stored a duration-only
-        //   setting, it will now be ignored (and properly so),
-        //   unless the action was to clear an already cleared field.
-        EventNoteData tmpNoteData = new EventNoteData();
-        tmpNoteData.setStartDate(eventStartDate);
-        tmpNoteData.setStartTime(eventStartTime);
-        tmpNoteData.setEndDate(eventEndDate);
-        tmpNoteData.setEndTime(eventEndTime);
+        // Get the initial values of the four main vars -
+        LocalDate startDate = editedEventNoteData.getStartDate();
+        LocalTime startTime = editedEventNoteData.getStartTime();
+        LocalDate endDate = editedEventNoteData.getEndDate();
+        LocalTime endTime = editedEventNoteData.getEndTime();
 
         switch (s) {
             case "Start Date":
-                if (rightClick) {
-                    if (eventStartDate == null) return; // already cleared.
-                    tmpNoteData.setStartDate(null);
-                    eventStartDate = null;
-                    strRecurrenceSetting = "";
-                } else {
-                    if (eventStartDate != null) yvDateChooser.setChoice(eventStartDate);
+                if (rightClick) { // This is a directive to clear the field.
+                    if (startDate == null) break; // it was already cleared.
+                    editedEventNoteData.setStartDate(null); // clear it.
+                    editedEventNoteData.setRecurrence(null); // and any recurrence.
+                    startDate = null;
+                 } else {  // A request to set it
+                    // Initialize  a date-chooser
+                    if (startDate != null) yvDateChooser.setChoice(startDate);
                     else yvDateChooser.setChoice(null);
+
                     showDateDialog("Select a Start Date for the Event");
-                    if (tmpNoteData.setStartDate(yvDateChooser.getChoice())) {
-                        if ((eventStartDate == null) || (tmpNoteData.getStartDate() != eventStartDate)) {
-                            // The above comparison must be between time values, not objects.
-                            eventStartDate = tmpNoteData.getStartDate();
-                            strRecurrenceSetting = "";
-                        } // end if not setting to the same date.
-                    } else {
+                    LocalDate newStartDate = yvDateChooser.getChoice();
+                    if (newStartDate == startDate) break; // They chose the Date it was already set to.
+                    if (editedEventNoteData.setStartDate(newStartDate)) {
+                        startDate = newStartDate;
+                        strRecurrenceSetting = "";
+                    } else { // There is only one reason why a setting might be refused.
                         strTmp = "<html>The Event cannot start after it ends.<br>";
                         strTmp += "Your selection of ";
-                        strTmp += dtf.format(yvDateChooser.getChoice());
+                        strTmp += dtf.format(newStartDate); // A null value would not have been refused.
                         strTmp += " has been discarded.</html>";
 
                         JLabel lblTmp = new JLabel(strTmp);
@@ -448,23 +253,26 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                                 "Start Date Selection Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
-                resetStartPanel();
+                resetStartPanel(startDate, startTime); // Not needed in the 'rejected' case, but doesn't hurt.
                 break;
             case "End Date":
-                if (rightClick) {
-                    if (eventEndDate == null) return;
-                    tmpNoteData.setEndDate(null);
-                    eventEndDate = null;
+                if (rightClick) { // This is a directive to clear the field.
+                    if (endDate == null) break; // it was already cleared.
+                    editedEventNoteData.setEndDate(null); // clear it.
+                    endDate = null; // and clear the value we had previously captured.
                 } else {
-                    if (eventEndDate != null) yvDateChooser.setChoice(eventEndDate);
+                    if (endDate != null) yvDateChooser.setChoice(endDate);
                     else yvDateChooser.setChoice(null);
+
                     showDateDialog("Select an End Date for the Event");
-                    if (tmpNoteData.setEndDate(yvDateChooser.getChoice())) {
-                        eventEndDate = tmpNoteData.getEndDate();
-                    } else {
+                    LocalDate newEndDate = yvDateChooser.getChoice();
+                    if (newEndDate == endDate) break; // They chose the Date it was already set to.
+                    if (editedEventNoteData.setEndDate(newEndDate)) {
+                        endDate = newEndDate; // update the previously captured value.
+                    } else { // There is only one reason why a setting might be refused.
                         strTmp = "<html>The Event cannot end before it starts.<br>";
                         strTmp += "Your selection of ";
-                        strTmp += dtf.format(yvDateChooser.getChoice());
+                        strTmp += dtf.format(newEndDate); // A null value would not have been refused.
                         strTmp += " has been discarded.</html>";
 
                         JLabel lblTmp = new JLabel(strTmp);
@@ -473,25 +281,27 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                                 "End Date Selection Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
-                resetEndPanel();
+                resetEndPanel(endDate, endTime); // Not needed in the 'rejected' case, but doesn't hurt.
                 break;
             case "Start Time":
-                if (rightClick) {
-                    if (eventStartTime == null) return;
-                    tmpNoteData.setStartTime(null);
-                    eventStartTime = null;
+                if (rightClick) { // This is a directive to clear the field.
+                    if (startTime == null) break; // it was already cleared.
+                    editedEventNoteData.setStartTime(null);
+                    startTime = null;
                 } else {
-                    // if (dateEventStartTime != null) tcTimeChooser = new TimeChooser(dateEventStartTime);  // temp, 9/29 while working DayNotes
-                    if (eventStartTime != null) tcTimeChooser = new TimeChooser(eventStartTime);
+                    // If it has already been set once then display it as the initial setting.
+                    if (startTime != null) tcTimeChooser = new TimeChooser(startTime);
+                        // Otherwise use the current time as the initial setting.
                     else tcTimeChooser = new TimeChooser();
                     showTimeDialog("Select a Start Time");
+                    LocalTime theTime = tcTimeChooser.getChoice();
 
-                    if (tmpNoteData.setStartTime(timeSetting)) {
-                        eventStartTime = tmpNoteData.getStartTime();
+                    if (editedEventNoteData.setStartTime(theTime)) {
+                        startTime = theTime;
                     } else {
                         strTmp = "<html>The Event cannot start after it ends.<br>";
                         strTmp += "Your selection of ";
-                        strTmp += tcTimeChooser.getChoice();
+                        strTmp += theTime;
                         strTmp += " has been discarded.</html>";
 
                         JLabel lblTmp = new JLabel(strTmp);
@@ -500,25 +310,25 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                                 "Start Time Selection Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } // end if
-                resetStartPanel();
+                resetStartPanel(startDate, startTime); // Not needed in the 'rejected' case, but doesn't hurt.
                 break;
             case "End Time":
-                if (rightClick) {
-                    if (eventEndTime == null) return;
-                    tmpNoteData.setEndTime(null);
-                    eventEndTime = null;
+                if (rightClick) { // This is a directive to clear the field.
+                    if (endTime == null) return; // it was already cleared.
+                    editedEventNoteData.setEndTime(null);
+                    endTime = null;
                 } else {
-                    // if (dateEventEndTime != null) tcTimeChooser = new TimeChooser(dateEventEndTime);  // temp, 9/29 while working DayNotes
-                    if (eventEndTime != null) tcTimeChooser = new TimeChooser(LocalTime.now());
+                    if (endTime != null) tcTimeChooser = new TimeChooser(endTime);
                     else tcTimeChooser = new TimeChooser();
                     showTimeDialog("Select an End Time");
+                    LocalTime theTime = tcTimeChooser.getChoice();
 
-                    if (tmpNoteData.setEndTime(timeSetting)) {
-                        eventEndTime = tmpNoteData.getEndTime();
+                    if (editedEventNoteData.setEndTime(theTime)) {
+                        endTime = theTime;
                     } else {
                         strTmp = "<html>The Event cannot end before it starts.<br>";
                         strTmp += "Your selection of ";
-                        strTmp += tcTimeChooser.getChoice();
+                        strTmp += theTime;
                         strTmp += " has been discarded.</html>";
 
                         JLabel lblTmp = new JLabel(strTmp);
@@ -527,20 +337,17 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                                 "End Time Selection Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } // end if
-                resetEndPanel();
+                resetEndPanel(endDate, endTime); // Not needed in the 'rejected' case, but doesn't hurt.
                 break;
-            default:  // ... but we left this section in anyway.
-                System.out.print(this.getClass().getName());
-                System.out.println(" - unhandled action: " + s);
-                break;
-        }
+        } // end switch
 
-//    resetDuration(tmpNoteData);
-        String strUnits = tmpNoteData.getDurationUnits();
-        if (strUnits.equals("unknown")) {
+        // Update the Duration fields to keep up with changes to Date/Time that were just made.
+        String strUnits = editedEventNoteData.getDurationUnits();
+        if (strUnits == null) {
             txtfDurationValue.setText("");
+            strUnits = "Unknown";
         } else {
-            txtfDurationValue.setText(String.valueOf(tmpNoteData.getDurationValue()));
+            txtfDurationValue.setText(String.valueOf(editedEventNoteData.getDurationValue()));
         }
         setDurationUnits(strUnits);
     } // end handleDateTimeClicked
@@ -743,7 +550,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
             while (true) {  // The expected exit is via EOFException
                 loc = (String) ois.readObject();
-                if(loc == null) break; // Added this line to avoid an IJ complaint about 'while'
+                if (loc == null) break; // Added this line to avoid an IJ complaint about 'while'
                 locations.addElement(loc);
                 MemoryBank.debug("  loaded subject: " + loc);
             } // end while
@@ -953,55 +760,50 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         return new Dimension(getMinimumSize());
     }
 
-    private void resetEndPanel() {
-        boolean datePast = false;
+    // This method sets the content of the End Panel without checks;
+    // it just fills in the info it has and does the color-coding, no
+    // adjustments to the source info.
+    private void resetEndPanel(LocalDate endDate, LocalTime endTime) {
 
         // Set the Date button text
-        if (eventEndDate == null) {
+        if (endDate == null) {
             btnEndDate.setText("Unknown");
             btnEndDate.setToolTipText("Click here to select a End date");
         } else {
-            btnEndDate.setText(dtf.format(eventEndDate));
+            btnEndDate.setText(dtf.format(endDate));
             btnEndDate.setToolTipText("Right click here to clear the End date");
-
-            LocalDateTime eventEndDateTime;  // Composite, for comparison
-
-            if (eventEndTime == null) {
-                eventEndDateTime = eventEndDate.atTime(0,0);
-            } else {
-                // Make a temporary data object (so we can use its ability
-                //   to easily combine a Date with a Time).
-                EventNoteData endTmp = new EventNoteData();
-
-                // Combine the user-specified Date and Time
-                endTmp.setEndDate(eventEndDate);
-                endTmp.setEndTime(eventEndTime);
-                eventEndDateTime = endTmp.getEventEndDateTime();
-            } // end if
-
-            // Compare the composite value to current time.
-            if (LocalDateTime.now().isAfter(eventEndDateTime)) {
-                datePast = true;
-            } // end if
         } // end if
 
         // Set the Time button text
-        if (eventEndDateTime == null) {
+        if (endTime == null) {
             btnEndTime.setText(" ");
         } else {
-//            MemoryBank.tempCalendar.setTime(dateEventEndTime);
-            btnEndTime.setText(MemoryBank.makeTimeString(eventEndTime));
+            btnEndTime.setText(MemoryBank.makeTimeString(endTime));
 
-//            if (MemoryBank.tempCalendar.get(Calendar.AM_PM) == Calendar.AM) {
-            if (eventEndTime.getHour() < 12) { // 0-11 ?
+            if (endTime.getHour() < 12) { // 0-11 ?
                 btnEndTime.setForeground(MemoryBank.amColor);
             } else {     // Calendar.PM
                 btnEndTime.setForeground(MemoryBank.pmColor);
             } // end if
         } // end if
 
+        // Check the date against current Date/Time, for color setting.
+        boolean datePast = false;
+        if (endDate != null) {
+            LocalDateTime ldtTemp;
+            if (endTime != null) {
+                ldtTemp = LocalDateTime.of(endDate, endTime);
+            } else {
+                ldtTemp = LocalDateTime.of(endDate, LocalTime.MIDNIGHT.minusMinutes(1));
+                // Minutes is the finest granularity that we use in this interface.
+            }
+            if (LocalDateTime.now().isAfter(ldtTemp)) {
+                datePast = true;
+            } // end if
+        }
+
         // Color the Panel
-        if (eventEndDate == null) {
+        if (endDate == null) {
             pnlEnd.setBackground(backColor);
         } else {
             if (datePast) {
@@ -1012,55 +814,49 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         } // end if
     } // end resetEndPanel
 
-    private void resetStartPanel() {
-        boolean datePast = false;
+    // This method sets the content of the Start Panel without checks;
+    // it just fills in the info it has and does the color-coding, no
+    // adjustments to the source info.
+    private void resetStartPanel(LocalDate startDate, LocalTime startTime) {
 
         // Set the Date button text
-        if (eventStartDate == null) {
+        if (startDate == null) {
             btnStartDate.setText("Unknown");
             btnStartDate.setToolTipText("Click here to select a Start date");
         } else {
-            btnStartDate.setText(dtf.format(eventStartDate));
+            btnStartDate.setText(dtf.format(startDate));
             btnStartDate.setToolTipText("Right click here to clear the Start date");
-
-            LocalDateTime eventStartDateTime;  // Composite, for comparison
-
-            if (eventStartTime == null) {
-                eventStartDateTime = eventStartDate.atTime(0,0);
-            } else {
-                // Make a temporary data object (so we can use its ability
-                //   to easily combine a Date with a Time).
-                EventNoteData endTmp = new EventNoteData();
-
-                // Combine the user-specified Date and Time
-                endTmp.setStartDate(eventStartDate);
-                endTmp.setStartTime(eventStartTime);
-                eventStartDateTime = endTmp.getEventStartDateTime();
-            } // end if
-
-            // Compare the composite value to current time.
-            if (LocalDateTime.now().isAfter(eventStartDateTime)) {
-                datePast = true;
-            } // end if
         } // end if
 
         // Set the Time button text
-        if (eventStartTime == null) {
+        if (startTime == null) {
             btnStartTime.setText(" ");
         } else {
-//            MemoryBank.tempCalendar.setTime(dateEventStartTime);
-            btnStartTime.setText(MemoryBank.makeTimeString(eventStartTime));
+            btnStartTime.setText(MemoryBank.makeTimeString(startTime));
 
-//            if (MemoryBank.tempCalendar.get(Calendar.AM_PM) == Calendar.AM) {
-            if (eventStartTime.getHour() < 12) { // 0-11 ?
+            if (startTime.getHour() < 12) { // 0-11 ?
                 btnStartTime.setForeground(MemoryBank.amColor);
-            } else {     // Calendar.PM
+            } else {     // PM
                 btnStartTime.setForeground(MemoryBank.pmColor);
             } // end if
         } // end if
 
+        // Check the date against current Date/Time, for color setting.
+        boolean datePast = false;
+        if (startDate != null) {
+            LocalDateTime ldtTemp;
+            if (startTime != null) {
+                ldtTemp = LocalDateTime.of(startDate, startTime);
+            } else {
+                ldtTemp = LocalDateTime.of(startDate, LocalTime.MIDNIGHT);
+            }
+            if (LocalDateTime.now().isAfter(ldtTemp)) {
+                datePast = true;
+            } // end if
+        }
+
         // Color the Panel
-        if (eventStartDate == null) {
+        if (startDate == null) {
             pnlStart.setBackground(backColor);
         } else {
             if (datePast) {
@@ -1072,7 +868,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         // Show a 'readable' interpretation of the Recurrence
         String strTmp;
-        // System.out.println("Getting summary for: [" + strRecurrenceSetting + "]");
         strTmp = EventNoteData.getRecurrenceSummary(strRecurrenceSetting);
 
         // We may have a multi line summary
@@ -1080,7 +875,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         lblRecurrenceSetting.setText(strTmp);
 
-        if (eventStartDate == null) {
+        if (startDate == null) {
             btnRecurrence.setEnabled(false);
             btnRecurrence.setToolTipText("You must set a Start Date before you can set a Recurrence schedule.");
         } else {
@@ -1116,46 +911,35 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //-----------------------------------------------
     // Method Name: setDuration
     //
-    // Called for either an ActionPerformed or
+    // This method is called for an ActionPerformed or
     // a FocusLost in the Value field, or for an
-    // ItemState Changed in the Units field.
+    // ItemStateChanged in the Units field.
+    // The two settings are more tightly coupled here
+    // in this interface than in the data class, because
+    // here, the Start/End panels need to be reset for
+    // either change but in the data the duration value
+    // can be set without kicking off a Date/Time
+    // calculation.
     //-----------------------------------------------
     private void setDuration() {
-        Long lngDuration = getDurationSetting();
-        if (lngDuration == null) {
-            // The user may have just entered the units and now
-            // intends to enter a value (or vice versa).  We cannot
-            // at this point take an inability to get the value as
-            // a green-light to reset their input.
-            return;
-        }
+        Integer theValue;
+        String theValueString = txtfDurationValue.getText();
+        if(theValueString.equals("0") || theValueString.isEmpty()) theValue = null;
+        else theValue = new Integer(theValueString);
+        Object theUnitsSelection = comboxDurationUnits.getSelectedItem();
+        String theUnits;
+        if(theUnitsSelection != null) theUnits = theUnitsSelection.toString();
+        else theUnits = null;
 
-        // Make a temporary data object so that we can collect
-        //   existing interface settings into it and then use
-        //   it in conjunction with the user's new duration setting
-        //   to update our tracking variables accordingly.
-        EventNoteData tmpEnd = new EventNoteData();
-        tmpEnd.setStartDate(eventStartDate);
-        tmpEnd.setStartTime(eventStartTime);
-        tmpEnd.setEndDate(eventEndDate);
-        tmpEnd.setEndTime(eventEndTime);
+        // These may be getting un-set, as well as possibly getting set to good values.
+        editedEventNoteData.setDurationUnits(theUnits);
+        editedEventNoteData.setDurationValue(theValue);
 
-        // Let the Data object do the work.
-        tmpEnd.setDuration(lngDuration);
+        // Update our interface based on the effect of the duration setting that was just done.
+        resetStartPanel(editedEventNoteData.getStartDate(), editedEventNoteData.getStartTime());
+        resetEndPanel(editedEventNoteData.getEndDate(), editedEventNoteData.getEndTime());
 
-        // Update our tracking variables
-        eventStartDate = tmpEnd.getStartDate();
-        eventStartTime = tmpEnd.getStartTime();
-        eventEndDate = tmpEnd.getEndDate();
-        eventEndTime = tmpEnd.getEndTime();
-
-        // Cover all bets -
-        resetStartPanel();
-        resetEndPanel();
-
-        // Except for Duration, which should stay where the user
-        //   just put it, of course.
-    } // end setDuration
+    } // end setDurationValue
 
 
     //----------------------------------------------------------
@@ -1166,15 +950,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //   handler.
     //----------------------------------------------------------
     private void setDurationUnits(String s) {
+        if (s == null) return;
 
-        // The input string comes directly from the data class
-        //   and does not necessarily match our combo box
-        //   selections.
-        s = s.substring(0, 1).toUpperCase() + s.substring(1);
-        if (!s.equals("Unknown")) {
-            if (!s.endsWith("s")) s += "s";
-        } // end if we have units
-
+        // The input string comes directly from the data class.
+        // We need to match it to one of our combobox selections.
         comboxDurationUnits.removeItemListener(ilDurationUnits);
         comboxDurationUnits.setSelectedItem(s);
         comboxDurationUnits.addItemListener(ilDurationUnits);
@@ -1183,6 +962,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
     // Set the interface fields per the input data object.
     public void showTheData(@NotNull EventNoteData end) {
+        editedEventNoteData = end;
 
         // Load the interface with the correct data
         //------------------------------------------------
@@ -1195,32 +975,45 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // Grab the Recurrence
         strRecurrenceSetting = end.getRecurrenceString();
 
-        // Note: for date and time fields, we need to set our local
-        //   holding variables in addition to the interface visuals.
-        //-------------------------------------------------------------
-        eventStartDate = end.getStartDate();
-        eventStartTime = end.getStartTime();
-        resetStartPanel();
+        // Set the text and coloring for Date/Time buttons
+        resetStartPanel(end.getStartDate(), end.getStartTime());
+        resetEndPanel(end.getEndDate(), end.getEndTime());
 
-        eventEndDate = end.getEndDate();
-        eventEndTime = end.getEndTime();
-        resetEndPanel();
-        //-------------------------------------------------------------
-
-        // Now we can show a Duration, if possible -
+        // Show the Duration -
+        // Two different possible situations here -
+        // First time the Event is being shown in the current session, the calculated fields
+        //   will be null because no calc has yet been done.  Any values returned by the
+        //   'get' methods will be the explicit user-entered settings.
+        // Subsequent showings of the Event could show either set of vars, depending on
+        //   the latest user actions.
+        // So if we query both settings and get nulls for them both, then we should do
+        //   a recalc at this time.
         String strUnits = end.getDurationUnits();
-        if (strUnits.equals("unknown")) {
-            txtfDurationValue.setText("");
-        } else {
-            txtfDurationValue.setText(String.valueOf(end.getDurationValue()));
+        Integer intVal = end.getDurationValue();
+        if(null == intVal && null == strUnits) { // If the stored values are both null
+            end.recalcDuration(); // then we should recalculate
+            strUnits = end.getDurationUnits(); // and see if we get anything.
+            if (strUnits == null) {  // If not then clear the interface fields.
+                // For calculated fields, units and values exist (or don't exist) in tandem.
+                setDurationUnits("Unknown");
+                txtfDurationValue.setText("");
+            } else { // Get the new duration value, show both updated/calculated fields.
+                setDurationUnits(strUnits);
+                intVal = end.getDurationValue();
+                txtfDurationValue.setText(String.valueOf(intVal));
+            }
+        } else { // We didn't get both fields as null, but one of them may be.
+            if(null == strUnits) setDurationUnits("Unknown");
+            else setDurationUnits(strUnits);
+            if (intVal != null) txtfDurationValue.setText(String.valueOf(intVal));
+            else txtfDurationValue.setText("");
         }
-        setDurationUnits(strUnits);
 
         // Show the Location
         comboxLocation.setSelectedItem(end.getLocationString());
 
         // Will not do a Date Format after all, for now.
-        btnDateFormat.setVisible(false);
+        btnDateFormat.setVisible(false); // No handler for this.
     } // end showTheData
 
     private void showTimeDialog(String s) {
@@ -1251,9 +1044,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         // Go modal -
         tempwin.setVisible(true);
-
-        if (tcTimeChooser.getClearBoolean()) timeSetting = null;
-        else timeSetting = tcTimeChooser.getChoice();
     } // end showTimeDialog
 
 
@@ -1265,14 +1055,16 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //   correct data and displays as a modal dialog.
     //-------------------------------------------------------------
     private void showRecurrenceDialog() {
+        LocalDate startDate = editedEventNoteData.getStartDate();
+
         // This allows the button to stay 'live' and therefore
         //   reflect a different tool tip that the user can read,
         //   to understand why the Recurrence button does not
         //   appear to be working for them.
-        if (eventStartDate == null) return;
+        if (startDate == null) return;
 
         // Send the current data to the Recurrence Editor dialog.
-        rpRepeatSetting.showTheData(strRecurrenceSetting, eventStartDate);
+        rpRepeatSetting.showTheData(strRecurrenceSetting, startDate);
 
         Frame theFrame = JOptionPane.getFrameForComponent(this);
 
@@ -1300,7 +1092,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         strRecurrenceSetting = rpRepeatSetting.getRecurrenceSetting();
         // System.out.println("Recurrence setting: " + strRecurrenceSetting);
 
-        resetStartPanel(); // This formats it with HTML.
+        resetStartPanel(editedEventNoteData.getStartDate(), editedEventNoteData.getStartTime()); // This formats it with HTML.
     } // end showRecurrenceDialog
 
 

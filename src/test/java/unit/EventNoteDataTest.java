@@ -37,15 +37,9 @@ class EventNoteDataTest {
     }
 
     @Test
-    void testGetDurationValue() {
-        Long theDuration = testEventNoteData.getDurationValue();
-        Assertions.assertNull(theDuration); // Because we have no End Date
-    }
-
-    @Test
     void testGetDurationUnits() {
         String theUnits = testEventNoteData.getDurationUnits();
-        Assertions.assertEquals(theUnits, "unknown"); // Because we have no End Date
+        Assertions.assertNull(theUnits); // Because we have no End Date
     }
 
     @Test

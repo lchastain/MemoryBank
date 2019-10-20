@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,7 +54,7 @@ public class EventNoteGroup extends NoteGroup
 
     EventNoteGroup() {
         super("Upcoming Event");
-        enc = new EventEditorPanel("Upcoming Event");
+        extendedNoteComponent = new EventEditorPanel("Upcoming Event");
 
         eNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -252,41 +250,6 @@ public class EventNoteGroup extends NoteGroup
     } // end doSort
 
 
-    protected boolean editExtendedNoteComponent0(NoteData nd) {
-        // Make a dialog window to show the ExtendedNoteComponent
-        Frame f = JOptionPane.getFrameForComponent(this);
-        JDialog tempwin = new JDialog(f, true);
-
-        // Cast the input parameter to its full potential.
-        EventNoteData end = (EventNoteData) nd;
-
-        // Send the current data to the Event Editor dialog.
-        ((EventEditorPanel) enc).showTheData(end);
-
-        tempwin.getContentPane().add(enc, BorderLayout.CENTER);
-        tempwin.setTitle(nd.getNoteString());
-        tempwin.setSize(enc.getMinimumSize());
-        tempwin.setResizable(false);
-
-        tempwin.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                enc.checkSubject();
-                we.getWindow().dispose();
-            }
-        });
-
-        // Center the ENC dialog relative to the main frame.
-        tempwin.setLocationRelativeTo(f);
-
-        // Go modal -
-        tempwin.setVisible(true);
-
-        // Get the data from the Event Editor dialog.
-        ((EventEditorPanel) enc).collectTheData(end);
-
-        return true; // need to vary this...
-    } // end editExtendedNoteComponent
-
     @Override
     protected boolean editExtendedNoteComponent(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
@@ -295,11 +258,11 @@ public class EventNoteGroup extends NoteGroup
         EventNoteData eventNoteData = (EventNoteData) noteData;
 
         // Send the current data to the Event Editor dialog.
-        ((EventEditorPanel) enc).showTheData(eventNoteData);
+        ((EventEditorPanel) extendedNoteComponent).showTheData(eventNoteData);
 
         int doit = optionPane.showConfirmDialog(
                 JOptionPane.getFrameForComponent(this),
-                enc,
+                extendedNoteComponent,
                 noteData.getNoteString(),
                 JOptionPane.OK_CANCEL_OPTION);
 
@@ -307,10 +270,10 @@ public class EventNoteGroup extends NoteGroup
         if (doit == JOptionPane.CANCEL_OPTION) return false;
 
         // Get the data from the Event Editor dialog.
-        enc.checkSubject();
-        ((EventEditorPanel) enc).collectTheData(eventNoteData);
+        extendedNoteComponent.checkSubject();   // TODO - is this doing what it is supposed to?
+//        ((EventEditorPanel) extendedNoteComponent).collectTheData(eventNoteData);
 
-        return true; // need to vary this...
+        return true;
     } // end editExtendedNoteComponent
 
 

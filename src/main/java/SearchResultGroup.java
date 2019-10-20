@@ -21,7 +21,7 @@ public class SearchResultGroup extends NoteGroup {
         // super("", 10);  // test, for paging
 
         addNoteAllowed = false;
-        enc.remove(0); // Remove the subjectChooser.
+        extendedNoteComponent.remove(0); // Remove the subjectChooser.
         // We may want to make this operation less numeric in the future,
         //   but this works for now and no ENC changes are expected.
 

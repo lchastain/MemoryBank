@@ -144,8 +144,16 @@ public class TimeChooser extends JPanel implements ActionListener {
         return iAmClear;
     }
 
+    // Returns the selection, without the 'noise' of additional
+    // small trailing time bits.
     LocalTime getChoice() {
-        return theNewTime;
+        if(iAmClear) return null;
+
+        if(showSeconds) {
+            return theNewTime.truncatedTo(ChronoUnit.SECONDS);
+        } else {
+            return theNewTime.truncatedTo(ChronoUnit.MINUTES);
+        }
     }
 
     public void recalc() {

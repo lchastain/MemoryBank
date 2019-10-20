@@ -362,7 +362,7 @@ public class YearView extends JPanel implements ActionListener {
                 tmpDayLabel.setDay(tmpLocalDate);
 
                 // If this day is the current choice then highlight it.
-                if (theChoice.isEqual(tmpLocalDate)) {
+                if (null != theChoice && theChoice.isEqual(tmpLocalDate)) {
                     // If the choice is this day -
                     activeDayLabel = tmpDayLabel;
                     activeDayLabel.highlight();

@@ -22,8 +22,7 @@ public class EventNoteComponent extends IconNoteComponent {
         // Extended note data was already updated, since it was collected
         //   from a modal dialog.
 
-        // The icon string also comes from a modal selection, directly into
-        //   the data.
+        // The icon string also comes from a modal selection, directly into the data.
         return myEventNoteData;
     } // end getNoteData
 

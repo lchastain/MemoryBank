@@ -31,9 +31,8 @@ public abstract class NoteGroup extends JPanel {
     // Members that child classes may access directly
     //=============================================================
     protected static String ems;     // Error Message String
-    protected ExtendedNoteComponent enc;
+    ExtendedNoteComponent extendedNoteComponent;
     boolean addNoteAllowed;
-    private int borderWidth = 2;
     int lastVisibleNoteIndex = 0;
     int pageSize;
 
@@ -80,7 +79,7 @@ public abstract class NoteGroup extends JPanel {
     private NoteGroup(String defaultSubject, int intPageSize) {
         super(new BorderLayout());
         pageSize = intPageSize;
-        enc = new ExtendedNoteComponent(defaultSubject);
+        extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
         addNoteAllowed = true;
         intHighestNoteComponentIndex = pageSize - 1;
 
@@ -100,6 +99,7 @@ public abstract class NoteGroup extends JPanel {
         strGroupFilename = "";
         groupChanged = false;
 
+        int borderWidth = 2;
         setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
 
         groupNotesListPanel = new JPanel();
@@ -260,8 +260,8 @@ public abstract class NoteGroup extends JPanel {
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
         // Load the enc with the correct data
-        enc.setExtText(nd.getExtendedNoteString());
-        enc.setSubject(nd.getSubjectString());
+        extendedNoteComponent.setExtText(nd.getExtendedNoteString());
+        extendedNoteComponent.setSubject(nd.getSubjectString());
 
         //---------------------------------------------------------
         // Make a dialog window to show the ExtendedNoteComponent
@@ -270,7 +270,7 @@ public abstract class NoteGroup extends JPanel {
         if (myFrame == null) return false;
 
         tempwin = new JDialog(myFrame, true);
-        tempwin.getContentPane().add(enc, BorderLayout.CENTER);
+        tempwin.getContentPane().add(extendedNoteComponent, BorderLayout.CENTER);
 
         // Preserve initial values, for later comparison to
         //   determine if there was a change.
@@ -284,7 +284,7 @@ public abstract class NoteGroup extends JPanel {
         tempwin.setTitle(nd.getNoteString());
         tempwin.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                enc.checkSubject();
+                extendedNoteComponent.checkSubject();
                 d.setSize(we.getWindow().getSize());
                 we.getWindow().dispose();
             }
@@ -300,8 +300,8 @@ public abstract class NoteGroup extends JPanel {
         //------------------------------------------------------------------
         int newWidth = d.width;
         int newHeight = d.height;
-        String newSubject = enc.getSubject();
-        String newExtendedString = enc.getExtText();
+        String newSubject = extendedNoteComponent.getSubject();
+        String newExtendedString = extendedNoteComponent.getExtText();
 
         // We need to be able to save a 'None' subject, and recall it,
         //   which is different than if you never set one in the
@@ -610,7 +610,7 @@ public abstract class NoteGroup extends JPanel {
     // This should be called prior to closing.
     //----------------------------------------------------------------------
     protected void preClose() {
-        enc.saveSubjects();
+        extendedNoteComponent.saveSubjects();
         if (groupChanged) saveGroup();
     } // end preClose
 

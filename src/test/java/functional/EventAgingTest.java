@@ -18,20 +18,21 @@ class EventAgingTest {
         MemoryBank.debug = true;
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
-        FileUtils.cleanDirectory(testData);
-
-        // Retrieve fresh test data from test resources.
-        // We don't want a full set of data for these tests; just the UpcomingEvents.
-        String fileName = "EventAgingTest/UpcomingEvents.json";
-        File testFile = FileUtils.toFile(EventNoteGroup.class.getResource(fileName));
-        FileUtils.copyFileToDirectory(testFile, testData);
+        File testDataLoc = new File(MemoryBank.userDataHome);
+        FileUtils.cleanDirectory(testDataLoc);
     }
 
     @Test
     // Verify that events are copied to the right Days and that it happens only once
     // regardless of how many times 'refresh()' is called.  SCR0029, SCR0082
-    void testAgeOffStopAfter() {
+    void testAgeOffStopAfter() throws Exception {
+        // Retrieve fresh test data from test resources.
+        // We don't want a full set of data for these tests; just the UpcomingEvents.
+        File newname = new File(MemoryBank.userDataHome + File.separatorChar + "UpcomingEvents.json");
+        String fileName = "EventAgingTest/Age4Times&End.json";
+        File testFile = FileUtils.toFile(EventNoteGroup.class.getResource(fileName));
+        FileUtils.copyFile(testFile, newname);
+
         // the setup - After our BeforeAll there should be no Day data, at all.  Verify this, to some extent.
         File theFolder = new File(MemoryBank.userDataHome + File.separatorChar + "2018");
         Assertions.assertFalse(theFolder.exists()); // if no directory then no files either.

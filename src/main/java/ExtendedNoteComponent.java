@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.Vector;
 
 public class ExtendedNoteComponent extends JPanel {
-    private static final long serialVersionUID = 2901865483988763694L;
+    private static final long serialVersionUID = 1L;
 
     private static final int maxSubjects = 20;
 

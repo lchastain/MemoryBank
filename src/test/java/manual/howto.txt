@@ -42,7 +42,7 @@ One-stop reference for how to do certain tasks.
     LocalDate ansr = LocalDateTime.ofInstant(Instant.ofEpochMilli(theDate.getTime()), ZoneId.systemDefault()).toLocalDate();
 
 9.  Convert a LocalDate (java.time.LocalDate) to LocalDateTime:
-        LocalDateTime atTime(int hour, int minutes)  (and also seconds, optional)
+        LocalDate.now().atTime(int hour, int minutes)  (and also seconds, optional)
 
 10. Convert a LocalDate (java.time.LocalDate, 'myLocalDate') to Date (java.util.Date):
         Date date = Date.from(myLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())

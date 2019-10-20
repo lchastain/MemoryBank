@@ -1,6 +1,17 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/15/2019 0749 - In the recent work for dropping Date from Events, bypassed the revisions
+needed in the Duration calculations.  Now looking at that, can see that the mechanism used
+was a bitmapped 'known' indicator for the 16 states of the four Start/End Date/Time fields,
+which allowed that sometimes the composite Start/End would hold 'placeholder' values.  Now
+that we are no longer storing composite values (instead, each of the four values is retained
+separately), the 'known' indicator is not used but this invalidates the usage of placeholders
+as a way of persisting Duration.  So - will also persist two new fields - duration value
+and duration units.  These will only be persisted if the user entered them explicitly; if
+duration was calculated then they will be null.  A duration entry MIGHT have the effect of
+causing a known start or end to be recalculated.
+
 10/11/2019 1106 - During all the rework for Date removals, lots of fixes needed in TimeFormat
   Bar/Panel and also DateFormat Bar/Panel.  After doing all that and getting them to work
   well, was looking for what calls them up and - nothing does.  It appears that they were

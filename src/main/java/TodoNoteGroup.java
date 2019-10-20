@@ -64,7 +64,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         setName(fname.trim()); // The component-level name is null, otherwise.
         log.debug("Constructing: " + getName());
 
-        enc.remove(0); // Remove the subjectChooser.
+        extendedNoteComponent.remove(0); // Remove the subjectChooser.
         // We may want to make this operation less numeric in the future,
         //   but this works for now and no ENC structural changes are expected.
 
