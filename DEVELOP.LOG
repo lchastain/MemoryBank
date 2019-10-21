@@ -1,6 +1,12 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/21/2019 0823 - Still feel like there are problems with RecurrencePanel and event aging, but
+do not have a concrete issue to resolve, and the unwritten tests for them are just too nebulous
+to get a handle on, at this time.  The way forward is to continue working the example data by
+setting up Events with Recurrence and monitoring aging, and IF a problem arises, SCR it and work
+the issues at that time.  Meanwhile, moving on to other hi-pri SCRs.
+
 10/15/2019 0749 - In the recent work for dropping Date from Events, bypassed the revisions
 needed in the Duration calculations.  Now looking at that, can see that the mechanism used
 was a bitmapped 'known' indicator for the 16 states of the four Start/End Date/Time fields,

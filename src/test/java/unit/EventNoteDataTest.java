@@ -20,7 +20,6 @@ class EventNoteDataTest {
         testEventNoteData.setRecurrence("Y_the 31st of October_");
         testEventNoteData.setRetainNote(true);
         testEventNoteData.setIconFileString("icons/smiley2_pumpkin.gif");
-
     }
 
     @AfterEach
