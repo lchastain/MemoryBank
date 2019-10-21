@@ -192,7 +192,7 @@ public class AppUtil {
 
                 String strTheMonth = strTheName.substring(index1, index2);
                 try {
-                    theMonth = Integer.parseInt(strTheMonth) - 1;
+                    theMonth = Integer.parseInt(strTheMonth);
                 } catch (NumberFormatException nfe) {
                     return null;
                 } // end try to parse the integer

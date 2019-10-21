@@ -66,9 +66,10 @@ class EventNoteGroupTest {
         eventNoteGroup.editExtendedNoteComponent(eventNoteData);
     }
 
-    @Test
-    void testRefresh() {
-        eventNoteGroup.refresh();
-    }
+    // Disabled this test because it only does coverage, and we get that and more from Functional Tests.
+//    @Test
+//    void testRefresh() {
+//        eventNoteGroup.refresh();
+//    }
 
 }
