@@ -36,10 +36,6 @@ public class EventNoteData extends IconNoteData {
     // recalculation.  This var is used to stop that from happening.
     static transient boolean settingDuration = false;
 
-    @JsonIgnore
-    private Long lngDurationValue;     // this one will go away..
-    private transient String strDurationUnits;
-
     // These two are set by the recalcDuration method via the Date/Time setters, and
     // they share their 'get' methods with durationValue and durationUnits.
     private transient Long calculatedDurationValue;

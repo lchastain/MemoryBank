@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
+// Coverage for the methods for setting Dates, Times, and Duration - is taken care
+// of by the functional tests for Duration setting and Duration calculation;
+// no need to include trivial calls to them here.
+
 class EventNoteDataTest {
     private EventNoteData testEventNoteData;
 
@@ -37,36 +41,6 @@ class EventNoteDataTest {
     }
 
     @Test
-    void testGetDurationUnits() {
-        String theUnits = testEventNoteData.getDurationUnits();
-        Assertions.assertNull(theUnits); // Because we have no End Date
-    }
-
-    @Test
-    void testGetEndDate() {
-    }
-
-    @Test
-    void testGetEndTime() {
-    }
-
-    @Test
-    void testGetEventEnd() {
-    }
-
-    @Test
-    void testGetEventStart() {
-    }
-
-    @Test
-    void testGetEventStartDateTime() {
-    }
-
-    @Test
-    void testGetEventEndDateTime() {
-    }
-
-    @Test
     void testGetLocation() {
     }
 
@@ -83,14 +57,6 @@ class EventNoteDataTest {
     }
 
     @Test
-    void testGetStartDate() {
-    }
-
-    @Test
-    void testGetStartTime() {
-    }
-
-    @Test
     void testGetSummary() {
     }
 
@@ -99,55 +65,7 @@ class EventNoteDataTest {
     }
 
     @Test
-    void testGetDayNoteData() {
-    }
-
-    @Test
     void testHasStarted() {
-    }
-
-    @Test
-    void testIsAnyKnown() {
-    }
-
-    @Test
-    void testIsAnyUnknown() {
-    }
-
-    @Test
-    void testIsEndDateKnown() {
-    }
-
-    @Test
-    void testIsEndTimeKnown() {
-    }
-
-    @Test
-    void testIsStartDateKnown() {
-    }
-
-    @Test
-    void testIsStartTimeKnown() {
-    }
-
-    @Test
-    void testIsTimesKnown() {
-    }
-
-    @Test
-    void testSetDateFormat() {
-    }
-
-    @Test
-    void testSetDuration() {
-    }
-
-    @Test
-    void testSetEndDate() {
-    }
-
-    @Test
-    void testSetEndTime() {
     }
 
     @Test
@@ -162,11 +80,4 @@ class EventNoteDataTest {
     void testSetRetainNote() {
     }
 
-    @Test
-    void testSetStartDate() {
-    }
-
-    @Test
-    void testSetStartTime() {
-    }
 }

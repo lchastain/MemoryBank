@@ -310,19 +310,15 @@ public class RecurrencePanel extends JPanel implements
                 }
 
                 dateGood = dateTheEndDate;
-//                calTmp.add(Calendar.DATE, 7); // add a week
                 dateTheEndDate = dateTheEndDate.plusWeeks(1);
 
                 // System.out.println(strWhichOne + " " + calTmp.getTime());
-//                if (calTmp.get(Calendar.MONTH) != intMonth) {
                 if (dateTheEndDate.getMonthValue() - 1 != intMonth) {
                     // System.out.println("Shot past - resetting.");
-//                    calTmp.setTime(dateGood);
                     dateTheEndDate = dateGood;
                     break;
                 } // end if
             } // end while
-//            dateTheEndDate = calTmp.getTime();
         } // end if/else - general or specific or last
 
         return dateTheEndDate;

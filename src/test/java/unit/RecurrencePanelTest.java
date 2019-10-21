@@ -5,6 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
+// Lots of work needed here but not sure where to start, and
+// some/all might be done better via functional tests, if I
+// had written any - those might be coming soon...
+
 class RecurrencePanelTest {
     private static RecurrencePanel theRecurrencePanel;
 
