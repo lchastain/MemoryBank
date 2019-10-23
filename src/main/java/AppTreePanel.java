@@ -521,7 +521,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
         else if (what.startsWith("Merge")) ((TodoNoteGroup) theNoteGroup).merge();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
-        else if (what.equals("Refresh")) theEvents.refresh();
+        else if (what.equals("Refresh")) theNoteGroup.refresh();
         else if (what.equals("Review...")) System.out.println("Review was selected.");
         else if (what.startsWith("Save As")) saveTodoListAs();
         else if (what.equals("Today")) showToday();

@@ -1021,6 +1021,12 @@ public abstract class NoteGroup extends JPanel {
     } // end updateGroup
 
 
+    protected void refresh() {
+        preClose();
+        updateGroup();
+    }
+
+
     static class LastModComparator implements Comparator<NoteData> {
         int direction;
 

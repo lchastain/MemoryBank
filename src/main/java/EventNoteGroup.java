@@ -347,6 +347,7 @@ public class EventNoteGroup extends NoteGroup
     //   interface due to 'aging', it should be done by first saving the
     //   data and then reloading it.
     //----------------------------------------------------------------------
+    @Override
     public void refresh() {
         preClose();     // Save changes
         updateGroup();
