@@ -1167,8 +1167,7 @@ public class EventNoteData extends IconNoteData {
                     // to leave it that way given the new duration and known start.
                     case "Hours":
                         theDays = durationValue / 24;
-                        if (theDays > 0) {
-                            if (durationValue % 24 == 0) { // Set (or override) the End Date
+                            if ((durationValue % 24 == 0) && (theDays > 0))  { // Set (or override) the End Date
                                 setEndDate(getStartDate().plusDays(theDays));
                             } else { // Has the End Date previously been set?
                                 LocalDate theEndDate = getEndDate();
@@ -1182,12 +1181,10 @@ public class EventNoteData extends IconNoteData {
                                     if (nullit) setEndDate(null);
                                 }
                             }
-                        }
                         break;
                     case "Minutes":
                         theDays = durationValue / (24 * 60);
-                        if (theDays > 0) {
-                            if (durationValue % (24 * 60) == 0) { // Set (or override) the End Date
+                            if ((durationValue % (24 * 60) == 0) && (theDays > 0)){ // Set (or override) the End Date
                                 setEndDate(getStartDate().plusDays(theDays));
                             } else { // Has the End Date previously been set?
                                 LocalDate theEndDate = getEndDate();
@@ -1201,7 +1198,6 @@ public class EventNoteData extends IconNoteData {
                                     if (nullit) setEndDate(null);
                                 }
                             }
-                        }
                         break;
                 }
                 break;
@@ -1377,8 +1373,9 @@ public class EventNoteData extends IconNoteData {
     }
 
     public boolean setStartDate(LocalDate newStartDate) {
+        recurrenceString = ""; // Setting (or unsetting) the Start date invalidates recurrence.
+
         if (newStartDate == null) { // The user is 'un-setting' the date.
-            recurrenceString = ""; // Recurrence not possible without a start date.
             eventStartDateString = null;
             recalcDuration();
             return true;
@@ -1408,9 +1405,8 @@ public class EventNoteData extends IconNoteData {
             if (newEventStart.isAfter(eventEnd)) return false;
         }
 
-        // Accept the proposed new Start date, reset recurrence, and recalculate duration.
+        // Accept the proposed new Start date and recalculate duration.
         eventStartDateString = newStartDate.toString();
-        recurrenceString = "";
         recalcDuration();
         return true;
     } // end setStartDate

@@ -289,6 +289,10 @@ class EventDurationSettingTest {
         eventNoteData.setDurationValue(76); // This one is divisible by 24 hours (but with a remainder) to equal 3 days and 4 hours
         // The existing End Date is too far away from the Start plus Duration (and we have a remainder) so it was nulled out when duration was set.
         Assertions.assertNull(eventNoteData.getEndDate()); // End Date went away.
+        // Now try a duration that does not cover more than one day -
+        Assertions.assertTrue(eventNoteData.setEndDate(LocalDate.of(2022, 2,14))); // Set an End Date that is much greater than Start Date + Duration.
+        eventNoteData.setDurationValue(19); // Less than one day, not a multiple of 24.
+        Assertions.assertNull(eventNoteData.getEndDate()); // End Date went away.
         Assertions.assertTrue(eventNoteData.setEndDate(LocalDate.of(2018, 8, 11))); // Now set End Date closer to Start
         eventNoteData.setDurationValue(15); // Zero days and there is a remainder so the End Date is not overridden to a new date,
         // and the existing one is within the allowed window so it should keep its value rather than being nulled out.
@@ -308,7 +312,12 @@ class EventDurationSettingTest {
         eventNoteData.setDurationValue(7146); // This one is divisible by 1440 minutes (but with a remainder) to equal 4 days, 23 hours and 6 minutes.
         // The existing End Date is too far away from the Start plus Duration (and we have a remainder) so it was nulled out when duration was set.
         Assertions.assertNull(eventNoteData.getEndDate()); // End Date went away.
-        Assertions.assertTrue(eventNoteData.setEndDate(LocalDate.of(2018, 8, 15))); // Now set End Date closer to Start
+        // Now try a duration that does not cover more than one day -
+        Assertions.assertTrue(eventNoteData.setEndDate(LocalDate.of(2022, 2,14))); // Set an End Date that is much greater than Start Date + Duration.
+        eventNoteData.setDurationValue(50); // This one does not even cover one hour.
+        Assertions.assertNull(eventNoteData.getEndDate()); // End Date went away.
+        // Now set End Date closer to Start
+        Assertions.assertTrue(eventNoteData.setEndDate(LocalDate.of(2018, 8, 15)));
         eventNoteData.setDurationValue(7145); // Zero days and there is a remainder so the End Date is not overridden to a new date,
         // and the existing one is within the allowed window so it should keep its value rather than being nulled out.
         Assertions.assertEquals(LocalDate.of(2018, 8, 15), eventNoteData.getEndDate());

@@ -270,8 +270,11 @@ public class EventNoteGroup extends NoteGroup
         if (doit == JOptionPane.CANCEL_OPTION) return false;
 
         // Get the data from the Event Editor dialog.
-        extendedNoteComponent.checkSubject();   // TODO - is this doing what it is supposed to?
-//        ((EventEditorPanel) extendedNoteComponent).collectTheData(eventNoteData);
+        ((EventEditorPanel) extendedNoteComponent).assimilateTheData(eventNoteData);
+
+        // We don't know for sure that something changed, but since the edit was not cancelled
+        // we will assume that there were changes, and indicate that a save group is needed.
+        setGroupChanged();
 
         return true;
     } // end editExtendedNoteComponent

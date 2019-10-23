@@ -47,6 +47,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     // For Events
     private MouseAdapter maDateTimeHandler;
     private ItemListener ilDurationUnits;
+    private KeyAdapter userTyping;
 
     // Ancillary dialogs -
     private YearView yvDateChooser;
@@ -129,6 +130,17 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                 btnRecurrence_actionPerformed();
             }
         });
+
+        userTyping = new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((c == KeyEvent.VK_BACK_SPACE) || (c == KeyEvent.VK_DELETE)
+                        || (c == KeyEvent.VK_ENTER) || (c == KeyEvent.VK_TAB)
+                        || (Character.isDigit(c)))) {
+                    e.consume();
+                }
+            }
+        };
 
         reinitializeComponent();
     } // end EventEditorPanel constructor
@@ -656,17 +668,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         lblDuration.setFont(Font.decode("Dialog-bold-12"));
         txtfDurationValue.setFont(Font.decode("Dialog-bold-12"));
 
-        txtfDurationValue.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-
-                if (!((c == KeyEvent.VK_BACK_SPACE) || (c == KeyEvent.VK_DELETE)
-                        || (c == KeyEvent.VK_ENTER) || (c == KeyEvent.VK_TAB)
-                        || (Character.isDigit(c)))) {
-                    e.consume();
-                }
-            }
-        });
+        txtfDurationValue.addKeyListener(userTyping);
 
         txtfDurationValue.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -735,6 +737,17 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         comboxLocation.setMaximumRowCount(maxLocations);
         comboxLocation.setEditable(true);
         addComponent(this, comboxLocation, rectTmp.x, rectTmp.y, rectTmp.width, rectTmp.height);
+
+        comboxLocation.addKeyListener(userTyping);
+        ItemListener ilLocation = new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                // Don't care about deselections; only selections (which happen immediately afterwards)
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    setLocation();
+                }
+            }
+        };
+        comboxLocation.addItemListener(ilLocation);
 
         // Recurrence
         btnRecurrence.setFont(Font.decode("Dialog-bold-12"));
@@ -938,8 +951,23 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // Update our interface based on the effect of the duration setting that was just done.
         resetStartPanel(editedEventNoteData.getStartDate(), editedEventNoteData.getStartTime());
         resetEndPanel(editedEventNoteData.getEndDate(), editedEventNoteData.getEndTime());
+    } // end setDuration
 
-    } // end setDurationValue
+    private void setLocation() {
+        // Get the text from the Location combo box, whether it
+        //   was placed there via a selection or typing.
+        Object objTmpLoc = comboxLocation.getEditor().getItem();
+        if (objTmpLoc != null) {
+            String strTmpLoc = objTmpLoc.toString().trim();
+                if (!strTmpLoc.equals(editedEventNoteData.getLocationString().trim())) {
+                    // Only if this represents a change.
+                    editedEventNoteData.setLocation(strTmpLoc);
+                    if(!strTmpLoc.equals("")) addLocation(strTmpLoc);
+                }
+        }
+        saveLocations();
+
+    } // end setLocation
 
 
     //----------------------------------------------------------
@@ -962,7 +990,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
     // Set the interface fields per the input data object.
     public void showTheData(@NotNull EventNoteData end) {
-        editedEventNoteData = end;
+        editedEventNoteData = new EventNoteData(end);
 
         // Load the interface with the correct data
         //------------------------------------------------
@@ -1114,4 +1142,89 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         tempwin.setVisible(true);
     } // end showDateDialog
 
+    // We cannot use a 'get' method here, because the hierarchy that led us here is not set
+    // up to work that way.  And we cannot just swap out the parameter for our own, because
+    // that violates the rule about not reassigning a reference from a method that it was
+    // sent to.  So - a painful tedious process of copying out every member that needs to
+    // be preserved, and jumping thru the hoops needed to clear the 'set' validations.
+    void assimilateTheData(EventNoteData end) {
+        // The noteString is not affected by this editor.
+
+        // But the extended note is.
+        updateSubject();
+        end.setExtendedNoteString(getExtText());
+
+        // For size of the Extended text - non-adjustable by the user
+        //   but it is larger here than the default for a Note,
+        //   and if this event gets aged off and retained as a
+        //   note then this size will be used.
+        end.setExtendedNoteWidthInt(body.getWidth() + 10);
+        end.setExtendedNoteHeightInt(spaneNotes.getHeight() + 40);
+
+        end.setSubjectString(getSubject());
+        // We need to be able to save a blank subject, and recall it,
+        //   which is different than if you never set one in the
+        //   first place, in which case it would be null and you
+        //   should get the default subject.  So -
+        //   we allow the assignment without checking its content.
+
+        // Get the current state of the 'Retain Note' checkbox.
+        end.setRetainNote(chkboxRetainNote.isSelected());
+
+        // If duration has been entered by the user then we don't want
+        // to lose that info when setting the Dates/Times, below.
+        Integer preservedDurationValue = editedEventNoteData.getDurationValue();
+        String preservedDurationUnits = editedEventNoteData.getDurationUnits();
+
+        // The Start is not allowed to be later than the End.  But what if, during the course
+        //   of this interface being used, the End date were first
+        //   extended and then the Start date was also increased,
+        //   to a value that exceeds the original End date?
+        //   Within the interface, this passes validation but now we need
+        //   to put the results back into the 'accepted' data and
+        //   if we start with the new Start Date, it would not be
+        //   legal when compared to the original Event End that would not
+        //   yet have been replaced by the data here.  Likewise/conversely for
+        //   the other direction, which means that there is no one 'right'
+        //   order in which to set them.  So - the only way to be sure
+        //   that the updates will be accepted is to first clear
+        //   the existing data.
+        end.setStartDate(null);
+        end.setStartTime(null);
+        end.setEndDate(null);
+        end.setEndTime(null);
+
+        // Now we can use the values from this interface without further validation.
+        end.setStartDate(editedEventNoteData.getStartDate());
+        end.setStartTime(editedEventNoteData.getStartTime());
+        end.setEndDate(editedEventNoteData.getEndDate());
+        end.setEndTime(editedEventNoteData.getEndTime());
+
+        // Do this after setting the start date, since
+        //   that action clears recurrence.
+        end.setRecurrence(strRecurrenceSetting);
+
+        // But setting Dates/Times has seriously messed with the Duration we might have had,
+        // and the preservation we did above still doesn't tell us whether it was
+        // user-entered, or had been calculated.  We only want to preserve it if it
+        // had been entered.  We can figure that out by checking the current values
+        // (which should be the calculated ones) and if they do not match what we
+        // preserved then what was preserved must have been entered.  If it does
+        // match then any recalculation will reproduce it, so we do nothing.
+        String theUnits = end.getDurationUnits();
+        Integer theValue = end.getDurationValue();
+
+        boolean sameUnits = (preservedDurationUnits != null) && preservedDurationUnits.equals(theUnits);
+        boolean sameValue = (preservedDurationValue != null) && preservedDurationValue.equals(theValue);
+        if(!sameUnits) {
+            end.setDurationUnits(preservedDurationUnits);
+        }
+        if(!sameValue) {
+            end.setDurationValue(preservedDurationValue);
+        }
+
+        // Location
+        end.setLocation(editedEventNoteData.getLocationString());
+
+    } // end assimilateTheData
 } // end class EventEditorPanel

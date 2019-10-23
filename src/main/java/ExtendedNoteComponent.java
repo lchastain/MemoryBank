@@ -112,23 +112,26 @@ public class ExtendedNoteComponent extends JPanel {
     } // end addSubject
 
 
-    // This is needed to acquire typed text.
-    // Called from a higher context because there are no locally
-    //   handled events that are relevant.
-    void checkSubject() {
+    // This is needed to acquire text that might be typed into the Subject combobox control.
+    // Needs to be called from a NoteGroup during an Edit session for the ExtendedNoteComponent,
+    // because there is nothing in place to do this automatically as the result of an awt or
+    // swing event.  There could be, of course, but I opted to NOT go that route because it
+    // would be called for every single keypress and dropdown selection, whereas this one is
+    // only needed once, at the end of the edit session.
+    void updateSubject() {
         String theSubject = (String) subjectChooser.getEditor().getItem();
         // Note: Cannot use '.getSelectedItem()' above, because it may have
         //   just been typed in and not be in the list, therefore it is not
         //   the selected item.
 
-        MemoryBank.debug("checkSubject " + theSubject);
+        MemoryBank.debug("updateSubject " + theSubject);
         if (theSubject == null) return;
         else theSubject = theSubject.trim();
 
         mySubject = theSubject;
 
         addSubject(mySubject);  // Move to the top of the list.
-    } // end checkSubject
+    } // end updateSubject
 
 
     String getExtText() {

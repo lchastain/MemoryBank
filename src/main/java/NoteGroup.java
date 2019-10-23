@@ -284,7 +284,7 @@ public abstract class NoteGroup extends JPanel {
         tempwin.setTitle(nd.getNoteString());
         tempwin.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                extendedNoteComponent.checkSubject();
+                extendedNoteComponent.updateSubject();
                 d.setSize(we.getWindow().getSize());
                 we.getWindow().dispose();
             }
