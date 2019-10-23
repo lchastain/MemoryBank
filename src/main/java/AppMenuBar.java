@@ -12,7 +12,8 @@ public class AppMenuBar extends JMenuBar{
     private static JMenu menuFileTodoBranch;
     private static JMenu menuFileTodo;
     private static JMenu menuView;
-    private static JMenu menuViewDate;
+    private static JMenu menuViewNote;
+    private static JMenu menuViewView;
     private static JMenu menuHelp;
 
     static {
@@ -61,9 +62,12 @@ public class AppMenuBar extends JMenuBar{
         menuView = new JMenu("View");
         menuView.add(new JMenuItem("Refresh"));
 
-        menuViewDate = new JMenu("View");
-        menuViewDate.add(new JMenuItem("Today"));
-        menuViewDate.add(new JMenuItem("Refresh"));
+        menuViewView = new JMenu("View");
+        menuViewView.add(new JMenuItem("Today"));
+
+        menuViewNote = new JMenu("View");
+        menuViewNote.add(new JMenuItem("Today"));
+        menuViewNote.add(new JMenuItem("Refresh"));
 
         menuHelp = new JMenu("Help");
         menuHelp.add(new JMenuItem("Contents"));
@@ -80,7 +84,8 @@ public class AppMenuBar extends JMenuBar{
         menuFileTodo.setVisible(false);
         menuFileSearchResult.setVisible(false);
         menuView.setVisible(false);
-        menuViewDate.setVisible(false);
+        menuViewView.setVisible(false);
+        menuViewNote.setVisible(false);
     } // end static
 
     public AppMenuBar() {
@@ -94,7 +99,8 @@ public class AppMenuBar extends JMenuBar{
         add(menuEditYear);
         add(menuEditTodo);
         add(menuView);
-        add(menuViewDate);
+        add(menuViewView);
+        add(menuViewNote);
 
         // This puts the 'Help' on the far right side.
         add(Box.createHorizontalGlue());
@@ -110,39 +116,40 @@ public class AppMenuBar extends JMenuBar{
         // Set a default of having the 'File' and 'View' menus only;
         //   let the specific cases below make any needed alterations.
         //-----------------------------------------
-        menuEditDay.setVisible(false);
-        menuEditMonth.setVisible(false);
-        menuEditTodo.setVisible(false);
-        menuEditYear.setVisible(false);
         menuFile.setVisible(true);
         menuFileTodoBranch.setVisible(false);
         menuFileTodo.setVisible(false);
         menuFileSearchResult.setVisible(false);
+        menuEditDay.setVisible(false);
+        menuEditMonth.setVisible(false);
+        menuEditTodo.setVisible(false);
+        menuEditYear.setVisible(false);
         menuView.setVisible(true);
-        menuViewDate.setVisible(false);
+        menuViewView.setVisible(false);
+        menuViewNote.setVisible(false);
 
         switch (strMenuType) {
-            case "Views":  // Not a lot of choices for a branch
+            case "Views":  // Not a lot of choices for a collapsible Tree branch
             case "Notes":
                 menuView.setVisible(false);
                 break;
             case "Year View":  // Year View
                 menuView.setVisible(false);
-                menuViewDate.setVisible(true);
+                menuViewView.setVisible(true);
                 break;
             case "Month Notes":  // Month Notes
                 menuEditMonth.setVisible(true);
                 menuView.setVisible(false);
-                menuViewDate.setVisible(true);
+                menuViewNote.setVisible(true);
                 break;
             case "Month View":  // Month View
                 menuView.setVisible(false);
-                menuViewDate.setVisible(true);
+                menuViewView.setVisible(true);
                 break;
             case "Day Notes":  // Day Notes
                 menuEditDay.setVisible(true);
                 menuView.setVisible(false);
-                menuViewDate.setVisible(true);
+                menuViewNote.setVisible(true);
                 break;
             case "Search Result":  // Search Results
                 menuFile.setVisible(false);
@@ -152,7 +159,7 @@ public class AppMenuBar extends JMenuBar{
             case "Year Notes":  // Year Notes
                 menuEditYear.setVisible(true);
                 menuView.setVisible(false);
-                menuViewDate.setVisible(true);
+                menuViewNote.setVisible(true);
                 break;
             case "Upcoming Events":  // Upcoming Events
                 break;
@@ -164,6 +171,10 @@ public class AppMenuBar extends JMenuBar{
                 menuFile.setVisible(false);
                 menuFileTodo.setVisible(true);
                 menuEditTodo.setVisible(true);
+                break;
+            default:
+                MemoryBank.debug("Unhandled Menu Selection: " + strMenuType);
+                menuView.setVisible(false);
                 break;
         }
     } // end manageMenus
