@@ -69,7 +69,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private JPanel aboutPanel;
     private JSplitPane splitPane;
 
-    private static LocalDate currentDateChoice;
+    private LocalDate currentDateChoice;
+    private String theLastTreeSelection;
     private DefaultMutableTreeNode theRootNode;
     private SearchResultNode nodeSearchResults;
 
@@ -225,6 +226,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         blnRestoringSelection = false;
+
+        TreePath tp = tree.getSelectionPath();
+        if(tp != null) {
+            theLastTreeSelection = tp.getLastPathComponent().toString();
+        }
     } // end constructor for AppTreePanel
 
 
@@ -865,6 +871,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   reset whenever the About graphic is shown.  Acceptable.
     //--------------------------------------------------------------
     void showAbout() {
+        updateCurrentDateChoice(); // Used when restoring the previous view.
+
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
                 tree.getLastSelectedPathComponent();
 
@@ -892,7 +900,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // Show it.
             rightPane.setViewportView(aboutPanel);
 
-            amb.manageMenus("");
+            amb.manageMenus("About"); // This will get the default / unhandled case.
         } // end if
     } // end showAbout
 
@@ -1065,23 +1073,34 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // already today, no apparent change is made but it
     // could be made into a toggle between the date-based
     // view and the textual panel as described above, like
-    // the 'showAbout' behavior.  To implement a toggle on
-    // date-based groups, will need to first determine if
-    // 'Today' is already showing.
-    //   See 'getChoiceString' from DayNoteGroup; may need
-    //   a common method between all 5 groups, like isToday()
-    //   or choiceIsDate(today).
+    // the 'showAbout' behavior.
     //--------------------------------------------------------
     void showToday() {
         // Make sure that the most recent changes, if any, are preserved.
         preClose();
 
+        // Get the current tree selection
         TreePath tp = tree.getSelectionPath();
 
-        currentDateChoice = LocalDate.now();
+        if(tp == null) return; // Tree selection was cleared?
+        // If the 'big' Today is already showing then there is no current tree selection.
+        // Decided not to do a toggle here because the original date choice was
+        // already lost as soon as they asked for 'today' the first time.  It may be
+        // more helpful to just remove the menu choice in this case, but this also works.
 
         String theCurrentView = tp.getLastPathComponent().toString();
-        System.out.println("AppTreePanel.showToday path=" + theCurrentView);
+        MemoryBank.debug("AppTreePanel.showToday() - current path: " + theCurrentView);
+
+        // Set the last tree selection to the current one so that the current choice update
+        // will take its value from the correct tree node.
+        theLastTreeSelection = theCurrentView;
+        updateCurrentDateChoice();
+
+        if(currentDateChoice.equals(LocalDate.now())) {
+            theCurrentView = "Today";
+        } else {
+            currentDateChoice = LocalDate.now();
+        }
 
         switch (theCurrentView) {
             case "Year View":
@@ -1103,15 +1122,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // If we got thru to here, it means that we were already
         //   displaying today's date when the user requested us
-        //   to do so.  So - we do it bigger -
+        //   to do so.    So - we do it bigger -
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         JLabel dayTitle = new JLabel();
         dayTitle.setHorizontalAlignment(JLabel.CENTER);
         dayTitle.setForeground(Color.blue);
         dayTitle.setFont(Font.decode("Serif-bold-24"));
         dayTitle.setText(dtf.format(currentDateChoice));
-
         rightPane.setViewportView(dayTitle);
+
+        // Clear the current tree selection, so they can select it again
+        // and get back to a 'normal' view.
+        tree.clearSelection();
+
     } // end showToday
 
     void showWeek() {
@@ -1179,41 +1202,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             theNoteGroup.preClose();
         } // end if
 
-        //<editor-fold desc="Get the last selected Date, if any ">
-        //-------------------------------------------------------------
-        // There are five (5) situations where the previous selection
-        //   may have allowed the user to change the displayed date.
-        //   If 'theLastSelection' is one of them then obtain the date
-        //   from that group, so that it can be used later to set the
-        //   date to be shown before we display the newly selected
-        //   group.
-        //-------------------------------------------------------------
+        // Update the currentDateChoice so that it can be used to set the
+        //   date to be shown before we display the newly selected group.
         if (tp != null) {
-            String theLastSelection = tp.getLastPathComponent().toString();
-            MemoryBank.debug("Last Selection was: " + theLastSelection);
-
-            switch (theLastSelection) {
-                case "Year View":
-                    // Unlike the others, a YearView choice MAY be null.
-                    LocalDate yearViewChoice = theYearView.getChoice();
-                    if (yearViewChoice != null) currentDateChoice = theYearView.getChoice();
-                    break;
-                case "Month View":
-                    currentDateChoice = theMonthView.getChoice();
-                    break;
-                case "Day Notes":
-                    currentDateChoice = theAppDays.getChoice();
-                    break;
-                case "Month Notes":
-                    currentDateChoice = theAppMonths.getChoice();
-                    break;
-                case "Year Notes":
-                    currentDateChoice = theAppYears.getChoice();
-                    break;
-            }
-            //-------------------------------------------------------------
+            theLastTreeSelection = tp.getLastPathComponent().toString();
+            MemoryBank.debug("Last Selection was: " + theLastTreeSelection);
+            updateCurrentDateChoice();
         } // end if
-        //</editor-fold>
 
         String theText = node.toString();
         String theParent = node.getParent().toString();
@@ -1376,6 +1371,37 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end treeSelectionChanged
 
 
+    // There are five situations where the previous selection
+    //   may have allowed the user to change the displayed date.
+    //   If 'theLastTreeSelection' is one of them then set the
+    //   currentDateChoice to the date from that group.  This is
+    //   needed when switching between these groups and also
+    //   used by showToday and showAbout.
+    private void updateCurrentDateChoice() {
+        if(theLastTreeSelection == null) return;
+
+        switch (theLastTreeSelection) {
+            case "Year View":
+                // Unlike the others, a YearView choice MAY be null.
+                LocalDate yearViewChoice = theYearView.getChoice();
+                if (yearViewChoice != null) currentDateChoice = theYearView.getChoice();
+                break;
+            case "Month View":
+                currentDateChoice = theMonthView.getChoice();
+                break;
+            case "Day Notes":
+                currentDateChoice = theAppDays.getChoice();
+                break;
+            case "Month Notes":
+                currentDateChoice = theAppMonths.getChoice();
+                break;
+            case "Year Notes":
+                currentDateChoice = theAppYears.getChoice();
+                break;
+        }
+    }
+
+
     //-------------------------------------------------
     // Method Name:  updateTreeState
     //
@@ -1444,7 +1470,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   and that defeats its entire purpose.
     //-------------------------------------------------------------
     public void valueChanged(TreeSelectionEvent e) {
-//new Exception("Lee - no real problem").printStackTrace();
 
         final TreePath tp = e.getOldLeadSelectionPath();
         if (blnRestoringSelection) {
