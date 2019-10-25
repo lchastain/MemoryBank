@@ -7,7 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
@@ -16,43 +15,42 @@ public class DayNoteGroup extends CalendarNoteGroup
         implements iconKeeper, MouseListener {
     private static final long serialVersionUID = 1L;
 
-    static String defaultIconFileName; // Accessed by MonthView.
     private static AppIcon defaultIcon;
-    private static String defaultFileName;
-
     private static JLabel dayTitle;
+    private static DayNoteDefaults dayNoteDefaults;
+
+    // Accessed by MonthView
+    static String defaultIconFileName;
 
     // Set by other NoteGroups (Event, Todo)
     static boolean blnNoteAdded;
 
     static {
-        // Create the window title
+        // Create the panel title
         dayTitle = new JLabel();
         dayTitle.setHorizontalAlignment(JLabel.CENTER);
         dayTitle.setForeground(Color.white);
         dayTitle.setFont(Font.decode("Serif-bold-20"));
 
         // Because the parent NoteGroup class is where all NoteComponents get
-        //   made and that constructor runs before this one, the defaultIcon
+        //   made and that constructor runs before the one here, the defaultIcon
         //   (seen in a DayNoteComponent) MUST be present BEFORE that
         //   constructor is called.  This is why we need to
         //   assign it during the static section of this class.
         //------------------------------------------------------------------
-        defaultIconFileName = MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar;
-        defaultIconFileName += "icon_not.gif";
-        defaultFileName = "DayNoteDefaults";
+        dayNoteDefaults = new DayNoteDefaults();
+        dayNoteDefaults.load(); // This may provide a different default icon.
+        defaultIconFileName = dayNoteDefaults.defaultIconFileName;
+
         blnNoteAdded = false;
 
-        // This will override the defaults only if the load is good.
-        loadDefaults(); // May provide a different default icon.
-
-        if (defaultIconFileName.equals("")) {
+        if (dayNoteDefaults.defaultIconFileName.equals("")) {
             // It IS possible that the user wants no default icon.
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
             defaultIcon = new AppIcon();
         } else {
-            MemoryBank.debug("Default DayNoteComponent Icon: " + defaultIconFileName);
-            defaultIcon = new AppIcon(defaultIconFileName);
+            MemoryBank.debug("Default DayNoteComponent Icon: " + dayNoteDefaults.defaultIconFileName);
+            defaultIcon = new AppIcon(dayNoteDefaults.defaultIconFileName);
             AppIcon.scaleIcon(defaultIcon);
         } // end if/else
 
@@ -115,40 +113,6 @@ public class DayNoteGroup extends CalendarNoteGroup
     public DayNoteComponent getNoteComponent(int i) {
         return (DayNoteComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
-
-
-    // Currently this only holds the defaultIconFileString.
-    // Holding the 'military' boolean in MemoryBank.appOpts because more than one
-    //   context needs access to it, but this is the only place where it gets set.
-    private static void loadDefaults() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
-        Exception e = null;
-        FileInputStream fis;
-        String tmp = null;
-
-        try {
-            fis = new FileInputStream(FileName);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            tmp = (String) ois.readObject();
-            ois.close();
-            fis.close();
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; create one using program defaults.
-            MemoryBank.debug(defaultFileName + " file not found; using program defaults");
-            saveDefaults();
-            return;
-        } catch (ClassCastException | ClassNotFoundException | IOException eee) {
-            e = eee;
-        } // end try/catch
-
-        if (e != null) {
-            MemoryBank.debug("Error in loading " + FileName + "; using defaults");
-            return;
-        } // end if
-
-        defaultIconFileName = tmp;
-        MemoryBank.debug("Loaded Default icon: " + defaultIconFileName);
-    } // end loadDefaults
 
 
     //-------------------------------------------------------------------
@@ -231,22 +195,6 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end recalc
 
 
-    private static void saveDefaults() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
-        MemoryBank.debug("Saving day option data in " + defaultFileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(FileName);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(defaultIconFileName);
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        } // end try/catch
-    } // end saveDefaults
-
-
     // This is called from AppTreePanel.
     public void setChoice(LocalDate theNewChoice) {
         if (blnNoteAdded) {
@@ -271,8 +219,8 @@ public class DayNoteGroup extends CalendarNoteGroup
     //----------------------------------------------------
     public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
-        defaultIconFileName = li.getDescription();
-        saveDefaults();
+        dayNoteDefaults.defaultIconFileName = li.getDescription();
+        dayNoteDefaults.save();
         setGroupChanged();
         preClose();
         updateGroup();
@@ -287,7 +235,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
     public void shiftDown(int index) {
         if (index >= (lastVisibleNoteIndex - 1)) return;
-        System.out.println("Day Shifting note down");
+        MemoryBank.debug("Day Shifting note down");
         DayNoteComponent dnc1, dnc2;
         dnc1 = (DayNoteComponent) groupNotesListPanel.getComponent(index);
         dnc2 = (DayNoteComponent) groupNotesListPanel.getComponent(index + 1);

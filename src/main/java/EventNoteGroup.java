@@ -13,21 +13,20 @@ import java.util.Vector;
 
 public class EventNoteGroup extends NoteGroup
         implements iconKeeper, DateSelection {
+    private static final long serialVersionUID = 1L;
 
     // Notes on the implemented interfaces:
     //---------------------------------------------------------------------
     // DateSelection - method is dateSelected, to respond to TMC clicks.
 
-    private static final long serialVersionUID = 1L;
-
-    // Because of the way that NoteGroups get their NoteComponents,
-    // the defaultIcon MUST be present BEFORE the constructor
-    // for this class is called. The only way that is possible
-    // is to assign it during the static section of this class.
-    // ------------------------------------------------------------------
-    private static String defaultIconFileString;
+    // Because the parent NoteGroup class is where all NoteComponents get
+    //   made and that constructor runs before the one here, the defaultIcon
+    //   (seen in an EventNoteComponent) MUST be present BEFORE that
+    //   constructor is called.  This is why we need to
+    //   assign it during the static section of this class.
+    //------------------------------------------------------------------
+    private static EventNoteDefaults eventNoteDefaults;
     private static AppIcon defaultIcon;
-    private static String defaultFileName;
     private static Notifier optionPane;
 
     private ThreeMonthColumn tmc;
@@ -35,18 +34,15 @@ public class EventNoteGroup extends NoteGroup
     private EventNoteComponent eNoteComponent;
 
     static {
-        defaultIconFileString = "icons/reminder.gif";
+        eventNoteDefaults = new EventNoteDefaults();
+        eventNoteDefaults.load();
 
-        // This will override the above default only if the load is good.
-        defaultFileName = "EventNoteDefaults";
-        loadDefaults();
-
-        if (defaultIconFileString.equals("")) {
+        if (eventNoteDefaults.defaultIconFileName.equals("")) {
             MemoryBank.debug("Default EventNoteComponent Icon: <blank>");
             defaultIcon = new AppIcon();
         } else {
-            MemoryBank.debug("Default EventNoteComponent Icon: " + defaultIconFileString);
-            defaultIcon = new AppIcon(defaultIconFileString);
+            MemoryBank.debug("Default EventNoteComponent Icon: " + eventNoteDefaults.defaultIconFileName);
+            defaultIcon = new AppIcon(eventNoteDefaults.defaultIconFileName);
            AppIcon.scaleIcon(defaultIcon);
         } // end if/else
     } // end static section
@@ -296,37 +292,6 @@ public class EventNoteGroup extends NoteGroup
     }// end getGroupFilename
 
 
-    private static void loadDefaults() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
-        Exception e = null;
-        FileInputStream fis;
-        String tmp = null;
-
-        try {
-            fis = new FileInputStream(FileName);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            tmp = (String) ois.readObject();
-            ois.close();
-            fis.close();
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; create one using program defaults.
-            MemoryBank.debug(defaultFileName + " file not found; using program defaults");
-            saveDefaults();
-            return;
-        } catch (ClassCastException | ClassNotFoundException | IOException eofe) {
-            e = eofe;
-        }// end try/catch
-
-        if (e != null) {
-            MemoryBank.debug("Error in loading " + FileName + "; using defaults");
-            return;
-        }// end if
-
-        defaultIconFileString = tmp;
-        MemoryBank.debug("Loaded Default icon: " + defaultIconFileString);
-    }// end loadDefaults
-
-
     // -------------------------------------------------------------------
     // Method Name: makeNewNote
     //
@@ -365,22 +330,6 @@ public class EventNoteGroup extends NoteGroup
     } // end refresh
 
 
-    private static void saveDefaults() {
-        String FileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
-        MemoryBank.debug("Saving Event default data in " + defaultFileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(FileName);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(defaultIconFileString);
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        }// end try/catch
-    }// end saveDefaults
-
-
     // ----------------------------------------------------
     // Method Name: setDefaultIcon
     //
@@ -389,7 +338,8 @@ public class EventNoteGroup extends NoteGroup
     // ----------------------------------------------------
     public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
-        saveDefaults();
+        eventNoteDefaults.defaultIconFileName = li.getDescription();
+        eventNoteDefaults.save();
         setGroupChanged();
         preClose();
         updateGroup();
