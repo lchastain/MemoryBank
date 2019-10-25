@@ -5,12 +5,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Vector;
 
 // An interface to edit the members of an EventNoteData.
 // It inherits a subject-management capability.
@@ -39,9 +37,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private int intPreferredWidth;    // See note in constructor.
     private int intPreferredHeight;   // See note in constructor.
     private DateTimeFormatter dtf;
-    private String strLocFilename;   // Locations file name
-    private Vector<String> locations;
-    private boolean locationsChanged;
+    private Locations locations;
 
 
     // For Events
@@ -155,38 +151,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     }
 
 
-    private void addLocation(String s) {
-        MemoryBank.debug("Adding location: [" + s + "]");
-        if (s.equals("")) return;
-
-        //------------------------------------------------------------------
-        // Check to see if this location is already first in the list -
-        //------------------------------------------------------------------
-        if (locations.size() > 0) {
-            if ((locations.elementAt(0)).equals(s)) return;
-        } // end if
-
-        //------------------------------------------------------------------
-        // Then, remove an occurrence of this subject lower in the list.
-        //------------------------------------------------------------------
-        locations.remove(s);
-
-        //------------------------------------------------------------------
-        // Then, put this subject at the top of the list.
-        //------------------------------------------------------------------
-        locations.insertElementAt(s, 0);
-
-        //------------------------------------------------------------------
-        // Then, if the list has grown too big, truncate.
-        //------------------------------------------------------------------
-        if (locations.size() > maxLocations) {
-            locations.remove(locations.lastElement());
-        } // end if too many
-
-        locationsChanged = true;
-    } // end addLocation
-
-
     private void btnDateFormat_actionPerformed(ActionEvent ae) {
         String s = ae.getActionCommand();
         System.out.print(this.getClass().getName());
@@ -195,21 +159,13 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         //   as it will be shown in the Event summary.
     }
 
-
     private void btnRecurrence_actionPerformed() {
         showRecurrenceDialog();
     }
 
-    // This method is only here to 'fool' JFramebuilder-generated code.
-    public JPanel getContentPane() {
-        return this;
-    }
-
-
     public Dimension getMinimumSize() {
         return new Dimension(intPreferredWidth, intPreferredHeight);
     } // end getMinimumSize
-
 
     //-----------------------------------------------------------
     // Method Name: handleDateTimeClicked
@@ -387,8 +343,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         spaneNotes = new JScrollPane();
         btnRecurrence = new JButton();
         btnDateFormat = new JButton();
-        contentPane = this.getContentPane();
-        //----- 
+        contentPane = this;
+        //-----
         lblStartDate = new JLabel();
         lblStartTime = new JLabel();
         jButton5 = new JButton();
@@ -544,61 +500,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         this.setSize(new Dimension(523, 493));
     } // end initializeComponent - JFrameBuilder generated code.
 
-    //-------------------------------------------------------------
-    // Method Name: loadLocations
-    //
-    //-------------------------------------------------------------
-    private void loadLocations() {
-        Exception e = null;
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        String loc;
 
-        locations = new Vector<>(6, 1);
-
-        try {
-            fis = new FileInputStream(strLocFilename);
-            ois = new ObjectInputStream(fis);
-
-            while (true) {  // The expected exit is via EOFException
-                loc = (String) ois.readObject();
-                if (loc == null) break; // Added this line to avoid an IJ complaint about 'while'
-                locations.addElement(loc);
-                MemoryBank.debug("  loaded subject: " + loc);
-            } // end while
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; expected first time for each user.
-            // So - set some defaults.
-            locations.add("Work");
-            locations.add("Home");
-            locations.add("Office");
-            locations.add("1600 Pennsylvania Avenue NW, Washington, DC 20500");
-        } catch (EOFException eofe) {
-            // System.out.println("End of file reached!");
-            try {
-                if (null != ois) ois.close();
-                fis.close();
-            } catch (IOException ioe) {   // This one's a throw-away.
-                ioe.printStackTrace(); // not handled but not (entirely) ignored...
-            } // end try/catch
-        } catch (Exception ex) {
-            e = ex;
-        } // end try/catch
-
-        if (e != null) {
-            String ems;
-            ems = "Error in loading " + strLocFilename + "!\n";
-            ems = ems + e.toString();
-            ems = ems + "\n'Locations' load operation aborted.";
-            JOptionPane.showMessageDialog(new Frame(),
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-        } // end if
-
-        locationsChanged = false;
-    } // end loadLocations
-
-
-    /**
+    /*
      * This method is called from within the constructor.
      * It continues the work of the JFrameBuilder generated code.
      * Replaces some standard components with custom types, retaining their
@@ -728,11 +631,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // Location
         lblLocation.setFont(Font.decode("Dialog-bold-12"));
 
-        strLocFilename = MemoryBank.userDataHome + File.separatorChar + "UpcomingLocations";
         rectTmp = comboxLocation.getBounds();
         remove(comboxLocation);
-        loadLocations();
-        comboxLocation = new JComboBox<>(locations);
+        locations = Locations.load();
+        comboxLocation = new JComboBox<>(locations.shortNames);
         comboxLocation.setFont(Font.decode("Serif-bold-12"));
         comboxLocation.setMaximumRowCount(maxLocations);
         comboxLocation.setEditable(true);
@@ -898,29 +800,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     } // end resetStartPanel
 
 
-    private void saveLocations() {
-        MemoryBank.debug("Saving locations: " + locationsChanged);
-        if (!locationsChanged) return;
-
-        MemoryBank.debug("Saving subject data in " + strLocFilename);
-        try {
-            FileOutputStream fos = new FileOutputStream(strLocFilename);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-            for (String subj : locations) {
-                oos.writeObject(subj);
-            } // end for
-
-            oos.flush();
-            oos.close();
-            fos.close();
-            locationsChanged = false;
-        } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        } // end try/catch
-    } // end saveLocations
-
-
     //-----------------------------------------------
     // Method Name: setDuration
     //
@@ -962,10 +841,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                 if (!strTmpLoc.equals(editedEventNoteData.getLocationString().trim())) {
                     // Only if this represents a change.
                     editedEventNoteData.setLocation(strTmpLoc);
-                    if(!strTmpLoc.equals("")) addLocation(strTmpLoc);
+                    if(!strTmpLoc.equals("")) locations.add(strTmpLoc);
                 }
         }
-        saveLocations();
+        locations.save();
 
     } // end setLocation
 

@@ -1,6 +1,5 @@
 import org.apache.commons.io.FileUtils;
 
-import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
