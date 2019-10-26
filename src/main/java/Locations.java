@@ -7,7 +7,6 @@ import java.util.Vector;
 public class Locations {
     private static String locationsFilename = "Locations.json";
     private static final int maxLocations = 20;
-    private static boolean locationsChanged;
 
     Vector<String> shortNames;
 
@@ -57,8 +56,6 @@ public class Locations {
         if (shortNames.size() > maxLocations) {
             shortNames.remove(shortNames.lastElement());
         } // end if too many
-
-        locationsChanged = true;
     } // end addLocation
 
 

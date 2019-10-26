@@ -26,7 +26,6 @@ public class EventNoteComponent extends IconNoteComponent {
         return myEventNoteData;
     } // end getNoteData
 
-
     protected void makeDataObject() {
         myEventNoteData = new EventNoteData();
     } // end makeDataObject

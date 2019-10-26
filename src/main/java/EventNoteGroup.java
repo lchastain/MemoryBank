@@ -49,8 +49,7 @@ public class EventNoteGroup extends NoteGroup
 
 
     EventNoteGroup() {
-        super("Upcoming Event");
-        extendedNoteComponent = new EventEditorPanel("Upcoming Event");
+        super();
 
         eNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -249,6 +248,9 @@ public class EventNoteGroup extends NoteGroup
     @Override
     protected boolean editExtendedNoteComponent(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
+        if(extendedNoteComponent == null) {
+            extendedNoteComponent = new EventEditorPanel("Upcoming Event");
+        }
 
         // Cast the input parameter to its full potential.
         EventNoteData eventNoteData = (EventNoteData) noteData;

@@ -50,12 +50,9 @@ public abstract class NoteGroup extends JPanel {
     // Container for the (complete collection of) Group data objects
     protected Vector<NoteData> vectGroupData;
 
-    // The properties for the group - cast to proper class
-    Object objGroupProperties;   // REMOVE this; now the child classes set their properties directly
-    //=============================================================
-
     // Private members
     //-------------------------------------------------------------
+    private String defaultSubject;
     private static final int PAGE_SIZE = 40;
 
     private int intHighestNoteComponentIndex;
@@ -69,17 +66,16 @@ public abstract class NoteGroup extends JPanel {
     private JLabel lblStatusMessage;
 
     // Access with getGroupFilename() & setGroupFilename()
-    private String strGroupFilename;
+    private String groupFilename;
     //-------------------------------------------------------------
 
-    NoteGroup(String defaultSubject) {
-        this(defaultSubject, PAGE_SIZE);
+    NoteGroup() {
+        this(PAGE_SIZE);
     } // end constructor 1
 
-    private NoteGroup(String defaultSubject, int intPageSize) {
+    private NoteGroup(int intPageSize) {
         super(new BorderLayout());
         pageSize = intPageSize;
-        extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
         addNoteAllowed = true;
         intHighestNoteComponentIndex = pageSize - 1;
 
@@ -89,14 +85,14 @@ public abstract class NoteGroup extends JPanel {
 
         // This is necessary because otherwise, once the bar appears,
         //  the tab and up/down keys can transfer focus over to here,
-        //  and the up/down keys cannot get it back out.
+        //  and the up/down keys cannot get it back.
         jsb.setFocusable(false);
 
         jsb.setUnitIncrement(NoteComponent.NOTEHEIGHT);
         jsb.setBlockIncrement(NoteComponent.NOTEHEIGHT);
         jsp.setVerticalScrollBar(jsb);
 
-        strGroupFilename = "";
+        groupFilename = "";
         groupChanged = false;
 
         int borderWidth = 2;
@@ -238,7 +234,7 @@ public abstract class NoteGroup extends JPanel {
             return false;
         } else {
             // System.out.println(f.getName() + " was removed");
-            strGroupFilename = "";
+            groupFilename = "";
             return true;
         } // end if
     } // end deleteFile
@@ -260,8 +256,12 @@ public abstract class NoteGroup extends JPanel {
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
         // Load the enc with the correct data
+        if(extendedNoteComponent == null) {
+            extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
+        }
+
         extendedNoteComponent.setExtText(nd.getExtendedNoteString());
-        extendedNoteComponent.setSubject(nd.getSubjectString());
+        if(defaultSubject != null) extendedNoteComponent.setSubject(nd.getSubjectString());
 
         //---------------------------------------------------------
         // Make a dialog window to show the ExtendedNoteComponent
@@ -284,7 +284,7 @@ public abstract class NoteGroup extends JPanel {
         tempwin.setTitle(nd.getNoteString());
         tempwin.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                extendedNoteComponent.updateSubject();
+                if(defaultSubject != null) extendedNoteComponent.updateSubject();
                 d.setSize(we.getWindow().getSize());
                 we.getWindow().dispose();
             }
@@ -330,8 +330,9 @@ public abstract class NoteGroup extends JPanel {
     } // end editExtendedNoteComponent
 
 
-    // Tests will use this; child classes can check the flag directly.
-    boolean getGroupChanged() { return groupChanged; }
+    void setDefaultSubject(String defaultSubject) {
+        this.defaultSubject = defaultSubject;
+    }
 
     // -------------------------------------------------------------------
     // Method Name: getGroupFilename
@@ -431,17 +432,9 @@ public abstract class NoteGroup extends JPanel {
     //--------------------------------------------------------------------
 
 
-
     private void loadGroup() {
-
-        // Clear before loading
-        //----------------------------------------------------
-        // The group may or may not have a 'Properties' object.
-        objGroupProperties = null;
-
-        vectGroupData.clear();
+        vectGroupData.clear(); // Clear before loading
         lastVisibleNoteIndex = 0;
-        //----------------------------------------------------
 
         // This string is set now, just prior to loading the group
         //   rather than earlier, because in some child classes the
@@ -449,15 +442,15 @@ public abstract class NoteGroup extends JPanel {
         //   same as it was at group construction; the filename for the
         //   group may be highly variable, and this method may be getting
         //   called after each filename change, even though the group
-        //   itself remains the same.
-        strGroupFilename = getGroupFilename();
+        //   components themselves remain in place.
+        groupFilename = getGroupFilename();
 
-        if(strGroupFilename.isEmpty()) {
+        if(groupFilename.isEmpty()) {
             MemoryBank.debug("No data file to load, for: " + this.getClass().getName());
         } else {
-            MemoryBank.debug("Loading NoteGroup data from: " + strGroupFilename);
+            MemoryBank.debug("Loading NoteGroup data from: " + groupFilename);
         }
-        Object[] theGroup = AppUtil.loadNoteGroupData(strGroupFilename);
+        Object[] theGroup = AppUtil.loadNoteGroupData(groupFilename);
         if(theGroup != null) {
             //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
             setGroupData(theGroup);
@@ -466,7 +459,7 @@ public abstract class NoteGroup extends JPanel {
             //   saving and if non-empty, the old file is deleted first.  Of
             //   course, if the file already does not exist, we don't want
             //   to let it try to do that.
-            strGroupFilename = "";
+            groupFilename = "";
             return;
         }
 
@@ -478,7 +471,7 @@ public abstract class NoteGroup extends JPanel {
         } // end try/catch
 
         if (e != null) {
-            ems = "NoteGroup loadGroup: Error in loading " + strGroupFilename + " !\n";
+            ems = "NoteGroup loadGroup: Error in loading " + groupFilename + " !\n";
             ems = ems + e.toString();
             ems = ems + "\nData file load operation aborted.";
             System.out.println("ems = " + ems);
@@ -610,7 +603,9 @@ public abstract class NoteGroup extends JPanel {
     // This should be called prior to closing.
     //----------------------------------------------------------------------
     protected void preClose() {
-        extendedNoteComponent.saveSubjects();
+        if(null != extendedNoteComponent && null != defaultSubject) {
+            extendedNoteComponent.saveSubjects();
+        }
         if (groupChanged) saveGroup();
     } // end preClose
 
@@ -674,16 +669,16 @@ public abstract class NoteGroup extends JPanel {
         //   successfully.  If we have, we will have a non-empty Filename
         //   and our first step will be to move that file out of the way
         //   before this new save operation can proceed.
-        if (!strGroupFilename.trim().equals("")) {
+        if (!groupFilename.trim().equals("")) {
             // Deleting or archiving first is necessary in case
             //   the change was to delete the information.
-            MemoryBank.debug("NoteGroup.saveGroup: old filename = " + strGroupFilename);
+            MemoryBank.debug("NoteGroup.saveGroup: old filename = " + groupFilename);
             if (MemoryBank.archive) {
                 MemoryBank.debug("  Archiving: " + shortName());
                 // Note: need to implement archiving but for now, what happens
                 // is what does not happen - we do not delete the old version.
             } else {
-                f = new File(strGroupFilename);
+                f = new File(groupFilename);
                 if (!deleteFile(f)) {
                     MemoryBank.debug("  Failed to delete; returning");
                     intSaveGroupStatus = DELETEOLDFILEFAILED;
@@ -695,22 +690,22 @@ public abstract class NoteGroup extends JPanel {
         // The name of the file to save to may not always be the same as
         //   the one we previously loaded (or attempted to load).  So, we
         //   let the child NoteGroup set the name of the file to save to.
-        strGroupFilename = getGroupFilename();
+        groupFilename = getGroupFilename();
         MemoryBank.debug("  Saving NoteGroup data in " + shortName());
 
         // Verify that the path is a valid one.
-        f = new File(strGroupFilename);
+        f = new File(groupFilename);
         if (f.exists()) {
             // If the file already exists -
             if (f.isDirectory()) {
-                System.out.println("Error - directory in place of file: " + strGroupFilename);
+                System.out.println("Error - directory in place of file: " + groupFilename);
                 intSaveGroupStatus = DIRECTORYINMYPLACE;
                 return;
             } // end if directory
         } else {
             // The file does not already exist; check the path to it.
             String strThePath;
-            strThePath = strGroupFilename.substring(0, strGroupFilename.lastIndexOf(File.separatorChar));
+            strThePath = groupFilename.substring(0, groupFilename.lastIndexOf(File.separatorChar));
             f = new File(strThePath);
             if (!f.exists()) { // The directory path does not exist
                 // Create the directory path down to the level you need.
@@ -758,14 +753,14 @@ public abstract class NoteGroup extends JPanel {
 
         // If there is data to preserve, do so now.
         if ((groupProperties != null) || (trimmedList.size() > 0)) {
-            notesWritten = AppUtil.saveNoteGroupData(strGroupFilename, theGroup);
+            notesWritten = AppUtil.saveNoteGroupData(groupFilename, theGroup);
         } // end if
 
 
         // We didn't try to write a file if there was no data, but there are cases where
         // a file for this data might already be out there, that shouldn't be -
         // for example, if a file was created for writing but then the writes failed.
-        if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(strGroupFilename));
+        if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
 
         if (notesWritten == vectGroupData.size()) {
             intSaveGroupStatus = SUCCEEDED + notesWritten;
@@ -905,7 +900,7 @@ public abstract class NoteGroup extends JPanel {
 
     // Returns a short (no path) version of the strGroupFilename
     private String shortName() {
-        String s = strGroupFilename;
+        String s = groupFilename;
         int ix = s.lastIndexOf(File.separatorChar);
         if (ix != -1) s = s.substring(ix + 1);
         return s;

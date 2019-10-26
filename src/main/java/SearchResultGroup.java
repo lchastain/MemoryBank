@@ -11,23 +11,20 @@ public class SearchResultGroup extends NoteGroup {
     private JLabel resultsPageOf;
     private SearchResultHeader listHeader;
 
-    private String strTheGroupFilename;
+    private String theGroupFilename;
 
     // This is saved/loaded
     public SearchResultGroupProperties myVars; // Variables - flags and settings
 
     SearchResultGroup(String fname) {
-        super("");
-        // super("", 10);  // test, for paging
+        super();
+        // super(10);  // test, for paging
 
         addNoteAllowed = false;
-        extendedNoteComponent.remove(0); // Remove the subjectChooser.
-        // We may want to make this operation less numeric in the future,
-        //   but this works for now and no ENC changes are expected.
 
         // The filename was constructed (fully) by the AppTreePanel, and
         // provided to us here upon selection of the corresponding tree leaf.
-        strTheGroupFilename = fname;
+        theGroupFilename = fname;
         updateGroup(); // This is where the file gets loaded (in the parent class)
         checkColumnOrder();
 
@@ -118,7 +115,7 @@ public class SearchResultGroup extends NoteGroup {
     //   group of notes is loaded / saved.
     // -------------------------------------------------------------------
     public String getGroupFilename() {
-        return strTheGroupFilename;
+        return theGroupFilename;
     }// end getGroupFilename
 
 

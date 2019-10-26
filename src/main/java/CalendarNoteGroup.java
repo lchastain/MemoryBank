@@ -16,7 +16,8 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     private ChronoUnit dateType;
 
     CalendarNoteGroup(String defaultSubject) {
-        super(defaultSubject);
+        super();
+        super.setDefaultSubject(defaultSubject);
 
         theChoice = LocalDate.now();
 

@@ -841,11 +841,12 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                 if (!strTmpLoc.equals(editedEventNoteData.getLocationString().trim())) {
                     // Only if this represents a change.
                     editedEventNoteData.setLocation(strTmpLoc);
-                    if(!strTmpLoc.equals("")) locations.add(strTmpLoc);
+                    if(!strTmpLoc.equals("")) {
+                        locations.add(strTmpLoc);
+                        locations.save();
+                    }
                 }
         }
-        locations.save();
-
     } // end setLocation
 
 

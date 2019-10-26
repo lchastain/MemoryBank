@@ -59,14 +59,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end static
 
     public TodoNoteGroup(String fname) {
-        super("Todo Item"); // Sets the default subject, in case items are moved to another group type.
+        super(); // Sets the default subject, in case items are moved to another group type.
 
         setName(fname.trim()); // The component-level name is null, otherwise.
         log.debug("Constructing: " + getName());
-
-        extendedNoteComponent.remove(0); // Remove the subjectChooser.
-        // We may want to make this operation less numeric in the future,
-        //   but this works for now and no ENC structural changes are expected.
 
         strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
         strTheGroupFilename += "todo_" + fname + ".json";
@@ -103,12 +99,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         add(pnl1, BorderLayout.EAST);
 
         updateGroup(); // This is where the file gets loaded (if it exists)
-        if (objGroupProperties != null) {
-            myVars = (TodoListProperties) objGroupProperties;
-        } else {
-            myVars = new TodoListProperties();
-        } // end if
-        if (myVars.columnOrder != INORDER) checkColumnOrder();
+        myVars = new TodoListProperties();
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);

@@ -6,9 +6,13 @@
  context, to any value including one not in the list.
 */
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.io.FileUtils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 public class ExtendedNoteComponent extends JPanel {
@@ -24,14 +28,13 @@ public class ExtendedNoteComponent extends JPanel {
     private String initialSubject;
     private String mySubject;
     private String theDefaultSubject;
-    private String FileName;
+    private String subjectsFilename;
 
     // This flag is reset to false when subjects are saved.
     private boolean subjectsChanged = false;
 
     public ExtendedNoteComponent(String defaultSubject) {
         super(new BorderLayout());
-        subjects = new Vector<>(6, 1);
         body = new JTextArea(10, 20) {
             // To stop the compiler from whining -
             private static final long serialVersionUID = 2465964677978447062L;
@@ -48,27 +51,30 @@ public class ExtendedNoteComponent extends JPanel {
         body.setLineWrap(true);
         body.setWrapStyleWord(true);
 
-        // Develop the file name of the Subjects from the default
-        //   subject that was the input parameter, by adding the
-        //   word 'Subjects' after the first space, if any.
-        int space = defaultSubject.indexOf(" ");
-        String s;
-        if (space > -1) s = defaultSubject.substring(0, space);
-        else s = defaultSubject;
-        s += "Subjects";
-        FileName = MemoryBank.userDataHome + File.separatorChar + s;
+        if(defaultSubject != null) {
+            // Develop the file name of the Subjects from the default
+            //   subject that was the input parameter, by adding the
+            //   word 'Subjects' after the first space, if any.
+            subjects = new Vector<>(6, 1);
+            int space = defaultSubject.indexOf(" ");
+            String s;
+            if (space > -1) s = defaultSubject.substring(0, space);
+            else s = defaultSubject;
+            s += "Subjects.json";
+            subjectsFilename = MemoryBank.userDataHome + File.separatorChar + s;
 
-        loadSubjects(); // There may or may not be any.
-        subjectChooser = new JComboBox<>(subjects);
-        subjectChooser.setEditable(true);
-        subjectChooser.setFont(Font.decode("Serif-bold-12"));
-        // Note: too large of font here causes display problems.
+            loadSubjects(); // There may or may not be any.
+            subjectChooser = new JComboBox<>(subjects);
+            subjectChooser.setEditable(true);
+            subjectChooser.setFont(Font.decode("Serif-bold-12"));
+            // Note: too large of font here causes display problems.
 
-        subjectChooser.setToolTipText("Type or Select the Subject for this note");
-        subjectChooser.setMaximumRowCount(maxSubjects);
+            subjectChooser.setToolTipText("Type or Select the Subject for this note");
+            subjectChooser.setMaximumRowCount(maxSubjects);
+            add(subjectChooser, "North");
+        }
 
         theDefaultSubject = defaultSubject;
-        add(subjectChooser, "North");
         add(body, "Center");
     } // end constructor
 
@@ -169,73 +175,45 @@ public class ExtendedNoteComponent extends JPanel {
     } // end setSubject
 
 
-    //-------------------------------------------------------------
-    // Method Name: loadSubjects
-    //
-    //-------------------------------------------------------------
     private void loadSubjects() {
         Exception e = null;
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        String subj;
-
-        MemoryBank.debug("Loading subjects file: " + FileName);
 
         try {
-            fis = new FileInputStream(FileName);
-            ois = new ObjectInputStream(fis);
-
-            while (true) {  // The expected exit is via EOFException
-                subj = (String) ois.readObject();
-                if(subj == null) break; // Added this line to avoid an IJ complaint about 'while'
-                subjects.addElement(subj);
-                // MemoryBank.debug("  loaded subject: " + subj);
-            } // end while
+            String text = FileUtils.readFileToString(new File(subjectsFilename), StandardCharsets.UTF_8.name());
+            Object theObject;
+            theObject = AppUtil.mapper.readValue(text, Object.class);
+            subjects = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<String>>() { });
+            System.out.println("Subjects from JSON file: " + AppUtil.toJsonString(subjects));
         } catch (FileNotFoundException fnfe) {
-            // not a problem; expected (very) first time for each user.
-        } catch (EOFException eofe) {
-            // System.out.println("End of file reached!");
-            try {
-                if (null != ois) ois.close();
-                fis.close();
-            } catch (IOException ioe) {   // This one's a throw-away.
-                ioe.printStackTrace(); // not handled but not (entirely) ignored...
-            } // end try/catch
-        } catch (ClassCastException | ClassNotFoundException | IOException eee) {
-            e = eee;
-        } // end try/catch
+            // not a problem; use defaults.
+            MemoryBank.debug("Subjects not found.  Will create a new list, if needed.");
+        } catch (IOException ioe) {
+            e = ioe;
+            e.printStackTrace();
+        }
 
         if (e != null) {
-            String ems;
-            ems = "Error in loading " + FileName + " !\n";
+            String ems = "Error in loading " + subjectsFilename + " !\n";
             ems = ems + e.toString();
-            ems = ems + "\n'Subjects' load operation aborted.";
-            JOptionPane.showMessageDialog(new Frame(),
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
+            ems = ems + "\noperation failed; using default values.";
+            MemoryBank.debug(ems);
         } // end if
     } // end loadSubjects
-
 
     // This needs to be called from a higher context
     void saveSubjects() {
         MemoryBank.debug("Saving subjects: " + subjectsChanged);
         if (!subjectsChanged) return;
+        MemoryBank.debug("Saving subject data in " + subjectsFilename);
 
-        MemoryBank.debug("Saving subject data in " + FileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(FileName);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-            for (String subj : subjects) {
-                oos.writeObject(subj);
-            } // end for (my first usage of this new 'for loop' syntax!)
-
-            oos.flush();
-            oos.close();
-            fos.close();
-            subjectsChanged = false;
+        try (FileWriter writer = new FileWriter(subjectsFilename);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+            bw.write(AppUtil.toJsonString(subjects));
+            bw.flush();
         } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
+            String ems = ioe.getMessage();
+            ems = ems + "\nSubjects save operation aborted.";
+            MemoryBank.debug(ems);
         } // end try/catch
     } // end saveSubjects
 
