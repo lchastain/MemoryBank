@@ -25,13 +25,13 @@ NoteGroup (base class):
 
  6. Event: FocusLost from a NoteComponent line
     Handler:  NoteComponent$NoteTextField.focusLost
-    Expected Action:  NoteComponent.noteActivated (may call 'clear')
-      which then calls  NoteGroup.setActiveNote(this, false);
+    Expected Action:  NoteComponent.noteActivated(false)  // may be overridden by child classes
+      which may call 'clear()'
 
- 7. Event: FocusGained from a NoteComponent line
+ 7. Event: FocusGained on a NoteComponent line
     Handler:  NoteComponent$NoteTextField.focusGained
-    Expected Action:  NoteComponent.setInactive
-      which then calls  NoteGroup.setActiveNote(this, true);
+    Expected Action:  NoteComponent.noteActivated(true)  // may be overridden by child classes
+      which does nothing.
 
  8. Event: Right-click on text
     Handler: NoteComponent$NoteTextField.mouseClicked

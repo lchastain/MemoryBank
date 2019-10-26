@@ -659,6 +659,7 @@ public class NoteComponent extends JPanel {
             if (kc == KeyEvent.VK_ENTER) return;
             if (kc == KeyEvent.VK_BACK_SPACE) return;
             initialize();
+            noteActivated(true); // Added for SCR0091
         } // end keyTyped
 
         //---------------------------------------------------------

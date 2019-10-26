@@ -1,6 +1,13 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/26/2019 0725 - Maybe the problem (depression?) had to do with wire xfer fails and the worry
+  that it might not be remotely fixable.  Well that is resolved now (at least until after we
+  leave and return in January), and development may have just stalled a bit, taking some time
+  to 'smell the roses' after having gone through the very large revisions of going to JSON and
+  updating all the Date/Time classes.  The way forward from there seemed drab, but I'm getting
+  over it, slowly.  Now finishing up with the final (subjects) data conversions to JSON.
+
 10/21/2019 0823 - Still feel like there are problems with RecurrencePanel and event aging, but
   do not have a concrete issue to resolve, and the unwritten tests for them are just too nebulous
   to get a handle on, at this time.  The way forward is to continue working the example data by
@@ -9,10 +16,11 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
  1533 - But I didn't.  Instead, scrubbed the SCR list, looking for all remainng tests needed, but
   then in each case decided no further testing was necessary, and moved them all to Done (each one
   got a valid reasoning as to why, but none survived).  Basically the reasoning was that tests for
-  those coding problem fixes is unnecessary and unnecessarily adds to future development time needed
-  when code changes break tests that are only broken because they exist while the new code works
-  just fine, and what would really be needed instead are thorough tests of new/existing high-level
-  functionality, not tests of pinpoint states.  The pinpoint tests are counter-productive
+  those coding problem fixes is unnecessary and unnecessarily adds to future development time
+  needed when code changes break tests that are only broken because they exist while the new code 
+  works just fine, and what would really be needed instead are thorough tests of new/existing 
+  high-level functionality, not tests of pinpoint states.  The pinpoint tests are 
+  counter-productive
   until they are proven to be needed, AFTER the full functionality tests are in place.  So after
   clearing all outstanding test dev needs associated with not-yet-Done SCRs, began thinking about
   what is next, and realized that the coding desire has suddenly waned.  I think it is because I
