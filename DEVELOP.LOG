@@ -1,7 +1,16 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
-10/27/2019 0706 - Just finished SCR0095; test coverage at 81% classes, 55% lines covered.
+10/27/2019 0706 - Just finished SCR0095; test coverage at 81% classes, 55% lines covered.  The
+  reason for working that one was that it involved a change to AppOptions, which is the starting
+  point for changes to tree branch changes that I want to make next, in both Events and Searches.
+  Now, thinking that it will be the SearchResult enhancements because that will add a 'helper'
+  for them like we already have for TodoLists, and then there will be two examples to work from
+  when converting Events into a branch, from the leaf that it is now.  SearchResults looks to
+  be the smaller effort but don't know to what degree, yet.
+ 0957 - Starting in on it.  There is one SCR already written to cover the work - 'allow Search
+ Results to be unshown but still kept'.  An as-yet unwritten one that should go along is to allow
+ the results to be renamed.
 
 10/26/2019 0725 - Maybe the problem (depression?) had to do with wire xfer fails and the worry
   that it might not be remotely fixable.  Well that is resolved now (at least until after we

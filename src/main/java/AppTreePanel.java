@@ -421,7 +421,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         for (String s : appOpts.todoLists) {
 
             // First check to see that the file is 'here'.
-            theName = MemoryBank.userDataHome + File.separatorChar + "todo_" + s + ".json";
+            theName = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar + "todo_" + s + ".json";
             if (new File(theName).exists()) {
                 MemoryBank.debug("  Adding List: " + s);
 
@@ -702,7 +702,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             // Rename the leaf, refresh the To Do branch, and reselect the same tree
             // row to cause a reload and redisplay of the list.  Note that not only
-            // does the leaf name change, but the reload also changes the list title.
+            // does the leaf name change, but the reload also changes the displayed
+            // list title.
             TodoBranchHelper.renameTodoListLeaf(oldName, newName);
         }
     } // end saveTodoListAs
@@ -734,6 +735,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (theFile.isDirectory()) {
                 if (theFile1Name.equals("Archives")) continue;
                 if (theFile1Name.equals("icons")) continue;
+                if (theFile1Name.equals("SearchResults")) continue;
                 scanDataDir(theFile, level + 1);
             } else {
                 goLook = true;
@@ -1007,7 +1009,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if no search location was specified.
 
         dlgWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-        showWorkingDialog(true); // Show the 'Working...' dialog
+        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
 
         // Make sure that the most recent changes, if any,
         //   will be included in the search.
@@ -1032,7 +1034,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Make a unique name for the results
         String resultsName = AppUtil.getTimestamp();
-        String resultsPath = MemoryBank.userDataHome + File.separatorChar;
+        String resultsPath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
         String resultsFileName = resultsPath + "search_" + resultsName + ".json";
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
 
@@ -1323,7 +1325,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (searchResultNode.srg == null) {
                 System.out.println("Search " + searchResultNode.strNodeName + " size: " + searchResultNode.intGroupSize);
 
-                String fullFileName = MemoryBank.userDataHome + File.separatorChar;
+                String fullFileName = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
                 fullFileName += "search_" + searchResultNode.strNodeName + ".json";
 
                 if (new File(fullFileName).exists()) {

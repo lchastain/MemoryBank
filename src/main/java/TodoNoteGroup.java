@@ -59,12 +59,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end static
 
     public TodoNoteGroup(String fname) {
-        super(); // Sets the default subject, in case items are moved to another group type.
+        super();
 
         setName(fname.trim()); // The component-level name is null, otherwise.
         log.debug("Constructing: " + getName());
 
-        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
+        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
         strTheGroupFilename += "todo_" + fname + ".json";
 
         tmc = new ThreeMonthColumn();
@@ -137,8 +137,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Check here to see if directory changed, reset if so.
         // System.out.println("Final directory: " + s);
-        if (!s.equals(MemoryBank.userDataHome)) {
-            filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome));
+        if (!s.equals(MemoryBank.userDataHome + File.separatorChar + "TodoLists")) {
+            filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome + File.separatorChar + "TodoLists"));
             badPlace = true;
         } // end if
 

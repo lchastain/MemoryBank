@@ -153,7 +153,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         String adjustedName;
         adjustedName = name.trim();
         if (!adjustedName.isEmpty()) {
-            String newNamedFile = MemoryBank.userDataHome + File.separatorChar;
+            String newNamedFile = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
             newNamedFile += "todo_" + adjustedName + ".json";
             File f = new File(newNamedFile);
             if (f.exists()) {
@@ -225,7 +225,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(MemoryBank.userDataHome);
+        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + "TodoLists");
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is

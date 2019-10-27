@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.File;
 import java.time.LocalDate;
 
@@ -68,6 +70,7 @@ public class TodoNoteData extends NoteData {
     //   in the 'time' field, in this case it must, in order for
     //   NoteGroup.addNote to place it into the correct file.
     //-------------------------------------------------------------
+    @JsonIgnore
     DayNoteData getDayNoteData() {
         DayNoteData dnd = new DayNoteData();
         String newExtText;

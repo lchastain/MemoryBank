@@ -25,8 +25,8 @@ public class TreeBranchEditor extends JPanel
     private DefaultMutableTreeNode myBranch;
     private TreeBranchHelper myHelper;
     private ArrayList<String> theChoices;
-    private ArrayList<String> removals = new ArrayList<String>();
-    BranchEditorModel bem;
+    private ArrayList<String> removals = new ArrayList<>();
+    private BranchEditorModel bem;
 
     private ArrayList<NodeChange> changeList;
     // The changeList keeps an ongoing list of cumulative changes, that the helper receives
@@ -58,7 +58,7 @@ public class TreeBranchEditor extends JPanel
         origBranch = (DefaultMutableTreeNode) tn;
         myBranch = deepClone(origBranch);
         myHelper = tbh;
-        changeList = new ArrayList<NodeChange>();
+        changeList = new ArrayList<>(); // Array of NodeChange
 
         theChoices = getChoices();
 
@@ -113,7 +113,7 @@ public class TreeBranchEditor extends JPanel
         if(theChoices != null) return theChoices;
 
         // Create list of choices from the existing branch.
-        theChoices = new ArrayList<String>();
+        theChoices = new ArrayList<>();
         String theRoot = origBranch.toString();
         Enumeration dfe = origBranch.depthFirstEnumeration();
         while(dfe.hasMoreElements()) {
@@ -158,8 +158,8 @@ public class TreeBranchEditor extends JPanel
     private void showChoices() {
         // Create lists of pre-selected items from the existing branch.
         Enumeration dfe = myBranch.depthFirstEnumeration();
-        ArrayList<String> leaves = new ArrayList<String>();
-        ArrayList<String> branches = new ArrayList<String>();
+        ArrayList<String> leaves = new ArrayList<>();
+        ArrayList<String> branches = new ArrayList<>();
         while(dfe.hasMoreElements()) {
             DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode)dfe.nextElement();
             String name = dmtn.toString();
@@ -266,8 +266,8 @@ public class TreeBranchEditor extends JPanel
         if(theAction.equals("Cancel")) {
             myBranch = deepClone(origBranch);
             theChoices = getChoices();
-            changeList = new ArrayList<NodeChange>();
-            removals = new ArrayList<String>();
+            changeList = new ArrayList<>();
+            removals = new ArrayList<>();
             showTree();
             showChoices();
         }   else if(theAction.equals("Apply")) {
@@ -403,7 +403,7 @@ public class TreeBranchEditor extends JPanel
         static final long serialVersionUID = -1L;
         private String originalName;
 
-        public BranchEditorModel(TreeNode treeNode, boolean b) {
+        BranchEditorModel(TreeNode treeNode, boolean b) {
             super(treeNode, b);
         }
 
@@ -437,7 +437,7 @@ public class TreeBranchEditor extends JPanel
             }
         }
 
-        public String getOriginalName() { return originalName; }
+        String getOriginalName() { return originalName; }
     } // end inner class BranchEditorModel
 
 } // end class TreeBranchEditor
