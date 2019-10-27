@@ -24,7 +24,6 @@ class AppOptions {
     Vector<String> todoLists;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
-    boolean military;
 
     AppOptions() {
         viewsExpanded = false;
@@ -35,7 +34,6 @@ class AppOptions {
         theSelectionRow = -1;
         todoLists = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
-        military = false;
     } // end constructor
 
     public AppOptions(Object theObject) {
@@ -47,7 +45,6 @@ class AppOptions {
         todoLists = ((AppOptions) theObject).todoLists;
         searchResultList = ((AppOptions) theObject).searchResultList;
         paneSeparator = ((AppOptions) theObject).paneSeparator;
-        military = ((AppOptions) theObject).military;
     } // end constructor
 
 } // end class AppOptions

@@ -1,15 +1,15 @@
 public class NodeChange {
     public static final int SELECTED = 83;
-    public static final int DESELECTED = 84;
-    public static final int RENAMED = 85;
-    public static final int REMOVED = 86;
-    public static final int MARKED = 87;
-    public static final int UNMARKED = 88;
-    public static final int MOVED = 89;
+    static final int DESELECTED = 84;
+    static final int RENAMED = 85;
+    static final int REMOVED = 86;
+    static final int MARKED = 87;
+    static final int UNMARKED = 88;
+    static final int MOVED = 89;
 
-    public String nodeName;
-    public String renamedTo;
-    public int changeType;
+    String nodeName;
+    String renamedTo;
+    int changeType;
 
     public NodeChange(String s, int t) {
         nodeName = s;

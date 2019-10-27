@@ -173,6 +173,12 @@ public class DayNoteGroup extends CalendarNoteGroup
     //---------------------------------------------------------
     //</editor-fold>
 
+    @Override
+    protected void preClose() {
+        dayNoteDefaults.save();
+        super.preClose();
+    }
+
     //--------------------------------------------------------------
     // Method Name: recalc
     //
@@ -213,7 +219,6 @@ public class DayNoteGroup extends CalendarNoteGroup
     public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
         dayNoteDefaults.defaultIconFileName = li.getDescription();
-        dayNoteDefaults.save();
         setGroupChanged();
         preClose();
         updateGroup();
@@ -261,6 +266,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             getNoteComponent(i).resetTimeLabel();
         } // end for i
+        setGroupChanged();
     } // end toggleMilitary
 
     //--------------------------------------------------------------
