@@ -10,7 +10,7 @@ public class TimeChooserMain {
 
         Frame tcFrame = new Frame("TimeChooser test");
 
-        MemoryBank.military = true;  // Change this,  to test.
+        DayNoteGroup.dayNoteDefaults.military = true;  // Change this,  to test.
         TimeChooser timeChooser = new TimeChooser();
 
         tcFrame.addWindowListener(new WindowAdapter() {

@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalTime;
-import java.util.Calendar;
 
 public class DayNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
@@ -140,37 +139,15 @@ public class DayNoteComponent extends IconNoteComponent {
             return;
         } // end if
 
-        // IntelliJ doesn't believe that the substring should be internal to the parseInt.
-        String hoursString = timeOfDayString.substring(0, 2);
-        int theHours = Integer.parseInt(hoursString);
-
-        String minutesString = timeOfDayString.substring(3, 5);
-        String theLabel;
-
-        int meridian = Calendar.AM;
-        if (theHours > 11) {
-            meridian = Calendar.PM;
-        }
-
-        if (MemoryBank.military) {
-            // drop out the colon and take just hours and minutes.
-            theLabel = hoursString + minutesString;
-        } else {  // Normalize to a 12-hour clock
-            if (theHours > 12) {
-                theLabel = (theHours - 12) + ":" + minutesString;
-            } else {
-                theLabel = hoursString + ":" + minutesString;
-            }
-        }
-        noteTimeLabel.setText(theLabel);
+        LocalTime theTime = LocalTime.parse(timeOfDayString);
+        noteTimeLabel.setText(AppUtil.makeTimeString(theTime));
 
         // Colorize AM / PM
-        if (meridian == Calendar.AM) {
-            noteTimeLabel.setForeground(MemoryBank.amColor);
-        } else {     // Calendar.PM
+        if (theTime.getHour() > 11) {
             noteTimeLabel.setForeground(MemoryBank.pmColor);
-        } // end if
-
+        } else {
+            noteTimeLabel.setForeground(MemoryBank.amColor);
+        }
     } // end resetTimeLabel
 
 

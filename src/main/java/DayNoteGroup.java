@@ -17,10 +17,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
     private static AppIcon defaultIcon;
     private static JLabel dayTitle;
-    private static DayNoteDefaults dayNoteDefaults;
-
-    // Accessed by MonthView
-    static String defaultIconFileName;
+    static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
 
     // Set by other NoteGroups (Event, Todo)
     static boolean blnNoteAdded;
@@ -38,12 +35,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         //   constructor is called.  This is why we need to
         //   assign it during the static section of this class.
         //------------------------------------------------------------------
-        dayNoteDefaults = new DayNoteDefaults();
-        dayNoteDefaults.load(); // This may provide a different default icon.
-        defaultIconFileName = dayNoteDefaults.defaultIconFileName;
-
-        blnNoteAdded = false;
-
+        dayNoteDefaults = DayNoteDefaults.load(); // This may provide a different default icon.
         if (dayNoteDefaults.defaultIconFileName.equals("")) {
             // It IS possible that the user wants no default icon.
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
@@ -54,6 +46,7 @@ public class DayNoteGroup extends CalendarNoteGroup
             AppIcon.scaleIcon(defaultIcon);
         } // end if/else
 
+        blnNoteAdded = false;
         MemoryBank.init();
     } // end of the static section
 
@@ -86,7 +79,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         heading.add(p0, "West");
         heading.add(dayTitle, "Center");
 
-        if (MemoryBank.military) timeFormatButton.setText("12");
+        if (dayNoteDefaults.military) timeFormatButton.setText("12");
         heading.add(timeFormatButton, "East");  // spacer 56
 
         add(heading, BorderLayout.NORTH);
@@ -263,7 +256,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     // This is called from the 12/24 button
     //--------------------------------------------------------------
     private void toggleMilitary() {
-        MemoryBank.military = !MemoryBank.military;
+        dayNoteDefaults.military = !dayNoteDefaults.military;
         // Need to reprint all time labels -
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             getNoteComponent(i).resetTimeLabel();

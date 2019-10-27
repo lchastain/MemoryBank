@@ -161,7 +161,7 @@ public class TimeChooser extends JPanel implements ActionListener {
 
         int theHours = theNewTime.getHour();
         String theHoursString = String.valueOf(theHours);
-        if(MemoryBank.military) {
+        if(DayNoteGroup.dayNoteDefaults.military) {
             if(theHours < 10) theHoursString = "0" + theHoursString;
             if(theHours == 0) theHoursString = "00";
         } else {

@@ -68,6 +68,9 @@ class DayNoteData extends IconNoteData {
     } // end clear
 
 
+    // This is provided as an alternative way to call the copy constructor,
+    // for when the exact type is not known but the class is either this
+    // one or one of its descendants.
     @Override
     protected NoteData copy() {
         return new DayNoteData(this);

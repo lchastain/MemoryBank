@@ -14,7 +14,6 @@ public class MemoryBank {
     static Color amColor;
     static Color pmColor;
     static boolean archive;
-    static boolean military; // Set by DayNoteGroup.  Preserved in appOpts.
     public static DateTimeFormatter dtf;
     public static boolean debug;
     public static boolean event;
@@ -65,8 +64,6 @@ public class MemoryBank {
         amColor = Color.blue;
         pmColor = Color.black;
         archive = false;
-        military = false; // 12 or 24 hour time display
-
     } // end static
 
 
@@ -82,7 +79,6 @@ public class MemoryBank {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             appOpts = AppUtil.mapper.readValue(text, AppOptions.class);
             System.out.println("appOpts from JSON file: " + AppUtil.toJsonString(appOpts));
-            military = appOpts.military; // This one is accessed by other classes.
         } catch (FileNotFoundException fnfe) {
             // not a problem; use defaults.
             debug("User tree options not found; using defaults");
@@ -160,24 +156,6 @@ public class MemoryBank {
     } // end debug
 
 
-    //------------------------------------------------------------------
-    // Method Name: errorOut
-    //
-
-    /**
-     * This method is called for fatal io errors.  It will display
-     * an error dialog with the string parameter as its message,
-     * then exit the application when the user presses OK.
-     */
-    //------------------------------------------------------------------
-    private static void errorOut(String s) {
-        s += "\nThe MemoryBank program will terminate now.";
-        JOptionPane.showMessageDialog(logFrame, s, "Error!",
-                JOptionPane.ERROR_MESSAGE);
-        System.exit(1);  // Abby Normal exit.
-    } // end errorOut
-
-
     //-----------------------------------------------
     // Method Name: event
     //
@@ -187,98 +165,6 @@ public class MemoryBank {
         if (!MemoryBank.event) return;
         System.out.println(Thread.currentThread().getStackTrace()[3].toString());
     } // end event
-
-
-    private static String minuteToString(int minutes) {
-        if (minutes < 10) return "0" + minutes;
-        else return String.valueOf(minutes);
-    } // end minuteToString
-
-
-    private static String hourToString(int hour) {
-        String s;
-        if (military) {
-            if (hour < 10) s = "0" + hour;
-            else s = String.valueOf(hour);
-        } else {
-            if (hour > 12) s = String.valueOf(hour - 12);
-            else s = String.valueOf(hour);
-            if (hour == 0) s = "12";
-            if (s.length() == 1) s = " " + s;
-        } // end if
-        return s;
-    } // end hourToString
-
-
-    static String makeTimeString(LocalTime lt) {
-        int minute = lt.getMinute();
-
-        // Hour portion
-        String time = hourToString(lt.getHour());
-
-        if (!military) time += ":";
-
-        // Minutes portion
-        time += minuteToString(minute);
-
-        return time;
-    } // end makeTimeString
-
-
-    // Called locally at startup and later at a 'change'.
-    public static boolean setUserDataDirPathName(String s) {
-        boolean answer = true;
-        File f = new File(s);
-        if (f.exists()) {
-            if (!f.isDirectory()) {
-                // System.out.println("Error - file in place of directory: " + s);
-                answer = false;
-            } // end if directory
-        } else {
-            // No need for a prompt for OK to create - this will only occur at
-            //   startup; otherwise the user selected this dir via file nav.
-            if (!f.mkdirs()) {
-                // System.out.println("Error - Could not create directory: " + s);
-                answer = false;
-            } // end if
-        } // end if exists
-
-        if (answer) {
-            userDataHome = s;
-        } else {  // Build up and display an informative error message.
-            JPanel le = new JPanel(new GridLayout(5, 1, 0, 0));
-
-            String oneline;
-            oneline = "The MemoryBank program was not able to access or create:";
-            JLabel el1 = new JLabel(oneline);
-            JLabel el2 = new JLabel(s, JLabel.CENTER);
-            oneline = "This could be due to insufficient permissions ";
-            oneline += "or a problem with the file system.";
-            JLabel el3 = new JLabel(oneline);
-            oneline = "Please try again with a different location, or see";
-            oneline += " your system administrator";
-            JLabel el4 = new JLabel(oneline);
-            oneline = "if you believe the location is a valid one.";
-            JLabel el5 = new JLabel(oneline, JLabel.CENTER);
-
-            el1.setFont(Font.decode("Dialog-bold-14"));
-            el2.setFont(Font.decode("Dialog-bold-14"));
-            el3.setFont(Font.decode("Dialog-bold-14"));
-            el4.setFont(Font.decode("Dialog-bold-14"));
-            el5.setFont(Font.decode("Dialog-bold-14"));
-
-            le.add(el1);
-            le.add(el2);
-            le.add(el3);
-            le.add(el4);
-            le.add(el5);
-
-            JOptionPane.showMessageDialog(null, le,
-                    "Problem with specified location", JOptionPane.ERROR_MESSAGE);
-        } // end if
-
-        return answer;
-    } // end setUserDataDirPathName
 
 
     // -----------------------------------------------------------------------
@@ -306,7 +192,11 @@ public class MemoryBank {
             // But test to see if we have icons available at that location -
             f = new File(logHome + File.separatorChar + "icons");
             if (!f.exists()) {
-                errorOut("Cannot find program data!");
+                String s = ("Cannot find program data!");
+                s += "\nThe MemoryBank program will terminate now.";
+                JOptionPane.showMessageDialog(logFrame, s, "Error!",
+                        JOptionPane.ERROR_MESSAGE);
+                System.exit(1);  // Abby Normal exit.
             } // end if
         } // end if
     } // end setProgramDataLocation
@@ -545,8 +435,6 @@ public class MemoryBank {
     static void saveOpts() {
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
         MemoryBank.debug("Saving application option data in " + filename);
-
-        appOpts.military = military; // Capture the latest setting for this prior to saving.
 
         try (FileWriter writer = new FileWriter(filename);
              BufferedWriter bw = new BufferedWriter(writer)) {

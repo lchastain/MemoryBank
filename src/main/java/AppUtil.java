@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -331,6 +332,7 @@ public class AppUtil {
 
     // Returns a String containing the requested portion of the input LocalDateTime.
     // Years are expected to be 4 digits long, all other units are two digits.
+    // For hours, the full range (0-23) is returned; no adjustment to a 12-hour clock.
     private static String getTimePartString(LocalDateTime localDateTime, ChronoUnit cu, Character padding) {
 
         switch (cu) {
@@ -500,6 +502,27 @@ public class AppUtil {
 
         filename.append("_").append(getTimestamp()).append(".json");
         return filename.toString();
+    }
+
+
+    static String makeTimeString(LocalTime localTime) {
+        String theString;
+        String timeOfDayString = localTime.toString();
+        String hoursString = timeOfDayString.substring(0, 2);
+        int theHours = Integer.parseInt(hoursString);
+        String minutesString = timeOfDayString.substring(3, 5);
+
+        if (DayNoteGroup.dayNoteDefaults.military) {
+            // drop out the colon and take just hours and minutes.
+            theString = hoursString + minutesString;
+        } else {  // Normalize to a 12-hour clock
+            if (theHours > 12) {
+                theString = (theHours - 12) + ":" + minutesString;
+            } else {
+                theString = theHours + ":" + minutesString;
+            }
+        }
+        return theString;
     }
 
 

@@ -1,6 +1,8 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/27/2019 0706 - Just finished SCR0095; test coverage at 81% classes, 55% lines covered.
+
 10/26/2019 0725 - Maybe the problem (depression?) had to do with wire xfer fails and the worry
   that it might not be remotely fixable.  Well that is resolved now (at least until after we
   leave and return in January), and development may have just stalled a bit, taking some time

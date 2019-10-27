@@ -693,7 +693,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         if (endTime == null) {
             btnEndTime.setText(" ");
         } else {
-            btnEndTime.setText(MemoryBank.makeTimeString(endTime));
+            btnEndTime.setText(AppUtil.makeTimeString(endTime));
 
             if (endTime.getHour() < 12) { // 0-11 ?
                 btnEndTime.setForeground(MemoryBank.amColor);
@@ -747,7 +747,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         if (startTime == null) {
             btnStartTime.setText(" ");
         } else {
-            btnStartTime.setText(MemoryBank.makeTimeString(startTime));
+            btnStartTime.setText(AppUtil.makeTimeString(startTime));
 
             if (startTime.getHour() < 12) { // 0-11 ?
                 btnStartTime.setForeground(MemoryBank.amColor);
