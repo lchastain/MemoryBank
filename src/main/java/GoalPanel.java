@@ -1,9 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class GoalPanel extends JPanel {
@@ -47,16 +45,11 @@ public class GoalPanel extends JPanel {
         // txtfGoalText 
         // 
         txtfGoalText.setText("The text of the goal");
-        txtfGoalText.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                txtfGoalText_actionPerformed(e);
-            }
-
-        });
+        txtfGoalText.addActionListener(this::txtfGoalText_actionPerformed);
         // 
         // lstGoals 
         // 
-        arr = new ArrayList<String>();
+        arr = new ArrayList<>();
         arr.add("List");
         arr.add("of");
         arr.add("goals");
@@ -65,12 +58,7 @@ public class GoalPanel extends JPanel {
         arr.toArray(array); // fill the array
 
         lstGoals.setListData(array);
-        lstGoals.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                lstGoals_valueChanged(e);
-            }
-
-        });
+        lstGoals.addListSelectionListener(this::lstGoals_valueChanged);
         // 
         // jspGoals 
         // 
@@ -87,32 +75,17 @@ public class GoalPanel extends JPanel {
         // jButton1 
         // 
         jButton1.setText("New");
-        jButton1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jButton1_actionPerformed(e);
-            }
-
-        });
+        jButton1.addActionListener(this::jButton1_actionPerformed);
         // 
         // jButton2 
         // 
         jButton2.setText("Add");
-        jButton2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jButton2_actionPerformed(e);
-            }
-
-        });
+        jButton2.addActionListener(this::jButton2_actionPerformed);
         // 
         // jButton3 
         // 
         jButton3.setText("Delete");
-        jButton3.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jButton3_actionPerformed(e);
-            }
-
-        });
+        jButton3.addActionListener(this::jButton3_actionPerformed);
         // 
         // contentPane 
         // 
@@ -196,7 +169,7 @@ public class GoalPanel extends JPanel {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (Exception ex) {
             System.out.println("Failed loading L&F: ");
-            System.out.println(ex);
+            ex.printStackTrace();
         }
         JFrame jf = new JFrame();
         jf.getContentPane().setLayout(null);

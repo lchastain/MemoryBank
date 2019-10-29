@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 class SearchResultGroupTest {
     private static SearchResultGroup searchResultGroup;
@@ -32,41 +34,31 @@ class SearchResultGroupTest {
         // We have chosen a known search result, so the
         // tests below will know the limitation of indices and text content.
         String theNodeName = "20190927161325";
-        String theFileName = MemoryBank.userDataHome + File.separatorChar + "search_" + theNodeName + ".json";
+        Assertions.assertTrue(SearchResultGroup.exists(theNodeName));
+        String theFileName = SearchResultGroup.getFullFilename(theNodeName);
         searchResultGroup = new SearchResultGroup(theFileName);
-
         Thread.sleep(200); // Tests need some settling time.
-
     }
 
-//    @Test
     // Needed after SCR0075
     // This tests that the display of the LastModDate will use the stored date, vs 'today'.
-    // A larger problem, that the data was being updated upon file load or sorting, etc - not yet tested.
-// Test disabled 9/23/2019 because of an ongoing data fix, has changed the LastModDate and invalidated our expectations.
-// TODO - make a new test.
-//    void testLoadLastModDate() {
-//        // The other tests here muck too much with the data; need a fresh results list.
-//        String theNodeName = "20140527192458";
-//        String theFileName = MemoryBank.userDataHome + File.separatorChar + "search_" + theNodeName + ".json";
-//        SearchResultGroup srg = new SearchResultGroup(theFileName);
-//
-//        // We 'know' the Last Mod Date of this one - 6/02/2011
-//        SearchResultComponent searchResultComponent2 = srg.getNoteComponent(2);
-//        Date lastModDate = Date.from(searchResultComponent2.getNoteData().getLastModDate().toInstant());
-//        Assertions.assertNotNull(lastModDate);
-//
-//        // Set the boundaries that we expect to contain the LMD; not currently interested in time of day.
-//        Calendar cal1 = new GregorianCalendar(2011, Calendar.JUNE, 1);
-//        Calendar cal2 = new GregorianCalendar(2011, Calendar.JUNE, 4);
-//
-//        // Verify that we have it right -
-//        Assertions.assertTrue(lastModDate.after(cal1.getTime()));
-//        Assertions.assertTrue(lastModDate.before(cal2.getTime()));
-//
-//        // Of course, an 'equals' test would have been better, but then I would have had to
-//        // set the time as well - too lazy for that.
-//    }
+    @Test
+    void testLoadLastModDate() {
+        // The other tests here muck too much with the data; need a fresh results list.
+        String theFileName = "20191029073938";  // Search text 'Office'
+        Assertions.assertTrue(SearchResultGroup.exists(theFileName));
+        SearchResultGroup srg = new SearchResultGroup(theFileName);
+
+        // Get the LMD of the third (index is zero-based) visible component in this group.
+        SearchResultComponent searchResultComponent2 = srg.getNoteComponent(2);
+        ZonedDateTime lastModDateTime = searchResultComponent2.getNoteData().getLastModDate();
+        Assertions.assertNotNull(lastModDateTime);
+        LocalDate lastModDate = lastModDateTime.toLocalDate();
+
+        // We 'know' the Last Mod Date of this one - 02 October 2019
+        // Verify that we have it right -
+        Assertions.assertEquals(lastModDate, LocalDate.of(2019, 10, 2));
+    }
 
     @Test
     void testShiftDown() { // Down, in this case, means visually on-screen.  Numerically it will go up.
@@ -131,7 +123,6 @@ class SearchResultGroupTest {
         // Just the coverage -
         searchResultGroup.pageNumberChanged();
     }
-
 
 
 //    @Test

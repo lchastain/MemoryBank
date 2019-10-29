@@ -616,6 +616,27 @@ public abstract class NoteGroup extends JPanel {
     } // end preSort
 
 
+    //-----------------------------------------------------------------
+    // Method Name:  prettyName
+    //
+    // A formatter for a filename specifier - drop off the path
+    //   prefix and/or trailing '.json', if present.  Note
+    //   that this method name was chosen so as to not conflict with
+    //   the 'getName' of the Component ancestor of this class.
+    //-----------------------------------------------------------------
+    static String prettyName(String theLongName) {
+        int i = theLongName.lastIndexOf(File.separatorChar);
+        String thePrettyName = theLongName;
+        if (i > 0) { // if it has the File separator character
+            // then we only want the part after that
+            thePrettyName = theLongName.substring(i+1);
+        }
+        i = thePrettyName.lastIndexOf(".json");
+        if (i == -1) return thePrettyName;
+        return thePrettyName.substring(0, i);
+    } // end prettyName
+
+
     //--------------------------------------------------------------
     // Method Name: resetVisibility
     //

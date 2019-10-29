@@ -306,29 +306,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         super.preClose();
     }
 
-    //-----------------------------------------------------------------
-    // Method Name:  prettyName
-    //
-    // A formatter for a filename specifier - drop off the path
-    //   prefix and/or trailing '.json', if present.  Note
-    //   that this method name was chosen so as to not conflict with
-    //   the 'getName' of the Component ancestor of this class.
-    //-----------------------------------------------------------------
-    public static String prettyName(String theLongName) {
-        int i = theLongName.lastIndexOf(File.separatorChar);
-        String thePrettyName = theLongName;
-        if (i > 0) { // if it has the sep char then it also has the 'todo_'
-            thePrettyName = theLongName.substring(i + 6);
-        } else {  // we may only be prettifying the filename, vs path+filename.
-            if (theLongName.startsWith("todo_")) {
-                thePrettyName = theLongName.substring(5);
-            }
-        }
-        i = thePrettyName.lastIndexOf(".json");
-        if (i == -1) return thePrettyName;
-        return thePrettyName.substring(0, i);
-    } // end prettyName
-
 
     // Disabled this 9/02/2019 so that it does not pull down code coverage for tests.
     // If you REALLY REALLY need it, uncomment here and in the TodoGroupHeader to re-enable.
@@ -494,7 +471,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = MemoryBank.userDataHome + File.separatorChar;
+        String newFilename = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
         newFilename += "todo_" + newName + ".json";
 
         if ((new File(newFilename)).exists()) {

@@ -1,6 +1,13 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/28/2019 0940 - Now working on genericizing some of the TreeBranch editing code, and remember
+  thinking long ago that it could be done for the Todo-specific parts, if I ever needed to.
+  Well, now it's needed and working on it feels almost seamless across the 5+ years interim.
+ 1644 - Must say, the changes that were needed went well enough and it looked ok but then ran
+  the few tests that I have, and there were fails.  About a third of them, though - were VALID
+  catches of code errors that were then fixed.  This is what testing is all about.  Yay!
+
 10/27/2019 0706 - Just finished SCR0095; test coverage at 81% classes, 55% lines covered.  The
   reason for working that one was that it involved a change to AppOptions, which is the starting
   point for changes to tree branch changes that I want to make next, in both Events and Searches.

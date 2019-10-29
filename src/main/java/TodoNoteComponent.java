@@ -184,7 +184,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (!useDate) myTodoNoteData.setTodoDate(LocalDate.now());
 
         boolean success;
-        String s = TodoNoteGroup.prettyName(myNoteGroup.getGroupFilename());
+        String s = NoteGroup.prettyName(myNoteGroup.getGroupFilename());
         myTodoNoteData.setSubjectString(s);
 
         // Prepare to preserve the item, then do so by calling addNote.

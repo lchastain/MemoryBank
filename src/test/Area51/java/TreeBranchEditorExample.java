@@ -46,19 +46,19 @@ class EditorHelper implements TreeBranchHelper {
 
     @Override
     public ArrayList<String> getChoices() {
-        return new ArrayList<String> (Arrays.asList(
+        return new ArrayList<>(Arrays.asList(
                 "this", "that", "these", "those",
                 "we", "you", "us", "they", "them",
                 "what", "why", "when", "where", "who",
                 "whom", "whomever", "how"
         ));
     }
-} // end class TBH
+} // end class EditorHelper
 
 
 public class TreeBranchEditorExample {
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         //URL myURL = TreeBranchEditorExample.class.getClassLoader().getResource("logback.xml");
         //System.out.println(myURL);
         try

@@ -53,11 +53,11 @@ public class TreeBranchEditor extends JPanel
     // need that info you will have to interpolate it, given the original and final tree along
     // with the changeList.
 
-    public TreeBranchEditor(TreeNode tn, TreeBranchHelper tbh) {
+    public TreeBranchEditor(TreeNode tn, TreeBranchHelper treeBranchHelper) {
         super(new BorderLayout());
         origBranch = (DefaultMutableTreeNode) tn;
         myBranch = deepClone(origBranch);
-        myHelper = tbh;
+        myHelper = treeBranchHelper;
         changeList = new ArrayList<>(); // Array of NodeChange
 
         theChoices = getChoices();
@@ -281,7 +281,7 @@ public class TreeBranchEditor extends JPanel
             // like a bad idea to try and idiot-proof it from here; that will be up to
             // the consumer of this tool.  Good luck and happy tree-trimming!
         }  else if(theText.equals(getDeleteCommand())) {
-            // The action was a 'delete' button click, which is a toggle.
+            // The action was a 'delete' button click, which is just a toggle.
             if(removals.contains(theAction)) {
                 removals.remove(theAction);
                 changeList.add(new NodeChange(theAction, NodeChange.UNMARKED));

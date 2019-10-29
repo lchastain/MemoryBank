@@ -4,7 +4,7 @@ What is seen here are a few files files (in both .doc and .txt format) that desc
 taken in order to test some of the interfaces.  These cannot be accomplished by Unit Tests, but MAY be
 converted to automated functional tests at some point.
 
-The TreeBranchEditorExample.java file in TestDrivers provides an app that can be used for
+The TreeBranchEditorExample.java file in Area51 provides an app that can be used for
 testing the TreeBranchEditor.  Instructions
 for using it are here in the TreeBranchEditor.txt file.
 

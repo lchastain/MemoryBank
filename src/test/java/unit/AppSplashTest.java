@@ -7,7 +7,7 @@ class AppSplashTest {
 
     // Nothing to check on, for this test; it's more about getting coverage.
     @Test
-    void testSetProgress() throws Exception {
+    void testSetProgress() {
         as.setProgress("Starting", 50);
     }
 }

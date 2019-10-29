@@ -16,15 +16,18 @@ public class SearchResultGroup extends NoteGroup {
     // This is saved/loaded
     public SearchResultGroupProperties myVars; // Variables - flags and settings
 
+    // The File Name (fname) may be either a simple single word text as seen in the app tree,
+    // or it could be the full-blown path specifier including the .json extension.
     SearchResultGroup(String fname) {
         super();
         // super(10);  // test, for paging
 
         addNoteAllowed = false;
 
-        // The filename was constructed (fully) by the AppTreePanel, and
-        // provided to us here upon selection of the corresponding tree leaf.
-        theGroupFilename = fname;
+        // Is the fname in its long form, or the short form?
+        // We need the full-blown path/file specifier.
+        theGroupFilename = getFullFilename(fname);
+
         updateGroup(); // This is where the file gets loaded (in the parent class)
         checkColumnOrder();
 
@@ -107,6 +110,22 @@ public class SearchResultGroup extends NoteGroup {
         } // end for
     } // end checkColumnOrder
 
+    static boolean exists(String theName) {
+        String fullFileName = getFullFilename(theName);
+        return new File(fullFileName).exists();
+    }
+
+    static String getFullFilename(String theName) {
+        String theFullFilename;
+        int sepCharIndex = theName.lastIndexOf(File.separatorChar);
+        if(sepCharIndex > 0) { // The filename was already constructed (fully) by the calling context.
+            theFullFilename = theName;
+        } else { // fname is just the 'core' name.
+            theFullFilename = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
+            theFullFilename += "search_" + theName + ".json";
+        }
+        return theFullFilename;
+    }
 
     // -------------------------------------------------------------------
     // Method Name: getGroupFilename
@@ -114,10 +133,22 @@ public class SearchResultGroup extends NoteGroup {
     // This method returns the name of the file where the data for this
     //   group of notes is loaded / saved.
     // -------------------------------------------------------------------
+    @Override
     public String getGroupFilename() {
         return theGroupFilename;
     }// end getGroupFilename
 
+    // This method will return the requested Search Result Group only if
+    // a file for it exists; otherwise it returns null.  It is a better
+    // alternative to simply calling the constructor, which of course
+    // cannot return a null.
+    static SearchResultGroup getGroup(String shortFilename) {
+        if(exists(shortFilename)) {
+            MemoryBank.debug("Loading " + shortFilename + " from filesystem");
+            return new SearchResultGroup(shortFilename);
+        } // end if there is a file
+        return null;
+    }
 
     //--------------------------------------------------------
     // Method Name: getNoteComponent

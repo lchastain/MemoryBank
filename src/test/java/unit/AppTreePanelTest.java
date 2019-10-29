@@ -73,12 +73,6 @@ public class AppTreePanelTest {
     }
 
     @Test
-    void testGetTodoListKeeper() {
-        TodoListKeeper tlk = atp.getTodoListKeeper();
-        assert tlk != null;
-    }
-
-    @Test
     void testPreClose() {
         atp.preClose();
         // No assertions needed here; we're just assuring coverage.

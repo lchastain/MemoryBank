@@ -64,7 +64,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private EventNoteGroup theEvents;
     private Vector<NoteData> noteDataVector;   // For searching
     private Vector<NoteData> foundDataVector;  // Search results
-    private TodoListKeeper theTodoListKeeper;  // keeper of all loaded 'to do' lists.
+    private NoteGroupKeeper theTodoListKeeper;  // keeper of all loaded 'to do' lists.
+    private NoteGroupKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
     private SearchPanel spTheSearchPanel;
     private JPanel aboutPanel;
     private JSplitPane splitPane;
@@ -72,9 +73,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private LocalDate currentDateChoice;
     private String theLastTreeSelection;
     private DefaultMutableTreeNode theRootNode;
-    private SearchResultNode nodeSearchResults;
+    private DefaultMutableTreeNode nodeSearchResults;
 
-    // Predefined Tree Paths
+    // Predefined Tree Paths to 'leaf' nodes.
     private TreePath dayNotesPath;
     private TreePath monthNotesPath;
     private TreePath yearNotesPath;
@@ -83,9 +84,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private TreePath upcomingEventsPath;
 
     private AppOptions appOpts;
-
-    // Used in Search
-    private Object ob1kenoby;
 
     private boolean blnRestoringSelection;
 
@@ -112,7 +110,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         //<editor-fold desc="Initialize the Search Panel from a new thread">
-        nodeSearchResults = null;
         new Thread(new Runnable() {
             public void run() {
                 spTheSearchPanel = new SearchPanel();
@@ -237,7 +234,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Adds a search result branch to the tree.
     //   s = the visible name
     //   i = number of results
-    private void addSearchResult(String s, int i) {
+    private void addSearchResult(String s) {
         // Remove the tree selection listener while we
         //   rebuild this portion of the tree.
         tree.removeTreeSelectionListener(this);
@@ -245,7 +242,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Make a new tree node for the result file whose path
         //   is given in the input parameter
         DefaultMutableTreeNode tmpNode;
-        tmpNode = new SearchResultNode(s, i);
+        tmpNode = new DefaultMutableTreeNode(s, false);
 
         // Check to see if the 'Search Results' node has been
         //   created.  If not then create and add it now.
@@ -253,7 +250,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // Preserve current branch expansions
             updateTreeState(false);
 
-            nodeSearchResults = new SearchResultNode(null, 0);
+            nodeSearchResults = new DefaultMutableTreeNode("Search Results", true);
             theRootNode.add(nodeSearchResults);
 
             // Display the new node in the tree
@@ -283,7 +280,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // method by only showing the 'close' option when
         // a search result is selected, it follows that the current tree selection
         // is the search result that we want to close.
-        SearchResultNode node = (SearchResultNode) tree.getLastSelectedPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (node == null) return; // But this is here just in case someone got here another way.
 
         // Give a confirmation warning here, allowing the user to cancel.
@@ -314,14 +311,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (choice != JOptionPane.OK_OPTION) return;
 
         // Remove the results file
-        String filename = MemoryBank.userDataHome + File.separatorChar + "search_" + node.strNodeName + ".json";
-        File f = new File(filename);
-        if (f.exists()) {
-            if (!f.delete()) {
-                System.out.println("Failed to remove " + filename);
-                return; // Leave the node, since there is still a file for it.
-            }
-        }
+// No - this is now handled by the SearchResultsHelper.
+//        String filename = SearchResultGroup.getFullFilename(node.toString());
+//        File f = new File(filename);
+//        if (f.exists()) {
+//            if (!f.delete()) {
+//                System.out.println("Failed to remove " + filename);
+//                return; // Leave the node, since there is still a file for it.
+//            }
+//        }
 
         removeSearchNode(node);
     } // end closeSearchResult
@@ -333,37 +331,31 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Creates the 'MemoryBank' tree.
     //-----------------------------------------------------------------
     private void createTree() {
-        int intRowCounter = 0;  // The root
-        int intViewRow;  // Used in expansion state retention
-        int intNoteRow;  // Used in expansion state retention
-        int intTodoRow;  // Used in expansion state retention
-
         MemoryBank.debug("Creating the tree");
         DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
         theRootNode = trunk;
 
-        DefaultMutableTreeNode branch;
-        DefaultMutableTreeNode leaf;
-        TreeNode[] pathToRoot;
+        // Temporary highly-reused variables
+        DefaultMutableTreeNode branch; // An expandable node
+        DefaultMutableTreeNode leaf;   // An end-node
+        TreeNode[] pathToRoot;  // An array of node names leading back to the root (after the node has been added)
 
+        // It begins -
         leaf = new DefaultMutableTreeNode("Upcoming Events");
         trunk.add(leaf);
         pathToRoot = leaf.getPath();
         upcomingEventsPath = new TreePath(pathToRoot);
 
-        intRowCounter++;
-
         leaf = new DefaultMutableTreeNode("Goals");
         trunk.add(leaf);
-        intRowCounter++;
 
         //---------------------------------------------------
         // Graphical views
         //---------------------------------------------------
         branch = new DefaultMutableTreeNode("Views");
         trunk.add(branch);
-        intRowCounter++;
-        intViewRow = intRowCounter;
+        pathToRoot = branch.getPath();
+        viewsPath = new TreePath(pathToRoot);
 
         leaf = new DefaultMutableTreeNode("Year View");
         branch.add(leaf);
@@ -372,10 +364,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         branch.add(leaf);
 
         // Convert this node to a TreePath to be used later,
-        //   in selection events.  With expandable branches,
-        //   the selection row can be variable and is not a good
-        //   way to specify the change.  This conversion is done
-        //   again for week and day, below (without this comment).
+        //   in selection events.
         pathToRoot = leaf.getPath();
         monthViewPath = new TreePath(pathToRoot);
 
@@ -390,8 +379,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------
         branch = new DefaultMutableTreeNode("Notes");
         trunk.add(branch);
-        intRowCounter++;
-        intNoteRow = intRowCounter;
+        pathToRoot = branch.getPath();
+        notesPath = new TreePath(pathToRoot);
 
         leaf = new DefaultMutableTreeNode("Day Notes");
         branch.add(leaf);
@@ -412,14 +401,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // To Do Lists
         //---------------------------------------------------
         branch = new DefaultMutableTreeNode("To Do Lists");
-        String theName;
-        theTodoListKeeper = new TodoListKeeper();
         trunk.add(branch);
-        intRowCounter++;
-        intTodoRow = intRowCounter;
+        pathToRoot = branch.getPath();
+        todolistsPath = new TreePath(pathToRoot);
+
+        String theName;
+        theTodoListKeeper = new NoteGroupKeeper();
+        theSearchResultsKeeper = new NoteGroupKeeper();
 
         for (String s : appOpts.todoLists) {
-
             // First check to see that the file is 'here'.
             theName = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar + "todo_" + s + ".json";
             if (new File(theName).exists()) {
@@ -443,15 +433,18 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(leaf);
         //intRowCounter++;
 
+        // Create the SearchResults node  (no longer a maybe - should always happen, now)
+        nodeSearchResults = new DefaultMutableTreeNode("Search Results", true);
+        trunk.add(nodeSearchResults);
+        pathToRoot = nodeSearchResults.getPath();
+        searchresultsPath = new TreePath(pathToRoot);
+
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
-            nodeSearchResults = new SearchResultNode(null, 0);
-
             for (int i = 0; i < appOpts.searchResultList.size(); i++) {
                 String searchResultFilename = appOpts.searchResultList.get(i);
-                nodeSearchResults.add(new SearchResultNode(searchResultFilename, i));
+                nodeSearchResults.add(new DefaultMutableTreeNode(searchResultFilename, false));
             }
-            trunk.add(nodeSearchResults);
         } // end if
 
         // Create a default model based on the 'App' node that
@@ -459,18 +452,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         treeModel = new DefaultTreeModel(trunk);
         tree = new JTree(treeModel);
 
-        // At creation, all paths are collapsed.  This is how we know
-        //   the initial row for three of the expandable branches at
-        //   this moment but later they can change, so obtain a
-        //   reliable stable reference to these nodes.
-        viewsPath = tree.getPathForRow(intViewRow);
-        notesPath = tree.getPathForRow(intNoteRow);
-        todolistsPath = tree.getPathForRow(intTodoRow);
-
-        // This one is different; it may not even be created yet
-        // for the current user, so we need to 'look' for it.
-        searchresultsPath = AppUtil.getPath(nodeSearchResults);
-
+        // At creation, all paths are collapsed.
         // Expand branches based on last saved configuration.
         resetTreeState();
 
@@ -503,10 +485,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // Used by Test
     NoteGroup getTheNoteGroup() {
         return theNoteGroup;
-    }
-
-    TodoListKeeper getTodoListKeeper() {
-        return theTodoListKeeper;
     }
 
     public JTree getTree() {
@@ -609,7 +587,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end preClose
 
 
-    private void removeSearchNode(SearchResultNode node) {
+    private void removeSearchNode(DefaultMutableTreeNode node) {
         // Remove these results from the tree but do not let
         //   the removal result in the need to process another
         //   selection event.
@@ -925,17 +903,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         String fpath = srd.getFileFoundIn().getParent();
 
         if (fname.startsWith("todo_")) {
-            String pn = TodoNoteGroup.prettyName(fname);
+            String prettyName = NoteGroup.prettyName(fname);
+            prettyName = prettyName.substring(5); // The prettifier still leaves the 'todo_' prefix
+
             if (!(srd.getFileFoundIn()).exists()) {
                 String s;
-                s = "Error in loading " + pn + " !\n";
+                s = "Error in loading " + prettyName + " !\n";
                 s += "The original list no longer exists.";
                 optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 // The beauty of this action is that the path we are
                 // selecting does not actually have to be present
                 // for this to work and display the list.
-                tree.setSelectionPath(TodoBranchHelper.getTodoPathFor(tree, pn));
+                tree.setSelectionPath(TodoBranchHelper.getTodoPathFor(tree, prettyName));
             } // end if
         } else if (fname.equals("UpcomingEvents")) {
             tree.setSelectionPath(upcomingEventsPath);
@@ -1050,7 +1030,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         }
 
         // Make a new tree node for these results and select it
-        addSearchResult(resultsName, noteDataVector.size());
+        addSearchResult(resultsName);
 
         showWorkingDialog(false);
     } // end doSearch
@@ -1212,34 +1192,40 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             updateCurrentDateChoice();
         } // end if
 
-        String theText = node.toString();
+        String theNodeString = node.toString();
         String theParent = node.getParent().toString();
-        MemoryBank.debug("New tree selection: " + theText);
-        //System.out.println("New tree selection: " + theText);
-        appOpts.theSelection = theText; // Preserved exactly.
-        strSelectionType = theText;  // May be generalized
+        MemoryBank.debug("New tree selection: " + theNodeString);
+        //System.out.println("New tree selection: " + theNodeString);
+        appOpts.theSelection = theNodeString; // Preserved exactly.
+        strSelectionType = theNodeString;  // May be generalized
 
         //-----------------------------------------------------
-        // These two booleans will help us to avoid going down
+        // These booleans will help us to avoid going down
         //   the wrong branch in a case where some bozo named
         //   their To Do list - 'To Do Lists'.  Other cases
         //   where a list may be named 'Year View' or any other
-        //   tree branch, are caught by the fact that we first
-        //   look to see if the parent is 'To Do Lists', before
-        //   we start considering the text of the selection.
+        //   name that matches an existing tree branch name,
+        //   are caught by the fact that we first
+        //   look to see if the parent is an expandable branch,
+        //   before we start considering the text of the selection.
         //-----------------------------------------------------
-        boolean isTodoBranch = theText.equals("To Do Lists");
+        boolean isTodoBranch = theNodeString.equals("To Do Lists");
+        boolean isSearchBranch = theNodeString.equals("Search Results");
         boolean isTopLevel = theParent.equals("App");
 
         theNoteGroup = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (isTodoBranch && isTopLevel) {
+        if (isTodoBranch && isTopLevel) {  // Edit the Todo parent branch
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
-            TodoBranchHelper tbh = new TodoBranchHelper(tree);
+            TodoBranchHelper tbh = new TodoBranchHelper(tree, theTodoListKeeper);
             TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
+            rightPane.setViewportView(tbe);
+        } else if (isSearchBranch && isTopLevel) {  // Edit the Search parent branch
+            SearchBranchHelper sbh = new SearchBranchHelper(tree, theSearchResultsKeeper);
+            TreeBranchEditor tbe = new TreeBranchEditor(node, sbh);
             rightPane.setViewportView(tbe);
         } else if (!node.isLeaf()) {
             // Looking at other expandable nodes
@@ -1250,93 +1236,43 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theParent.equals("To Do Lists")) {
             // Selection of a To Do List
             strSelectionType = "To Do List";  // For manageMenus
-            TodoNoteGroup tng;
+            TodoNoteGroup todoNoteGroup;
 
             // If the list has been previously loaded during this session,
             // retrieve it from the list keeper.
-            tng = theTodoListKeeper.get(theText);
+            todoNoteGroup = (TodoNoteGroup) theTodoListKeeper.get(theNodeString);
 
             // Otherwise, prepare to load it.
-            if (tng == null) {
-                log.debug("Loading " + theText + " from filesystem");
-                tng = new TodoNoteGroup(theText);
-                theTodoListKeeper.add(tng);
+            if (todoNoteGroup == null) {
+                log.debug("Loading " + theNodeString + " from filesystem");
+                todoNoteGroup = new TodoNoteGroup(theNodeString);
+                theTodoListKeeper.add(todoNoteGroup);
             } else {
-                log.debug("Retrieved " + theText + " from the keeper");
+                log.debug("Retrieved " + theNodeString + " from the keeper");
             }
 
-            theNoteGroup = tng;
+            theNoteGroup = todoNoteGroup;
             rightPane.setViewportView(theNoteGroup);
-        } else if (theText.equals("Goals")) {
-            if (theGoalPanel == null) {
-                theGoalPanel = new GoalPanel();
-            }
-            rightPane.setViewportView(theGoalPanel);
-        } else if (theText.equals("Year View")) {
-            if (theYearView == null) {
-                theYearView = new YearView(currentDateChoice);
-                theYearView.setParent(this);
-            } // end if
-            // Might need to use currentDateChoice to set the year, here.  and above.
-            theYearView.setChoice(currentDateChoice);
-            rightPane.setViewportView(theYearView);
-        } else if (theText.equals("Month View")) {
-            if (theMonthView == null) {
-                theMonthView = new MonthView(currentDateChoice);
-                theMonthView.setParent(this);
+        } else if (theParent.equals("Search Results")) {
+            // Selection of a Search Result List
+            strSelectionType = "Search Result";  // For manageMenus
+            SearchResultGroup searchResultGroup;
+
+            // If the search has been previously loaded during this session,
+            // we can retrieve the group from the keeper.
+            searchResultGroup = (SearchResultGroup) theSearchResultsKeeper.get(theNodeString);
+
+            // Otherwise construct it, but only if a file for it already exists.  This is NOT the
+            // kind of group where if a file does not exist for it, we would go ahead and make one.
+            if (searchResultGroup == null) {
+                searchResultGroup = SearchResultGroup.getGroup(theNodeString);
             } else {
-                theMonthView.setChoice(currentDateChoice);
+                log.debug("Retrieved " + theNodeString + " from the keeper");
             }
-            rightPane.setViewportView(theMonthView);
-        } else if (theText.equals("Day Notes")) {
-            if (theAppDays == null) {
-                theAppDays = new DayNoteGroup();
-            }
-            theNoteGroup = theAppDays;
-            theAppDays.setChoice(currentDateChoice);
-            rightPane.setViewportView(theAppDays);
-        } else if (theText.equals("Month Notes")) {
-            if (theAppMonths == null) {
-                theAppMonths = new MonthNoteGroup();
-            }
-            theNoteGroup = theAppMonths;
-            theAppMonths.setChoice(currentDateChoice);
-            rightPane.setViewportView(theAppMonths);
-        } else if (theText.equals("Year Notes")) {
-            if (theAppYears == null) {
-                theAppYears = new YearNoteGroup();
-            }
-            theNoteGroup = theAppYears;
-            theAppYears.setChoice(currentDateChoice);
-            rightPane.setViewportView(theAppYears);
-        } else if (theText.equals("Upcoming Events")) {
-            if (theEvents == null) {
-                theEvents = new EventNoteGroup();
-            }
-            theNoteGroup = theEvents;
-            rightPane.setViewportView(theEvents);
-        } else if (node.isNodeAncestor(nodeSearchResults)) {
-            strSelectionType = "Search Result";
-            SearchResultNode searchResultNode = (SearchResultNode) node;
 
-            // If we have performed this search during the current session,
-            //   the Search Result Group will not be null.  Otherwise,
-            //   construct the filename and instantiate a new group with its content.
-            if (searchResultNode.srg == null) {
-                System.out.println("Search " + searchResultNode.strNodeName + " size: " + searchResultNode.intGroupSize);
-
-                String fullFileName = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
-                fullFileName += "search_" + searchResultNode.strNodeName + ".json";
-
-                if (new File(fullFileName).exists()) {
-                    // The srg does not get established until the search result is selected.
-                    searchResultNode.srg = new SearchResultGroup(fullFileName);
-                } // end if there is a file
-            } // end if
-
-            if (searchResultNode.srg == null) {
-                // We just attempted to load it, so if it is STILL null then
-                //   it means the file is not there or not accessible.
+            if (searchResultGroup == null) {
+                // We just tried to retrieve it or to load it, so if it is STILL
+                //   null then we take it to mean that the file is not there.
 
                 // We can show a notice about what went wrong and what we're
                 // going to do about it, but that will only be helpful if
@@ -1353,17 +1289,65 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                             "Results not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
-                // Now remove the node, even if it has children.
-                removeSearchNode((SearchResultNode) node);
+                // Now remove the node.
+                removeSearchNode(node);
             } else {
-                theNoteGroup = searchResultNode.srg;
+                theNoteGroup = searchResultGroup;
                 rightPane.setViewportView(theNoteGroup);
             } // end if
+        } else if (theNodeString.equals("Goals")) {
+            if (theGoalPanel == null) {
+                theGoalPanel = new GoalPanel();
+            }
+            rightPane.setViewportView(theGoalPanel);
+        } else if (theNodeString.equals("Year View")) {
+            if (theYearView == null) {
+                theYearView = new YearView(currentDateChoice);
+                theYearView.setParent(this);
+            } // end if
+            // Might need to use currentDateChoice to set the year, here.  and above.
+            theYearView.setChoice(currentDateChoice);
+            rightPane.setViewportView(theYearView);
+        } else if (theNodeString.equals("Month View")) {
+            if (theMonthView == null) {
+                theMonthView = new MonthView(currentDateChoice);
+                theMonthView.setParent(this);
+            } else {
+                theMonthView.setChoice(currentDateChoice);
+            }
+            rightPane.setViewportView(theMonthView);
+        } else if (theNodeString.equals("Day Notes")) {
+            if (theAppDays == null) {
+                theAppDays = new DayNoteGroup();
+            }
+            theNoteGroup = theAppDays;
+            theAppDays.setChoice(currentDateChoice);
+            rightPane.setViewportView(theAppDays);
+        } else if (theNodeString.equals("Month Notes")) {
+            if (theAppMonths == null) {
+                theAppMonths = new MonthNoteGroup();
+            }
+            theNoteGroup = theAppMonths;
+            theAppMonths.setChoice(currentDateChoice);
+            rightPane.setViewportView(theAppMonths);
+        } else if (theNodeString.equals("Year Notes")) {
+            if (theAppYears == null) {
+                theAppYears = new YearNoteGroup();
+            }
+            theNoteGroup = theAppYears;
+            theAppYears.setChoice(currentDateChoice);
+            rightPane.setViewportView(theAppYears);
+        } else if (theNodeString.equals("Upcoming Events")) {
+            if (theEvents == null) {
+                theEvents = new EventNoteGroup();
+            }
+            theNoteGroup = theEvents;
+            rightPane.setViewportView(theEvents);
         } else {
             // Any other as-yet unhandled node on the tree.
             // Currently - Week View, Icon Manager
             JPanel jp = new JPanel(new GridBagLayout());
-            jp.add(new JLabel(theText));
+            jp.add(new JLabel(theNodeString));
             rightPane.setViewportView(jp);
         } // end if/else if
         //</editor-fold>
@@ -1444,13 +1428,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Preserve the names of the active Search Results in the AppOpts.
-        DefaultMutableTreeNode theSearchResultNode = SearchResultNode.getSearchResultNode(theRootNode);
         int numResults;
         appOpts.searchResultList.clear();
 
-        numResults = theSearchResultNode.getChildCount();
+        numResults = nodeSearchResults.getChildCount();
         if (numResults > 0) {
-            leafLink = theSearchResultNode.getFirstLeaf();
+            leafLink = nodeSearchResults.getFirstLeaf();
             while (numResults-- > 0) {
                 String s = leafLink.toString();
                 //MemoryBank.debug("  Preserving search result: " + s);

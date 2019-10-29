@@ -1,9 +1,9 @@
 /*
  A custom TreeBranchHelper, in support of the TreeBranchEditor actions on
- the TodoBranch.  In addition to the interface methods, there are several
- static methods that support other actions on the TodoBranch, that will be
- called by the AppTreePanel or other branches.  For actions on the TodoLists
- themselves (such as save, load, etc), see the TodoNoteGroup class.
+ the SearchResults Branch.  In addition to the interface methods, there are several
+ static methods that support other actions on the Search Results, that will be
+ called by the AppTreePanel or other branches.  For actions on the SearchResults
+ themselves (such as load, etc), see the SearchResultGroup class.
 */
 
 import org.slf4j.Logger;
@@ -17,10 +17,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
-public class TodoBranchHelper implements TreeBranchHelper {
-    private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
+public class SearchBranchHelper implements TreeBranchHelper {
+    private static Logger log = LoggerFactory.getLogger(SearchBranchHelper.class);
 
     private static StringBuilder ems = new StringBuilder();  // Error Message String
     private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
@@ -32,7 +31,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     private String renameFrom;
 
     // Construct this class with the JTree that contains the TodoBranch.
-    public TodoBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
+    SearchBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
         theTree = jt;
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
@@ -43,27 +42,8 @@ public class TodoBranchHelper implements TreeBranchHelper {
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
 
-    // This method will return a TreePath for the provided String,
-    // regardless of whether or not it really is a node on the tree.
-    static TreePath getTodoPathFor(JTree jt, String s) {
-        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
-        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode clonedRoot = AppTreePanel.deepClone(theRoot);
-        DefaultMutableTreeNode theTodoNode = getTodoNode(clonedRoot);
-
-        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(s);
-
-        // This is the 'tricky' part - we don't really want to add this node;
-        // we just want the system to create the TreeNode array for us so we
-        // can get and return the TreePath.  So - we didn't add it to the
-        // 'real' tree, but a clone of the root.
-        theTodoNode.add(newNode);
-
-        return new TreePath(newNode.getPath());
-    }
-
     @SuppressWarnings("rawtypes")
-    static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
+    private static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();
 
@@ -74,114 +54,6 @@ public class TodoBranchHelper implements TreeBranchHelper {
             }
         }
         return dmtn;
-    }
-
-    static void addNewList(JTree jt) {
-        String newName = "";
-        String prompt = "Enter a name for the new To Do List";
-        String title = "Add a new To Do List";
-
-        newName = (String) JOptionPane.showInputDialog(
-                jt,                           // parent component - for modality
-                prompt,                       // prompt
-                title,                        // pane title bar
-                JOptionPane.QUESTION_MESSAGE, // type of pane
-                null,                         // icon
-                null,                         // list of choices
-                newName);                     // initial value
-
-        if (newName == null) return;      // No user entry; dialog was Cancelled.
-        newName = nameAdjust(newName);
-
-        DefaultTreeModel theTreeModel = (DefaultTreeModel) jt.getModel();
-        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
-        if (dmtn != null) {
-            // Declare a tree node for the new list.
-            DefaultMutableTreeNode newList;
-
-            // Allowing 'add' to act as a back-door selection is ok, but do
-            // not add this choice to the branch if it is already there.
-            boolean addNodeToBranch = true;
-            newList = (DefaultMutableTreeNode) getChild(dmtn, newName);
-            if (newList == null) {
-                newList = new DefaultMutableTreeNode(newName);
-            } else {
-                addNodeToBranch = false;
-            }
-
-            if (addNodeToBranch) {
-                // Ensure that the new name meets our requirements.
-                if (!nameCheck(newName, jt)) return;
-
-                // Add the new list name to the tree
-                dmtn.add(newList);
-                theTreeModel.nodeStructureChanged(dmtn);
-            }
-
-            // Select the list.
-            TreePath tp = getPath(dmtn);
-            jt.expandPath(tp);
-            jt.setSelectionPath(new TreePath(newList.getPath()));
-        }
-    } // end addNewList
-
-
-    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    private static MutableTreeNode getChild(DefaultMutableTreeNode dmtn, String name) {
-        Enumeration children = dmtn.children();
-        while (children.hasMoreElements()) {
-            DefaultMutableTreeNode achild = (DefaultMutableTreeNode) children.nextElement();
-            if (achild.toString().equals(name)) {
-                return achild;
-            }
-        }
-        return null;
-    }
-
-    // Called when adding a new list.  First, it trims any leading and trailing spaces.
-    // Then it checks to see if the file already exists.  But rather than considering that
-    // to be an error condition, we allow this situation to be a back-door selection method
-    // rather than an 'Add'.  The only thing is - on a case-insensitive file system the file
-    // may exist but not necessarily with the same casing as the name that was entered by
-    // the user.  So - if we find that it does exist, we adopt that name and casing which
-    // may be different.  After that, they can change the casing if desired, via the rename
-    // mechanism.  But note that it would have to be a two-step process; a case-only name
-    // change would look like a same-file conflict (unlike 'Add', the rename operation does
-    // consider that to be an error).  So for an example of changing case via a rename:
-    // 'upper' ==> 'UPPER' could be accomplished by 'upper' ==> 'upper1' ==> "UPPER".
-    private static String nameAdjust(String name) {
-        String adjustedName;
-        adjustedName = name.trim();
-        if (!adjustedName.isEmpty()) {
-            String newNamedFile = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
-            newNamedFile += "todo_" + adjustedName + ".json";
-            File f = new File(newNamedFile);
-            if (f.exists()) {
-                try {
-                    String longCaseName = f.getCanonicalPath();
-                    adjustedName = NoteGroup.prettyName(longCaseName);
-                } catch (IOException ioe) {
-                    System.out.println(ioe.getMessage());
-                }
-            }
-        }
-        return adjustedName;
-    }
-
-
-    public static TreePath getPath(TreeNode treeNode) {
-        List<Object> nodes = new ArrayList<>();
-        if (treeNode != null) {
-            nodes.add(treeNode);
-            treeNode = treeNode.getParent();
-            while (treeNode != null) {
-                nodes.add(0, treeNode);
-                treeNode = treeNode.getParent();
-            }
-        }
-
-        return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
     }
 
 
@@ -226,14 +98,14 @@ public class TodoBranchHelper implements TreeBranchHelper {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + "TodoLists");
+        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + "SearchResults");
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
                     // known that the 'MemoryBank.userDataHome' will not under normal program
                     // operation contain any directory with a name starting with 'todo_'.
                     public boolean accept(File f, String s) {
-                        return s.startsWith("todo_");
+                        return s.startsWith("search_");
                     }
                 }
         );
@@ -245,7 +117,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
             String theFile;
             for (String afile : theFileList) {
                 theDot = afile.lastIndexOf(".json");
-                theFile = afile.substring(5, theDot); // start after the 'todo_'
+                theFile = afile.substring(7, theDot); // start after the 'search_'
 
                 theChoices.add(theFile);
             } // end for
@@ -276,30 +148,30 @@ public class TodoBranchHelper implements TreeBranchHelper {
     public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         if (theIndex == -1) return;
 
-        // Handle 'To Do' file renamings and deletions
+        // Handle file renamings and deletions
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
-        String basePath = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
+        String basePath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
         for (Object nco : changes) {
-            NodeChange nodeChange = (NodeChange) nco;
-            System.out.println(nco.toString());
-            if (nodeChange.changeType == NodeChange.RENAMED) {
+            NodeChange nc = (NodeChange) nco;
+            MemoryBank.debug(nco.toString());
+            if (nc.changeType == NodeChange.RENAMED) {
                 // Now attempt the rename
-                String oldNamedFile = basePath + "todo_" + nodeChange.nodeName + ".json";
-                String newNamedFile = basePath + "todo_" + nodeChange.renamedTo + ".json";
+                String oldNamedFile = basePath + "search_" + nc.nodeName + ".json";
+                String newNamedFile = basePath + "search_" + nc.renamedTo + ".json";
                 File f = new File(oldNamedFile);
 
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
-                        throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
+                        throw new Exception("Unable to rename " + nc.nodeName + " to " + nc.renamedTo);
                     } // end if
-                    theNoteGroupKeeper.remove(nodeChange.nodeName);
+                    theNoteGroupKeeper.remove(nc.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
 
-            } else if (nodeChange.changeType == NodeChange.REMOVED) {
+            } else if (nc.changeType == NodeChange.REMOVED) {
 
                 if (deleteWarning == null) {
                     deleteWarning = "Deletions of 'To Do' Lists cannot be undone.";
@@ -315,17 +187,16 @@ public class TodoBranchHelper implements TreeBranchHelper {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile = basePath + "todo_" + nodeChange.nodeName + ".json";
+                String deleteFile = basePath + "todo_" + nc.nodeName + ".json";
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
-                        throw new Exception("Unable to delete " + nodeChange.nodeName);
+                        throw new Exception("Unable to delete " + nc.nodeName);
                     } // end if
-                    theNoteGroupKeeper.remove(nodeChange.nodeName);
+                    theNoteGroupKeeper.remove(nc.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
-
             }
         }  // end for each change
 
@@ -343,8 +214,8 @@ public class TodoBranchHelper implements TreeBranchHelper {
         theTreeModel.nodeStructureChanged(mtn);
         theTree.expandRow(theIndex);
 
-        // We do this last step because now that the edits have been accepted, we do not want to leave
-        // both the 'official' branch and the 'editor' branch showing side-by-side, identical to
+        // We do this last step because now that the edits have been accepted, we do not want both
+        // the 'official' branch and the 'editor' branch to be shown side-by-side, identical to
         // each other.  This way, the user gets a more final indication that the editing session
         // is completed, and it removes the possibility that they might click the 'Cancel' button,
         // which otherwise would revert the editor branch and choices (but not the 'official' ones.
@@ -353,6 +224,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
         MemoryBank.getAppTreePanel().showAbout();
+
     }  // end doApply
 
     @Override
@@ -373,7 +245,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     //    otherwise, true.  Also, any 'false' return will be
     //    preceeded by an informative error dialog.
     //-------------------------------------------------------------------
-    static boolean nameCheck(String theName, Component parent) {
+    private static boolean nameCheck(String theName, Component parent) {
         Exception e = null;
         ems.setLength(0);
 
@@ -419,7 +291,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // conflict with any 'legal' existing file in this directory, so if
         // there is any problem at all then we can report a failure.
 
-        String theFilename = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar + theName + ".test";
+        String theFilename = MemoryBank.userDataHome + File.separatorChar + theName + ".test";
         File f = new File(theFilename);
         MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
         boolean b = false; // Used only for 'greening' the code.
