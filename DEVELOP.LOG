@@ -1,6 +1,20 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+10/30/2019 0655 - Continuing the BranchEditor work for Searches, keep running across code
+  provisions and comments that was placeholder for a planned feature that search results
+  could themselves be searched and that would create a child node in the tree, with those
+  results.  That feature now seems like it would be overdone and unnecessarily complcated.
+  Instead, I might allow ALL search results to be included (selected for display or not),
+  but no longer intend for those results to be placed as a child under a single earlier
+  search.  Individual search results will not have children.  Will now remove the never-was-
+  implemented 'Search These Results..' menu item, and SCR0073 for 'search these results' is
+  now Evaporated.  SCR0071 is implemented, though.  Coverage now 83% classes, 54% lines.
+
+10/29/2019 0858 - Some class changes and new methods, fixed one test, all in support of making
+  Searches behave more like TodoLists, to allow branch editing.  Coverage now at 82% classes,
+  54% lines.  Will work on improving that after this change is completed.
+
 10/28/2019 0940 - Now working on genericizing some of the TreeBranch editing code, and remember
   thinking long ago that it could be done for the Todo-specific parts, if I ever needed to.
   Well, now it's needed and working on it feels almost seamless across the 5+ years interim.

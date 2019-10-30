@@ -36,20 +36,21 @@ public class SearchBranchHelper implements TreeBranchHelper {
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        theIndex = -1;
 
-        DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
+        // Get the index of the SearchResults node (not the same as row number)
+        theIndex = -1;
+        DefaultMutableTreeNode dmtn = getSearchResultsNode(theRoot);
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
 
     @SuppressWarnings("rawtypes")
-    private static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
+    static DefaultMutableTreeNode getSearchResultsNode(DefaultMutableTreeNode theRoot) {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();
 
         while (bfe.hasMoreElements()) {
             dmtn = (DefaultMutableTreeNode) bfe.nextElement();
-            if (dmtn.toString().equals("To Do Lists")) {
+            if (dmtn.toString().equals("Search Results")) {
                 break;
             }
         }
@@ -137,7 +138,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
 
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
     // For tree structure events, we don't address them individually but just accept
-    // them as a whole, by directly adopting the returned 'mtn' as our new branch.
+    // them as a whole, by directly adopting the 'mtn' parameter as our new branch.
     // But in addition to (possibly) having an effect on the final branch, the
     // rename and delete actions from the editor imply changes to the filesystem
     // and those directives are also handled here.  For these actions, we need to
@@ -146,35 +147,38 @@ public class SearchBranchHelper implements TreeBranchHelper {
     // represent the true state of the todolist files and the user will be informed.
     @Override
     public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
+        // 'theIndex' is the location of the branch that we will replace.  It is set
+        // in the constructor here and it is NOT the same as the row of the tree so
+        // it is not error-prone due to changes such as collapse/expand events or a
+        // new NoteGroup appearing above it.  But the line below is a 'just in case'.
         if (theIndex == -1) return;
 
         // Handle file renamings and deletions
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
-        String basePath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
+        String basePath = SearchResultGroup.basePath();
         for (Object nco : changes) {
-            NodeChange nc = (NodeChange) nco;
+            NodeChange nodeChange = (NodeChange) nco;
             MemoryBank.debug(nco.toString());
-            if (nc.changeType == NodeChange.RENAMED) {
+            if (nodeChange.changeType == NodeChange.RENAMED) {
                 // Now attempt the rename
-                String oldNamedFile = basePath + "search_" + nc.nodeName + ".json";
-                String newNamedFile = basePath + "search_" + nc.renamedTo + ".json";
+                String oldNamedFile = basePath + "search_" + nodeChange.nodeName + ".json";
+                String newNamedFile = basePath + "search_" + nodeChange.renamedTo + ".json";
                 File f = new File(oldNamedFile);
 
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
-                        throw new Exception("Unable to rename " + nc.nodeName + " to " + nc.renamedTo);
+                        throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
                     } // end if
-                    theNoteGroupKeeper.remove(nc.nodeName);
+                    theNoteGroupKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
 
-            } else if (nc.changeType == NodeChange.REMOVED) {
-
+            } else if (nodeChange.changeType == NodeChange.REMOVED) {
                 if (deleteWarning == null) {
-                    deleteWarning = "Deletions of 'To Do' Lists cannot be undone.";
+                    deleteWarning = "Deletions of Search Results cannot be undone.";
                     deleteWarning += System.lineSeparator() + "Are you sure?";
 
                     doDelete = JOptionPane.showConfirmDialog(theTree, deleteWarning,
@@ -187,13 +191,13 @@ public class SearchBranchHelper implements TreeBranchHelper {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile = basePath + "todo_" + nc.nodeName + ".json";
+                String deleteFile = basePath + "search_" + nodeChange.nodeName + ".json";
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
-                        throw new Exception("Unable to delete " + nc.nodeName);
+                        throw new Exception("Unable to delete " + nodeChange.nodeName);
                     } // end if
-                    theNoteGroupKeeper.remove(nc.nodeName);
+                    theNoteGroupKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -210,9 +214,8 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // We saved this for last, in case the error message above kicked in and the user
         // wants to compare the original branch with the one shown in the editor.
         theRoot.remove(theIndex);
-        theRoot.insert(mtn, theIndex);
-        theTreeModel.nodeStructureChanged(mtn);
-        theTree.expandRow(theIndex);
+        theRoot.insert(mtn, theIndex); // Goes back to the same place.
+        theTreeModel.nodeStructureChanged(mtn); // Localized; the node does not 'collapse'.
 
         // We do this last step because now that the edits have been accepted, we do not want both
         // the 'official' branch and the 'editor' branch to be shown side-by-side, identical to
@@ -224,7 +227,6 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
         MemoryBank.getAppTreePanel().showAbout();
-
     }  // end doApply
 
     @Override
@@ -330,35 +332,28 @@ public class SearchBranchHelper implements TreeBranchHelper {
         return true;
     } // end nameCheck
 
-    //----------------------------------------------------------------
-    // Method Name:  renameTodoListLeaf
-    //
-    // Call this method to do a 'programmatic' rename of a TodoList
-    // node on the Tree.  It operates only on the MemoryBank tree and
-    // not with any corresponding files; you can do that separately,
-    // before or after this, if needed.
-
-    // A calling context should verify the validity of the newname
-    // before coming here.  See the 'save as' methodology for a good
-    // example.
-    //----------------------------------------------------------------
-    static void renameTodoListLeaf(String oldname, String newname) {
+    // Call this method to do a 'programmatic' rename of a SearchResult
+    // node on the Tree, as opposed to doing it manually via the
+    // TreeBranchEditor.  It operates only on the tree and not with
+    // any corresponding files; you must do that separately.
+    // See the 'Save As...' methodology for a good example.
+    static void renameSearchResultLeaf(String oldname, String newname) {
         boolean changeWasMade = false;
         JTree jt = MemoryBank.getAppTreePanel().getTree();
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode theTodoBranch = getTodoNode(theRoot);
+        DefaultMutableTreeNode theSearchBranch = getSearchResultsNode(theRoot);
 
         // The tree is set for single-selection, so the selection will not be a collection but
         // a single value.  Nonetheless, Swing only provides a get for min and max and either
         // one will work for us.  Note that the TreePath returned by getSelectionPath()
-        // will probably NOT work for reselection after we do the rename.
+        // will probably NOT work for reselection after we do the rename, so we use the row.
         int returnToRow = jt.getMaxSelectionRow();
 
-        int numLeaves = theTodoBranch.getChildCount();
+        int numLeaves = theSearchBranch.getChildCount();
         DefaultMutableTreeNode leafLink;
 
-        leafLink = theTodoBranch.getFirstLeaf();
+        leafLink = theSearchBranch.getFirstLeaf();
 
         // Search the leaves for the old name.
         while (numLeaves-- > 0) {
@@ -379,7 +374,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
 
         // Force the renamed node to redisplay,
         // which also causes its deselection.
-        tm.nodeStructureChanged(theTodoBranch);
+        tm.nodeStructureChanged(theSearchBranch);
 
         // Reselect this tree node.
         jt.setSelectionRow(returnToRow);

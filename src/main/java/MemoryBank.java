@@ -424,7 +424,6 @@ public class MemoryBank {
         //---------------------------------------------------------------------
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
-                //getAppTreePanel().preClose();  // Trying this out (8/4/19) - may not need 'getAppTreePanel' in this context.
                 appTreePanel.preClose();
                 saveOpts(); // temp
             } // end run

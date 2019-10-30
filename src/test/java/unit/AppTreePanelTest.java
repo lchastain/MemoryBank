@@ -197,8 +197,8 @@ public class AppTreePanelTest {
         try {
             // Sleep, long enough for the help window to appear.
             // This is because it runs in a different thread and we can get to our
-            // task killer before it ever comes up, then it stays.
-            Thread.sleep(300);
+            // task killer before it ever comes up, and then it stays.
+            Thread.sleep(700);
             // Kill the help window -
             Process process = Runtime.getRuntime().exec("taskkill /FI \"WindowTitle eq XML Notepad Help\" /T /F");
 
@@ -275,7 +275,7 @@ public class AppTreePanelTest {
         assert theTree.getSelectionPath().getLastPathComponent().toString().equals(theSearchResult);
 
         // Now close it.
-        atp.closeSearchResult();
+        atp.closeGroup();
 
         // And verify that the file for it is gone.
         String filename = MemoryBank.userDataHome + File.separatorChar + theSearchResult + ".sresults";

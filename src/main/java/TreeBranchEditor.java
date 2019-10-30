@@ -281,7 +281,7 @@ public class TreeBranchEditor extends JPanel
             // like a bad idea to try and idiot-proof it from here; that will be up to
             // the consumer of this tool.  Good luck and happy tree-trimming!
         }  else if(theText.equals(getDeleteCommand())) {
-            // The action was a 'delete' button click, which is just a toggle.
+            // The action was a 'delete' button click, which is just a flag toggle in this context.
             if(removals.contains(theAction)) {
                 removals.remove(theAction);
                 changeList.add(new NodeChange(theAction, NodeChange.UNMARKED));

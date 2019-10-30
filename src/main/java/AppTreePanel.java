@@ -73,7 +73,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private LocalDate currentDateChoice;
     private String theLastTreeSelection;
     private DefaultMutableTreeNode theRootNode;
-    private DefaultMutableTreeNode nodeSearchResults;
 
     // Predefined Tree Paths to 'leaf' nodes.
     private TreePath dayNotesPath;
@@ -225,16 +224,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         blnRestoringSelection = false;
 
         TreePath tp = tree.getSelectionPath();
-        if(tp != null) {
+        if (tp != null) {
             theLastTreeSelection = tp.getLastPathComponent().toString();
         }
     } // end constructor for AppTreePanel
 
 
     // Adds a search result branch to the tree.
-    //   s = the visible name
-    //   i = number of results
-    private void addSearchResult(String s) {
+    private void addSearchResult(String searchResultName) {
         // Remove the tree selection listener while we
         //   rebuild this portion of the tree.
         tree.removeTreeSelectionListener(this);
@@ -242,22 +239,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Make a new tree node for the result file whose path
         //   is given in the input parameter
         DefaultMutableTreeNode tmpNode;
-        tmpNode = new DefaultMutableTreeNode(s, false);
-
-        // Check to see if the 'Search Results' node has been
-        //   created.  If not then create and add it now.
-        if (nodeSearchResults == null) {
-            // Preserve current branch expansions
-            updateTreeState(false);
-
-            nodeSearchResults = new DefaultMutableTreeNode("Search Results", true);
-            theRootNode.add(nodeSearchResults);
-
-            // Display the new node in the tree
-            resetTreeState();
-        } // end if
+        tmpNode = new DefaultMutableTreeNode(searchResultName, false);
 
         // Add to the tree under the Search Results branch
+        DefaultMutableTreeNode nodeSearchResults = SearchBranchHelper.getSearchResultsNode(theRootNode);
         nodeSearchResults.add(tmpNode);
         treeModel.nodeStructureChanged(nodeSearchResults);
 
@@ -269,60 +254,36 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
 
     //-------------------------------------------------------
-    // Method Name: closeSearchResult
+    // Method Name: closeGroup
     //
     // Removes the associated results file and then calls the
     //   method to remove the search result leaf.
     //-------------------------------------------------------
-    void closeSearchResult() {
+    void closeGroup() {
         // Obtain a reference to the current tree selection.
         // Since the App menu provides the only 'legal' entry to this
-        // method by only showing the 'close' option when
-        // a search result is selected, it follows that the current tree selection
-        // is the search result that we want to close.
+        // method by only showing the 'Close' option when a closeable
+        // group is showing, it follows that the current tree selection
+        // is the group that we want to close.
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (node == null) return; // But this is here just in case someone got here another way.
+        assert node.getChildCount() == 0; // another fail-safe; should never happen.
 
-        // Give a confirmation warning here, allowing the user to cancel.
-        // If there are nodes below here, list them and explain in the
-        //   warning that they will also be removed.  This could happen for
-        //   a search within search results (a future feature).
-        String string1 = "Yes, remove";
-        String string2 = "Cancel";
-        String theWarning = "Closing these search results will remove them from \n"
-                + "the tree and you will not be able to restore them.  Even with \n"
-                + "a new, identical search you may not see these same results, \n"
-                + "if any information has changed since this search was \n"
-                + "originally performed.  Are you sure?";
-        Object[] options = {string1, string2};
-        if (node.getChildCount() > 0) {
-            // customize the text to list the child nodes that will be removed.
-            // Not needed until child nodes are possible.
-            System.out.println("Problem! Child nodes detected under a branch to be removed.");
-        } // end if
-        int choice = optionPane.showOptionDialog(null,
-                theWarning,
-                "Confirm the 'Close' action",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,     //don't use a custom Icon
-                options,  //the titles of buttons
-                string2); //the title of the default button
-        if (choice != JOptionPane.OK_OPTION) return;
+        // Remove these results from the tree but do not let the removal result in the need to
+        // process another tree selection event.
+        tree.removeTreeSelectionListener(this);
+        DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) node.getParent();
+        node.removeFromParent();
+        treeModel.nodeStructureChanged(theParent);
+        tree.addTreeSelectionListener(this);
 
-        // Remove the results file
-// No - this is now handled by the SearchResultsHelper.
-//        String filename = SearchResultGroup.getFullFilename(node.toString());
-//        File f = new File(filename);
-//        if (f.exists()) {
-//            if (!f.delete()) {
-//                System.out.println("Failed to remove " + filename);
-//                return; // Leave the node, since there is still a file for it.
-//            }
-//        }
+        // Do not attempt to save this group prior to changing the tree selection.
+        theNoteGroup = null;
 
-        removeSearchNode(node);
-    } // end closeSearchResult
+        // Select the parent branch
+        TreeNode[] pathToRoot = theParent.getPath();
+        tree.setSelectionPath(new TreePath(pathToRoot));
+    } // end closeGroup
 
 
     //-----------------------------------------------------------------
@@ -434,7 +395,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //intRowCounter++;
 
         // Create the SearchResults node  (no longer a maybe - should always happen, now)
-        nodeSearchResults = new DefaultMutableTreeNode("Search Results", true);
+        DefaultMutableTreeNode nodeSearchResults = new DefaultMutableTreeNode("Search Results", true);
         trunk.add(nodeSearchResults);
         pathToRoot = nodeSearchResults.getPath();
         searchresultsPath = new TreePath(pathToRoot);
@@ -495,7 +456,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
         else if (what.equals("Add New List...")) TodoBranchHelper.addNewList(tree);
-        else if (what.equals("Close")) closeSearchResult();
+        else if (what.equals("Close")) closeGroup();
         else if (what.equals("Clear Day")) theAppDays.clearGroup();
         else if (what.equals("Clear Month")) theAppMonths.clearGroup();
         else if (what.equals("Clear Year")) theAppYears.clearGroup();
@@ -532,45 +493,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if/else
     } // end handleMenuBar
 
-    // Thursday, 1 August 2019
-    // This method and the PlafSelectionPanel are being deprecated for use by the MemoryBank app.
-    // But the concept is still too cool to just throw away so the deactivated code stays here, for now.
-    //   removed from the AppMenuBar, View menu:    menuView.add(new JMenuItem("Set Look and Feel..."));
-    //   removed from the AppMenuBar, Event menu:   menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
-    //   removed from the AppMenuBar, View Date menu:    menuViewDate.add(new JMenuItem("Set Look and Feel..."));
-    //   removed from this file, the HandleMenuBar method:
-    //      else if (what.equals("Set Look and Feel...")) showPlafDialog();
-//    private void showPlafDialog() {
-//        PlafSelectionPanel pep = new PlafSelectionPanel();
-//        int doit = JOptionPane.showConfirmDialog(
-//                theFrame, pep,
-//                "Select a new Look and Feel", JOptionPane.OK_CANCEL_OPTION);
-//
-//        if (doit == -1) return; // The X on the dialog
-//        if (doit == JOptionPane.CANCEL_OPTION) return;
-//
-//        // This is where we would set the options...
-//        //boolean blnOrigShowPriority = myVars.showPriority;
-//        //myVars = to.getValues();
-//
-//        try {
-//            UIDefaults uidefaults = UIManager.getLookAndFeelDefaults();
-//            UIManager.setLookAndFeel(pep.getSelectedPlaf());
-//            //appOpts.thePlaf = pep.getSelectedPlaf(); // this was a String type.
-//            SwingUtilities.updateComponentTreeUI(theFrame);
-//            // It looks like a nullPointerException stack trace is being printed as a result of
-//            // the above command, which seems to complete successfully anyway, after that.
-//            // This exception is not getting trapped by the catch section below.
-//            // I think it may be happening because of my implementation of the custom
-//            // scrollpane (need to find/review that code).  Seems to go thru without any other
-//            // trouble, tho, so we may be able to ignore this indefinitely.
-//            System.out.println("updatedComponentTreeUI"); // Shows that the above succeeded.
-//        } catch (Exception e) {
-//            System.out.println("Exception: " + e.getMessage());
-//            //e.printStackTrace();
-//        }
-//    }
-
 
     //------------------------------------------------------------
     // Method Name:  preClose
@@ -585,53 +507,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         updateTreeState(true); // Update appOpts
     } // end preClose
-
-
-    private void removeSearchNode(DefaultMutableTreeNode node) {
-        // Remove these results from the tree but do not let
-        //   the removal result in the need to process another
-        //   selection event.
-        tree.removeTreeSelectionListener(this);
-        node.removeFromParent();
-        treeModel.nodeStructureChanged(nodeSearchResults);
-        tree.addTreeSelectionListener(this);
-
-        // Do not attempt to save this one prior
-        //   to changing the tree selection.
-        theNoteGroup = null;
-
-        // Check to see if any Search Results are left; if not then remove that node as well:
-        if (nodeSearchResults.getChildCount() == 0) {
-            //   Remove the 'Search Results' node.
-            tree.removeTreeSelectionListener(this);
-            theRootNode.remove(nodeSearchResults);
-            nodeSearchResults = null;
-            resetTreeState();
-            tree.addTreeSelectionListener(this);
-
-            // Remove any extraneous 'search_' files.
-            MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
-            File theDir = new File(MemoryBank.userDataHome);
-            File[] theFiles = theDir.listFiles();
-            assert theFiles != null;
-            int howmany = theFiles.length;
-            MemoryBank.debug("\t\tFound " + howmany + " data files");
-            for (File theFile1 : theFiles) {
-                String theFile = theFile1.getName();
-                if (theFile1.isFile()) {
-                    if (theFile.startsWith("search_")) {
-                        if (!theFile1.delete()) System.out.println("Failed to remove " + theFile);
-                    }
-                } // end if
-            } // end for
-
-            // With no more search results remaining, display the 'About' view.
-            showAbout();
-        } else {  // Select the Search Results branch
-            TreeNode[] pathToRoot = nodeSearchResults.getPath();
-            tree.setSelectionPath(new TreePath(pathToRoot));
-        } // end if
-    } // end removeSearchNode
 
 
     //------------------------------------------------------------------
@@ -1064,7 +939,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Get the current tree selection
         TreePath tp = tree.getSelectionPath();
 
-        if(tp == null) return; // Tree selection was cleared?
+        if (tp == null) return; // Tree selection was cleared?
         // If the 'big' Today is already showing then there is no current tree selection.
         // Decided not to do a toggle here because the original date choice was
         // already lost as soon as they asked for 'today' the first time.  It may be
@@ -1078,7 +953,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         theLastTreeSelection = theCurrentView;
         updateCurrentDateChoice();
 
-        if(currentDateChoice.equals(LocalDate.now())) {
+        if (currentDateChoice.equals(LocalDate.now())) {
             theCurrentView = "Today";
         } else {
             currentDateChoice = LocalDate.now();
@@ -1195,9 +1070,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         String theNodeString = node.toString();
         String theParent = node.getParent().toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
-        //System.out.println("New tree selection: " + theNodeString);
-        appOpts.theSelection = theNodeString; // Preserved exactly.
-        strSelectionType = theNodeString;  // May be generalized
+        appOpts.theSelection = theNodeString; // Preserved exactly, for app restart.
+        strSelectionType = theNodeString;  // Default value; may change, below.
 
         //-----------------------------------------------------
         // These booleans will help us to avoid going down
@@ -1222,10 +1096,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // and editor each time, to be sure all are in sync.
             TodoBranchHelper tbh = new TodoBranchHelper(tree, theTodoListKeeper);
             TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
+            strSelectionType = "To Do Lists Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isSearchBranch && isTopLevel) {  // Edit the Search parent branch
             SearchBranchHelper sbh = new SearchBranchHelper(tree, theSearchResultsKeeper);
             TreeBranchEditor tbe = new TreeBranchEditor(node, sbh);
+            strSelectionType = "Search Results Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (!node.isLeaf()) {
             // Looking at other expandable nodes
@@ -1266,8 +1142,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // kind of group where if a file does not exist for it, we would go ahead and make one.
             if (searchResultGroup == null) {
                 searchResultGroup = SearchResultGroup.getGroup(theNodeString);
+                if(searchResultGroup != null) {
+                    log.debug("Loaded " + theNodeString + " from filesystem");
+                    theSearchResultsKeeper.add(searchResultGroup);
+                }
             } else {
-                log.debug("Retrieved " + theNodeString + " from the keeper");
+                log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
             if (searchResultGroup == null) {
@@ -1289,8 +1169,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                             "Results not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
-                // Now remove the node.
-                removeSearchNode(node);
+                closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 theNoteGroup = searchResultGroup;
                 rightPane.setViewportView(theNoteGroup);
@@ -1364,7 +1243,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   needed when switching between these groups and also
     //   used by showToday and showAbout.
     private void updateCurrentDateChoice() {
-        if(theLastTreeSelection == null) return;
+        if (theLastTreeSelection == null) return;
 
         switch (theLastTreeSelection) {
             case "Year View":
@@ -1410,7 +1289,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (!updateLists) return;
 
-        // Preserve the names of the active To Do Lists in the AppOpts.
+        // Preserve the names of the active To Do Lists in the AppOptions.
         DefaultMutableTreeNode theTodoNode = TodoBranchHelper.getTodoNode(theRootNode);
         DefaultMutableTreeNode leafLink;
         int numLists;
@@ -1428,12 +1307,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Preserve the names of the active Search Results in the AppOpts.
+        DefaultMutableTreeNode theSearchNode = SearchBranchHelper.getSearchResultsNode(theRootNode);
         int numResults;
         appOpts.searchResultList.clear();
 
-        numResults = nodeSearchResults.getChildCount();
+        numResults = theSearchNode.getChildCount();
         if (numResults > 0) {
-            leafLink = nodeSearchResults.getFirstLeaf();
+            leafLink = theSearchNode.getFirstLeaf();
             while (numResults-- > 0) {
                 String s = leafLink.toString();
                 //MemoryBank.debug("  Preserving search result: " + s);

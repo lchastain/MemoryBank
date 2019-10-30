@@ -3,108 +3,112 @@ import javax.swing.*;
 public class AppMenuBar extends JMenuBar{
     static final long serialVersionUID = 1L; // JMenuBar wants this but we will not serialize.
 
-    private static JMenu menuEditDay;
-    private static JMenu menuEditMonth;
-    private static JMenu menuEditTodo;
-    private static JMenu menuEditYear;
-    private static JMenu menuFile;
-    private static JMenu menuFileSearchResult;
-    private static JMenu menuFileTodoBranch;
-    private static JMenu menuFileTodo;
-    private static JMenu menuView;
-    private static JMenu menuViewNote;
-    private static JMenu menuViewView;
-    private static JMenu menuHelp;
+    private static JMenu dayNoteEditMenu;
+    private static JMenu monthEditMenu;
+    private static JMenu todoEditMenu;
+    private static JMenu yearEditMenu;
+    private static JMenu fileMenu;
+    private static JMenu searchResultFileMenu;
+    private static JMenu todoBranchFileMenu;
+    private static JMenu todoFileMenu;
+    private static JMenu viewMenu;
+    private static JMenu noteViewMenu;
+    private static JMenu viewsViewMenu;
+    private static JMenu helpMenu;
 
     static {
-        menuFile = new JMenu("File");
-        menuFile.add(new JMenuItem("Search..."));
-        menuFile.add(new JMenuItem("Exit"));
+        //------------- File Menus -------------------------------------------------
+        fileMenu = new JMenu("File");
+        fileMenu.add(new JMenuItem("Search..."));
+        fileMenu.add(new JMenuItem("Exit"));
 
-        menuFileSearchResult = new JMenu("File");
-        menuFileSearchResult.add(new JMenuItem("Close"));
-        menuFileSearchResult.add(new JMenuItem("Search..."));
-        menuFileSearchResult.add(new JMenuItem("Search these results..."));
-        menuFileSearchResult.add(new JMenuItem("Review..."));
-        menuFileSearchResult.add(new JMenuItem("Exit"));
+        searchResultFileMenu = new JMenu("File");
+        searchResultFileMenu.add(new JMenuItem("Close"));
+        searchResultFileMenu.add(new JMenuItem("Search..."));
+        searchResultFileMenu.add(new JMenuItem("Review..."));
+        searchResultFileMenu.add(new JMenuItem("Exit"));
 
-        menuFileTodoBranch = new JMenu("File");
-        menuFileTodoBranch.add(new JMenuItem("Add New List..."));
-        menuFileTodoBranch.add(new JMenuItem("Search..."));
-        menuFileTodoBranch.add(new JMenuItem("Exit"));
+        todoBranchFileMenu = new JMenu("File");
+        todoBranchFileMenu.add(new JMenuItem("Add New List..."));
+        todoBranchFileMenu.add(new JMenuItem("Search..."));
+        todoBranchFileMenu.add(new JMenuItem("Exit"));
 
-        menuFileTodo = new JMenu("File");
-        menuFileTodo.add(new JMenuItem("Add New List..."));
-        menuFileTodo.add(new JMenuItem("Search..."));
-        menuFileTodo.add(new JMenuItem("Merge..."));
-        menuFileTodo.add(new JMenuItem("Print..."));
-        menuFileTodo.add(new JMenuItem("Save As..."));
-        menuFileTodo.add(new JMenuItem("Exit"));
+        todoFileMenu = new JMenu("File");
+        todoFileMenu.add(new JMenuItem("Close"));
+        todoFileMenu.add(new JMenuItem("Add New List..."));
+        todoFileMenu.add(new JMenuItem("Search..."));
+        todoFileMenu.add(new JMenuItem("Merge..."));
+        todoFileMenu.add(new JMenuItem("Print..."));
+        todoFileMenu.add(new JMenuItem("Save As..."));
+        todoFileMenu.add(new JMenuItem("Exit"));
 
-        menuEditDay = new JMenu("Edit");
-        menuEditDay.add(new JMenuItem("undo"));
-        menuEditDay.add(new JMenuItem("Clear Day"));
+        //------------- Edit Menus -------------------------------------------------
+        dayNoteEditMenu = new JMenu("Edit");
+        dayNoteEditMenu.add(new JMenuItem("undo"));
+        dayNoteEditMenu.add(new JMenuItem("Clear Day"));
 
-        menuEditMonth = new JMenu("Edit");
-        menuEditMonth.add(new JMenuItem("undo"));
-        menuEditMonth.add(new JMenuItem("Clear Month"));
+        monthEditMenu = new JMenu("Edit");
+        monthEditMenu.add(new JMenuItem("undo"));
+        monthEditMenu.add(new JMenuItem("Clear Month"));
 
-        menuEditYear = new JMenu("Edit");
-        menuEditYear.add(new JMenuItem("undo"));
-        menuEditYear.add(new JMenuItem("Clear Year"));
+        yearEditMenu = new JMenu("Edit");
+        yearEditMenu.add(new JMenuItem("undo"));
+        yearEditMenu.add(new JMenuItem("Clear Year"));
 
-        menuEditTodo = new JMenu("Edit");
-        menuEditTodo.add(new JMenuItem("undo"));
-        menuEditTodo.add(new JMenuItem("Clear Entire List"));
-        menuEditTodo.addSeparator();
-        menuEditTodo.add(new JMenuItem("Set Options..."));
+        todoEditMenu = new JMenu("Edit");
+        todoEditMenu.add(new JMenuItem("undo"));
+        todoEditMenu.add(new JMenuItem("Clear Entire List"));
+        todoEditMenu.addSeparator();
+        todoEditMenu.add(new JMenuItem("Set Options..."));
 
-        menuView = new JMenu("View");
-        menuView.add(new JMenuItem("Refresh"));
+        //------------- View Menus -------------------------------------------------
+        viewMenu = new JMenu("View");
+        viewMenu.add(new JMenuItem("Refresh"));
 
-        menuViewView = new JMenu("View");
-        menuViewView.add(new JMenuItem("Today"));
+        viewsViewMenu = new JMenu("View");
+        viewsViewMenu.add(new JMenuItem("Today"));
 
-        menuViewNote = new JMenu("View");
-        menuViewNote.add(new JMenuItem("Today"));
-        menuViewNote.add(new JMenuItem("Refresh"));
+        noteViewMenu = new JMenu("View");
+        noteViewMenu.add(new JMenuItem("Today"));
+        noteViewMenu.add(new JMenuItem("Refresh"));
 
-        menuHelp = new JMenu("Help");
-        menuHelp.add(new JMenuItem("Contents"));
-        menuHelp.add(new JMenuItem("About"));
+        //------------- Help Menu --------------------------------------------------
+        helpMenu = new JMenu("Help");
+        helpMenu.add(new JMenuItem("Contents"));
+        helpMenu.add(new JMenuItem("About"));
 
 
         // Initial visibility of all menu items is false.
         // That can change in 'manageMenus'
-        menuEditDay.setVisible(false);
-        menuEditMonth.setVisible(false);
-        menuEditTodo.setVisible(false);
-        menuEditYear.setVisible(false);
-        menuFileTodoBranch.setVisible(false);
-        menuFileTodo.setVisible(false);
-        menuFileSearchResult.setVisible(false);
-        menuView.setVisible(false);
-        menuViewView.setVisible(false);
-        menuViewNote.setVisible(false);
+        dayNoteEditMenu.setVisible(false);
+        monthEditMenu.setVisible(false);
+        todoEditMenu.setVisible(false);
+        yearEditMenu.setVisible(false);
+        todoBranchFileMenu.setVisible(false);
+        todoFileMenu.setVisible(false);
+        searchResultFileMenu.setVisible(false);
+        viewMenu.setVisible(false);
+        viewsViewMenu.setVisible(false);
+        noteViewMenu.setVisible(false);
     } // end static
 
     public AppMenuBar() {
         super();
-        add(menuFile);
-        add(menuFileSearchResult);
-        add(menuFileTodoBranch);
-        add(menuFileTodo);
-        add(menuEditDay);
-        add(menuEditMonth);
-        add(menuEditYear);
-        add(menuEditTodo);
-        add(menuView);
-        add(menuViewView);
-        add(menuViewNote);
+        add(fileMenu);
+        add(searchResultFileMenu);
+        add(todoBranchFileMenu);
+        add(todoFileMenu);
+        add(dayNoteEditMenu);
+        add(monthEditMenu);
+        add(yearEditMenu);
+        add(todoEditMenu);
+        add(viewMenu);
+        add(viewsViewMenu);
+        add(noteViewMenu);
 
         // This puts the 'Help' on the far right side.
         add(Box.createHorizontalGlue());
-        add(menuHelp);
+        add(helpMenu);
         // mb.setHelpMenu(menuHelp);  // Not implemented in Java 1.4.2 ...
         // Still not implemented in Java 1.5.0_03
         // In Java 1.8, throws a Not Implemented exception
@@ -116,65 +120,63 @@ public class AppMenuBar extends JMenuBar{
         // Set a default of having the 'File' and 'View' menus only;
         //   let the specific cases below make any needed alterations.
         //-----------------------------------------
-        menuFile.setVisible(true);
-        menuFileTodoBranch.setVisible(false);
-        menuFileTodo.setVisible(false);
-        menuFileSearchResult.setVisible(false);
-        menuEditDay.setVisible(false);
-        menuEditMonth.setVisible(false);
-        menuEditTodo.setVisible(false);
-        menuEditYear.setVisible(false);
-        menuView.setVisible(true);
-        menuViewView.setVisible(false);
-        menuViewNote.setVisible(false);
+        fileMenu.setVisible(true);
+        todoBranchFileMenu.setVisible(false);
+        todoFileMenu.setVisible(false);
+        searchResultFileMenu.setVisible(false);
+        dayNoteEditMenu.setVisible(false);
+        monthEditMenu.setVisible(false);
+        todoEditMenu.setVisible(false);
+        yearEditMenu.setVisible(false);
+        viewMenu.setVisible(true);
+        viewsViewMenu.setVisible(false);
+        noteViewMenu.setVisible(false);
 
+        MemoryBank.debug("MenuBar Configuration: " + strMenuType);
         switch (strMenuType) {
-            case "Views":  // Not a lot of choices for a collapsible Tree branch
-            case "Notes":
-                menuView.setVisible(false);
-                break;
             case "Year View":  // Year View
-                menuView.setVisible(false);
-                menuViewView.setVisible(true);
+                viewMenu.setVisible(false);
+                viewsViewMenu.setVisible(true);
                 break;
             case "Month Notes":  // Month Notes
-                menuEditMonth.setVisible(true);
-                menuView.setVisible(false);
-                menuViewNote.setVisible(true);
+                monthEditMenu.setVisible(true);
+                viewMenu.setVisible(false);
+                noteViewMenu.setVisible(true);
                 break;
             case "Month View":  // Month View
-                menuView.setVisible(false);
-                menuViewView.setVisible(true);
+                viewMenu.setVisible(false);
+                viewsViewMenu.setVisible(true);
                 break;
             case "Day Notes":  // Day Notes
-                menuEditDay.setVisible(true);
-                menuView.setVisible(false);
-                menuViewNote.setVisible(true);
+                dayNoteEditMenu.setVisible(true);
+                viewMenu.setVisible(false);
+                noteViewMenu.setVisible(true);
                 break;
             case "Search Result":  // Search Results
-                menuFile.setVisible(false);
-                menuFileSearchResult.setVisible(true);
-                menuView.setVisible(false);
+                fileMenu.setVisible(false);
+                searchResultFileMenu.setVisible(true);
+                viewMenu.setVisible(false);
                 break;
             case "Year Notes":  // Year Notes
-                menuEditYear.setVisible(true);
-                menuView.setVisible(false);
-                menuViewNote.setVisible(true);
+                yearEditMenu.setVisible(true);
+                viewMenu.setVisible(false);
+                noteViewMenu.setVisible(true);
                 break;
             case "Upcoming Events":  // Upcoming Events
                 break;
-            case "To Do Lists":  // TodoBranchHelper
-                menuFile.setVisible(false);
-                menuFileTodoBranch.setVisible(true);
+            case "To Do Lists Branch Editor":  // TodoBranchHelper
+                fileMenu.setVisible(false);
+                todoBranchFileMenu.setVisible(true);
                 break;
             case "To Do List":  // A List
-                menuFile.setVisible(false);
-                menuFileTodo.setVisible(true);
-                menuEditTodo.setVisible(true);
+                fileMenu.setVisible(false);
+                todoFileMenu.setVisible(true);
+                todoEditMenu.setVisible(true);
                 break;
-            default:
-                MemoryBank.debug("Unhandled Menu Selection: " + strMenuType);
-                menuView.setVisible(false);
+            default: // No special handling but still a valid configuration.
+                // Expected examples:  About, Branches.
+                // Unexpected - will only show up during development.
+                viewMenu.setVisible(false);
                 break;
         }
     } // end manageMenus

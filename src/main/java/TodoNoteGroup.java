@@ -106,6 +106,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end constructor
 
 
+    static String basePath() {
+        return MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
+    }
+
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
     //
@@ -516,14 +520,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-----------------------------------------------------------------
     // Method Name:  setFileName
     //
-    // Provided as support for a 'save as' functionality.
+    // Provided as support for a 'Save As' functionality.
     //  (By calling this first, then just calling 'save').  Any
     //  checking for validity is responsibility of calling context.
     //-----------------------------------------------------------------
     private void setFileName(String fname) {
-        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar;
-        strTheGroupFilename += "todo_" + fname.trim() + ".json";
-
+        strTheGroupFilename = basePath() + "todo_" + fname.trim() + ".json";
         setName(fname.trim());  // Keep the 'pretty' name in the component.
         setGroupChanged();
     } // end setFileName

@@ -88,6 +88,9 @@ public class SearchResultGroup extends NoteGroup {
         add(heading, BorderLayout.NORTH);
     } // end constructor
 
+    static String basePath() {
+        return MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
+    }
 
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
@@ -121,8 +124,7 @@ public class SearchResultGroup extends NoteGroup {
         if(sepCharIndex > 0) { // The filename was already constructed (fully) by the calling context.
             theFullFilename = theName;
         } else { // fname is just the 'core' name.
-            theFullFilename = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
-            theFullFilename += "search_" + theName + ".json";
+            theFullFilename = basePath() + "search_" + theName + ".json";
         }
         return theFullFilename;
     }

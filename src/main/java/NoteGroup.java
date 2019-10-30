@@ -619,21 +619,31 @@ public abstract class NoteGroup extends JPanel {
     //-----------------------------------------------------------------
     // Method Name:  prettyName
     //
-    // A formatter for a filename specifier - drop off the path
-    //   prefix and/or trailing '.json', if present.  Note
+    // A formatter for a filename specifier.  Note
     //   that this method name was chosen so as to not conflict with
     //   the 'getName' of the Component ancestor of this class.
+    // Usage is intended for non-Calendar notegroups.
     //-----------------------------------------------------------------
     static String prettyName(String theLongName) {
-        int i = theLongName.lastIndexOf(File.separatorChar);
+        // Start with the full input param.
         String thePrettyName = theLongName;
-        if (i > 0) { // if it has the File separator character
+
+        // Cut off the leading path specifier characters, if present.
+        int i = thePrettyName.lastIndexOf(File.separatorChar);
+        if (i >= 0) { // if it has the File separator character
             // then we only want the part after that
             thePrettyName = theLongName.substring(i+1);
         }
+
+        // Drop the JSON file extension
         i = thePrettyName.lastIndexOf(".json");
-        if (i == -1) return thePrettyName;
-        return thePrettyName.substring(0, i);
+        if (i > 0) thePrettyName = thePrettyName.substring(0, i);
+
+        // Cut off the leading group type (todo_, search_, etc)
+        i = thePrettyName.lastIndexOf("_");
+        if (i >= 0) thePrettyName = thePrettyName.substring(i + 1);
+
+        return thePrettyName;
     } // end prettyName
 
 

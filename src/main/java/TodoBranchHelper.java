@@ -265,7 +265,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
     // For tree structure events, we don't address them individually but just accept
-    // them as a whole, by directly adopting the returned 'mtn' as our new branch.
+    // them as a whole, by directly adopting the 'mtn' parameter as our new branch.
     // But in addition to (possibly) having an effect on the final branch, the
     // rename and delete actions from the editor imply changes to the filesystem
     // and those directives are also handled here.  For these actions, we need to
@@ -274,13 +274,17 @@ public class TodoBranchHelper implements TreeBranchHelper {
     // represent the true state of the todolist files and the user will be informed.
     @Override
     public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
+        // 'theIndex' is the location of the branch that we will replace.  It is set
+        // in the constructor here and it is NOT the same as the row of the tree so
+        // it is not error-prone due to changes such as collapse/expand events or a
+        // new NoteGroup appearing above it.  But the line below is a 'just in case'.
         if (theIndex == -1) return;
 
         // Handle 'To Do' file renamings and deletions
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
-        String basePath = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
+        String basePath = TodoNoteGroup.basePath();
         for (Object nco : changes) {
             NodeChange nodeChange = (NodeChange) nco;
             System.out.println(nco.toString());
@@ -340,8 +344,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // wants to compare the original branch with the one shown in the editor.
         theRoot.remove(theIndex);
         theRoot.insert(mtn, theIndex);
-        theTreeModel.nodeStructureChanged(mtn);
-        theTree.expandRow(theIndex);
+        theTreeModel.nodeStructureChanged(mtn); // Localized; does not collapse the branch.
 
         // We do this last step because now that the edits have been accepted, we do not want to leave
         // both the 'official' branch and the 'editor' branch showing side-by-side, identical to
@@ -458,18 +461,11 @@ public class TodoBranchHelper implements TreeBranchHelper {
         return true;
     } // end nameCheck
 
-    //----------------------------------------------------------------
-    // Method Name:  renameTodoListLeaf
-    //
     // Call this method to do a 'programmatic' rename of a TodoList
-    // node on the Tree.  It operates only on the MemoryBank tree and
-    // not with any corresponding files; you can do that separately,
-    // before or after this, if needed.
-
-    // A calling context should verify the validity of the newname
-    // before coming here.  See the 'save as' methodology for a good
-    // example.
-    //----------------------------------------------------------------
+    // node on the Tree, as opposed to doing it manually via the
+    // TreeBranchEditor.  It operates only on the tree and not with
+    // any corresponding files; you must do that separately.
+    // See the 'Save As...' methodology for a good example.
     static void renameTodoListLeaf(String oldname, String newname) {
         boolean changeWasMade = false;
         JTree jt = MemoryBank.getAppTreePanel().getTree();
@@ -480,7 +476,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // The tree is set for single-selection, so the selection will not be a collection but
         // a single value.  Nonetheless, Swing only provides a get for min and max and either
         // one will work for us.  Note that the TreePath returned by getSelectionPath()
-        // will probably NOT work for reselection after we do the rename.
+        // will probably NOT work for reselection after we do the rename, so we use the row.
         int returnToRow = jt.getMaxSelectionRow();
 
         int numLeaves = theTodoBranch.getChildCount();
