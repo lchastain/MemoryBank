@@ -10,8 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.tree.*;
-import java.awt.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -77,21 +78,13 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // between the two names then we will fall thru to the 'file exists' complaint, on a
         // case-insensitive filesystem.
 
-        // Check to see if the destination file name already exists.
-        // If so then complain and refuse to do the rename.
-        String newNamedFile = MemoryBank.userDataHome + File.separatorChar;
-        newNamedFile += "todo_" + theName.trim() + ".json";
-
-        if ((new File(newNamedFile)).exists()) {
-            ems.setLength(0);
-            ems.append("A list with that name already exists!").append(System.lineSeparator());
-            ems.append("  Rename operation cancelled.");
-            JOptionPane.showMessageDialog(theTree, ems,
+        String theComplaint = nameCheck(theName);
+        if (!theComplaint.isEmpty()) {
+            JOptionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
-        } // end if
-
-        return nameCheck(theName, null);
+        }
+        return true;
     }
 
     @Override
@@ -243,23 +236,20 @@ public class SearchBranchHelper implements TreeBranchHelper {
     //   The name contains more than MAX_FILENAME_LENGTH chars.
     //   The filesystem refuses to create a file with this name.
     //
-    // Return Value - false if file name should not be allowed;
-    //    otherwise, true.  Also, any 'false' return will be
-    //    preceeded by an informative error dialog.
+    // Return Value - A 'complaint' string if name is not valid,
+    //    otherwise an empty string.
     //-------------------------------------------------------------------
-    private static boolean nameCheck(String theName, Component parent) {
+    private static String nameCheck(String theProposedName) {
         Exception e = null;
         ems.setLength(0);
 
-        theName = theName.trim();
+        String testName = theProposedName.trim();
 
         // Check for non-entry (or evaporation).
-        if (theName.equals("")) {
-            ems.append("No New List Name was supplied!");
-        } // end if
+        if (testName.isEmpty()) ems.append("No New List Name was supplied!");
 
         // Refuse unwanted help.
-        if (theName.endsWith(".json")) {
+        if (testName.endsWith(".json")) {
             ems.append("The name you supply cannot end in '.json'");
         } // end if
 
@@ -267,25 +257,22 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // The input field used in this class would not allow this one, but
         //   since this method is static and accepts input from outside
         //   sources, this check should be done.
-        if (theName.length() > MAX_FILENAME_LENGTH) {
+        if (testName.length() > MAX_FILENAME_LENGTH) {
             ems.append("The new name is limited to " + MAX_FILENAME_LENGTH + " characters");
         } // end if
 
-        if (!ems.toString().equals("")) {
-            JOptionPane.showMessageDialog(parent, ems,
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        } // end if
+        // Any problems found up to this point would not allow us to continue checking.
+        if (!ems.toString().isEmpty()) return ems.toString();
 
-        // Check to see if a file with this name already exists?
-        //   No; for an 'add' the AppTreePanel can handle that situation
-        //   by simply opening it, a kind of back-door selection.
+        // Do we want to check to see if a file with this name already exists?
+        //   No.  The handler for the renaming event will disallow that particular
+        //   situation, so we don't need to repeat that logic here.
 
         // Note - I thought it would be a good idea to check for 'illegal'
         //   characters in the filename, but when I started testing, the
         //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
         //   Of course there ARE illegal characters, and the ones above may
-        //   also be illegal on another OS.  So, the best way to
+        //   still be illegal on another OS.  So, the best way to
         //   detect them is to try to create a file using the name we're
         //   checking.  Any io error and we can fail this check.
 
@@ -293,7 +280,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // conflict with any 'legal' existing file in this directory, so if
         // there is any problem at all then we can report a failure.
 
-        String theFilename = MemoryBank.userDataHome + File.separatorChar + theName + ".test";
+        String theFilename = SearchResultGroup.basePath() + testName + ".test";
         File f = new File(theFilename);
         MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
         boolean b = false; // Used only for 'greening' the code.
@@ -319,66 +306,13 @@ public class SearchBranchHelper implements TreeBranchHelper {
         } catch (IOException | SecurityException ee) {
             e = ee;  // Identify now, handle below.
         } finally {
-            if (!b) System.out.print("");
+            if (!b) System.out.print(""); // We didn't care about any results given to 'b'.
         } // end try/catch
 
         // Handle Exceptions, if any.
-        if (e != null) {
-            JOptionPane.showMessageDialog(parent, e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        } // end if
+        if (e != null) ems.append(e.getMessage());
 
-        return true;
+        return ems.toString();
     } // end nameCheck
-
-    // Call this method to do a 'programmatic' rename of a SearchResult
-    // node on the Tree, as opposed to doing it manually via the
-    // TreeBranchEditor.  It operates only on the tree and not with
-    // any corresponding files; you must do that separately.
-    // See the 'Save As...' methodology for a good example.
-    static void renameSearchResultLeaf(String oldname, String newname) {
-        boolean changeWasMade = false;
-        JTree jt = MemoryBank.getAppTreePanel().getTree();
-        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
-        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode theSearchBranch = getSearchResultsNode(theRoot);
-
-        // The tree is set for single-selection, so the selection will not be a collection but
-        // a single value.  Nonetheless, Swing only provides a get for min and max and either
-        // one will work for us.  Note that the TreePath returned by getSelectionPath()
-        // will probably NOT work for reselection after we do the rename, so we use the row.
-        int returnToRow = jt.getMaxSelectionRow();
-
-        int numLeaves = theSearchBranch.getChildCount();
-        DefaultMutableTreeNode leafLink;
-
-        leafLink = theSearchBranch.getFirstLeaf();
-
-        // Search the leaves for the old name.
-        while (numLeaves-- > 0) {
-            String leaf = leafLink.toString();
-            if (leaf.equals(oldname)) {
-                String msg = "Renaming tree node from " + oldname;
-                msg += " to " + newname;
-                log.debug(msg);
-                changeWasMade = true;
-                leafLink.setUserObject(newname);
-                break;
-            } // end if
-
-            leafLink = leafLink.getNextLeaf();
-        } // end while
-
-        if (!changeWasMade) return;
-
-        // Force the renamed node to redisplay,
-        // which also causes its deselection.
-        tm.nodeStructureChanged(theSearchBranch);
-
-        // Reselect this tree node.
-        jt.setSelectionRow(returnToRow);
-
-    } // end renameTodoList
 
 } // end class TodoBranchHelper

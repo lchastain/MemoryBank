@@ -424,16 +424,17 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-----------------------------------------------------------------
     // Method Name:  saveAs
     //
-    // Called (indirectly) from the menu bar.
+    // Called from the menu bar:
+    // AppTreePanel.handleMenuBar() --> saveTodoListAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
     //-----------------------------------------------------------------
     boolean saveAs() {
-        Frame f = JOptionPane.getFrameForComponent(this);
+        Frame theFrame = JOptionPane.getFrameForComponent(this);
 
         String thePrompt = "Please enter the new list name";
         int q = JOptionPane.QUESTION_MESSAGE;
-        String newName = optionPane.showInputDialog(f, thePrompt, "Save As", q);
+        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
 
         // The user cancelled; return with no complaint.
         if (newName == null) return false;
@@ -441,7 +442,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        if (!TodoBranchHelper.nameCheck(newName, f)) return false;
+        String theComplaint = TodoBranchHelper.nameCheck(newName);
+        if (!theComplaint.isEmpty()) {
+            JOptionPane.showMessageDialog(theFrame, theComplaint,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
 
         // Get the current list name -
         String oldName = getName();
@@ -475,13 +481,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
-        newFilename += "todo_" + newName + ".json";
-
+        String newFilename = basePath() + "todo_" + newName + ".json";
         if ((new File(newFilename)).exists()) {
             ems = "A list named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
-            optionPane.showMessageDialog(f, ems,
+            optionPane.showMessageDialog(theFrame, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } // end if

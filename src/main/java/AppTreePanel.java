@@ -546,7 +546,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // to let it save again, but why allow it, when all it takes to stop it is:
             theNoteGroup = null;
 
-            // Removal from the TodoListKeeper is needed, to force a file reload
+            // Removal from the NoteGroupKeeper is needed, to force a file reload
             // during the rename of the leaf (below), because even though the saveAs
             // operation changed the name of the list held by the todoListKeeper, it
             // still shows a title that was developed from the old file name.

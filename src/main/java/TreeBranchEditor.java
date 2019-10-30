@@ -86,9 +86,9 @@ public class TreeBranchEditor extends JPanel
         // interface is loaded and it comes out larger, the vertical scroll pane kicks in.
         Dimension d1 = leftScroller.getPreferredSize();
         Dimension d2 = rightScroller.getPreferredSize();
-        leftScroller.setPreferredSize( new Dimension( d1.width, 100 ) );
+        leftScroller.setPreferredSize(new Dimension(d1.width, 100));
         leftScroller.revalidate();
-        rightScroller.setPreferredSize( new Dimension( d2.width, 100 ) );
+        rightScroller.setPreferredSize(new Dimension(d2.width, 100));
         rightScroller.revalidate();
 
         // Remember that centerPanel is a split pane, in the center of a BorderLayout.
@@ -110,15 +110,15 @@ public class TreeBranchEditor extends JPanel
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private ArrayList<String> getChoices() {
         theChoices = myHelper.getChoices();
-        if(theChoices != null) return theChoices;
+        if (theChoices != null) return theChoices;
 
         // Create list of choices from the existing branch.
         theChoices = new ArrayList<>();
         String theRoot = origBranch.toString();
         Enumeration dfe = origBranch.depthFirstEnumeration();
-        while(dfe.hasMoreElements()) {
-            DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode)dfe.nextElement();
-            if(!dmtn.toString().equals(theRoot))
+        while (dfe.hasMoreElements()) {
+            DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode) dfe.nextElement();
+            if (!dmtn.toString().equals(theRoot))
                 theChoices.add(dmtn.toString());
         }
         return theChoices;
@@ -143,12 +143,12 @@ public class TreeBranchEditor extends JPanel
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
     private void expandTree(JTree tree) {
         DefaultMutableTreeNode root =
-                (DefaultMutableTreeNode)tree.getModel().getRoot();
+                (DefaultMutableTreeNode) tree.getModel().getRoot();
         Enumeration e = root.breadthFirstEnumeration();
-        while(e.hasMoreElements()) {
+        while (e.hasMoreElements()) {
             DefaultMutableTreeNode node =
-                    (DefaultMutableTreeNode)e.nextElement();
-            if(node.isLeaf()) continue;
+                    (DefaultMutableTreeNode) e.nextElement();
+            if (node.isLeaf()) continue;
             int row = tree.getRowForPath(new TreePath(node.getPath()));
             tree.expandRow(row);
         }
@@ -160,10 +160,10 @@ public class TreeBranchEditor extends JPanel
         Enumeration dfe = myBranch.depthFirstEnumeration();
         ArrayList<String> leaves = new ArrayList<>();
         ArrayList<String> branches = new ArrayList<>();
-        while(dfe.hasMoreElements()) {
-            DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode)dfe.nextElement();
+        while (dfe.hasMoreElements()) {
+            DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode) dfe.nextElement();
             String name = dmtn.toString();
-            if(dmtn.isLeaf()) leaves.add(name);
+            if (dmtn.isLeaf()) leaves.add(name);
             else branches.add(name);
         }
 
@@ -171,11 +171,11 @@ public class TreeBranchEditor extends JPanel
         jpr.setLayout(new BoxLayout(jpr, BoxLayout.Y_AXIS));
 
         // To the right-side panel, add the selection choices.
-        for(String s: theChoices)  {
+        for (String s : theChoices) {
             JCheckBox jcb = new JCheckBox(s);
-            if(leaves.contains(s)) {
+            if (leaves.contains(s)) {
                 jcb.setSelected(true);
-            } else if(branches.contains(s)) {
+            } else if (branches.contains(s)) {
                 jcb.setSelected(true);
                 jcb.setEnabled(false);
             }
@@ -191,15 +191,15 @@ public class TreeBranchEditor extends JPanel
             // behavior but don't want the vertical stretch.  So - we 'fix' this by
             // taking advantage of the fact that the BoxLayout is one of the few
             // Layouts that actually respects the minimum and maximum sizes of a component.
-            if(myHelper.deletesAllowed()) {
+            if (myHelper.deletesAllowed()) {
                 JPanel oneLine = new JPanel(new BorderLayout());
                 oneLine.add(jcb, "West");
                 String deleteCommand = getDeleteCommand();
-                JButton jb =new JButton(deleteCommand);
+                JButton jb = new JButton(deleteCommand);
                 jb.setActionCommand(s);
                 jb.addActionListener(this);
-                if(!branches.contains(s)) oneLine.add(jb, "East");
-                if(removals.contains(s)) {
+                if (!branches.contains(s)) oneLine.add(jb, "East");
+                if (removals.contains(s)) {
                     jcb.setEnabled(false);
                     JLabel removalLabel = new JLabel("Marked for REMOVAL");
                     removalLabel.setForeground(Color.red);
@@ -219,13 +219,13 @@ public class TreeBranchEditor extends JPanel
 
     private String getDeleteCommand() {
         String deleteCommand = myHelper.getDeleteCommand();
-        if(deleteCommand == null) return "X"; // a default.
+        if (deleteCommand == null) return "X"; // a default.
         return deleteCommand;
     }
 
     public void itemStateChanged(ItemEvent e) {
         Object source = e.getItemSelectable();
-        String theText = ((JCheckBox)source).getText();
+        String theText = ((JCheckBox) source).getText();
 
         if (e.getStateChange() == ItemEvent.SELECTED) {
             //log.debug(theText + " selected");
@@ -245,10 +245,10 @@ public class TreeBranchEditor extends JPanel
         while (tmpLeaf != null) {
             String s = tmpLeaf.toString();
             //log.debug("Remove - examining leaf: " + s);
-            if(s.equals(theLeafText)) break;
+            if (s.equals(theLeafText)) break;
             tmpLeaf = tmpLeaf.getNextLeaf();
         } // end while
-        if(tmpLeaf == null) return; // Didn't find it.
+        if (tmpLeaf == null) return; // Didn't find it.
 
         // We cannot just remove this leaf from myBranch; it may be deeper in if it
         // has been moved there first during the current edit session, then removed.
@@ -263,15 +263,15 @@ public class TreeBranchEditor extends JPanel
         String theText = ((JButton) actionEvent.getSource()).getText();
         //log.debug(theAction);
 
-        if(theAction.equals("Cancel")) {
+        if (theAction.equals("Cancel")) {
             myBranch = deepClone(origBranch);
             theChoices = getChoices();
             changeList = new ArrayList<>();
             removals = new ArrayList<>();
             showTree();
             showChoices();
-        }   else if(theAction.equals("Apply")) {
-            for(String s: removals) {
+        } else if (theAction.equals("Apply")) {
+            for (String s : removals) {
                 changeList.add(new NodeChange(s, NodeChange.REMOVED));
             }
             myHelper.doApply(myBranch, changeList);
@@ -280,12 +280,12 @@ public class TreeBranchEditor extends JPanel
             // of any of the buttons that we handle here.  But for some reason, it seems
             // like a bad idea to try and idiot-proof it from here; that will be up to
             // the consumer of this tool.  Good luck and happy tree-trimming!
-        }  else if(theText.equals(getDeleteCommand())) {
+        } else if (theText.equals(getDeleteCommand())) {
             // The action was a 'delete' button click, which is just a flag toggle in this context.
-            if(removals.contains(theAction)) {
+            if (removals.contains(theAction)) {
                 removals.remove(theAction);
                 changeList.add(new NodeChange(theAction, NodeChange.UNMARKED));
-            }   else {
+            } else {
                 removals.add(theAction);
                 remove(theAction);  // Remove from the tree.
                 changeList.add(new NodeChange(theAction, NodeChange.MARKED));
@@ -296,10 +296,10 @@ public class TreeBranchEditor extends JPanel
     }
 
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    public DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root){
-        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode)root.clone();
-        for(Enumeration childEnum = root.children(); childEnum.hasMoreElements();){
-            newRoot.add(deepClone((DefaultMutableTreeNode)childEnum.nextElement()));
+    public DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
+        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode) root.clone();
+        for (Enumeration childEnum = root.children(); childEnum.hasMoreElements(); ) {
+            newRoot.add(deepClone((DefaultMutableTreeNode) childEnum.nextElement()));
         }
         return newRoot;
     }
@@ -311,13 +311,14 @@ public class TreeBranchEditor extends JPanel
         node = (DefaultMutableTreeNode)
                 (treeModelEvent.getTreePath().getLastPathComponent());
 
-         // If the event lists children then the changed node is the child of that one.
-         // Otherwise, the changed node is the one we already have.
+        // If the event lists children then the changed node is the child of that one.
+        // Otherwise, the changed node is the one we already have.
         try {
             int index = treeModelEvent.getChildIndices()[0];
             node = (DefaultMutableTreeNode)
                     (node.getChildAt(index));
-        } catch (NullPointerException exc) { System.out.print(""); }
+        } catch (NullPointerException ignore) {
+        }
 
         String renamedTo = node.toString();
         String renamedFrom = bem.getOriginalName();
@@ -329,9 +330,9 @@ public class TreeBranchEditor extends JPanel
     // This method is called after a rename has been done on the JTree UI,
     // in order to keep the selections in line with the new text.
     private void doRename(String renamedFrom, String renamedTo) {
-        for(int i=0; i<theChoices.size(); i++) {
+        for (int i = 0; i < theChoices.size(); i++) {
             String s = theChoices.get(i);
-            if(s.equals(renamedFrom)) {
+            if (s.equals(renamedFrom)) {
                 theChoices.set(i, renamedTo);
                 break;
             }
@@ -357,7 +358,8 @@ public class TreeBranchEditor extends JPanel
             int index = treeModelEvent.getChildIndices()[0];
             node = (DefaultMutableTreeNode)
                     (node.getChildAt(index));
-        } catch (NullPointerException exc) { System.out.print(""); }
+        } catch (NullPointerException ignore) {
+        }
 
         changeList.add(new NodeChange(node.toString(), NodeChange.MOVED));
         showChoices();
@@ -408,30 +410,34 @@ public class TreeBranchEditor extends JPanel
         }
 
         // Handle rename actions
-        public void valueForPathChanged(TreePath path, Object newValue)
-        {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        public void valueForPathChanged(TreePath path, Object newValue) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
             //log.debug("value changed: " + node.toString());
 
             // No user feedback (here) for these cases; if desired then do
             // it in the helper methods, where a reason may also be provided.
-            if(!myHelper.allowRenameFrom(node.toString())) return;
-            if(!myHelper.allowRenameTo(String.valueOf(newValue))) return;
+            if (!myHelper.allowRenameFrom(node.toString())) return;
+            if (!myHelper.allowRenameTo(String.valueOf(newValue))) return;
 
             // Now consider the original list of choices, if such a list was provided by the helper.
             ArrayList<String> helperChoices = myHelper.getChoices();
             boolean foundInHelperChoices = false;
-            if(helperChoices != null) {
+            if (helperChoices != null) {
                 foundInHelperChoices = helperChoices.contains(String.valueOf(newValue));
             }
 
             // Now consider the choices as they currently appear.
             boolean foundInCurrentChoices = theChoices.contains(String.valueOf(newValue));
 
-            // If a refusal to rename happens due to our own 'foundIn' reasons, currently
-            // we just silently ignore the attempt.  If the helper has a 'need to know'
-            // then we can always add a notification method to the interface.
-            if(!foundInHelperChoices && !foundInCurrentChoices) {
+            if (foundInHelperChoices || foundInCurrentChoices) {
+                // Notify the user if we are going to refuse the rename
+                // due to our own 'foundIn' reasons,
+                String ems = "That name is not available!\n";
+                ems += "  Rename operation cancelled.";
+                JOptionPane.showMessageDialog(null, ems,
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                // Finally, no reason not to, so go ahead and allow the rename.
                 originalName = node.toString();
                 super.valueForPathChanged(path, newValue);
             }

@@ -11,9 +11,10 @@ public interface TreeBranchHelper {
     boolean allowRenameTo(String theName);
 
     // The textual list of choices for all items that the user might select for
-    // inclusion in the final Branch.  Usually includes everything in the branch
-    // to edit, and more.  If your implementation returns a null, the editor will
-    // default to using the nodes of the provided branch.
+    // inclusion in the final Branch.  Usually includes everything that is already
+    // in the branch to edit, and any available but still unselected choices.  If
+    // your implementation returns a null, the editor will default to using the
+    // nodes of the provided branch.
     ArrayList<String> getChoices();
 
     // Called by the TreeBranchEditor to determine whether or not to provide a 'Delete'
