@@ -10,11 +10,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class TodoOpts extends JTabbedPane {
-    private static final long serialVersionUID = -8478940342870392492L;
-
-    // TODO - AFTER a todo list data save is no longer serialized (ie data save/load converted to JSON) - rename printPanel class to PrintPanel.
     private PriorityPanel priorityPanel;
-    private printPanel pp;
+    private PrintPanel pp;
     private SortPanel sortPanel;
     private TodoListProperties todoListProperties;
 
@@ -22,7 +19,7 @@ public class TodoOpts extends JTabbedPane {
         super();
         this.todoListProperties = todoListProperties;
         priorityPanel = new PriorityPanel();
-        pp = new printPanel();
+        pp = new PrintPanel();
         sortPanel = new SortPanel(this.todoListProperties.whenNoKey);
         addTab("Priority", null, priorityPanel,
                 "Set priority visibility and limit");
@@ -142,8 +139,8 @@ public class TodoOpts extends JTabbedPane {
         } // end stateChanged
     } // end PriorityPanel
 
-    class printPanel extends JPanel {
-        private static final long serialVersionUID = 3266279232918234594L;
+    class PrintPanel extends JPanel {
+        private static final long serialVersionUID = 1L;
 
         JCheckBox cb1;
         JCheckBox cb2;
@@ -155,7 +152,7 @@ public class TodoOpts extends JTabbedPane {
         JTextField tf2;
         spacing sp;
 
-        printPanel() {
+        PrintPanel() {
             setLayout(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;

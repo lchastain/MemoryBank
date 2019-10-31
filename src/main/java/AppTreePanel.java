@@ -242,7 +242,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         tmpNode = new DefaultMutableTreeNode(searchResultName, false);
 
         // Add to the tree under the Search Results branch
-        DefaultMutableTreeNode nodeSearchResults = SearchBranchHelper.getSearchResultsNode(theRootNode);
+        //DefaultMutableTreeNode nodeSearchResults = SearchBranchHelper.getSearchResultsNode(theRootNode);
+        DefaultMutableTreeNode nodeSearchResults = TreeBranchHelper.getNodeByName(theRootNode,"Search Results");
         nodeSearchResults.add(tmpNode);
         treeModel.nodeStructureChanged(nodeSearchResults);
 
@@ -361,7 +362,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------
         // To Do Lists
         //---------------------------------------------------
-        branch = new DefaultMutableTreeNode("To Do Lists");
+        branch = new DefaultMutableTreeNode("To Do Lists", true);
         trunk.add(branch);
         pathToRoot = branch.getPath();
         todolistsPath = new TreePath(pathToRoot);
@@ -377,7 +378,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 MemoryBank.debug("  Adding List: " + s);
 
                 // Add to the tree
-                leaf = new DefaultMutableTreeNode(s);
+                leaf = new DefaultMutableTreeNode(s, false);
                 branch.add(leaf);
 
             } else { // List not found.
@@ -1290,7 +1291,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (!updateLists) return;
 
         // Preserve the names of the active To Do Lists in the AppOptions.
-        DefaultMutableTreeNode theTodoNode = TodoBranchHelper.getTodoNode(theRootNode);
+        DefaultMutableTreeNode theTodoNode = TreeBranchHelper.getNodeByName(theRootNode, "To Do Lists");
         DefaultMutableTreeNode leafLink;
         int numLists;
         appOpts.todoLists.clear();
@@ -1300,14 +1301,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             leafLink = theTodoNode.getFirstLeaf();
             while (numLists-- > 0) {
                 String s = leafLink.toString();
-                //MemoryBank.debug("  Preserving list: " + s);
+                //MemoryBank.debug("  Preserving Todo List: " + s);
                 appOpts.todoLists.addElement(s);
                 leafLink = leafLink.getNextLeaf();
             } // end while
         } // end if
 
         // Preserve the names of the active Search Results in the AppOpts.
-        DefaultMutableTreeNode theSearchNode = SearchBranchHelper.getSearchResultsNode(theRootNode);
+        DefaultMutableTreeNode theSearchNode = TreeBranchHelper.getNodeByName(theRootNode, "Search Results");
         int numResults;
         appOpts.searchResultList.clear();
 

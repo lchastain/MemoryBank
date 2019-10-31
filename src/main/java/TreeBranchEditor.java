@@ -229,7 +229,7 @@ public class TreeBranchEditor extends JPanel
 
         if (e.getStateChange() == ItemEvent.SELECTED) {
             //log.debug(theText + " selected");
-            DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(theText);
+            DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(theText, false);
             myBranch.add(dmtn);
             changeList.add(new NodeChange(theText, NodeChange.SELECTED));
         } else { // if (e.getStateChange() == ItemEvent.DESELECTED) {
@@ -410,14 +410,18 @@ public class TreeBranchEditor extends JPanel
         }
 
         // Handle rename actions
+        @Override
         public void valueForPathChanged(TreePath path, Object newValue) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
             //log.debug("value changed: " + node.toString());
 
             // No user feedback (here) for these cases; if desired then do
             // it in the helper methods, where a reason may also be provided.
-            if (!myHelper.allowRenameFrom(node.toString())) return;
+            if (!myHelper.allowRenameFrom(node)) return;
             if (!myHelper.allowRenameTo(String.valueOf(newValue))) return;
+            // Used String.valueOf() vs toString(), because newValue is an Object that might
+            // be null and that cannot be changed since this method is an Override where the
+            // super method is provided by the framework and not my own code.
 
             // Now consider the original list of choices, if such a list was provided by the helper.
             ArrayList<String> helperChoices = myHelper.getChoices();

@@ -1,6 +1,6 @@
 /*
  A custom TreeBranchHelper, in support of the TreeBranchEditor actions on
- the SearchResults Branch.  In addition to the interface methods, there are several
+ the SearchResults Branch.  In addition to the base methods, there are several
  static methods that support other actions on the Search Results, that will be
  called by the AppTreePanel or other branches.  For actions on the SearchResults
  themselves (such as load, etc), see the SearchResultGroup class.
@@ -15,15 +15,11 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
-public class SearchBranchHelper implements TreeBranchHelper {
+public class SearchBranchHelper extends TreeBranchHelper {
     private static Logger log = LoggerFactory.getLogger(SearchBranchHelper.class);
 
-    private static StringBuilder ems = new StringBuilder();  // Error Message String
-    private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
     private JTree theTree;  // The original tree, not the one from the editor.
     private NoteGroupKeeper theNoteGroupKeeper;
     private DefaultTreeModel theTreeModel;
@@ -31,38 +27,24 @@ public class SearchBranchHelper implements TreeBranchHelper {
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;
 
-    // Construct this class with the JTree that contains the TodoBranch.
     SearchBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
         theTree = jt;
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        basePath = SearchResultGroup.basePath();
 
         // Get the index of the SearchResults node (not the same as row number)
         theIndex = -1;
-        DefaultMutableTreeNode dmtn = getSearchResultsNode(theRoot);
+        DefaultMutableTreeNode dmtn = TreeBranchHelper.getNodeByName(theRoot, "Search Results");
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
 
-    @SuppressWarnings("rawtypes")
-    static DefaultMutableTreeNode getSearchResultsNode(DefaultMutableTreeNode theRoot) {
-        DefaultMutableTreeNode dmtn = null;
-        Enumeration bfe = theRoot.breadthFirstEnumeration();
-
-        while (bfe.hasMoreElements()) {
-            dmtn = (DefaultMutableTreeNode) bfe.nextElement();
-            if (dmtn.toString().equals("Search Results")) {
-                break;
-            }
-        }
-        return dmtn;
-    }
-
-
     @Override
-    public boolean allowRenameFrom(String theName) {
-        if (theName.equals("To Do Lists")) {
-            JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the root!");
+    public boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
+        String theName = theNode.toString();
+        if (theNode.getAllowsChildren()) {
+            JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the tree branch: " + theName);
             return false;
         }
         renameFrom = theName.trim(); // Used in renameTo; trim is ok but don't mess with case.
@@ -78,7 +60,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // between the two names then we will fall thru to the 'file exists' complaint, on a
         // case-insensitive filesystem.
 
-        String theComplaint = nameCheck(theName);
+        String theComplaint = checkFilename(theName);
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -92,7 +74,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + "SearchResults");
+        File dataDir = new File(basePath);
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
@@ -106,7 +88,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
 
         // Create the list of files.
         if (theFileList != null) {
-            log.debug("Number of todolist files found: " + theFileList.length);
+            log.debug("Number of search result files found: " + theFileList.length);
             int theDot;
             String theFile;
             for (String afile : theFileList) {
@@ -150,7 +132,6 @@ public class SearchBranchHelper implements TreeBranchHelper {
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
-        String basePath = SearchResultGroup.basePath();
         for (Object nco : changes) {
             NodeChange nodeChange = (NodeChange) nco;
             MemoryBank.debug(nco.toString());
@@ -226,93 +207,5 @@ public class SearchBranchHelper implements TreeBranchHelper {
     public String getDeleteCommand() {
         return null;
     }
-
-    //-------------------------------------------------------------------
-    // Method Name:  nameCheck
-    //
-    // Check for the following 'illegal' file naming conditions:
-    //   No entry, or whitespace only.
-    //   The name ends in '.json'.
-    //   The name contains more than MAX_FILENAME_LENGTH chars.
-    //   The filesystem refuses to create a file with this name.
-    //
-    // Return Value - A 'complaint' string if name is not valid,
-    //    otherwise an empty string.
-    //-------------------------------------------------------------------
-    private static String nameCheck(String theProposedName) {
-        Exception e = null;
-        ems.setLength(0);
-
-        String testName = theProposedName.trim();
-
-        // Check for non-entry (or evaporation).
-        if (testName.isEmpty()) ems.append("No New List Name was supplied!");
-
-        // Refuse unwanted help.
-        if (testName.endsWith(".json")) {
-            ems.append("The name you supply cannot end in '.json'");
-        } // end if
-
-        // Check for legal max length.
-        // The input field used in this class would not allow this one, but
-        //   since this method is static and accepts input from outside
-        //   sources, this check should be done.
-        if (testName.length() > MAX_FILENAME_LENGTH) {
-            ems.append("The new name is limited to " + MAX_FILENAME_LENGTH + " characters");
-        } // end if
-
-        // Any problems found up to this point would not allow us to continue checking.
-        if (!ems.toString().isEmpty()) return ems.toString();
-
-        // Do we want to check to see if a file with this name already exists?
-        //   No.  The handler for the renaming event will disallow that particular
-        //   situation, so we don't need to repeat that logic here.
-
-        // Note - I thought it would be a good idea to check for 'illegal'
-        //   characters in the filename, but when I started testing, the
-        //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
-        //   Of course there ARE illegal characters, and the ones above may
-        //   still be illegal on another OS.  So, the best way to
-        //   detect them is to try to create a file using the name we're
-        //   checking.  Any io error and we can fail this check.
-
-        // Now try to create the file, with a '.test' extension; this will not
-        // conflict with any 'legal' existing file in this directory, so if
-        // there is any problem at all then we can report a failure.
-
-        String theFilename = SearchResultGroup.basePath() + testName + ".test";
-        File f = new File(theFilename);
-        MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
-        boolean b = false; // Used only for 'greening' the code.
-        try {
-            b = f.delete();
-            // If the file does not already exist, this simply returned a false.
-            // If it did already exist then we must consider how it got there and
-            // that this attempt to delete will quite probably throw a Security
-            // Exception. But if it does not then the file is gone now so we go on.
-
-            b = f.createNewFile();
-            // We didn't test the return value here because anything short of an
-            // Exception means that (thanks to the previous delete) the value is
-            // 'true' and we just now created a file with the specified name.
-
-            // The above call would have worked even without the previous delete,
-            // but in the case of a preexisting file we would not have been sure
-            // that we had overcome any possible security exception.  Since we
-            // know that we just now created this file, we also know that it is
-            // writable and do not need to check 'canWrite'.
-
-            b = f.delete(); // So, delete the test file; name test passed.
-        } catch (IOException | SecurityException ee) {
-            e = ee;  // Identify now, handle below.
-        } finally {
-            if (!b) System.out.print(""); // We didn't care about any results given to 'b'.
-        } // end try/catch
-
-        // Handle Exceptions, if any.
-        if (e != null) ems.append(e.getMessage());
-
-        return ems.toString();
-    } // end nameCheck
 
 } // end class TodoBranchHelper

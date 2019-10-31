@@ -4,9 +4,10 @@ import javax.swing.tree.MutableTreeNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class EditorHelper implements TreeBranchHelper {
+class EditorHelper extends TreeBranchHelper {
     @Override
-    public boolean allowRenameFrom(String theName) {
+    public boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
+        String theName = theNode.toString();
         if(theName.equals("An Example Branch")) {
             JOptionPane.showMessageDialog(new JFrame(), "You can't rename the root!");
             return false;

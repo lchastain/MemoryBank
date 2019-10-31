@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class TodoBranchHelper implements TreeBranchHelper {
+public class TodoBranchHelper extends TreeBranchHelper {
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
 
     private static StringBuilder ems = new StringBuilder();  // Error Message String
@@ -30,15 +30,15 @@ public class TodoBranchHelper implements TreeBranchHelper {
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;
 
-    // Construct this class with the JTree that contains the TodoBranch.
     public TodoBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
         theTree = jt;
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        basePath = TodoNoteGroup.basePath();
         theIndex = -1;
 
-        DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
+        DefaultMutableTreeNode dmtn = TreeBranchHelper.getNodeByName(theRoot, "To Do Lists");
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
 
@@ -48,7 +48,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
         DefaultMutableTreeNode clonedRoot = AppTreePanel.deepClone(theRoot);
-        DefaultMutableTreeNode theTodoNode = getTodoNode(clonedRoot);
+        DefaultMutableTreeNode theTodoNode = TreeBranchHelper.getNodeByName(clonedRoot, "To Do Lists");
 
         DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(s);
 
@@ -59,20 +59,6 @@ public class TodoBranchHelper implements TreeBranchHelper {
         theTodoNode.add(newNode);
 
         return new TreePath(newNode.getPath());
-    }
-
-    @SuppressWarnings("rawtypes")
-    static DefaultMutableTreeNode getTodoNode(DefaultMutableTreeNode theRoot) {
-        DefaultMutableTreeNode dmtn = null;
-        Enumeration bfe = theRoot.breadthFirstEnumeration();
-
-        while (bfe.hasMoreElements()) {
-            dmtn = (DefaultMutableTreeNode) bfe.nextElement();
-            if (dmtn.toString().equals("To Do Lists")) {
-                break;
-            }
-        }
-        return dmtn;
     }
 
     static void addNewList(JTree jt) {
@@ -94,7 +80,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
         DefaultTreeModel theTreeModel = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        DefaultMutableTreeNode dmtn = getTodoNode(theRoot);
+        DefaultMutableTreeNode dmtn = TreeBranchHelper.getNodeByName(theRoot, "To Do Lists");
         if (dmtn != null) {
             // Declare a tree node for the new list.
             DefaultMutableTreeNode newList;
@@ -108,12 +94,12 @@ public class TodoBranchHelper implements TreeBranchHelper {
                 newList = new DefaultMutableTreeNode(newName);
             } else {
                 addNodeToBranch = false;
-                // This also means that we don't need the nameCheck.
+                // This also means that we don't need the checkFilename.
             }
 
             if (addNodeToBranch) {
                 // Ensure that the new name meets our requirements.
-                String theComplaint = nameCheck(newName);
+                String theComplaint = checkFilename(newName);
                 if (!theComplaint.isEmpty()) {
                     JOptionPane.showMessageDialog(jt, theComplaint,
                             "Error", JOptionPane.ERROR_MESSAGE);
@@ -192,9 +178,10 @@ public class TodoBranchHelper implements TreeBranchHelper {
 
 
     @Override
-    public boolean allowRenameFrom(String theName) {
-        if (theName.equals("To Do Lists")) {
-            JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the root!");
+    public boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
+        String theName = theNode.toString();
+        if(theNode.getAllowsChildren()) {
+            JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the tree branch: " + theName);
             return false;
         }
         renameFrom = theName.trim(); // Used in renameTo; trim is ok but don't mess with case.
@@ -210,7 +197,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // between the two names then we will fall thru to the 'file exists' complaint, on a
         // case-insensitive filesystem.
 
-        String theComplaint = nameCheck(theName);
+        String theComplaint = checkFilename(theName);
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -224,7 +211,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + "TodoLists");
+        File dataDir = new File(TodoNoteGroup.basePath());
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
@@ -361,99 +348,6 @@ public class TodoBranchHelper implements TreeBranchHelper {
         return null;
     }
 
-    //-------------------------------------------------------------------
-    // Method Name:  nameCheck
-    //
-    // Check for the following 'illegal' file naming conditions:
-    //   No entry, or whitespace only.
-    //   The name ends in '.json'.
-    //   The name contains more than MAX_FILENAME_LENGTH chars.
-    //   The filesystem refuses to create a file with this name.
-    //
-    // Return Value - A 'complaint' string if name is not valid,
-    //    otherwise an empty string.
-    //-------------------------------------------------------------------
-    static String nameCheck(String theProposedName) {
-        Exception e = null;
-        ems.setLength(0);
-
-        String testName = theProposedName.trim();
-
-        // Check for non-entry (or evaporation).
-        if (testName.isEmpty()) ems.append("No New List Name was supplied!");
-
-        // Refuse unwanted help.
-        if (testName.endsWith(".json")) {
-            ems.append("The name you supply cannot end in '.json'");
-        } // end if
-
-        // Check for legal max length.
-        // The input field used in this class would not allow this one, but
-        //   since this method is static and accepts input from outside
-        //   sources, this check should be done.
-        if (testName.length() > MAX_FILENAME_LENGTH) {
-            ems.append("The new name is limited to " + MAX_FILENAME_LENGTH + " characters");
-        } // end if
-
-        // Any problems found up to this point would not allow us to continue checking.
-        if (!ems.toString().isEmpty()) return ems.toString();
-
-        // Do we want to check to see if a file with this name already exists?
-        //   No.  The handler for the renaming event will disallow that particular
-        //   situation, so we don't need to repeat that logic here.  Likewise for
-        //   the 'Save As' logic.
-        //
-        //   As for the 'Add New List' functionality that is also a consumer of this
-        //   method, the AppTreePanel handles that situation by simply opening it, a
-        //   kind of back-door selection of the existing list.
-
-        // Note - I thought it would be a good idea to check for 'illegal'
-        //   characters in the filename, but when I started testing, the
-        //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
-        //   Of course there ARE illegal characters, and the ones above may
-        //   still be illegal on another OS.  So, the best way to
-        //   detect them is to try to create a file using the name we're
-        //   checking.  Any io error and we can fail this check.
-
-        // Now try to create the file, with a '.test' extension; this will not
-        // conflict with any 'legal' existing file in this directory, so if
-        // there is any problem at all then we can report a failure.
-
-        String theFilename = TodoNoteGroup.basePath() + testName + ".test";
-        File f = new File(theFilename);
-        MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
-        boolean b = false; // Used only for 'greening' the code.
-        try {
-            b = f.delete();
-            // If the file does not already exist, this simply returned a false.
-            // If it did already exist then we must consider how it got there and
-            // that this attempt to delete will quite probably throw a Security
-            // Exception. But if it does not then the file is gone now so we go on.
-
-            b = f.createNewFile();
-            // We didn't test the return value here because anything short of an
-            // Exception means that (thanks to the previous delete) the value is
-            // 'true' and we just now created a file with the specified name.
-
-            // The above call would have worked even without the previous delete,
-            // but in the case of a preexisting file we would not have been sure
-            // that we had overcome any possible security exception.  Since we
-            // know that we just now created this file, we also know that it is
-            // writable and do not need to check 'canWrite'.
-
-            b = f.delete(); // So, delete the test file; name test passed.
-        } catch (IOException | SecurityException ee) {
-            e = ee;  // Identify now, handle below.
-        } finally {
-            if (!b) System.out.print(""); // We didn't care about any results given to 'b'.
-        } // end try/catch
-
-        // Handle Exceptions, if any.
-        if (e != null) ems.append(e.getMessage());
-
-        return ems.toString();
-    } // end nameCheck
-
     // Call this method to do a 'programmatic' rename of a TodoList
     // node on the Tree, as opposed to doing it manually via the
     // TreeBranchEditor.  It operates only on the tree and not with
@@ -464,7 +358,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
         JTree jt = MemoryBank.getAppTreePanel().getTree();
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode theTodoBranch = getTodoNode(theRoot);
+        DefaultMutableTreeNode theTodoBranch = TreeBranchHelper.getNodeByName(theRoot,"To Do Lists");
 
         // The tree is set for single-selection, so the selection will not be a collection but
         // a single value.  Nonetheless, Swing only provides a get for min and max and either

@@ -442,7 +442,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = TodoBranchHelper.nameCheck(newName);
+        String theComplaint = TodoBranchHelper.checkFilename(newName);
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);

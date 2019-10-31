@@ -350,7 +350,7 @@ public class DateFormatBar extends Container implements ClingSource {
         // HeaderButton number two (hb2).  I understand the reluctance to renumber all the remaining
         // hb items, but numerically here the next progression would be += 2, so the real question
         // is - Is this working correctly, and if so - how/why?
-        // TODO - add tests.  And eliminate this bothersome gap or explain why not.
+// Need to eliminate this bothersome gap or explain why it is here.  But only if this code needs to 'go live' again.
         if (posString.contains("3")) visibility += 4;
         if (posString.contains("4")) visibility += 8;
         if (posString.contains("5")) visibility += 16;

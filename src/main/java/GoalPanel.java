@@ -123,8 +123,6 @@ public class GoalPanel extends JPanel {
 
     private void txtfGoalText_actionPerformed(ActionEvent e) {
         System.out.println("\ntxtfGoalText_actionPerformed(ActionEvent e) called.");
-        // TODO: Add any handling code here
-
     }
 
     private void lstGoals_valueChanged(ListSelectionEvent e) {
@@ -132,25 +130,19 @@ public class GoalPanel extends JPanel {
         if (!e.getValueIsAdjusting()) {
             Object o = lstGoals.getSelectedValue();
             System.out.println(">>" + ((o == null) ? "null" : o.toString()) + " is selected.");
-            // TODO: Add any handling code here for the particular object being selected
-
         }
     }
 
     private void jButton1_actionPerformed(ActionEvent e) {
         System.out.println("\njButton1_actionPerformed(ActionEvent e) called.");
-        // TODO: Add any handling code here
     }
 
     private void jButton2_actionPerformed(ActionEvent e) {
         System.out.println("\njButton2_actionPerformed(ActionEvent e) called.");
-        // TODO: Add any handling code here
-
     }
 
     private void jButton3_actionPerformed(ActionEvent e) {
         System.out.println("\njButton3_actionPerformed(ActionEvent e) called.");
-        // TODO: Add any handling code here
     }
 
     // Just for JFrameBuilder -
@@ -158,9 +150,6 @@ public class GoalPanel extends JPanel {
         // ignore, for now.
     } // end setTitle
 
-    //
-    // TODO: Add any method code to meet your needs in the following area
-    //
 
     public static void main(String[] args) {
         JFrame.setDefaultLookAndFeelDecorated(true);

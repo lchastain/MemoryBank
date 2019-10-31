@@ -1,4 +1,5 @@
-import java.time.LocalTime;
+import java.io.File;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 
 public class Area51 {
@@ -7,8 +8,17 @@ public class Area51 {
     }
 
     private void try1() {
-        LocalTime lt = LocalTime.now();
-        System.out.println("New java.time.LocalTime is: " + lt);
+        // No exception for a colon in the name, but the created file name ends with the last char before the colon.
+        File f1 = new File("bad:name");
+        if(f1.exists()) {
+            System.out.println("wow");
+        }
+        System.out.println(f1.getAbsolutePath());
+        try {
+            boolean b = f1.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Testing conversion of a ZonedDateTime to LocalDateTime
@@ -42,7 +52,7 @@ public class Area51 {
     public static void main(String[] args) {
         Area51 a51 = new Area51();
 
-        a51.try2();
+        a51.try1();
 
     }
 
