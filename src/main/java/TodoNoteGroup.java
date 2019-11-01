@@ -29,11 +29,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private String strTheGroupFilename;
     private static Notifier optionPane;
     public static FileChooser filechooser;
+    static String areaName;
 
     // This is saved/loaded
     public TodoListProperties myVars; // Variables - flags and settings
 
     static {
+        areaName = "TodoLists"; // Directory name under user data.
         // The File Chooser supports the 'merge' functionality.
         filechooser = new FileChooser() {
         };
@@ -64,8 +66,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         setName(fname.trim()); // The component-level name is null, otherwise.
         log.debug("Constructing: " + getName());
 
-        strTheGroupFilename = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
-        strTheGroupFilename += "todo_" + fname + ".json";
+        strTheGroupFilename = NoteGroup.basePath(areaName) + "todo_" + fname + ".json";
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
@@ -106,10 +107,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end constructor
 
 
-    static String basePath() {
-        return MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
-    }
-
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
     //
@@ -132,8 +129,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end checkColumnOrder
 
 
-    private static String chooseFileName(String buttonLabel) {
-        int returnVal = filechooser.showDialog(null, buttonLabel);
+    private static String chooseFileName() {
+        int returnVal = filechooser.showDialog(null, "Merge");
         boolean badPlace = false;
 
         String s = filechooser.getCurrentDirectory().getAbsolutePath();
@@ -141,8 +138,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Check here to see if directory changed, reset if so.
         // System.out.println("Final directory: " + s);
-        if (!s.equals(MemoryBank.userDataHome + File.separatorChar + "TodoLists")) {
-            filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome + File.separatorChar + "TodoLists"));
+        if (!s.equals(NoteGroup.basePath(areaName))) {
+            filechooser.setCurrentDirectory(new File(NoteGroup.basePath(areaName)));
             badPlace = true;
         } // end if
 
@@ -150,7 +147,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             if (badPlace) {
                 // Warn user that they are not allowed to navigate.
                 ems = "Navigation outside of your data directory is not allowed!";
-                ems += "\n           " + buttonLabel + " operation cancelled.";
+                ems += "\n           " + "Merge" + " operation cancelled.";
                 optionPane.showMessageDialog(null, ems,
                         "Warning", JOptionPane.WARNING_MESSAGE);
                 return null;
@@ -243,7 +240,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     public void merge() {
-        String mergeFile = chooseFileName("Merge");
+        String mergeFile = chooseFileName();
         if (mergeFile == null) return;
 
         try {
@@ -442,7 +439,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = TodoBranchHelper.checkFilename(newName);
+        String theComplaint = TreeBranchHelper.checkFilename(newName, NoteGroup.basePath(areaName));
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -481,7 +478,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = basePath() + "todo_" + newName + ".json";
+        String newFilename = NoteGroup.basePath(areaName) + "todo_" + newName + ".json";
         if ((new File(newFilename)).exists()) {
             ems = "A list named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
@@ -529,7 +526,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //  checking for validity is responsibility of calling context.
     //-----------------------------------------------------------------
     private void setFileName(String fname) {
-        strTheGroupFilename = basePath() + "todo_" + fname.trim() + ".json";
+        strTheGroupFilename = NoteGroup.basePath(areaName) + "todo_" + fname.trim() + ".json";
         setName(fname.trim());  // Keep the 'pretty' name in the component.
         setGroupChanged();
     } // end setFileName

@@ -5,31 +5,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-// 10/31/2019 - Just now converted this from an interface to a base class.  Several
-// methods expect to be overridden and otherwise do virtually nothing, but there was
-// just too much of the code being duplicated between children, to keep it as an interface.
-
-public class TreeBranchHelper {
-    static String basePath;
-    static StringBuilder ems = new StringBuilder();  // Error Message String
-    private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
-
-
-    public TreeBranchHelper() {
-        basePath = MemoryBank.userDataHome;
-    }
+public interface TreeBranchHelper {
+    StringBuilder ems = new StringBuilder();  // Error Message String
+    int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
 
     // Called by the TreeBranchEditor to see if there is any objection to a rename
     // of a node from or to the provided value.  If true, the rename goes thru. If
     // false, it simply discards the rename action.  If any user feedback is desired,
     // Your implementation can provide that before returning the boolean.
-    boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
-        return true;
-    }
+    boolean allowRenameFrom(DefaultMutableTreeNode theNode);
 
-    boolean allowRenameTo(String theNewName) {
-        return true;
-    }
+    boolean allowRenameTo(String theNewName);
 
     //-------------------------------------------------------------------
     // Method Name:  checkFilename
@@ -43,7 +29,7 @@ public class TreeBranchHelper {
     // Return Value - A 'complaint' string if name is not valid,
     //    otherwise an empty string.
     //-------------------------------------------------------------------
-    static String checkFilename(String theProposedName) {
+    static String checkFilename(String theProposedName, String basePath) {
         ems.setLength(0);
 
         String testName = theProposedName.trim();
@@ -134,18 +120,14 @@ public class TreeBranchHelper {
 
     // Called by the TreeBranchEditor to determine whether or not to provide a 'Delete'
     // button for each of the choices.  If false then no choice will have a Delete button.
-    boolean deletesAllowed() {
-        return true;
-    }
+    boolean deletesAllowed();
 
     // The textual list of choices for all items that the user might select for
     // inclusion in the final Branch.  Usually includes everything that is already
     // in the branch to edit, and any available but still unselected choices.  If
     // your implementation returns a null, the editor will default to using the
     // nodes of the provided branch.
-    ArrayList<String> getChoices() {
-        return new ArrayList<>();
-    }
+    ArrayList<String> getChoices();
 
 
     // This method will return the node with the specified name.  It does a breadth-first
@@ -171,15 +153,13 @@ public class TreeBranchHelper {
     // false then the drop is not allowed.  Drops 'between' leaves for the purposes
     // of reordering the nodes of the branch are always allowed, as are drops onto
     // nodes that are already a parent.
-    boolean makeParents() {
-        return true;
-    }
+    boolean makeParents();
 
     // The handler for the 'Apply' button.
-    void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {}
+    void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes);
 
     // What text appears on the 'Remove' button.  Ex:  'Delete', 'Remove', or
     // something else.  If your implementation returns a null, the editor will
     // use a default of 'X'.
-    String getDeleteCommand() { return null; }
+    String getDeleteCommand();
 }

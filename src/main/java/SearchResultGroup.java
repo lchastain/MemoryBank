@@ -12,9 +12,14 @@ public class SearchResultGroup extends NoteGroup {
     private SearchResultHeader listHeader;
 
     private String theGroupFilename;
+    static String areaName;
 
     // This is saved/loaded
     public SearchResultGroupProperties myVars; // Variables - flags and settings
+
+    static {
+        areaName = "SearchResults";  // Directory name under user data.
+    }
 
     // The File Name (fname) may be either a simple single word text as seen in the app tree,
     // or it could be the full-blown path specifier including the .json extension.
@@ -88,10 +93,6 @@ public class SearchResultGroup extends NoteGroup {
         add(heading, BorderLayout.NORTH);
     } // end constructor
 
-    static String basePath() {
-        return MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
-    }
-
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
     //
@@ -123,8 +124,8 @@ public class SearchResultGroup extends NoteGroup {
         int sepCharIndex = theName.lastIndexOf(File.separatorChar);
         if(sepCharIndex > 0) { // The filename was already constructed (fully) by the calling context.
             theFullFilename = theName;
-        } else { // fname is just the 'core' name.
-            theFullFilename = basePath() + "search_" + theName + ".json";
+        } else { // theName is just the filename only, without a path.
+            theFullFilename = NoteGroup.basePath(areaName) + "search_" + theName + ".json";
         }
         return theFullFilename;
     }

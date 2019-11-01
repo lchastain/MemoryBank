@@ -4,6 +4,10 @@ import java.time.ZonedDateTime;
 
 public class Area51 {
 
+    static {
+        MemoryBank.setUserDataHome("test.user@lcware.net");
+    }
+
     private Area51() {
     }
 
@@ -47,12 +51,9 @@ public class Area51 {
     }
 
 
-
-
-    public static void main(String[] args) {
+        public static void main(String[] args) {
         Area51 a51 = new Area51();
-
-        a51.try1();
+        a51.try2();
 
     }
 

@@ -18,16 +18,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class TodoBranchHelper extends TreeBranchHelper {
+public class TodoBranchHelper implements TreeBranchHelper {
     private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
 
-    private static StringBuilder ems = new StringBuilder();  // Error Message String
-    private static final int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
     private JTree theTree;  // The original tree, not the one from the editor.
     private NoteGroupKeeper theNoteGroupKeeper;
     private DefaultTreeModel theTreeModel;
     private DefaultMutableTreeNode theRoot;
-    private int theIndex;  // keeps track of which row of the tree we're on.
+    private int theIndex;  // keeps track of which node (branch) of the tree we're on.
     private String renameFrom;
 
     public TodoBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
@@ -35,7 +33,6 @@ public class TodoBranchHelper extends TreeBranchHelper {
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        basePath = TodoNoteGroup.basePath();
         theIndex = -1;
 
         DefaultMutableTreeNode dmtn = TreeBranchHelper.getNodeByName(theRoot, "To Do Lists");
@@ -99,7 +96,7 @@ public class TodoBranchHelper extends TreeBranchHelper {
 
             if (addNodeToBranch) {
                 // Ensure that the new name meets our requirements.
-                String theComplaint = checkFilename(newName);
+                String theComplaint = TreeBranchHelper.checkFilename(newName, NoteGroup.basePath(TodoNoteGroup.areaName));
                 if (!theComplaint.isEmpty()) {
                     JOptionPane.showMessageDialog(jt, theComplaint,
                             "Error", JOptionPane.ERROR_MESSAGE);
@@ -197,7 +194,7 @@ public class TodoBranchHelper extends TreeBranchHelper {
         // between the two names then we will fall thru to the 'file exists' complaint, on a
         // case-insensitive filesystem.
 
-        String theComplaint = checkFilename(theName);
+        String theComplaint = TreeBranchHelper.checkFilename(theName, NoteGroup.basePath("TodoLists"));
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -211,11 +208,11 @@ public class TodoBranchHelper extends TreeBranchHelper {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(TodoNoteGroup.basePath());
+        File dataDir = new File(NoteGroup.basePath(TodoNoteGroup.areaName));
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
-                    // known that the 'MemoryBank.userDataHome' will not under normal program
+                    // known that the basePath will not under normal program
                     // operation contain any directory with a name starting with 'todo_'.
                     public boolean accept(File f, String s) {
                         return s.startsWith("todo_");
@@ -256,7 +253,7 @@ public class TodoBranchHelper extends TreeBranchHelper {
     // and those directives are also handled here.  For these actions, we need to
     // examine the 'changes' list.  But what happens if we cannot perform all the
     // tasks from the list?  In that case, the branch may no longer accurately
-    // represent the true state of the todolist files and the user will be informed.
+    // represent the true state of the group data files and the user will be informed.
     @Override
     public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         // 'theIndex' is the location of the branch that we will replace.  It is set
@@ -269,7 +266,7 @@ public class TodoBranchHelper extends TreeBranchHelper {
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
-        String basePath = TodoNoteGroup.basePath();
+        String basePath = NoteGroup.basePath(TodoNoteGroup.areaName);
         for (Object nco : changes) {
             NodeChange nodeChange = (NodeChange) nco;
             System.out.println(nco.toString());

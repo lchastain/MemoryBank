@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
-public class SearchBranchHelper extends TreeBranchHelper {
+public class SearchBranchHelper implements TreeBranchHelper {
     private static Logger log = LoggerFactory.getLogger(SearchBranchHelper.class);
 
     private JTree theTree;  // The original tree, not the one from the editor.
@@ -32,7 +32,6 @@ public class SearchBranchHelper extends TreeBranchHelper {
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        basePath = SearchResultGroup.basePath();
 
         // Get the index of the SearchResults node (not the same as row number)
         theIndex = -1;
@@ -60,7 +59,7 @@ public class SearchBranchHelper extends TreeBranchHelper {
         // between the two names then we will fall thru to the 'file exists' complaint, on a
         // case-insensitive filesystem.
 
-        String theComplaint = checkFilename(theName);
+        String theComplaint = TreeBranchHelper.checkFilename(theName, NoteGroup.basePath(SearchResultGroup.areaName));
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -73,13 +72,13 @@ public class SearchBranchHelper extends TreeBranchHelper {
     public ArrayList<String> getChoices() {
         ArrayList<String> theChoices = new ArrayList<>();
 
-        // Get a list of To Do lists in the user's data directory.
-        File dataDir = new File(basePath);
+        // Get a list of Search Results in the user's data directory.
+        File dataDir = new File(NoteGroup.basePath(SearchResultGroup.areaName));
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
-                    // known that the 'MemoryBank.userDataHome' will not under normal program
-                    // operation contain any directory with a name starting with 'todo_'.
+                    // known that the basePath will not under normal program
+                    // operation contain any directory with a name starting with 'search_'.
                     public boolean accept(File f, String s) {
                         return s.startsWith("search_");
                     }
@@ -119,7 +118,7 @@ public class SearchBranchHelper extends TreeBranchHelper {
     // and those directives are also handled here.  For these actions, we need to
     // examine the 'changes' list.  But what happens if we cannot perform all the
     // tasks from the list?  In that case, the branch may no longer accurately
-    // represent the true state of the todolist files and the user will be informed.
+    // represent the true state of the group data files and the user will be informed.
     @Override
     public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         // 'theIndex' is the location of the branch that we will replace.  It is set
@@ -137,8 +136,8 @@ public class SearchBranchHelper extends TreeBranchHelper {
             MemoryBank.debug(nco.toString());
             if (nodeChange.changeType == NodeChange.RENAMED) {
                 // Now attempt the rename
-                String oldNamedFile = basePath + "search_" + nodeChange.nodeName + ".json";
-                String newNamedFile = basePath + "search_" + nodeChange.renamedTo + ".json";
+                String oldNamedFile = NoteGroup.basePath(SearchResultGroup.areaName) + "search_" + nodeChange.nodeName + ".json";
+                String newNamedFile = NoteGroup.basePath(SearchResultGroup.areaName) + "search_" + nodeChange.renamedTo + ".json";
                 File f = new File(oldNamedFile);
 
                 try {
@@ -165,7 +164,7 @@ public class SearchBranchHelper extends TreeBranchHelper {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile = basePath + "search_" + nodeChange.nodeName + ".json";
+                String deleteFile =  NoteGroup.basePath(SearchResultGroup.areaName) + "search_" + nodeChange.nodeName + ".json";
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
@@ -208,4 +207,4 @@ public class SearchBranchHelper extends TreeBranchHelper {
         return null;
     }
 
-} // end class TodoBranchHelper
+} // end class SearchBranchHelper

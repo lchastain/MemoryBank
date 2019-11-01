@@ -171,6 +171,10 @@ public abstract class NoteGroup extends JPanel {
     } // end activateNextNote
 
 
+    static String basePath(String areaName) {
+        return MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
+    }
+
     //----------------------------------------------------------------
     // Method Name: clearGroup
     //
