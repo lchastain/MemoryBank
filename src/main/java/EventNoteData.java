@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 public class EventNoteData extends IconNoteData {
     // Capturing these values from the old Calendar class, as it goes away -
     private static final int SUNDAY = 1;
@@ -554,8 +556,14 @@ public class EventNoteData extends IconNoteData {
 
         // Adjust to the new (later) Start Date.
         MemoryBank.debug("  Adjusting start date to: " + futureDate);
+        // If there is an End Date, it will need to move forward too, by the same amount.
+        LocalDate theEndDate = getEndDate();
+        if(theEndDate != null) {
+            long theAdjustment = DAYS.between(theStartDate, futureDate);
+            setEndDate(theEndDate.plusDays(theAdjustment));
+        }
         setStartDate(futureDate);
-//        if (lngTheDuration != null) setDurationValue(lngTheDuration);
+//        May need to also re-set duration here, if we have user-entered (vs calculated) settings.
 
         // Restore the recurrence string.
         recurrenceString = strKeepRecurrence;
@@ -882,7 +890,7 @@ public class EventNoteData extends IconNoteData {
         }
 
         if (blnDatePair && !blnTimePair) { // Lines a,b,e
-            calculatedDurationValue = ChronoUnit.DAYS.between(theStartDate, theEndDate);
+            calculatedDurationValue = DAYS.between(theStartDate, theEndDate);
             calculatedDurationUnits = "Days";
         }
 
