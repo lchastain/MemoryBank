@@ -57,16 +57,12 @@ class EditorHelper implements TreeBranchHelper {
 } // end class EditorHelper
 
 
-public class TreeBranchEditorExample {
+public class TreeBranchEditorMain {
 
     public static void main(String[] args) {
-        //URL myURL = TreeBranchEditorExample.class.getClassLoader().getResource("logback.xml");
-        //System.out.println(myURL);
         try
         {
-            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
-            //UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
         }
         catch (Exception ex)
         {

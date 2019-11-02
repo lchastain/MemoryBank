@@ -27,14 +27,19 @@ public class TodoBranchHelper implements TreeBranchHelper {
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which node (branch) of the tree we're on.
     private String renameFrom;
+    Notifier optionPane;  // non-private access, for Tests.
 
     public TodoBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
         theTree = jt;
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        theIndex = -1;
 
+        optionPane = new Notifier() {
+        }; // Uses all default methods.
+
+        // Get the index of the SearchResults node (not the same as row number)
+        theIndex = -1;
         DefaultMutableTreeNode dmtn = TreeBranchHelper.getNodeByName(theRoot, "To Do Lists");
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
@@ -188,15 +193,15 @@ public class TodoBranchHelper implements TreeBranchHelper {
     @Override
     public boolean allowRenameTo(String theName) {
         // If theName is also our 'renameFrom' name then the whole thing is a no-op.
-        // No need to put out a complaint about that; just return a false.
+        // No need to put out a complaint about that; just return a false.  But if
+        // there is a difference in the casing then we will get past this check.
         if (theName.trim().equals(renameFrom)) return false;
-        // But we do support case-sensitive filesystems, so if 'case' is the only difference
-        // between the two names then we will fall thru to the 'file exists' complaint, on a
-        // case-insensitive filesystem.
+        // And that means we might get a 'file exists' complaint from checkFilename,
+        // on a case-insensitive filesystem.
 
         String theComplaint = TreeBranchHelper.checkFilename(theName, NoteGroup.basePath("TodoLists"));
         if (!theComplaint.isEmpty()) {
-            JOptionPane.showMessageDialog(theTree, theComplaint,
+            optionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -233,16 +238,6 @@ public class TodoBranchHelper implements TreeBranchHelper {
             } // end for
         }
         return theChoices;
-    }
-
-    @Override
-    public boolean deletesAllowed() {
-        return true;
-    }
-
-    @Override
-    public boolean makeParents() {
-        return false;
     }
 
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
@@ -337,13 +332,8 @@ public class TodoBranchHelper implements TreeBranchHelper {
         // for them but by having them do that, they reset the editor to the new official branch
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
-        MemoryBank.getAppTreePanel().showAbout();
+        AppTreePanel.theInstance.showAbout();
     }  // end doApply
-
-    @Override
-    public String getDeleteCommand() {
-        return null;
-    }
 
     // Call this method to do a 'programmatic' rename of a TodoList
     // node on the Tree, as opposed to doing it manually via the
@@ -352,7 +342,7 @@ public class TodoBranchHelper implements TreeBranchHelper {
     // See the 'Save As...' methodology for a good example.
     static void renameTodoListLeaf(String oldname, String newname) {
         boolean changeWasMade = false;
-        JTree jt = MemoryBank.getAppTreePanel().getTree();
+        JTree jt = AppTreePanel.theInstance.getTree();
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
         DefaultMutableTreeNode theTodoBranch = TreeBranchHelper.getNodeByName(theRoot,"To Do Lists");
@@ -393,5 +383,6 @@ public class TodoBranchHelper implements TreeBranchHelper {
         jt.setSelectionRow(returnToRow);
 
     } // end renameTodoList
+
 
 } // end class TodoBranchHelper

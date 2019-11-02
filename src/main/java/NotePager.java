@@ -6,22 +6,9 @@
  display, it will set its visibility to false.
  */
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 
 public class NotePager extends JPanel implements ActionListener, FocusListener, MouseListener {
@@ -114,8 +101,8 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         if (theLast > intGroupSize) theLast = intGroupSize;
         if (intGroupSize == 0) theFirst = 0;
 
-        s = "Showing " + String.valueOf(theFirst);
-        s += " - " + String.valueOf(theLast);
+        s = "Showing " + theFirst;
+        s += " - " + theLast;
         s += " of " + intGroupSize;
 
         return s;
@@ -176,7 +163,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     public void setMiddleMessage() {
         String s = String.valueOf(intCurrentPage);
         jtfThePageNum.setToolTipText(s);
-        s += " of " + String.valueOf(intMaxPages);
+        s += " of " + intMaxPages;
 
         if (s.length() > 10) s = "Pg " + s;
         else s = "Page " + s;
@@ -262,8 +249,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             jtfThePageNum.requestFocusInWindow();
             lbCurrentPage.setVisible(false);
         } else {
-//      myNoteGroup.transferFocusUpCycle();
-            AppTreePanel.ltTheTree.requestFocusInWindow();
+            AppTreePanel.theInstance.requestFocusInWindow();
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");
                 if (intCurrentPage > 1) {

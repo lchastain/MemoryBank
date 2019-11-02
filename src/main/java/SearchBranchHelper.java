@@ -26,12 +26,16 @@ public class SearchBranchHelper implements TreeBranchHelper {
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;
+    Notifier optionPane;  // non-private access, for Tests.
 
     SearchBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
         theTree = jt;
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+
+        optionPane = new Notifier() {
+        }; // Uses all default methods.
 
         // Get the index of the SearchResults node (not the same as row number)
         theIndex = -1;
@@ -43,25 +47,35 @@ public class SearchBranchHelper implements TreeBranchHelper {
     public boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
         String theName = theNode.toString();
         if (theNode.getAllowsChildren()) {
-            JOptionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the tree branch: " + theName);
+            optionPane.showMessageDialog(new JFrame(), "You are not allowed to rename the tree branch: " + theName);
             return false;
         }
         renameFrom = theName.trim(); // Used in renameTo; trim is ok but don't mess with case.
         return true;
     }
 
+    // This is always called after a 'allowRenameFrom' call, which is where the 'renameFrom' var is set.
     @Override
     public boolean allowRenameTo(String theName) {
         // If theName is also our 'renameFrom' name then the whole thing is a no-op.
-        // No need to put out a complaint about that; just return a false.
+        // No need to put out a complaint about that; just return a false.  But if
+        // there is a difference in the casing then we will get past this check.
         if (theName.trim().equals(renameFrom)) return false;
-        // But we do support case-sensitive filesystems, so if 'case' is the only difference
-        // between the two names then we will fall thru to the 'file exists' complaint, on a
-        // case-insensitive filesystem.
+        // And that means we might get a 'file exists' complaint from checkFilename,
+        // on a case-insensitive filesystem.
 
+        // Since the areaName is different for each implementation of TreeBranchHelper, there would be no
+        // value-added for default-implementing this method in the interface; any adopters of it would still
+        // need to provide their own.  It is important to check filename validity in the area where the new
+        // file would be created, so that any possible Security Exception is seen, and those Exceptions may
+        // not be seen in a different area of the same filesystem.
+        // May want to consider implementing the interface in a new base class; then the allowRenameTo method
+        // could live there (and getChoices?) with areaName being an overridden member variable for each child
+        // but - not sure of all the considerations, and naming issues -
+        // BranchHelperInterface, BranchHelperImpl ?    So far the value added
         String theComplaint = TreeBranchHelper.checkFilename(theName, NoteGroup.basePath(SearchResultGroup.areaName));
         if (!theComplaint.isEmpty()) {
-            JOptionPane.showMessageDialog(theTree, theComplaint,
+            optionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -98,16 +112,6 @@ public class SearchBranchHelper implements TreeBranchHelper {
             } // end for
         }
         return theChoices;
-    }
-
-    @Override
-    public boolean deletesAllowed() {
-        return true;
-    }
-
-    @Override
-    public boolean makeParents() {
-        return false;
     }
 
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
@@ -199,12 +203,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // for them but by having them do that, they reset the editor to the new official branch
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
-        MemoryBank.getAppTreePanel().showAbout();
+        AppTreePanel.theInstance.showAbout();
     }  // end doApply
-
-    @Override
-    public String getDeleteCommand() {
-        return null;
-    }
 
 } // end class SearchBranchHelper

@@ -10,6 +10,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class TodoOpts extends JTabbedPane {
+    private static final long serialVersionUID = 1L;  // Xlint wants this.
+
     private PriorityPanel priorityPanel;
     private PrintPanel pp;
     private SortPanel sortPanel;

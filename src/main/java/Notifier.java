@@ -12,7 +12,11 @@ public interface Notifier {
        JOptionPane.showMessageDialog(parentComponent, message, title, messageType);
    }
 
-   default int showOptionDialog(Component parentComponent, Object message, String title, int optionType, int messageType, Icon icon, Object[] options, Object initialValue) {
+    default void showMessageDialog(Component parentComponent, Object message) {
+        JOptionPane.showMessageDialog(parentComponent, message);
+    }
+
+    default int showOptionDialog(Component parentComponent, Object message, String title, int optionType, int messageType, Icon icon, Object[] options, Object initialValue) {
        return JOptionPane.showOptionDialog(parentComponent, message, title, optionType, messageType, icon, options, initialValue);
    }
 

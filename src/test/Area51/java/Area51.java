@@ -14,7 +14,7 @@ public class Area51 {
     private void try1() {
         // No exception for a colon in the name, but the created file name ends with the last char before the colon.
         File f1 = new File("bad:name");
-        if(f1.exists()) {
+        if (f1.exists()) {
             System.out.println("wow");
         }
         System.out.println(f1.getAbsolutePath());
@@ -50,12 +50,36 @@ public class Area51 {
         // to be aligned with the current timezone.  Good.
     }
 
+    private void try3() {
+        Child1 child1 = new Child1();
+        Child2 child2 = new Child2();
 
-        public static void main(String[] args) {
-        Area51 a51 = new Area51();
-        a51.try2();
-
+        System.out.println("Parent string: " + ParentClass.theString);
+        System.out.println("Child1 string: " + Child1.theString);
+        System.out.println("Child2 string: " + Child2.theString);
     }
 
 
+    public static void main(String[] args) {
+        Area51 a51 = new Area51();
+        a51.try3();
+
+    }
+
+}
+
+class ParentClass {
+    static String theString;
+}
+
+class Child1 extends ParentClass {
+    Child1() {
+        theString = "area 1";
+    }
+}
+
+class Child2 extends ParentClass {
+    Child2() {
+        theString = "area 2";
+    }
 }

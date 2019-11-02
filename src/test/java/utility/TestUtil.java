@@ -25,6 +25,12 @@ class TestUtil implements Notifier {
     }
 
     @Override
+    public void showMessageDialog(Component parentComponent, Object message) {
+        notifyCount++;
+        System.out.println("Message:  " + message);
+    }
+
+    @Override
     public int showOptionDialog(Component parentComponent, Object message, String title, int optionType, int messageType, Icon icon, Object[] options, Object initialValue) {
         notifyCount++;
         System.out.println(title + ":  " + message);

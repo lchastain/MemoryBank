@@ -228,12 +228,12 @@ public class TreeBranchEditor extends JPanel
         String theText = ((JCheckBox) source).getText();
 
         if (e.getStateChange() == ItemEvent.SELECTED) {
-            //log.debug(theText + " selected");
+            log.debug(theText + " selected");
             DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(theText, false);
             myBranch.add(dmtn);
             changeList.add(new NodeChange(theText, NodeChange.SELECTED));
         } else { // if (e.getStateChange() == ItemEvent.DESELECTED) {
-            //log.debug(theText + " deselected");
+            log.debug(theText + " deselected");
             remove(theText);
             changeList.add(new NodeChange(theText, NodeChange.DESELECTED));
         }
@@ -244,15 +244,18 @@ public class TreeBranchEditor extends JPanel
         DefaultMutableTreeNode tmpLeaf = myBranch.getFirstLeaf();
         while (tmpLeaf != null) {
             String s = tmpLeaf.toString();
-            //log.debug("Remove - examining leaf: " + s);
+            log.debug("Remove - considering leaf: " + s);
             if (s.equals(theLeafText)) break;
             tmpLeaf = tmpLeaf.getNextLeaf();
         } // end while
         if (tmpLeaf == null) return; // Didn't find it.
 
-        // We cannot just remove this leaf from myBranch; it may be deeper in if it
-        // has been moved there first during the current edit session, then removed.
-        //log.debug("Removing: " + theLeafText);
+        // We cannot just remove this leaf from myBranch; it may have been moved to a
+        // lower level first during the current edit session, then removed.
+        // Note that the above comment was more valid in an earlier version of this
+        // code, when SearchResult nodes allowed children.  Now they do not but the
+        // methodology below still works and is the better solution anyway.
+        log.debug("Removing: " + theLeafText);
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) tmpLeaf.getParent();
         theParent.remove(tmpLeaf);
     }
@@ -296,7 +299,7 @@ public class TreeBranchEditor extends JPanel
     }
 
     @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
-    public DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
+    private DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
         DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode) root.clone();
         for (Enumeration childEnum = root.children(); childEnum.hasMoreElements(); ) {
             newRoot.add(deepClone((DefaultMutableTreeNode) childEnum.nextElement()));

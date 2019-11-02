@@ -67,10 +67,6 @@ public class MemoryBank {
     } // end static
 
 
-    static AppTreePanel getAppTreePanel() {
-        return appTreePanel;
-    }
-
     static void loadOpts() {
         Exception e = null;
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";

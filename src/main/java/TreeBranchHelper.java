@@ -13,9 +13,13 @@ public interface TreeBranchHelper {
     // of a node from or to the provided value.  If true, the rename goes thru. If
     // false, it simply discards the rename action.  If any user feedback is desired,
     // Your implementation can provide that before returning the boolean.
-    boolean allowRenameFrom(DefaultMutableTreeNode theNode);
+    default boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
+        return true;
+    }
 
-    boolean allowRenameTo(String theNewName);
+    default boolean allowRenameTo(String theNewName) {
+        return true;
+    }
 
     //-------------------------------------------------------------------
     // Method Name:  checkFilename
@@ -28,6 +32,14 @@ public interface TreeBranchHelper {
     //
     // Return Value - A 'complaint' string if name is not valid,
     //    otherwise an empty string.
+    //
+    // static rather than default due to external references, but all of
+    // those could easily be changed, except for TodoNoteGroup.saveAs;
+    // moving it to the helper breaks too many other method calls from
+    // within that one to local methods in the TodoNoteGroup instance.
+    // Of course there could be solutions to that too, but how far down
+    // that road do we want to go, for what added value?  Don't know
+    // about the value so how far is 'not at all' (for now); this works.
     //-------------------------------------------------------------------
     static String checkFilename(String theProposedName, String basePath) {
         ems.setLength(0);
@@ -120,7 +132,9 @@ public interface TreeBranchHelper {
 
     // Called by the TreeBranchEditor to determine whether or not to provide a 'Delete'
     // button for each of the choices.  If false then no choice will have a Delete button.
-    boolean deletesAllowed();
+    default boolean deletesAllowed() {
+        return true;
+    }
 
     // The textual list of choices for all items that the user might select for
     // inclusion in the final Branch.  Usually includes everything that is already
@@ -135,6 +149,7 @@ public interface TreeBranchHelper {
     // node the same as the one we're searching for it will not interfere with the one
     // that was requested.  If for some reason a lower one is desired then make the call
     // with 'theRoot' referencing a deeper branch rather than the root of the full tree.
+    @SuppressWarnings("rawtypes")
     static DefaultMutableTreeNode getNodeByName(DefaultMutableTreeNode theRoot, String theName) {
         DefaultMutableTreeNode dmtn = null;
         Enumeration bfe = theRoot.breadthFirstEnumeration();
@@ -153,7 +168,9 @@ public interface TreeBranchHelper {
     // false then the drop is not allowed.  Drops 'between' leaves for the purposes
     // of reordering the nodes of the branch are always allowed, as are drops onto
     // nodes that are already a parent.
-    boolean makeParents();
+    default boolean makeParents() {
+        return false;
+    }
 
     // The handler for the 'Apply' button.
     void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes);
@@ -161,5 +178,7 @@ public interface TreeBranchHelper {
     // What text appears on the 'Remove' button.  Ex:  'Delete', 'Remove', or
     // something else.  If your implementation returns a null, the editor will
     // use a default of 'X'.
-    String getDeleteCommand();
+    default String getDeleteCommand() {
+        return null;
+    }
 }

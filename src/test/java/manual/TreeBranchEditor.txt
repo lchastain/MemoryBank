@@ -1,6 +1,6 @@
 TreeBranchEditor
 
-Run the TreeBranchEditorExample app.  It has 17 possible selections, three of which are preselected.
+Run the TreeBranchEditorMain app.  It has 17 possible selections, three of which are preselected.
 
 Test:  Sub-branch creation
 ---------------------------------------------------

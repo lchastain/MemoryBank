@@ -34,7 +34,7 @@ import java.util.Vector;
 
 public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
-    static AppTreePanel ltTheTree;
+    static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
     static AppMenuBar amb;
 
     private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
@@ -90,7 +90,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         super(new GridLayout(1, 0));
         amb = new AppMenuBar();
         aFrame.setJMenuBar(amb);
-        ltTheTree = this;
+        theInstance = this; // This works because we will always only have one.
         this.appOpts = appOpts;
 
         //<editor-fold desc="Make the 'Working...' dialog">
