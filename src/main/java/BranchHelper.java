@@ -1,9 +1,6 @@
 /*
- A custom TreeBranchHelper, in support of the TreeBranchEditor actions on
- the SearchResults Branch.  In addition to the base methods, there are several
- static methods that support other actions on the Search Results, that will be
- called by the AppTreePanel or other branches.  For actions on the SearchResults
- themselves (such as load, etc), see the SearchResultGroup class.
+ An implementation of BranchHelperInterface, in support of the TreeBranchEditor actions on
+ the Tree Branches.
 */
 
 import org.slf4j.Logger;
@@ -13,12 +10,13 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
-public class SearchBranchHelper implements TreeBranchHelper {
-    private static Logger log = LoggerFactory.getLogger(SearchBranchHelper.class);
+public class BranchHelper implements BranchHelperInterface {
+    private static Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
     private JTree theTree;  // The original tree, not the one from the editor.
     private NoteGroupKeeper theNoteGroupKeeper;
@@ -26,20 +24,33 @@ public class SearchBranchHelper implements TreeBranchHelper {
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;
-    Notifier optionPane;  // non-private access, for Tests.
+    private String theArea;
+    private Notifier optionPane;  // for Testing
+    private String thePrefix; // todo_, search_
+    private String theNodeName; // To Do Lists, Search Results
 
-    SearchBranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper) {
+    BranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper, String areaName) {
         theTree = jt;
         theNoteGroupKeeper = noteGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        theArea = areaName;
+
+        if (TodoNoteGroup.areaName.equals(theArea)) {
+            theNodeName = "To Do Lists";
+            thePrefix = "todo_";
+        } else if(SearchResultGroup.areaName.equals(theArea)) {
+            theNodeName = "Search Results";
+            thePrefix = "search_";
+        }
+        assert thePrefix != null; // Doing it this way vs an 'else' section, we get full test coverage.
 
         optionPane = new Notifier() {
         }; // Uses all default methods.
 
-        // Get the index of the SearchResults node (not the same as row number)
+        // Get the index of the tree node we're 'helping' (not the same as row number)
         theIndex = -1;
-        DefaultMutableTreeNode dmtn = TreeBranchHelper.getNodeByName(theRoot, "Search Results");
+        DefaultMutableTreeNode dmtn = BranchHelperInterface.getNodeByName(theRoot, theNodeName);
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
 
@@ -73,7 +84,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // could live there (and getChoices?) with areaName being an overridden member variable for each child
         // but - not sure of all the considerations, and naming issues -
         // BranchHelperInterface, BranchHelperImpl ?    So far the value added
-        String theComplaint = TreeBranchHelper.checkFilename(theName, NoteGroup.basePath(SearchResultGroup.areaName));
+        String theComplaint = BranchHelperInterface.checkFilename(theName, NoteGroup.basePath(theArea));
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -86,27 +97,27 @@ public class SearchBranchHelper implements TreeBranchHelper {
     public ArrayList<String> getChoices() {
         ArrayList<String> theChoices = new ArrayList<>();
 
-        // Get a list of Search Results in the user's data directory.
-        File dataDir = new File(NoteGroup.basePath(SearchResultGroup.areaName));
+        // Get a list of <theNodeName> files in the user's data directory.
+        File dataDir = new File(NoteGroup.basePath(theArea));
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
                     // known that the basePath will not under normal program
-                    // operation contain any directory with a name starting with 'search_'.
+                    // operation contain directories.
                     public boolean accept(File f, String s) {
-                        return s.startsWith("search_");
+                        return s.startsWith(thePrefix);
                     }
                 }
         );
 
         // Create the list of files.
         if (theFileList != null) {
-            log.debug("Number of search result files found: " + theFileList.length);
+            log.debug("Number of " + theNodeName + " files found: " + theFileList.length);
             int theDot;
             String theFile;
             for (String afile : theFileList) {
                 theDot = afile.lastIndexOf(".json");
-                theFile = afile.substring(7, theDot); // start after the 'search_'
+                theFile = afile.substring(thePrefix.length(), theDot); // start after the prefix
 
                 theChoices.add(theFile);
             } // end for
@@ -140,8 +151,8 @@ public class SearchBranchHelper implements TreeBranchHelper {
             MemoryBank.debug(nco.toString());
             if (nodeChange.changeType == NodeChange.RENAMED) {
                 // Now attempt the rename
-                String oldNamedFile = NoteGroup.basePath(SearchResultGroup.areaName) + "search_" + nodeChange.nodeName + ".json";
-                String newNamedFile = NoteGroup.basePath(SearchResultGroup.areaName) + "search_" + nodeChange.renamedTo + ".json";
+                String oldNamedFile = NoteGroup.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
+                String newNamedFile = NoteGroup.basePath(theArea) + thePrefix + nodeChange.renamedTo + ".json";
                 File f = new File(oldNamedFile);
 
                 try {
@@ -155,7 +166,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
 
             } else if (nodeChange.changeType == NodeChange.REMOVED) {
                 if (deleteWarning == null) {
-                    deleteWarning = "Deletions of Search Results cannot be undone.";
+                    deleteWarning = "Deletions of " + theNodeName + " cannot be undone.";
                     deleteWarning += System.lineSeparator() + "Are you sure?";
 
                     doDelete = JOptionPane.showConfirmDialog(theTree, deleteWarning,
@@ -168,7 +179,7 @@ public class SearchBranchHelper implements TreeBranchHelper {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  NoteGroup.basePath(SearchResultGroup.areaName) + "search_" + nodeChange.nodeName + ".json";
+                String deleteFile =  NoteGroup.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
@@ -197,8 +208,8 @@ public class SearchBranchHelper implements TreeBranchHelper {
         // We do this last step because now that the edits have been accepted, we do not want both
         // the 'official' branch and the 'editor' branch to be shown side-by-side, identical to
         // each other.  This way, the user gets a more final indication that the editing session
-        // is completed, and it removes the possibility that they might click the 'Cancel' button,
-        // which otherwise would revert the editor branch and choices (but not the 'official' ones.
+        // is completed, and it removes the possibility that they might click the 'Cancel' button
+        // after already having clicked on 'Apply'.
         // If they do want to go back and see the branch editor again it is a simple click away
         // for them but by having them do that, they reset the editor to the new official branch
         // and choices as the starting point, and 'Cancel' would have no effect until they have
@@ -206,4 +217,34 @@ public class SearchBranchHelper implements TreeBranchHelper {
         AppTreePanel.theInstance.showAbout();
     }  // end doApply
 
-} // end class SearchBranchHelper
+
+    // This method will return a TreePath for the provided String,
+    // regardless of whether or not it really is a node on the tree.
+    static TreePath getTreePathFor(JTree jt, String newNodeName) {
+        // This could be done better - Don't send in the full tree; just the branch to add to,
+        // and don't need to clone; just add to the branch, get the path and then remove, or
+        // better yet, get the TreePath for the Branch and then just add one last element for
+        // the input newNodeName.  But that almost reduces the code here to  one or two lines;
+        // maybe it's just not needed?  Maybe inline the two-liner?
+        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
+        DefaultMutableTreeNode clonedRoot = AppTreePanel.deepClone(theRoot);
+        DefaultMutableTreeNode theTodoNode = BranchHelperInterface.getNodeByName(clonedRoot, "To Do Lists");
+
+        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newNodeName);
+
+        // This is the 'tricky' part - we don't really want to add this node;
+        // we just want the system to create the TreeNode array for us so we
+        // can get and return the TreePath.  So - we didn't add it to the
+        // 'real' tree, but a clone of the root.
+        theTodoNode.add(newNode);
+
+        return new TreePath(newNode.getPath());
+    }
+
+    // Used by test methods
+    public void setNotifier(Notifier newNotifier) {
+        optionPane = newNotifier;
+    }
+
+} // end class BranchHelper

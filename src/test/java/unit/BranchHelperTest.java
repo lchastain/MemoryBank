@@ -4,14 +4,11 @@ import org.junit.jupiter.api.*;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class SearchBranchHelperTest {
-    private SearchBranchHelper searchBranchHelper;
+class BranchHelperTest {
+    private BranchHelper searchBranchHelper;
 
     @BeforeAll
     static void meFirst() throws IOException {
@@ -43,8 +40,8 @@ class SearchBranchHelperTest {
         DefaultTreeModel treeModel = new DefaultTreeModel(trunk);
         JTree tree = new JTree(treeModel);
 
-        searchBranchHelper = new SearchBranchHelper(tree, theSearchResultsKeeper);
-        searchBranchHelper.optionPane = new TestUtil();
+        searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, SearchResultGroup.areaName);
+        searchBranchHelper.setNotifier(new TestUtil());
     }
 
     @AfterEach

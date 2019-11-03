@@ -84,7 +84,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     private AppOptions appOpts;
 
-    private boolean blnRestoringSelection;
+    private boolean restoringPreviousSelection;
 
     public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
@@ -203,7 +203,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
-        blnRestoringSelection = true;
+        restoringPreviousSelection = true;
         if (appOpts.theSelectionRow >= 0)
             // If there is a 'good' value stored as the previous selection.
             // But the value COULD be higher than any 'legal' value - still need to handle that (or explain why it's ok)
@@ -221,7 +221,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end if
         } // end if
 
-        blnRestoringSelection = false;
+        restoringPreviousSelection = false;
 
         TreePath tp = tree.getSelectionPath();
         if (tp != null) {
@@ -243,7 +243,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Add to the tree under the Search Results branch
         //DefaultMutableTreeNode nodeSearchResults = SearchBranchHelper.getSearchResultsNode(theRootNode);
-        DefaultMutableTreeNode nodeSearchResults = TreeBranchHelper.getNodeByName(theRootNode,"Search Results");
+        DefaultMutableTreeNode nodeSearchResults = BranchHelperInterface.getNodeByName(theRootNode,"Search Results");
         nodeSearchResults.add(tmpNode);
         treeModel.nodeStructureChanged(nodeSearchResults);
 
@@ -456,7 +456,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
-        else if (what.equals("Add New List...")) TodoBranchHelper.addNewList(tree);
+        else if (what.equals("Add New List...")) TodoNoteGroup.addNewList(tree);
         else if (what.equals("Close")) closeGroup();
         else if (what.equals("Clear Day")) theAppDays.clearGroup();
         else if (what.equals("Clear Month")) theAppMonths.clearGroup();
@@ -537,7 +537,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //------------------------------------------------------------------------
     private void saveTodoListAs() {
         String oldName = theNoteGroup.getName();
-        if (((TodoNoteGroup) theNoteGroup).saveAs()) {
+        if (((TodoNoteGroup) theNoteGroup).saveAs()) { // The save, but conditional.
             String newName = theNoteGroup.getName();
 
             // When the tree selection changes, any open NoteGroup is automatically saved,
@@ -558,7 +558,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // row to cause a reload and redisplay of the list.  Note that not only
             // does the leaf name change, but the reload also changes the displayed
             // list title.
-            TodoBranchHelper.renameTodoListLeaf(oldName, newName);
+            TodoNoteGroup.renameTodoListLeaf(oldName, newName);
         }
     } // end saveTodoListAs
 
@@ -740,7 +740,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
             // Reset tree to the state it was in before.
-            blnRestoringSelection = true;
+            restoringPreviousSelection = true;
             if (appOpts.viewsExpanded) tree.expandPath(viewsPath);
             else tree.collapsePath(viewsPath);
             if (appOpts.notesExpanded) tree.expandPath(notesPath);
@@ -780,7 +780,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (fname.startsWith("todo_")) {
             String prettyName = NoteGroup.prettyName(fname);
-            prettyName = prettyName.substring(5); // The prettifier still leaves the 'todo_' prefix
 
             if (!(srd.getFileFoundIn()).exists()) {
                 String s;
@@ -789,9 +788,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 // The beauty of this action is that the path we are
-                // selecting does not actually have to be present
+                // selecting does not actually have to be present in the tree
                 // for this to work and display the list.
-                tree.setSelectionPath(TodoBranchHelper.getTodoPathFor(tree, prettyName));
+                tree.setSelectionPath(BranchHelper.getTreePathFor(tree, prettyName));
             } // end if
         } else if (fname.equals("UpcomingEvents")) {
             tree.setSelectionPath(upcomingEventsPath);
@@ -815,8 +814,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 tree.setSelectionPath(dayNotesPath);
             } // end if
         } // end if
-
-        AppUtil.localDebug(false);
     } // end showFoundIn
 
 
@@ -1051,7 +1048,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // We have started to handle the user's request; now
         //   disallow further input until we're finished.
         dlgWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
-        if (!blnRestoringSelection) showWorkingDialog(true);
+        if (!restoringPreviousSelection) showWorkingDialog(true);
 
         // Update the current selection row
         appOpts.theSelectionRow = tree.getMaxSelectionRow();
@@ -1095,12 +1092,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
-            TodoBranchHelper tbh = new TodoBranchHelper(tree, theTodoListKeeper);
+            BranchHelper tbh = new BranchHelper(tree, theTodoListKeeper, TodoNoteGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
             strSelectionType = "To Do Lists Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isSearchBranch && isTopLevel) {  // Edit the Search parent branch
-            SearchBranchHelper sbh = new SearchBranchHelper(tree, theSearchResultsKeeper);
+            BranchHelper sbh = new BranchHelper(tree, theSearchResultsKeeper, SearchResultGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor(node, sbh);
             strSelectionType = "Search Results Branch Editor";
             rightPane.setViewportView(tbe);
@@ -1152,8 +1149,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             }
 
             if (searchResultGroup == null) {
-                // We just tried to retrieve it or to load it, so if it is STILL
-                //   null then we take it to mean that the file is not there.
+                // We just tried to retrieve it or to load it, so if it is STILL null
+                //   then we take it to mean that the file is effectively not there.
 
                 // We can show a notice about what went wrong and what we're
                 // going to do about it, but that will only be helpful if
@@ -1162,7 +1159,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 // restart where the missing search results just happen to be
                 // the last selection that had been made during a previous run,
                 // and now it is being restored, possibly several days later.
-                if (!blnRestoringSelection) {
+                if (!restoringPreviousSelection) {
                     // The user just now clicked on this node
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the search results.\n" +
@@ -1291,7 +1288,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (!updateLists) return;
 
         // Preserve the names of the active To Do Lists in the AppOptions.
-        DefaultMutableTreeNode theTodoNode = TreeBranchHelper.getNodeByName(theRootNode, "To Do Lists");
+        DefaultMutableTreeNode theTodoNode = BranchHelperInterface.getNodeByName(theRootNode, "To Do Lists");
         DefaultMutableTreeNode leafLink;
         int numLists;
         appOpts.todoLists.clear();
@@ -1308,7 +1305,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Preserve the names of the active Search Results in the AppOpts.
-        DefaultMutableTreeNode theSearchNode = TreeBranchHelper.getNodeByName(theRootNode, "Search Results");
+        DefaultMutableTreeNode theSearchNode = BranchHelperInterface.getNodeByName(theRootNode, "Search Results");
         int numResults;
         appOpts.searchResultList.clear();
 
@@ -1338,7 +1335,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     public void valueChanged(TreeSelectionEvent e) {
 
         final TreePath tp = e.getOldLeadSelectionPath();
-        if (blnRestoringSelection) {
+        if (restoringPreviousSelection) {
             // We don't need to handle this event from a separate
             //   thread because we don't need the 'working' dialog
             //   when restoring a previous selection because the

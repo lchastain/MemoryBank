@@ -4,7 +4,7 @@ import javax.swing.tree.MutableTreeNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class EditorHelper implements TreeBranchHelper {
+class EditorHelper implements BranchHelperInterface {
     @Override
     public boolean allowRenameFrom(DefaultMutableTreeNode theNode) {
         String theName = theNode.toString();

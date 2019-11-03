@@ -246,8 +246,9 @@ public class SearchResultComponent extends NoteComponent {
         // MouseListener methods
         //---------------------------------------------------------
         public void mouseClicked(MouseEvent e) {
-            AppUtil.localDebug(true); // off in AppTreePanel.selectFoundIn
+            AppUtil.localDebug(true);
             AppTreePanel.theInstance.showFoundIn(mySearchResultData);
+            AppUtil.localDebug(false);
         } // end mouseClicked
 
         public void mouseEntered(MouseEvent e) {

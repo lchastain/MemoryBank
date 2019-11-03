@@ -5,16 +5,20 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static final long serialVersionUID = 1L;
-    private static Logger log = LoggerFactory.getLogger(TodoBranchHelper.class);
+    private static Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
 
     // Values used in sorting.
     private static final int TOP = 0;
@@ -105,6 +109,107 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
     } // end constructor
+
+
+    static void addNewList(JTree jt) {
+        String newName = "";
+        String prompt = "Enter a name for the new To Do List";
+        String title = "Add a new To Do List";
+
+        newName = (String) JOptionPane.showInputDialog(
+                jt,                           // parent component - for modality
+                prompt,                       // prompt
+                title,                        // pane title bar
+                JOptionPane.QUESTION_MESSAGE, // type of pane
+                null,                   // icon
+                null,           // list of choices
+                newName);                     // initial value
+
+        if (newName == null) return;      // No user entry; dialog was Cancelled.
+        newName = nameAdjust(newName);
+
+        DefaultTreeModel theTreeModel = (DefaultTreeModel) jt.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        DefaultMutableTreeNode dmtn = BranchHelperInterface.getNodeByName(theRoot, "To Do Lists");
+        if (dmtn != null) {
+            // Declare a tree node for the new list.
+            DefaultMutableTreeNode newList;
+
+            // Allowing 'add' to act as a back-door selection of a list
+            // that actually already exists is ok, but do
+            // not add this choice to the branch if it is already there.
+            boolean addNodeToBranch = true;
+            newList = (DefaultMutableTreeNode) getChild(dmtn, newName);
+            if (newList == null) {
+                newList = new DefaultMutableTreeNode(newName);
+            } else {
+                addNodeToBranch = false;
+                // This also means that we don't need the checkFilename.
+            }
+
+            if (addNodeToBranch) {
+                // Ensure that the new name meets our requirements.
+                String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroup.basePath(TodoNoteGroup.areaName));
+                if (!theComplaint.isEmpty()) {
+                    JOptionPane.showMessageDialog(jt, theComplaint,
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Add the new list name to the tree
+                dmtn.add(newList);
+                theTreeModel.nodeStructureChanged(dmtn);
+            }
+
+            // Select the list.
+            TreePath tp = getPath(dmtn);
+            jt.expandPath(tp);
+            jt.setSelectionPath(new TreePath(newList.getPath()));
+        }
+    } // end addNewList
+
+
+    @SuppressWarnings("rawtypes") // Adding a type then causes 'unchecked' problem.
+    private static MutableTreeNode getChild(DefaultMutableTreeNode dmtn, String name) {
+        Enumeration children = dmtn.children();
+        while (children.hasMoreElements()) {
+            DefaultMutableTreeNode achild = (DefaultMutableTreeNode) children.nextElement();
+            if (achild.toString().equals(name)) {
+                return achild;
+            }
+        }
+        return null;
+    }
+
+    // Called when adding a new list.  First, it trims any leading and trailing spaces.
+    // Then it checks to see if the file already exists.  But rather than considering that
+    // to be an error condition, we allow this situation to be a back-door selection method
+    // rather than an 'Add'.  The only thing is - on a case-insensitive file system the file
+    // may exist but not necessarily with the same casing as the name that was entered by
+    // the user.  So - if we find that it does exist, we adopt that name and casing which
+    // may be different.  After that, they can change the casing if desired, via the rename
+    // mechanism.  But note that it would have to be a two-step process; a case-only name
+    // change would look like a same-file conflict (unlike 'Add', the rename operation does
+    // consider that to be an error).  So for an example of changing case via a rename:
+    // 'upper' ==> 'UPPER' could be accomplished by 'upper' ==> 'upper1' ==> "UPPER".
+    private static String nameAdjust(String name) {
+        String adjustedName;
+        adjustedName = name.trim();
+        if (!adjustedName.isEmpty()) {
+            String newNamedFile = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
+//            newNamedFile = NoteGroup.basePath(areaName) + "todo_" + adjustedName + ".json";
+            File f = new File(newNamedFile);
+            if (f.exists()) {
+                try {
+                    String longCaseName = f.getCanonicalPath();
+                    adjustedName = NoteGroup.prettyName(longCaseName);
+                } catch (IOException ioe) {
+                    System.out.println(ioe.getMessage());
+                }
+            }
+        }
+        return adjustedName;
+    }
 
 
     //-------------------------------------------------------------------
@@ -206,6 +311,20 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         return (TodoNoteComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
 
+
+    public static TreePath getPath(TreeNode treeNode) {
+        List<Object> nodes = new ArrayList<>();
+        if (treeNode != null) {
+            nodes.add(treeNode);
+            treeNode = treeNode.getParent();
+            while (treeNode != null) {
+                nodes.add(0, treeNode);
+                treeNode = treeNode.getParent();
+            }
+        }
+
+        return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
+    }
 
     //--------------------------------------------------------------
     // Method Name: getProperties
@@ -418,6 +537,56 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 //    } // end printList
 
 
+    // Call this method to do a 'programmatic' rename of a TodoList
+    // node on the Tree, as opposed to doing it manually via the
+    // TreeBranchEditor.  It operates only on the tree and not with
+    // any corresponding files; you must do that separately.
+    // See the 'Save As...' methodology for a good example.
+    static void renameTodoListLeaf(String oldname, String newname) {
+        boolean changeWasMade = false;
+        JTree jt = AppTreePanel.theInstance.getTree();
+        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
+        DefaultMutableTreeNode theTodoBranch = BranchHelperInterface.getNodeByName(theRoot,"To Do Lists");
+
+        // The tree is set for single-selection, so the selection will not be a collection but
+        // a single value.  Nonetheless, Swing only provides a get for min and max and either
+        // one will work for us.  Note that the TreePath returned by getSelectionPath()
+        // will probably NOT work for reselection after we do the rename, so we use the row.
+        int returnToRow = jt.getMaxSelectionRow();
+
+        int numLeaves = theTodoBranch.getChildCount();
+        DefaultMutableTreeNode leafLink;
+
+        leafLink = theTodoBranch.getFirstLeaf();
+
+        // Search the leaves for the old name.
+        while (numLeaves-- > 0) {
+            String leaf = leafLink.toString();
+            if (leaf.equals(oldname)) {
+                String msg = "Renaming tree node from " + oldname;
+                msg += " to " + newname;
+                log.debug(msg);
+                changeWasMade = true;
+                leafLink.setUserObject(newname);
+                break;
+            } // end if
+
+            leafLink = leafLink.getNextLeaf();
+        } // end while
+
+        if (!changeWasMade) return;
+
+        // Force the renamed node to redisplay,
+        // which also causes its deselection.
+        tm.nodeStructureChanged(theTodoBranch);
+
+        // Reselect this tree node.
+        jt.setSelectionRow(returnToRow);
+
+    } // end renameTodoListLeaf
+
+
     //-----------------------------------------------------------------
     // Method Name:  saveAs
     //
@@ -439,7 +608,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = TreeBranchHelper.checkFilename(newName, NoteGroup.basePath(areaName));
+        String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroup.basePath(areaName));
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);

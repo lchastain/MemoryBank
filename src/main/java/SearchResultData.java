@@ -32,7 +32,8 @@ public class SearchResultData extends NoteData {
     // Method Name: getFoundIn
     //
     // Returns a short, easily readable string indicating which file
-    //   this result originally comes from.  For calendar-based
+    //   this result originally comes from.  Used in the display of
+    //   that info, not for file loading or prettyNaming.  For calendar-based
     //   sources, decided to use alpha months rather than numeric
     //   because it "reads" best and does not affect sorting.
 

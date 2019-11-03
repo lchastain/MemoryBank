@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-public interface TreeBranchHelper {
+public interface BranchHelperInterface {
     StringBuilder ems = new StringBuilder();  // Error Message String
     int MAX_FILENAME_LENGTH = 32; // Arbitrary, but helps with UI issues.
 
@@ -35,11 +35,12 @@ public interface TreeBranchHelper {
     //
     // static rather than default due to external references, but all of
     // those could easily be changed, except for TodoNoteGroup.saveAs;
-    // moving it to the helper breaks too many other method calls from
+    // and moving it to here breaks too many other method calls from
     // within that one to local methods in the TodoNoteGroup instance.
     // Of course there could be solutions to that too, but how far down
     // that road do we want to go, for what added value?  Don't know
     // about the value so how far is 'not at all' (for now); this works.
+    // But now - what about moving this one to NoteGroup?  think about it.
     //-------------------------------------------------------------------
     static String checkFilename(String theProposedName, String basePath) {
         ems.setLength(0);
@@ -69,6 +70,16 @@ public interface TreeBranchHelper {
         // Do we want to check to see if a file with this name already exists?
         //   No.  The handler for the renaming event will disallow that particular
         //   situation, so we don't need to repeat that logic here.
+
+        // Do we want to check to see if a file with this name already exists?
+        //   No.  The handler for the renaming event will disallow that particular
+        //   situation, so we don't need to repeat that logic here.  Likewise for
+        //   the 'Save As' logic.
+        //
+        //   As for the 'Add New List' functionality that is also a consumer of this
+        //   method, the AppTreePanel handles that situation by simply opening it, a
+        //   kind of back-door selection of the existing list.
+
 
         // Note - I thought it would be a good idea to check for 'illegal'
         //   characters in the filename, but when I started testing, the

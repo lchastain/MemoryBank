@@ -1,6 +1,30 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/03/2019 0735 - Last few days have been working on the Branch Helpers - the original one for
+  Todo Lists and the new one for Searches, and trying to craft the proper hierarchy to reduce
+  duplicated code while maintaining good object-oriented design, all with an eye towards needing
+  a new helper soon, for Events.  Started off with a new Interface that each Helper would implement
+  but then saw how much code was still duplicated for the required methods, so tried to 'default'
+  that code into the interface but that failed because it needed to access member variables and
+  you cannot have those in an interface.  So - changed the interface over to a base class hosting
+  the common code but since some of the common code was static there was a problem with accessing
+  those instance variables from a static context.  The instance variables were needed to specify
+  different message text and filesystem locations depending on which Helper (Search or Todo) had
+  been instantiated.  The common static code was provided so that NoteGroups and the Tree could
+  also retrieve those specific filesystem locations (basePath).  So - neither solution would work.
+  Then saw a way to move the instance variables to the specific NoteGroups and give them each a
+  new static variable they could set for themselves, that could be used by the Helpers.  With that,
+  the solution for a general Helper class began to be workable, and the implementation could be
+  changed to a single class with ALL code, that gets its member variables set at instantiation.
+  But we want to keep the BranchHelperInterface because the TreeBranchEditor has greater capabilities
+  than those that are currently being used (making parent nodes and adding children).  The area51
+  'main' app for it exercises this feature.  If the interface went away then only the app-specific
+  class would be available to the editor, and any test code would have to extend it but then override
+  all the primary methods.  It's better to still have an interface, for now, so the new Helper
+  class will leave some of its code there, and implement it, but at least it does not itself need to
+  be a base class.
+
 10/30/2019 0655 - Continuing the BranchEditor work for Searches, keep running across code
   provisions and comments that was placeholder for a planned feature that search results
   could themselves be searched and that would create a child node in the tree, with those

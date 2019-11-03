@@ -23,7 +23,7 @@ public class TreeBranchEditor extends JPanel
 
     private DefaultMutableTreeNode origBranch;
     private DefaultMutableTreeNode myBranch;
-    private TreeBranchHelper myHelper;
+    private BranchHelperInterface myHelper;
     private ArrayList<String> theChoices;
     private ArrayList<String> removals = new ArrayList<>();
     private BranchEditorModel bem;
@@ -53,11 +53,11 @@ public class TreeBranchEditor extends JPanel
     // need that info you will have to interpolate it, given the original and final tree along
     // with the changeList.
 
-    public TreeBranchEditor(TreeNode tn, TreeBranchHelper treeBranchHelper) {
+    public TreeBranchEditor(TreeNode tn, BranchHelperInterface branchHelperInterface) {
         super(new BorderLayout());
         origBranch = (DefaultMutableTreeNode) tn;
         myBranch = deepClone(origBranch);
-        myHelper = treeBranchHelper;
+        myHelper = branchHelperInterface;
         changeList = new ArrayList<>(); // Array of NodeChange
 
         theChoices = getChoices();
