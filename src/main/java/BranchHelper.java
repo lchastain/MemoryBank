@@ -10,7 +10,6 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -169,7 +168,7 @@ public class BranchHelper implements BranchHelperInterface {
                     deleteWarning = "Deletions of " + theNodeName + " cannot be undone.";
                     deleteWarning += System.lineSeparator() + "Are you sure?";
 
-                    doDelete = JOptionPane.showConfirmDialog(theTree, deleteWarning,
+                    doDelete = optionPane.showConfirmDialog(theTree, deleteWarning,
                             "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
                 }
 
@@ -206,41 +205,19 @@ public class BranchHelper implements BranchHelperInterface {
         theTreeModel.nodeStructureChanged(mtn); // Localized; the node does not 'collapse'.
 
         // We do this last step because now that the edits have been accepted, we do not want both
-        // the 'official' branch and the 'editor' branch to be shown side-by-side, identical to
-        // each other.  This way, the user gets a more final indication that the editing session
-        // is completed, and it removes the possibility that they might click the 'Cancel' button
-        // after already having clicked on 'Apply'.
+        // the 'official' branch and the 'editor' branch to be shown at the same time, identical
+        // to each other yet with a still-active 'Cancel' button that it is too late to use since
+        // all the edits had already been applied.  This way, the user gets a more final indication
+        // that the editing session is completed.
         // If they do want to go back and see the branch editor again it is a simple click away
         // for them but by having them do that, they reset the editor to the new official branch
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
-        AppTreePanel.theInstance.showAbout();
+        if(null != AppTreePanel.theInstance) { // It may be null if we got here from a Test.
+            AppTreePanel.theInstance.showAbout();
+        }
     }  // end doApply
 
-
-    // This method will return a TreePath for the provided String,
-    // regardless of whether or not it really is a node on the tree.
-    static TreePath getTreePathFor(JTree jt, String newNodeName) {
-        // This could be done better - Don't send in the full tree; just the branch to add to,
-        // and don't need to clone; just add to the branch, get the path and then remove, or
-        // better yet, get the TreePath for the Branch and then just add one last element for
-        // the input newNodeName.  But that almost reduces the code here to  one or two lines;
-        // maybe it's just not needed?  Maybe inline the two-liner?
-        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
-        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode clonedRoot = AppTreePanel.deepClone(theRoot);
-        DefaultMutableTreeNode theTodoNode = BranchHelperInterface.getNodeByName(clonedRoot, "To Do Lists");
-
-        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newNodeName);
-
-        // This is the 'tricky' part - we don't really want to add this node;
-        // we just want the system to create the TreeNode array for us so we
-        // can get and return the TreePath.  So - we didn't add it to the
-        // 'real' tree, but a clone of the root.
-        theTodoNode.add(newNode);
-
-        return new TreePath(newNode.getPath());
-    }
 
     // Used by test methods
     public void setNotifier(Notifier newNotifier) {

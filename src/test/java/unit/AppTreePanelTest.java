@@ -55,7 +55,7 @@ public class AppTreePanelTest {
     @AfterEach
     void restit() throws InterruptedException {
         // These tests drive the app faster than it would go if it was only under user control.
-        Thread.sleep(500); // Otherwise we see NullPointerExceptions after tests pass.
+        Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
     }
 
     @AfterAll
@@ -70,12 +70,6 @@ public class AppTreePanelTest {
         DefaultMutableTreeNode original = (DefaultMutableTreeNode) treePath.getLastPathComponent();
         DefaultMutableTreeNode clone = AppTreePanel.deepClone(original);
         assert clone.toString().equals(original.toString());
-    }
-
-    @Test
-    void testPreClose() {
-        atp.preClose();
-        // No assertions needed here; we're just assuring coverage.
     }
 
     // VERIFY that this is still needed - the functional test also covers this code.

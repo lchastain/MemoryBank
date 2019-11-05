@@ -237,7 +237,7 @@ public class TreeBranchEditor extends JPanel
             remove(theText);
             changeList.add(new NodeChange(theText, NodeChange.DESELECTED));
         }
-        showTree();  // Refresh the view on the left side.
+        showTree();  // Refresh the view on the left side of the editor.
     }
 
     private void remove(String theLeafText) {

@@ -67,7 +67,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     public TodoNoteGroup(String fname) {
         super();
 
-        setName(fname.trim()); // The component-level name is null, otherwise.
+        // Use an inherited (otherwise unused) method to store our list name.
+        // It will be used by the 'saveAs' method.
+        setName(fname.trim());
         log.debug("Constructing: " + getName());
 
         strTheGroupFilename = NoteGroup.basePath(areaName) + "todo_" + fname + ".json";

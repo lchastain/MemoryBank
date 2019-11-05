@@ -242,8 +242,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         tmpNode = new DefaultMutableTreeNode(searchResultName, false);
 
         // Add to the tree under the Search Results branch
-        //DefaultMutableTreeNode nodeSearchResults = SearchBranchHelper.getSearchResultsNode(theRootNode);
-        DefaultMutableTreeNode nodeSearchResults = BranchHelperInterface.getNodeByName(theRootNode,"Search Results");
+        DefaultMutableTreeNode nodeSearchResults = BranchHelperInterface.getNodeByName(theRootNode, "Search Results");
         nodeSearchResults.add(tmpNode);
         treeModel.nodeStructureChanged(nodeSearchResults);
 
@@ -787,10 +786,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 s += "The original list no longer exists.";
                 optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                // The beauty of this action is that the path we are
-                // selecting does not actually have to be present in the tree
-                // for this to work and display the list.
-                tree.setSelectionPath(BranchHelper.getTreePathFor(tree, prettyName));
+                // We want to show the TodoNoteGroup where this data (srd) was found, but what if it is not currently
+                // showing as a selectable leaf on the tree?  We cannot just add it anyway; it may be very old and
+                // had been deliberately deselected.  This review of 'found-in-a-search' results should not change
+                // the user's tree configuration.
+                // The beauty of this approach is that the path we set the selection to does not actually have to be
+                // resent in the tree for this to work and display the list.  But a problem (bug?) is that the child
+                // that we get the correct full path but the new child shows no 'parent'.
+                // That complicates matters when handling the selection change, but it still gets handled correctly.
+                TreePath phantomPath = todolistsPath.pathByAddingChild(new DefaultMutableTreeNode(prettyName));
+                tree.setSelectionPath(phantomPath);
             } // end if
         } else if (fname.equals("UpcomingEvents")) {
             tree.setSelectionPath(upcomingEventsPath);
@@ -1037,46 +1042,56 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if show - else hide
     } // end showWorkingDialog
 
-    private void treeSelectionChanged(TreePath tp) {
-        String strSelectionType; // used in menu management
+    private void treeSelectionChanged(TreePath oldPath, TreePath newPath) {
+        // Some tests need this; otherwise we see null exceptions on the 'node = ' line
+        // below, AFTER the test has passed.  The tests drive the app faster than the
+        // system can shut down the threads, so this can happen with the leftovers.
+        if(newPath == null) return;
 
         // Obtain a reference to the new selection.
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                tree.getLastSelectedPathComponent();
+        // A previous version of this used: tree.getLastSelectedPathComponent() but this is
+        // better because it allows for 'phantom' selections; tree paths that were created
+        // by code vs those that came from a user's mouse click event.
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) newPath.getLastPathComponent();
         if (node == null) return;
 
-        // We have started to handle the user's request; now
-        //   disallow further input until we're finished.
+        // We have started to handle the change; now disallow
+        //   further input until we are finished.
         dlgWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
         if (!restoringPreviousSelection) showWorkingDialog(true);
 
         // Update the current selection row
+        // Single-selection mode; Max == Min; take either one.
         appOpts.theSelectionRow = tree.getMaxSelectionRow();
 
+        // If there was a NoteGroup open prior to this change then save it now.
         if (theNoteGroup != null) {
             theNoteGroup.preClose();
         } // end if
 
         // Update the currentDateChoice so that it can be used to set the
         //   date to be shown before we display the newly selected group.
-        if (tp != null) {
-            theLastTreeSelection = tp.getLastPathComponent().toString();
+        if (oldPath != null) {
+            theLastTreeSelection = oldPath.getLastPathComponent().toString();
             MemoryBank.debug("Last Selection was: " + theLastTreeSelection);
             updateCurrentDateChoice();
-        } // end if
+        }
 
+        // Get the string for the selected node.
         String theNodeString = node.toString();
-        String theParent = node.getParent().toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
         appOpts.theSelection = theNodeString; // Preserved exactly, for app restart.
-        strSelectionType = theNodeString;  // Default value; may change, below.
+        String strSelectionType = theNodeString;  // used in menu management; this default value may change, below.
+
+        // Get the name of the node's parent.  Thanks to the way we have created the tree and
+        // the unselectability of the tree root, we never expect the parent path to be null.
+        String theParent = newPath.getParentPath().getLastPathComponent().toString();
 
         //-----------------------------------------------------
-        // These booleans will help us to avoid going down
-        //   the wrong branch in a case where some bozo named
+        // These booleans will help us to avoid going down the wrong
+        //   branch in a case where for example some bozo named
         //   their To Do list - 'To Do Lists'.  Other cases
-        //   where a list may be named 'Year View' or any other
-        //   name that matches an existing tree branch name,
+        //   where a leaf name matches an existing tree branch name,
         //   are caught by the fact that we first
         //   look to see if the parent is an expandable branch,
         //   before we start considering the text of the selection.
@@ -1140,7 +1155,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // kind of group where if a file does not exist for it, we would go ahead and make one.
             if (searchResultGroup == null) {
                 searchResultGroup = SearchResultGroup.getGroup(theNodeString);
-                if(searchResultGroup != null) {
+                if (searchResultGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theSearchResultsKeeper.add(searchResultGroup);
                 }
@@ -1334,7 +1349,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //-------------------------------------------------------------
     public void valueChanged(TreeSelectionEvent e) {
 
-        final TreePath tp = e.getOldLeadSelectionPath();
+        final TreePath oldPath = e.getOldLeadSelectionPath();
+        final TreePath newPath = e.getNewLeadSelectionPath();
         if (restoringPreviousSelection) {
             // We don't need to handle this event from a separate
             //   thread because we don't need the 'working' dialog
@@ -1343,14 +1359,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             //   been accessed and loaded.  Although there is one
             //   exception to that, at program restart but in that
             //   case we have the splash screen and main progress bar.
-            treeSelectionChanged(tp);
+            treeSelectionChanged(oldPath, newPath);
         } else {
             // This is a user-directed selection;
             //   handle from a separate thread.
             new Thread(new Runnable() {
                 public void run() {
                     // AppUtil.localDebug(true);
-                    treeSelectionChanged(tp);
+                    treeSelectionChanged(oldPath, newPath);
                     // AppUtil.localDebug(false);
                 }
             }).start(); // Start the thread

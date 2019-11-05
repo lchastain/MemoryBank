@@ -6,8 +6,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 class BranchHelperTest {
+    private DefaultMutableTreeNode trunk;
+    private DefaultMutableTreeNode searches;
+    private JTree tree;
+
+    // Note that we configure our instance of a Helper for Search Results, but it could have
+    // just as easily been for Todo Lists or any other editable branch.  But we chose searches
+    // because that's the flavor of the test data that we will use for the 'doApply' testing.
     private BranchHelper searchBranchHelper;
 
     @BeforeAll
@@ -34,11 +42,14 @@ class BranchHelperTest {
     @BeforeEach
     void setUp() {
         NoteGroupKeeper theSearchResultsKeeper = new NoteGroupKeeper();
-        DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
+        trunk = new DefaultMutableTreeNode("App");
+        searches = new DefaultMutableTreeNode("Search Results");
+        trunk.add(searches);
+        searches.add(new DefaultMutableTreeNode("20190927161325"));
 
         // Create a default model based on the 'App' node, and create a tree from that model.
         DefaultTreeModel treeModel = new DefaultTreeModel(trunk);
-        JTree tree = new JTree(treeModel);
+        tree = new JTree(treeModel);
 
         searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, SearchResultGroup.areaName);
         searchBranchHelper.setNotifier(new TestUtil());
@@ -48,7 +59,7 @@ class BranchHelperTest {
     void tearDown() {
     }
 
-    @Test  // a 'bad' selected node to rename will fail.  We don't allow rename of a 'parent' node.
+    @Test  // a 'bad' selected node for rename will fail.  We don't allow rename of a 'parent' node.
     void testAllowRenameFrom() {
         DefaultMutableTreeNode theNode = new DefaultMutableTreeNode("Test Branch", true);
         boolean theResult = searchBranchHelper.allowRenameFrom(theNode);
@@ -84,7 +95,7 @@ class BranchHelperTest {
         theResult = searchBranchHelper.allowRenameTo("123456789012345678901234567890123");
         Assertions.assertFalse(theResult);
 
-        // Bad - bad characters in the name
+        // Bad - illegal characters in the name
         theResult = searchBranchHelper.allowRenameTo("blarg: the movie");
         Assertions.assertFalse(theResult);
 
@@ -93,7 +104,21 @@ class BranchHelperTest {
         Assertions.assertTrue(theResult);
     }
 
+    // Note that the majority of the handling for Selection events (including deselections) is done by
+    // the TreeBranchEditor which is tested elsewhere; the smaller part of selection events that is
+    // handled by the Helper is common to the same code that handles renames and deletions, so we are
+    // only going to test the renames and deletions, below.
+
     @Test
     void testDoApply() {
+        ArrayList<NodeChange> changeList = new ArrayList<>();
+        changeList.add(new NodeChange("20191029073938", "new name"));
+        changeList.add(new NodeChange("20190927161325", NodeChange.REMOVED));
+
+        // This gets us the coverage; may still want to verify that changes were made,
+        // to either the tree, the filesystem, or both.
+        // But may not want to spend cycles verifying filesystem changes, when that data
+        // storage methodology is not optimal and is under consideration for migration to a DB.
+        searchBranchHelper.doApply(searches, changeList);
     }
 }

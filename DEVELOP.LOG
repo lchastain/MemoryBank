@@ -23,7 +23,7 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
   class would be available to the editor, and any test code would have to extend it but then override
   all the primary methods.  It's better to still have an interface, for now, so the new Helper
   class will leave some of its code there, and implement it, but at least it does not itself need to
-  be a base class.
+  be a base class.  Made an as-needed backup at this point, in the Dropbox Memory Bank.
 
 10/30/2019 0655 - Continuing the BranchEditor work for Searches, keep running across code
   provisions and comments that was placeholder for a planned feature that search results

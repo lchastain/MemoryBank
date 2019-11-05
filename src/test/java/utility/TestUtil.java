@@ -60,7 +60,7 @@ class TestUtil implements Notifier {
                 ee.printStackTrace();
             }
         }
-        return 1;
+        return JOptionPane.YES_OPTION;
     }
 
 
