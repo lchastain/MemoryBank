@@ -38,7 +38,7 @@ class EventAgingTest {
         // This one missing directory gives us a high confidence that there are none.
 
         // the aging (constructor calls refresh, which calls ageEvents)
-        EventNoteGroup eventNoteGroup = new EventNoteGroup();
+        EventNoteGroup eventNoteGroup = new EventNoteGroup("holidays");
         Assertions.assertTrue(theFolder.exists()); // this verifies SCR0029
 
         // Verify four data files (and the directories to hold them) were created.

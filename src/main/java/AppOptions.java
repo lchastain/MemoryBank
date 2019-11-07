@@ -15,36 +15,31 @@ import java.util.Vector;
 //     point of having support people.
 //-------------------------------------------------------------------------
 class AppOptions {
+    boolean eventsExpanded;
     boolean viewsExpanded;
     boolean notesExpanded;
     boolean todoListsExpanded;
     boolean searchesExpanded;
     String theSelection;
     int theSelectionRow;
+    Vector<String> eventLists;
     Vector<String> todoLists;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
+    String consolidatedEventsListName;
 
     AppOptions() {
+        eventsExpanded = false;
         viewsExpanded = false;
         notesExpanded = false;
         todoListsExpanded = false;
         searchesExpanded = false;
         theSelection = null;
         theSelectionRow = -1;
+        consolidatedEventsListName = "Consolidated List";
+        eventLists = new Vector<>(0, 1);
         todoLists = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
-    } // end constructor
-
-    public AppOptions(Object theObject) {
-        viewsExpanded = ((AppOptions) theObject).viewsExpanded;
-        notesExpanded = ((AppOptions) theObject).notesExpanded;
-        todoListsExpanded = ((AppOptions) theObject).todoListsExpanded;
-        theSelection = ((AppOptions) theObject).theSelection;
-        theSelectionRow = ((AppOptions) theObject).theSelectionRow;
-        todoLists = ((AppOptions) theObject).todoLists;
-        searchResultList = ((AppOptions) theObject).searchResultList;
-        paneSeparator = ((AppOptions) theObject).paneSeparator;
     } // end constructor
 
 } // end class AppOptions

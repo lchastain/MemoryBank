@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
 public class DayNoteGroup extends CalendarNoteGroup
-        implements iconKeeper, MouseListener {
+        implements IconKeeper, MouseListener {
     private static final long serialVersionUID = 1L;
 
     private static AppIcon defaultIcon;

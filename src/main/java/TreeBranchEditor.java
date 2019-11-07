@@ -241,20 +241,20 @@ public class TreeBranchEditor extends JPanel
     }
 
     private void remove(String theLeafText) {
-        DefaultMutableTreeNode tmpLeaf = myBranch.getFirstLeaf();
-        while (tmpLeaf != null) {
+        DefaultMutableTreeNode tmpLeaf = myBranch.getFirstLeaf(); // This one not allowed to be removed.
+        while (tmpLeaf != null) { // A bit inefficient, to start with one that we know will be skipped.
             String s = tmpLeaf.toString();
-            log.debug("Remove - considering leaf: " + s);
             if (s.equals(theLeafText)) break;
-            tmpLeaf = tmpLeaf.getNextLeaf();
+            tmpLeaf = tmpLeaf.getNextLeaf(); // This becomes null if we get to the end of the list.
         } // end while
         if (tmpLeaf == null) return; // Didn't find it.
 
         // We cannot just remove this leaf from myBranch; it may have been moved to a
-        // lower level first during the current edit session, then removed.
-        // Note that the above comment was more valid in an earlier version of this
-        // code, when SearchResult nodes allowed children.  Now they do not but the
-        // methodology below still works and is the better solution anyway.
+        // lower level first during the current edit session, then removed.  Removing
+        // it from whatever parent it now has, is the proper way to do it.
+        // (although 'moving lower' is not possible in this application, but then again,
+        //  this editor could be used in other apps, in which case this aside-comment shouldn't
+        //  even be here.  But leave it, until the editor finds a wider audience).
         log.debug("Removing: " + theLeafText);
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) tmpLeaf.getParent();
         theParent.remove(tmpLeaf);
@@ -391,7 +391,7 @@ public class TreeBranchEditor extends JPanel
     // Identical to the parent class (DefaultTreeModel) except that for a rename operation it
     // preserves the original name in a variable that can then be accessed from methods in
     // the instantiating context, such as the event handlers in the TreeModelListener.
-    // The TreeBranchHelper may impose restrictions on certain 'from' or 'to' names, via the
+    // The BranchHelper may impose restrictions on certain 'from' or 'to' names, via the
     // 'allowRename<To/From>' methods.
     // Additionally, to enforce the uniqueness requirement as well as to prevent the
     // various changes made during an edit session from getting cross-threaded, it will not
@@ -446,9 +446,13 @@ public class TreeBranchEditor extends JPanel
             } else {
                 // Finally, no reason not to, so go ahead and allow the rename.
                 originalName = node.toString();
-                super.valueForPathChanged(path, newValue);
+
+                // But here is where the Helper might have overridden the final value -
+                String renameTo = myHelper.getRenameToString();
+                if(null != renameTo) super.valueForPathChanged(path, renameTo);
+                else super.valueForPathChanged(path, newValue);
             }
-        }
+        } // end valueForPathChanged
 
         String getOriginalName() { return originalName; }
     } // end inner class BranchEditorModel

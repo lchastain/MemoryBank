@@ -39,7 +39,7 @@ public interface BranchHelperInterface {
     // within that one to local methods in the TodoNoteGroup instance.
     // Of course there could be solutions to that too, but how far down
     // that road do we want to go, for what added value?  Don't know
-    // about the value so how far is 'not at all' (for now); this works.
+    // about the value so how far is 'not one step' (for now); this works.
     // But now - what about moving this one to NoteGroup?  think about it.
     //-------------------------------------------------------------------
     static String checkFilename(String theProposedName, String basePath) {
@@ -48,7 +48,9 @@ public interface BranchHelperInterface {
         String testName = theProposedName.trim();
 
         // Check for non-entry (or evaporation).
-        if (testName.isEmpty()) ems.append("No New List Name was supplied!");
+        if (testName.isEmpty()) {
+            ems.append("No New List Name was supplied!");
+        }
 
         // Refuse unwanted help.
         if (testName.endsWith(".json")) {
@@ -190,6 +192,11 @@ public interface BranchHelperInterface {
     // something else.  If your implementation returns a null, the editor will
     // use a default of 'X'.
     default String getDeleteCommand() {
+        return null;
+    }
+
+    // Provides a way for a Helper to override special renaming cases.
+    default String getRenameToString() {
         return null;
     }
 }

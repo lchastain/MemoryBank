@@ -27,7 +27,7 @@ class EventNoteGroupTest {
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
         FileUtils.copyDirectory(testResource, testData);
 
-        eventNoteGroup = new EventNoteGroup();
+        eventNoteGroup = new EventNoteGroup("holidays");
         TestUtil testUtil = new TestUtil();
         eventNoteGroup.setNotifier(testUtil);
     }

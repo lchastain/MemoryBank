@@ -22,11 +22,15 @@ public class BranchHelper implements BranchHelperInterface {
     private DefaultTreeModel theTreeModel;
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
-    private String renameFrom;
+    private String renameFrom;  // Used when deciding if special handling is needed.
+    private String renameTo;    // Provides a way for us override the value.
     private String theArea;
     private Notifier optionPane;  // for Testing
-    private String thePrefix; // todo_, search_
-    private String theNodeName; // To Do Lists, Search Results
+    private String thePrefix; // event_, todo_, search_
+    private String theAreaNodeName; // Events, To Do Lists, Search Results
+    private static final String AREA_EVENT = "Upcoming Events";
+    private static final String AREA_TODO = "To Do Lists";
+    private static final String AREA_SEARCH = "Search Results";
 
     BranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper, String areaName) {
         theTree = jt;
@@ -35,11 +39,15 @@ public class BranchHelper implements BranchHelperInterface {
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         theArea = areaName;
 
-        if (TodoNoteGroup.areaName.equals(theArea)) {
-            theNodeName = "To Do Lists";
+        // This Helper is for one of these Branches -
+        if (EventNoteGroup.areaName.equals(theArea)) {
+            theAreaNodeName = AREA_EVENT;
+            thePrefix = "event_";
+        } else if (TodoNoteGroup.areaName.equals(theArea)) {
+            theAreaNodeName = AREA_TODO;
             thePrefix = "todo_";
         } else if(SearchResultGroup.areaName.equals(theArea)) {
-            theNodeName = "Search Results";
+            theAreaNodeName = AREA_SEARCH;
             thePrefix = "search_";
         }
         assert thePrefix != null; // Doing it this way vs an 'else' section, we get full test coverage.
@@ -49,7 +57,7 @@ public class BranchHelper implements BranchHelperInterface {
 
         // Get the index of the tree node we're 'helping' (not the same as row number)
         theIndex = -1;
-        DefaultMutableTreeNode dmtn = BranchHelperInterface.getNodeByName(theRoot, theNodeName);
+        DefaultMutableTreeNode dmtn = BranchHelperInterface.getNodeByName(theRoot, theAreaNodeName);
         if (dmtn != null) theIndex = theRoot.getIndex(dmtn);
     }
 
@@ -67,22 +75,30 @@ public class BranchHelper implements BranchHelperInterface {
     // This is always called after a 'allowRenameFrom' call, which is where the 'renameFrom' var is set.
     @Override
     public boolean allowRenameTo(String theName) {
-        // If theName is also our 'renameFrom' name then the whole thing is a no-op.
+        renameTo = theName.trim();
+
+        // If renameTo is also our 'renameFrom' name then the whole thing is a no-op.
         // No need to put out a complaint about that; just return a false.  But if
         // there is a difference in the casing then we will get past this check.
-        if (theName.trim().equals(renameFrom)) return false;
-        // And that means we might get a 'file exists' complaint from checkFilename,
-        // on a case-insensitive filesystem.
+        if (renameTo.equals(renameFrom)) return false;
 
-        // Since the areaName is different for each implementation of TreeBranchHelper, there would be no
-        // value-added for default-implementing this method in the interface; any adopters of it would still
-        // need to provide their own.  It is important to check filename validity in the area where the new
-        // file would be created, so that any possible Security Exception is seen, and those Exceptions may
-        // not be seen in a different area of the same filesystem.
-        // May want to consider implementing the interface in a new base class; then the allowRenameTo method
-        // could live there (and getChoices?) with areaName being an overridden member variable for each child
-        // but - not sure of all the considerations, and naming issues -
-        // BranchHelperInterface, BranchHelperImpl ?    So far the value added
+        // Now a special case, for a selection under Events, only - the Consolidated Events List Name.
+        // This will be a non-intuitive way to reset it back to the default string, after the user
+        // had changed it to something else and now wants to go back to how it was out-of-the-box
+        // but there is no apparent 'reset' button for that.  The way to reset it will be to
+        // simply clear it out; this method will see an empty string and can restore the default.
+        if(renameFrom.equals(MemoryBank.appOpts.consolidatedEventsListName)) {
+            if(theAreaNodeName.equals(AREA_EVENT)) {
+                if (theName.isEmpty()) {
+                    renameTo = new AppOptions().consolidatedEventsListName;
+                    return true;
+                }
+            }
+        }
+
+        // It is important to check filename validity in the area where the new file would be created,
+        // so that any possible Security Exception is seen, and those Exceptions may not be seen in a
+        // different area of the same filesystem.
         String theComplaint = BranchHelperInterface.checkFilename(theName, NoteGroup.basePath(theArea));
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
@@ -90,38 +106,6 @@ public class BranchHelper implements BranchHelperInterface {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public ArrayList<String> getChoices() {
-        ArrayList<String> theChoices = new ArrayList<>();
-
-        // Get a list of <theNodeName> files in the user's data directory.
-        File dataDir = new File(NoteGroup.basePath(theArea));
-        String[] theFileList = dataDir.list(
-                new FilenameFilter() {
-                    // Although this filter does not account for directories, it is
-                    // known that the basePath will not under normal program
-                    // operation contain directories.
-                    public boolean accept(File f, String s) {
-                        return s.startsWith(thePrefix);
-                    }
-                }
-        );
-
-        // Create the list of files.
-        if (theFileList != null) {
-            log.debug("Number of " + theNodeName + " files found: " + theFileList.length);
-            int theDot;
-            String theFile;
-            for (String afile : theFileList) {
-                theDot = afile.lastIndexOf(".json");
-                theFile = afile.substring(thePrefix.length(), theDot); // start after the prefix
-
-                theChoices.add(theFile);
-            } // end for
-        }
-        return theChoices;
     }
 
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
@@ -145,10 +129,19 @@ public class BranchHelper implements BranchHelperInterface {
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
-        for (Object nco : changes) {
-            NodeChange nodeChange = (NodeChange) nco;
-            MemoryBank.debug(nco.toString());
+        for (NodeChange nodeChange : changes) {
+            MemoryBank.debug(nodeChange.toString());
             if (nodeChange.changeType == NodeChange.RENAMED) {
+
+                // Checking for the special case -
+                if(theAreaNodeName.equals("Upcoming Events")) {
+                    if (nodeChange.nodeName.equals(MemoryBank.appOpts.consolidatedEventsListName)) {
+                        // An exception to the norm - this one has no corresponding file.
+                        MemoryBank.appOpts.consolidatedEventsListName = nodeChange.renamedTo;
+                        continue;
+                    }
+                }
+
                 // Now attempt the rename
                 String oldNamedFile = NoteGroup.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
                 String newNamedFile = NoteGroup.basePath(theArea) + thePrefix + nodeChange.renamedTo + ".json";
@@ -165,7 +158,7 @@ public class BranchHelper implements BranchHelperInterface {
 
             } else if (nodeChange.changeType == NodeChange.REMOVED) {
                 if (deleteWarning == null) {
-                    deleteWarning = "Deletions of " + theNodeName + " cannot be undone.";
+                    deleteWarning = "Deletions of " + theAreaNodeName + " cannot be undone.";
                     deleteWarning += System.lineSeparator() + "Are you sure?";
 
                     doDelete = optionPane.showConfirmDialog(theTree, deleteWarning,
@@ -217,6 +210,44 @@ public class BranchHelper implements BranchHelperInterface {
             AppTreePanel.theInstance.showAbout();
         }
     }  // end doApply
+
+
+    @Override
+    public ArrayList<String> getChoices() {
+        ArrayList<String> theChoices = new ArrayList<>();
+
+        // Get a list of <theNodeName> files in the user's data directory.
+        File dataDir = new File(NoteGroup.basePath(theArea));
+        String[] theFileList = dataDir.list(
+                new FilenameFilter() {
+                    // Although this filter does not account for directories, it is
+                    // known that the basePath will not under normal program
+                    // operation contain directories.
+                    public boolean accept(File f, String s) {
+                        return s.startsWith(thePrefix);
+                    }
+                }
+        );
+
+        // Create the list of files.
+        if (theFileList != null) {
+            log.debug("Number of " + theAreaNodeName + " files found: " + theFileList.length);
+            int theDot;
+            String theFile;
+            for (String afile : theFileList) {
+                theDot = afile.lastIndexOf(".json");
+                theFile = afile.substring(thePrefix.length(), theDot); // start after the prefix
+
+                theChoices.add(theFile);
+            } // end for
+        }
+        return theChoices;
+    }
+
+    @Override
+    public String getRenameToString() {
+        return renameTo;
+    }
 
 
     // Used by test methods

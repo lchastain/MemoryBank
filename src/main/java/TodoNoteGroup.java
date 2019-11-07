@@ -72,7 +72,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         setName(fname.trim());
         log.debug("Constructing: " + getName());
 
-        strTheGroupFilename = NoteGroup.basePath(areaName) + "todo_" + fname + ".json";
+        strTheGroupFilename = basePath() + "todo_" + fname + ".json";
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
@@ -213,6 +213,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         return adjustedName;
     }
 
+    private static String basePath() {
+        return NoteGroup.basePath(areaName);
+    }
 
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
@@ -287,16 +290,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end dateSelected
 
 
-    // -------------------------------------------------------------------
-    // Method Name: getGroupFilename
-    //
-    // This method returns the name of the file where the data for this
-    //   group of notes is loaded / saved.
-    // -------------------------------------------------------------------
-    public String getGroupFilename() {
-        return strTheGroupFilename;
-    }// end getGroupFilename
-
+    public String getGroupFilename() { return strTheGroupFilename; }
 
     int getMaxPriority() {
         return myVars.maxPriority;

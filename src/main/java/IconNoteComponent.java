@@ -23,7 +23,7 @@ public abstract class IconNoteComponent extends NoteComponent {
     private static JPopupMenu iconPopup;
 
     // A reference to the container that holds this component
-    private iconKeeper myContainer;
+    private IconKeeper myContainer;
 
 
     static {
@@ -56,7 +56,7 @@ public abstract class IconNoteComponent extends NoteComponent {
         super(ng, i);
         index = i;
 
-        myContainer = (iconKeeper) ng;
+        myContainer = (IconKeeper) ng;
 
         //------------------
         // Graphical elements

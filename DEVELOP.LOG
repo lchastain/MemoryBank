@@ -1,6 +1,11 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/05/2019 1706 - Finished with all the Branch Helper recode now, including trimming some
+  static methods and changes to how a new tree selection is handled, as well as a new Test
+  for BranchHelper.  Now making a snapshot backup prior to delving in to converting Events
+  to a multiple-list type like Todo Lists and Searches.  Coverage is at 84% classes, 55% lines.
+
 11/03/2019 0735 - Last few days have been working on the Branch Helpers - the original one for
   Todo Lists and the new one for Searches, and trying to craft the proper hierarchy to reduce
   duplicated code while maintaining good object-oriented design, all with an eye towards needing
@@ -18,8 +23,8 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
   the solution for a general Helper class began to be workable, and the implementation could be
   changed to a single class with ALL code, that gets its member variables set at instantiation.
   But we want to keep the BranchHelperInterface because the TreeBranchEditor has greater capabilities
-  than those that are currently being used (making parent nodes and adding children).  The area51
-  'main' app for it exercises this feature.  If the interface went away then only the app-specific
+  than those that are currently being used (such as making parent nodes and adding children).  The area51
+  'main' app for it exercises those features.  If the interface went away then only the app-specific
   class would be available to the editor, and any test code would have to extend it but then override
   all the primary methods.  It's better to still have an interface, for now, so the new Helper
   class will leave some of its code there, and implement it, but at least it does not itself need to

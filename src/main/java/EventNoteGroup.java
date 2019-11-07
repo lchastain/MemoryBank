@@ -6,36 +6,39 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Vector;
 
 public class EventNoteGroup extends NoteGroup
-        implements iconKeeper, DateSelection {
+        implements IconKeeper, DateSelection {
     private static final long serialVersionUID = 1L;
 
     // Notes on the implemented interfaces:
     //---------------------------------------------------------------------
     // DateSelection - method is dateSelected, to respond to TMC clicks.
+    // IconKeeper - method is setDefaultIcon.
 
     // Because the parent NoteGroup class is where all NoteComponents get
     //   made and that constructor runs before the one here, the defaultIcon
-    //   (seen in an EventNoteComponent) MUST be present BEFORE that
-    //   constructor is called.  This is why we need to
-    //   assign it during the static section of this class.
+    //   (as seen in our EventNoteComponents) MUST be present BEFORE the
+    //   NoteGroup constructor is called.  This is why we need to
+    //   assign it from the static section of this class.  The defaultIcon
+    //   filename comes from the eventNoteDefaults.
     //------------------------------------------------------------------
     private static EventNoteDefaults eventNoteDefaults;
     private static AppIcon defaultIcon;
+    private String theGroupFilename;
     private static Notifier optionPane;
 
     private ThreeMonthColumn tmc;
     private EventHeader theHeader;
     private EventNoteComponent eNoteComponent;
+    static String areaName;
 
     static {
-        eventNoteDefaults = new EventNoteDefaults();
-        eventNoteDefaults.load();
+        areaName = "UpcomingEvents"; // Directory name under user data.
+        eventNoteDefaults = EventNoteDefaults.load();
 
         if (eventNoteDefaults.defaultIconFileName.equals("")) {
             MemoryBank.debug("Default EventNoteComponent Icon: <blank>");
@@ -48,8 +51,15 @@ public class EventNoteGroup extends NoteGroup
     } // end static section
 
 
-    EventNoteGroup() {
+    EventNoteGroup(String fname) {
         super();
+
+        // Use an inherited (otherwise unused) method to store our list name.
+        // It will be used by the 'saveAs' method.
+        setName(fname.trim());
+        MemoryBank.debug("Constructing: " + getName());
+
+        theGroupFilename = basePath() + "event_" + fname + ".json";
 
         eNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -156,6 +166,10 @@ public class EventNoteGroup extends NoteGroup
         return blnAnEventWasAged;
     } // end ageEvents
 
+
+    private static String basePath() {
+        return NoteGroup.basePath(areaName);
+    }
 
     //-------------------------------------------------------------
     // Method Name:  dateSelected
@@ -282,16 +296,7 @@ public class EventNoteGroup extends NoteGroup
         return defaultIcon;
     }
 
-
-    // -------------------------------------------------------------------
-    // Method Name: getGroupFilename
-    //
-    // This method returns the name of the file where the data for this
-    //   group of notes is loaded / saved.
-    // -------------------------------------------------------------------
-    public String getGroupFilename() {
-        return MemoryBank.userDataHome + File.separatorChar + "UpcomingEvents.json";
-    }// end getGroupFilename
+    public String getGroupFilename() { return theGroupFilename; }
 
 
     // -------------------------------------------------------------------

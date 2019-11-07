@@ -32,7 +32,7 @@ public class DayNoteDefaults {
             DayNoteDefaults fromFile = AppUtil.mapper.readValue(text, DayNoteDefaults.class);
             System.out.println("DayNoteDefaults from JSON file: " + AppUtil.toJsonString(fromFile));
             return fromFile;
-        } catch (FileNotFoundException ignore) {
+        } catch (FileNotFoundException ignore) { // not a problem; we'll use defaults.
         } catch (IOException ioe) {
             e = ioe;
             e.printStackTrace();

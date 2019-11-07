@@ -8,11 +8,10 @@ public class EventNoteDefaults {
 
     String defaultIconFileName;
 
-    // Expectation is that additional members will be needed.
-    // It will be better to add them at that time rather than
-    // making placeholders for them now, because additions do
-    // not cause JSON deserialization issues, whereas renames
-    // or deletions from the class will result in exceptions
+    // Additional members may occasionally be needed.  It will be better to
+    // add them at that time rather than having pre-existing placeholders
+    // for them, because additions do not cause JSON deserialization issues,
+    // whereas renames or deletions from the class will result in exceptions
     // when loading data that was saved with the earlier class version.
 
     // Possible additions:  Date/Time format patterns in String fields.
@@ -21,18 +20,16 @@ public class EventNoteDefaults {
         defaultIconFileName = "icons" + File.separatorChar + "reminder.gif";
     }
 
-    public boolean load() {
+    public static EventNoteDefaults load() {
         String fileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
 
         try {
             String text = FileUtils.readFileToString(new File(fileName), StandardCharsets.UTF_8.name());
             EventNoteDefaults fromFile = AppUtil.mapper.readValue(text, EventNoteDefaults.class);
-            defaultIconFileName = fromFile.defaultIconFileName; // must be a better way, here.
-            System.out.println("EventNoteDefaults from JSON file: " + AppUtil.toJsonString(this));
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; use defaults.
-            MemoryBank.debug("User tree options not found; using defaults");
+            System.out.println("EventNoteDefaults from JSON file: " + AppUtil.toJsonString(fromFile));
+            return fromFile;
+        } catch (FileNotFoundException ignore) { // not a problem; we'll use defaults.
         } catch (IOException ioe) {
             e = ioe;
             e.printStackTrace();
@@ -43,9 +40,8 @@ public class EventNoteDefaults {
             ems = ems + e.toString();
             ems = ems + "\noperation failed; using default values.";
             MemoryBank.debug(ems);
-            return false;
         } // end if
-        return true;
+        return new EventNoteDefaults();
     }
 
     public boolean save() {
@@ -58,7 +54,7 @@ public class EventNoteDefaults {
             bw.flush();
         } catch (IOException ioe) {
             String ems = ioe.getMessage();
-            ems = ems + "\nDayNoteDefaults save operation aborted.";
+            ems = ems + "\nEventNoteDefaults save operation aborted.";
             MemoryBank.debug(ems);
             return false;
         } // end try/catch

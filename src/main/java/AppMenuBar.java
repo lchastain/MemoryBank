@@ -20,23 +20,27 @@ public class AppMenuBar extends JMenuBar{
         //------------- File Menus -------------------------------------------------
         fileMenu = new JMenu("File");
         fileMenu.add(new JMenuItem("Search..."));
+        fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 
         searchResultFileMenu = new JMenu("File");
         searchResultFileMenu.add(new JMenuItem("Close"));
         searchResultFileMenu.add(new JMenuItem("Search..."));
         searchResultFileMenu.add(new JMenuItem("Review..."));
+        searchResultFileMenu.add(new JMenuItem("Icon Manager..."));
         searchResultFileMenu.add(new JMenuItem("Exit"));
 
         todoBranchFileMenu = new JMenu("File");
         todoBranchFileMenu.add(new JMenuItem("Add New List..."));
         todoBranchFileMenu.add(new JMenuItem("Search..."));
+        todoBranchFileMenu.add(new JMenuItem("Icon Manager..."));
         todoBranchFileMenu.add(new JMenuItem("Exit"));
 
         todoFileMenu = new JMenu("File");
         todoFileMenu.add(new JMenuItem("Close"));
         todoFileMenu.add(new JMenuItem("Add New List..."));
         todoFileMenu.add(new JMenuItem("Search..."));
+        todoFileMenu.add(new JMenuItem("Icon Manager..."));
         todoFileMenu.add(new JMenuItem("Merge..."));
         todoFileMenu.add(new JMenuItem("Print..."));
         todoFileMenu.add(new JMenuItem("Save As..."));
