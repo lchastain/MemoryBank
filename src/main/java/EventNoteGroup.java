@@ -167,7 +167,7 @@ public class EventNoteGroup extends NoteGroup
     } // end ageEvents
 
 
-    private static String basePath() {
+    static String basePath() {
         return NoteGroup.basePath(areaName);
     }
 

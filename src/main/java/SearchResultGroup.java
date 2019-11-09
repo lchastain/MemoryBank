@@ -29,9 +29,7 @@ public class SearchResultGroup extends NoteGroup {
 
         addNoteAllowed = false;
 
-        // Is the fname in its long form, or the short form?
-        // We need the full-blown path/file specifier.
-        theGroupFilename = getFullFilename(fname);
+        theGroupFilename = basePath() + "search_" + fname + ".json";
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
         checkColumnOrder();
@@ -93,6 +91,10 @@ public class SearchResultGroup extends NoteGroup {
         add(heading, BorderLayout.NORTH);
     } // end constructor
 
+    private static String basePath() {
+        return NoteGroup.basePath(areaName);
+    }
+
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
     //
@@ -114,44 +116,10 @@ public class SearchResultGroup extends NoteGroup {
         } // end for
     } // end checkColumnOrder
 
-    static boolean exists(String theName) {
-        String fullFileName = getFullFilename(theName);
-        return new File(fullFileName).exists();
-    }
-
-    static String getFullFilename(String theName) {
-        String theFullFilename;
-        int sepCharIndex = theName.lastIndexOf(File.separatorChar);
-        if(sepCharIndex > 0) { // The filename was already constructed (fully) by the calling context.
-            theFullFilename = theName;
-        } else { // theName is just the filename only, without a path.
-            theFullFilename = NoteGroup.basePath(areaName) + "search_" + theName + ".json";
-        }
-        return theFullFilename;
-    }
-
-    // -------------------------------------------------------------------
-    // Method Name: getGroupFilename
-    //
-    // This method returns the name of the file where the data for this
-    //   group of notes is loaded / saved.
-    // -------------------------------------------------------------------
     @Override
     public String getGroupFilename() {
         return theGroupFilename;
     }// end getGroupFilename
-
-    // This method will return the requested Search Result Group only if
-    // a file for it exists; otherwise it returns null.  It is a better
-    // alternative to simply calling the constructor, which of course
-    // cannot return a null.
-    static SearchResultGroup getGroup(String shortFilename) {
-        if(exists(shortFilename)) {
-            MemoryBank.debug("Loading " + shortFilename + " from filesystem");
-            return new SearchResultGroup(shortFilename);
-        } // end if there is a file
-        return null;
-    }
 
     //--------------------------------------------------------
     // Method Name: getNoteComponent

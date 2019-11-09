@@ -34,9 +34,7 @@ class SearchResultGroupTest {
         // We have chosen a known search result, so the
         // tests below will know the limitation of indices and text content.
         String theNodeName = "20190927161325";
-        Assertions.assertTrue(SearchResultGroup.exists(theNodeName));
-        String theFileName = SearchResultGroup.getFullFilename(theNodeName);
-        searchResultGroup = new SearchResultGroup(theFileName);
+        searchResultGroup = (SearchResultGroup) NoteGroupFactory.getGroup("Search Result", theNodeName);
         Thread.sleep(200); // Tests need some settling time.
     }
 
@@ -46,8 +44,8 @@ class SearchResultGroupTest {
     void testLoadLastModDate() {
         // The other tests here muck too much with the data; need a fresh results list.
         String theFileName = "20191029073938";  // Search text 'Office'
-        Assertions.assertTrue(SearchResultGroup.exists(theFileName));
-        SearchResultGroup srg = new SearchResultGroup(theFileName);
+        SearchResultGroup srg = (SearchResultGroup) NoteGroupFactory.getGroup("Search Result", theFileName);
+        Assertions.assertNotNull(srg);
 
         // Get the LMD of the third (index is zero-based) visible component in this group.
         SearchResultComponent searchResultComponent2 = srg.getNoteComponent(2);

@@ -38,7 +38,7 @@ class EditorHelper implements BranchHelperInterface {
     }
 
     @Override
-    public boolean deletesAllowed() { return true; }
+    public boolean deleteAllowed(String s) { return true; }
 
     @Override
     public boolean makeParents() {

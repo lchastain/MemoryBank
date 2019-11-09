@@ -629,8 +629,8 @@ public abstract class NoteGroup extends JPanel {
     // Usage is intended for non-Calendar notegroups.
     //-----------------------------------------------------------------
     static String prettyName(String theLongName) {
-        // Start with the full input param.
-        String thePrettyName = theLongName;
+        // Trim any leading/trailing whitespace.
+        String thePrettyName = theLongName.trim();
 
         // Cut off the leading path specifier characters, if present.
         int i = thePrettyName.lastIndexOf(File.separatorChar);
@@ -643,7 +643,7 @@ public abstract class NoteGroup extends JPanel {
         i = thePrettyName.lastIndexOf(".json");
         if (i > 0) thePrettyName = thePrettyName.substring(0, i);
 
-        // Cut off the leading group type (todo_, search_, etc)
+        // Cut off the leading group type (event_, todo_, search_, etc)
         i = thePrettyName.lastIndexOf("_");
         if (i >= 0) thePrettyName = thePrettyName.substring(i + 1);
 

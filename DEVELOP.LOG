@@ -1,6 +1,14 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/09/2019 0927 - The Event branch is done except for the Consolidated List and some one-off
+  menu items.  But need to makepub due to problems fixed that are already out there.  Now have a
+  NoteGroupFactory that is pretty cool, and tree management is firming up nicely, with node
+  removals either automatically when files do not exist, or via a 'Close' menu item.  TodoNoteGroup
+  and SearchResultGroup both shrank, with common code moved to either the new Factory, or their
+  base class or the AppTreePanel.  EventNoteGroup modeled after them.  Coverage is up to 85%
+  classes, 55% lines.
+
 11/05/2019 1706 - Finished with all the Branch Helper recode now, including trimming some
   static methods and changes to how a new tree selection is handled, as well as a new Test
   for BranchHelper.  Now making a snapshot backup prior to delving in to converting Events

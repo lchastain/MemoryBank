@@ -27,7 +27,7 @@ class EventAgingTest {
     void testAgeOffStopAfter() throws Exception {
         // Retrieve fresh test data from test resources.
         // We don't want a full set of data for these tests; just the UpcomingEvents.
-        File newname = new File(MemoryBank.userDataHome + File.separatorChar + "UpcomingEvents.json");
+        File newname = new File(EventNoteGroup.basePath() + "event_holidays.json");
         String fileName = "EventAgingTest/Age4Times&End.json";
         File testFile = FileUtils.toFile(EventNoteGroup.class.getResource(fileName));
         FileUtils.copyFile(testFile, newname);

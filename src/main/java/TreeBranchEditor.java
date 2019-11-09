@@ -171,11 +171,11 @@ public class TreeBranchEditor extends JPanel
         jpr.setLayout(new BoxLayout(jpr, BoxLayout.Y_AXIS));
 
         // To the right-side panel, add the selection choices.
-        for (String s : theChoices) {
-            JCheckBox jcb = new JCheckBox(s);
-            if (leaves.contains(s)) {
+        for (String theChoice : theChoices) {
+            JCheckBox jcb = new JCheckBox(theChoice);
+            if (leaves.contains(theChoice)) {
                 jcb.setSelected(true);
-            } else if (branches.contains(s)) {
+            } else if (branches.contains(theChoice)) {
                 jcb.setSelected(true);
                 jcb.setEnabled(false);
             }
@@ -191,28 +191,25 @@ public class TreeBranchEditor extends JPanel
             // behavior but don't want the vertical stretch.  So - we 'fix' this by
             // taking advantage of the fact that the BoxLayout is one of the few
             // Layouts that actually respects the minimum and maximum sizes of a component.
-            if (myHelper.deletesAllowed()) {
-                JPanel oneLine = new JPanel(new BorderLayout());
-                oneLine.add(jcb, "West");
-                String deleteCommand = getDeleteCommand();
-                JButton jb = new JButton(deleteCommand);
-                jb.setActionCommand(s);
-                jb.addActionListener(this);
-                if (!branches.contains(s)) oneLine.add(jb, "East");
-                if (removals.contains(s)) {
-                    jcb.setEnabled(false);
-                    JLabel removalLabel = new JLabel("Marked for REMOVAL");
-                    removalLabel.setForeground(Color.red);
-                    removalLabel.setHorizontalAlignment(JLabel.CENTER);
-                    oneLine.add(removalLabel, "Center");
-                }
-                int w = oneLine.getMaximumSize().width;
-                int h = oneLine.getPreferredSize().height;
-                oneLine.setMaximumSize(new Dimension(w, h)); // See above note.
-                jpr.add(oneLine);
-            } else {
-                jpr.add(jcb);
+            JPanel oneLine = new JPanel(new BorderLayout());
+            oneLine.add(jcb, "West");
+            String deleteCommand = getDeleteCommand();
+            JButton deleteButton = new JButton(deleteCommand);
+            deleteButton.setActionCommand(theChoice);
+            deleteButton.addActionListener(this);
+            if (!myHelper.deleteAllowed(theChoice)) deleteButton.setVisible(false);
+            if (!branches.contains(theChoice)) oneLine.add(deleteButton, "East");
+            if (removals.contains(theChoice)) {
+                jcb.setEnabled(false);
+                JLabel removalLabel = new JLabel("Marked for REMOVAL");
+                removalLabel.setForeground(Color.red);
+                removalLabel.setHorizontalAlignment(JLabel.CENTER);
+                oneLine.add(removalLabel, "Center");
             }
+            int w = oneLine.getMaximumSize().width;
+            int h = oneLine.getPreferredSize().height;
+            oneLine.setMaximumSize(new Dimension(w, h)); // See above note.
+            jpr.add(oneLine);
         }
         rightScroller.setViewportView(jpr);
     }
@@ -449,12 +446,14 @@ public class TreeBranchEditor extends JPanel
 
                 // But here is where the Helper might have overridden the final value -
                 String renameTo = myHelper.getRenameToString();
-                if(null != renameTo) super.valueForPathChanged(path, renameTo);
+                if (null != renameTo) super.valueForPathChanged(path, renameTo);
                 else super.valueForPathChanged(path, newValue);
             }
         } // end valueForPathChanged
 
-        String getOriginalName() { return originalName; }
+        String getOriginalName() {
+            return originalName;
+        }
     } // end inner class BranchEditorModel
 
 } // end class TreeBranchEditor

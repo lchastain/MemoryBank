@@ -78,7 +78,7 @@ public interface BranchHelperInterface {
         //   situation, so we don't need to repeat that logic here.  Likewise for
         //   the 'Save As' logic.
         //
-        //   As for the 'Add New List' functionality that is also a consumer of this
+        //   As for the 'Add New...' functionality that is also a consumer of this
         //   method, the AppTreePanel handles that situation by simply opening it, a
         //   kind of back-door selection of the existing list.
 
@@ -144,8 +144,8 @@ public interface BranchHelperInterface {
     } // end checkFilename
 
     // Called by the TreeBranchEditor to determine whether or not to provide a 'Delete'
-    // button for each of the choices.  If false then no choice will have a Delete button.
-    default boolean deletesAllowed() {
+    // button for a choice.  If false then the choice will have no Delete button.
+    default boolean deleteAllowed(String theSelection) {
         return true;
     }
 

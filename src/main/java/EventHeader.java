@@ -1,37 +1,30 @@
-/**  Implements a header for the LogEvents.
+/*  Implements a header for the LogEvents.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.border.*;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 public class EventHeader extends JPanel implements MouseListener {
-    private static final long serialVersionUID = 685914511761384442L;
+    private static final long serialVersionUID = 1L;
 
-    // Swing Types
-    private JLabel lblTheTitle;
     private JLabel lblEventSummary;
     private JPanel pnlCenter;
 
     // Custom Types
     private LabelButton btnShowHide;
-    private LabelButton btnUpdate;  // No longer used; moved to menu as 'refresh'
     private EventNoteGroup smTheHeaderContainer;
 
-    EventHeader(EventNoteGroup sm) {
+    EventHeader(EventNoteGroup eventNoteGroup) {
         super(new BorderLayout());
-        smTheHeaderContainer = sm;
+        smTheHeaderContainer = eventNoteGroup;
         setBackground(Color.blue);
 
         // Create the window title
-        lblTheTitle = new JLabel("Upcoming Events");
+        // Swing Types
+        JLabel lblTheTitle = new JLabel(eventNoteGroup.getName());
         lblTheTitle.setHorizontalAlignment(JLabel.CENTER);
         lblTheTitle.setForeground(Color.white);
         lblTheTitle.setFont(Font.decode("Serif-bold-20"));
@@ -40,10 +33,11 @@ public class EventHeader extends JPanel implements MouseListener {
 
         // Controls
         btnShowHide = new LabelButton("Show");
-        btnUpdate = new LabelButton("Update");
-        lblEventSummary = new JLabel("Select an Event to display.") {
-            static final long serialVersionUID = 1512781130847802324L;
 
+        // No longer used; moved to menu as 'refresh'
+        LabelButton btnUpdate = new LabelButton("Update");
+
+        lblEventSummary = new JLabel("Select an Event to display.") {
             public Dimension getPreferredSize() {
                 Dimension d = super.getPreferredSize();
                 if (d.height < 50) d.height = 50;
@@ -92,7 +86,7 @@ public class EventHeader extends JPanel implements MouseListener {
 
 
     // The input parameter should be properly formatted HTML
-    public void setEventSummary(String s) {
+    void setEventSummary(String s) {
         lblEventSummary.setText(s);
     } // end setEventSummary
 
@@ -104,31 +98,39 @@ public class EventHeader extends JPanel implements MouseListener {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
 
-        if (s.equals("Show")) {
-            pnlCenter.setVisible(true);
-            btnShowHide.setText("Hide");
-        } else if (s.equals("Hide")) {
-            pnlCenter.setVisible(false);
-            btnShowHide.setText("Show");
-        } else if (s.equals("Update")) {
-            smTheHeaderContainer.refresh();
-            // System.out.println("Update " + (new Date()).toString());
-        } else {
-            (new Exception("Unhandled action!")).printStackTrace();
-            System.exit(1);
-        } // end if
+        switch (s) {
+            case "Show":
+                pnlCenter.setVisible(true);
+                btnShowHide.setText("Hide");
+                break;
+            case "Hide":
+                pnlCenter.setVisible(false);
+                btnShowHide.setText("Show");
+                break;
+            case "Update":
+                smTheHeaderContainer.refresh();
+                // System.out.println("Update " + (new Date()).toString());
+                break;
+            default:
+                (new Exception("Unhandled action!")).printStackTrace();
+                System.exit(1);
+        }
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
-        if (s.equals("Show")) {
-            s = "Click here to show the summary info for each Event";
-        } else if (s.equals("Hide")) {
-            s = "Click here to hide the summary info for each Event";
-        } else if (s.equals("Update")) {
-            s = "Click here to update the Events to current date/time";
-        } // end if
+        switch (s) {
+            case "Show":
+                s = "Click here to show the summary info for each Event";
+                break;
+            case "Hide":
+                s = "Click here to hide the summary info for each Event";
+                break;
+            case "Update":
+                s = "Click here to update the Events to current date/time";
+                break;
+        }
         smTheHeaderContainer.setMessage(s);
     } // end mouseEntered
 

@@ -25,7 +25,7 @@ class ToggleAboutTest {
         // In this case we've chosen a relatively low (safer) value, currently
         // should be 'Notes', with the first two being singles, and 'Views' collapsed.
         theSelectionRow = 3;
-        amb = AppTreePanel.amb;
+        amb = AppTreePanel.appMenuBar;
     }
 
     @AfterEach
@@ -39,7 +39,7 @@ class ToggleAboutTest {
     // if selected again and it is already showing, it will go
     // back to the previous tree selection.
     @Test
-    void testShowAboutToggle() throws Exception {
+    void testShowAboutToggle() {
         JTree theTree = atp.getTree();
         int[] theRows;
 

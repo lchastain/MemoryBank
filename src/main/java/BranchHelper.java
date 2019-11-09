@@ -108,6 +108,14 @@ public class BranchHelper implements BranchHelperInterface {
         return true;
     }
 
+    @Override
+    public boolean deleteAllowed(String theSelection) {
+        if(AREA_EVENT.equals(theAreaNodeName)) {
+            return !theSelection.equals(MemoryBank.appOpts.consolidatedEventsListName);
+        }
+        return true;
+    }
+
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
     // For tree structure events, we don't address them individually but just accept
     // them as a whole, by directly adopting the 'mtn' parameter as our new branch.
@@ -230,6 +238,9 @@ public class BranchHelper implements BranchHelperInterface {
         );
 
         // Create the list of files.
+        if(theAreaNodeName.equals(AREA_EVENT)) {
+            theChoices.add(MemoryBank.appOpts.consolidatedEventsListName);
+        }
         if (theFileList != null) {
             log.debug("Number of " + theAreaNodeName + " files found: " + theFileList.length);
             int theDot;

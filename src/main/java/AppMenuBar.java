@@ -15,6 +15,7 @@ public class AppMenuBar extends JMenuBar{
     private static JMenu noteViewMenu;
     private static JMenu viewsViewMenu;
     private static JMenu helpMenu;
+    private String theCurrentContext;
 
     static {
         //------------- File Menus -------------------------------------------------
@@ -31,14 +32,14 @@ public class AppMenuBar extends JMenuBar{
         searchResultFileMenu.add(new JMenuItem("Exit"));
 
         todoBranchFileMenu = new JMenu("File");
-        todoBranchFileMenu.add(new JMenuItem("Add New List..."));
+        todoBranchFileMenu.add(new JMenuItem("Add New..."));
         todoBranchFileMenu.add(new JMenuItem("Search..."));
         todoBranchFileMenu.add(new JMenuItem("Icon Manager..."));
         todoBranchFileMenu.add(new JMenuItem("Exit"));
 
         todoFileMenu = new JMenu("File");
         todoFileMenu.add(new JMenuItem("Close"));
-        todoFileMenu.add(new JMenuItem("Add New List..."));
+        todoFileMenu.add(new JMenuItem("Add New..."));
         todoFileMenu.add(new JMenuItem("Search..."));
         todoFileMenu.add(new JMenuItem("Icon Manager..."));
         todoFileMenu.add(new JMenuItem("Merge..."));
@@ -118,9 +119,15 @@ public class AppMenuBar extends JMenuBar{
         // In Java 1.8, throws a Not Implemented exception
     }
 
+    String getCurrentContext() {
+        return theCurrentContext;
+    }
+
     // Given a string to indicate what 'mode' we are in,
     // display the menus that are appropriate to that mode.
-    void manageMenus(String strMenuType) {
+    void manageMenus(String theContext) {
+        theCurrentContext = theContext;
+
         // Set a default of having the 'File' and 'View' menus only;
         //   let the specific cases below make any needed alterations.
         //-----------------------------------------
@@ -136,8 +143,9 @@ public class AppMenuBar extends JMenuBar{
         viewsViewMenu.setVisible(false);
         noteViewMenu.setVisible(false);
 
-        MemoryBank.debug("MenuBar Configuration: " + strMenuType);
-        switch (strMenuType) {
+        MemoryBank.debug("MenuBar Configuration: " + theCurrentContext);
+
+        switch (theCurrentContext) {
             case "Year View":  // Year View
                 viewMenu.setVisible(false);
                 viewsViewMenu.setVisible(true);
@@ -166,13 +174,14 @@ public class AppMenuBar extends JMenuBar{
                 viewMenu.setVisible(false);
                 noteViewMenu.setVisible(true);
                 break;
-            case "Upcoming Events":  // Upcoming Events
-                break;
+            case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
                 fileMenu.setVisible(false);
                 todoBranchFileMenu.setVisible(true);
+                viewMenu.setVisible(false);
                 break;
-            case "To Do List":  // A List
+            case "Upcoming Event":
+            case "To Do List":       // A List
                 fileMenu.setVisible(false);
                 todoFileMenu.setVisible(true);
                 todoEditMenu.setVisible(true);
