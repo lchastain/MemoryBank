@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 
@@ -46,9 +47,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private JTree theTree;
     private DefaultTreeModel treeModel;
     private JScrollPane rightPane;
-    private DefaultMutableTreeNode nodeEvents;
-    private DefaultMutableTreeNode nodeTodolists;
-    private DefaultMutableTreeNode nodeSearches;
 
     // Paths to expandable 'parent' nodes
     private TreePath viewsPath;
@@ -109,6 +107,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         dlgWorkingDialog.add(lbl);
         dlgWorkingDialog.pack();
         dlgWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+//        dlgWorkingDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         dlgWorkingDialog.setLocationRelativeTo(this);
         //</editor-fold>
 
@@ -226,13 +225,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end constructor for AppTreePanel
 
 
+    @SuppressWarnings("rawtypes")
     private void addNewGroup() {
         String newName;
 
         // Initialize the following local variables, otherwise IJ complains.
         String prompt = "no prompt";
         String title = "no title";
-        DefaultMutableTreeNode groupParentNode = null;
         TreePath groupParentPath = null;
         NoteGroupKeeper theNoteGroupKeeper = null;
 
@@ -243,7 +242,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 prompt = "Enter a name for the new Event category\n";
                 prompt += "Ex: meetings, appointments, birthdays, etc";
                 title = "Add a new Events category";
-                groupParentNode = nodeEvents;
                 groupParentPath = eventsPath;
                 theNoteGroupKeeper = theEventListKeeper;
                 break;
@@ -251,7 +249,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             case "To Do Lists Branch Editor":
                 prompt = "Enter a name for the new To Do List";
                 title = "Add a new To Do List";
-                groupParentNode = nodeTodolists;
                 groupParentPath = todolistsPath;
                 theNoteGroupKeeper = theTodoListKeeper;
                 break;
@@ -263,7 +260,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (newName == null) return;      // No user entry; dialog was Cancelled.
         newName = NoteGroup.prettyName(newName); // Normalize the input
 
-        if(null == groupParentPath || null == groupParentNode) return;
+        if (null == groupParentPath) return;
+        String groupParentName = groupParentPath.getLastPathComponent().toString();
+        DefaultMutableTreeNode groupParentNode = BranchHelperInterface.getNodeByName(theRootNode, groupParentName);
 
         // Declare a tree node for the new group.
         DefaultMutableTreeNode theNewGroupNode = null;
@@ -308,7 +307,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // selection rather than actually intending to make a new one).  If not found there then go ahead
         // and make a new one, and put it there.
         NoteGroup theGroup = theNoteGroupKeeper.get(newName);
-        if(theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
+        if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
             theNoteGroupKeeper.add(theGroup);
         }
@@ -394,9 +393,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------
         // Events
         //---------------------------------------------------
-        nodeEvents = new DefaultMutableTreeNode("Upcoming Events");
-        trunk.add(nodeEvents);
-        pathToRoot = nodeEvents.getPath();
+        branch = new DefaultMutableTreeNode("Upcoming Events");
+        trunk.add(branch);
+        pathToRoot = branch.getPath();
         eventsPath = new TreePath(pathToRoot);
 
         theEventListKeeper = new NoteGroupKeeper();
@@ -405,7 +404,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // Add to the tree
             leaf = new DefaultMutableTreeNode(s, false);
             MemoryBank.debug("  Adding List: " + s);
-            nodeEvents.add(leaf);
+            branch.add(leaf);
         } // end for
         //---------------------------------------------------
 
@@ -471,9 +470,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //---------------------------------------------------
         // To Do Lists
         //---------------------------------------------------
-        nodeTodolists = new DefaultMutableTreeNode("To Do Lists", true);
-        trunk.add(nodeTodolists);
-        pathToRoot = nodeTodolists.getPath();
+        branch = new DefaultMutableTreeNode("To Do Lists", true);
+        trunk.add(branch);
+        pathToRoot = branch.getPath();
         todolistsPath = new TreePath(pathToRoot);
 
         theTodoListKeeper = new NoteGroupKeeper();
@@ -481,23 +480,23 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         for (String s : appOpts.todoLists) {
             // Add to the tree
-            nodeTodolists.add(new DefaultMutableTreeNode(s, false));
+            branch.add(new DefaultMutableTreeNode(s, false));
         } // end for
         //---------------------------------------------------
 
         //---------------------------------------------------
         // Search Results
         //---------------------------------------------------
-        nodeSearches = new DefaultMutableTreeNode("Search Results", true);
-        trunk.add(nodeSearches);
-        pathToRoot = nodeSearches.getPath();
+        branch = new DefaultMutableTreeNode("Search Results", true);
+        trunk.add(branch);
+        pathToRoot = branch.getPath();
         searchresultsPath = new TreePath(pathToRoot);
 
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
             for (int i = 0; i < appOpts.searchResultList.size(); i++) {
                 String searchResultFilename = appOpts.searchResultList.get(i);
-                nodeSearches.add(new DefaultMutableTreeNode(searchResultFilename, false));
+                branch.add(new DefaultMutableTreeNode(searchResultFilename, false));
             }
         } // end if
 
@@ -535,6 +534,57 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         }
         return newRoot;
     }
+
+    // Make a Consolidated View group from all the currently selected Event Groups.
+    @SuppressWarnings("rawtypes")
+    private EventNoteGroup getConsolidatedView() {
+        // First, get all the nodes that are currently under Upcoming Events.
+        DefaultMutableTreeNode eventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
+        Enumeration e = eventsNode.breadthFirstEnumeration();
+        String theNodeName;
+        EventNoteGroup theBigGroup = null;
+        Vector<NoteData> groupDataVector;
+        LinkedHashSet<NoteData> theUniqueSet = null;
+        while (e.hasMoreElements()) { // A bit of unintentional mis-direction, here.
+            // The first node that we get this way - is the expandable node itself - Upcoming Events.
+            DefaultMutableTreeNode eventNode = (DefaultMutableTreeNode) e.nextElement();
+            // So we don't actually use it.
+            if (theBigGroup == null) {
+                // Instead, we instantiate a new (empty) EventNoteGroup, named for the Consolidated View (CV).
+                EventNoteComponent.isEditable = false; // This is a non-editable group.
+                theBigGroup = new EventNoteGroup((MemoryBank.appOpts.consolidatedEventsViewName));
+                EventNoteComponent.isEditable = true; // Put it back to the default value.
+                continue;
+            }
+            // Then we can look at merging in any possible child nodes, but
+            // we have to skip the one node that actually does denote the CV.
+            // This one could be anywhere in the list; just skip it when we come to it.
+            theNodeName = eventNode.toString();
+            if (theNodeName.equals(MemoryBank.appOpts.consolidatedEventsViewName)) continue;
+
+            // And for the others (if any) - merge them into the CV group.
+            String theFilename = EventNoteGroup.getGroupFilename(theNodeName);
+            System.out.println("Node: " + theNodeName + "  File: " + theFilename);
+
+            Object[] theData = AppUtil.loadNoteGroupData(theFilename);
+
+            NoteData.loading = true; // We don't want to affect the lastModDates!
+            groupDataVector = AppUtil.mapper.convertValue(theData[0], new TypeReference<Vector<EventNoteData>>() { });
+            NoteData.loading = false; // Restore normal lastModDate updating.
+
+            if (theUniqueSet == null) {
+                theUniqueSet = new LinkedHashSet<>(groupDataVector);
+            } else {
+                theUniqueSet.addAll(groupDataVector);
+            }
+        }
+        if(theUniqueSet == null) return null;
+        groupDataVector = new Vector<>(theUniqueSet);
+        theBigGroup.addNoteAllowed = false;
+        theBigGroup.setGroupData(groupDataVector);
+        theBigGroup.doSort();
+        return theBigGroup;
+    } // end getConsolidatedView
 
     // Used by Test
     NoteGroup getTheNoteGroup() {
@@ -1175,7 +1225,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Update the currentDateChoice so that it can be used to set the
-        //   date to be shown before we display the newly selected group.
+        //   date to be shown before we display the newly selected group,
+        //   if it cares about dates, that is.
         if (oldPath != null) {
             theLastTreeSelection = oldPath.getLastPathComponent().toString();
             MemoryBank.debug("Last Selection was: " + theLastTreeSelection);
@@ -1193,16 +1244,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         String theParent = newPath.getParentPath().getLastPathComponent().toString();
 
         //-----------------------------------------------------
-        // These booleans will help us to avoid going down the wrong
-        //   branch in a case where for example some bozo named
-        //   their To Do list - 'To Do Lists'.  We first look to
-        //   see if the selection is a branch off of the root
-        //   before we would start handling it as a leaf.
+        // These booleans will help us to avoid incorrect assumptions based on the text of the
+        //   new selection, in cases where some bozo named their group the same as a parent
+        //   branch.  For example, a To Do list named 'To Do Lists'.  We first look to see if
+        //   the selection is a branch before we would start handling it as a leaf, and by
+        //   then we will know which branch the leaf falls under.
         //-----------------------------------------------------
         boolean isEventsBranch = theNodeString.equals("Upcoming Events");
         boolean isTodoBranch = theNodeString.equals("To Do Lists");
         boolean isSearchBranch = theNodeString.equals("Search Results");
         boolean isTopLevel = theParent.equals("App");
+        boolean isConsolidatedView = theNodeString.equals(MemoryBank.appOpts.consolidatedEventsViewName);
 
         theNoteGroup = null; // initialize
 
@@ -1229,6 +1281,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             JTree jt = new JTree(node); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
+        } else if (theParent.equals("Upcoming Events") && isConsolidatedView) { // Selection of the Consolidated Events List
+            selectionContext = "Consolidated View";  // For manageMenus
+            EventNoteGroup theBigPicture = getConsolidatedView();
+            rightPane.setViewportView(theBigPicture);
         } else if (theParent.equals("Upcoming Events")) { // Selection of an Event group
             selectionContext = "Upcoming Event";  // For manageMenus
             EventNoteGroup eventNoteGroup;

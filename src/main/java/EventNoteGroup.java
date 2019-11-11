@@ -10,8 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Vector;
 
-public class EventNoteGroup extends NoteGroup
-        implements IconKeeper, DateSelection {
+public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelection {
     private static final long serialVersionUID = 1L;
 
     // Notes on the implemented interfaces:
@@ -33,11 +32,13 @@ public class EventNoteGroup extends NoteGroup
 
     private ThreeMonthColumn tmc;
     private EventHeader theHeader;
-    private EventNoteComponent eNoteComponent;
+    private EventNoteComponent eventNoteComponent;
     static String areaName;
+    private static String filePrefix;
 
     static {
         areaName = "UpcomingEvents"; // Directory name under user data.
+        filePrefix = "event_";
         eventNoteDefaults = EventNoteDefaults.load();
 
         if (eventNoteDefaults.defaultIconFileName.equals("")) {
@@ -51,17 +52,17 @@ public class EventNoteGroup extends NoteGroup
     } // end static section
 
 
-    EventNoteGroup(String fname) {
+    EventNoteGroup(String groupName) {
         super();
 
         // Use an inherited (otherwise unused) method to store our list name.
         // It will be used by the 'saveAs' method.
-        setName(fname.trim());
+        setName(groupName.trim());
         MemoryBank.debug("Constructing: " + getName());
 
-        theGroupFilename = basePath() + "event_" + fname + ".json";
+        theGroupFilename = basePath() + filePrefix + groupName + ".json";
 
-        eNoteComponent = null;
+        eventNoteComponent = null;
         tmc = new ThreeMonthColumn();
         theHeader = new EventHeader(this);
 
@@ -98,7 +99,7 @@ public class EventNoteGroup extends NoteGroup
         EventNoteData tempNoteData;
 
         // AppUtil.localDebug(true);
-        for (NoteData ndTmp : vectGroupData) {
+        for (NoteData ndTmp : groupDataVector) {
             blnDropThisEvent = false;
             tempNoteData = (EventNoteData) ndTmp;
 
@@ -177,9 +178,7 @@ public class EventNoteGroup extends NoteGroup
     // Interface to the Three Month Calendar; called by the tmc.
     //-------------------------------------------------------------
     public void dateSelected(LocalDate selectedDate) {
-        // System.out.println("LogEvents - date selected on TMC = " + d);
-
-        if (eNoteComponent == null) {
+        if (eventNoteComponent == null) {
             String s;
             s = "You must select an Event before a Start date can be set!";
             setMessage(s);
@@ -187,7 +186,13 @@ public class EventNoteGroup extends NoteGroup
             return;
         } // end if
 
-        EventNoteData end = (EventNoteData) (eNoteComponent.getNoteData());
+        // Ignore TMC selections for non-editable events.
+        if(!eventNoteComponent.noteTextField.isEditable()) {
+            tmc.setChoice(null);
+            return;
+        }
+
+        EventNoteData end = (EventNoteData) (eventNoteComponent.getNoteData());
 
         // A TMC setting will only affect the Start Date.  Before we
         //   do that, we NULL out the End Date.  Why?  Because...
@@ -206,7 +211,7 @@ public class EventNoteGroup extends NoteGroup
         //   then set the start, then set that duration ?
 
         // System.out.println(d);
-        eNoteComponent.setEventNoteData(end);
+        eventNoteComponent.setEventNoteData(end);
         theHeader.setEventSummary(end.getSummary());
     } // end dateSelected
 
@@ -221,12 +226,12 @@ public class EventNoteGroup extends NoteGroup
     //   calls the saveGroup(), which calls unloadInterface(),
     //   which is what happens during a preSort().
     //---------------------------------------------------------
-    private void doSort() {
+    void doSort() {
         EventNoteData ndNoteData1, ndNoteData2;
         LocalDate d1, d2;
 
         boolean doSwap;
-        int items = vectGroupData.size();
+        int items = groupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -234,19 +239,19 @@ public class EventNoteGroup extends NoteGroup
         MemoryBank.debug("  ASCENDING start dates, Events without dates at BOTTOM");
 
         for (int i = 0; i < (items - 1); i++) {
-            ndNoteData1 = (EventNoteData) vectGroupData.elementAt(i);
+            ndNoteData1 = (EventNoteData) groupDataVector.elementAt(i);
             d1 = ndNoteData1.getStartDate();
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                ndNoteData2 = (EventNoteData) vectGroupData.elementAt(j);
+                ndNoteData2 = (EventNoteData) groupDataVector.elementAt(j);
                 d2 = ndNoteData2.getStartDate();
 
                 if ((d1 == null) || ((d2 != null) && d1.isAfter(d2))) doSwap = true;
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    vectGroupData.setElementAt(ndNoteData2, i);
-                    vectGroupData.setElementAt(ndNoteData1, j);
+                    groupDataVector.setElementAt(ndNoteData2, i);
+                    groupDataVector.setElementAt(ndNoteData1, j);
                     d1 = d2;
                     ndNoteData1 = ndNoteData2;
                 } // end if
@@ -298,6 +303,11 @@ public class EventNoteGroup extends NoteGroup
 
     public String getGroupFilename() { return theGroupFilename; }
 
+    // Returns the path + filename for a given Event group name.
+    static String getGroupFilename(String groupName) {
+        return basePath() + filePrefix + groupName + ".json";
+    }
+
 
     // -------------------------------------------------------------------
     // Method Name: makeNewNote
@@ -315,9 +325,7 @@ public class EventNoteGroup extends NoteGroup
     // Method Name: refresh
     //
     // Called during construction and also in response to a click on the
-    //   'Refresh' menu item.  When an event is to be removed from the
-    //   interface due to 'aging', it should be done by first saving the
-    //   data and then reloading it.
+    //   'Refresh' menu item.
     //----------------------------------------------------------------------
     @Override
     public void refresh() {
@@ -325,7 +333,8 @@ public class EventNoteGroup extends NoteGroup
         updateGroup();
 
         // Call 'ageEvents'
-        if (ageEvents()) {
+        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
+            // removed.  We show that by saving the altered data and then reloading it.
             preClose();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
         } // end if
@@ -356,7 +365,7 @@ public class EventNoteGroup extends NoteGroup
     @Override
     void setGroupData(Object[] theGroup) {
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() { });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() { });
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
@@ -373,7 +382,7 @@ public class EventNoteGroup extends NoteGroup
     //--------------------------------------------------------------
     void showComponent(EventNoteComponent nc, boolean b) {
         if (b) {
-            eNoteComponent = nc;
+            eventNoteComponent = nc;
             EventNoteData end = (EventNoteData) nc.getNoteData();
             if (end == null) return;
 
@@ -387,7 +396,7 @@ public class EventNoteGroup extends NoteGroup
             // Show the summary info.
             theHeader.setEventSummary(end.getSummary());
         } else {
-            eNoteComponent = null;
+            eventNoteComponent = null;
             tmc.setChoice(null);
             theHeader.setEventSummary("Select an Event to display");
         } // end if

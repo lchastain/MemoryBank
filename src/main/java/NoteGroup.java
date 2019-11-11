@@ -47,8 +47,9 @@ public abstract class NoteGroup extends JPanel {
     // Container for a paging control
     NotePager npThePager;
 
-    // Container for the (complete collection of) Group data objects
-    protected Vector<NoteData> vectGroupData;
+    // Container for the (complete collection of) Group data objects.
+    // It may hold more than the PAGE_SIZE number of visible notes.
+    Vector<NoteData> groupDataVector;
 
     // Private members
     //-------------------------------------------------------------
@@ -79,7 +80,7 @@ public abstract class NoteGroup extends JPanel {
         addNoteAllowed = true;
         intHighestNoteComponentIndex = pageSize - 1;
 
-        vectGroupData = new Vector<>();
+        groupDataVector = new Vector<>();
         jsp = new JScrollPane();
         JScrollBar jsb = new JScrollBar();
 
@@ -183,7 +184,7 @@ public abstract class NoteGroup extends JPanel {
     void clearGroup() {
         transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
-        vectGroupData.clear();
+        groupDataVector.clear();
         groupChanged = true;
         saveGroup();   // Save the empty group (which will remove the file, if one exists).
         updateGroup(); // The display will be cleared when it tries to load a data file.
@@ -260,12 +261,12 @@ public abstract class NoteGroup extends JPanel {
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
         // Load the enc with the correct data
-        if(extendedNoteComponent == null) {
+        if (extendedNoteComponent == null) {
             extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
         }
 
         extendedNoteComponent.setExtText(nd.getExtendedNoteString());
-        if(defaultSubject != null) extendedNoteComponent.setSubject(nd.getSubjectString());
+        if (defaultSubject != null) extendedNoteComponent.setSubject(nd.getSubjectString());
 
         //---------------------------------------------------------
         // Make a dialog window to show the ExtendedNoteComponent
@@ -288,7 +289,7 @@ public abstract class NoteGroup extends JPanel {
         tempwin.setTitle(nd.getNoteString());
         tempwin.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                if(defaultSubject != null) extendedNoteComponent.updateSubject();
+                if (defaultSubject != null) extendedNoteComponent.updateSubject();
                 d.setSize(we.getWindow().getSize());
                 we.getWindow().dispose();
             }
@@ -338,12 +339,8 @@ public abstract class NoteGroup extends JPanel {
         this.defaultSubject = defaultSubject;
     }
 
-    // -------------------------------------------------------------------
-    // Method Name: getGroupFilename
-    //
-    // This method returns the name of the file where the data for this
-    //   group of notes is loaded / saved.
-    // -------------------------------------------------------------------
+    // Returns the full path + name of the file containing the
+    //   data for this group of notes.
     public abstract String getGroupFilename();
 
     int getHighestNoteComponentIndex() {
@@ -412,12 +409,17 @@ public abstract class NoteGroup extends JPanel {
     // string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was  a several-line
     // method; this conversion is a one-liner, and my version had the possibility of throwing an Exception that needed
     // to be caught.  Child classes override this, to set the Vector content type to their own internal data class.
-    void setGroupData(Object[] theGroup)  {
+    void setGroupData(Object[] theGroup) {
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        vectGroupData = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() { });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() { });
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
+    // Provides a way for a management class (AppTreePanel) to set the displayed data, vs loading it from a file.
+    void setGroupData(Vector<NoteData> newGroupData) {
+        groupDataVector = newGroupData;
+        loadInterface(1);
+    }
 
     //----------------------------------------------------------------
     // Method Name: loadGroup
@@ -437,7 +439,7 @@ public abstract class NoteGroup extends JPanel {
 
 
     private void loadGroup() {
-        vectGroupData.clear(); // Clear before loading
+        groupDataVector.clear(); // Clear before loading
         lastVisibleNoteIndex = 0;
 
         // This string is set now, just prior to loading the group
@@ -449,13 +451,13 @@ public abstract class NoteGroup extends JPanel {
         //   components themselves remain in place.
         groupFilename = getGroupFilename();
 
-        if(groupFilename.isEmpty()) {
+        if (groupFilename.isEmpty()) {
             MemoryBank.debug("No data file to load, for: " + this.getClass().getName());
         } else {
             MemoryBank.debug("Loading NoteGroup data from: " + groupFilename);
         }
         Object[] theGroup = AppUtil.loadNoteGroupData(groupFilename);
-        if(theGroup != null) {
+        if (theGroup != null) {
             //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
             setGroupData(theGroup);
         } else {
@@ -501,7 +503,7 @@ public abstract class NoteGroup extends JPanel {
         //AppUtil.localDebug(true);
 
         // Set the indexes into the data vector -
-        int maxDataIndex = vectGroupData.size() - 1;
+        int maxDataIndex = groupDataVector.size() - 1;
         int startIndex = (intPageNum - 1) * pageSize;
         int endIndex = (intPageNum * pageSize) - 1;
         if (endIndex > maxDataIndex) endIndex = maxDataIndex;
@@ -518,7 +520,7 @@ public abstract class NoteGroup extends JPanel {
             //   the one from the base class.
             //   That behavior is critical to this app.
             tempNote = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
-            tempNote.setNoteData(vectGroupData.elementAt(i));
+            tempNote.setNoteData(groupDataVector.elementAt(i));
             tempNote.setVisible(true);
             panelIndex++;
         } // end for
@@ -607,7 +609,7 @@ public abstract class NoteGroup extends JPanel {
     // This should be called prior to closing.
     //----------------------------------------------------------------------
     protected void preClose() {
-        if(null != extendedNoteComponent && null != defaultSubject) {
+        if (null != extendedNoteComponent && null != defaultSubject) {
             extendedNoteComponent.saveSubjects();
         }
         if (groupChanged) saveGroup();
@@ -636,7 +638,7 @@ public abstract class NoteGroup extends JPanel {
         int i = thePrettyName.lastIndexOf(File.separatorChar);
         if (i >= 0) { // if it has the File separator character
             // then we only want the part after that
-            thePrettyName = theLongName.substring(i+1);
+            thePrettyName = theLongName.substring(i + 1);
         }
 
         // Drop the JSON file extension
@@ -670,13 +672,13 @@ public abstract class NoteGroup extends JPanel {
         Vector<NoteData> trimmedList = new Vector<>();
 
         // Xfer the 'good' data over to a new, temporary Vector.
-        for (NoteData tempNoteData : vectGroupData) {
+        for (NoteData tempNoteData : groupDataVector) {
 
             // This can happen with an 'empty' NoteGroup.
             if (tempNoteData == null) continue;
 
-            // Don't save if there is no significant primary text.
-            if (tempNoteData.getNoteString().trim().equals("")) continue;
+            // Don't retain this note if there is no significant primary text.
+            if (tempNoteData.getNoteString().trim().isEmpty()) continue;
 
             // Add each 'good' note to the 'keeper' list.
             trimmedList.add(tempNoteData);
@@ -797,7 +799,7 @@ public abstract class NoteGroup extends JPanel {
         // for example, if a file was created for writing but then the writes failed.
         if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
 
-        if (notesWritten == vectGroupData.size()) {
+        if (notesWritten == groupDataVector.size()) {
             intSaveGroupStatus = SUCCEEDED + notesWritten;
         } else {
             intSaveGroupStatus = OTHERFAILURE;
@@ -933,7 +935,8 @@ public abstract class NoteGroup extends JPanel {
 //  } // end shiftUp
 
 
-    // Returns a short (no path) version of the strGroupFilename
+    // Returns a short (no path) version of the groupFilename
+    // Stops short of 'prettifying' it.
     private String shortName() {
         String s = groupFilename;
         int ix = s.lastIndexOf(File.separatorChar);
@@ -949,7 +952,7 @@ public abstract class NoteGroup extends JPanel {
 
         // Do the sort
         LastModComparator lmc = new LastModComparator(direction);
-        vectGroupData.sort(lmc);
+        groupDataVector.sort(lmc);
 
         // Display the same page, now with possibly different contents.
         loadInterface(npThePager.getCurrentPage());
@@ -964,7 +967,7 @@ public abstract class NoteGroup extends JPanel {
 
         // Do the sort
         NoteStringComparator nsc = new NoteStringComparator(direction);
-        vectGroupData.sort(nsc);
+        groupDataVector.sort(nsc);
 
         // Display the same page, now with possibly different contents.
         loadInterface(npThePager.getCurrentPage());
@@ -994,7 +997,7 @@ public abstract class NoteGroup extends JPanel {
         // used to determine the highest usable index into the vectGroupData.
         // The index will tell us whether a note
         //   should be replaced, or just added to the end of the vector.
-        int maxDataIndex = vectGroupData.size() - 1;
+        int maxDataIndex = groupDataVector.size() - 1;
 
         NoteComponent tempNoteComponent;
         NoteData tempNoteData;
@@ -1010,12 +1013,12 @@ public abstract class NoteGroup extends JPanel {
             if (tempNoteData != null) {
                 // The last visible (uninitialized) note has null data.
                 if (i <= maxDataIndex) {
-                   vectGroupData.setElementAt(tempNoteData, i);
+                    groupDataVector.setElementAt(tempNoteData, i);
                 } else {
                     // This happens during a TodoList merge operation; one or more
                     // new items being added all at once.
                     System.out.println("NoteGroup.unloadInterface: Adding new element!");
-                    vectGroupData.addElement(tempNoteData);
+                    groupDataVector.addElement(tempNoteData);
                 } // end if
             } // end if
         } // end for i

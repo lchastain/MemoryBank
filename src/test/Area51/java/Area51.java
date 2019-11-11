@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.*;
 
 public class Area51 {
 
@@ -50,19 +51,39 @@ public class Area51 {
         // to be aligned with the current timezone.  Good.
     }
 
+    // This shows that children cannot have different values in a static
+    // string that is defined in a base class.
     private void try3() {
-        Child1 child1 = new Child1();
-        Child2 child2 = new Child2();
-
         System.out.println("Parent string: " + ParentClass.theString);
         System.out.println("Child1 string: " + Child1.theString);
         System.out.println("Child2 string: " + Child2.theString);
     }
 
+    // Does isEmpty() return true if the string has only spaces?   No.
+    private void try4() {
+        String fourSpaces = "    ";
+        System.out.println("four spaces is empty: " + fourSpaces.isEmpty());
+        System.out.println("trimmed four spaces is empty: " + fourSpaces.trim().isEmpty());
+    }
+
+    // Merging two vectors, without duplicates -
+    private void try5() {
+        String[] stringArray1 = new String[]{"B", "D", "G"};
+        String[] stringArray2 = new String[]{"A", "B", "C", "D", "E", "H"};
+
+        Vector<String> vector1 = new Vector<>(Arrays.asList(stringArray1));
+        Vector<String> vector2 = new Vector<>(Arrays.asList(stringArray2));
+
+        LinkedHashSet<String> lhs = new LinkedHashSet<>(vector1);
+        lhs.addAll(vector2);
+        Vector<String> finalVector = new Vector<>(lhs);
+
+        System.out.println(finalVector.toString());
+    }
 
     public static void main(String[] args) {
         Area51 a51 = new Area51();
-        a51.try3();
+        a51.try5();
 
     }
 

@@ -1,10 +1,11 @@
-/**  Representation of a single Event Note.  It 'contains' the associated
+/*  Representation of a single Event Note.  It 'contains' the associated
  EventNoteData.
  */
 
 public class EventNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
     private EventNoteGroup myNoteGroup;
+    static boolean isEditable = true;
 
     // The Member
     private EventNoteData myEventNoteData;
@@ -12,19 +13,16 @@ public class EventNoteComponent extends IconNoteComponent {
     EventNoteComponent(EventNoteGroup eng, int i) {
         super(eng, i);
         myNoteGroup = eng;
+        if(!isEditable) {
+            noteTextField.setEditable(false);
+            noteIcon.removeMouseListener(noteIcon);
+        }
         MemoryBank.init();
     } // end constructor
 
 
     @Override
-    public NoteData getNoteData() {
-//        if (!initialized) return null;
-        // Extended note data was already updated, since it was collected
-        //   from a modal dialog.
-
-        // The icon string also comes from a modal selection, directly into the data.
-        return myEventNoteData;
-    } // end getNoteData
+    public NoteData getNoteData() { return myEventNoteData;  }
 
     protected void makeDataObject() {
         myEventNoteData = new EventNoteData();
@@ -39,19 +37,27 @@ public class EventNoteComponent extends IconNoteComponent {
     protected void resetMouseMessage(int textStatus) {
         String s = " ";
 
-        switch (textStatus) {
-            case NEEDS_TEXT:
-                s = "Click here to enter text for this Event.";
-                break;
-            case HAS_BASE_TEXT:
-                s = "Double-click here to add details about this Event.";
-                break;
-            case HAS_EXT_TEXT:
-                // This gives away the 'hidden' text, if
-                //   there is no primary (blue) text.
-                s = "Double-click here to see/edit";
-                s += " the additional details for this Event.";
-        } // end switch
+        // Since the isEditable flag is static we cannot be checking it at
+        // runtime (now).  But the result of the value that it had during
+        // construction can still be considered -
+        if(noteTextField.isEditable()) {
+            switch (textStatus) {
+                case NEEDS_TEXT:
+                    s = "Click here to enter text for this Event.";
+                    break;
+                case HAS_BASE_TEXT:
+                    s = "Double-click here to add details about this Event.";
+                    break;
+                case HAS_EXT_TEXT:
+                    // This gives away the 'hidden' text, if
+                    //   there is no primary (blue) text.
+                    s = "Double-click here to see/edit";
+                    s += " the additional details for this Event.";
+            } // end switch
+        } else {
+            s = "Events shown in the Consolidated View are non-editable.  ";
+            s += "Go to the original source if a change is needed.";
+        }
         myNoteGroup.setMessage(s);
     } // end resetMouseMessage
 
@@ -69,8 +75,8 @@ public class EventNoteComponent extends IconNoteComponent {
     void setEventNoteData(EventNoteData newNoteData) {
         myEventNoteData = newNoteData;
 
-        // update visual components...
-        initialized = true;  // without updating the 'lastModDate'
+        // update visual components without updating the 'lastModDate'
+        initialized = true;
         resetComponent();
         setNoteChanged();
     } // end setNoteData

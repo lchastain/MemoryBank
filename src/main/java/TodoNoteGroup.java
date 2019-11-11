@@ -584,8 +584,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     void setGroupData(Object[] theGroup) {
         myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListProperties.class);
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        vectGroupData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
-        });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
@@ -657,7 +656,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         TodoNoteData todoData1, todoData2;
         int pri1, pri2;
         boolean doSwap;
-        int items = vectGroupData.size();
+        int items = groupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -673,13 +672,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) vectGroupData.elementAt(i);
+            todoData1 = (TodoNoteData) groupDataVector.elementAt(i);
             if (todoData1 == null) pri1 = 0;
             else pri1 = todoData1.getPriority();
             if (pri1 == 0) if (myVars.whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                todoData2 = (TodoNoteData) vectGroupData.elementAt(j);
+                todoData2 = (TodoNoteData) groupDataVector.elementAt(j);
                 if (todoData2 == null) pri2 = 0;
                 else pri2 = todoData2.getPriority();
                 if (pri2 == 0) if (myVars.whenNoKey == STAY) continue; // No key; skip.
@@ -704,8 +703,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    vectGroupData.setElementAt(todoData2, i);
-                    vectGroupData.setElementAt(todoData1, j);
+                    groupDataVector.setElementAt(todoData2, i);
+                    groupDataVector.setElementAt(todoData1, j);
                     pri1 = pri2;
                     todoData1 = todoData2;
                 } // end if
@@ -723,7 +722,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         TodoNoteData todoData1, todoData2;
         String str1, str2;
         boolean doSwap;
-        int items = vectGroupData.size();
+        int items = groupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -739,13 +738,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) vectGroupData.elementAt(i);
+            todoData1 = (TodoNoteData) groupDataVector.elementAt(i);
             if (todoData1 == null) str1 = "";
             else str1 = todoData1.getNoteString().trim();
             if (str1.equals("")) if (myVars.whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                todoData2 = (TodoNoteData) vectGroupData.elementAt(j);
+                todoData2 = (TodoNoteData) groupDataVector.elementAt(j);
                 if (todoData2 == null) str2 = "";
                 else str2 = todoData2.getNoteString().trim();
                 if (str2.equals("")) if (myVars.whenNoKey == STAY) continue; // No key; skip.
@@ -770,8 +769,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving data element " + i + " below " + j);
-                    vectGroupData.setElementAt(todoData2, i);
-                    vectGroupData.setElementAt(todoData1, j);
+                    groupDataVector.setElementAt(todoData2, i);
+                    groupDataVector.setElementAt(todoData1, j);
                     str1 = str2;
                     todoData1 = todoData2;
                 } // end if

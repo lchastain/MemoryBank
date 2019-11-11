@@ -9,7 +9,7 @@ public class AppMenuBar extends JMenuBar{
     private static JMenu yearEditMenu;
     private static JMenu fileMenu;
     private static JMenu searchResultFileMenu;
-    private static JMenu todoBranchFileMenu;
+    private static JMenu branchFileMenu;
     private static JMenu todoFileMenu;
     private static JMenu viewMenu;
     private static JMenu noteViewMenu;
@@ -31,11 +31,11 @@ public class AppMenuBar extends JMenuBar{
         searchResultFileMenu.add(new JMenuItem("Icon Manager..."));
         searchResultFileMenu.add(new JMenuItem("Exit"));
 
-        todoBranchFileMenu = new JMenu("File");
-        todoBranchFileMenu.add(new JMenuItem("Add New..."));
-        todoBranchFileMenu.add(new JMenuItem("Search..."));
-        todoBranchFileMenu.add(new JMenuItem("Icon Manager..."));
-        todoBranchFileMenu.add(new JMenuItem("Exit"));
+        branchFileMenu = new JMenu("File");
+        branchFileMenu.add(new JMenuItem("Add New..."));
+        branchFileMenu.add(new JMenuItem("Search..."));
+        branchFileMenu.add(new JMenuItem("Icon Manager..."));
+        branchFileMenu.add(new JMenuItem("Exit"));
 
         todoFileMenu = new JMenu("File");
         todoFileMenu.add(new JMenuItem("Close"));
@@ -89,7 +89,7 @@ public class AppMenuBar extends JMenuBar{
         monthEditMenu.setVisible(false);
         todoEditMenu.setVisible(false);
         yearEditMenu.setVisible(false);
-        todoBranchFileMenu.setVisible(false);
+        branchFileMenu.setVisible(false);
         todoFileMenu.setVisible(false);
         searchResultFileMenu.setVisible(false);
         viewMenu.setVisible(false);
@@ -101,7 +101,7 @@ public class AppMenuBar extends JMenuBar{
         super();
         add(fileMenu);
         add(searchResultFileMenu);
-        add(todoBranchFileMenu);
+        add(branchFileMenu);
         add(todoFileMenu);
         add(dayNoteEditMenu);
         add(monthEditMenu);
@@ -132,7 +132,7 @@ public class AppMenuBar extends JMenuBar{
         //   let the specific cases below make any needed alterations.
         //-----------------------------------------
         fileMenu.setVisible(true);
-        todoBranchFileMenu.setVisible(false);
+        branchFileMenu.setVisible(false);
         todoFileMenu.setVisible(false);
         searchResultFileMenu.setVisible(false);
         dayNoteEditMenu.setVisible(false);
@@ -143,7 +143,7 @@ public class AppMenuBar extends JMenuBar{
         viewsViewMenu.setVisible(false);
         noteViewMenu.setVisible(false);
 
-        MemoryBank.debug("MenuBar Configuration: " + theCurrentContext);
+        MemoryBank.debug("Setting MenuBar Configuration: " + theCurrentContext);
 
         switch (theCurrentContext) {
             case "Year View":  // Year View
@@ -174,10 +174,11 @@ public class AppMenuBar extends JMenuBar{
                 viewMenu.setVisible(false);
                 noteViewMenu.setVisible(true);
                 break;
+            case "Consolidated View":
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
                 fileMenu.setVisible(false);
-                todoBranchFileMenu.setVisible(true);
+                branchFileMenu.setVisible(true);
                 viewMenu.setVisible(false);
                 break;
             case "Upcoming Event":

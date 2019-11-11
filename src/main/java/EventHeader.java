@@ -38,6 +38,7 @@ public class EventHeader extends JPanel implements MouseListener {
         LabelButton btnUpdate = new LabelButton("Update");
 
         lblEventSummary = new JLabel("Select an Event to display.") {
+            private static final long serialVersionUID = 1L; // Yes, needed.
             public Dimension getPreferredSize() {
                 Dimension d = super.getPreferredSize();
                 if (d.height < 50) d.height = 50;

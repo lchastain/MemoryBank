@@ -1,4 +1,4 @@
-/**  NotePager provides a control for altering the page number of the
+/*  NotePager provides a control for altering the page number of the
  NoteGroup.  It is created by the base NoteGroup class but relies
  on the child NoteGroup to 'add' it to their container.  The
  preferred location is the upper right corner of the header.  If
@@ -78,15 +78,15 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
 
     } // end constructor
 
-    public int getCurrentPage() {
+    int getCurrentPage() {
         return intCurrentPage;
     }
 
-    public int getHighestPage() {
+    int getHighestPage() {
         return intMaxPages;
     }
 
-    public int getPageFrom() {
+    int getPageFrom() {
         return intPageFrom;
     }
 
@@ -123,7 +123,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         intCurrentPage = i;
         intPageFrom = i;
         intPageSize = myNoteGroup.pageSize;
-        intGroupSize = myNoteGroup.vectGroupData.size();
+        intGroupSize = myNoteGroup.groupDataVector.size();
 
         // Calculate the maximum number of pages.
         if (intGroupSize == 0) intMaxPages = 1;
@@ -150,7 +150,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         setMiddleMessage();
 
         MemoryBank.dbg("NotePager.reset Page " + i + "\t Size: " + myNoteGroup.pageSize);
-        MemoryBank.debug("\t Group size: " + myNoteGroup.vectGroupData.size());
+        MemoryBank.debug("\t Group size: " + myNoteGroup.groupDataVector.size());
     } // end reset
 
 
@@ -160,7 +160,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     // Resets the message on the middleButton.
     // Called by reset and any paging operation.
     //---------------------------------------------------------------------
-    public void setMiddleMessage() {
+    private void setMiddleMessage() {
         String s = String.valueOf(intCurrentPage);
         jtfThePageNum.setToolTipText(s);
         s += " of " + intMaxPages;
@@ -219,15 +219,20 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         String s = source.getName();
 
         String mouseMsg;
-        if (s.equals("middleButton")) {
-            mouseMsg = "Click here to go to a specific page.";
-        } else if (s.equals("rightAb")) {
-            mouseMsg = "Click here to see the next page of results.";
-        } else if (s.equals("leftAb")) {
-            mouseMsg = "Click here to see the previous page of results.";
-        } else {
-            mouseMsg = "I have no idea how to handle " + s;
-        } // end if/else if
+        switch (s) {
+            case "middleButton":
+                mouseMsg = "Click here to go to a specific page.";
+                break;
+            case "rightAb":
+                mouseMsg = "Click here to see the next page of results.";
+                break;
+            case "leftAb":
+                mouseMsg = "Click here to see the previous page of results.";
+                break;
+            default:
+                mouseMsg = "I have no idea how to handle " + s;
+                break;
+        }
 
         myNoteGroup.setMessage(mouseMsg);
     } // end mouseEntered

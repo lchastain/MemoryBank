@@ -31,7 +31,7 @@ public class NoteComponent extends JPanel {
     static Border redBorder;
     static Border highBorder;
     static Border lowBorder;
-    protected static JPopupMenu popup;
+    static JPopupMenu popup;
 
     // This is how we get around the restriction on the
     //   use of 'this' in a static context (PopHandler).  We just
@@ -194,7 +194,7 @@ public class NoteComponent extends JPanel {
             // A NoteComponent will lose initialization and visible text if cleared,
             //   but will retain its data object.  We only want to add 'new' data
             //   to the group Vector.
-            myNoteGroup.vectGroupData.addElement(getNoteData());
+            myNoteGroup.groupDataVector.addElement(getNoteData());
             myNoteGroup.activateNextNote(index);
         }
         initialized = true;
@@ -322,19 +322,6 @@ public class NoteComponent extends JPanel {
     public void setActive() {
         noteTextField.requestFocusInWindow();
     } // end NoteComponent setActive
-
-
-    //------------------------------------------
-    // Method Name: setEditable
-    //
-    // Provides a pass-thru from this encapsulating
-    //   component, to the actual JTextField.
-    // So far (6/24/2007) only the SearchResultComponent
-    //   is using, and only to set to false.
-    //------------------------------------------
-    public void setEditable(boolean b) {
-        noteTextField.setEditable(b);
-    } // end setEditable
 
 
     public void setNoteChanged() {

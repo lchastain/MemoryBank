@@ -776,25 +776,17 @@ public class EventNoteData extends IconNoteData {
             } // end if/else - general or specific or last
         }
 
-
-//        return dateTheEndDate;
         return futureDate;
     } // end goForwardMonths
 
 
-    //----------------------------------------------------------------
-    // Method Name: getDayNoteData
-    //
-    // Returns a DayNoteData that is made from this EventNoteData.
-    //   DayNoteData is not robust enough to hold all the discrete data
-    //   elements from here but it CAN hold text that can adequately describe the
-    //   the additional fields, and this is good enough for our purposes, which
-    //   is to prepare this event to be archived in the Notes.
-    // Note that although a Day does not usually hold its correct calendar date
-    //   in the 'time' field, in this case it must, in order for
-    //   NoteGroup.addNote to place it in the correct file.
-    //----------------------------------------------------------------
-
+    // This is used by the Set that is created in the Consolidated View, for uniqueness
+    // checking.  It is effectively a disabling of this part of the check, so that the
+    // only remaining uniqueness criteria is the result of the .equals() method.
+    @Override
+    public int hashCode() {
+        return 1;
+    }
 
     //---------------------------------------------------------
     // Method Name: hasStarted
@@ -1268,6 +1260,33 @@ public class EventNoteData extends IconNoteData {
                 break;
         }
         return theMinutes;
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if (this == otherObject) return true; // self check
+        if (otherObject == null) return false; // null check
+        if (getClass() != otherObject.getClass()) return false; // type check
+
+        EventNoteData otherEvent = (EventNoteData) otherObject;
+
+        if(!noteString.equals(otherEvent.noteString)) return false;
+        if(!extendedNoteString.equals(otherEvent.extendedNoteString)) return false;
+        if(eventStartDateString == null && otherEvent.eventStartDateString != null) return false;
+        if(eventStartDateString != null) {
+            if (!eventStartDateString.equals(otherEvent.eventStartDateString)) return false;
+        }
+        if(eventEndDateString == null && otherEvent.eventEndDateString != null) return false;
+        if(eventEndDateString != null) {
+            if(!eventEndDateString.equals(otherEvent.eventEndDateString)) return false;
+        }
+
+        return null != recurrenceString || otherEvent.recurrenceString == null;
+
+//        if(!eventStartTimeString.equals(otherEvent.eventStartTimeString)) return false;
+//        if(!eventEndTimeString.equals(otherEvent.eventEndTimeString)) return false;
+//        if(!durationUnits.equals(otherEvent.durationUnits)) return false;
+//        if(!durationValue.equals(otherEvent.durationValue)) return false;
     }
 
     // NOTES:

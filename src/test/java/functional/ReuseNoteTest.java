@@ -43,7 +43,7 @@ class ReuseNoteTest {
         dayNoteComponent4.setNoteData(dayNoteData);
 
         // Verify that reusing the line did not add a new one (SCR0065)
-        int highest = dayNoteGroup.vectGroupData.size();
+        int highest = dayNoteGroup.groupDataVector.size();
         Assertions.assertEquals(highest, 10);
 
         // Note: during dev of this test a new problem (caused by the initial fix for SCR0065)
@@ -81,7 +81,7 @@ class ReuseNoteTest {
         Assertions.assertEquals("The third thang.", todoNoteComponent.getNoteData().getNoteString());
 
         // Verify that reusing the line did not add a new one (SCR0065)
-        int highest = todoNoteGroup.vectGroupData.size();
+        int highest = todoNoteGroup.groupDataVector.size();
         Assertions.assertEquals(highest, 10);
 
         // Not needed, unless you run only this test and then want to examine the result.

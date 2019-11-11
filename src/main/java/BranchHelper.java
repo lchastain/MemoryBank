@@ -87,10 +87,10 @@ public class BranchHelper implements BranchHelperInterface {
         // had changed it to something else and now wants to go back to how it was out-of-the-box
         // but there is no apparent 'reset' button for that.  The way to reset it will be to
         // simply clear it out; this method will see an empty string and can restore the default.
-        if(renameFrom.equals(MemoryBank.appOpts.consolidatedEventsListName)) {
+        if(renameFrom.equals(MemoryBank.appOpts.consolidatedEventsViewName)) {
             if(theAreaNodeName.equals(AREA_EVENT)) {
                 if (theName.isEmpty()) {
-                    renameTo = new AppOptions().consolidatedEventsListName;
+                    renameTo = new AppOptions().consolidatedEventsViewName;
                     return true;
                 }
             }
@@ -111,7 +111,7 @@ public class BranchHelper implements BranchHelperInterface {
     @Override
     public boolean deleteAllowed(String theSelection) {
         if(AREA_EVENT.equals(theAreaNodeName)) {
-            return !theSelection.equals(MemoryBank.appOpts.consolidatedEventsListName);
+            return !theSelection.equals(MemoryBank.appOpts.consolidatedEventsViewName);
         }
         return true;
     }
@@ -143,9 +143,9 @@ public class BranchHelper implements BranchHelperInterface {
 
                 // Checking for the special case -
                 if(theAreaNodeName.equals("Upcoming Events")) {
-                    if (nodeChange.nodeName.equals(MemoryBank.appOpts.consolidatedEventsListName)) {
+                    if (nodeChange.nodeName.equals(MemoryBank.appOpts.consolidatedEventsViewName)) {
                         // An exception to the norm - this one has no corresponding file.
-                        MemoryBank.appOpts.consolidatedEventsListName = nodeChange.renamedTo;
+                        MemoryBank.appOpts.consolidatedEventsViewName = nodeChange.renamedTo;
                         continue;
                     }
                 }
@@ -239,7 +239,7 @@ public class BranchHelper implements BranchHelperInterface {
 
         // Create the list of files.
         if(theAreaNodeName.equals(AREA_EVENT)) {
-            theChoices.add(MemoryBank.appOpts.consolidatedEventsListName);
+            theChoices.add(MemoryBank.appOpts.consolidatedEventsViewName);
         }
         if (theFileList != null) {
             log.debug("Number of " + theAreaNodeName + " files found: " + theFileList.length);

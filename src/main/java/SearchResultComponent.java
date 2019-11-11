@@ -24,10 +24,14 @@ public class SearchResultComponent extends NoteComponent {
 
         index = i;
         myNoteGroup = ng;
-
-        setEditable(false);
         fibTheFoundInButton = new FoundInButton();
         lastModLabel = new LastModLabel();
+
+        // Since a SearchResult should never be modified we can do this once here,
+        // unlike the Consolidated View for Events which needs to set the static
+        // boolean both before and after construction because all other instances
+        // of an Event List except that one should remain editable.
+        noteTextField.setEditable(false);
 
         //----------------------------------------------------------
         // Graphical elements
@@ -35,9 +39,9 @@ public class SearchResultComponent extends NoteComponent {
         // Note: The dndLayout does not care about any component name other
         //   than 'Stretch', but something must be provided for each one.
         //   Only one component can be the one to be stretched.
-        add(fibTheFoundInButton, "fib");
+        add(fibTheFoundInButton, "foundIn");
         add(noteTextField, "Stretch"); // will resize along with container
-        add(lastModLabel, "sb");
+        add(lastModLabel, "lastMod");
 
         MemoryBank.init();
     } // end constructor
@@ -119,7 +123,7 @@ public class SearchResultComponent extends NoteComponent {
         lastModLabel.setText(strModDate);
     } // end resetComponent
 
-
+    @Override
     protected void resetMouseMessage(int textStatus) {
         String s;
 

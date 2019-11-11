@@ -26,7 +26,7 @@ class AppOptions {
     Vector<String> todoLists;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
-    String consolidatedEventsListName;
+    String consolidatedEventsViewName;
 
     AppOptions() {
         eventsExpanded = false;
@@ -36,7 +36,7 @@ class AppOptions {
         searchesExpanded = false;
         theSelection = null;
         theSelectionRow = -1;
-        consolidatedEventsListName = "Consolidated List";
+        consolidatedEventsViewName = "Consolidated View";
         eventLists = new Vector<>(0, 1);
         todoLists = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);

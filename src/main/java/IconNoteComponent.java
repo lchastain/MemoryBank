@@ -158,7 +158,7 @@ public abstract class IconNoteComponent extends NoteComponent {
     protected class NoteIcon extends JLabel implements
             ActionListener, MouseListener {
 
-        private static final long serialVersionUID = -7694729396552635645L;
+        private static final long serialVersionUID = 1L;
 
         private String theIconFile;
 
