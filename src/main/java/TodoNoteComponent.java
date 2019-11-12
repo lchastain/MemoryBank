@@ -107,8 +107,11 @@ public class TodoNoteComponent extends NoteComponent {
         if (pbThePriorityButton != null) pbThePriorityButton.clear();
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
 
-        // Clear the base component and then clear underlying data.
-        super.clear(); // this also sets the component 'initialized' to false
+        // Clear the base component and its underlying data.
+        super.clear(); // This also sets the component 'initialized' to false.
+        // And it leaves a 'gap' but we like that so no refresh here but
+        // we do want to remove any selection from the Three Month Column.
+        myNoteGroup.getThreeMonthColumn().setChoice(null);
     } // end clear
 
 
@@ -200,13 +203,12 @@ public class TodoNoteComponent extends NoteComponent {
         if (success) {
             MemoryBank.debug("Move succeeded");
             // We don't know if this day is already showing, or not.
-            // So the 'note added' flag is set, and when the tree view
-            // switches to DayNotes, the currently selected day will be reloaded -
-            // whether or not we just added a note to it.  But for the
-            // data - AppUtil.addNote is what added it to the file.
+            // So the 'note added' flag is set, so if/when the tree view
+            // switches to DayNotes, the current date choice will be (re-)loaded,
+            // whether or not that was the day to which we just added a note.
+            // But for the data - AppUtil.addNote is what added it to the file.
             DayNoteGroup.blnNoteAdded = true;
-
-            clear();  // This is what creates the 'gap'.
+            clear();  // This creates a 'gap'.
         } else {
             MemoryBank.debug("Move failed");
             s = "Cannot preserve this item.\n";

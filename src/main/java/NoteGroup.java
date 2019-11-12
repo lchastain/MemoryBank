@@ -1062,8 +1062,9 @@ public abstract class NoteGroup extends JPanel {
 
 
     protected void refresh() {
-        preClose();
-        updateGroup();
+        preClose();     // Save any in-progress changes
+        updateGroup();  // Reload the interface - this removes 'gaps'.
+        requestFocus(); // De-select all NoteComponents.
     }
 
 
