@@ -46,7 +46,7 @@ class NoteGroupFactory {
         } else if (theContext.startsWith("Upcoming Event")) {
             return new EventNoteGroup(filename);
         } else if (theContext.startsWith("Search Result")) {
-            MemoryBank.debug("ERROR!  We do not make new Search Results with the factory");
+            MemoryBank.debug("ERROR!  We do not make new Search Results with the Factory");
         }
         return null; // This line is only reached for unsupported group types.
     }

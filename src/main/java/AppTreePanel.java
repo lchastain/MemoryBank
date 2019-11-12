@@ -309,7 +309,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         NoteGroup theGroup = theNoteGroupKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
-            theNoteGroupKeeper.add(theGroup);
+            if(theGroup != null) { // It won't be, but IJ needs to be sure.
+                theNoteGroupKeeper.add(theGroup);
+                theGroup.setGroupChanged(); // Save this empty group.
+                theGroup.preClose();
+            }
         }
 
         // Expand the parent node (if needed) and select the group.
@@ -364,9 +368,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         node.removeFromParent();
         treeModel.nodeStructureChanged(theParent);
         theTree.addTreeSelectionListener(this);
-
-        // Do not attempt to save this group prior to changing the tree selection.
-        theNoteGroup = null; // It probably already was, but might have been the one before this one.
 
         // Select the parent branch
         TreeNode[] pathToRoot = theParent.getPath();

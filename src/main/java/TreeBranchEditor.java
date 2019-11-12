@@ -188,7 +188,7 @@ public class TreeBranchEditor extends JPanel
             // yet it does not do this to the lone JCheckbox components, so we have
             // unwanted, seemingly inconsistent behavior.
             // Complicating it all is the fact that we do want the horizontal stretch
-            // behavior but don't want the vertical stretch.  So - we 'fix' this by
+            // behavior but don't want the vertical stretch.  So - we handle this by
             // taking advantage of the fact that the BoxLayout is one of the few
             // Layouts that actually respects the minimum and maximum sizes of a component.
             JPanel oneLine = new JPanel(new BorderLayout());

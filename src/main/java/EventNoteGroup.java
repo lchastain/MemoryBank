@@ -61,6 +61,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         MemoryBank.debug("Constructing: " + getName());
 
         theGroupFilename = basePath() + filePrefix + groupName + ".json";
+        saveWithoutData = true;
 
         eventNoteComponent = null;
         tmc = new ThreeMonthColumn();

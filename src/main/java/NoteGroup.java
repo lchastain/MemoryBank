@@ -33,6 +33,7 @@ public abstract class NoteGroup extends JPanel {
     protected static String ems;     // Error Message String
     ExtendedNoteComponent extendedNoteComponent;
     boolean addNoteAllowed;
+    boolean saveWithoutData;
     int lastVisibleNoteIndex = 0;
     int pageSize;
 
@@ -78,6 +79,7 @@ public abstract class NoteGroup extends JPanel {
         super(new BorderLayout());
         pageSize = intPageSize;
         addNoteAllowed = true;
+        saveWithoutData = false;
         intHighestNoteComponentIndex = pageSize - 1;
 
         groupDataVector = new Vector<>();
@@ -788,16 +790,21 @@ public abstract class NoteGroup extends JPanel {
             theGroup[0] = trimmedList;
         } // end if there is a properties object
 
-        // If there is data to preserve, do so now.
-        if ((groupProperties != null) || (trimmedList.size() > 0)) {
+        if(saveWithoutData) {
+            // We save a file, with data or not.
             notesWritten = AppUtil.saveNoteGroupData(groupFilename, theGroup);
-        } // end if
+        } else {
+            // If there is data to preserve, do so now.
+            if ((groupProperties != null) || (trimmedList.size() > 0)) {
+                notesWritten = AppUtil.saveNoteGroupData(groupFilename, theGroup);
+            } // end if
 
-
-        // We didn't try to write a file if there was no data, but there are cases where
-        // a file for this data might already be out there, that shouldn't be -
-        // for example, if a file was created for writing but then the writes failed.
-        if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
+            // We didn't try to write a file if there was no data, but there are cases where
+            // a file for this data might already be out there, that shouldn't be -
+            // for example, if a file was previously created for writing but then the writes
+            // failed, and we're here again at a later time.
+            if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
+        }
 
         if (notesWritten == groupDataVector.size()) {
             intSaveGroupStatus = SUCCEEDED + notesWritten;
