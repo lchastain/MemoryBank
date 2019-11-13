@@ -124,13 +124,22 @@ public class AppUtil {
         // the directory might exist but be empty; also allowed.
         if ((foundFiles != null) && (foundFiles.length > 0)) {
             // Previously we tried to handle the case of more than one file found for the same
-            // name prefix, but the JOptionPane error dialog cannot be shown here (possibly
-            // because it referenced a null parentComponent).  Further, if this occurs at
-            // startup then we'd never get past the splash screen.  So - we just take the first one.
+            // name prefix, but the JOptionPane error dialog cannot be shown here because if
+            // this occurs at startup then we'd never get past the splash screen.  So - we just
+            // take the last one.  But having a pile-up of older files, if it happens, could
+            // become a big problem.  So far this HAS happened but on a one or two file basis,
+            // never hundreds, and it was due to glitches during development, where a debug
+            // session was killed.  So - taking the last one will suffice for now, until the
+            // app is converted to storing its data in a database vs the filesystem and then
+            // the problem goes away.
+            // Also - you don't have to use a timestamp in the filename, bozo.  The individual
+            // data elements do each have their LMDs, and each 'prefix' is unique to the
+            // containing 'year' directory, so what is the value-added, anyway?
+            // Think about it...
             fileName = MemoryBank.userDataHome + File.separatorChar;
             fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
             fileName += File.separatorChar;
-            fileName += foundFiles[0];
+            fileName += foundFiles[foundFiles.length-1];
         }
         return fileName;
     } // end findFilename

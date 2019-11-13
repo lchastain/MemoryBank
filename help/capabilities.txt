@@ -1,5 +1,34 @@
+123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 List of all supported capabilities of the Memory Bank app -
 (format here will almost certainly change; this is just to get us started - 9/8/2019)
+
+Visually, the app is MenuBar over a SplitPane.  The description of menu items will be
+    given below, in the areas where they are applicable.  This is because menu choices
+    appear conditionally, dependent on actions taken on the control below the bar in the
+    left side of the pane.  The left side shows a content navigation tree, with selectable
+     nodes that control the content of the right side.  The nodes all have descriptive
+     names so that user selection should be intuitive.  Tree branches are expandable and
+     collapsible, and their state is retained between program runs, as well as the last
+     selection that was made.   Depending on the selected left-side tree node, the right
+     side displays several different components, described below.
+
+Tree Branch Editors - These allow selection and deselection of the branch content to
+    appear in the tree, as well as naming and order.  Associated data files may also be
+    deleted.  Currently there are three supported, for the management of:
+        Upcoming Events
+        Todo Lists
+        Search Results
+
+Tree Branch Views - Currently there are two; Notes and Calendar.  No real functionality here;
+    just an additional branch view of that part of the tree, but for behavioral
+    consistency there is the action of showing them when the node is selected, vs otherwise
+    just leaving the right side on the last selection.  These may eventually become 'editors',
+    where visibility and order of the nodes can be controlled, possibly even nesting.
+
+Upcoming Events -
+
+Goals - nothing going on here, yet.
 
 Year View - View a Calendar Year, one year per page, scrollable
     Which year is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
