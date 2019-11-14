@@ -458,13 +458,35 @@ public class SearchPanel extends JPanel {
         if (parens == SearchPanel.PARENS1) sps.paren1 = true;
         if (parens == SearchPanel.PARENS2) sps.paren2 = true;
 
-        sps.setNoteDateWhen1(getnoteWhen1());
-        sps.setNoteDateWhen2(getnoteWhen2());
-        sps.whenChoice = getWhenSetting();
+        LocalDate localDate; // re-used several places below.
 
-        sps.setDateLastMod1(getDateLastMod1());
-        sps.setDateLastMod2(getDateLastMod2());
+        sps.whenChoice = getWhenSetting();
+        localDate = getnoteWhen1();
+        if(localDate == null) {
+            sps.noteDateWhen1String = null;
+        } else {
+            sps.noteDateWhen1String = localDate.toString();
+        }
+        localDate = getnoteWhen2();
+        if(localDate == null) {
+            sps.noteDateWhen2String = null;
+        } else {
+            sps.noteDateWhen2String = localDate.toString();
+        }
+
         sps.modChoice = getLastModSetting();
+        localDate = getDateLastMod1();
+        if(localDate == null) {
+            sps.dateLastMod1String = null;
+        } else {
+            sps.dateLastMod1String = localDate.toString();
+        }
+        localDate = getDateLastMod2();
+        if(localDate == null) {
+            sps.dateLastMod2String = null;
+        } else {
+            sps.dateLastMod2String = localDate.toString();
+        }
 
         return sps;
     } // end getSettings

@@ -1,6 +1,8 @@
-import java.time.LocalDate;
-
 // This class holds the Search parameters.
+// After reading this:  https://dzone.com/articles/getter-setter-use-or-not-use-0
+//   decided to NOT use getters/setters here, and that encapsulation for this
+//   data class is not appropriate.  It is package-private, not intended for
+//   access from anywhere other than the SearchPanel and SearchResultGroup.
 //-----------------------------------------------------------------------
 class SearchPanelSettings  {
     boolean not1;
@@ -16,48 +18,12 @@ class SearchPanelSettings  {
     boolean paren1;
     boolean paren2;
 
-    private String noteDateWhen1String;
-    private String noteDateWhen2String;
     int whenChoice;
+    String noteDateWhen1String;
+    String noteDateWhen2String;
 
-    private String dateLastMod1String;
-    private String dateLastMod2String;
     int modChoice;
-
-    LocalDate getNoteDateWhen1() {
-        return LocalDate.parse(noteDateWhen1String);
-    }
-
-    LocalDate getNoteDateWhen2() {
-        return LocalDate.parse(noteDateWhen2String);
-    }
-
-    LocalDate getDateLastMod1() {
-        return LocalDate.parse(dateLastMod1String);
-    }
-
-    LocalDate getDateLastMod2() {
-        return LocalDate.parse(dateLastMod2String);
-    }
-
-    void setNoteDateWhen1(LocalDate value) {
-        if(value == null) return;
-        noteDateWhen1String = value.toString();
-    }
-
-    void setNoteDateWhen2(LocalDate value) {
-        if(value == null) return;
-        noteDateWhen2String = value.toString();
-    }
-
-    void setDateLastMod1(LocalDate value) {
-        if(value == null) return;
-        dateLastMod1String = value.toString();
-    }
-
-    void setDateLastMod2(LocalDate value) {
-        if(value == null) return;
-        dateLastMod2String = value.toString();
-    }
+    String dateLastMod1String;
+    String dateLastMod2String;
 
 } // end SearchPanelSettings
