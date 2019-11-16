@@ -15,7 +15,7 @@ import java.util.Enumeration;
 
 public class TreeBranchEditor extends JPanel
         implements ItemListener, ActionListener, TreeModelListener {
-    static final long serialVersionUID = -1L;
+    static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(TreeBranchEditor.class);
 
     private JScrollPane leftScroller;

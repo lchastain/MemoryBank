@@ -72,7 +72,8 @@ One-stop reference for how to do certain tasks.
 18. Convert a long (milliseconds) to LocalDateTime:
     LocalDateTime localDatetime = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-    ZonedDateTime jpTime = instant.atZone(ZoneId.of("Asia/Tokyo"));
+19. Fire an event:
+    Event.fireEvent(component, event);
 
 
 

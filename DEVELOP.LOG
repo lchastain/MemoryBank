@@ -1,6 +1,15 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/16/2019 1500 - Cleared up several small-potato items and then decided to get some test
+  coverage increase, starting with the lowest line percentage which turned out to be the
+  TreeTransferHandler that I had gotten off the web; it was a custom extended class that
+  has methods that are only called by the DnD framework, NOT my own code, so it was
+  initially difficult to find the values for the method parameters, and then it became
+  impossible as I learned how the framework normally calls these methods.  Tried for two
+  days to get around it, then finally asked for StackOverflow help - my first ever question.
+  No immediate answer; until there is one, this class is excluded from test coverage.
+
 11/09/2019 0927 - The Event branch is done except for the Consolidated List and some one-off
   menu items.  But need to makepub due to problems fixed that are already out there.  Now have a
   NoteGroupFactory that is pretty cool, and tree management is firming up nicely, with node

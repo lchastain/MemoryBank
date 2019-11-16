@@ -1,4 +1,4 @@
-/**
+/*
  A customized layout that implements a single row with zero or
  one 'stretchable' component.  The stretchable component will
  take the remainder of container width, after the other
@@ -24,13 +24,13 @@ public class DndLayout extends GridLayout implements MouseListener,
     private boolean Moveable;
     private int offset;          // used with dragging
 
-    Component prevComponent;
-    Component nextComponent;
-    Component stretch;
-    Vector<JComponent> ClingLeft;
-    Vector<JComponent> ClingOns;
-    Vector<JComponent> ClingRight;
-    ClingSource cs;
+    private Component prevComponent;
+    private Component nextComponent;
+    private Component stretch;
+    private Vector<JComponent> ClingLeft;
+    private Vector<JComponent> ClingOns;
+    private Vector<JComponent> ClingRight;
+    private ClingSource cs;
 
     public DndLayout() {
         super(1, 0, 0, 0);
@@ -114,7 +114,7 @@ public class DndLayout extends GridLayout implements MouseListener,
     } // end placeClingons
 
 
-    public void resetActualPosition() {
+    private void resetActualPosition() {
         boolean swapped = true;
         Component c1, c2;
         int c1x, c2x;
@@ -171,7 +171,7 @@ public class DndLayout extends GridLayout implements MouseListener,
 
     // Called after a draggable component has crossed a 'swap'
     //   threshhold, in order to respecify adjacent components.
-    public void resetRelativePosition(Component comp) {
+    private void resetRelativePosition(Component comp) {
         prevComponent = null;
         nextComponent = null;
 

@@ -68,20 +68,12 @@ public class Locations {
             Locations fromFile = AppUtil.mapper.readValue(text, Locations.class);
             System.out.println("Locations from JSON file: " + AppUtil.toJsonString(fromFile));
             return fromFile;
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; use defaults.
-            MemoryBank.debug("Locations not found; using defaults");
-        } catch (IOException ioe) {
-            e = ioe;
-            e.printStackTrace();
-        }
-
-        if (e != null) {
-            String ems = "Error in loading " + fileName + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\noperation failed; using default values.";
-            MemoryBank.debug(ems);
-        } // end if
+        } catch (Exception ignore) {
+        }  // not a big problem; use defaults.  When trying to cause Exceptions for Testing by making
+        // 'bad' filenames, found that none get through the FileUtils; the only Exception I could get
+        // was FileNotFound, and that one is effectively 'allowed' anyway, so stopped trying to handle
+        // any of them and just take any unhappy path as needing the default handling.
+        MemoryBank.debug("Locations not found; using defaults");
         return new Locations();
     }
 
