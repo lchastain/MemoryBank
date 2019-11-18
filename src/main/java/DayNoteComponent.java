@@ -49,7 +49,7 @@ public class DayNoteComponent extends IconNoteComponent {
         noteTimeLabel = new NoteTimeLabel();
         add(noteTimeLabel, "West");
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end constructor
 
 
@@ -158,7 +158,8 @@ public class DayNoteComponent extends IconNoteComponent {
         if (newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
             setDayNoteData((DayNoteData) newNoteData);
         } else if (newNoteData instanceof TodoNoteData) {
-            setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData());
+//            setDayNoteData(((TodoNoteData) newNoteData).getDayNoteData());
+            setDayNoteData(new DayNoteData((TodoNoteData) newNoteData));
         } else if (newNoteData instanceof EventNoteData) {
             setDayNoteData(new DayNoteData((EventNoteData) newNoteData));
         } else {

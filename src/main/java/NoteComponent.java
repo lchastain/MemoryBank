@@ -93,7 +93,7 @@ public class NoteComponent extends JPanel {
         noteTextField = new NoteTextField();
         add(noteTextField, "Center");
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end constructor
 
 

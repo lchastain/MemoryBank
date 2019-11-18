@@ -47,7 +47,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         } // end if/else
 
         blnNoteAdded = false;
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end of the static section
 
 
@@ -85,6 +85,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         add(heading, BorderLayout.NORTH);
 
         updateHeader();
+        MemoryBank.trace();
     } // end constructor
 
 

@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
-class TestUtil implements Notifier {
+class TestUtil implements Notifier, SubSystem {
     private String theAnswer;
     private int notifyCount;
     private Method theMethod;
@@ -16,6 +16,11 @@ class TestUtil implements Notifier {
         notifyCount = 0;
         theMethod = null;
         param1 = null;
+    }
+
+    @Override
+    public void exit(int status) {
+        System.out.println("System.exit(" + status + ") was called!");
     }
 
     @Override

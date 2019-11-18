@@ -1,3 +1,4 @@
+import java.io.File;
 import java.time.LocalTime;
 
 class DayNoteData extends IconNoteData {
@@ -42,7 +43,76 @@ class DayNoteData extends IconNoteData {
         } else {
             timeOfDayString = lt.toString();
         }
+    } // end constructor
 
+    // Alternate constructor, for starting with a TodoNoteData,
+    //   used when moving Todo notes to a specific day.
+    DayNoteData(TodoNoteData todoNoteData) {
+        super(todoNoteData);  // takes care of IconNoteData & NoteData members.
+
+        String newExtText;
+
+        // Adjust the height of the extended text, if needed.
+        int newHite = extendedNoteHeightInt;
+        boolean thereIsExtText = extendedNoteString.trim().length() != 0;
+        if (thereIsExtText) newHite += 28 + (21 * 2); // 2 new lines.
+        // If the item had extended text, in 'porting' it to a
+        //  DayNoteComponent we have to account for the 'subject' combobox
+        //  plus any lines that we add, to adjust to same visibility.
+        // If it had none to start, then the new data we're adding will
+        //  fit inside the default text area without the need to expand.
+        // As for width, we're not addressing it.
+
+        // Create the DayNote Extended Text from the TodoNote by
+        //   adding info that would otherwise be lost in the move.
+        //----------------------------------------------------------------
+        // First New Line:  Priority
+        if (todoNoteData.getPriority() == 0) newExtText = "Priority: Not Set";
+        else newExtText = "Priority: " + todoNoteData.getPriority();
+        newExtText += "\n";
+
+        // Second New Line:  Status
+        String theStatus = "Status: ";
+        if (todoNoteData.getStatus() == 0) theStatus += "Not specified.";
+        else theStatus += todoNoteData.getStatusString();
+        newExtText += theStatus + "\n";
+
+        newExtText += extendedNoteString;
+        //----------------------------------------------------------------
+
+        // Choose an initial icon based on status, if any.
+        String iconFileString = null;
+        if (todoNoteData.getStatus() > 0) {
+            iconFileString = TodoNoteComponent.getIconFilename(todoNoteData.getStatus());
+            // Now change the 'images' reference to 'icons'.
+            File src = new File(iconFileString);
+            MemoryBank.debug("  Source image is: " + src.getPath());
+            int imagesIndex = iconFileString.indexOf("images");
+            String destFileName = "icons" + File.separatorChar + iconFileString.substring(imagesIndex + 7);
+            destFileName = MemoryBank.userDataHome + File.separatorChar + destFileName;
+            File dest = new File(destFileName);
+            String theParentDir = dest.getParent();
+            File f = new File(theParentDir);
+            if (!f.exists()) //noinspection ResultOfMethodCallIgnored
+                f.mkdirs();
+            if (dest.exists()) {
+                MemoryBank.debug("  Destination image is: " + dest.getPath());
+            } else {
+                MemoryBank.debug("  Copying to: " + destFileName);
+                AppUtil.copy(src, dest);
+            } // end if
+            iconFileString = dest.getPath();
+        } // end if status has been set
+
+        // Make all assignments
+        setExtendedNoteHeightInt(newHite);
+        setExtendedNoteString(newExtText);
+        setExtendedNoteWidthInt(extendedNoteWidthInt);
+        setIconFileString(iconFileString);
+        setNoteString(noteString);
+        setShowIconOnMonthBoolean(false);
+        setSubjectString(subjectString);
+        setTimeOfDayString(null);
     } // end constructor
 
 

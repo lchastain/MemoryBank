@@ -17,7 +17,7 @@ public class EventNoteComponent extends IconNoteComponent {
             noteTextField.setEditable(false);
             noteIcon.removeMouseListener(noteIcon);
         }
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end constructor
 
 

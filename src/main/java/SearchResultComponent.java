@@ -43,7 +43,7 @@ public class SearchResultComponent extends NoteComponent {
         add(noteTextField, "Stretch"); // will resize along with container
         add(lastModLabel, "lastMod");
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end constructor
 
 

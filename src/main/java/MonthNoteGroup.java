@@ -22,7 +22,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
         monthTitle.setForeground(Color.white);
         monthTitle.setFont(Font.decode("Serif-bold-20"));
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end static
 
     //=============================================================

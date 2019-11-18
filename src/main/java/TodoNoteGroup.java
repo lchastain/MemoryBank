@@ -58,7 +58,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         filechooser.addChoosableFileFilter(ff);
         filechooser.setAcceptAllFileFilterUsed(false);
         filechooser.setFileSystemView(FileSystemView.getFileSystemView());
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end static
 
     public TodoNoteGroup(String fname) {

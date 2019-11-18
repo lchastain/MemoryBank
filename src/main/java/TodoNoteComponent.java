@@ -92,7 +92,7 @@ public class TodoNoteComponent extends NoteComponent {
         add(noteTextField, "Stretch"); // will resize along with container
         add(sbTheStatusButton, "sb");
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end constructor
 
 
@@ -191,7 +191,8 @@ public class TodoNoteComponent extends NoteComponent {
         myTodoNoteData.setSubjectString(s);
 
         // Prepare to preserve the item, then do so by calling addNote.
-        DayNoteData dnd = myTodoNoteData.getDayNoteData();
+//        DayNoteData dnd = myTodoNoteData.getDayNoteData();
+        DayNoteData dnd = new DayNoteData(myTodoNoteData);
         String theFilename;
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
         theFilename = AppUtil.findFilename(theTodoDate, "D");

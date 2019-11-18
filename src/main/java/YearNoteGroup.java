@@ -22,7 +22,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
         yearTitle.setForeground(Color.white);
         yearTitle.setFont(Font.decode("Serif-bold-20"));
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end static
 
     //=============================================================

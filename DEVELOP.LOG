@@ -1,6 +1,22 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/17/2019 0912 - Started trying to consolidate filesystem actions of copying files;
+  the AppUtil has a method for this but the new FileUtils library is a better solution, so the
+  mission was to switch over to it.  Traced out the usage and found the difficulty is in moving
+  a Todo item to a DayNote, because I also need those status icons but for TodoLists they come
+  from images, not icons.  So the code does a copy of those when it moves to a day.  But that's
+  pretty inefficient, to do that every time an item moves to a Day, so I thought why not just do
+  this once, when the user's data directory is created?  But then I got tripped up by low coverage
+  in the area of MemoryBank near where that happens, and that caused another day delay writing tests
+  for it and figuring out how to get around the System.exit(0) that is called.  The get-around is
+  another (second) interface with a default method (exit), that can be trojan'd by a Test and the
+  interface implementation in TestUtil.  So back to the icon copying, and now I'm thinking - if we
+  do this for every user, our filesystem will fill up with dup after dup of the same icons.  There
+  has to be a better way.  Thinking of that now...
+ 2143 - And the answer is: they are already in the icons area; just use that, vs images.  Drop the
+  copy with no downside.  Working on it...
+
 11/16/2019 1500 - Cleared up several small-potato items and then decided to get some test
   coverage increase, starting with the lowest line percentage which turned out to be the
   TreeTransferHandler that I had gotten off the web; it was a custom extended class that

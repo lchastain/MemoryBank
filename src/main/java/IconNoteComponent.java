@@ -67,7 +67,7 @@ public abstract class IconNoteComponent extends NoteComponent {
         add(noteIcon, "East");
         //------------------
 
-        MemoryBank.init();
+        MemoryBank.trace();
     } // end constructor
 
 

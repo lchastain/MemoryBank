@@ -17,19 +17,21 @@ public class MemoryBank {
     public static DateTimeFormatter dtf;
     public static boolean debug;
     public static boolean event;
-    public static boolean init;
+    static boolean init;
     private static boolean timing;
     public static String userDataHome; // User data top-level directory 'mbankData'
     public static String logHome;  // For finding icons & images
     static AppOptions appOpts;     // saved/loaded
     private static AppTreePanel appTreePanel;
     static NoteData clipboardNote;
-    private static JFrame logFrame;
     private static AppSplash splash;
     private static boolean logApplicationShowing;
     private static int[] percs = {20, 25, 45, 50, 60, 90, 100};
     private static int updateNum = 0;
     private static String appIconFileName;
+    static JFrame logFrame;
+    static Notifier optionPane;
+    static SubSystem system;
 
     static {
         // These can be 'defined' in the startup command.  Ex:
@@ -38,6 +40,10 @@ public class MemoryBank {
         event = (System.getProperty("event") != null);
         init = (System.getProperty("init") != null);
         timing = (System.getProperty("timing") != null);
+
+        // Interface instances with default methods
+        optionPane = new Notifier() { };
+        system = new SubSystem() { };
 
         if (debug) System.out.println("Debugging printouts on.");
         if (event) System.out.println("Event tracing printouts on.");
@@ -87,15 +93,14 @@ public class MemoryBank {
             String ems = "Error in loading " + filename + " !\n";
             ems = ems + e.toString();
             ems = ems + "\nOptions load operation aborted.";
-            JOptionPane.showMessageDialog(null,
+            optionPane.showMessageDialog(null,
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
     } // end loadOpts
 
 
-    // Change this name - MemoryBank is not an applet.
     //-----------------------------------------------------------------
-    // Method Name: init
+    // Method Name: trace
     //
     // Description:  Prints the class name of the calling context and
     //               specifies whether called from the static section
@@ -107,24 +112,31 @@ public class MemoryBank {
     //                    executed, and also can help in performance
     //                    tuning.
     //-----------------------------------------------------------------
-    public static void init() {
+    public static void trace() {
         if (!init) return;
 
-        String mname;
-        String cname;
+        String methodName = "null";
+        String className = "null";
 
-        mname = Thread.currentThread().getStackTrace()[3].getMethodName();
-        cname = Thread.currentThread().getStackTrace()[3].getClassName();
-        if (mname.equals("<init>")) {
-            System.out.println(cname + " constructor  " + LocalDate.now().toString());
-        } else if (mname.equals("<clinit>")) {
-            System.out.println(cname + " static section  " + LocalDate.now().toString());
+        StackTraceElement[] theTrace = Thread.currentThread().getStackTrace();
+        for(int count = 1; count < theTrace.length; count++) {
+            StackTraceElement ste = theTrace[count];
+            if(ste.toString().contains("init>")) {
+                methodName = ste.getMethodName();
+                className = ste.getClassName();
+                break;
+            }
+        }
+        if (methodName.equals("<init>")) {
+            System.out.println(className + " constructor  " + LocalTime.now().toString());
+        } else if (methodName.equals("<clinit>")) {
+            System.out.println(className + " static section  " + LocalTime.now().toString());
         } else {
             System.out.println("Improper use of constructor trace method!");
-            System.out.println(Thread.currentThread().getStackTrace()[3].toString());
+            System.out.println(Thread.currentThread().getStackTrace()[2].toString());
         } // end if
 
-    } // end init
+    } // end trace
 
 
     //-----------------------------------------------------------------
@@ -176,7 +188,7 @@ public class MemoryBank {
         debug("The current working directory is: " + currentDir);
 
         // Program data - icons, images, etc, the same for every user.
-        File f = new File("icons"); // Look first in current dir.
+        File f = new File("images"); // Look first in current dir.
         if (f.exists()) {  // This logic is far from infallible...
             logHome = currentDir;
             debug("MemoryBank Home = " + logHome);
@@ -185,8 +197,8 @@ public class MemoryBank {
             logHome = "C:\\Program Files\\Memory Bank"; // need to use System calls here, vs hard-coded C:\
             debug("EXPLICIT MemoryBank Home = " + logHome);
 
-            // But test to see if we have icons available at that location -
-            f = new File(logHome + File.separatorChar + "icons");
+            // But test to see if we have images available at that location -
+            f = new File(logHome + File.separatorChar + "images");
             if (!f.exists()) {
                 String s = ("Cannot find program data!");
                 s += "\nThe MemoryBank program will terminate now.";
@@ -204,32 +216,29 @@ public class MemoryBank {
         debug("The current working directory is: " + currentDir);
         File f = new File("appData"); // Look first in current dir.
         String loc;
-        if (f.exists()) {
+        if (f.exists()) { // A development directory; give the app a different icon.
             loc = currentDir + File.separatorChar + "appData" + File.separatorChar + userEmail;
             appIconFileName = "notepad.gif";
-        } else {
+        } else { // Use the standard icon and location for user data.
             String userHome = System.getProperty("user.home"); // Home directory.
             loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
             appIconFileName = "icon_not.gif";
         }
         debug("Setting user data location to: " + loc);
 
-        boolean answer = true;
+        boolean goodUserDataLoc = true;
         f = new File(loc);
         if (f.exists()) {
-            if (!f.isDirectory()) {
-                // System.out.println("Error - file in place of directory: " + loc);
-                answer = false;
+            if (!f.isDirectory()) { // Bad location, if it already exists and is not a directory.
+                goodUserDataLoc = false;
             } // end if directory
-        } else {
-            // No need for a prompt for OK to create - this will only occur at startup.
-            if (!f.mkdirs()) {
-                // System.out.println("Error - Could not create directory: " + loc);
-                answer = false;
+        } else { // Create a new directory for this user
+            if (!f.mkdirs()) { // Bad location, if we were unable to make the needed directory.
+                goodUserDataLoc = false;
             } // end if
         } // end if exists
 
-        if (answer) {
+        if (goodUserDataLoc) {
             userDataHome = loc;
         } else {  // Build up and display an informative error message.
             JPanel le = new JPanel(new GridLayout(5, 1, 0, 0));
@@ -259,11 +268,11 @@ public class MemoryBank {
             le.add(el4);
             le.add(el5);
 
-            JOptionPane.showMessageDialog(null, le,
+            optionPane.showMessageDialog(null, le,
                     "Problem with specified location", JOptionPane.ERROR_MESSAGE);
         } // end if
 
-        if (!answer) {  // Some validity testing here..
+        if (!goodUserDataLoc) {  // Some validity testing here..
             System.exit(0);
         } // end if
     } // end setUserDataHome
@@ -355,7 +364,7 @@ public class MemoryBank {
             } else if (startupFlag.equals("-event")) {
                 if (!event) System.out.println("Event tracing printouts on.");
                 event = true;
-            } else if (startupFlag.equals("-init")) {
+            } else if (startupFlag.equals("-trace")) {
                 if (!init) System.out.println("Initialization trace printouts on.");
                 init = true;  // Constructors and static sections.
             } else if (startupFlag.equals("-timing")) {
@@ -391,10 +400,10 @@ public class MemoryBank {
 
         logFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                System.exit(0);
+                system.exit(0);
             }
         });
-        // This is so that our own handler can collect and save all changes.
+        // This is so that our own handler (logPreClose) can collect and save all changes.
         // Don't worry, the window still closes.
         logFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         //--------------------------------------

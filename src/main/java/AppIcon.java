@@ -76,7 +76,7 @@ public class AppIcon extends ImageIcon {
         if (myImage == null) return;
         loadImage(myImage);  // Order matters..
         setImage(myImage);
-        //MemoryBank.init();
+        //MemoryBank.trace();
     } // end constructor
 
 
