@@ -47,7 +47,7 @@ public class IconFileView extends FileView {
         String extension = getExtension(f);
         Icon icon = null; // Return type is an interface, not a class.
 
-        // System.out.println("Path is: " + f.getPath());
+        // System.out.println("Path is: " + f.getTreePath());
         if (extension != null) {
             if (extension.equals("jpeg") ||
                     extension.equals("jpg") ||

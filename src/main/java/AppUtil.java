@@ -28,26 +28,6 @@ public class AppUtil {
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     } // end static
 
-    // Copies src file to dst file.
-    // If the dst file does not exist, it is created
-    public static void copy(File src, File dst) {
-        try {
-            InputStream in = new FileInputStream(src);
-            OutputStream out = new FileOutputStream(dst);
-
-            // Transfer bytes from in to out
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } // end try/catch
-    } // end copy
-
 
     // Put this in a 'view' base class....
     static boolean[][] findDataDays(int year) {
@@ -553,7 +533,7 @@ public class AppUtil {
     } // end class logFileFilter
 
 
-    static TreePath getPath(TreeNode treeNode) {
+    static TreePath getTreePath(TreeNode treeNode) {
         TreeNode tn = treeNode;
         List<Object> nodes = new ArrayList<>();
         if (tn != null) {

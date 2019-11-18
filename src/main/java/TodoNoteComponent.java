@@ -115,26 +115,27 @@ public class TodoNoteComponent extends NoteComponent {
     } // end clear
 
 
-    static String getIconFilename(int i) {
+    static String getIconFilename(int status) {
         char c = File.separatorChar;
-        String iString = MemoryBank.logHome + c + "images" + c;
+        String iString = MemoryBank.logHome + c + "icons" + c;
 
-        switch (i) {
-            case 1:
+        switch (status) {
+            case TodoNoteData.TODO_COMPLETED:
                 iString += "button06_yes.gif";
                 break;
-            case 2:
+            case TodoNoteData.TODO_INPROG:
                 iString += "constru3.gif";
                 break;
-            case 3:
+            case TodoNoteData.TODO_WAITING:
                 iString += "watch1b.gif";
                 break;
-            case 4:
+            case TodoNoteData.TODO_QUERY:
                 iString += "button06_query.gif";
                 break;
-            case 5:
+            case TodoNoteData.TODO_OBE:
                 iString += "button06_no.gif";
                 break;
+            case TodoNoteData.TODO_STARTED:
             default:
                 iString = null;
                 break;
@@ -171,28 +172,37 @@ public class TodoNoteComponent extends NoteComponent {
     //--------------------------------------------------------------------------
     // Method Name: moveToDayNote
     //
-    // Move the TodoNoteData to a Day Note.  This happens with Events,
-    //   as well, but here it is done
-    //   at the individual Component level, whereas Events are aged as a group
-    //   and more than one might be affected with different effects on the
-    //   visible interface, so the group 'refresh' is needed there and it
-    //   is not possible to leave a gap because the entire list gets reloaded.
-    //   But here - we just leave a gap (but that might change eventually, when
-    //   we get a 'todolist refresh' feature).
+    // Move the TodoNoteData to a Day Note.  This happens with Events as well,
+    //   but here it is done at the individual Component level whereas Events
+    //   are aged as a group and more than one might be affected with different
+    //   effects on the visible interface, so the group 'refresh' is needed there
+    //   and it is not possible to leave a gap because the entire list gets reloaded.
+    //   But here - we just leave a gap.
     //--------------------------------------------------------------------------
     private void moveToDayNote(boolean useDate) {
-        MemoryBank.debug("Moving...");
-        MemoryBank.debug("  To Date = " + useDate);
+        boolean success;  // the result of this attempt.
 
-        if (!useDate) myTodoNoteData.setTodoDate(LocalDate.now());
-
-        boolean success;
+        // TodoNoteData items have a 'slot' for a Subject, but no UI to set one.  So
+        // now as it goes over to a DayNote, the Subject will be the name of the list
+        // from which this item is being removed.
         String s = NoteGroup.prettyName(myNoteGroup.getGroupFilename());
         myTodoNoteData.setSubjectString(s);
 
-        // Prepare to preserve the item, then do so by calling addNote.
-//        DayNoteData dnd = myTodoNoteData.getDayNoteData();
+        // Get the Date to which we will move this item.
+        LocalDate moveToDate;
+        if (useDate) {
+            moveToDate = myTodoNoteData.getTodoDate();
+            MemoryBank.debug("Moving TodoNote to specified date: " + moveToDate.toString());
+        } else {
+            LocalDate today = LocalDate.now();
+            MemoryBank.debug("Moving TodoNote to Today: " + today.toString());
+            myTodoNoteData.setTodoDate(LocalDate.now());
+        }
+
+        // Convert the item to a DayNoteData, using the TodoNoteData-flavored constructor.
         DayNoteData dnd = new DayNoteData(myTodoNoteData);
+
+        // Make the filename for the correct Day file, then add this note.
         String theFilename;
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
         theFilename = AppUtil.findFilename(theTodoDate, "D");
@@ -283,7 +293,7 @@ public class TodoNoteComponent extends NoteComponent {
         popup.add(miMoveToToday);
         popup.add(miMoveToSelectedDate);
 
-        if(!initialized) {
+        if (!initialized) {
             miClearPriority.setEnabled(false);
             miMoveToToday.setEnabled(false);
             miMoveToSelectedDate.setEnabled(false);
@@ -392,7 +402,7 @@ public class TodoNoteComponent extends NoteComponent {
         }
 
         void setPriority(int value) {
-            if(!initialized) return;
+            if (!initialized) return;
             if (value < 0) return;
             if (value > myNoteGroup.getMaxPriority()) return;
             Priority = value;

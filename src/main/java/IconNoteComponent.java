@@ -323,41 +323,7 @@ public abstract class IconNoteComponent extends NoteComponent {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     String iconFileName = iconChooser.getSelectedFile().getPath();
                     MemoryBank.debug("Chosen icon file: " + iconFileName);
-                    iconFileName = iconFileName.toLowerCase();
-
-                    // Now copy the chosen file from 'Program Data' to user data.
-                    // (if needed).  Once an icon has been 'chosen', it should never
-                    // change, even if the source icon file does.  So - we preserve it
-                    // in its original form, in the user's data location.  Of course,
-                    // if a 'new' icon comes into system data, replacing one that used to have that
-                    // name, this 'solution' will cause the app to always display the old
-                    // one.  This obviously still needs work - perhaps need to also save
-                    // the image..
-                    File src = new File(iconFileName);
-                    int iconsIndex = iconFileName.indexOf("icons");
-                    String destFileName;
-                    if(iconsIndex >= 0) {
-                        destFileName = iconFileName.substring(iconsIndex);
-                        destFileName = MemoryBank.userDataHome + File.separatorChar + destFileName;
-                    } else {
-                        // need to drop off the drive, convert filesep chars?
-                        destFileName = MemoryBank.userDataHome + File.separatorChar + iconFileName;
-                    }
-                    System.out.println("destFileName = " + destFileName);
-                    File dest = new File(destFileName);
-                    String theParentDir = dest.getParent();
-                    File f = new File(theParentDir);
-                    if (!f.exists()) {
-                        if (!f.mkdirs()) {
-                            System.out.println("Error - Could not create directories: " + f.getAbsolutePath());
-                        } // end if
-                    }
-                    if (!dest.exists()) {
-                        MemoryBank.debug("  copying to " + destFileName);
-                        AppUtil.copy(src, dest);
-                    } // end if
-
-                    IconNoteComponent.this.setIcon(new AppIcon(iconFileName));
+                    IconNoteComponent.this.setIcon(new AppIcon(iconFileName.toLowerCase()));
 
                     // Since an explicit Icon was chosen, default to showing on Month.
                     ((IconNoteData) getNoteData()).setShowIconOnMonthBoolean(true);

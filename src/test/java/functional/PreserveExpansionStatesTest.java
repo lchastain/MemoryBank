@@ -66,10 +66,10 @@ class PreserveExpansionStatesTest {
         DefaultMutableTreeNode notesNode = TestUtil.getTreeNodeForString(theRoot, notesNodeName);
         DefaultMutableTreeNode todolistsNode = TestUtil.getTreeNodeForString(theRoot, todolistsNodeName);
         DefaultMutableTreeNode searchResultsNode = TestUtil.getTreeNodeForString(theRoot, searchesNodeName);
-        TreePath viewsPath = AppUtil.getPath(viewsNode);
-        TreePath notesPath = AppUtil.getPath(notesNode);
-        TreePath todolistsPath = AppUtil.getPath(todolistsNode);
-        TreePath searchesPath = AppUtil.getPath(searchResultsNode);
+        TreePath viewsPath = AppUtil.getTreePath(viewsNode);
+        TreePath notesPath = AppUtil.getTreePath(notesNode);
+        TreePath todolistsPath = AppUtil.getTreePath(todolistsNode);
+        TreePath searchesPath = AppUtil.getTreePath(searchResultsNode);
 
         // Collapse the paths.  This may not actually represent a change, depending on
         // the current state of the tree after the user's last session, but this test is
@@ -106,10 +106,10 @@ class PreserveExpansionStatesTest {
         DefaultMutableTreeNode notesNode = TestUtil.getTreeNodeForString(theRoot, notesNodeName);
         DefaultMutableTreeNode todolistsNode = TestUtil.getTreeNodeForString(theRoot, todolistsNodeName);
         DefaultMutableTreeNode searchResultsNode = TestUtil.getTreeNodeForString(theRoot, searchesNodeName);
-        TreePath viewsPath = AppUtil.getPath(viewsNode);
-        TreePath notesPath = AppUtil.getPath(notesNode);
-        TreePath todolistsPath = AppUtil.getPath(todolistsNode);
-        TreePath searchesPath = AppUtil.getPath(searchResultsNode);
+        TreePath viewsPath = AppUtil.getTreePath(viewsNode);
+        TreePath notesPath = AppUtil.getTreePath(notesNode);
+        TreePath todolistsPath = AppUtil.getTreePath(todolistsNode);
+        TreePath searchesPath = AppUtil.getTreePath(searchResultsNode);
 
         // Expand the paths.  This may not actually represent a change, depending on
         // the current state of the tree after the user's last session, but this test is

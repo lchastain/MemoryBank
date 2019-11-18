@@ -262,7 +262,7 @@ public class AppTreePanelTest {
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode dmtn = TestUtil.getTreeNodeForString(theRoot, theSearchResult);
         Assertions.assertNotNull(dmtn);
-        TreePath tp = AppUtil.getPath(dmtn);
+        TreePath tp = AppUtil.getTreePath(dmtn);
         Assertions.assertNotNull(tp);
         theTree.setSelectionPath(tp);
         Thread.sleep(200);

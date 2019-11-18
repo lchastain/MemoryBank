@@ -1,5 +1,5 @@
 class IconNoteData extends NoteData {
-    protected String iconFileString;
+    String iconFileString;
     boolean showIconOnMonthBoolean;
 
     IconNoteData() {

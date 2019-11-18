@@ -54,11 +54,11 @@ class CollapseChangesTest {
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode todolistsNode = TestUtil.getTreeNodeForString(theRoot, todolistsNodeName);
-        TreePath todolistsPath = AppUtil.getPath(todolistsNode);
+        TreePath todolistsPath = AppUtil.getTreePath(todolistsNode);
 
         // Select the list we will use
         DefaultMutableTreeNode theListNode = TestUtil.getTreeNodeForString(theRoot, "Get New Job");
-        TreePath thelistPath = AppUtil.getPath(theListNode);
+        TreePath thelistPath = AppUtil.getTreePath(theListNode);
         theTree.setSelectionPath(thelistPath);
 
         // Allow some time for the new selection to 'take'
