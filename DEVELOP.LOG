@@ -1,6 +1,10 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/19/2019 0806 - Finally updated the version to 0.3 (via the About graphic).  Coverage is now
+  at 89% classes, 60% lines.  This follows a few more (minimal, coverage-only) test classes and
+  the code reduction from the last entry, below.
+
 11/17/2019 0912 - Started trying to consolidate filesystem actions of copying files;
   the AppUtil has a method for this but the new FileUtils library is a better solution, so the
   mission was to switch over to it.  Traced out the usage and found the difficulty is in moving
