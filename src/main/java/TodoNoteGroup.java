@@ -1,16 +1,17 @@
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.FilenameFilter;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
@@ -135,35 +136,44 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         } // end for
     } // end checkColumnOrder
 
+    private File chooseMergeFile() {
+        File dataDir = new File(basePath());
+        String myName = prettyName(theGroupFilename);
 
-    private static String chooseFileName() {
-        int returnVal = filechooser.showDialog(null, "Merge");
-        boolean badPlace = false;
+        // Get the complete list of Todo List filenames, except this one.
+        String[] theFileList = dataDir.list(
+                new FilenameFilter() {
+                    // Although this filter does not account for directories, it is
+                    // known that the basePath will not under normal program
+                    // operation contain directories.
+                    public boolean accept(File f, String s) {
+                        if (myName.equals(prettyName(s))) return false;
+                        return s.startsWith("todo_");
+                    }
+                }
+        );
 
-        String s = filechooser.getCurrentDirectory().getAbsolutePath();
-        String ems;
+        // Reformat the list for presentation in the selection control.
+        // ie, drop the prefix and file extension.
+        ArrayList<String> todoListNames = new ArrayList<>();
+        if (theFileList != null) {
+            for (String aName : theFileList) {
+                todoListNames.add(prettyName(aName));
+            } // end for i
+        }
+        Object[] theNames = new String[todoListNames.size()];
+        theNames = todoListNames.toArray(theNames);
 
-        // Check here to see if directory changed, reset if so.
-        // System.out.println("Final directory: " + s);
-        if (!s.equals(NoteGroup.basePath(areaName))) {
-            filechooser.setCurrentDirectory(new File(NoteGroup.basePath(areaName)));
-            badPlace = true;
-        } // end if
 
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            if (badPlace) {
-                // Warn user that they are not allowed to navigate.
-                ems = "Navigation outside of your data directory is not allowed!";
-                ems += "\n           " + "Merge" + " operation cancelled.";
-                optionPane.showMessageDialog(null, ems,
-                        "Warning", JOptionPane.WARNING_MESSAGE);
-                return null;
-            } else {
-                return filechooser.getSelectedFile().getAbsolutePath();
-            } // end if badPlace / else
-        } else return null;
-    } // end chooseFileName
+        String message = "Choose a list to merge with " + myName;
+        String title = "Merge TodoLists";
+        String theChoice = optionPane.showInputDialog(this, message,
+                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
 
+        System.out.println("The choice is: " + theChoice);
+        if (theChoice == null) return null;
+        return new File(basePath() + "todo_" + theChoice + ".json");
+    } // end chooseMergeFile
 
     //-------------------------------------------------------------
     // Method Name:  dateSelected
@@ -187,7 +197,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end dateSelected
 
 
-    public String getGroupFilename() { return theGroupFilename; }
+    public String getGroupFilename() {
+        return theGroupFilename;
+    }
 
     int getMaxPriority() {
         return myVars.maxPriority;
@@ -238,39 +250,25 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     public void merge() {
-        String mergeFile = chooseFileName();
+        File mergeFile = chooseMergeFile();
         if (mergeFile == null) return;
 
-        try {
-            String text = FileUtils.readFileToString(new File(mergeFile), StandardCharsets.UTF_8.name());
-            Object[] theGroup = AppUtil.mapper.readValue(text, Object[].class);
-            //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-            Vector<TodoNoteData> mergeVector;
-            mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
-            });
-            System.out.println("Number of Items to merge in: " + mergeVector.size());
-            for (TodoNoteData tnd : mergeVector) {
-                if (tnd.hasText()) {
-                    TodoNoteComponent tnc = (TodoNoteComponent) groupNotesListPanel.getComponent(lastVisibleNoteIndex);
-                    tnc.setTodoNoteData(tnd); // this sets his 'initialized' to true
-                    if (lastVisibleNoteIndex == getHighestNoteComponentIndex()) break;
-                    lastVisibleNoteIndex++;
-                } // end if there is text
-            } // end for
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            String ems = "Error in loading " + mergeFile + " !\n";
-            ems = ems + ex.getMessage();
-            ems = ems + "\nList merge operation aborted.";
-            JOptionPane.showMessageDialog(
-                    JOptionPane.getFrameForComponent(this), ems, "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        } // end try/catch
+        // Load the file to merge in -
+        Object[] theGroup = AppUtil.loadNoteGroupData(mergeFile);
+        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+        Vector<TodoNoteData> mergeVector;
+        NoteData.loading = true; // We don't want to affect the lastModDates!
+        mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {} );
+        NoteData.loading = false; // Restore normal lastModDate updating.
 
+        // Create a 'set', to contain only unique items from both lists.
+        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(groupDataVector);
+        theUniqueSet.addAll(mergeVector);
+
+        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
+        groupDataVector = new Vector<>(theUniqueSet);
+        setGroupData(groupDataVector);
         setGroupChanged();
-        preClose();
-        updateGroup();  // need to check column order???
     } // end merge
 
     //------------------------------------------------------------------
@@ -426,7 +424,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         JTree jt = AppTreePanel.theInstance.getTree();
         DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode theTodoBranch = BranchHelperInterface.getNodeByName(theRoot,"To Do Lists");
+        DefaultMutableTreeNode theTodoBranch = BranchHelperInterface.getNodeByName(theRoot, "To Do Lists");
 
         // The tree is set for single-selection, so the selection will not be a collection but
         // a single value.  Nonetheless, Swing only provides a get for min and max and either
@@ -584,7 +582,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     void setGroupData(Object[] theGroup) {
         myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListProperties.class);
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
+        });
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 

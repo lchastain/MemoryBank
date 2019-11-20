@@ -21,7 +21,7 @@ public class ExtendedNoteComponent extends JPanel {
     private static final int maxSubjects = 20;
 
     // Laid out differently in extended classes.
-    protected JComboBox<String> subjectChooser;
+    JComboBox<String> subjectChooser;
     protected JTextArea body;
 
     private Vector<String> subjects;
@@ -37,7 +37,7 @@ public class ExtendedNoteComponent extends JPanel {
         super(new BorderLayout());
         body = new JTextArea(10, 20) {
             // To stop the compiler from whining -
-            private static final long serialVersionUID = 2465964677978447062L;
+            private static final long serialVersionUID = 1L;
 
             public void addNotify() {
                 super.addNotify();

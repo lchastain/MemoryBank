@@ -42,12 +42,11 @@ public class AppIcon extends ImageIcon {
         // compatibility (even though we only expect to serve from one type of OS).
         char sep = File.separatorChar;
         if (sep != '/') filename = filename.replace(sep, '/');
+        MemoryBank.debug("  Full icon filename: " + filename);
 
         if (filename.endsWith(".ico")) {
             try {
                 List<BufferedImage> images = ICODecoder.read(new File(filename));
-                // Leave this, until we find what's making the blank lines in between two of these during test runs.
-                System.out.println("ico file image count: " + images.size());
                 myImage = images.get(0);
             } catch (IOException ioe) {
                 ioe.printStackTrace();

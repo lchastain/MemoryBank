@@ -20,9 +20,13 @@ public interface Notifier {
        return JOptionPane.showOptionDialog(parentComponent, message, title, optionType, messageType, icon, options, initialValue);
    }
 
-    default String showInputDialog(Component parentComponent, Object message, String title, int messageType)
-            throws HeadlessException {
-        return (String) JOptionPane.showInputDialog(parentComponent, message, title, messageType, null, null, null);
+    default String showInputDialog(Component parentComponent, Object message, String title, int messageType) throws HeadlessException {
+        return JOptionPane.showInputDialog(parentComponent, message, title, messageType);
+    }
+
+    default String showInputDialog(Component parentComponent, Object message, String title, int messageType, Icon icon,
+      Object[] selectionValues, Object initialSelectionValue)  throws HeadlessException {
+        return (String) JOptionPane.showInputDialog(parentComponent, message, title, messageType, icon, selectionValues, initialSelectionValue);
     }
 
     default int showConfirmDialog(Component parentComponent, Object message, String title, int optionType)

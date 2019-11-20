@@ -1,0 +1,7 @@
+
+Versions:  
+<none>  All versions pre 2014  (there may have been an undated 0.1, for a while)
+0.2	    08 Feb 2014	TreeBranchEditor for TodoLists
+0.3	    19 Nov 2019 All data now in JSON format, multiple users, new Date classes, cut/copy/paste, Events is now a
+        Branch, a 'refresh' for all NoteGroups, junit tests, several bug fixes.
+

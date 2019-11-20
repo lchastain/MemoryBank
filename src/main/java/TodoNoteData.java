@@ -58,6 +58,20 @@ public class TodoNoteData extends NoteData {
     } // end clearTodoNoteData
 
 
+    @Override
+    public boolean equals(Object otherObject) {
+        if (this == otherObject) return true; // reference check
+        if (otherObject == null) return false; // null check
+        if (getClass() != otherObject.getClass()) return false; // type check
+
+        TodoNoteData otherData = (TodoNoteData) otherObject;
+
+        if (!noteString.equals(otherData.noteString)) return false;
+        if (!extendedNoteString.equals(otherData.extendedNoteString)) return false;
+        if (intPriority != otherData.getPriority()) return false;
+        return intStatus == otherData.getStatus();
+    }
+
     public String getLinkage() {
         return strLinkage;
     }
@@ -102,6 +116,14 @@ public class TodoNoteData extends NoteData {
         return s;
     } // end getStatusString
 
+
+    // This is used by a Set during uniqueness checking.  This method effectively disables
+    // the 'hashcode' part of the check, so that the only remaining uniqueness criteria
+    // is the result of the .equals() method.
+    @Override
+    public int hashCode() {
+        return 1;
+    }
 
     public void setLinkage(String val) {
         strLinkage = val;

@@ -1,106 +1,46 @@
-import java.io.File;
-import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.util.*;
+import javax.swing.*;
 
 public class Area51 {
+    private Notifier optionPane = new Notifier() {};
 
     static {
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.debug = true;
+        MemoryBank.setUserDataHome("lex@doughmain.net");
     }
 
     private Area51() {
     }
 
+    // Developing a new picklist widget, to replace a system-native File chooser.  It
+    // looks like all that is needed is a direct usage of JOptionPane.  argh!
     private void try1() {
-        // No exception for a colon in the name, but the created file name ends with the last char before the colon.
-        File f1 = new File("bad:name");
-        if (f1.exists()) {
-            System.out.println("wow");
-        }
-        System.out.println(f1.getAbsolutePath());
-        try {
-            boolean b = f1.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        AppIcon theIcon = new AppIcon("icons/acro.ico");
+
+        String[] nums = {
+                "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
+                "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+                "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
+                "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+                "40", "41", "42", "43", "44", "45", "46", "47", "48", "49",
+                "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
+                "60", "61", "62", "63", "64", "65", "66", "67", "68", "69",
+                "70", "71", "72", "73", "74", "75", "76", "77", "78", "79",
+                "80", "81", "82", "83", "84", "85", "86", "87", "88", "89",
+                "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"};
+
+
+        String theChoice = optionPane.showInputDialog(null, "Choose a group",
+                "Group Chooser", JOptionPane.PLAIN_MESSAGE, null, nums, "89");
+
+        System.out.println("The choice is: " + theChoice);
     }
 
-    // Testing conversion of a ZonedDateTime to LocalDateTime
-    private void try2() {
-        // This test needs 'our' timezone to not be the same as the one in
-        // our zdtLastModString, below.  But we just verify that visually.
-
-        // Show our current timezone
-        System.out.println("ZonedDateTime.now(): " + ZonedDateTime.now());
-
-        // Parse our string into a ZonedDateTime, print out to verify.
-        String zdtLastModString = "2009-02-14T19:42-06:00[America/Chicago]";
-        ZonedDateTime zdt = ZonedDateTime.parse(zdtLastModString);
-
-        // Convert to LocalDateTime, verify the time did not change.
-        System.out.println("ZonedDateTime: " + zdt);
-        System.out.println("  to LocalDateTime: " + zdt.toLocalDateTime());
-
-        // Output:
-//        ZonedDateTime.now(): 2019-10-03T09:40:38.308+04:00[Europe/Samara]
-//        ZonedDateTime: 2009-02-14T19:42-06:00[America/Chicago]
-//          to LocalDateTime: 2009-02-14T19:42
-
-        // This shows that this conversion DOES NOT adjust the original time
-        // to be aligned with the current timezone.  Good.
-    }
-
-    // This shows that children cannot have different values in a static
-    // string that is defined in a base class.
-    private void try3() {
-        System.out.println("Parent string: " + ParentClass.theString);
-        System.out.println("Child1 string: " + Child1.theString);
-        System.out.println("Child2 string: " + Child2.theString);
-    }
-
-    // Does isEmpty() return true if the string has only spaces?   No.
-    private void try4() {
-        String fourSpaces = "    ";
-        System.out.println("four spaces is empty: " + fourSpaces.isEmpty());
-        System.out.println("trimmed four spaces is empty: " + fourSpaces.trim().isEmpty());
-    }
-
-    // Merging two vectors, without duplicates -
-    private void try5() {
-        String[] stringArray1 = new String[]{"B", "D", "G"};
-        String[] stringArray2 = new String[]{"A", "B", "C", "D", "E", "H"};
-
-        Vector<String> vector1 = new Vector<>(Arrays.asList(stringArray1));
-        Vector<String> vector2 = new Vector<>(Arrays.asList(stringArray2));
-
-        LinkedHashSet<String> lhs = new LinkedHashSet<>(vector1);
-        lhs.addAll(vector2);
-        Vector<String> finalVector = new Vector<>(lhs);
-
-        System.out.println(finalVector.toString());
-    }
 
     public static void main(String[] args) {
         Area51 a51 = new Area51();
-        a51.try5();
+        a51.try1();
 
     }
 
 }
 
-class ParentClass {
-    static String theString;
-}
-
-class Child1 extends ParentClass {
-    Child1() {
-        theString = "area 1";
-    }
-}
-
-class Child2 extends ParentClass {
-    Child2() {
-        theString = "area 2";
-    }
-}

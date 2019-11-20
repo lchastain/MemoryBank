@@ -487,7 +487,7 @@ public class YearView extends JPanel implements ActionListener {
     } // end DayLabel
 
     class YearBox extends JPanel implements ItemListener {
-        private static final long serialVersionUID = 1555749356147914633L;
+        private static final long serialVersionUID = 1L;
 
         JComboBox<String> y1;
         JComboBox<String> y2;

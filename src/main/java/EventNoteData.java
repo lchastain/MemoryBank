@@ -780,9 +780,9 @@ public class EventNoteData extends IconNoteData {
     } // end goForwardMonths
 
 
-    // This is used by the Set that is created in the Consolidated View, for uniqueness
-    // checking.  It is effectively a disabling of this part of the check, so that the
-    // only remaining uniqueness criteria is the result of the .equals() method.
+    // This is used by a Set during uniqueness checking.  This method effectively disables
+    // the 'hashcode' part of the check, so that the only remaining uniqueness criteria
+    // is the result of the .equals() method.
     @Override
     public int hashCode() {
         return 1;

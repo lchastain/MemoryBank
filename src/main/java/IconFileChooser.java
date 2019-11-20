@@ -22,14 +22,13 @@ public class IconFileChooser extends JFileChooser {
                     int i = filename.lastIndexOf('.');
                     if (i > 0 && i < filename.length() - 1) {
                         String extension = filename.substring(i + 1);
-                        if (extension.equals("tiff") ||
+                        return extension.equals("tiff") ||
                                 extension.equals("tif") ||
                                 extension.equals("gif") ||
                                 extension.equals("jpeg") ||
                                 extension.equals("jpg") ||
                                 extension.equals("ico") ||
-                                extension.equals("png"))
-                            return true;
+                                extension.equals("png");
                     } // end if
                 } // end if
                 return false;
