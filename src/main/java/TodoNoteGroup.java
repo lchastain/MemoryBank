@@ -3,9 +3,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -30,7 +27,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     private String theGroupFilename;
     private static Notifier optionPane;
-    public static FileChooser filechooser;
     static String areaName;
 
     // This is saved/loaded
@@ -38,27 +34,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     static {
         areaName = "TodoLists"; // Directory name under user data.
-        // The File Chooser supports the 'merge' functionality.
-        filechooser = new FileChooser() {
-        };
-        filechooser.setCurrentDirectory(new File(MemoryBank.userDataHome));
-        javax.swing.filechooser.FileFilter ff = new javax.swing.filechooser.FileFilter() {
-            public boolean accept(File f) {
-                if (f != null) {
-                    if (f.isDirectory()) return true;
-                    String filename = f.getName().toLowerCase();
-                    return filename.startsWith("todo_");
-                } // end if
-                return false;
-            } // end accept
-
-            public String getDescription() {
-                return "To Do lists (todo_*.json)";
-            } // end getDescription
-        };
-        filechooser.addChoosableFileFilter(ff);
-        filechooser.setAcceptAllFileFilterUsed(false);
-        filechooser.setFileSystemView(FileSystemView.getFileSystemView());
         MemoryBank.trace();
     } // end static
 
@@ -414,61 +389,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 //    } // end printList
 
 
-    // Call this method to do a 'programmatic' rename of a TodoList
-    // node on the Tree, as opposed to doing it manually via the
-    // TreeBranchEditor.  It operates only on the tree and not with
-    // any corresponding files; you must do that separately.
-    // See the 'Save As...' methodology for a good example.
-    static void renameTodoListLeaf(String oldname, String newname) {
-        boolean changeWasMade = false;
-        JTree jt = AppTreePanel.theInstance.getTree();
-        DefaultTreeModel tm = (DefaultTreeModel) jt.getModel();
-        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) tm.getRoot();
-        DefaultMutableTreeNode theTodoBranch = BranchHelperInterface.getNodeByName(theRoot, "To Do Lists");
-
-        // The tree is set for single-selection, so the selection will not be a collection but
-        // a single value.  Nonetheless, Swing only provides a get for min and max and either
-        // one will work for us.  Note that the TreePath returned by getSelectionPath()
-        // will probably NOT work for reselection after we do the rename, so we use the row.
-        int returnToRow = jt.getMaxSelectionRow();
-
-        int numLeaves = theTodoBranch.getChildCount();
-        DefaultMutableTreeNode leafLink;
-
-        leafLink = theTodoBranch.getFirstLeaf();
-
-        // Search the leaves for the old name.
-        while (numLeaves-- > 0) {
-            String leaf = leafLink.toString();
-            if (leaf.equals(oldname)) {
-                String msg = "Renaming tree node from " + oldname;
-                msg += " to " + newname;
-                log.debug(msg);
-                changeWasMade = true;
-                leafLink.setUserObject(newname);
-                break;
-            } // end if
-
-            leafLink = leafLink.getNextLeaf();
-        } // end while
-
-        if (!changeWasMade) return;
-
-        // Force the renamed node to redisplay,
-        // which also causes its deselection.
-        tm.nodeStructureChanged(theTodoBranch);
-
-        // Reselect this tree node.
-        jt.setSelectionRow(returnToRow);
-
-    } // end renameTodoListLeaf
-
-
     //-----------------------------------------------------------------
     // Method Name:  saveAs
     //
     // Called from the menu bar:
-    // AppTreePanel.handleMenuBar() --> saveTodoListAs() --> saveAs()
+    // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
     //-----------------------------------------------------------------
@@ -485,7 +410,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroup.basePath(areaName));
+        String theComplaint = BranchHelperInterface.checkFilename(newName, basePath());
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -512,7 +437,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // is currently open.  We could check for that as well, but
         // decided not to because - why should we go to heroic
         // efforts to handle a user request where it seems like
-        // they may not understand what it is they are asking for.
+        // they may not understand what it is they are asking for?
         // This is the same approach that was taken in the 'rename' handling.
 
         // After we refuse the operation due to a preexisting destination
@@ -524,7 +449,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = NoteGroup.basePath(areaName) + "todo_" + newName + ".json";
+        String newFilename = basePath() + "todo_" + newName + ".json";
         if ((new File(newFilename)).exists()) {
             ems = "A list named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
@@ -567,12 +492,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-----------------------------------------------------------------
     // Method Name:  setFileName
     //
-    // Provided as support for a 'Save As' functionality.
-    //  (By calling this first, then just calling 'save').  Any
-    //  checking for validity is responsibility of calling context.
+    // Provided as support for a 'Save As' functionality.  The calling context
+    // is responsible for providing a valid name; no checking done here.
     //-----------------------------------------------------------------
     private void setFileName(String fname) {
-        theGroupFilename = NoteGroup.basePath(areaName) + "todo_" + fname.trim() + ".json";
+        theGroupFilename = basePath() + "todo_" + fname.trim() + ".json";
         setName(fname.trim());  // Keep the 'pretty' name in the component.
         setGroupChanged();
     } // end setFileName
@@ -590,10 +514,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Used by test methods
     public void setNotifier(Notifier newNotifier) {
         optionPane = newNotifier;
-    }
-
-    public void setFilechooser(FileChooser newFileChooser) {
-        filechooser = newFileChooser;
     }
 
     public void setOptions() {

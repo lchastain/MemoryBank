@@ -51,12 +51,21 @@ class TestUtil implements Notifier, SubSystem {
     }
 
     @Override
+    public String showInputDialog(Component parentComponent, Object message, String title, int messageType,
+                                  Icon icon, Object[] selectionValues, Object initialSelectionValue) {
+        notifyCount++;
+        System.out.println("(Input dialog) " + title + ":  " + message);
+        System.out.println("  using supplied answer: " + theAnswer);
+        return theAnswer;
+    }
+
+    @Override
     public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType) {
         notifyCount++;
         System.out.println("(Confirm dialog) " + title + ":  " + message);
         if (theMethod != null) {
             try {
-                if(param1 == null) {
+                if (param1 == null) {
                     theMethod.invoke(message);  // See TodoNoteGroupTest.testSetOptions
                 } else {
                     theMethod.invoke(message, param1);
@@ -69,8 +78,13 @@ class TestUtil implements Notifier, SubSystem {
     }
 
 
-    int getNotifyCount() { return notifyCount; }
-    void setNotifyCount(int n) { notifyCount = n; }
+    int getNotifyCount() {
+        return notifyCount;
+    }
+
+    void setNotifyCount(int n) {
+        notifyCount = n;
+    }
 
     // When the 'message' is really an Object reference, this method allows a test
     // to change the Object content.  You need to send in a method that is available
@@ -87,8 +101,6 @@ class TestUtil implements Notifier, SubSystem {
     void setTheAnswer(String s) {
         theAnswer = s;
     }
-
-
 
 
     @SuppressWarnings("rawtypes")

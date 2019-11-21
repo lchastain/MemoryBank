@@ -3,18 +3,25 @@ import javax.swing.*;
 public class AppMenuBar extends JMenuBar{
     static final long serialVersionUID = 1L; // JMenuBar wants this but we will not serialize.
 
-    private static JMenu dayNoteEditMenu;
-    private static JMenu monthEditMenu;
-    private static JMenu todoEditMenu;
-    private static JMenu yearEditMenu;
+    // Menus
+    //-------------------------------------------------
     private static JMenu fileMenu;
-    private static JMenu searchResultFileMenu;
     private static JMenu branchFileMenu;
     private static JMenu todoFileMenu;
+    private static JMenu searchResultFileMenu;
+
+    private static JMenu dayNoteEditMenu;
+    private static JMenu monthEditMenu;
+    private static JMenu yearEditMenu;
+    private static JMenu todoEditMenu;
+
     private static JMenu viewMenu;
-    private static JMenu noteViewMenu;
     private static JMenu viewsViewMenu;
+    private static JMenu noteViewMenu;
+
     private static JMenu helpMenu;
+    //-------------------------------------------------
+
     private String theCurrentContext;
 
     static {

@@ -225,7 +225,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end constructor for AppTreePanel
 
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings("rawtypes")  // For the Enumeration, below.
     private void addNewGroup() {
         String newName;
 
@@ -605,11 +605,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
-        else if (what.startsWith("Merge")) ((TodoNoteGroup) theNoteGroup).merge();
+        else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
         else if (what.equals("Refresh")) theNoteGroup.refresh();
         else if (what.equals("Review...")) System.out.println("Review was selected.");
-        else if (what.startsWith("Save As")) saveTodoListAs();
+        else if (what.startsWith("Save As")) saveGroupAs();
         else if (what.equals("Icon Manager...")) {
             theTree.clearSelection();
             JPanel jp = new JPanel(new GridBagLayout());
@@ -641,6 +641,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end handleMenuBar
 
 
+    private void mergeGroup() {
+        String theContext = appMenuBar.getCurrentContext();
+        switch (theContext) {
+            case "Upcoming Event":
+                ((EventNoteGroup) theNoteGroup).merge();
+                break;
+            case "To Do List":
+                ((TodoNoteGroup) theNoteGroup).merge();
+                break;
+        }
+    } // end mergeGroup
+
+
     //------------------------------------------------------------
     // Method Name:  preClose
     // Purpose:  Preserves any unsaved changes to the current noteGroup
@@ -654,6 +667,53 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         updateTreeState(true); // Update appOpts
     } // end preClose
+
+
+    // Call this method to do a 'programmatic' rename of a node
+    // on the Tree, as opposed to doing it manually via a
+    // TreeBranchEditor.  It operates only on the tree and not with
+    // any corresponding files; you must do that separately.
+    // See the 'Save As...' methodology for a good example.
+    private void renameTreeBranchLeaf(DefaultMutableTreeNode theBranch, String oldname, String newname) {
+        boolean changeWasMade = false;
+        DefaultTreeModel tm = (DefaultTreeModel) theTree.getModel();
+
+        // The tree is set for single-selection, so the selection will not be a collection but a
+        // single value.  Nonetheless, Swing only provides a 'get' for min and max, and either
+        // one will work for us.  Note that the TreePath returned by getSelectionPath()
+        // will probably NOT work for reselection after we do the rename, so we use the row.
+        int returnToRow = theTree.getMaxSelectionRow();
+
+        int numLeaves = theBranch.getChildCount();
+        DefaultMutableTreeNode leafLink;
+
+        leafLink = theBranch.getFirstLeaf();
+
+        // Search the leaves for the old name.
+        while (numLeaves-- > 0) {
+            String leaf = leafLink.toString();
+            if (leaf.equals(oldname)) {
+                String msg = "Renaming tree node from " + oldname;
+                msg += " to " + newname;
+                log.debug(msg);
+                changeWasMade = true;
+                leafLink.setUserObject(newname);
+                break;
+            } // end if
+
+            leafLink = leafLink.getNextLeaf();
+        } // end while
+
+        if (!changeWasMade) return;
+
+        // Force the renamed node to redisplay,
+        // which also causes its deselection.
+        tm.nodeStructureChanged(theBranch);
+
+        // Reselect this tree node.
+        theTree.setSelectionRow(returnToRow);
+
+    } // end renameTreeBranchLeaf
 
 
     //------------------------------------------------------------------
@@ -678,13 +738,28 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end resetTreeState
 
 
-    //------------------------------------------------------------------------
-    // Method Name:  saveTodoListAs
-    //
-    //------------------------------------------------------------------------
-    private void saveTodoListAs() {
+    private void saveGroupAs() {
         String oldName = theNoteGroup.getName();
-        if (((TodoNoteGroup) theNoteGroup).saveAs()) { // The save, but conditional.
+        boolean success = false;
+        NoteGroupKeeper theNoteGroupKeeper = null;
+        TreePath groupParentPath = null;
+
+        String theContext = appMenuBar.getCurrentContext();
+        switch (theContext) {
+            case "Upcoming Event":
+                success =  ((EventNoteGroup) theNoteGroup).saveAs();
+                groupParentPath = eventsPath;
+                theNoteGroupKeeper = theEventListKeeper;
+                break;
+            case "To Do List":
+                success =  ((TodoNoteGroup) theNoteGroup).saveAs();
+                groupParentPath = todolistsPath;
+                theNoteGroupKeeper = theTodoListKeeper;
+                break;
+        }
+        if (null == groupParentPath) return; // Should not happen in normal operation.
+
+        if (success) {
             String newName = theNoteGroup.getName();
 
             // When the tree selection changes, any open NoteGroup is automatically saved,
@@ -696,18 +771,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             // Removal from the NoteGroupKeeper is needed, to force a file reload
             // during the rename of the leaf (below), because even though the saveAs
-            // operation changed the name of the list held by the todoListKeeper, it
+            // operation changed the name of the list held by the ListKeeper, it
             // still shows a title that was developed from the old file name.
             // Reloading from the file with the new name will fix that.
-            theTodoListKeeper.remove(newName);
+            theNoteGroupKeeper.remove(newName);
 
-            // Rename the leaf, refresh the To Do branch, and reselect the same tree
-            // row to cause a reload and redisplay of the list.  Note that not only
-            // does the leaf name change, but the reload also changes the displayed
-            // list title.
-            TodoNoteGroup.renameTodoListLeaf(oldName, newName);
+            // Rename the leaf.
+            // This will refresh the branch and reselect the same tree row to
+            // cause a reload and redisplay of the group.  Note that not only does the
+            // leaf name change, but the reload also changes the displayed group title.
+            String groupParentName = groupParentPath.getLastPathComponent().toString();
+            DefaultMutableTreeNode groupParentNode = BranchHelperInterface.getNodeByName(theRootNode, groupParentName);
+            renameTreeBranchLeaf(groupParentNode, oldName, newName);
         }
-    } // end saveTodoListAs
+    } // end saveGroupAs
 
     //------------------------------------------------------------------------------------------
     // Method Name:  scanDataDir

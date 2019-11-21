@@ -3,15 +3,22 @@
  */
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelection {
     private static final long serialVersionUID = 1L;
+    private static Logger log = LoggerFactory.getLogger(EventNoteGroup.class);
 
     // Notes on the implemented interfaces:
     //---------------------------------------------------------------------
@@ -173,6 +180,45 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         return NoteGroup.basePath(areaName);
     }
 
+    private File chooseMergeFile() {
+        File dataDir = new File(basePath());
+        String myName = prettyName(theGroupFilename);
+
+        // Get the complete list of Upcoming Event filenames, except this one.
+        String[] theFileList = dataDir.list(
+                new FilenameFilter() {
+                    // Although this filter does not account for directories, it is
+                    // known that the basePath will not under normal program
+                    // operation contain directories.
+                    public boolean accept(File f, String s) {
+                        if (myName.equals(prettyName(s))) return false;
+                        return s.startsWith("event_");
+                    }
+                }
+        );
+
+        // Reformat the list for presentation in the selection control.
+        // ie, drop the prefix and file extension.
+        ArrayList<String> eventListNames = new ArrayList<>();
+        if (theFileList != null) {
+            for (String aName : theFileList) {
+                eventListNames.add(prettyName(aName));
+            } // end for i
+        }
+        Object[] theNames = new String[eventListNames.size()];
+        theNames = eventListNames.toArray(theNames);
+
+
+        String message = "Choose an Event group to merge with " + myName;
+        String title = "Merge Event Groups";
+        String theChoice = optionPane.showInputDialog(this, message,
+                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
+
+        System.out.println("The choice is: " + theChoice);
+        if (theChoice == null) return null;
+        return new File(basePath() + "event_" + theChoice + ".json");
+    } // end chooseMergeFile
+
     //-------------------------------------------------------------
     // Method Name:  dateSelected
     //
@@ -322,6 +368,28 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     } // end makeNewNote
 
 
+    public void merge() {
+        File mergeFile = chooseMergeFile();
+        if (mergeFile == null) return;
+
+        // Load the file to merge in -
+        Object[] theGroup = AppUtil.loadNoteGroupData(mergeFile);
+        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+        Vector<EventNoteData> mergeVector;
+        NoteData.loading = true; // We don't want to affect the lastModDates!
+        mergeVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() {} );
+        NoteData.loading = false; // Restore normal lastModDate updating.
+
+        // Create a 'set', to contain only unique items from both lists.
+        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(groupDataVector);
+        theUniqueSet.addAll(mergeVector);
+
+        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
+        groupDataVector = new Vector<>(theUniqueSet);
+        setGroupData(groupDataVector);
+        setGroupChanged();
+    } // end merge
+
     //----------------------------------------------------------------------
     // Method Name: refresh
     //
@@ -347,6 +415,97 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     } // end refresh
 
 
+    //-----------------------------------------------------------------
+    // Method Name:  saveAs
+    //
+    // Called from the menu bar:
+    // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
+    // Prompts the user for a new list name, checks it for validity,
+    // then if ok, saves the file with that name.
+    //-----------------------------------------------------------------
+    boolean saveAs() {
+        Frame theFrame = JOptionPane.getFrameForComponent(this);
+
+        String thePrompt = "Please enter the new group name";
+        int q = JOptionPane.QUESTION_MESSAGE;
+        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
+
+        // The user cancelled; return with no complaint.
+        if (newName == null) return false;
+
+        newName = newName.trim(); // eliminate outer space.
+
+        // Test new name validity.
+        String theComplaint = BranchHelperInterface.checkFilename(newName, basePath());
+        if (!theComplaint.isEmpty()) {
+            optionPane.showMessageDialog(theFrame, theComplaint,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Get the current list name -
+        String oldName = getName();
+
+        // If the new name equals the old name, just do the save as the user
+        //   has asked and don't tell them that they are an idiot.  But no
+        //   other actions on the filesystem or the tree will be taken.
+        if (newName.equals(oldName)) {
+            preClose();
+            return false;
+        } // end if
+
+        // Check to see if the destination file name already exists.
+        // If so then complain and refuse to do the saveAs.
+
+        // Other applications might offer the option of overwriting
+        // the existing file.  This was considered and rejected
+        // because of the possibility of overwriting a file that
+        // is currently open.  We could check for that as well, but
+        // decided not to because - why should we go to heroic
+        // efforts to handle a user request where it seems like
+        // they may not understand what it is they are asking for?
+        // This is the same approach that was taken in the 'rename' handling.
+
+        // After we refuse the operation due to a preexisting destination
+        // file name the user has several recourses, depending on
+        // what it was they really wanted to do - they could delete
+        // the preexisting file or rename it, after which a second
+        // attempt at this operation would succeed, or they could
+        // realize that they had been having a senior moment and
+        // abandon the effort, or they could choose a different
+        // new name and try again.
+        //--------------------------------------------------------------
+        String newFilename = basePath() + "event_" + newName + ".json";
+        if ((new File(newFilename)).exists()) {
+            ems = "A group named " + newName + " already exists!\n";
+            ems += "  operation cancelled.";
+            optionPane.showMessageDialog(theFrame, ems,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } // end if
+
+        // Now change the name and save.
+        //------------------------------------
+        log.debug("Saving " + oldName + " as " + newName);
+
+        // 'setFileName' wants the 'pretty' name as parameter, even though we already
+        // have its long form from when we checked for pre-existence, above.  But one
+        // other HUGE consideration is that it also sets the name of the component
+        // itself, which translates into an in-place change of the name of the list
+        // held by the TodoListKeeper.  Unfortunately, that list will still have the
+        // old title, so it still needs to be removed from the keeper.  The calling
+        // context will take care of that.
+        setFileName(newName);
+
+        // Since this is effectively a new file, before we save we need to ensure that
+        // the app will not fail in an attempt to remove the (nonexistent) old file.
+        AppUtil.localArchive(true);
+        preClose();
+        AppUtil.localArchive(false);
+
+        return true;
+    } // end saveAs
+
     // ----------------------------------------------------
     // Method Name: setDefaultIcon
     //
@@ -361,6 +520,19 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         preClose();
         updateGroup();
     }// end setDefaultIcon
+
+
+    //-----------------------------------------------------------------
+    // Method Name:  setFileName
+    //
+    // Provided as support for a 'Save As' functionality.  The calling context
+    // is responsible for providing a valid name; no checking done here.
+    //-----------------------------------------------------------------
+    private void setFileName(String fname) {
+        theGroupFilename = basePath() + "event_" + fname.trim() + ".json";
+        setName(fname.trim());  // Keep the 'pretty' name in the component.
+        setGroupChanged();
+    } // end setFileName
 
 
     @Override

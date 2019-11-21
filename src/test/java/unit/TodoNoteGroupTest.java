@@ -110,11 +110,7 @@ class TodoNoteGroupTest implements FileChooser {
     @Test
     void testMerge() {
         // Just the coverage -
-        todoNoteGroup.setFilechooser(this);
-        todoNoteGroup.merge();
-
-        // Now cover an 'error' path -
-        this.setCurrentDirectory(new File(MemoryBank.logHome));
+        testUtil.setTheAnswer("New Car Shopping");
         todoNoteGroup.merge();
     }
 
