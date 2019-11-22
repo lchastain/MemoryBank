@@ -6,6 +6,14 @@ public class AppMenuBar extends JMenuBar{
     // Menus
     //-------------------------------------------------
     private static JMenu fileMenu;
+    private static JMenu branchEditorMenu;
+    private static JMenu eventsMenu;
+    private static JMenu viewsMenu;
+    private static JMenu notesMenu;
+    private static JMenu todolistsMenu;
+    private static JMenu searchesMenu;
+
+
     private static JMenu branchFileMenu;
     private static JMenu todoFileMenu;
     private static JMenu searchResultFileMenu;
@@ -25,98 +33,60 @@ public class AppMenuBar extends JMenuBar{
     private String theCurrentContext;
 
     static {
-        //------------- File Menus -------------------------------------------------
         fileMenu = new JMenu("File");
         fileMenu.add(new JMenuItem("Search..."));
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 
-        searchResultFileMenu = new JMenu("File");
-        searchResultFileMenu.add(new JMenuItem("Close"));
-        searchResultFileMenu.add(new JMenuItem("Search..."));
-        searchResultFileMenu.add(new JMenuItem("Review..."));
-        searchResultFileMenu.add(new JMenuItem("Icon Manager..."));
-        searchResultFileMenu.add(new JMenuItem("Exit"));
+        branchEditorMenu = new JMenu("Branch Editor");
+        branchEditorMenu.add(new JMenuItem("Add New..."));
 
-        branchFileMenu = new JMenu("File");
-        branchFileMenu.add(new JMenuItem("Add New..."));
-        branchFileMenu.add(new JMenuItem("Search..."));
-        branchFileMenu.add(new JMenuItem("Icon Manager..."));
-        branchFileMenu.add(new JMenuItem("Exit"));
+        eventsMenu = new JMenu("Events");
+        eventsMenu.add(new JMenuItem("undo"));
+        eventsMenu.add(new JMenuItem("Close"));
+        eventsMenu.add(new JMenuItem("Add New..."));
+        eventsMenu.add(new JMenuItem("Merge..."));
+        eventsMenu.add(new JMenuItem("Save As..."));
+        eventsMenu.add(new JMenuItem("Refresh"));
+        eventsMenu.add(new JMenuItem("Clear All"));
 
-        todoFileMenu = new JMenu("File");
-        todoFileMenu.add(new JMenuItem("Close"));
-        todoFileMenu.add(new JMenuItem("Add New..."));
-        todoFileMenu.add(new JMenuItem("Search..."));
-        todoFileMenu.add(new JMenuItem("Icon Manager..."));
-        todoFileMenu.add(new JMenuItem("Merge..."));
-        todoFileMenu.add(new JMenuItem("Print..."));
-        todoFileMenu.add(new JMenuItem("Save As..."));
-        todoFileMenu.add(new JMenuItem("Exit"));
+        viewsMenu = new JMenu("Views");
+        viewsMenu.add(new JMenuItem("Today"));
 
-        //------------- Edit Menus -------------------------------------------------
-        dayNoteEditMenu = new JMenu("Edit");
-        dayNoteEditMenu.add(new JMenuItem("undo"));
-        dayNoteEditMenu.add(new JMenuItem("Clear Day"));
+        notesMenu = new JMenu("Notes");
+        notesMenu.add(new JMenuItem("undo"));
+        notesMenu.add(new JMenuItem("Today"));
+        notesMenu.add(new JMenuItem("Refresh"));
+        notesMenu.add(new JMenuItem("Clear All"));
 
-        monthEditMenu = new JMenu("Edit");
-        monthEditMenu.add(new JMenuItem("undo"));
-        monthEditMenu.add(new JMenuItem("Clear Month"));
+        todolistsMenu = new JMenu("ToDo Lists");
+        todolistsMenu.add(new JMenuItem("undo"));
+        todolistsMenu.add(new JMenuItem("Close"));
+        todolistsMenu.add(new JMenuItem("Add New..."));
+        todolistsMenu.add(new JMenuItem("Merge..."));
+        todolistsMenu.add(new JMenuItem("Print..."));
+        todolistsMenu.add(new JMenuItem("Save As..."));
+        todolistsMenu.add(new JMenuItem("Refresh"));
+        todolistsMenu.add(new JMenuItem("Clear All"));
 
-        yearEditMenu = new JMenu("Edit");
-        yearEditMenu.add(new JMenuItem("undo"));
-        yearEditMenu.add(new JMenuItem("Clear Year"));
+        searchesMenu = new JMenu("Searches");
+        searchesMenu.add(new JMenuItem("Close"));
+        searchesMenu.add(new JMenuItem("Review..."));
 
-        todoEditMenu = new JMenu("Edit");
-        todoEditMenu.add(new JMenuItem("undo"));
-        todoEditMenu.add(new JMenuItem("Clear Entire List"));
-        todoEditMenu.addSeparator();
-        todoEditMenu.add(new JMenuItem("Set Options..."));
-
-        //------------- View Menus -------------------------------------------------
-        viewMenu = new JMenu("View");
-        viewMenu.add(new JMenuItem("Refresh"));
-
-        viewsViewMenu = new JMenu("View");
-        viewsViewMenu.add(new JMenuItem("Today"));
-
-        noteViewMenu = new JMenu("View");
-        noteViewMenu.add(new JMenuItem("Today"));
-        noteViewMenu.add(new JMenuItem("Refresh"));
-
-        //------------- Help Menu --------------------------------------------------
         helpMenu = new JMenu("Help");
         helpMenu.add(new JMenuItem("Contents"));
         helpMenu.add(new JMenuItem("About"));
-
-
-        // Initial visibility of all menu items is false.
-        // That can change in 'manageMenus'
-        dayNoteEditMenu.setVisible(false);
-        monthEditMenu.setVisible(false);
-        todoEditMenu.setVisible(false);
-        yearEditMenu.setVisible(false);
-        branchFileMenu.setVisible(false);
-        todoFileMenu.setVisible(false);
-        searchResultFileMenu.setVisible(false);
-        viewMenu.setVisible(false);
-        viewsViewMenu.setVisible(false);
-        noteViewMenu.setVisible(false);
     } // end static
 
     public AppMenuBar() {
         super();
         add(fileMenu);
-        add(searchResultFileMenu);
-        add(branchFileMenu);
-        add(todoFileMenu);
-        add(dayNoteEditMenu);
-        add(monthEditMenu);
-        add(yearEditMenu);
-        add(todoEditMenu);
-        add(viewMenu);
-        add(viewsViewMenu);
-        add(noteViewMenu);
+        add(branchEditorMenu);
+        add(eventsMenu);
+        add(viewsMenu);
+        add(notesMenu);
+        add(todolistsMenu);
+        add(searchesMenu);
 
         // This puts the 'Help' on the far right side.
         add(Box.createHorizontalGlue());
@@ -131,73 +101,50 @@ public class AppMenuBar extends JMenuBar{
     }
 
     // Given a string to indicate what 'mode' we are in,
-    // display the menus that are appropriate to that mode.
+    // display the menu that is appropriate to that mode.
     void manageMenus(String theContext) {
         theCurrentContext = theContext;
 
-        // Set a default of having the 'File' and 'View' menus only;
-        //   let the specific cases below make any needed alterations.
+        // The default is to have the 'File' and 'Help' menus only;
+        //   let the specific cases below make any needed addition.
         //-----------------------------------------
-        fileMenu.setVisible(true);
-        branchFileMenu.setVisible(false);
-        todoFileMenu.setVisible(false);
-        searchResultFileMenu.setVisible(false);
-        dayNoteEditMenu.setVisible(false);
-        monthEditMenu.setVisible(false);
-        todoEditMenu.setVisible(false);
-        yearEditMenu.setVisible(false);
-        viewMenu.setVisible(true);
-        viewsViewMenu.setVisible(false);
-        noteViewMenu.setVisible(false);
+
+        branchEditorMenu.setVisible(false);
+        eventsMenu.setVisible(false);
+        viewsMenu.setVisible(false);
+        notesMenu.setVisible(false);
+        todolistsMenu.setVisible(false);
+        searchesMenu.setVisible(false);
 
         MemoryBank.debug("Setting MenuBar Configuration: " + theCurrentContext);
 
         switch (theCurrentContext) {
             case "Year View":  // Year View
-                viewMenu.setVisible(false);
-                viewsViewMenu.setVisible(true);
-                break;
-            case "Month Notes":  // Month Notes
-                monthEditMenu.setVisible(true);
-                viewMenu.setVisible(false);
-                noteViewMenu.setVisible(true);
-                break;
             case "Month View":  // Month View
-                viewMenu.setVisible(false);
-                viewsViewMenu.setVisible(true);
+                viewsMenu.setVisible(true);
                 break;
             case "Day Notes":  // Day Notes
-                dayNoteEditMenu.setVisible(true);
-                viewMenu.setVisible(false);
-                noteViewMenu.setVisible(true);
+            case "Month Notes":  // Month Notes
+            case "Year Notes":  // Year Notes
+                notesMenu.setVisible(true);
                 break;
             case "Search Result":  // Search Results
-                fileMenu.setVisible(false);
-                searchResultFileMenu.setVisible(true);
-                viewMenu.setVisible(false);
-                break;
-            case "Year Notes":  // Year Notes
-                yearEditMenu.setVisible(true);
-                viewMenu.setVisible(false);
-                noteViewMenu.setVisible(true);
+                searchesMenu.setVisible(true);
                 break;
             case "Consolidated View":
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
-                fileMenu.setVisible(false);
-                branchFileMenu.setVisible(true);
-                viewMenu.setVisible(false);
+                branchEditorMenu.setVisible(true);
                 break;
             case "Upcoming Event":
+                eventsMenu.setVisible(true);
+                break;
             case "To Do List":       // A List
-                fileMenu.setVisible(false);
-                todoFileMenu.setVisible(true);
-                todoEditMenu.setVisible(true);
+                todolistsMenu.setVisible(true);
                 break;
             default: // No special handling but still a valid configuration.
-                // Expected examples:  About, Branches.
+                // Expected examples:  About, Branches without an editor.
                 // Unexpected - will only show up during development.
-                viewMenu.setVisible(false);
                 break;
         }
     } // end manageMenus
