@@ -34,7 +34,7 @@ public class EventNoteComponent extends IconNoteComponent {
         super.noteActivated(blnIAmOn);
     }
 
-    protected void resetMouseMessage(int textStatus) {
+    protected void resetNoteStatusMessage(int textStatus) {
         String s = " ";
 
         // Since the isEditable flag is static we cannot be checking it at
@@ -59,7 +59,7 @@ public class EventNoteComponent extends IconNoteComponent {
             s += "Go to the original source if a change is needed.";
         }
         myNoteGroup.setMessage(s);
-    } // end resetMouseMessage
+    } // end resetNoteStatusMessage
 
 
     @Override

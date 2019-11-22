@@ -124,13 +124,13 @@ public class SearchResultComponent extends NoteComponent {
     } // end resetComponent
 
     @Override
-    protected void resetMouseMessage(int textStatus) {
+    protected void resetNoteStatusMessage(int textStatus) {
         String s;
 
         s = "Search result text is non-editable.  Go to the ";
         s += "original source if a change is needed.";
         myNoteGroup.setMessage(s);
-    } // end resetMouseMessage
+    } // end resetNoteStatusMessage
 
 
     //----------------------------------------------------------

@@ -633,6 +633,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         AppUtil.localDebug(false);
 
         // Display the same page, now with possibly different contents.
+        checkColumnOrder();
         postSort();
     } // end sortPriority
 
@@ -699,6 +700,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         AppUtil.localDebug(false);
 
         // Display the same page, now with possibly different contents.
+        checkColumnOrder();
         postSort();
     } // end sortText
 } // end class TodoNoteGroup

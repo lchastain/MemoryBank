@@ -265,7 +265,7 @@ public class TodoNoteComponent extends NoteComponent {
     } // end resetComponent
 
 
-    protected void resetMouseMessage(int textStatus) {
+    protected void resetNoteStatusMessage(int textStatus) {
         String s = " ";
 
         switch (textStatus) {
@@ -282,7 +282,7 @@ public class TodoNoteComponent extends NoteComponent {
                 s += " the additional details for this task.";
         } // end switch
         myNoteGroup.setMessage(s);
-    } // end resetMouseMessage
+    } // end resetNoteStatusMessage
 
 
     // This method enables/disables the popup menu items.

@@ -267,6 +267,24 @@ public abstract class NoteGroup extends JPanel {
             extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
         }
 
+        /* Some things that were tried, to resolve SCR0094
+             (no luck, yet - asked StackOverflow)
+
+        // getting the current noteComonent also needed it to be set, in NoteComponent.mouseEntered.
+        // But then removed the setting of it,
+        // after seeing that it was no help here.
+        NoteComponent.ncTheNoteComponent.noteTextField.transferFocusUpCycle();
+        NoteComponent.ncTheNoteComponent.noteTextField.transferFocus();
+
+        try {
+            Robot robot = new Robot();
+            Point p = MouseInfo.getPointerInfo().getLocation();
+            robot.mouseMove(p.x, p.y + 30);
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+        */
+
         extendedNoteComponent.setExtText(nd.getExtendedNoteString());
         if (defaultSubject != null) extendedNoteComponent.setSubject(nd.getSubjectString());
 

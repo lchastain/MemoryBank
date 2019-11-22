@@ -268,7 +268,7 @@ public class NoteComponent extends JPanel {
     } // end resetComponent
 
 
-    protected void resetMouseMessage(int textStatus) {
+    protected void resetNoteStatusMessage(int textStatus) {
         String s = " ";
 
         switch (textStatus) {
@@ -285,7 +285,7 @@ public class NoteComponent extends JPanel {
                 s += " the subject and extended note.";
         } // end switch
         myNoteGroup.setMessage(s);
-    } // end resetMouseMessage
+    } // end resetNoteStatusMessage
 
 
     // This method is called each time before displaying the popup menu.
@@ -704,7 +704,7 @@ public class NoteComponent extends JPanel {
         public void mouseEntered(MouseEvent e) {
             popup.setVisible(false);
             if (!initialized) return;
-            resetMouseMessage(getTextStatus());
+            resetNoteStatusMessage(getTextStatus());
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
