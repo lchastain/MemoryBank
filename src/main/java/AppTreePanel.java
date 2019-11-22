@@ -642,6 +642,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
 
     private void mergeGroup() {
+        preClose();
         String theContext = appMenuBar.getCurrentContext();
         switch (theContext) {
             case "Upcoming Event":

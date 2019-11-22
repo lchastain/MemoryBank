@@ -648,7 +648,7 @@ public abstract class NoteGroup extends JPanel {
         if (i > 0) thePrettyName = thePrettyName.substring(0, i);
 
         // Cut off the leading group type (event_, todo_, search_, etc)
-        i = thePrettyName.lastIndexOf("_");
+        i = thePrettyName.indexOf("_");
         if (i >= 0) thePrettyName = thePrettyName.substring(i + 1);
 
         return thePrettyName;
