@@ -109,6 +109,12 @@ public class SearchResultComponent extends NoteComponent {
     protected void resetComponent() {
         super.resetComponent(); // the note text
 
+        // This happens during loadInterface, a lot.
+        // None of the non-visible notes on the page ever got a data object.
+        if(mySearchResultData == null) {
+            return;
+        }
+
         fibTheFoundInButton.setText(mySearchResultData.getFoundIn());
 
         // Get the Last Mod date

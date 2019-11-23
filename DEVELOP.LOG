@@ -1,6 +1,17 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/23/2019 0805 - Now seem to be past all the most pressing problem-type issues, mostly dealing
+  with todolists and events, and looking at UNDO.  There are so many ways to approach this but
+  so far it has been a bit spotty, with a group reload without first saving recent changes being
+  the main solution.  Now, with the need to undo a full list clear, looking at the Command
+  pattern and how to best round up all 'undo' activities into a consolidated approach.  First
+  thought is that it should still be compartmentalized into Groups - ie, tree navigations and
+  the non-group menu items are off the table.  Each group could maintain its own, separate
+  list of actions to undo but when do we clear it?  It could be kept between tree node changes
+  but then we would probably need a group 'save' action and take that away from automatic due
+  to tree node change.
+
 11/19/2019 0806 - Finally updated the version to 0.3 (via the About graphic).  Coverage is now
   at 89% classes, 60% lines.  This follows a few more (minimal, coverage-only) test classes and
   the code reduction from the last entry, below.

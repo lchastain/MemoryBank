@@ -143,14 +143,14 @@ public abstract class NoteGroup extends JPanel {
 
 
     //----------------------------------------------------------------------
-    // Method Name: activateNextNote
+    // Method Name: activateNote
     //
-    // This method will set the next note visible, unless:
+    // This method will set the note visible, unless:
     //   the requested index is already visible   OR
     //   there are no more hidden notes to show, in which case it will
     //   create a new page.
     //----------------------------------------------------------------------
-    void activateNextNote(int noteIndex) {
+    void activateNote(int noteIndex) {
         if (noteIndex < lastVisibleNoteIndex) return;  // already showing.
 
         if (lastVisibleNoteIndex < intHighestNoteComponentIndex) {
@@ -171,7 +171,7 @@ public abstract class NoteGroup extends JPanel {
             } // end if
 
         } // end if
-    } // end activateNextNote
+    } // end activateNote
 
 
     static String basePath(String areaName) {
@@ -187,11 +187,9 @@ public abstract class NoteGroup extends JPanel {
         transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
         groupDataVector.clear();
+        setGroupData(groupDataVector);
         groupChanged = true;
-        saveGroup();   // Save the empty group (which will remove the file, if one exists).
-        updateGroup(); // The display will be cleared when it tries to load a data file.
-        groupNotesListPanel.invalidate(); // sometimes anomalous graphics remain.
-        groupNotesListPanel.validate();   // sometimes anomalous graphics remain.
+        npThePager.reset(1);
     } // end clearGroup
 
 
@@ -512,9 +510,10 @@ public abstract class NoteGroup extends JPanel {
     //
     // This method transfers the data vector items to the onscreen
     //   components.  A 'page' specifier is used to determine which
-    //   portion of the vector to display, if there are more than
-    //   will fit on one page.  Child classes are responsible for
-    //   displaying the pager control.  If they do not, then only
+    //   portion of the vector to display, if there are more notes
+    //   than will fit on one page.  Child classes are responsible for
+    //   displaying the pager control and sending page numbers higher
+    //   than one.  If they do not, then only
     //   the first page of data will be available.
     //-------------------------------------------------------------------
     private void loadInterface(int intPageNum) {
@@ -525,64 +524,50 @@ public abstract class NoteGroup extends JPanel {
         // Set the indexes into the data vector -
         int maxDataIndex = groupDataVector.size() - 1;
         int startIndex = (intPageNum - 1) * pageSize;
+        int dataIndex = startIndex;
         int endIndex = (intPageNum * pageSize) - 1;
         if (endIndex > maxDataIndex) endIndex = maxDataIndex;
 
         NoteComponent tempNote;
 
-        MemoryBank.debug("NoteGroup.loadInterface from index " + startIndex + " to " + endIndex);
+        MemoryBank.debug("NoteGroup.loadInterface from data index " + startIndex + " to " + endIndex);
 
-        for (int i = startIndex; i <= endIndex; i++) {
-            MemoryBank.debug("  loading index " + panelIndex + " with data element " + i);
-            // The next line casts to NoteComponent.  If the component is actually
-            //   a child of NoteComponent then it will still work and the
-            //   'setNoteData' that is called will be the child class method, not
-            //   the one from the base class.
-            //   That behavior is critical to this app.
+        for (int i = panelIndex; i < pageSize; i++) {
+            // The next line casts to NoteComponent.  Since the component is actually
+            //   a child of NoteComponent, the 'setNoteData' method that is called
+            //   later will be the child class method, not the one from the base class.
+            //   That behavior is critical to this operation.
             tempNote = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
-            tempNote.setNoteData(groupDataVector.elementAt(i));
-            tempNote.setVisible(true);
+
+            if(dataIndex <= endIndex) { // Put vector data into the interface.
+                //MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
+                tempNote.setNoteData(groupDataVector.elementAt(dataIndex));
+                tempNote.setVisible(true);
+                dataIndex++;
+            } else {  // This path is needed to wipe the rest of the interface clean.
+                //MemoryBank.debug("  clearing panel index " + panelIndex);
+                // Used after a clearGroup() call, or for loading 'short' pages after
+                // a longer one was already displayed such as or when you get to the
+                // last partial page of a multi-page list.  These lines must be cleared
+                // visually, without affecting the data (if any) in the vector.
+
+                // Clear the visual aspects.  Cannot call clear() because that also clears
+                // the data object which is in the groupDataVector and that data object may
+                // be from a full page three when you are now clearing the rest of a partial
+                // page four.  Instead, we first give the noteComponent a new data object,
+                // then instruct it to update its appearance based on the new data and go back
+                // to being 'un' initialized.
+                tempNote.makeDataObject();
+                tempNote.resetComponent();
+                tempNote.setVisible(false);
+                tempNote.initialized = false;
+            }
             panelIndex++;
         } // end for
 
-        if (intPageNum > 1) {
-            // For page numbers higher than 1, a previous page had already
-            //   been loaded into the interface.  The data is only cleared
-            //   out by new data coming in and if this is a 'short' page then
-            //   the remaining lines were not cleared.  When new lines are
-            //   activated, instead of a blank line, the info from that same line
-            //   of the previous
-            //   page will be displayed and then treated as new input.  To
-            //   prevent that, these lines must be cleared visually, without
-            //   affecting the data in the vector.
-            MemoryBank.debug("NoteGroup.loadInterface: panelIndex after load: " + panelIndex);
-            MemoryBank.debug("  clearing from panelIndex to " + (pageSize - 1));
-
-            for (int i = panelIndex; i < pageSize; i++) {
-                tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-                MemoryBank.debug("    Clearing index " + i);
-
-                if (tempNote.initialized) {
-                    // Now clear the visual aspects - (see note below)
-                    tempNote.makeDataObject();
-                    tempNote.resetComponent();
-
-                    tempNote.initialized = false;
-                } // end if
-
-                // Note: Cannot call clear() because that also clears the data
-                //   object which is in the vectGroupData vector.  Instead, we
-                //   first give the noteComponent a new data object, then
-                //   instruct it to update its appearance based on that.  Only
-                //   the first note in this range needs the visual clearing but
-                //   all of them need to be 'un' initialized.
-            } // end for
-        } // end if
-
-        lastVisibleNoteIndex = panelIndex - 1;
-        MemoryBank.debug("lastVisibleNoteIndex (before activateNextNote) is " + lastVisibleNoteIndex);
-
-        if (addNoteAllowed) activateNextNote(panelIndex);
+        lastVisibleNoteIndex = endIndex;
+        MemoryBank.debug("lastVisibleNoteIndex is " + lastVisibleNoteIndex);
+        if (addNoteAllowed) activateNote(endIndex + 1);
 
         // Each of the 'setNoteData' calls above would have set this to true.
         groupChanged = false;

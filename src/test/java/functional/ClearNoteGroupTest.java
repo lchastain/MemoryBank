@@ -129,6 +129,9 @@ class ClearNoteGroupTest {
         mng.clearGroup();  // Clears the interface and the Vector for it.
         // But be aware that each component may still have a data member.
 
+        // And 'save' it again -
+        mng.preClose(); // With an empty group, a save == a delete.
+
         // And verify that there is no longer a file for it
         Assertions.assertFalse(new File(strGroupFilename).exists());
 

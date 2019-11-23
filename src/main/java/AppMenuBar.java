@@ -6,26 +6,13 @@ public class AppMenuBar extends JMenuBar{
     // Menus
     //-------------------------------------------------
     private static JMenu fileMenu;
+
     private static JMenu branchEditorMenu;
     private static JMenu eventsMenu;
     private static JMenu viewsMenu;
     private static JMenu notesMenu;
     private static JMenu todolistsMenu;
     private static JMenu searchesMenu;
-
-
-    private static JMenu branchFileMenu;
-    private static JMenu todoFileMenu;
-    private static JMenu searchResultFileMenu;
-
-    private static JMenu dayNoteEditMenu;
-    private static JMenu monthEditMenu;
-    private static JMenu yearEditMenu;
-    private static JMenu todoEditMenu;
-
-    private static JMenu viewMenu;
-    private static JMenu viewsViewMenu;
-    private static JMenu noteViewMenu;
 
     private static JMenu helpMenu;
     //-------------------------------------------------
@@ -38,10 +25,10 @@ public class AppMenuBar extends JMenuBar{
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 
-        branchEditorMenu = new JMenu("Branch Editor");
+        branchEditorMenu = new JMenu("Edit");
         branchEditorMenu.add(new JMenuItem("Add New..."));
 
-        eventsMenu = new JMenu("Events");
+        eventsMenu = new JMenu("Edit");
         eventsMenu.add(new JMenuItem("undo"));
         eventsMenu.add(new JMenuItem("Close"));
         eventsMenu.add(new JMenuItem("Add New..."));
@@ -50,16 +37,16 @@ public class AppMenuBar extends JMenuBar{
         eventsMenu.add(new JMenuItem("Refresh"));
         eventsMenu.add(new JMenuItem("Clear All"));
 
-        viewsMenu = new JMenu("Views");
+        viewsMenu = new JMenu("Edit");
         viewsMenu.add(new JMenuItem("Today"));
 
-        notesMenu = new JMenu("Notes");
+        notesMenu = new JMenu("Edit");
         notesMenu.add(new JMenuItem("undo"));
         notesMenu.add(new JMenuItem("Today"));
         notesMenu.add(new JMenuItem("Refresh"));
         notesMenu.add(new JMenuItem("Clear All"));
 
-        todolistsMenu = new JMenu("ToDo Lists");
+        todolistsMenu = new JMenu("Edit");
         todolistsMenu.add(new JMenuItem("undo"));
         todolistsMenu.add(new JMenuItem("Close"));
         todolistsMenu.add(new JMenuItem("Add New..."));
@@ -69,7 +56,7 @@ public class AppMenuBar extends JMenuBar{
         todolistsMenu.add(new JMenuItem("Refresh"));
         todolistsMenu.add(new JMenuItem("Clear All"));
 
-        searchesMenu = new JMenu("Searches");
+        searchesMenu = new JMenu("Edit");
         searchesMenu.add(new JMenuItem("Close"));
         searchesMenu.add(new JMenuItem("Review..."));
 

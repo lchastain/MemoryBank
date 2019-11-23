@@ -195,7 +195,7 @@ public class NoteComponent extends JPanel {
             //   but will retain its data object.  We only want to add 'new' data
             //   to the group Vector.
             myNoteGroup.groupDataVector.addElement(getNoteData());
-            myNoteGroup.activateNextNote(index);
+            myNoteGroup.activateNote(index);
         }
         initialized = true;
     } // end initialize
