@@ -607,8 +607,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
         else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
-        else if (what.equals("Refresh")) theNoteGroup.refresh();
         else if (what.equals("Review...")) System.out.println("Review was selected.");
+        else if (what.equals("Save")) theNoteGroup.refresh();
         else if (what.startsWith("Save As")) saveGroupAs();
         else if (what.equals("Icon Manager...")) {
             theTree.clearSelection();
@@ -617,7 +617,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             appMenuBar.manageMenus("Icons"); // This will get the default / unhandled case.
             rightPane.setViewportView(jp);
         } else if (what.equals("Today")) showToday();
-        else if (what.equals("undo")) {
+        else if (what.equals("Undo All")) {
             String s = appOpts.theSelection;
             switch (s) {
                 case "Day Notes":

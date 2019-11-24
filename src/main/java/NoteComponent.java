@@ -442,6 +442,13 @@ public class NoteComponent extends JPanel {
             return d;
         } // end getPreferredSize
 
+        // This provides a constant location for the tooltip, so that the
+        // extended note editor (if/when it pops up) will cover it entirely.
+        @Override
+        public Point getToolTipLocation(MouseEvent e) {
+            return new Point(20, 20);
+        }
+
         private void resetToolTip(NoteData nd) {
             if (nd == null) return;
 
@@ -470,7 +477,7 @@ public class NoteComponent extends JPanel {
             if (strToolTip != null) {
                 // Insert line breaks as needed and enforce
                 //   an overall text length limit.
-                strToolTip = AppUtil.getBrokenString(strToolTip, 70, 10);
+                strToolTip = AppUtil.getBrokenString(strToolTip);
 
                 // In case we had a (too large) gap of linefeeds in the middle
                 //   and the cutoff didn't make it back to real text -

@@ -1,6 +1,15 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/24/2019 0656 - What started as a small issue with a lingering tooltip has blown up into a
+  major change to the ExtendedNoteComponent, making its editor into a JOptionPane with a set
+  size vs user-settable, which means that extendedNoteWidth/Height are now no longer needed
+  or used.  That will affect every single NoteGroup data element that we keep.  Probably have
+  to Json-ignore them.  And a great side-effect that solves a problem that I hadn't yet
+  articulated: pressing Enter will bring up the extended note, and now, pressing it again
+  will DISMISS it!  This makes a quick review a LOT less painful than having to move the
+  mouse to that tiny X in the upper right corner.  This is all for the better.
+
 11/23/2019 0805 - Now seem to be past all the most pressing problem-type issues, mostly dealing
   with todolists and events, and looking at UNDO.  There are so many ways to approach this but
   so far it has been a bit spotty, with a group reload without first saving recent changes being
@@ -11,6 +20,15 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
   list of actions to undo but when do we clear it?  It could be kept between tree node changes
   but then we would probably need a group 'save' action and take that away from automatic due
   to tree node change.
+ 1200 - Before that idea got too far off the ground, research into the Command pattern shows that
+  it is just not appropriate to the actions here, which are a handful of actions at most and more
+  likely just one or two that would need an undo, and none would ever need a redo unless maybe
+  you reconsidered and wanted to undo your undo.  Too complicated.  Decision for now is to continue
+  with the file-reload option, with a new list clear so that it too can be undone, and some menu
+  item reorg and renaming, to make it clearer to the user that an 'undo' refers to their entire
+  edit session on the current tree leaf since their last 'save'.  And - changed the 'refresh' menu
+  item text to 'save', since that's what it does first.  Remaining work here is just to enable and
+  disable the save and undo menu items, according to whether or not they will have an effect.
 
 11/19/2019 0806 - Finally updated the version to 0.3 (via the About graphic).  Coverage is now
   at 89% classes, 60% lines.  This follows a few more (minimal, coverage-only) test classes and

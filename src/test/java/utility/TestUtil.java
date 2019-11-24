@@ -24,6 +24,44 @@ class TestUtil implements Notifier, SubSystem {
     }
 
     @Override
+    public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType) {
+        notifyCount++;
+        System.out.println("(Confirm dialog) " + title + ":  " + message);
+        if (theMethod != null) {
+            try {
+                if (param1 == null) {
+                    theMethod.invoke(message);  // See TodoNoteGroupTest.testSetOptions
+                } else {
+                    theMethod.invoke(message, param1);
+                }
+            } catch (IllegalAccessException | InvocationTargetException ee) {
+                ee.printStackTrace();
+            }
+        }
+        return JOptionPane.YES_OPTION;
+    }
+
+
+    @Override
+    public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType, int messageType) {
+        notifyCount++;
+        System.out.println("(Confirm dialog) " + title + ":  " + message);
+        if (theMethod != null) {
+            try {
+                if (param1 == null) {
+                    theMethod.invoke(message);  // See TodoNoteGroupTest.testSetOptions
+                } else {
+                    theMethod.invoke(message, param1);
+                }
+            } catch (IllegalAccessException | InvocationTargetException ee) {
+                ee.printStackTrace();
+            }
+        }
+        return JOptionPane.YES_OPTION;
+    }
+
+
+    @Override
     public void showMessageDialog(Component parentComponent, Object message, String title, int messageType) {
         notifyCount++;
         System.out.println(title + ":  " + message);
@@ -58,25 +96,6 @@ class TestUtil implements Notifier, SubSystem {
         System.out.println("  using supplied answer: " + theAnswer);
         return theAnswer;
     }
-
-    @Override
-    public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType) {
-        notifyCount++;
-        System.out.println("(Confirm dialog) " + title + ":  " + message);
-        if (theMethod != null) {
-            try {
-                if (param1 == null) {
-                    theMethod.invoke(message);  // See TodoNoteGroupTest.testSetOptions
-                } else {
-                    theMethod.invoke(message, param1);
-                }
-            } catch (IllegalAccessException | InvocationTargetException ee) {
-                ee.printStackTrace();
-            }
-        }
-        return JOptionPane.YES_OPTION;
-    }
-
 
     int getNotifyCount() {
         return notifyCount;

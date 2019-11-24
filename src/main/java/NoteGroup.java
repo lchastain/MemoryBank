@@ -2,8 +2,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
@@ -30,7 +28,8 @@ public abstract class NoteGroup extends JPanel {
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
-    protected static String ems;     // Error Message String
+    private static Notifier optionPane;
+    static String ems;     // Error Message String
     ExtendedNoteComponent extendedNoteComponent;
     boolean addNoteAllowed;
     boolean saveWithoutData;
@@ -135,6 +134,9 @@ public abstract class NoteGroup extends JPanel {
         String s = "Use the mouse pointer for context-sensitive help";
         lblStatusMessage = new JLabel(s);
         add(lblStatusMessage, BorderLayout.SOUTH);
+
+        // A variant of JOptionPane, for testing.
+        optionPane = new Notifier() { }; // Uses all default methods.
 
         // Cannot do the updateGroup() here because child classes
         //   first need to establish their Filenames in their own
@@ -248,15 +250,12 @@ public abstract class NoteGroup extends JPanel {
     //---------------------------------------------------------------
     // Method Name: editExtendedNoteComponent
     //
-    // Provides an interface for the modification of elements of
+    // Provides an interface for the modification of data elements of
     //   the extended note component, and returns true if there
     //   was a change; false otherwise.
     //
-    // Note that the 'tempwin' used here was developed long ago;
-    // it is pre-JOptionPane code.
     //---------------------------------------------------------------
-    protected boolean editExtendedNoteComponent(NoteData nd) {
-        JDialog tempwin;
+    boolean editExtendedNoteComponent(NoteData noteData) {
         final Dimension d = new Dimension();
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
@@ -265,64 +264,32 @@ public abstract class NoteGroup extends JPanel {
             extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
         }
 
-        /* Some things that were tried, to resolve SCR0094
-             (no luck, yet - asked StackOverflow)
-
-        // getting the current noteComonent also needed it to be set, in NoteComponent.mouseEntered.
-        // But then removed the setting of it,
-        // after seeing that it was no help here.
-        NoteComponent.ncTheNoteComponent.noteTextField.transferFocusUpCycle();
-        NoteComponent.ncTheNoteComponent.noteTextField.transferFocus();
-
-        try {
-            Robot robot = new Robot();
-            Point p = MouseInfo.getPointerInfo().getLocation();
-            robot.mouseMove(p.x, p.y + 30);
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
-        */
-
-        extendedNoteComponent.setExtText(nd.getExtendedNoteString());
-        if (defaultSubject != null) extendedNoteComponent.setSubject(nd.getSubjectString());
-
-        //---------------------------------------------------------
-        // Make a dialog window to show the ExtendedNoteComponent
-        //---------------------------------------------------------
-        Frame myFrame = JOptionPane.getFrameForComponent(this);
-        if (myFrame == null) return false;
-
-        tempwin = new JDialog(myFrame, true);
-        tempwin.getContentPane().add(extendedNoteComponent, BorderLayout.CENTER);
+        extendedNoteComponent.setExtText(noteData.getExtendedNoteString());
+        if (defaultSubject != null) extendedNoteComponent.setSubject(noteData.getSubjectString());
 
         // Preserve initial values, for later comparison to
         //   determine if there was a change.
-        int origWidth = nd.getExtendedNoteWidthInt();
-        int origHeight = nd.getExtendedNoteHeightInt();
-        String origSubject = nd.getSubjectString();
-        String origExtendedString = nd.getExtendedNoteString();
+//        int origWidth = noteData.getExtendedNoteWidthInt();
+//        int origHeight = noteData.getExtendedNoteHeightInt();
+        String origSubject = noteData.getSubjectString();
+        String origExtendedString = noteData.getExtendedNoteString();
 
-        tempwin.setSize(origWidth, origHeight);
+        //---------------------------------------------------------
+        // Present the ExtendedNoteComponent in a dialog
+        //---------------------------------------------------------
+        int doit = JOptionPane.showConfirmDialog(
+                JOptionPane.getFrameForComponent(this),
+                extendedNoteComponent,
+                noteData.getNoteString(),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        tempwin.setTitle(nd.getNoteString());
-        tempwin.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                if (defaultSubject != null) extendedNoteComponent.updateSubject();
-                d.setSize(we.getWindow().getSize());
-                we.getWindow().dispose();
-            }
-        });
-
-        // Center the ENC dialog relative to the main frame.
-        tempwin.setLocationRelativeTo(myFrame);
-
-        // Go modal -
-        tempwin.setVisible(true);
+        if (doit == -1) return false; // The X on the dialog
+        if (doit == JOptionPane.CANCEL_OPTION) return false;
 
         // Collect results of the editing -
         //------------------------------------------------------------------
-        int newWidth = d.width;
-        int newHeight = d.height;
+//        int newWidth = d.width;
+//        int newHeight = d.height;
         String newSubject = extendedNoteComponent.getSubject();
         String newExtendedString = extendedNoteComponent.getExtText();
 
@@ -332,8 +299,8 @@ public abstract class NoteGroup extends JPanel {
         //   we allow the newSubject above without checking its content.
 
         boolean aChangeWasMade = false;
-        if (newWidth != origWidth) aChangeWasMade = true;
-        if (newHeight != origHeight) aChangeWasMade = true;
+//        if (newWidth != origWidth) aChangeWasMade = true;
+//        if (newHeight != origHeight) aChangeWasMade = true;
         if (newSubject != null) {
             if (origSubject == null) aChangeWasMade = true;
             else if (!newSubject.equals(origSubject)) aChangeWasMade = true;
@@ -341,10 +308,10 @@ public abstract class NoteGroup extends JPanel {
         if (!newExtendedString.equals(origExtendedString)) aChangeWasMade = true;
 
         if (aChangeWasMade) {
-            nd.setExtendedNoteWidthInt(newWidth);
-            nd.setExtendedNoteHeightInt(newHeight);
-            nd.setExtendedNoteString(newExtendedString);
-            nd.setSubjectString(newSubject);
+//            noteData.setExtendedNoteWidthInt(newWidth);
+//            noteData.setExtendedNoteHeightInt(newHeight);
+            noteData.setExtendedNoteString(newExtendedString);
+            noteData.setSubjectString(newSubject);
         } // end if
 
         //------------------------------------------------------------------
@@ -528,7 +495,7 @@ public abstract class NoteGroup extends JPanel {
         int endIndex = (intPageNum * pageSize) - 1;
         if (endIndex > maxDataIndex) endIndex = maxDataIndex;
 
-        NoteComponent tempNote;
+        NoteComponent tempNoteComponent;
 
         MemoryBank.debug("NoteGroup.loadInterface from data index " + startIndex + " to " + endIndex);
 
@@ -537,12 +504,12 @@ public abstract class NoteGroup extends JPanel {
             //   a child of NoteComponent, the 'setNoteData' method that is called
             //   later will be the child class method, not the one from the base class.
             //   That behavior is critical to this operation.
-            tempNote = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
+            tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
 
             if(dataIndex <= endIndex) { // Put vector data into the interface.
                 //MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
-                tempNote.setNoteData(groupDataVector.elementAt(dataIndex));
-                tempNote.setVisible(true);
+                tempNoteComponent.setNoteData(groupDataVector.elementAt(dataIndex));
+                tempNoteComponent.setVisible(true);
                 dataIndex++;
             } else {  // This path is needed to wipe the rest of the interface clean.
                 //MemoryBank.debug("  clearing panel index " + panelIndex);
@@ -557,10 +524,10 @@ public abstract class NoteGroup extends JPanel {
                 // page four.  Instead, we first give the noteComponent a new data object,
                 // then instruct it to update its appearance based on the new data and go back
                 // to being 'un' initialized.
-                tempNote.makeDataObject();
-                tempNote.resetComponent();
-                tempNote.setVisible(false);
-                tempNote.initialized = false;
+                tempNoteComponent.makeDataObject();
+                tempNoteComponent.setVisible(false);
+                tempNoteComponent.resetComponent();
+                tempNoteComponent.initialized = false;
             }
             panelIndex++;
         } // end for

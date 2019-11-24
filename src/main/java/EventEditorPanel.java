@@ -19,9 +19,9 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private EventNoteData editedEventNoteData;
 
     // Used both here and by RecurrencePanel
-    public static Color backColor;
-    public static Color pastColor;
-    public static Color futureColor;
+    static Color backColor;
+    static Color pastColor;
+    static Color futureColor;
 
     // 'My' Variables declaration section
     //-------------------------------------------------------------
@@ -1038,8 +1038,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         //   but it is larger here than the default for a Note,
         //   and if this event gets aged off and retained as a
         //   note then this size will be used.
-        end.setExtendedNoteWidthInt(body.getWidth() + 10);
-        end.setExtendedNoteHeightInt(spaneNotes.getHeight() + 40);
+//        end.setExtendedNoteWidthInt(body.getWidth() + 10);
+//        end.setExtendedNoteHeightInt(spaneNotes.getHeight() + 40);
 
         end.setSubjectString(getSubject());
         // We need to be able to save a blank subject, and recall it,

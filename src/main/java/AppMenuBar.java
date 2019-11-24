@@ -20,43 +20,43 @@ public class AppMenuBar extends JMenuBar{
     private String theCurrentContext;
 
     static {
-        fileMenu = new JMenu("File");
+        fileMenu = new JMenu("App");
         fileMenu.add(new JMenuItem("Search..."));
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 
-        branchEditorMenu = new JMenu("Edit");
+        branchEditorMenu = new JMenu("List");
         branchEditorMenu.add(new JMenuItem("Add New..."));
 
-        eventsMenu = new JMenu("Edit");
-        eventsMenu.add(new JMenuItem("undo"));
+        eventsMenu = new JMenu("List");
+        eventsMenu.add(new JMenuItem("Undo All"));
         eventsMenu.add(new JMenuItem("Close"));
         eventsMenu.add(new JMenuItem("Add New..."));
         eventsMenu.add(new JMenuItem("Merge..."));
+        eventsMenu.add(new JMenuItem("Save"));
         eventsMenu.add(new JMenuItem("Save As..."));
-        eventsMenu.add(new JMenuItem("Refresh"));
         eventsMenu.add(new JMenuItem("Clear All"));
 
-        viewsMenu = new JMenu("Edit");
+        viewsMenu = new JMenu("List");
         viewsMenu.add(new JMenuItem("Today"));
 
-        notesMenu = new JMenu("Edit");
-        notesMenu.add(new JMenuItem("undo"));
+        notesMenu = new JMenu("List");
+        notesMenu.add(new JMenuItem("Undo All"));
         notesMenu.add(new JMenuItem("Today"));
-        notesMenu.add(new JMenuItem("Refresh"));
+        notesMenu.add(new JMenuItem("Save"));
         notesMenu.add(new JMenuItem("Clear All"));
 
-        todolistsMenu = new JMenu("Edit");
-        todolistsMenu.add(new JMenuItem("undo"));
+        todolistsMenu = new JMenu("List");
+        todolistsMenu.add(new JMenuItem("Undo All"));
         todolistsMenu.add(new JMenuItem("Close"));
         todolistsMenu.add(new JMenuItem("Add New..."));
         todolistsMenu.add(new JMenuItem("Merge..."));
         todolistsMenu.add(new JMenuItem("Print..."));
+        todolistsMenu.add(new JMenuItem("Save"));
         todolistsMenu.add(new JMenuItem("Save As..."));
-        todolistsMenu.add(new JMenuItem("Refresh"));
         todolistsMenu.add(new JMenuItem("Clear All"));
 
-        searchesMenu = new JMenu("Edit");
+        searchesMenu = new JMenu("List");
         searchesMenu.add(new JMenuItem("Close"));
         searchesMenu.add(new JMenuItem("Review..."));
 

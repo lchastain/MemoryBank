@@ -312,7 +312,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
 
     @Override
-    protected boolean editExtendedNoteComponent(NoteData noteData) {
+    boolean editExtendedNoteComponent(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
         if(extendedNoteComponent == null) {
             extendedNoteComponent = new EventEditorPanel("Upcoming Event");
@@ -328,7 +328,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
                 JOptionPane.getFrameForComponent(this),
                 extendedNoteComponent,
                 noteData.getNoteString(),
-                JOptionPane.OK_CANCEL_OPTION);
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (doit == -1) return false; // The X on the dialog
         if (doit == JOptionPane.CANCEL_OPTION) return false;

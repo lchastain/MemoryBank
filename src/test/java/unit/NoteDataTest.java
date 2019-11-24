@@ -16,8 +16,6 @@ class NoteDataTest {
         nd.setNoteString("This is it");
         nd.setSubjectString("tcejbus");
         nd.setExtendedNoteString("This too");
-        nd.setExtendedNoteHeightInt(300);
-        nd.setExtendedNoteWidthInt(400);
         nd = new NoteData(nd); // Get the copy constructor involved too.
     }
 
@@ -25,25 +23,12 @@ class NoteDataTest {
     void testClear() {
         nd.clear();
         assertEquals(nd.getNoteString(), "");
-        assertEquals(nd.getExtendedNoteHeightInt(), 200);
-    }
-
-    @Test
-    void testGetExtendedNoteHeightInt() {
-        int h = nd.getExtendedNoteHeightInt();
-        assertEquals(h, 300);
     }
 
     @Test
     void testGetExtendedNoteString() {
         String s = nd.getExtendedNoteString();
         assertEquals(s, "This too");
-    }
-
-    @Test
-    void testGetExtendedNoteWidthInt() {
-        int w = nd.getExtendedNoteWidthInt();
-        assertEquals(w, 400);
     }
 
     @Test

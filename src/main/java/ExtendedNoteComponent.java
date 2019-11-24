@@ -35,7 +35,7 @@ public class ExtendedNoteComponent extends JPanel {
 
     public ExtendedNoteComponent(String defaultSubject) {
         super(new BorderLayout());
-        body = new JTextArea(10, 20) {
+        body = new JTextArea(12, 80) {
             // To stop the compiler from whining -
             private static final long serialVersionUID = 1L;
 
@@ -44,10 +44,6 @@ public class ExtendedNoteComponent extends JPanel {
                 requestFocusInWindow(); // wouldn't work from other places...
             } // end addNotify
         };
-        // Note: The size of the JTextArea for body does not matter; it is
-        //  placed into the center of a dialog with a borderlayout where it is
-        //  stretched to fit the frame size, which is set according to the
-        //  item's enWidth and enHeight in pixels, not text columns/rows.
         body.setLineWrap(true);
         body.setWrapStyleWord(true);
 

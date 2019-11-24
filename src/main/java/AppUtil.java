@@ -217,23 +217,21 @@ public class AppUtil {
     // Method Name: getBrokenString
     //
     // This method takes a string and returns it with inserted
-    // line breaks, if needed, at or before the 'n'th position
-    // and truncated to a maximum of 'l' lines. If 'lingth' is
-    // zero, the result is not truncated.
+    // line breaks, if needed.  Character column limit is 60,
+    // and lines are limited to 12.
     // -------------------------------------------------------------
-    static String getBrokenString(String s, int n, int lingth) {
+    static String getBrokenString(String s) {
         StringBuilder strTheBrokenString;
         StringBuilder strNextLine;
+        int numColumns = 60;
+        int numLines = 12;
 
         int intLastBreak; // Index into the strNextLine
         int intCurrentCharCount; // Number of chars this line
         int i; // index thru the input string
 
-        // The calling context should NOT be sending these values -
-        if (s == null)
-            return null;
-        if (lingth < 0)
-            return null;
+        // The calling context should NOT be sending a null string.
+        if (s == null) return null;
         // Therefore our response is immediate, uninformative, and unapologetic.
 
         int intLength = s.length();
@@ -258,7 +256,7 @@ public class AppUtil {
                 strNextLine = new StringBuilder();
 
                 // Now, bail if we're at the line limit.
-                if ((lingth > 0) && (intLineCount >= lingth))
+                if ((intLineCount >= numLines))
                     break;
 
                 // Otherwise, add the lf
@@ -284,7 +282,7 @@ public class AppUtil {
             // character had been the linefeed, we'd have
             // done the reset, above. That we're here means
             // that this is not a linefeed char.
-            if (intCurrentCharCount > n) {
+            if (intCurrentCharCount > numColumns) {
                 if (intLastBreak > 0) {
                     // We can break at the last whitespace
                     strTheBrokenString.append(strNextLine.substring(0, intLastBreak + 1));
@@ -293,18 +291,18 @@ public class AppUtil {
                     intCurrentCharCount = strNextLine.length();
                 } else {
                     // The string has no logical breaks; just break here.
-                    strTheBrokenString.append(strNextLine.substring(0, n + 1));
-                    strNextLine = new StringBuilder(strNextLine.substring(n + 1)); // one char
+                    strTheBrokenString.append(strNextLine.substring(0, numColumns + 1));
+                    strNextLine = new StringBuilder(strNextLine.substring(numColumns + 1)); // one char
                     intCurrentCharCount = strNextLine.length();
                 } // end if we had a good place to break the line
 
                 // Now, bail if we're at the line limit.
-                if ((lingth > 0) && (intLineCount >= lingth)) {
+                if (intLineCount >= numLines) {
                     strNextLine = new StringBuilder();
                     break;
                 }
 
-                // Otherwise, insert an lf and keep going
+                // Otherwise, insert a linefeed and keep going
                 intLineCount++;
                 strTheBrokenString.append('\n');
             } // end if we need to break the line

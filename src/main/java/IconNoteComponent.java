@@ -130,6 +130,9 @@ public abstract class IconNoteComponent extends NoteComponent {
     //   the visual effects of the change.
     //----------------------------------------------------------
     protected void resetComponent() {
+        if(!isVisible()) return; // Don't bother, if we can't see it.  But
+        // that does mean that visibility needs to be set before coming here.
+
         super.resetComponent();
 
         String infs = ((IconNoteData) getNoteData()).getIconFileString();

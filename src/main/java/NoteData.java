@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.ZonedDateTime;
 
 class NoteData {
@@ -5,8 +7,13 @@ class NoteData {
     String noteString;
     String subjectString;
     protected String extendedNoteString;
+
+    @JsonIgnore
     int extendedNoteWidthInt;
+
+    @JsonIgnore
     int extendedNoteHeightInt;
+
     static boolean loading = false;
 
     NoteData() {
@@ -18,9 +25,9 @@ class NoteData {
     // The copy constructor (clone)
     NoteData(NoteData ndCopy) {
         this();
-        this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
+//        this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
         this.extendedNoteString = ndCopy.extendedNoteString;
-        this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
+//        this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
         this.zdtLastModString = ndCopy.zdtLastModString;
@@ -31,9 +38,9 @@ class NoteData {
         this();
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
-        this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
+//        this.extendedNoteHeightInt = ndCopy.extendedNoteHeightInt;
         this.extendedNoteString = ndCopy.extendedNoteString;
-        this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
+//        this.extendedNoteWidthInt = ndCopy.extendedNoteWidthInt;
         this.zdtLastModString = ndCopy.getLastModDate().toString();
     } // end constructor
 
@@ -45,8 +52,8 @@ class NoteData {
         subjectString = null;  // null, not "".
 
         extendedNoteString = "";
-        extendedNoteWidthInt = 300;
-        extendedNoteHeightInt = 200;
+//        extendedNoteWidthInt = 300;
+//        extendedNoteHeightInt = 200;
     } // end clear
 
     // A copy constructor cannot be called in a class-unspecified manner;
@@ -62,17 +69,17 @@ class NoteData {
         return ZonedDateTime.parse(zdtLastModString);
     }
 
-    int getExtendedNoteHeightInt() {
-        return extendedNoteHeightInt;
-    }
+//    int getExtendedNoteHeightInt() {
+//        return extendedNoteHeightInt;
+//    }
 
     public String getExtendedNoteString() {
         return extendedNoteString;
     }
 
-    int getExtendedNoteWidthInt() {
-        return extendedNoteWidthInt;
-    }
+//    int getExtendedNoteWidthInt() {
+//        return extendedNoteWidthInt;
+//    }
 
     public String getNoteString() {
         return noteString;
@@ -86,18 +93,18 @@ class NoteData {
         return !noteString.trim().equals("") || !extendedNoteString.trim().equals("");
     } // end hasText()
 
-    void setExtendedNoteHeightInt(int val) {
-        extendedNoteHeightInt = val;
-    }
+//    void setExtendedNoteHeightInt(int val) {
+//        extendedNoteHeightInt = val;
+//    }
 
     public void setExtendedNoteString(String val) {
         extendedNoteString = val;
         if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
-    void setExtendedNoteWidthInt(int val) {
-        extendedNoteWidthInt = val;
-    }
+//    void setExtendedNoteWidthInt(int val) {
+//        extendedNoteWidthInt = val;
+//    }
 
     void setNoteString(String value) {
         noteString = value;
