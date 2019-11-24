@@ -8,7 +8,8 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
   to Json-ignore them.  And a great side-effect that solves a problem that I hadn't yet
   articulated: pressing Enter will bring up the extended note, and now, pressing it again
   will DISMISS it!  This makes a quick review a LOT less painful than having to move the
-  mouse to that tiny X in the upper right corner.  This is all for the better.
+  mouse to that tiny X in the upper right corner.  This is all for the better, although
+  now to actually do the editing you will have to click in that text area first.
 
 11/23/2019 0805 - Now seem to be past all the most pressing problem-type issues, mostly dealing
   with todolists and events, and looking at UNDO.  There are so many ways to approach this but

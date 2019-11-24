@@ -47,6 +47,9 @@ public class ExtendedNoteComponent extends JPanel {
         body.setLineWrap(true);
         body.setWrapStyleWord(true);
 
+        JScrollPane scroll = new JScrollPane(body);
+        this.add(scroll);
+
         if(defaultSubject != null) {
             // Develop the file name of the Subjects from the default
             //   subject that was the input parameter, by adding the
@@ -71,7 +74,7 @@ public class ExtendedNoteComponent extends JPanel {
         }
 
         theDefaultSubject = defaultSubject;
-        add(body, "Center");
+        add(scroll, "Center");
     } // end constructor
 
 
