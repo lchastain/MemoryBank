@@ -26,7 +26,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private TodoNoteComponent tNoteComponent;
 
     private String theGroupFilename;
-    private static Notifier optionPane;
     static String areaName;
 
     // This is saved/loaded
@@ -49,8 +48,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
-        optionPane = new Notifier() {
-        }; // Uses all default methods.
 
         // Create the window title
         JLabel lblListTitle = new JLabel();
@@ -85,6 +82,16 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         setGroupHeader(listHeader);
     } // end constructor
 
+
+    private void adjustMenuItems(boolean b) {
+        if(myListMenu == null) return; // Too soon.  Come back later.
+
+        // And now we adjust the Menu -
+        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
+        if(theUndo != null) theUndo.setEnabled(b);
+        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
+        if(theSave != null) theSave.setEnabled(b);
+    }
 
     private static String basePath() {
         return NoteGroup.basePath(areaName);
@@ -243,7 +250,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
         setGroupData(groupDataVector);
-        setGroupChanged();
+        setGroupChanged(true);
     } // end merge
 
     //------------------------------------------------------------------
@@ -462,14 +469,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         //------------------------------------
         log.debug("Saving " + oldName + " as " + newName);
 
-        // 'setFileName' wants the 'pretty' name as parameter, even though we already
-        // have its long form from when we checked for pre-existence, above.  But one
-        // other HUGE consideration is that it also sets the name of the component
-        // itself, which translates into an in-place change of the name of the list
-        // held by the TodoListKeeper.  Unfortunately, that list will still have the
-        // old title, so it still needs to be removed from the keeper.  The calling
-        // context will take care of that.
-        setFileName(newName);
+        // 'setName' sets the name of the component itself, which translates into an
+        // in-place change of the name of the list held by the TodoListKeeper.
+        // Unfortunately, that list will still have the old title, so it still needs
+        // to be removed from the keeper.  The calling context will take care of that.
+        theGroupFilename = basePath() + "todo_" + newName + ".json";
+        setName(newName);  // Put the new 'pretty' name in the component.
+        setGroupChanged(true);
 
         // Since this is effectively a new file, before we save we need to ensure that
         // the app will not fail in an attempt to remove the (nonexistent) old file.
@@ -489,19 +495,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end saveProperties
 
 
-    //-----------------------------------------------------------------
-    // Method Name:  setFileName
-    //
-    // Provided as support for a 'Save As' functionality.  The calling context
-    // is responsible for providing a valid name; no checking done here.
-    //-----------------------------------------------------------------
-    private void setFileName(String fname) {
-        theGroupFilename = basePath() + "todo_" + fname.trim() + ".json";
-        setName(fname.trim());  // Keep the 'pretty' name in the component.
-        setGroupChanged();
-    } // end setFileName
-
-
     @Override
     void setGroupData(Object[] theGroup) {
         myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListProperties.class);
@@ -509,6 +502,18 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
         });
         NoteData.loading = false; // Restore normal lastModDate updating.
+    }
+
+    @Override
+    void setGroupChanged(boolean b) {
+        if(getGroupChanged() == b) return; // No change
+        super.setGroupChanged(b);
+        adjustMenuItems(b);
+    } // end setGroupChanged
+
+    void setListMenu(JMenu listMenu) {
+        myListMenu = listMenu;
+        adjustMenuItems(false); // disable 'undo' and 'save', to start.
     }
 
     // Used by test methods
@@ -535,7 +540,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Get the values back out of the Option Panel
         myVars = todoOpts.getValues();
-        setGroupChanged();
+        setGroupChanged(true);
 
         // Was there a reset-worthy change?
         if (myVars.showPriority != blnOrigShowPriority) {

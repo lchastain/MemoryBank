@@ -3,6 +3,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 
+import javax.swing.*;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.*;
@@ -119,7 +120,7 @@ public class AppUtil {
             fileName = MemoryBank.userDataHome + File.separatorChar;
             fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
             fileName += File.separatorChar;
-            fileName += foundFiles[foundFiles.length-1];
+            fileName += foundFiles[foundFiles.length - 1];
         }
         return fileName;
     } // end findFilename
@@ -317,6 +318,20 @@ public class AppUtil {
     } // end getBrokenString
 
 
+    // A utility function to retrieve a specified JMenuItem.
+    static JMenuItem getMenuItem(JMenu jMenu, String text) {
+        JMenuItem theMenuItem = null;
+
+        for (int j = 0; j < jMenu.getItemCount(); j++) {
+            theMenuItem = jMenu.getItem(j);
+            if (theMenuItem == null) continue; // Separator
+            //System.out.println("    Menu Item text: " + jmi.getText());
+            if (theMenuItem.getText().equals(text)) return theMenuItem;
+        } // end for j
+
+        return theMenuItem;
+    }
+
     // Returns a String containing the requested portion of the input LocalDateTime.
     // Years are expected to be 4 digits long, all other units are two digits.
     // For hours, the full range (0-23) is returned; no adjustment to a 12-hour clock.
@@ -325,39 +340,39 @@ public class AppUtil {
         switch (cu) {
             case YEARS:
                 StringBuilder theYears = new StringBuilder(String.valueOf(localDateTime.getYear()));
-                if(padding != null) {
-                    while(theYears.length() < 4) {
+                if (padding != null) {
+                    while (theYears.length() < 4) {
                         theYears.insert(0, padding);
                     }
                 }
                 return theYears.toString();
             case MONTHS:
                 String theMonths = String.valueOf(localDateTime.getMonthValue());
-                if(padding != null) {
+                if (padding != null) {
                     if (theMonths.length() < 2) theMonths = padding + theMonths;
                 }
                 return theMonths;
             case DAYS:
                 String theDays = String.valueOf(localDateTime.getDayOfMonth());
-                if(padding != null) {
+                if (padding != null) {
                     if (theDays.length() < 2) theDays = padding + theDays;
                 }
                 return theDays;
             case HOURS:
                 String theHours = String.valueOf(localDateTime.getHour());
-                if(padding != null) {
+                if (padding != null) {
                     if (theHours.length() < 2) theHours = padding + theHours;
                 }
                 return theHours;
             case MINUTES:
                 String theMinutes = String.valueOf(localDateTime.getMinute());
-                if(padding != null) {
+                if (padding != null) {
                     if (theMinutes.length() < 2) theMinutes = padding + theMinutes;
                 }
                 return theMinutes;
             case SECONDS:
                 String theSeconds = String.valueOf(localDateTime.getSecond());
-                if(padding != null) {
+                if (padding != null) {
                     if (theSeconds.length() < 2) theSeconds = padding + theSeconds;
                 }
                 return theSeconds;
@@ -475,15 +490,15 @@ public class AppUtil {
     // -----------------------------------------------------------------
     static String makeFilename(LocalDate localDate, String noteType) {
         StringBuilder filename = new StringBuilder(MemoryBank.userDataHome + File.separatorChar);
-        filename.append(getTimePartString(localDate.atTime(0,0), ChronoUnit.YEARS, '0'));
+        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
         filename.append(File.separatorChar);
         filename.append(noteType);
 
         if (!noteType.equals("Y")) {
-            filename.append(getTimePartString(localDate.atTime(0,0), ChronoUnit.MONTHS, '0'));
+            filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.MONTHS, '0'));
 
             if (!noteType.equals("M")) {
-                filename.append(getTimePartString(localDate.atTime(0,0), ChronoUnit.DAYS, '0'));
+                filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.DAYS, '0'));
             } // end if not a Month note
         } // end if not a Year note
 
@@ -648,7 +663,7 @@ public class AppUtil {
         } finally {
             if (e != null) {
                 // This one may have been ignorable; print the message and see.
-                System.err.println("Exception in AppUtil.saveNoteGroupData: \n  " + e.getMessage());
+                System.out.println("Exception in AppUtil.saveNoteGroupData: \n  " + e.getMessage());
             } // end if there was an exception
             // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
             try {
@@ -658,7 +673,7 @@ public class AppUtil {
                 }
             } catch (IOException ioe) {
                 // This one would be more serious - raise a 'louder' alarm.
-                ioe.printStackTrace(System.err);
+                ioe.printStackTrace(System.out);
             } // end try/catch
         } // end try/catch
 

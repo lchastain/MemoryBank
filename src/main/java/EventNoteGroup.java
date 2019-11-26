@@ -88,6 +88,16 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     }// end constructor
 
 
+    private void adjustMenuItems(boolean b) {
+        if(myListMenu == null) return; // Too soon.  Come back later.
+
+        // And now we adjust the Menu -
+        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
+        if(theUndo != null) theUndo.setEnabled(b);
+        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
+        if(theSave != null) theSave.setEnabled(b);
+    }
+
     // -------------------------------------------------------------------
     // Method Name: ageEvents
     //
@@ -170,7 +180,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //  Just clearing DATA (above) does not set noteChanged (nor should it,
         //    because that data may not even be loaded into a component).
         //  So since we can't go that route to a groupChanged, just do it explicitly.
-        if (blnAnEventWasAged) setGroupChanged();
+        if (blnAnEventWasAged) setGroupChanged(true);
         // AppUtil.localDebug(false);
         return blnAnEventWasAged;
     } // end ageEvents
@@ -338,7 +348,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         // We don't know for sure that something changed, but since the edit was not cancelled
         // we will assume that there were changes, and indicate that a save group is needed.
-        setGroupChanged();
+        setGroupChanged(true);
 
         return true;
     } // end editExtendedNoteComponent
@@ -387,7 +397,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
         setGroupData(groupDataVector);
-        setGroupChanged();
+        setGroupChanged(true);
     } // end merge
 
     //----------------------------------------------------------------------
@@ -516,7 +526,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         defaultIcon = li;
         eventNoteDefaults.defaultIconFileName = li.getDescription();
         eventNoteDefaults.save();
-        setGroupChanged();
+        setGroupChanged(true);
         preClose();
         updateGroup();
     }// end setDefaultIcon
@@ -531,7 +541,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     private void setFileName(String fname) {
         theGroupFilename = basePath() + "event_" + fname.trim() + ".json";
         setName(fname.trim());  // Keep the 'pretty' name in the component.
-        setGroupChanged();
+        setGroupChanged(true);
     } // end setFileName
 
 
@@ -540,6 +550,18 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         NoteData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() { });
         NoteData.loading = false; // Restore normal lastModDate updating.
+    }
+
+    @Override
+    void setGroupChanged(boolean b) {
+        if(getGroupChanged() == b) return; // No change
+        super.setGroupChanged(b);
+        adjustMenuItems(b);
+    } // end setGroupChanged
+
+    void setListMenu(JMenu listMenu) {
+        myListMenu = listMenu;
+        adjustMenuItems(false); // disable 'undo' and 'save', to start.
     }
 
     // Used by test methods

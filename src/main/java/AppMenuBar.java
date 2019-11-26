@@ -87,6 +87,40 @@ public class AppMenuBar extends JMenuBar{
         return theCurrentContext;
     }
 
+    JMenu getListMenu(String selectionContext) {
+        JMenu theMenu;
+        switch (selectionContext) {
+            case "Year View":
+            case "Month View":
+                theMenu = viewsMenu;
+                break;
+            case "Day Notes":
+            case "Month Notes":
+            case "Year Notes":
+                theMenu = notesMenu;
+                break;
+            case "Search Result":
+                theMenu = searchesMenu;
+                searchesMenu.setVisible(true);
+                break;
+            case "Consolidated View":
+            case "Upcoming Events Branch Editor":  // Upcoming Events
+            case "To Do Lists Branch Editor":  // TodoBranchHelper
+                theMenu = branchEditorMenu;
+                break;
+            case "Upcoming Event":
+                theMenu = eventsMenu;
+                break;
+            case "To Do List":
+                theMenu = todolistsMenu;
+                break;
+            default: // Not a valid choice
+                theMenu = null;
+                break;
+        }
+        return theMenu;
+    } // end getListMenu
+
     // Given a string to indicate what 'mode' we are in,
     // display the menu that is appropriate to that mode.
     void manageMenus(String theContext) {
@@ -130,9 +164,10 @@ public class AppMenuBar extends JMenuBar{
                 todolistsMenu.setVisible(true);
                 break;
             default: // No special handling but still a valid configuration.
-                // Expected examples:  About, Branches without an editor.
+                // Expected examples:  About, Today (conditional), Branches without an editor.
                 // Unexpected - will only show up during development.
                 break;
         }
     } // end manageMenus
+
 } // end class AppMenuBar

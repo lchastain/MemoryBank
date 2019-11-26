@@ -83,7 +83,7 @@ public class SearchResultHeader extends Container implements ClingSource {
         int origColumnOrder = parent.myVars.columnOrder;
         if (getColumnOrder() != origColumnOrder) {
             parent.myVars.columnOrder = getColumnOrder();
-            parent.setGroupChanged();
+            parent.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }
     } // end doLayout
@@ -221,7 +221,7 @@ public class SearchResultHeader extends Container implements ClingSource {
             AppTreePanel.showWorkingDialog(true);
             if (defaultLabel.equals("Note Text")) parent.sortNoteString(shift);
             else if (defaultLabel.equals("Last Mod")) parent.sortLastMod(shift);
-            parent.setGroupChanged();
+            parent.setGroupChanged(true);
             AppTreePanel.showWorkingDialog(false);
         } // end doSorting
 
@@ -247,7 +247,7 @@ public class SearchResultHeader extends Container implements ClingSource {
 
             if (columnName.equals(s1)) return; // No difference
             if (columnName.equals("")) columnName = s2; // reset value
-            parent.setGroupChanged();
+            parent.setGroupChanged(true);
 
             setText(columnName);
         } // end doUserHeader

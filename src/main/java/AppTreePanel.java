@@ -311,7 +311,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
             if(theGroup != null) { // It won't be, but IJ needs to be sure.
                 theNoteGroupKeeper.add(theGroup);
-                theGroup.setGroupChanged(); // Save this empty group.
+                theGroup.setGroupChanged(true); // Save this empty group.
                 theGroup.preClose();
             }
         }
@@ -1218,6 +1218,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         dayTitle.setFont(Font.decode("Serif-bold-24"));
         dayTitle.setText(dtf.format(currentDateChoice));
         rightPane.setViewportView(dayTitle);
+        appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
 
         // Clear the current tree selection, so they can select it again
         // and get back to a 'normal' view.
@@ -1377,6 +1378,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
                 if (eventNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
+                    eventNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
                     theEventListKeeper.add(eventNoteGroup);
                 }
             } else {
@@ -1421,6 +1423,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
                 if (todoNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
+                    todoNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
                     theTodoListKeeper.add(todoNoteGroup);
                 }
             } else {

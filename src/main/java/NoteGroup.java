@@ -28,7 +28,7 @@ public abstract class NoteGroup extends JPanel {
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
-    private static Notifier optionPane;
+    static Notifier optionPane;
     static String ems;     // Error Message String
     ExtendedNoteComponent extendedNoteComponent;
     boolean addNoteAllowed;
@@ -43,6 +43,9 @@ public abstract class NoteGroup extends JPanel {
 
     // Container for graphical members - limited to pageSize
     protected JPanel groupNotesListPanel;
+
+    // Child classes each have their own menu
+    JMenu myListMenu;
 
     // Container for a paging control
     NotePager npThePager;
@@ -61,7 +64,7 @@ public abstract class NoteGroup extends JPanel {
     private JScrollPane jsp;
 
     // Flag used to determine if saving might be necessary.
-    private boolean groupChanged;
+    private boolean groupChanged = true;
 
     // The Information/Status panel of the frame.
     private JLabel lblStatusMessage;
@@ -95,7 +98,7 @@ public abstract class NoteGroup extends JPanel {
         jsp.setVerticalScrollBar(jsb);
 
         groupFilename = "";
-        groupChanged = false;
+        setGroupChanged(false);
 
         int borderWidth = 2;
         setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
@@ -190,7 +193,7 @@ public abstract class NoteGroup extends JPanel {
         clearPage();
         groupDataVector.clear();
         setGroupData(groupDataVector);
-        groupChanged = true;
+        setGroupChanged(true);
         npThePager.reset(1);
     } // end clearGroup
 
@@ -236,7 +239,7 @@ public abstract class NoteGroup extends JPanel {
         if (f.exists() && !f.delete() && f.exists()) {
             (new Exception("File removal exception!")).printStackTrace();
             ems = "Error - unable to remove: " + f.getName();
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
+            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } else {
@@ -320,9 +323,10 @@ public abstract class NoteGroup extends JPanel {
     } // end editExtendedNoteComponent
 
 
-    void setDefaultSubject(String defaultSubject) {
-        this.defaultSubject = defaultSubject;
-    }
+    boolean getGroupChanged() {
+        return groupChanged;
+    } // end getGroupChanged
+
 
     // Returns the full path + name of the file containing the
     //   data for this group of notes.
@@ -484,8 +488,6 @@ public abstract class NoteGroup extends JPanel {
     //   the first page of data will be available.
     //-------------------------------------------------------------------
     private void loadInterface(int intPageNum) {
-        int panelIndex = 0;
-
         //AppUtil.localDebug(true);
 
         // Set the indexes into the data vector -
@@ -499,7 +501,7 @@ public abstract class NoteGroup extends JPanel {
 
         MemoryBank.debug("NoteGroup.loadInterface from data index " + startIndex + " to " + endIndex);
 
-        for (int i = panelIndex; i < pageSize; i++) {
+        for (int panelIndex = 0; panelIndex < pageSize; panelIndex++) {
             // The next line casts to NoteComponent.  Since the component is actually
             //   a child of NoteComponent, the 'setNoteData' method that is called
             //   later will be the child class method, not the one from the base class.
@@ -507,12 +509,12 @@ public abstract class NoteGroup extends JPanel {
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
 
             if(dataIndex <= endIndex) { // Put vector data into the interface.
-                //MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
+                MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
                 tempNoteComponent.setNoteData(groupDataVector.elementAt(dataIndex));
                 tempNoteComponent.setVisible(true);
                 dataIndex++;
             } else {  // This path is needed to wipe the rest of the interface clean.
-                //MemoryBank.debug("  clearing panel index " + panelIndex);
+                MemoryBank.debug("  clearing panel index " + panelIndex);
                 // Used after a clearGroup() call, or for loading 'short' pages after
                 // a longer one was already displayed such as or when you get to the
                 // last partial page of a multi-page list.  These lines must be cleared
@@ -521,15 +523,16 @@ public abstract class NoteGroup extends JPanel {
                 // Clear the visual aspects.  Cannot call clear() because that also clears
                 // the data object which is in the groupDataVector and that data object may
                 // be from a full page three when you are now clearing the rest of a partial
-                // page four.  Instead, we first give the noteComponent a new data object,
+                // final page four.  Instead, we first give the noteComponent a new data object,
                 // then instruct it to update its appearance based on the new data and go back
                 // to being 'un' initialized.
-                tempNoteComponent.makeDataObject();
-                tempNoteComponent.setVisible(false);
-                tempNoteComponent.resetComponent();
-                tempNoteComponent.initialized = false;
+                if(tempNoteComponent.initialized) {
+                    tempNoteComponent.makeDataObject(); // This is an effective 'clear' of the component.
+                    tempNoteComponent.setVisible(false);
+                    tempNoteComponent.resetComponent();
+                    tempNoteComponent.initialized = false;
+                }
             }
-            panelIndex++;
         } // end for
 
         lastVisibleNoteIndex = endIndex;
@@ -537,7 +540,7 @@ public abstract class NoteGroup extends JPanel {
         if (addNoteAllowed) activateNote(endIndex + 1);
 
         // Each of the 'setNoteData' calls above would have set this to true.
-        groupChanged = false;
+        setGroupChanged(false);
 
         //AppUtil.localDebug(false);
     } // end loadInterface
@@ -783,7 +786,7 @@ public abstract class NoteGroup extends JPanel {
         } // end if note
 
         // No need to save again until after the next data change.
-        groupChanged = false;
+        setGroupChanged(false);
         //AppUtil.localDebug(false);
     } // end saveGroup
 
@@ -792,19 +795,25 @@ public abstract class NoteGroup extends JPanel {
         jsp.setColumnHeaderView(c);
     } // end setGroupHeader
 
+    void setDefaultSubject(String defaultSubject) {
+        this.defaultSubject = defaultSubject;
+    }
 
     //----------------------------------------------------------------
     // Method Name: setGroupChanged
     //
     // Called by all contexts that make a change to the data, each
-    //   time a change is made.
+    //   time a change is made.  Child classes can override if they
+    //   need to intercept a state change, but in that case they
+    //   should still call this super method so that group saving
+    //   is done when needed.
     //----------------------------------------------------------------
-    public void setGroupChanged() {
-        groupChanged = true;
+    void setGroupChanged(boolean b) {
+        groupChanged = b;
     } // end setGroupChanged
 
 
-    public void setMessage(String s) {
+    void setMessage(String s) {
         lblStatusMessage.setText("  " + s);
         lblStatusMessage.invalidate();
         validate();
@@ -966,8 +975,7 @@ public abstract class NoteGroup extends JPanel {
         int startIndex = (currentPage - 1) * pageSize;
         int endIndex = (currentPage * pageSize) - (pageSize - lastVisibleNoteIndex);
 
-        MemoryBank.debug("NoteGroup.unloadInterface into vector index " + startIndex);
-        MemoryBank.debug(" to " + endIndex);
+        MemoryBank.debug("NoteGroup.unloadInterface into vector index " + startIndex + " to " + endIndex);
 
         // vectGroupData size can be less than lastVisibleNoteIndex (during a Todo
         // List Merge, for example) and it is the upper boundary that should be
@@ -1020,14 +1028,13 @@ public abstract class NoteGroup extends JPanel {
         npThePager.reset(1);
 
         loadGroup();      // Loads the data array and interface.
+        // (groupChanged is set to false at the end of loadInterface)
 
         // Also needed AFTER loadGroup, to examine the correct size
         //   of the vector and determine the total number of pages.
         npThePager.reset(1);
 
-        resetVisibility();
-
-        groupChanged = false; // (was set to true by the load).
+        resetVisibility(); // Make sure we don't see the rest of the page.
     } // end updateGroup
 
 

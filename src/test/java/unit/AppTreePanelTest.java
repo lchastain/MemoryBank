@@ -171,7 +171,7 @@ public class AppTreePanelTest {
         return jmi;
     }
 
-    // This does test the showHelp function, but that feature is not anywhere near
+    // This does test the showHelp function, but that feature itself is not anywhere near
     // ready for production and will be redone.  When the method executes in the main
     // app, a Help-file viewer window is left open where under 'normal' usage, it is
     // up to the user to close.  But for a test case this is obviously not an acceptable
@@ -192,7 +192,7 @@ public class AppTreePanelTest {
             // Sleep, long enough for the help window to appear.
             // This is because it runs in a different thread and we can get to our
             // task killer before it ever comes up, and then it stays.
-            Thread.sleep(700);
+            Thread.sleep(800);
             // Kill the help window -
             Process process = Runtime.getRuntime().exec("taskkill /FI \"WindowTitle eq XML Notepad Help\" /T /F");
 

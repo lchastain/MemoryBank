@@ -359,7 +359,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (tnd2 == null) this.clear();
         else this.setTodoNoteData(tnd2);
 
-        myNoteGroup.setGroupChanged();
+        myNoteGroup.setGroupChanged(true);
     } // end swap
 
     //---------------------------------------------------------
@@ -521,7 +521,7 @@ public class TodoNoteComponent extends NoteComponent {
                 else Priority = myNoteGroup.getMaxPriority();
                 rightClicked = false;
             } // end if
-            myNoteGroup.setGroupChanged();
+            myNoteGroup.setGroupChanged(true);
             if (Priority == 0) setText(" ");
             else setText(String.valueOf(Priority));
             myTodoNoteData.setPriority(Priority);
@@ -658,7 +658,7 @@ public class TodoNoteComponent extends NoteComponent {
             //  This allows several 'clicks' to occur but no required list save,
             //  as long as the user leaves the status where they found it.
             if (theOriginalStatus != myTodoNoteData.getStatus()) {
-                myNoteGroup.setGroupChanged();
+                myNoteGroup.setGroupChanged(true);
             } // end if
         } // end mouseExited
 
@@ -699,7 +699,7 @@ public class TodoNoteComponent extends NoteComponent {
                     System.out.println(s);
                     break;
             }
-            tnc.myNoteGroup.setGroupChanged();
+            tnc.myNoteGroup.setGroupChanged(true);
         } // end actionPerformed
     } // end class PopHandler
 

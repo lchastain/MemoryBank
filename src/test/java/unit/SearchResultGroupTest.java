@@ -112,7 +112,7 @@ class SearchResultGroupTest {
     @Test
     void testSaving() {
         // covers multiple methods
-        searchResultGroup.setGroupChanged();
+        searchResultGroup.setGroupChanged(true);
         searchResultGroup.preClose();
     }
 

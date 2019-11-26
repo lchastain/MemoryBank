@@ -103,7 +103,7 @@ public class EventNoteComponent extends IconNoteComponent {
         if (end2 == null) this.clear();
         else this.setEventNoteData(end2);
 
-        myNoteGroup.setGroupChanged();
+        myNoteGroup.setGroupChanged(true);
     } // end swap
 
 } // end class EventNoteComponent

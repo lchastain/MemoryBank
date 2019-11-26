@@ -116,7 +116,7 @@ public class NoteComponent extends JPanel {
         if (nd != null) nd.clear();
 
         // Notify the NoteGroup
-        myNoteGroup.setGroupChanged();  // Ensure a group 'save'
+        myNoteGroup.setGroupChanged(true);  // Ensure a group 'save'
 
         // Reset our own state and prepare this component to be reused -
         noteChanged = false;
@@ -325,7 +325,7 @@ public class NoteComponent extends JPanel {
 
 
     public void setNoteChanged() {
-        myNoteGroup.setGroupChanged();
+        myNoteGroup.setGroupChanged(true);
         noteChanged = true;
     } // end setNoteChanged
 
@@ -395,7 +395,7 @@ public class NoteComponent extends JPanel {
 
         System.out.println("NoteComponent.swap");
 
-        myNoteGroup.setGroupChanged();
+        myNoteGroup.setGroupChanged(true);
     } // end swap
 
     //---------------------------------------------------------
