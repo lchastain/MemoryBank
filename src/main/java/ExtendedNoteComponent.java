@@ -165,12 +165,11 @@ public class ExtendedNoteComponent extends JPanel {
     // Method Name: setSubject
     //
     //-------------------------------------------------------------
-    public void setSubject(String s) {
-        if (s == null) s = theDefaultSubject;
-        else s = s.trim();
-        addSubject(s);  // Makes this the first choice in the chooser.
-        subjectChooser.setSelectedItem(s);
-        initialSubject = s;
+    public void setSubject(String newSubject) {
+        if (newSubject == null) mySubject = theDefaultSubject;
+        else mySubject = newSubject.trim();
+        addSubject(mySubject);  // Makes this the first choice in the chooser.
+        subjectChooser.setSelectedItem(mySubject);
     } // end setSubject
 
 

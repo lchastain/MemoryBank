@@ -212,7 +212,12 @@ public abstract class NoteGroup extends JPanel {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
 
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
+            System.out.println("Getting component " + i);
             NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
+            System.out.println("  initialized: " + tempNote.initialized);
+            if(i==0) {
+                System.out.println("breakpoint");
+            }
 
             // Only initialized components (appear to) have a data object.
             //      (I think; 8/29/2019)
@@ -221,8 +226,8 @@ public abstract class NoteGroup extends JPanel {
             // call super.clear() which will clear the parent component and then call the
             // data-clearing method (also overridden, also calls its super).
 //    if (tempNote.initialized) tempNote.clear();  // 8/29/2019 remove if no further problem with new TodoLists.
-            tempNote.clear(); // Clear does not un-initialize.
-            tempNote.initialized = false; // Because we are clearing the 'page'.
+            tempNote.clear(); // The base NoteComponent clear method sets initialized to false.
+//            tempNote.initialized = false; // Because we are clearing the 'page'.
 
         } // end for
         lastVisibleNoteIndex = -1; // This helps, when going to save (delete) an associated file.
@@ -293,13 +298,17 @@ public abstract class NoteGroup extends JPanel {
         //------------------------------------------------------------------
 //        int newWidth = d.width;
 //        int newHeight = d.height;
-        String newSubject = extendedNoteComponent.getSubject();
-        String newExtendedString = extendedNoteComponent.getExtText();
 
+        // Get the Subject
+        extendedNoteComponent.updateSubject(); // This moves the subject from the combobox into the component data
+        String newSubject = extendedNoteComponent.getSubject(); // This gets the component data
         // We need to be able to save a 'None' subject, and recall it,
         //   which is different than if you never set one in the
         //   first place, in which case you should get the default.  So -
         //   we allow the newSubject above without checking its content.
+
+        // Get the Extended text
+        String newExtendedString = extendedNoteComponent.getExtText();
 
         boolean aChangeWasMade = false;
 //        if (newWidth != origWidth) aChangeWasMade = true;
@@ -1018,17 +1027,23 @@ public abstract class NoteGroup extends JPanel {
     //   the calling context should first call 'preClose'.
     //----------------------------------------------------
     public void updateGroup() {
+      System.out.println("pre clearPage");
         clearPage(); // Clears the data (not Components) from the interface.
+      System.out.println("post clearPage");
 
         // This is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition
         //   that may be in effect during a 'refresh' which would
         //   cause the higher numbered page to be loaded with page
         //   one data.
+      System.out.println("pre npThePager.reset");
         npThePager.reset(1);
+      System.out.println("post npThePager.reset");
 
+      System.out.println("pre loadGroup");
         loadGroup();      // Loads the data array and interface.
         // (groupChanged is set to false at the end of loadInterface)
+      System.out.println("post loadGroup");
 
         // Also needed AFTER loadGroup, to examine the correct size
         //   of the vector and determine the total number of pages.
@@ -1041,7 +1056,7 @@ public abstract class NoteGroup extends JPanel {
     protected void refresh() {
         preClose();     // Save any in-progress changes
         updateGroup();  // Reload the interface - this removes 'gaps'.
-        requestFocus(); // De-select all NoteComponents.
+//        requestFocus(); // De-select all NoteComponents.    needed?  11/26/2019
     }
 
 
