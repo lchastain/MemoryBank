@@ -68,8 +68,8 @@ public class EventHeader extends JPanel implements MouseListener {
         JPanel pnlNorth = new JPanel(new BorderLayout());
         pnlNorth.add(btnShowHide, BorderLayout.WEST);
         pnlNorth.add(lblTheTitle, BorderLayout.CENTER);
-        pnlNorth.add(smTheHeaderContainer.npThePager, BorderLayout.EAST);
-        smTheHeaderContainer.npThePager.setBackground(getBackground());
+        pnlNorth.add(smTheHeaderContainer.theNotePager, BorderLayout.EAST);
+        smTheHeaderContainer.theNotePager.setBackground(getBackground());
 
         // Center panel
         pnlCenter = new JPanel(new BorderLayout());

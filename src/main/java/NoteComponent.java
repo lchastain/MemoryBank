@@ -36,12 +36,11 @@ public class NoteComponent extends JPanel {
     // This is how we get around the restriction on the
     //   use of 'this' in a static context (PopHandler).  We just
     //   have to be sure and set the value at runtime.
-    static NoteComponent ncTheNoteComponent;
+    static NoteComponent theNoteComponent;
 
     // Internal Variables needed by more than one method -
     protected NoteGroup myNoteGroup;
     protected boolean initialized = false;
-    private boolean noteChanged = false;
     protected int index;
     private static JMenuItem miClearLine;
     private static JMenuItem miCutLine;
@@ -97,29 +96,48 @@ public class NoteComponent extends JPanel {
     } // end constructor
 
 
-    //-----------------------------------------------------------------
-    // Method Name: clear
-    //
     // Clear the visible text field AND clear the underlying data.
     // Child classes will override this in order to clear their own
     // components first, but they should call this method afterwards.
     //-----------------------------------------------------------------
+//    protected void clear() {
+//        //  Get the data object.  Since throughout the NoteComponent
+//        //    hierarchy there is only one data object, the next lines
+//        //    work for any child class's encapsulated data.
+//        NoteData nd = getNoteData();
+//
+//        // This MUST happen BEFORE clearing the NoteTextField, because listeners on the text
+//        // field will query this data when we set it, below, and if it still has 'good' data,
+//        // the retrieval path can get thread-deadlocked with the one that is doing the text
+//        // clearing.  Result is app freeze-up on the 'setText' line.
+//        if (nd != null) nd.clear();
+//
+//        // Clear the Component
+//        noteTextField.setText(null);
+//        noteTextField.setForeground(Color.black);
+//        noteTextField.setToolTipText(null);
+//
+//        myNoteGroup.setGroupChanged(true);  // Ensure a group 'save'
+//        initialized = false;    // Needs to be last.
+//    } // end clear    //-----------------------------------------------------------------
+    // Method Name: clear
+    //
     protected void clear() {
-        // Clear the (base) Component - ie, the noteTextField
-        noteTextField.setText("");
-        noteTextField.setForeground(Color.black);
-        noteTextField.setToolTipText(null);
-
         // Clear the data object.  Since child classes override the
         //   getNoteData method, this works for them as well.
-        NoteData nd = getNoteData(); // this only works if initialized
+        System.out.println("NoteComponent.clear, calling getNoteData()!"); // scr0050 troubleshooting.
+        NoteData nd = getNoteData();
+        System.out.println("NoteComponent.clear, calling NoteData.clear!"); // scr0050 troubleshooting.
         if (nd != null) nd.clear();
 
+        // Clear the (base) Component - ie, the noteTextField
+        noteTextField.clear();
+
         // Notify the NoteGroup
+        System.out.println("NoteComponent.clear, calling myNoteGroup.setGroupChanged!"); // scr0050 troubleshooting.
         myNoteGroup.setGroupChanged(true);  // Ensure a group 'save'
 
         // Reset our own state and prepare this component to be reused -
-        noteChanged = false;
         initialized = false;
     } // end clear
 
@@ -224,7 +242,6 @@ public class NoteComponent extends JPanel {
     //--------------------------------------------------------------
     protected void noteActivated(boolean blnIAmOn) {
         if (!blnIAmOn) {
-            if (noteChanged)
                 if (noteTextField.getText().trim().equals("")) {
                     NoteData nd = getNoteData();
                     if (nd == null) return; // Can this still happen?
@@ -264,7 +281,6 @@ public class NoteComponent extends JPanel {
         // a date for it on the TMC was selected.  Need to see if
         // the problem(s) that it tried to fix are now back....
 
-        noteChanged = false; // new.. 3/13/2008
     } // end resetComponent
 
 
@@ -326,7 +342,6 @@ public class NoteComponent extends JPanel {
 
     public void setNoteChanged() {
         myNoteGroup.setGroupChanged(true);
-        noteChanged = true;
     } // end setNoteChanged
 
 
@@ -428,6 +443,21 @@ public class NoteComponent extends JPanel {
             getDocument().addDocumentListener(this);
             addKeyListener(this);
         } // end constructor
+
+        private void clear() {
+            // Remove the document listener, to avoid thread deadlocks.
+            getDocument().removeDocumentListener(this);
+
+            System.out.println("NoteComponent.clear, setting noteTextField text to empty."); // scr0050 troubleshooting.
+            setText(null);
+            System.out.println("NoteComponent.clear, setting noteTextField foreground color to black"); // scr0050 troubleshooting.
+            setForeground(Color.black);
+            System.out.println("NoteComponent.clear, setting noteTextField tool tip to null"); // scr0050 troubleshooting.
+            setToolTipText(null);
+
+            // Restore the document listener.
+            getDocument().addDocumentListener(this);
+        }
 
         // By sizing the text field to a smaller width than its container,
         //   it does not go beyond the viewable area,
@@ -555,7 +585,7 @@ public class NoteComponent extends JPanel {
         } // end insertUpdate
 
         public void removeUpdate(DocumentEvent e) {
-            // System.out.println("removeUpdate: " + e.toString());
+            System.out.println("removeUpdate: " + e.toString());
             getNoteData().setNoteString(getText());
             setNoteChanged();
         } // end removeUpdate
@@ -692,7 +722,7 @@ public class NoteComponent extends JPanel {
 
                 // Set the global NoteComponent.  This is the primary
                 // mechanism that allows the handler to be static.
-                ncTheNoteComponent = NoteComponent.this;
+                theNoteComponent = NoteComponent.this;
 
                 // Child classes will override resetPopup to enable/disable, add/remove
                 //   menu items, based on the data content of the active NoteComponent.
@@ -736,34 +766,34 @@ public class NoteComponent extends JPanel {
     // or several of them if this class were not also static.
     private static class PopHandler implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (ncTheNoteComponent == null) return;
+            if (theNoteComponent == null) return;
 
             JMenuItem jm = (JMenuItem) e.getSource();
             NoteData nd; // Needed to isolate old/source data from new/pasted.
             String theMenuItemText = jm.getText();
             switch (theMenuItemText) {
                 case "Cut Line":
-                    nd = ncTheNoteComponent.getNoteData();
+                    nd = theNoteComponent.getNoteData();
                     MemoryBank.clipboardNote = nd.copy();
-                    ncTheNoteComponent.clear();
+                    theNoteComponent.clear();
                     break;
                 case "Copy Line":
-                    nd = ncTheNoteComponent.getNoteData();
+                    nd = theNoteComponent.getNoteData();
                     MemoryBank.clipboardNote = nd.copy();
                     break;
                 case "Paste Line":
-                    ncTheNoteComponent.initialize();
+                    theNoteComponent.initialize();
                     // Pasting a copy allows us to do a paste multiple times without re-copying.
-                    ncTheNoteComponent.setNoteData(MemoryBank.clipboardNote.copy());
+                    theNoteComponent.setNoteData(MemoryBank.clipboardNote.copy());
                     break;
                 case "Clear Line":
-                    ncTheNoteComponent.clear();
+                    theNoteComponent.clear();
                     break;
                 default:
                     System.out.println(theMenuItemText);
                     break;
             }
-            ncTheNoteComponent.setNoteChanged();
+            theNoteComponent.setNoteChanged();
         } // end actionPerformed
     } // end class PopHandler
 

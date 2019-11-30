@@ -74,6 +74,7 @@ public class TodoNoteComponent extends NoteComponent {
 
     TodoNoteComponent(TodoNoteGroup ng, int i) {
         super(ng, i);
+        removeAll();   // We will redo the base layout.
         setLayout(new DndLayout());
 
         index = i;
@@ -86,8 +87,9 @@ public class TodoNoteComponent extends NoteComponent {
         // Graphical elements
         //----------------------------------------------------------
         // Note: The dndLayout does not care about any name other
-        //   than 'Stretch', but something must be provided.  Only
-        //   one component can be the one to be stretched.
+        //   than 'Stretch', but some unique text must be provided
+        //   for each component that is added.  Only one component
+        //   in the layout can be the one to be stretched.
         add(pbThePriorityButton, "pb");
         add(noteTextField, "Stretch"); // will resize along with container
         add(sbTheStatusButton, "sb");
@@ -107,11 +109,11 @@ public class TodoNoteComponent extends NoteComponent {
         if (pbThePriorityButton != null) pbThePriorityButton.clear();
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
 
-        // Clear the base component and its underlying data.
-        super.clear(); // This also sets the component 'initialized' to false.
-        // And it leaves a 'gap' but we like that so no refresh here but
-        // we do want to remove any selection from the Three Month Column.
+        // Remove any selection from the Three Month Column.
         myNoteGroup.getThreeMonthColumn().setChoice(null);
+
+        super.clear(); // This also sets the component 'initialized' to false.
+        // And it leaves a 'gap' but we like that so no refresh here.
     } // end clear
 
 
@@ -344,10 +346,10 @@ public class TodoNoteComponent extends NoteComponent {
         TodoNoteData tnd2 = (TodoNoteData) tnc.getNoteData();
 
         // Note: getNoteData and setNoteData are working with references
-        //   to data objects.  If you 'get' data into a local variable
-        //   and then later clear the component, you have also just
-        //   cleared the data in your local variable because you never had
-        //   a separatate copy of the data object, just the reference to it.
+        //   to data objects.  If you 'get' data from the NoteComponent
+        //   into a local variable and then later clear the component, you have
+        //   also just cleared the data in your local variable because you never
+        //   had a separatate copy of the data object, just the reference to it.
 
         // So - copy the data objects.
         if (tnd1 != null) tnd1 = new TodoNoteData(tnd1);
@@ -370,7 +372,7 @@ public class TodoNoteComponent extends NoteComponent {
     // Inner Classes -
     //---------------------------------------------------------
     protected class PriorityButton extends JButton implements MouseListener {
-        private static final long serialVersionUID = 3476852731589070975L;
+        private static final long serialVersionUID = 1L;
 
         public static final int minWidth = 48;
         private int Priority;
@@ -679,9 +681,9 @@ public class TodoNoteComponent extends NoteComponent {
         TodoNoteComponent tnc;
 
         public void actionPerformed(ActionEvent e) {
-            if (ncTheNoteComponent == null) return;
+            if (theNoteComponent == null) return;
 
-            tnc = (TodoNoteComponent) ncTheNoteComponent;
+            tnc = (TodoNoteComponent) theNoteComponent;
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             // System.out.println(s);

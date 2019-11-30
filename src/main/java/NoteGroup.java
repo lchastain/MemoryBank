@@ -48,7 +48,7 @@ public abstract class NoteGroup extends JPanel {
     JMenu myListMenu;
 
     // Container for a paging control
-    NotePager npThePager;
+    NotePager theNotePager;
 
     // Container for the (complete collection of) Group data objects.
     // It may hold more than the PAGE_SIZE number of visible notes.
@@ -109,7 +109,7 @@ public abstract class NoteGroup extends JPanel {
 
         // Make the paging control.  It is up to the various child classes
         //   to display it to the user by adding it to their interface.
-        npThePager = new NotePager(this);
+        theNotePager = new NotePager(this);
 
         // The 'makeNewNote' methodology works for ALL child groups regardless
         //   of the Type of new note that they make, because we do not
@@ -165,13 +165,13 @@ public abstract class NoteGroup extends JPanel {
             nc.setVisible(true);
         } else {
             // Implement a page rollover.
-            int tmpPage = npThePager.getCurrentPage();
+            int tmpPage = theNotePager.getCurrentPage();
             if (tmpPage > 0) {   // < to disable, > normal ops
                 // Ensure this only happens after the first pager reset.
 
-                if (tmpPage == npThePager.getHighestPage()) {
+                if (tmpPage == theNotePager.getHighestPage()) {
                     unloadInterface(tmpPage);  // Add new notes to the vector.
-                    npThePager.reset(tmpPage);
+                    theNotePager.reset(tmpPage);
                 } // end if
             } // end if
 
@@ -194,7 +194,7 @@ public abstract class NoteGroup extends JPanel {
         groupDataVector.clear();
         setGroupData(groupDataVector);
         setGroupChanged(true);
-        npThePager.reset(1);
+        theNotePager.reset(1);
     } // end clearGroup
 
 
@@ -205,8 +205,6 @@ public abstract class NoteGroup extends JPanel {
     // This resets any components that are displayed with info,
     //  as well as their underlying data objects.  It does not
     //  remove components or the data object itself; just clears them.
-    //  (although - once a component is not initialized, a request for
-    //  its data will return a null, whether it's really there or not)
     //----------------------------------------------------------------
     private void clearPage() {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
@@ -225,9 +223,7 @@ public abstract class NoteGroup extends JPanel {
             // so that they can first clear their own components.  After that, they still
             // call super.clear() which will clear the parent component and then call the
             // data-clearing method (also overridden, also calls its super).
-//    if (tempNote.initialized) tempNote.clear();  // 8/29/2019 remove if no further problem with new TodoLists.
-            tempNote.clear(); // The base NoteComponent clear method sets initialized to false.
-//            tempNote.initialized = false; // Because we are clearing the 'page'.
+            if (tempNote.initialized) tempNote.clear();  // The base NoteComponent clear method sets initialized to false.
 
         } // end for
         lastVisibleNoteIndex = -1; // This helps, when going to save (delete) an associated file.
@@ -296,32 +292,27 @@ public abstract class NoteGroup extends JPanel {
 
         // Collect results of the editing -
         //------------------------------------------------------------------
-//        int newWidth = d.width;
-//        int newHeight = d.height;
 
         // Get the Subject
         extendedNoteComponent.updateSubject(); // This moves the subject from the combobox into the component data
         String newSubject = extendedNoteComponent.getSubject(); // This gets the component data
-        // We need to be able to save a 'None' subject, and recall it,
+        // We need to be able to save a 'None' subject (ie, ""), and recall it,
         //   which is different than if you never set one in the
-        //   first place, in which case you should get the default.  So -
-        //   we allow the newSubject above without checking its content.
+        //   first place, in which case you would get the default.  So -
+        //   we accept the newSubject above without checking its content.
 
         // Get the Extended text
         String newExtendedString = extendedNoteComponent.getExtText();
 
         boolean aChangeWasMade = false;
-//        if (newWidth != origWidth) aChangeWasMade = true;
-//        if (newHeight != origHeight) aChangeWasMade = true;
         if (newSubject != null) {
+            // Cannot simplify the logic here; either new or old could be null, which is an allowed value.
             if (origSubject == null) aChangeWasMade = true;
             else if (!newSubject.equals(origSubject)) aChangeWasMade = true;
         } // end if
         if (!newExtendedString.equals(origExtendedString)) aChangeWasMade = true;
 
         if (aChangeWasMade) {
-//            noteData.setExtendedNoteWidthInt(newWidth);
-//            noteData.setExtendedNoteHeightInt(newHeight);
             noteData.setExtendedNoteString(newExtendedString);
             noteData.setSubjectString(newSubject);
         } // end if
@@ -397,7 +388,7 @@ public abstract class NoteGroup extends JPanel {
         if (groupChanged) saveGroup(); // unloads the 'PageFrom' page
 
         loadInterface(pageTo);
-        resetVisibility();
+//        resetVisibility();
     } // end gotoPage
 
 
@@ -523,7 +514,6 @@ public abstract class NoteGroup extends JPanel {
                 tempNoteComponent.setVisible(true);
                 dataIndex++;
             } else {  // This path is needed to wipe the rest of the interface clean.
-                MemoryBank.debug("  clearing panel index " + panelIndex);
                 // Used after a clearGroup() call, or for loading 'short' pages after
                 // a longer one was already displayed such as or when you get to the
                 // last partial page of a multi-page list.  These lines must be cleared
@@ -536,6 +526,7 @@ public abstract class NoteGroup extends JPanel {
                 // then instruct it to update its appearance based on the new data and go back
                 // to being 'un' initialized.
                 if(tempNoteComponent.initialized) {
+                    MemoryBank.debug("  clearing panel index " + panelIndex);
                     tempNoteComponent.makeDataObject(); // This is an effective 'clear' of the component.
                     tempNoteComponent.setVisible(false);
                     tempNoteComponent.resetComponent();
@@ -582,7 +573,7 @@ public abstract class NoteGroup extends JPanel {
 
     void postSort() {
         // Display the same page, now with possibly different contents.
-        loadInterface(npThePager.getCurrentPage());
+        loadInterface(theNotePager.getCurrentPage());
         resetVisibility();
     } // end postSort
 
@@ -602,7 +593,7 @@ public abstract class NoteGroup extends JPanel {
 
     void preSort() {
         // Preserve current interface changes before sorting.
-        unloadInterface(npThePager.getCurrentPage());
+        unloadInterface(theNotePager.getCurrentPage());
     } // end preSort
 
 
@@ -641,6 +632,8 @@ public abstract class NoteGroup extends JPanel {
     // Method Name: resetVisibility
     //
     // Sets the remaining unloaded note lines (if any) to invisible.
+    // This can be needed after an undo of a merge, or after any
+    // series of actions that added lines and then left them empty.
     //--------------------------------------------------------------
     private void resetVisibility() {
         NoteComponent tempNote;
@@ -747,7 +740,7 @@ public abstract class NoteGroup extends JPanel {
 
         // Update the vectGroupData with data from the interface.
         //----------------------------------------------------------------
-        int pageToSave = npThePager.getPageFrom();
+        int pageToSave = theNotePager.getPageFrom();
         MemoryBank.debug("  Unloading page " + pageToSave);
         unloadInterface(pageToSave);
         // Note that we unload the 'page from' rather than the current
@@ -841,15 +834,16 @@ public abstract class NoteGroup extends JPanel {
     //   a NoteComponent but leave the cast to child class).
     public void shiftDown(int index) {
         // Prevent the next-to-last note from shifting
-        //   down, if it is on the last page
+        //   down, if it is on the last page (because the note below,
+        //   that it would swap with, is not initialized).
         if (index == (lastVisibleNoteIndex - 1)) {
-            if (npThePager.getCurrentPage() == npThePager.getHighestPage()) return;
+            if (theNotePager.getCurrentPage() == theNotePager.getHighestPage()) return;
         } // end if
 
         // Prevent the last note on the page from shifting
-        //   down, if it is on the last page.
+        //   down, if it is on the last page (because there is nowhere to go).
         if (index == lastVisibleNoteIndex) {
-            if (npThePager.getCurrentPage() == npThePager.getHighestPage()) return;
+            if (theNotePager.getCurrentPage() == theNotePager.getHighestPage()) return;
             else {      // allow for paging, later
                 //System.out.println("Shifting down across a page boundary - NOT.");
                 return;
@@ -867,20 +861,13 @@ public abstract class NoteGroup extends JPanel {
 
 
     public void shiftUp(int index) {
-        // Prevent the first note on the page from shifting
-        //   up, unless it is on page 2 or higher.
+        // Prevent the first note on the page from shifting up.
         if (index == 0) {
-            if (npThePager.getCurrentPage() == 1) return;
-            else {      // allow for paging, later
+            if (theNotePager.getCurrentPage() == 1) return;
+            else {      // but maybe allow for paging, later
                 //System.out.println("Shifting up across a page boundary - NOT.");
                 return;
             }
-        } // end if
-
-        // Prevent the last note from shifting
-        //   up, if it is on the last page
-        if (index == lastVisibleNoteIndex) {
-            if (npThePager.getCurrentPage() == npThePager.getHighestPage()) return;
         } // end if
 
         // System.out.println("Shifting note up");
@@ -931,7 +918,7 @@ public abstract class NoteGroup extends JPanel {
 
 
     // Returns a short (no path) version of the groupFilename
-    // Stops short of 'prettifying' it.
+    // but stops short of 'prettifying' it.
     private String shortName() {
         String s = groupFilename;
         int ix = s.lastIndexOf(File.separatorChar);
@@ -943,14 +930,14 @@ public abstract class NoteGroup extends JPanel {
     void sortLastMod(int direction) {
 
         // Preserve current interface changes before sorting.
-        unloadInterface(npThePager.getCurrentPage());
+        unloadInterface(theNotePager.getCurrentPage());
 
         // Do the sort
         LastModComparator lmc = new LastModComparator(direction);
         groupDataVector.sort(lmc);
 
         // Display the same page, now with possibly different contents.
-        loadInterface(npThePager.getCurrentPage());
+        loadInterface(theNotePager.getCurrentPage());
         resetVisibility();
     } // end sortLastMod
 
@@ -958,14 +945,14 @@ public abstract class NoteGroup extends JPanel {
     void sortNoteString(int direction) {
 
         // Preserve current interface changes before sorting.
-        unloadInterface(npThePager.getCurrentPage());
+        unloadInterface(theNotePager.getCurrentPage());
 
         // Do the sort
         NoteStringComparator nsc = new NoteStringComparator(direction);
         groupDataVector.sort(nsc);
 
         // Display the same page, now with possibly different contents.
-        loadInterface(npThePager.getCurrentPage());
+        loadInterface(theNotePager.getCurrentPage());
         resetVisibility();
     } // end sortNoteString
 
@@ -1036,18 +1023,18 @@ public abstract class NoteGroup extends JPanel {
         //   that may be in effect during a 'refresh' which would
         //   cause the higher numbered page to be loaded with page
         //   one data.
-      System.out.println("pre npThePager.reset");
-        npThePager.reset(1);
-      System.out.println("post npThePager.reset");
+      System.out.println("pre theNotePager.reset");
+        theNotePager.reset(1);
+      System.out.println("post theNotePager.reset");
 
       System.out.println("pre loadGroup");
-        loadGroup();      // Loads the data array and interface.
+      loadGroup();      // Loads the data array and interface.
         // (groupChanged is set to false at the end of loadInterface)
       System.out.println("post loadGroup");
 
         // Also needed AFTER loadGroup, to examine the correct size
         //   of the vector and determine the total number of pages.
-        npThePager.reset(1);
+        theNotePager.reset(1);
 
         resetVisibility(); // Make sure we don't see the rest of the page.
     } // end updateGroup
@@ -1056,7 +1043,6 @@ public abstract class NoteGroup extends JPanel {
     protected void refresh() {
         preClose();     // Save any in-progress changes
         updateGroup();  // Reload the interface - this removes 'gaps'.
-//        requestFocus(); // De-select all NoteComponents.    needed?  11/26/2019
     }
 
 

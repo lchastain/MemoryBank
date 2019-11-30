@@ -63,8 +63,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Set the pager's background to the same color as this row,
         //   since other items on this row make it slightly 'higher'
         //   than the pager control.
-        npThePager.setBackground(heading.getBackground());
-        heading.add(npThePager, "East");
+        theNotePager.setBackground(heading.getBackground());
+        heading.add(theNotePager, "East");
         //----------------------------------------------------------
 
 

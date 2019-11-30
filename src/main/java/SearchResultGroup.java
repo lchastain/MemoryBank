@@ -58,10 +58,10 @@ public class SearchResultGroup extends NoteGroup {
         // Set the pager's background to the same color as this row,
         //   since other items on this row make it slightly 'higher'
         //   than the pager control.
-        npThePager.setBackground(headingRow1.getBackground());
+        theNotePager.setBackground(headingRow1.getBackground());
 
         headingRow1.add(resultsTitle, "Center");
-        headingRow1.add(npThePager, "East");
+        headingRow1.add(theNotePager, "East");
         //----------------------------------------------------------
 
         // The Second Row -     (record count and search text)
@@ -74,7 +74,7 @@ public class SearchResultGroup extends NoteGroup {
         resultsPageOf.setHorizontalAlignment(JLabel.CENTER);
         resultsPageOf.setForeground(Color.white);
         resultsPageOf.setFont(Font.decode("Serif-bold-14"));
-        resultsPageOf.setText(npThePager.getSummary());
+        resultsPageOf.setText(theNotePager.getSummary());
         headingRow2.add(resultsPageOf, "West");
 
         // Show the search summary
@@ -153,7 +153,7 @@ public class SearchResultGroup extends NoteGroup {
     //   displayed in the correct order.
     //------------------------------------------------------------------
     protected void pageNumberChanged() {
-        resultsPageOf.setText(npThePager.getSummary());
+        resultsPageOf.setText(theNotePager.getSummary());
 
         // The column order must be reset because we may be coming from
         //   a page that had fewer items than this one, where a sort had

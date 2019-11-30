@@ -124,6 +124,8 @@ public class ExtendedNoteComponent extends JPanel {
     // would be called for every single keypress and dropdown selection, whereas this one is
     // only needed once, at the end of the edit session.
     void updateSubject() {
+        if(subjectChooser == null) return;  // No subject chooser for Todo items.
+
         String theSubject = (String) subjectChooser.getEditor().getItem();
         // Note: Cannot use '.getSelectedItem()' above, because it may have
         //   just been typed in and not be in the list, therefore it is not
