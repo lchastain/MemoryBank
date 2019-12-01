@@ -431,7 +431,6 @@ public class NoteComponent extends JPanel {
         public NoteTextField() {
             super();
 
-            // See the KeyListener tutorial -
             // This is needed so that the KeyListener will hear a TAB.
             setFocusTraversalKeysEnabled(false);
 
@@ -448,11 +447,9 @@ public class NoteComponent extends JPanel {
             // Remove the document listener, to avoid thread deadlocks.
             getDocument().removeDocumentListener(this);
 
-            System.out.println("NoteComponent.clear, setting noteTextField text to empty."); // scr0050 troubleshooting.
+            // Ckear the text field
             setText(null);
-            System.out.println("NoteComponent.clear, setting noteTextField foreground color to black"); // scr0050 troubleshooting.
             setForeground(Color.black);
-            System.out.println("NoteComponent.clear, setting noteTextField tool tip to null"); // scr0050 troubleshooting.
             setToolTipText(null);
 
             // Restore the document listener.

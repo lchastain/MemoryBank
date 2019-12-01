@@ -179,6 +179,18 @@ public abstract class NoteGroup extends JPanel {
     } // end activateNote
 
 
+    // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
+    // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
+    private void adjustMenuItems(boolean b) {
+        if(myListMenu == null) return; // Too soon.  Come back later.
+
+        // And now we adjust the Menu -
+        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
+        if(theUndo != null) theUndo.setEnabled(b);
+        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
+        if(theSave != null) theSave.setEnabled(b);
+    }
+
     static String basePath(String areaName) {
         return MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
     }
@@ -455,7 +467,6 @@ public abstract class NoteGroup extends JPanel {
             //   course, if the file already does not exist, we don't want
             //   to let it try to do that.
             groupFilename = "";
-            return;
         }
 
         Exception e = null;
@@ -487,7 +498,7 @@ public abstract class NoteGroup extends JPanel {
     //   than one.  If they do not, then only
     //   the first page of data will be available.
     //-------------------------------------------------------------------
-    private void loadInterface(int intPageNum) {
+    void loadInterface(int intPageNum) {
         //AppUtil.localDebug(true);
 
         // Set the indexes into the data vector -
@@ -528,10 +539,10 @@ public abstract class NoteGroup extends JPanel {
                 if(tempNoteComponent.initialized) {
                     MemoryBank.debug("  clearing panel index " + panelIndex);
                     tempNoteComponent.makeDataObject(); // This is an effective 'clear' of the component.
-                    tempNoteComponent.setVisible(false);
                     tempNoteComponent.resetComponent();
                     tempNoteComponent.initialized = false;
                 }
+                tempNoteComponent.setVisible(false); // We do this whether initialized or not.
             }
         } // end for
 
@@ -569,13 +580,6 @@ public abstract class NoteGroup extends JPanel {
     //------------------------------------------------------------------
     protected void pageNumberChanged() {
     } // end pageNumberChanged
-
-
-    void postSort() {
-        // Display the same page, now with possibly different contents.
-        loadInterface(theNotePager.getCurrentPage());
-        resetVisibility();
-    } // end postSort
 
 
     //----------------------------------------------------------------------
@@ -626,23 +630,6 @@ public abstract class NoteGroup extends JPanel {
 
         return thePrettyName;
     } // end prettyName
-
-
-    //--------------------------------------------------------------
-    // Method Name: resetVisibility
-    //
-    // Sets the remaining unloaded note lines (if any) to invisible.
-    // This can be needed after an undo of a merge, or after any
-    // series of actions that added lines and then left them empty.
-    //--------------------------------------------------------------
-    private void resetVisibility() {
-        NoteComponent tempNote;
-
-        for (int i = lastVisibleNoteIndex + 1; i <= intHighestNoteComponentIndex; i++) {
-            tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-            tempNote.setVisible(false);
-        } // end for i
-    } // end resetVisibility
 
 
     Vector<NoteData> getCondensedInfo() {
@@ -812,8 +799,17 @@ public abstract class NoteGroup extends JPanel {
     //----------------------------------------------------------------
     void setGroupChanged(boolean b) {
         groupChanged = b;
+        adjustMenuItems(b);
     } // end setGroupChanged
 
+
+    // Not all NoteGroups need to manage enablement of items in their menu but those
+    // that do, all do the same things.  If this ever branches out into different
+    // actions and/or menu items then they can override this and/or adjustMenuItems.
+    void setListMenu(JMenu listMenu) {
+        myListMenu = listMenu;
+        adjustMenuItems(false); // disable 'undo' and 'save', to start.
+    }
 
     void setMessage(String s) {
         lblStatusMessage.setText("  " + s);
@@ -879,7 +875,7 @@ public abstract class NoteGroup extends JPanel {
         nc2.setActive();
     } // end shiftUp
 
-// May be possible to have ALL shift methods here.
+// May be possible to have ALL NoteGroup shift methods here.
 //   leave the copy below until determined/done.
 
 
@@ -938,7 +934,6 @@ public abstract class NoteGroup extends JPanel {
 
         // Display the same page, now with possibly different contents.
         loadInterface(theNotePager.getCurrentPage());
-        resetVisibility();
     } // end sortLastMod
 
 
@@ -953,7 +948,6 @@ public abstract class NoteGroup extends JPanel {
 
         // Display the same page, now with possibly different contents.
         loadInterface(theNotePager.getCurrentPage());
-        resetVisibility();
     } // end sortNoteString
 
 
@@ -1036,7 +1030,6 @@ public abstract class NoteGroup extends JPanel {
         //   of the vector and determine the total number of pages.
         theNotePager.reset(1);
 
-        resetVisibility(); // Make sure we don't see the rest of the page.
     } // end updateGroup
 
 

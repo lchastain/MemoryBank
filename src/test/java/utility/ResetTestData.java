@@ -16,7 +16,9 @@ public class ResetTestData {
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
-        FileUtils.cleanDirectory(testData);
+        try {
+            FileUtils.cleanDirectory(testData);
+        } catch (Exception ignore){}
 
         // Retrieve a fresh set of test data from test resources.
         // This test user has a rich set of data, includes Search Results and Todo Lists

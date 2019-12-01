@@ -1,7 +1,6 @@
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class TodoListProperties implements Serializable {
-    static final long serialVersionUID = 2340086274436821238L;
+public class TodoListProperties {
 
     // Priority
     public boolean showPriority;
@@ -23,7 +22,9 @@ public class TodoListProperties implements Serializable {
     // Sort
     public int whenNoKey;
 
+    @JsonIgnore
     int numberOfItems;    // How many items in the list
+
     public String column1Label;
     public String column2Label;
     public String column3Label;
@@ -45,8 +46,7 @@ public class TodoListProperties implements Serializable {
         lineSpace = 1;
         whenNoKey = TodoNoteGroup.BOTTOM;
 
-        //        todoPos = new Point(100, 50);
-        numberOfItems = 15;
+//        numberOfItems = 15;
         column1Label = "Priority";
         column2Label = "To Do Text";
         column3Label = "Status";

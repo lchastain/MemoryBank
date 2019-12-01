@@ -83,16 +83,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end constructor
 
 
-    private void adjustMenuItems(boolean b) {
-        if(myListMenu == null) return; // Too soon.  Come back later.
-
-        // And now we adjust the Menu -
-        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-        if(theUndo != null) theUndo.setEnabled(b);
-        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-        if(theSave != null) theSave.setEnabled(b);
-    }
-
     private static String basePath() {
         return NoteGroup.basePath(areaName);
     }
@@ -194,6 +184,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Returns a TodoNoteComponent that can be used to manipulate
     // component state as well as set/get underlying data.
     //--------------------------------------------------------
+    @Override
     public TodoNoteComponent getNoteComponent(int i) {
         return (TodoNoteComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
@@ -508,13 +499,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     void setGroupChanged(boolean b) {
         if(getGroupChanged() == b) return; // No change
         super.setGroupChanged(b);
-        adjustMenuItems(b);
     } // end setGroupChanged
-
-    void setListMenu(JMenu listMenu) {
-        myListMenu = listMenu;
-        adjustMenuItems(false); // disable 'undo' and 'save', to start.
-    }
 
     // Used by test methods
     public void setNotifier(Notifier newNotifier) {
@@ -639,7 +624,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Display the same page, now with possibly different contents.
         checkColumnOrder();
-        postSort();
+        loadInterface(theNotePager.getCurrentPage());
     } // end sortPriority
 
 
@@ -706,7 +691,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Display the same page, now with possibly different contents.
         checkColumnOrder();
-        postSort();
+        loadInterface(theNotePager.getCurrentPage());
     } // end sortText
 } // end class TodoNoteGroup
 

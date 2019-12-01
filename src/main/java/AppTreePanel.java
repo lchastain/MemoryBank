@@ -1522,6 +1522,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theNodeString.equals("Day Notes")) {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroup();
+                theAppDays.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppDays;
             theAppDays.setChoice(currentDateChoice);
@@ -1529,6 +1530,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theNodeString.equals("Month Notes")) {
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroup();
+                theAppMonths.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppMonths;
             theAppMonths.setChoice(currentDateChoice);
@@ -1536,6 +1538,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroup();
+                theAppYears.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppYears;
             theAppYears.setChoice(currentDateChoice);

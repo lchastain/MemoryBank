@@ -88,16 +88,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     }// end constructor
 
 
-    private void adjustMenuItems(boolean b) {
-        if(myListMenu == null) return; // Too soon.  Come back later.
-
-        // And now we adjust the Menu -
-        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-        if(theUndo != null) theUndo.setEnabled(b);
-        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-        if(theSave != null) theSave.setEnabled(b);
-    }
-
     // -------------------------------------------------------------------
     // Method Name: ageEvents
     //
@@ -315,8 +305,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
             } // end for j
         } // end for i
 
-        postSort();
-
+        loadInterface(theNotePager.getCurrentPage());
         AppUtil.localDebug(false);
     } // end doSort
 
@@ -556,13 +545,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     void setGroupChanged(boolean b) {
         if(getGroupChanged() == b) return; // No change
         super.setGroupChanged(b);
-        adjustMenuItems(b);
     } // end setGroupChanged
-
-    void setListMenu(JMenu listMenu) {
-        myListMenu = listMenu;
-        adjustMenuItems(false); // disable 'undo' and 'save', to start.
-    }
 
     // Used by test methods
     public void setNotifier(Notifier newNotifier) {

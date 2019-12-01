@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class AppIcon extends ImageIcon {
-    private static final long serialVersionUID = -1747855358689601291L;
+    private static final long serialVersionUID = 1L;
 
     // Pass-thru constructor to ImageIcon.
     AppIcon() {
@@ -18,24 +18,26 @@ public class AppIcon extends ImageIcon {
     }
 
     AppIcon(String a_filename) {
-        // Note: Do not construct with null - handle prior.
+        // Note: Do not construct with null - handle that case prior to coming here.
         MemoryBank.debug("Constructing AppIcon: " + a_filename);
         Image myImage = null;
         String filename = a_filename.toLowerCase(); // Not sure why I cared about this...
 
-        // If this icon is being constructed for the iconChooser (or
-        //   as a result of an iconChooser 'choice'), then 'filename'
-        //   will be the full path to the icon file in Program Data.
+        // If this icon is being constructed as a result of an iconChooser selection,
+        // then filename will be the full path to the icon file in Program Data.
 
-        // Get the position of 'icons' in filename.  But it will not be there at all, for Test data.
-        int iconsIndex = filename.indexOf("icons");
+        // Planning note 11/30/2019:  A future rev of this app will allow users to manage/use their own
+        // icons, in a subdir (named myIcons?) in their user data directory.  Check there first and if not found
+        // then you can get it from the main loc.  If also not found there, issue a debug complaint but move on.
+        // The stored filenames can be the icon filenames, only (no leading 'icons\' should be needed).  This
+        // should allow a user to replace previously set library icons, IF they happen to name theirs with the same
+        // name (and extension).  Possibly on the library icons, provide a way to see the correct filename.
 
         // The filename will only start with 'icons' when it is being reconstructed
         // from saved user data.  So make the full path for it, by prefixing the
-        // user's data location, where they will have their own set of icons.
-        if (iconsIndex == 0) {
-            filename = MemoryBank.userDataHome + File.separatorChar + filename;
-            iconsIndex = filename.indexOf("icons");
+        // program data location.
+        if (filename.indexOf("icons") == 0) {
+            filename = MemoryBank.logHome + File.separatorChar + filename;
         } // end if
 
         // Convert file separator characters, if needed.  This makes for file system
@@ -65,11 +67,7 @@ public class AppIcon extends ImageIcon {
         // description is picked up by the iconNoteComponent when the rest of the icon appears to come thru as null.
         // With the filename hiding in the place of the description, we can restore it as needed.
         // See also:  iconNoteComponent.mouseClicked and setIcon.
-        if(iconsIndex > 0) {
-            // Only set the description if the icon comes from a 'planned' location.
-            // Otherwise we don't need a description, as in the case of Test data.
-            setDescription(filename.substring(iconsIndex));
-        }
+        setDescription(filename);
 
         // Consider just ending at this point; could move the 'load and set' to the calling context.
         if (myImage == null) return;

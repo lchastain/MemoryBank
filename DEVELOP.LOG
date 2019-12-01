@@ -1,6 +1,17 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+11/30/2019 0454 - Last several days working on a horrendous problem that arose just as I was
+  implementing merge, save, and undo; too many changes to pin down what went wrong where, but
+  the symptom was that after a save, the app would freeze completely, no stacktrace.  Traced
+  it down to a simple NoteTextField clear, but still never saw why, exactly, but came to
+  understand that it was thread-deadlocking in a DocumentListener method on the field, so moved
+  the clear() actions into a method inside the component where first the listener was removed
+  and then the clearing is done, then listener restored.  This seems to have cured the lock-up
+  and now menu items are enabled/disabled as needed.  Still need this menu management solution
+  for Notes - Day, Month, Year, but the basic functionality seems sound.  Would really like to
+  add more tests in all the areas that had trouble - swap, save, undo, clear.
+
 11/24/2019 0656 - What started as a small issue with a lingering tooltip has blown up into a
   major change to the ExtendedNoteComponent, making its editor into a JOptionPane with a set
   size vs user-settable, which means that extendedNoteWidth/Height are now no longer needed
@@ -8,7 +19,8 @@ Earlier DESIGN DECISIONs are below but current ones are now kept separately, in 
   to Json-ignore them.  And a great side-effect that solves a problem that I hadn't yet
   articulated: pressing Enter will bring up the extended note, and now, pressing it again
   will DISMISS it!  This makes a quick review a LOT less painful than having to move the
-  mouse to that tiny X in the upper right corner.  This is all for the better, although
+  mouse to that tiny X in the upper right corner after you have pressed Enter, possibly
+  inadvertently.  This is all for the better, although
   now to actually do the editing you will have to click in that text area first.
 
 11/23/2019 0805 - Now seem to be past all the most pressing problem-type issues, mostly dealing

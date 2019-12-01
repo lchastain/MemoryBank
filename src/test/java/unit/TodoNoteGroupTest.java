@@ -3,14 +3,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 
-class TodoNoteGroupTest implements FileChooser {
+class TodoNoteGroupTest {
     private static TodoNoteGroup todoNoteGroup;
     private static TestUtil testUtil;
 
@@ -90,21 +88,6 @@ class TodoNoteGroupTest implements FileChooser {
     void testDateSelected() {
         // Coverage, could use some more...
         todoNoteGroup.dateSelected(LocalDate.now());
-    }
-
-    @Override
-    // A FileChooser method used by the merge method
-    public int showDialog(Component parent, String approveButtonText) {
-        System.out.println("The TEST FileChooser has chosen the file for " + approveButtonText);
-        return JFileChooser.APPROVE_OPTION;
-    }
-
-    @Override
-    // A FileChooser method used by the merge method
-    public File getSelectedFile() {
-        String theFile = MemoryBank.userDataHome + File.separatorChar + "todo_New Car Shopping.json";
-        System.out.println("File selected for Merge: " + theFile);
-        return new File(theFile);
     }
 
     @Test
