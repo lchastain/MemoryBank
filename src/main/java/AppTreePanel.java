@@ -1341,7 +1341,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //<editor-fold desc="Actions Depending on the selection">
         if (isEventsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
             BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, EventNoteGroup.areaName);
-            TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", node, tbh);
             selectionContext = "Upcoming Events Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isTodoBranch && isTopLevel) {  // Edit the Todo parent branch
@@ -1349,12 +1349,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
             BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, TodoNoteGroup.areaName);
-            TreeBranchEditor tbe = new TreeBranchEditor(node, tbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", node, tbh);
             selectionContext = "To Do Lists Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isSearchBranch && isTopLevel) {  // Edit the Search parent branch
             BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, SearchResultGroup.areaName);
-            TreeBranchEditor tbe = new TreeBranchEditor(node, sbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", node, sbh);
             selectionContext = "Search Results Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (!node.isLeaf()) {  // Looking at other expandable nodes

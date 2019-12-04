@@ -25,7 +25,7 @@ class EditorHelper implements BranchHelperInterface {
     }
 
     @Override
-    public void doApply(MutableTreeNode mtn, ArrayList changes) {
+    public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         for(Object nco: changes) {
             System.out.println(nco.toString());
         }
@@ -83,7 +83,7 @@ public class TreeBranchEditorMain {
 
         // Center the Frame in the available screen area
         testFrame.pack();
-        testFrame.setSize(500, 550);
+        testFrame.setSize(580, 500);
         testFrame.setLocationRelativeTo(null);
 
         testFrame.setVisible(true);

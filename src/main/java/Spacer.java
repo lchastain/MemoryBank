@@ -1,18 +1,13 @@
-/*****************************************************************************/
-/*                                                                           */
-/* File name: Spacer.java                                                    */
-/*                                                                           */
-/* Description:  This purpose of this custom component is to                 */
-/*   create a specific amount of space, specified in                         */
-/*   pixels, that it should take up on the screen.                           */
-/*                                                                           */
-/*****************************************************************************/
+/* Description:  This purpose of this custom component is to
+/*   create a specific amount of space, specified in
+/*   pixels, that it should take up on the screen.
+*/
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Spacer extends JComponent {
-    private static final long serialVersionUID = -6506429229180781162L;
+    private static final long serialVersionUID = 1L;
 
     int Width;
     int Height;

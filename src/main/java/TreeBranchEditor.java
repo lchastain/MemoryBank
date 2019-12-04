@@ -27,6 +27,23 @@ public class TreeBranchEditor extends JPanel
     private ArrayList<String> theChoices;
     private ArrayList<String> removals = new ArrayList<>();
     private BranchEditorModel bem;
+    static AppIcon theTrash;
+    static AppIcon theSafe;
+    int theScrollPosition;
+
+    static {
+        Image tmpImg;
+        theTrash = new AppIcon("images/waste.gif");
+        tmpImg = theTrash.getImage();
+        tmpImg = tmpImg.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        theTrash.setImage(tmpImg);
+
+        theSafe = new AppIcon("images/safe1.ico");
+        tmpImg = theSafe.getImage();
+        tmpImg = tmpImg.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        theSafe.setImage(tmpImg);
+    }
+
 
     private ArrayList<NodeChange> changeList;
     // The changeList keeps an ongoing list of cumulative changes, that the helper receives
@@ -54,6 +71,10 @@ public class TreeBranchEditor extends JPanel
     // with the changeList.
 
     public TreeBranchEditor(TreeNode tn, BranchHelperInterface branchHelperInterface) {
+        this(null, tn, branchHelperInterface);
+    }
+
+    public TreeBranchEditor(String theTitle, TreeNode tn, BranchHelperInterface branchHelperInterface) {
         super(new BorderLayout());
         origBranch = (DefaultMutableTreeNode) tn;
         myBranch = deepClone(origBranch);
@@ -86,7 +107,7 @@ public class TreeBranchEditor extends JPanel
         // interface is loaded and it comes out larger, the vertical scroll pane kicks in.
         Dimension d1 = leftScroller.getPreferredSize();
         Dimension d2 = rightScroller.getPreferredSize();
-        leftScroller.setPreferredSize(new Dimension(d1.width, 100));
+        leftScroller.setPreferredSize(new Dimension(d1.width + 20, 100));
         leftScroller.revalidate();
         rightScroller.setPreferredSize(new Dimension(d2.width, 100));
         rightScroller.revalidate();
@@ -101,6 +122,7 @@ public class TreeBranchEditor extends JPanel
         centerPanel.setLeftComponent(leftScroller);
         centerPanel.setRightComponent(rightScroller);
 
+        setInfoPanel(theTitle);
         add(centerPanel, "Center");
         add(southPanel, "South");
     } // end constructor
@@ -154,12 +176,40 @@ public class TreeBranchEditor extends JPanel
         }
     }
 
+    public void setInfoPanel(String theTitle) {
+        if (theTitle == null) return;
+        Box myBox = new Box(BoxLayout.Y_AXIS);
+
+        JLabel theHeading = new JLabel(("  Tree Branch Editor  "));
+        theHeading.setFont(Font.decode("Serif-bold-20"));
+        myBox.add(theHeading);
+        myBox.add(new JLabel(" "));
+        myBox.add(new JLabel(" "));
+        JLabel titleLabel = new JLabel(" " + theTitle);
+        titleLabel.setFont(Font.decode("Serif-bold-14"));
+        myBox.add(titleLabel);
+        myBox.add(new JLabel(" "));
+        myBox.add(new JLabel(" On the tree:"));
+        myBox.add(new JLabel(" F2 on a selected node, to rename"));
+        myBox.add(new JLabel(" You can drag & drop nodes"));
+        myBox.add(new JLabel(" "));
+        myBox.add(new JLabel(" On the list:"));
+        myBox.add(new JLabel(" Select and deselect nodes"));
+        myBox.add(new JLabel(" Recycle button to remove"));
+        myBox.add(new JLabel("  (only after 'Apply')"));
+        myBox.add(new JLabel(" "));
+        myBox.add(new JLabel(" Click 'Apply' to accept your changes  "));
+        myBox.add(new JLabel(" Click 'Cancel' to undo your changes  "));
+        add(myBox, "West");
+    }
+
+
     @SuppressWarnings("rawtypes")
     private void showChoices() {
         // Create lists of pre-selected items from the existing branch.
         Enumeration dfe = myBranch.depthFirstEnumeration();
-        ArrayList<String> leaves = new ArrayList<>();
         ArrayList<String> branches = new ArrayList<>();
+        ArrayList<String> leaves = new ArrayList<>();
         while (dfe.hasMoreElements()) {
             DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode) dfe.nextElement();
             String name = dmtn.toString();
@@ -167,63 +217,67 @@ public class TreeBranchEditor extends JPanel
             else branches.add(name);
         }
 
-        JPanel jpr = new JPanel();
-        jpr.setLayout(new BoxLayout(jpr, BoxLayout.Y_AXIS));
+        JPanel theChoicesPanel = new JPanel();
+        theChoicesPanel.setLayout(new BoxLayout(theChoicesPanel, BoxLayout.Y_AXIS));
 
         // To the right-side panel, add the selection choices.
         for (String theChoice : theChoices) {
             JCheckBox jcb = new JCheckBox(theChoice);
             if (leaves.contains(theChoice)) {
-                jcb.setSelected(true);
+            jcb.setSelected(true);
             } else if (branches.contains(theChoice)) {
                 jcb.setSelected(true);
                 jcb.setEnabled(false);
             }
             jcb.addItemListener(this);
 
-            // Either add a simple checkbox, or a checkbox plus a 'delete' control.
-            // But now we encounter some gui resistance; the checkbox alone presents
-            // no problem, but when we add a JPanel containing both, a resize of the
-            // parent (BoxLayout) container wants to stretch the inner JPanels but
-            // yet it does not do this to the lone JCheckbox components, so we have
-            // unwanted, seemingly inconsistent behavior.
-            // Complicating it all is the fact that we do want the horizontal stretch
-            // behavior but don't want the vertical stretch.  So - we handle this by
-            // taking advantage of the fact that the BoxLayout is one of the few
-            // Layouts that actually respects the minimum and maximum sizes of a component.
+            // Add a simple checkbox plus a 'delete' control.
+            // A previous solution here would allow for 'no' delete button, which
+            // necessitated the use of a BoxLayout for theChoicesPanel.  That layout may no longer be
+            // required but can stay as long as it continues to work.
             JPanel oneLine = new JPanel(new BorderLayout());
             oneLine.add(jcb, "West");
-            String deleteCommand = getDeleteCommand();
-            JButton deleteButton = new JButton(deleteCommand);
-            deleteButton.setActionCommand(theChoice);
-            deleteButton.addActionListener(this);
-            if (!myHelper.deleteAllowed(theChoice)) deleteButton.setVisible(false);
-            if (!branches.contains(theChoice)) oneLine.add(deleteButton, "East");
+            JButton deleteButton = new JButton();
+            deleteButton.setIcon(theTrash);
+            if(myHelper.deleteAllowed(theChoice)) {
+                deleteButton.setName(theChoice);
+                deleteButton.setActionCommand("Delete");
+                deleteButton.addActionListener(this);
+            } else {
+                // When delete is not allowed, better user experience to see a
+                // disabled trash icon, than no button at all.  And - it helps
+                // keep the row heights constant.
+                deleteButton.setEnabled(false);
+            }
+
+            // Do not allow a branch to be removed.
+            if (branches.contains(theChoice)) deleteButton.setEnabled(false);
+
+            oneLine.add(deleteButton, "East");
             if (removals.contains(theChoice)) {
                 jcb.setEnabled(false);
-                JLabel removalLabel = new JLabel("Marked for REMOVAL");
+                deleteButton.setIcon(theSafe);
+                JLabel removalLabel = new JLabel("Marked for REMOVAL  ");
                 removalLabel.setForeground(Color.red);
-                removalLabel.setHorizontalAlignment(JLabel.CENTER);
+                removalLabel.setHorizontalAlignment(JLabel.RIGHT);
                 oneLine.add(removalLabel, "Center");
             }
             int w = oneLine.getMaximumSize().width;
             int h = oneLine.getPreferredSize().height;
             oneLine.setMaximumSize(new Dimension(w, h)); // See above note.
-            jpr.add(oneLine);
+            theChoicesPanel.add(oneLine);
         }
-        rightScroller.setViewportView(jpr);
+        rightScroller.setViewportView(theChoicesPanel);
+        rightScroller.getVerticalScrollBar().setValue(theScrollPosition);
     }
 
-    private String getDeleteCommand() {
-        String deleteCommand = myHelper.getDeleteCommand();
-        if (deleteCommand == null) return "X"; // a default.
-        return deleteCommand;
-    }
 
+    // A Listener for the checkboxes.
     public void itemStateChanged(ItemEvent e) {
         Object source = e.getItemSelectable();
         String theText = ((JCheckBox) source).getText();
 
+        theScrollPosition = rightScroller.getVerticalScrollBar().getValue();
         if (e.getStateChange() == ItemEvent.SELECTED) {
             log.debug(theText + " selected");
             DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(theText, false);
@@ -237,6 +291,7 @@ public class TreeBranchEditor extends JPanel
         showTree();  // Refresh the view on the left side of the editor.
     }
 
+    // Remove a choice from the tree
     private void remove(String theLeafText) {
         DefaultMutableTreeNode tmpLeaf = myBranch.getFirstLeaf(); // This one not allowed to be removed.
         while (tmpLeaf != null) { // A bit inefficient, to start with one that we know will be skipped.
@@ -251,47 +306,55 @@ public class TreeBranchEditor extends JPanel
         // it from whatever parent it now has, is the proper way to do it.
         // (although 'moving lower' is not possible in this application, but then again,
         //  this editor could be used in other apps, in which case this aside-comment shouldn't
-        //  even be here.  But leave it, until the editor finds a wider audience).
+        //  even be here.  Leaving it, until the editor finds a wider audience).
         log.debug("Removing: " + theLeafText);
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) tmpLeaf.getParent();
         theParent.remove(tmpLeaf);
+        showChoices(); // Needed, to possibly return a branch to being just a leaf.
     }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         String theAction = actionEvent.getActionCommand();
-        String theText = ((JButton) actionEvent.getSource()).getText();
+        JButton theSource = (JButton) actionEvent.getSource();
+        String theText = theSource.getName();
         //log.debug(theAction);
 
-        if (theAction.equals("Cancel")) {
-            myBranch = deepClone(origBranch);
-            theChoices = getChoices();
-            changeList = new ArrayList<>();
-            removals = new ArrayList<>();
-            showTree();
-            showChoices();
-        } else if (theAction.equals("Apply")) {
-            for (String s : removals) {
-                changeList.add(new NodeChange(s, NodeChange.REMOVED));
-            }
-            myHelper.doApply(myBranch, changeList);
-            // At this point there is not much use in leaving the editor displayed and
-            // accessible to the user; in fact they may wreak havoc with another click
-            // of any of the buttons that we handle here.  But for some reason, it seems
-            // like a bad idea to try and idiot-proof it from here; that will be up to
-            // the consumer of this tool.  Good luck and happy tree-trimming!
-        } else if (theText.equals(getDeleteCommand())) {
-            // The action was a 'delete' button click, which is just a flag toggle in this context.
-            if (removals.contains(theAction)) {
-                removals.remove(theAction);
-                changeList.add(new NodeChange(theAction, NodeChange.UNMARKED));
-            } else {
-                removals.add(theAction);
-                remove(theAction);  // Remove from the tree.
-                changeList.add(new NodeChange(theAction, NodeChange.MARKED));
-            }
-            showTree();
-            showChoices();
+        switch (theAction) {
+            case "Cancel":
+                myBranch = deepClone(origBranch);
+                theChoices = getChoices();
+                changeList = new ArrayList<>();
+                removals = new ArrayList<>();
+                theScrollPosition = 0;
+                showTree();
+                showChoices();
+                break;
+            case "Apply":
+                for (String s : removals) {
+                    changeList.add(new NodeChange(s, NodeChange.REMOVED));
+                }
+                myHelper.doApply(myBranch, changeList);
+                // At this point there is not much use in leaving the editor displayed and
+                // accessible to the user; in fact they may wreak havoc with another click
+                // of any of the buttons that we handle here.  But for some reason, it seems
+                // like a bad idea to try and idiot-proof it from here; that will be up to
+                // the consumer of this tool.  Good luck and happy tree-trimming!
+                break;
+            case "Delete":
+                // The action was a 'delete' button click, which is just a flag toggle in this context.
+                theScrollPosition = rightScroller.getVerticalScrollBar().getValue();
+                if (removals.contains(theText)) {
+                    removals.remove(theText);
+                    changeList.add(new NodeChange(theAction, NodeChange.UNMARKED));
+                } else {
+                    removals.add(theText);
+                    remove(theText);  // Remove from the tree.
+                    changeList.add(new NodeChange(theText, NodeChange.MARKED));
+                }
+                showTree();
+                showChoices();
+                break;
         }
     }
 
@@ -362,6 +425,7 @@ public class TreeBranchEditor extends JPanel
         }
 
         changeList.add(new NodeChange(node.toString(), NodeChange.MOVED));
+        theScrollPosition = rightScroller.getVerticalScrollBar().getValue();
         showChoices();
     }
 
@@ -374,6 +438,7 @@ public class TreeBranchEditor extends JPanel
     @Override
     public void treeNodesRemoved(TreeModelEvent treeModelEvent) {
         //log.debug(treeModelEvent.toString());
+        theScrollPosition = rightScroller.getVerticalScrollBar().getValue();
         showChoices();
     }
 

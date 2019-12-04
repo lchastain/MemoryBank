@@ -362,14 +362,12 @@ public abstract class NoteGroup extends JPanel {
     //--------------------------------------------------------------------
     // Method Name: getPreferredSize
     //
-    // This preference is necessary to limit the default height from
-    //   being the total of all content heights.  The actual size can
-    //   be larger, if the NoteGroup is placed into a stretchable
-    //   container / layout.  By 'preferring' less than actual contents,
-    //   when the size of the content turns out to be larger than the
-    //   container to hold it, the vertical scrollbar of the JScrollPane
-    //     'kicks in'.
+    // This preference is necessary to set a limit of a maximum height value.
+    //   After we add content to the scrollable area of this panel, if the
+    //   height of that content exceeds the limit that we set here then
+    //   the vertical scrollbar will kick in.
     //--------------------------------------------------------------------
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(super.getPreferredSize().width, 400);
     } // end getPreferredSize
