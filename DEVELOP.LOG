@@ -1,6 +1,11 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+12/05/2019 0713 - Now have gotten past all the recent new dev work on Branch Editing, and
+  really like the new looks there, and some new tests were added but more still needed.  Making
+  this note now because it feels like a new round is about to start and I wanted a clear date
+  to consider between the v0.3 and new from this date on v0.4 in-progress work.
+
 11/30/2019 0454 - Last several days working on a horrendous problem that arose just as I was
   implementing merge, save, and undo; too many changes to pin down what went wrong where, but
   the symptom was that after a save, the app would freeze completely, no stacktrace.  Traced

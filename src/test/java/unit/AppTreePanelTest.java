@@ -6,6 +6,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.io.*;
+import java.time.LocalDate;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -67,6 +69,7 @@ public class AppTreePanelTest {
     void testDeepClone() {
         theTree.setSelectionRow(theSelectionRow);
         TreePath treePath = theTree.getSelectionPath();
+        assert treePath != null;
         DefaultMutableTreeNode original = (DefaultMutableTreeNode) treePath.getLastPathComponent();
         DefaultMutableTreeNode clone = AppTreePanel.deepClone(original);
         assert clone.toString().equals(original.toString());
@@ -227,7 +230,7 @@ public class AppTreePanelTest {
 
     @Test
     void testShowMonth() {
-        atp.showMonth();
+        atp.showMonth(LocalDate.now());
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Month View");
@@ -247,7 +250,7 @@ public class AppTreePanelTest {
 
     @Test
     void testShowWeek() {
-        atp.showWeek();
+        atp.showWeek(LocalDate.now());
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Week View");
@@ -266,7 +269,7 @@ public class AppTreePanelTest {
         Assertions.assertNotNull(tp);
         theTree.setSelectionPath(tp);
         Thread.sleep(200);
-        assert theTree.getSelectionPath().getLastPathComponent().toString().equals(theSearchResult);
+        assert Objects.requireNonNull(theTree.getSelectionPath()).getLastPathComponent().toString().equals(theSearchResult);
 
         // Now close it.
         atp.closeGroup();

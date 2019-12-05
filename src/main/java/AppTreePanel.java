@@ -73,6 +73,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private JSplitPane splitPane;
 
     private LocalDate currentDateChoice;
+    private LocalDate showThisMonth;  // A month to be shown but not as a 'choice'.
     private String theLastTreeSelection;
     private DefaultMutableTreeNode theRootNode;
 
@@ -1061,9 +1062,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end showHelp
 
 
-    void showMonth() {
+    void showMonth(LocalDate theMonthToShow) {
         MemoryBank.debug("showMonth called.");
         // This method is called from an external context.
+        showThisMonth = theMonthToShow;
         theTree.setSelectionPath(monthViewPath);
     } // end showMonth
 
@@ -1158,10 +1160,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // choice is not present for a non date-centered view).
     //
     // If the view is date-based and the selected date is
-    // already today, no apparent change is made but it
-    // could be made into a toggle between the date-based
-    // view and the textual panel as described above, like
-    // the 'showAbout' behavior.
+    // already today, the user is shown the textual panel as
+    // described above.
     //--------------------------------------------------------
     void showToday() {
         // Make sure that the most recent changes, if any, are preserved.
@@ -1226,13 +1226,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     } // end showToday
 
-    void showWeek() {
+    void showWeek(LocalDate theMonthToShow) {
         MemoryBank.debug("showWeek called.");
         // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
         // There IS not actually a view to show, here.  The rightPane is
         // just loaded with the text, 'Week View'.  Therefore when this node is selected directly
         // on the tree, it does not come here but just shows the text of the request that it does
         // not know how to handle.
+
+         // showThisMonth = theMonthToShow; // NOT NEEDED until we have a week view to show.
+        // At that time you will also need to add handling to the selection changed area, and clear this var.
+
         theTree.setSelectionPath(weekViewPath);
     } // end showWeek
 
@@ -1517,6 +1521,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theMonthView.setParent(this);
             } else {
                 theMonthView.setChoice(currentDateChoice);
+            }
+            if(showThisMonth != null) {
+                theMonthView.setView(showThisMonth);
+                showThisMonth = null;
             }
             rightPane.setViewportView(theMonthView);
         } else if (theNodeString.equals("Day Notes")) {

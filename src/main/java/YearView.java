@@ -31,7 +31,7 @@ public class YearView extends JPanel implements ActionListener {
     private int theYear;            // numerous
     private YearBox yearBox;        // BottomPanel constructor
     private static DateTimeFormatter dtf;
-    private AppTreePanel parent = null;
+    private AppTreePanel appTreePanel = null;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-16");
@@ -241,7 +241,7 @@ public class YearView extends JPanel implements ActionListener {
     } // end setDialog
 
     void setParent(AppTreePanel atp) {
-        parent = atp;
+        appTreePanel = atp;
     }
 
     public class MonthCanvas extends JPanel {
@@ -268,10 +268,9 @@ public class YearView extends JPanel implements ActionListener {
             tempLabel.setOpaque(true);
             tempLabel.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
-                    setChoice(myDate);
-                    // System.out.println("Choice is: " + choice);
-                    if (parent == null) return;
-                    if (e.getClickCount() == 2) parent.showMonth();
+                    if (appTreePanel == null) return;
+                    myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
+                    appTreePanel.showMonth(myDate);
                 } // end mousePressed
             });//end addMouseListener
             monthHeader.add(tempLabel);
@@ -286,10 +285,10 @@ public class YearView extends JPanel implements ActionListener {
                 tempLabel.setBackground(Color.gray);
                 tempLabel.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
-                        setChoice(myDate);
-                        // System.out.println("Choice is: " + choice);
-                        if (parent == null) return;
-                        if (e.getClickCount() == 2) parent.showWeek();
+                        if (appTreePanel == null) return;
+                        myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
+                        appTreePanel.showWeek(myDate);
+//                        if (e.getClickCount() == 2) appTreePanel.showWeek();
                     } // end mousePressed
                 });//end addMouseListener
                 weekdayNameHeader.add(tempLabel);
@@ -476,8 +475,8 @@ public class YearView extends JPanel implements ActionListener {
                         jdTheDialog.setVisible(false);
                     }
                 } // end if there is a dialog
-                if (parent == null) return;
-                if (e.getClickCount() == 2) parent.showDay();
+                if (appTreePanel == null) return;
+                if (e.getClickCount() == 2) appTreePanel.showDay();
             } // end if/else
         } // end mousePressed
 

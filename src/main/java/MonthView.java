@@ -38,7 +38,7 @@ public class MonthView extends JLayeredPane {
     private MonthCanvas monthCanvas;
     private JLabel choiceLabel;
     private int heightOffset = 0;
-    private AppTreePanel parent = null;
+    private AppTreePanel appTreePanel = null;
     private boolean[][] hasDataArray;  // for a year.  index 0 = month, index 1 = days, values have data True or False
     private Dimension minSize;
 
@@ -233,6 +233,14 @@ public class MonthView extends JLayeredPane {
         monthCanvas.recalc(theChoice); // only way to find the day object
     } // end setChoice
 
+    public void setView(LocalDate theNewMonthToView) {
+        activeDayCanvas.reset(); // Turn off any previous highlighting.
+
+        hasDataArray = AppUtil.findDataDays(theNewMonthToView.getYear());
+        displayedMonth = theNewMonthToView;
+        monthCanvas.recalc(theNewMonthToView); // only way to find the day object
+    } // end setView
+
     private void setLabelBounds() {
         if (getSize().width == 0) return;
         // No need to show the label if the MonthCanvas has not yet
@@ -247,7 +255,7 @@ public class MonthView extends JLayeredPane {
     } // end setLabelBounds
 
     void setParent(AppTreePanel atp) {
-        parent = atp;
+        appTreePanel = atp;
     }
 
     //--------------------------------------------------
@@ -323,9 +331,10 @@ public class MonthView extends JLayeredPane {
                 l = new JLabel(dayName, JLabel.CENTER);
                 l.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
-                        theChoice = activeDayCanvas.myDate;  // correct?   10/1/19
-                        if (parent == null) return;
-                        if (e.getClickCount() == 2) parent.showWeek();
+                        if (appTreePanel == null) return;
+                        // When WeekView is implemented, redo this similarly to how MonthView does.
+                        // for now, showWeek is dateless.
+                        appTreePanel.showWeek(LocalDate.now());
                     } // end mousePressed
                 });//end addMouseListener
                 l.setForeground(Color.white);
@@ -497,8 +506,8 @@ public class MonthView extends JLayeredPane {
             activeDayCanvas.reset();
             highlight();
             activeDayCanvas = this;
-            if (parent == null) return;
-            if (e.getClickCount() == 2) parent.showDay();
+            if (appTreePanel == null) return;
+            if (e.getClickCount() == 2) appTreePanel.showDay();
         } // end mousePressed
 
         public void mouseReleased(MouseEvent e) {
