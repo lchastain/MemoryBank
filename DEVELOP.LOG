@@ -1,6 +1,12 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+12/11/2019 1221 - Just finished some test dev and rework for an old SCR that was just now fixed,
+  related to Viewed dates vs Selected dates, and their management during panel changes from the
+  tree or menu.  Test interaction between classes (shouldn't be happening in the first place !!#)
+  may have been cleared up for good, finally, by turning off some of the Threading that goes on
+  in AppTreePanel (at least turning it off during testing).
+
 12/05/2019 0713 - Now have gotten past all the recent new dev work on Branch Editing, and
   really like the new looks there, and some new tests were added but more still needed.  Making
   this note now because it feels like a new round is about to start and I wanted a clear date

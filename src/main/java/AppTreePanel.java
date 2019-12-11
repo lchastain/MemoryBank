@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Vector;
@@ -54,15 +55,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private TreePath todolistsPath;
     private TreePath searchresultsPath;
 
-    private static JDialog dlgWorkingDialog;
+    static JDialog theWorkingDialog;
     private NoteGroup theNoteGroup; // A reference to the current selection
     private GoalPanel theGoalPanel;
-    private EventNoteGroup theEvents;
-    private DayNoteGroup theAppDays;
-    private MonthNoteGroup theAppMonths;
-    private YearNoteGroup theAppYears;
-    private MonthView theMonthView;
-    private YearView theYearView;
+    DayNoteGroup theAppDays;
+    MonthNoteGroup theAppMonths;
+    YearNoteGroup theAppYears;
+    MonthView theMonthView;
+    YearView theYearView;
     private Vector<NoteData> noteDataVector;   // For searching
     private Vector<NoteData> foundDataVector;  // Search results
     private NoteGroupKeeper theEventListKeeper;      // keeper of all loaded Event lists.
@@ -72,22 +72,25 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private JPanel aboutPanel;
     private JSplitPane splitPane;
 
-    private LocalDate currentDateChoice;
-    private LocalDate showThisMonth;  // A month to be shown but not as a 'choice'.
+    private LocalDate selectedDate;  // The selected date
+    private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
+    private ChronoUnit viewedDateGranularity;
+
     private String theLastTreeSelection;
     private DefaultMutableTreeNode theRootNode;
 
     // Predefined Tree Paths to 'leaf' nodes.
-    private TreePath dayNotesPath;
-    private TreePath monthNotesPath;
-    private TreePath yearNotesPath;
-    private TreePath monthViewPath;
+    TreePath dayNotesPath;
+    TreePath monthNotesPath;
+    TreePath yearNotesPath;
+    TreePath yearViewPath;
+    TreePath monthViewPath;
     private TreePath weekViewPath;
     private TreePath eventsPath;
 
     private AppOptions appOpts;
 
-    private boolean restoringPreviousSelection;
+    boolean restoringPreviousSelection;
 
     public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
@@ -97,7 +100,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         this.appOpts = appOpts;
 
         //<editor-fold desc="Make the 'Working...' dialog">
-        dlgWorkingDialog = new JDialog(aFrame, "Working", true);
+        theWorkingDialog = new JDialog(aFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
         String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
@@ -105,11 +108,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         lbl.setIcon(new AppIcon(strWorkingIcon));
         lbl.setVerticalTextPosition(JLabel.TOP);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
-        dlgWorkingDialog.add(lbl);
-        dlgWorkingDialog.pack();
-        dlgWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-//        dlgWorkingDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        dlgWorkingDialog.setLocationRelativeTo(this);
+        theWorkingDialog.add(lbl);
+        theWorkingDialog.pack();
+        theWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        theWorkingDialog.setLocationRelativeTo(this);
         //</editor-fold>
 
         //<editor-fold desc="Initialize the Search Panel from a new thread">
@@ -203,7 +205,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Add the split pane to this panel.
         add(splitPane);
 
-        currentDateChoice = LocalDate.now();
+        // Initialize Dates
+        selectedDate = LocalDate.now();
+        viewedDate = selectedDate;
+        viewedDateGranularity = ChronoUnit.DAYS;
 
         // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
@@ -431,12 +436,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         leaf = new DefaultMutableTreeNode("Year View");
         branch.add(leaf);
+        pathToRoot = leaf.getPath();
+        yearViewPath = new TreePath(pathToRoot);
 
         leaf = new DefaultMutableTreeNode("Month View");
         branch.add(leaf);
-
-        // Convert this node to a TreePath to be used later,
-        //   in selection events.
         pathToRoot = leaf.getPath();
         monthViewPath = new TreePath(pathToRoot);
 
@@ -536,6 +540,80 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         }
         return newRoot;
     }
+
+    private void doSearch() {
+        Frame theFrame = JOptionPane.getFrameForComponent(this);
+
+        // Now display the search dialog.
+        String string1 = "Search Now";
+        String string2 = "Cancel";
+        Object[] options = {string1, string2};
+        int choice = JOptionPane.showOptionDialog(theFrame,
+                spTheSearchPanel,
+                "Search - Please specify the conditions for your quest",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,     //don't use a custom Icon
+                options,  //the titles of buttons
+                string1); //the title of the default button
+
+        if (choice != JOptionPane.OK_OPTION) return;
+
+        if (!spTheSearchPanel.hasWhere()) {
+            JOptionPane.showMessageDialog(this,
+                    " No location to search was chosen!",
+                    "Search conditions specification error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        } // end if no search location was specified.
+
+        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
+        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
+
+        // Make sure that the most recent changes, if any,
+        //   will be included in the search.
+        if (theNoteGroup != null) {
+            theNoteGroup.preClose();
+        } // end if
+
+        // Now make a Vector that can collect the search results.
+        foundDataVector = new Vector<>(0, 1);
+
+        // Now scan the user's data area for data files - we do a recursive
+        //   directory search and each file is examined as soon as it is
+        //   found, provided that it passes the file-level filters.
+        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
+        File f = new File(MemoryBank.userDataHome);
+        scanDataDir(f, 0); // Indirectly fills the foundDataVector
+        noteDataVector = foundDataVector;
+
+        // We will display the results of the search, even if it found nothing.
+        SearchResultGroupProperties searchResultGroupProperties = new SearchResultGroupProperties();
+        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
+
+        // Make a unique name for the results
+        String resultsName = AppUtil.getTimestamp();
+        String resultsPath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
+        String resultsFileName = resultsPath + "search_" + resultsName + ".json";
+        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
+
+        // Make a new data file to hold the searchResultData list
+        Object[] theGroup = new Object[2]; // A 'wrapper' for the Properties + List
+        theGroup[0] = searchResultGroupProperties;
+        theGroup[1] = noteDataVector;
+        int notesWritten = AppUtil.saveNoteGroupData(resultsFileName, theGroup);
+        if (foundDataVector.size() != notesWritten) {
+            System.out.println("Possible problem - wrote " + notesWritten + " results");
+        } else {
+            System.out.println("Wrote " + notesWritten + " results to " + resultsFileName);
+        }
+
+        // Make a new tree node for these results and select it
+        addSearchResult(resultsName);
+
+        showWorkingDialog(false);
+    } // end doSearch
+
 
     // Make a Consolidated View group from all the currently selected Event Groups.
     @SuppressWarnings("rawtypes")
@@ -937,6 +1015,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         optionPane = newNotifier;
     }
 
+    void setSelectedDate(LocalDate theSelection) {
+        selectedDate = theSelection;
+        viewedDate = theSelection;
+        viewedDateGranularity = ChronoUnit.DAYS;
+    }
+
+    void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
+        viewedDate = theViewedDate;
+        viewedDateGranularity = theGranularity;
+    }
+
     //--------------------------------------------------------------
     // Method Name:  showAbout
     //
@@ -953,8 +1042,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   reset whenever the About graphic is shown.  Acceptable.
     //--------------------------------------------------------------
     void showAbout() {
-        updateCurrentDateChoice(); // Used when restoring the previous view.
-
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
                 theTree.getLastSelectedPathComponent();
 
@@ -1038,13 +1125,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             //   here, rather than having to develop it from the filename.
             //   need to look into why that is not working...
             if (fname.startsWith("Y")) {
-                currentDateChoice = AppUtil.getDateFromFilename(srd.getFileFoundIn());
+                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
                 theTree.setSelectionPath(yearNotesPath);
             } else if (fname.startsWith("M")) {
-                currentDateChoice = AppUtil.getDateFromFilename(srd.getFileFoundIn());
+                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
                 theTree.setSelectionPath(monthNotesPath);
             } else if (fname.startsWith("D")) {
-                currentDateChoice = AppUtil.getDateFromFilename(srd.getFileFoundIn());
+                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
                 theTree.setSelectionPath(dayNotesPath);
             } // end if
         } // end if
@@ -1062,86 +1149,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end showHelp
 
 
-    void showMonth(LocalDate theMonthToShow) {
-        MemoryBank.debug("showMonth called.");
-        // This method is called from an external context.
-        showThisMonth = theMonthToShow;
+    // Called from YearView - a click on a Month name
+    void showMonthView() {
+        MemoryBank.debug("showMonthView called.");
         theTree.setSelectionPath(monthViewPath);
-    } // end showMonth
-
-
-    private void doSearch() {
-        Frame theFrame = JOptionPane.getFrameForComponent(this);
-
-        // Now display the search dialog.
-        String string1 = "Search Now";
-        String string2 = "Cancel";
-        Object[] options = {string1, string2};
-        int choice = JOptionPane.showOptionDialog(theFrame,
-                spTheSearchPanel,
-                "Search - Please specify the conditions for your quest",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,     //don't use a custom Icon
-                options,  //the titles of buttons
-                string1); //the title of the default button
-
-        if (choice != JOptionPane.OK_OPTION) return;
-
-        if (!spTheSearchPanel.hasWhere()) {
-            JOptionPane.showMessageDialog(this,
-                    " No location to search was chosen!",
-                    "Search conditions specification error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        } // end if no search location was specified.
-
-        dlgWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
-
-        // Make sure that the most recent changes, if any,
-        //   will be included in the search.
-        if (theNoteGroup != null) {
-            theNoteGroup.preClose();
-        } // end if
-
-        // Now make a Vector that can collect the search results.
-        foundDataVector = new Vector<>(0, 1);
-
-        // Now scan the user's data area for data files - we do a recursive
-        //   directory search and each file is examined as soon as it is
-        //   found, provided that it passes the file-level filters.
-        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
-        File f = new File(MemoryBank.userDataHome);
-        scanDataDir(f, 0); // Indirectly fills the foundDataVector
-        noteDataVector = foundDataVector;
-
-        // We will display the results of the search, even if it found nothing.
-        SearchResultGroupProperties searchResultGroupProperties = new SearchResultGroupProperties();
-        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
-
-        // Make a unique name for the results
-        String resultsName = AppUtil.getTimestamp();
-        String resultsPath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
-        String resultsFileName = resultsPath + "search_" + resultsName + ".json";
-        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
-
-        // Make a new data file to hold the searchResultData list
-        Object[] theGroup = new Object[2]; // A 'wrapper' for the Properties + List
-        theGroup[0] = searchResultGroupProperties;
-        theGroup[1] = noteDataVector;
-        int notesWritten = AppUtil.saveNoteGroupData(resultsFileName, theGroup);
-        if (foundDataVector.size() != notesWritten) {
-            System.out.println("Possible problem - wrote " + notesWritten + " results");
-        } else {
-            System.out.println("Wrote " + notesWritten + " results to " + resultsFileName);
-        }
-
-        // Make a new tree node for these results and select it
-        addSearchResult(resultsName);
-
-        showWorkingDialog(false);
-    } // end doSearch
+    } // end showMonthView
 
 
     //--------------------------------------------------------
@@ -1160,8 +1172,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // choice is not present for a non date-centered view).
     //
     // If the view is date-based and the selected date is
-    // already today, the user is shown the textual panel as
-    // described above.
+    // already today, the user is shown the textual panel
+    // that is described above.
     //--------------------------------------------------------
     void showToday() {
         // Make sure that the most recent changes, if any, are preserved.
@@ -1182,29 +1194,28 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Set the last tree selection to the current one so that the current choice update
         // will take its value from the correct tree node.
         theLastTreeSelection = theCurrentView;
-        updateCurrentDateChoice();
 
-        if (currentDateChoice.equals(LocalDate.now())) {
+        if (viewedDate.equals(LocalDate.now())) {
             theCurrentView = "Today";
         } else {
-            currentDateChoice = LocalDate.now();
+            setSelectedDate(LocalDate.now());
         }
 
         switch (theCurrentView) {
             case "Year View":
-                theYearView.setChoice(currentDateChoice);
+                theYearView.setChoice(selectedDate);
                 return;
             case "Month View":
-                theMonthView.setChoice(currentDateChoice);
+                theMonthView.setChoice(selectedDate);
                 return;
-            case "Day Notes":
-                theAppDays.setChoice(currentDateChoice);
+            case "Day Notes": // For Day notes, the choice is not separate of the view.
+                theAppDays.setDate(selectedDate);
                 return;
             case "Month Notes":
-                theAppMonths.setChoice(currentDateChoice);
+                theAppMonths.setDate(selectedDate);
                 return;
             case "Year Notes":
-                theAppYears.setChoice(currentDateChoice);
+                theAppYears.setDate(selectedDate);
                 return;
         }
 
@@ -1216,7 +1227,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         dayTitle.setHorizontalAlignment(JLabel.CENTER);
         dayTitle.setForeground(Color.blue);
         dayTitle.setFont(Font.decode("Serif-bold-24"));
-        dayTitle.setText(dtf.format(currentDateChoice));
+        dayTitle.setText(dtf.format(selectedDate));
         rightPane.setViewportView(dayTitle);
         appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
 
@@ -1234,8 +1245,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // on the tree, it does not come here but just shows the text of the request that it does
         // not know how to handle.
 
-         // showThisMonth = theMonthToShow; // NOT NEEDED until we have a week view to show.
-        // At that time you will also need to add handling to the selection changed area, and clear this var.
+        //viewedDate = theMonthToShow; // NOT NEEDED until we have a week view to show.
+        //viewedDateGranularity = ChronoUnit.WEEKS;
+        // At that time you will also need to add handling to the selection changed area.
 
         theTree.setSelectionPath(weekViewPath);
     } // end showWeek
@@ -1257,7 +1269,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // Create a new thread and setVisible within the thread.
             new Thread(new Runnable() {
                 public void run() {
-                    dlgWorkingDialog.setVisible(true);
+                    theWorkingDialog.setVisible(true);
                 }
             }).start(); // Start the thread so that the dialog will show.
         } else {
@@ -1269,13 +1281,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    dlgWorkingDialog.setVisible(false);
+                    theWorkingDialog.setVisible(false);
                 }
             }).start();
         } // end if show - else hide
     } // end showWorkingDialog
 
-    private void treeSelectionChanged(TreePath oldPath, TreePath newPath) {
+    void treeSelectionChanged(TreePath newPath) {
         if (newPath == null) return;
         // You know how some animals will still move or twitch a bit after death?
         // The explanation is that their central nervous system is still sending
@@ -1291,12 +1303,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // This is better than 'theTree.getLastSelectedPathComponent()' because it works for
         //   normal tree selection events but also allows for 'phantom' selections; tree
         //   paths that were created and selected by code vs those that came from a user's
-        //   mouse click event on an existing tree node.
+        //   mouse click event on an existing (visible and active) tree node.
         if (node == null) return;
 
         // We have started to handle the change; now disallow
         //   further input until we are finished.
-        dlgWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
+        theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
         if (!restoringPreviousSelection) showWorkingDialog(true);
 
         // Update the current selection row
@@ -1307,15 +1319,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (theNoteGroup != null) {
             theNoteGroup.preClose();
         } // end if
-
-        // Update the currentDateChoice so that it can be used to set the
-        //   date to be shown before we display the newly selected group,
-        //   if it cares about dates, that is.
-        if (oldPath != null) {
-            theLastTreeSelection = oldPath.getLastPathComponent().toString();
-            MemoryBank.debug("Last Selection was: " + theLastTreeSelection);
-            updateCurrentDateChoice();
-        }
 
         // Get the string for the selected node.
         String theNodeString = node.toString();
@@ -1509,51 +1512,91 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(theGoalPanel);
         } else if (theNodeString.equals("Year View")) {
             if (theYearView == null) {
-                theYearView = new YearView(currentDateChoice);
+                theYearView = new YearView(viewedDate);
                 theYearView.setParent(this);
+            } else {
+                theYearView.setChoice(selectedDate); // To get the right choiceLabel
+                theYearView.setView(viewedDate); // To show the right Year
             } // end if
-            // Might need to use currentDateChoice to set the year, here.  and above.
-            theYearView.setChoice(currentDateChoice);
+
+            // The choice and view settings, whether they happened during construction or
+            // via the 'else' branch, do not get reflected back to here, so if there was
+            // no change to the view while the panel was active then the viewed date
+            // granularity that we had going in, can remain unchanged after we come back
+            // out.  If there WAS a view change then the granularity would have gone to
+            // YEARS at that time.
+
             rightPane.setViewportView(theYearView);
         } else if (theNodeString.equals("Month View")) {
+
+            // Decide which date (Selected or Viewed) that we should show.
+            // In most cases the Viewed date will already be set to the Selected date
+            // but when they differ it will be due to the user having adjusted the view
+            // while on a different date-related panel, without making a selection there
+            // before coming here.  So if the user was 'looking' at a different time
+            // period on that other panel and then came here, we should continue to
+            // show them that same time period, as long as here we have the same (or better) granularity.
+            // With only three granularity settings (currently) and DAYS keeps its Selected
+            // in sync with its Viewed, currently the only possibility where this happens is
+            // when coming here from MonthNotes (but that could change with future enhancements).
+
             if (theMonthView == null) {
-                theMonthView = new MonthView(currentDateChoice);
+                // The MonthView must be constructed with the current choice.
+                // At least until after the choice label and selected day highlight are moved out of the construction path,
+                // which I do intend to do at some point.
+                theMonthView = new MonthView(selectedDate);
+
+                // And now, suppose it was just now constructed for a Selected Date that is months away from the Viewed Date
+                // that we expect to show right now -
+                if(!selectedDate.isEqual(viewedDate)) {
+                    theMonthView.setView(viewedDate);
+                }
+
                 theMonthView.setParent(this);
-            } else {
-                theMonthView.setChoice(currentDateChoice);
-            }
-            if(showThisMonth != null) {
-                theMonthView.setView(showThisMonth);
-                showThisMonth = null;
+            } else {  // The MonthView was previously constructed.  Now we need to put it to the right view AND choice.
+                theMonthView.setChoice(selectedDate);
+                if(!selectedDate.isEqual(viewedDate)) {
+                    theMonthView.setView(viewedDate);
+                }
             }
             rightPane.setViewportView(theMonthView);
         } else if (theNodeString.equals("Day Notes")) {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroup();
+                theAppDays.setParent(this);
                 theAppDays.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppDays;
-            theAppDays.setChoice(currentDateChoice);
+            theAppDays.setDate(selectedDate);
+            setViewedDate(selectedDate, ChronoUnit.DAYS);
             rightPane.setViewportView(theAppDays);
         } else if (theNodeString.equals("Month Notes")) {
+            LocalDate dateToShow;
+            if(viewedDateGranularity != ChronoUnit.YEARS) dateToShow = viewedDate;
+            else dateToShow = selectedDate;
+            viewedDateGranularity = ChronoUnit.MONTHS; // Do this AFTER we've first used it to see where we came from.
+
             if (theAppMonths == null) {
-                theAppMonths = new MonthNoteGroup();
+                theAppMonths = new MonthNoteGroup(); // Takes current date as default initial 'choice'.
+                theAppMonths.setParent(this);
                 theAppMonths.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppMonths;
-            theAppMonths.setChoice(currentDateChoice);
+            theAppMonths.setDate(dateToShow);
             rightPane.setViewportView(theAppMonths);
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroup();
+                theAppYears.setParent(this);
                 theAppYears.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppYears;
-            theAppYears.setChoice(currentDateChoice);
+            theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
+            viewedDateGranularity = ChronoUnit.YEARS;
             rightPane.setViewportView(theAppYears);
         } else {
             // Any other as-yet unhandled node on the tree.
-            // Currently - Week View
+            // Currently - just Week View
             JPanel jp = new JPanel(new GridBagLayout());
             jp.add(new JLabel(theNodeString));
             rightPane.setViewportView(jp);
@@ -1561,51 +1604,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         appMenuBar.manageMenus(selectionContext);
-        showWorkingDialog(false); // This may have already been done, but if no then no harm in doing it again.
+        showWorkingDialog(false); // This may have already been done, but if not then no harm in doing it again.
     } // end treeSelectionChanged
-
-
-    // There are five situations where the previous selection
-    //   may have allowed the user to change the displayed date.
-    //   If 'theLastTreeSelection' is one of them then set the
-    //   currentDateChoice to the date from that group.  This is
-    //   needed when switching between these groups and also
-    //   used by showToday and showAbout.
-    private void updateCurrentDateChoice() {
-        if (theLastTreeSelection == null) return;
-
-        switch (theLastTreeSelection) {
-            case "Year View":
-                // Unlike the others, a YearView choice MAY be null.
-                // This is because the YearView can be used as a Date selection interface,
-                // where a 'no choice' option needs to be supported.  But it could
-                // possibly be altered to require one for the Tree's YearView while not
-                // requiring one when used as a selection dialog.  After all, it's not
-                // static.
-                LocalDate yearViewChoice = theYearView.getChoice();
-                if (yearViewChoice != null) currentDateChoice = theYearView.getChoice();
-                break;
-            case "Month View":
-                currentDateChoice = theMonthView.getChoice();
-                break;
-            case "Day Notes":
-                currentDateChoice = theAppDays.getChoice();
-                break;
-            case "Month Notes":
-                currentDateChoice = theAppMonths.getChoice();
-                break;
-            case "Year Notes":
-                currentDateChoice = theAppYears.getChoice();
-                break;
-        }
-    }
 
 
     //-------------------------------------------------
     // Method Name:  updateTreeState
     //
-    // Capture the current tree configuration
-    //   and put it into appOpts (AppOptions class).
+    // Capture the current tree configuration in terms of node expansion/contraction
+    //   and variable group contents, and put it into appOpts (AppOptions class).
     //-------------------------------------------------
     void updateTreeState(boolean updateLists) {
         appOpts.eventsExpanded = theTree.isExpanded(eventsPath);
@@ -1688,7 +1695,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //-------------------------------------------------------------
     public void valueChanged(TreeSelectionEvent e) {
 
-        final TreePath oldPath = e.getOldLeadSelectionPath();
         final TreePath newPath = e.getNewLeadSelectionPath();
         if (restoringPreviousSelection) {
             // We don't need to handle this event from a separate
@@ -1698,14 +1704,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             //   been accessed and loaded.  Although there is one
             //   exception to that, at program restart but in that
             //   case we have the splash screen and main progress bar.
-            treeSelectionChanged(oldPath, newPath);
+            treeSelectionChanged(newPath);
         } else {
             // This is a user-directed selection;
             //   handle from a separate thread.
             new Thread(new Runnable() {
                 public void run() {
                     // AppUtil.localDebug(true);
-                    treeSelectionChanged(oldPath, newPath);
+                    treeSelectionChanged(newPath);
                     // AppUtil.localDebug(false);
                 }
             }).start(); // Start the thread

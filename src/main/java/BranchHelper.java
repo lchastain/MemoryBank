@@ -194,7 +194,7 @@ public class BranchHelper implements BranchHelperInterface {
 
         // Show the Exception(s), if any.
         if (!ems.toString().equals("")) {
-            JOptionPane.showMessageDialog(theTree, ems,
+            optionPane.showMessageDialog(theTree, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
 

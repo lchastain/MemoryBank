@@ -18,7 +18,7 @@ import java.io.IOException;
 // that we get no warning but do preserve the changes, and the file remains.
 
 class CollapseChangesTest {
-    private AppTreePanel atp;
+    private AppTreePanel appTreePanel;
     private JTree theTree;
     private String viewsNodeName = "Views";
     private String notesNodeName = "Notes";
@@ -47,8 +47,9 @@ class CollapseChangesTest {
     @Test
     void testFileNotRemovedOnCollapse() {
         // The AppTreePanel is what creates the Tree for us.
-        atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
-        theTree = atp.getTree();
+        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading (interferes with TodoItemFocusTest).
+        theTree = appTreePanel.getTree();
 
         // Get the TreePath to the collapsible node
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
@@ -69,7 +70,7 @@ class CollapseChangesTest {
         }
 
         // Get the corresponding TodoNoteGroup
-        TodoNoteGroup todoNoteGroup = (TodoNoteGroup) atp.getTheNoteGroup();
+        TodoNoteGroup todoNoteGroup = (TodoNoteGroup) appTreePanel.getTheNoteGroup();
 
         // Make an edit to the list
         TodoNoteComponent todoNoteComponent3 = todoNoteGroup.getNoteComponent(3);
@@ -77,6 +78,9 @@ class CollapseChangesTest {
 
         // Now collapse the node
         theTree.collapsePath(todolistsPath);
+
+        // Restore this flag in case other tests are running.
+        appTreePanel.restoringPreviousSelection = false;
 
         // Expecting no warning here; a popup dialog will ruin that
         // expectation and definitely counts as a test fail.

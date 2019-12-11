@@ -1,0 +1,74 @@
+This doc is needed in order to set down the expected behaviors of certain panels with respect to dates.
+
+There are two date 'flavors' to consider:
+    Selected Date - What specific date has been selected.  There will always be one; defaults to current date.
+    Viewed Date - What date is being shown (and to what granularity - day,month,year); defaults to current date.
+
+These two dates are defined and managed in AppTreePanel.  It will always have definitions for them; no nulls.
+
+When a date selection is made it also sets the viewed date to the same value.
+
+Viewed dates will only differ from selected dates when a date-related panel changes its content without
+    having made a selection (if a date selection was even possible from the given panel).
+
+Of the five date-related panels, a date selection can only occur from these three:
+    Day Notes - whatever date is shown IS the selection (and therefore also the Viewed Date).
+    Year View - if the user clicks on a specific date
+    Month View - if the user clicks on a specific date
+
+All five panels can alter the Viewed Date via the controls on their interfaces
+
+
+1.  Day Notes
+    When this node becomes active, the day that it shows will be the currently Selected Date.
+    At the same time the Viewed Date is set to the Selected Date, with DAYS granularity.
+    If the day is changed, Selected Date and Viewed Date track along with it.
+
+2.  Year Notes
+    When this node becomes active, the year shown is the year from the Viewed Date, and its granularity becomes YEARS,
+        even if it was previously finer.  This is needed to ensure that the correct date is shown in whatever panel
+        becomes active after this one, especially if no action is taken while here.  The very act of switching to a
+        year view will have changed the granularity.
+    A new Year may be viewed in this panel.  If it is, the Viewed Date is set to the new year.
+
+3.  Month Notes
+    When this node becomes active, the month shown is determined in this order of preference:
+        1.  The month from the Viewed Date (only if granularity is day or month)
+            In many cases this will also be the Selected Date.  When it isn't, we would rather show the Viewed Date,
+               unless the user had been viewing years and hadn't specified which month of those years they were
+               looking at.
+        2.  The month from the Selected Date
+    Then the granularity of the viewed date is set to MONTHS.
+    A new month may be viewed in this panel.  If it is, the Viewed Date is set to the new month.
+
+4.  Year View
+    When this node becomes active, the year shown is the year from the Viewed Date, and its granularity becomes YEARS,
+        even if it was previously finer.  This is needed to ensure that the correct date is shown in whatever panel
+        becomes active after this one, especially if no action is taken while here.  The very act of switching to a
+        year view will have changed the granularity.
+    A new Selected Date may be chosen from this panel.  If it is, the settings in AppTreePanel are updated, with the
+        Viewed Date being set to the same value, with granularity of DAYS.
+    A new year may be viewed in this panel.  If it is, the Viewed Date is set to the new year,
+        with a granularity of YEARS.
+    The settings described above each happen immediately upon the respective changes, so they are not in conflict;
+        in terms of the granularity of the viewed date, the last change 'wins'.
+
+5.  Month View
+    When this node becomes active, the month shown is determined in this order of preference:
+        1.  the month from the Viewed Date (only if granularity is MONTHS)
+        2.  the month from the Selected Date (so that the selected day is highlighted)
+    Then the granularity of the viewed date is set to MONTHS.
+    A new Selected Date may be chosen from this panel.  If it is, the settings in AppTreePanel are updated, with the
+        Viewed Date being set to the same value, with granularity of DAYS.
+    A new month may be viewed in this panel.  If it is, the Viewed Date is set to the new month,
+        with a granularity of MONTHS.
+    The settings described above each happen immediately upon the respective changes, so they are not in conflict;
+        in terms of the granularity of the viewed date, the last change 'wins'.
+
+
+When 'Today' is invoked while any one of the five panels is active, the Selected Date is immediately set to 'today'
+    and the panel content is updated to match.  However, if the panel was already showing this info then instead it
+    will switch to a textual representation of the date, only, with no node selected on the tree.  Select a new node
+    to continue (or select the same one to get back to the panel you were on).
+
+

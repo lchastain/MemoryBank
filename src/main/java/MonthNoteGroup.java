@@ -70,14 +70,15 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
 
 
     // This is called from AppTreePanel.
-    public void setChoice(LocalDate theNewChoice) {
+    @Override
+    public void setDate(LocalDate theNewChoice) {
 
-        // If the new day puts us in the same month as the current one - return.
+        // If the new date puts us in the same month as the current one - return.
         if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
 
-        super.setChoice(theNewChoice);
+        super.setDate(theNewChoice);
         updateHeader();
-    } // end setChoice
+    } // end setDate
 
 
     //--------------------------------------------------------------

@@ -7,13 +7,14 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.io.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AppTreePanelTest {
-    private static AppTreePanel atp;
+    private static AppTreePanel appTreePanel;
     private static JTree theTree;
     private static int theSelectionRow;
     private static AppMenuBar amb;
@@ -41,10 +42,11 @@ public class AppTreePanelTest {
         // multiple JMenuItem listeners with each new atp, and each test ran so
         // fast that not all of the listeners would have gone
         // away before they were activated by other tests, causing some confusion.
-        atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
 
-        atp.setNotifier(new TestUtil());
-        theTree = atp.getTree(); // Usage here means no unit test needed for getTree().
+        appTreePanel.setNotifier(new TestUtil());
+        theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
         amb = AppTreePanel.appMenuBar;
 
         // No significance to this value other than it needs to be a row that
@@ -55,16 +57,18 @@ public class AppTreePanelTest {
     }
 
     @AfterEach
-    void restit() throws InterruptedException {
+    void tearDown() throws InterruptedException {
         // These tests drive the app faster than it would go if it was only under user control.
         Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
     }
 
     @AfterAll
-    static void tearDown() {
+    static void meLast() {
         theTree = null;
         amb = null;
+        appTreePanel.restoringPreviousSelection = false;
     }
+
     @Test
     void testDeepClone() {
         theTree.setSelectionRow(theSelectionRow);
@@ -85,7 +89,7 @@ public class AppTreePanelTest {
     // selection is null and if so, this could need rework.
     @Test
     void testShowAbout() {
-        JTree theTree = atp.getTree();
+        JTree theTree = appTreePanel.getTree();
         int[] theRows;
 
         // Make a selection - actual row content does not matter.
@@ -97,7 +101,7 @@ public class AppTreePanelTest {
         assert(theRows[0] == theSelectionRow);
 
         // Ok, now show the About graphic
-        atp.showAbout();
+        appTreePanel.showAbout();
 
         // And verify that we no longer have a tree selection.
         theRows = theTree.getSelectionRows(); // Second reading
@@ -108,7 +112,7 @@ public class AppTreePanelTest {
 
     @Test
     void testShowDay() {
-        atp.showDay();
+        appTreePanel.showDay();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Day Notes");
@@ -118,16 +122,16 @@ public class AppTreePanelTest {
     void testShowFoundIn() throws Exception {
         SearchResultData mySrd = new SearchResultData(new NoteData());
         mySrd.setFileFoundIn(new File("2008/Y_20190301095623"));
-        atp.showFoundIn(mySrd);
+        appTreePanel.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
         mySrd.setFileFoundIn(new File("2008/M02_20190208182959"));
-        atp.showFoundIn(mySrd);
+        appTreePanel.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
         mySrd.setFileFoundIn(new File("2008/D0927_20170927175850"));
-        atp.showFoundIn(mySrd);
+        appTreePanel.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
         mySrd.setFileFoundIn(new File("todo_Long Term.json"));
-        atp.showFoundIn(mySrd);
+        appTreePanel.showFoundIn(mySrd);
     }
 
 
@@ -230,7 +234,8 @@ public class AppTreePanelTest {
 
     @Test
     void testShowMonth() {
-        atp.showMonth(LocalDate.now());
+        appTreePanel.setViewedDate(LocalDate.now(), ChronoUnit.MONTHS);
+        appTreePanel.showMonthView();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Month View");
@@ -239,7 +244,7 @@ public class AppTreePanelTest {
 
     @Test
     void testShowToday() {
-        atp.showToday();
+        appTreePanel.showToday();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         // Not sure what else to look for, here.  We would need to know what view
@@ -250,7 +255,7 @@ public class AppTreePanelTest {
 
     @Test
     void testShowWeek() {
-        atp.showWeek(LocalDate.now());
+        appTreePanel.showWeek(LocalDate.now());
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Week View");
@@ -272,7 +277,7 @@ public class AppTreePanelTest {
         assert Objects.requireNonNull(theTree.getSelectionPath()).getLastPathComponent().toString().equals(theSearchResult);
 
         // Now close it.
-        atp.closeGroup();
+        appTreePanel.closeGroup();
 
         // And verify that the file for it is gone.
         String filename = MemoryBank.userDataHome + File.separatorChar + theSearchResult + ".sresults";

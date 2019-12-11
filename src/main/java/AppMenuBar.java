@@ -37,7 +37,7 @@ public class AppMenuBar extends JMenuBar{
         eventsMenu.add(new JMenuItem("Save As..."));
         eventsMenu.add(new JMenuItem("Clear All"));
 
-        viewsMenu = new JMenu("List");
+        viewsMenu = new JMenu("View");
         viewsMenu.add(new JMenuItem("Today"));
 
         notesMenu = new JMenu("List");
@@ -92,6 +92,7 @@ public class AppMenuBar extends JMenuBar{
         switch (selectionContext) {
             case "Year View":
             case "Month View":
+            case "Week View":
                 theMenu = viewsMenu;
                 break;
             case "Day Notes":
@@ -142,6 +143,7 @@ public class AppMenuBar extends JMenuBar{
         switch (theCurrentContext) {
             case "Year View":  // Year View
             case "Month View":  // Month View
+            case "Week View":
                 viewsMenu.setVisible(true);
                 break;
             case "Day Notes":  // Day Notes

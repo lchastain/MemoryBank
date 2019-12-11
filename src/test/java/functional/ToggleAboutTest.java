@@ -1,12 +1,9 @@
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.swing.*;
 
 class ToggleAboutTest {
-    private static AppTreePanel atp;
+    private static AppTreePanel appTreePanel;
     private int theSelectionRow;
     private AppMenuBar amb;
 
@@ -15,7 +12,8 @@ class ToggleAboutTest {
         // The problem with just having this in the BeforeEach was that we started
         // multiple JMenuItem listeners and not all of them would go away before
         // they were activated by other tests, causing much confusion.
-        atp = new AppTreePanel(new JFrame(), new AppOptions());
+        appTreePanel = new AppTreePanel(new JFrame(), new AppOptions());
+        appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
     }
 
     @BeforeEach
@@ -35,12 +33,17 @@ class ToggleAboutTest {
         Thread.sleep(200); // Otherwise we see NullPointerExceptions after tests pass.
     }
 
+    @AfterAll
+    static void meLast() {
+        appTreePanel.restoringPreviousSelection = false;
+    }
+
     // Test that showing the About graphic will do that, and then
     // if selected again and it is already showing, it will go
     // back to the previous tree selection.
     @Test
     void testShowAboutToggle() {
-        JTree theTree = atp.getTree();
+        JTree theTree = appTreePanel.getTree();
         int[] theRows;
 
         // Make a selection - actual row content does not matter.
@@ -64,7 +67,7 @@ class ToggleAboutTest {
         assert(theRows[0] == theSelectionRow);
 
         // Ok, now show the About graphic
-        atp.showAbout();
+        appTreePanel.showAbout();
 
         // And verify that we no longer have a tree selection.
         theRows = theTree.getSelectionRows(); // Second reading
@@ -73,7 +76,7 @@ class ToggleAboutTest {
 
         // And now select 'About' again, even though it's already showing.
         // This is what activates the 'toggle' functionality.
-        atp.showAbout();
+        appTreePanel.showAbout();
 
         // And then verify that the 'toggle' feature worked, to put us back
         // to the tree selection that was made earlier.

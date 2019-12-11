@@ -18,7 +18,7 @@ public class MonthViewMain {
         //ld = LocalDate.of(1582, 10, 30);  // Other European (first)
         //ld = LocalDate.of(2019, 9, 18);
         MonthView mv = new MonthView(ld);
-        //mv.setChoice(LocalDate.of(2018, 9, 2));
+        //mv.setDate(LocalDate.of(2018, 9, 2));
 
         JFrame f = new JFrame("Month View Test");
         f.addWindowListener(new WindowAdapter() {

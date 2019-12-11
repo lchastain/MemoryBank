@@ -182,13 +182,13 @@ public abstract class NoteGroup extends JPanel {
     // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
     // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
     private void adjustMenuItems(boolean b) {
-        if(myListMenu == null) return; // Too soon.  Come back later.
+        if (myListMenu == null) return; // Too soon.  Come back later.
 
         // And now we adjust the Menu -
         JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-        if(theUndo != null) theUndo.setEnabled(b);
+        if (theUndo != null) theUndo.setEnabled(b);
         JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-        if(theSave != null) theSave.setEnabled(b);
+        if (theSave != null) theSave.setEnabled(b);
     }
 
     static String basePath(String areaName) {
@@ -222,10 +222,10 @@ public abstract class NoteGroup extends JPanel {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
 
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
-            System.out.println("Getting component " + i);
+            //System.out.println("Getting component " + i);
             NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-            System.out.println("  initialized: " + tempNote.initialized);
-            if(i==0) {
+            //System.out.println("  initialized: " + tempNote.initialized);
+            if (i == 0) {
                 System.out.println("breakpoint");
             }
 
@@ -235,7 +235,8 @@ public abstract class NoteGroup extends JPanel {
             // so that they can first clear their own components.  After that, they still
             // call super.clear() which will clear the parent component and then call the
             // data-clearing method (also overridden, also calls its super).
-            if (tempNote.initialized) tempNote.clear();  // The base NoteComponent clear method sets initialized to false.
+            if (tempNote.initialized)
+                tempNote.clear();  // The base NoteComponent clear method sets initialized to false.
 
         } // end for
         lastVisibleNoteIndex = -1; // This helps, when going to save (delete) an associated file.
@@ -517,7 +518,7 @@ public abstract class NoteGroup extends JPanel {
             //   That behavior is critical to this operation.
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
 
-            if(dataIndex <= endIndex) { // Put vector data into the interface.
+            if (dataIndex <= endIndex) { // Put vector data into the interface.
                 MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
                 tempNoteComponent.setNoteData(groupDataVector.elementAt(dataIndex));
                 tempNoteComponent.setVisible(true);
@@ -534,7 +535,7 @@ public abstract class NoteGroup extends JPanel {
                 // final page four.  Instead, we first give the noteComponent a new data object,
                 // then instruct it to update its appearance based on the new data and go back
                 // to being 'un' initialized.
-                if(tempNoteComponent.initialized) {
+                if (tempNoteComponent.initialized) {
                     MemoryBank.debug("  clearing panel index " + panelIndex);
                     tempNoteComponent.makeDataObject(); // This is an effective 'clear' of the component.
                     tempNoteComponent.resetComponent();
@@ -750,7 +751,7 @@ public abstract class NoteGroup extends JPanel {
             theGroup[0] = trimmedList;
         } // end if there is a properties object
 
-        if(saveWithoutData) {
+        if (saveWithoutData) {
             // We save a file, with data or not.
             notesWritten = AppUtil.saveNoteGroupData(groupFilename, theGroup);
         } else {
@@ -1006,23 +1007,17 @@ public abstract class NoteGroup extends JPanel {
     //   the calling context should first call 'preClose'.
     //----------------------------------------------------
     public void updateGroup() {
-      System.out.println("pre clearPage");
         clearPage(); // Clears the data (not Components) from the interface.
-      System.out.println("post clearPage");
 
         // This is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition
         //   that may be in effect during a 'refresh' which would
         //   cause the higher numbered page to be loaded with page
         //   one data.
-      System.out.println("pre theNotePager.reset");
         theNotePager.reset(1);
-      System.out.println("post theNotePager.reset");
 
-      System.out.println("pre loadGroup");
-      loadGroup();      // Loads the data array and interface.
+        loadGroup();      // Loads the data array and interface.
         // (groupChanged is set to false at the end of loadInterface)
-      System.out.println("post loadGroup");
 
         // Also needed AFTER loadGroup, to examine the correct size
         //   of the vector and determine the total number of pages.

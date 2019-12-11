@@ -4,26 +4,31 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 class EventAgingTest {
 
     @BeforeAll
-    static void setup() throws IOException {
+    static void setup() {
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.debug = true;
 
         // Remove any pre-existing Test data
         File testDataLoc = new File(MemoryBank.userDataHome);
-        FileUtils.cleanDirectory(testDataLoc);
+        try {
+            FileUtils.cleanDirectory(testDataLoc);
+        } catch (Exception e) {
+            System.out.println("ignored Exception: " + e.getMessage());
+        }
+
     }
 
-    @Test
     // Verify that events are copied to the right Days and that it happens only once
     // regardless of how many times 'refresh()' is called.  SCR0029, SCR0082
+    @Test
+    @SuppressWarnings("rawtypes")
     void testAgeOffStopAfter() throws Exception {
         // Retrieve fresh test data from test resources.
         // We don't want a full set of data for these tests; just the UpcomingEvents.

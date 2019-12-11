@@ -196,7 +196,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 
 
     // This is called from AppTreePanel.
-    public void setChoice(LocalDate theNewChoice) {
+    public void setDate(LocalDate theNewChoice) {
         if (blnNoteAdded) {
             // This ensures that we will reload the day, even
             //   if it is already currently loaded.
@@ -206,9 +206,9 @@ public class DayNoteGroup extends CalendarNoteGroup
             if (dtf.format(theChoice).equals(dtf.format(theNewChoice))) return;
         } // end if
 
-        super.setChoice(theNewChoice); // setChoice is in CalendarNoteGroup.
+        super.setDate(theNewChoice); // setDate is in CalendarNoteGroup.
         updateHeader();
-    } // end setChoice
+    } // end setDate
 
 
     //----------------------------------------------------

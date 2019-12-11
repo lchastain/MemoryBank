@@ -30,7 +30,7 @@ class ReuseNoteTest {
 
         // Set the day to one where the note content can be used for this test.
         // (we know there are 10 notes for this user on 8 June 2010).
-        dayNoteGroup.setChoice(LocalDate.of(2019, 6, 8));
+        dayNoteGroup.setDate(LocalDate.of(2019, 6, 8));
 
         // Get a component to clear, and clear it.
         // This note has a time, an extended note, and an icon

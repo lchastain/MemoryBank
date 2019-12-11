@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class YearView extends JPanel implements ActionListener {
@@ -30,14 +31,14 @@ public class YearView extends JPanel implements ActionListener {
     private JPanel yearPanel;
     private int theYear;            // numerous
     private YearBox yearBox;        // BottomPanel constructor
-    private static DateTimeFormatter dtf;
+    static DateTimeFormatter dtf;
     private AppTreePanel appTreePanel = null;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-16");
     private static Font noDataFont = Font.decode("Dialog-plain-14");
     private boolean[][] hasDataArray;
-    private JDialog jdTheDialog;
+    private JDialog dateSelectionDialog;
     private int intNumSelections;
     private int intSelectionCount;
     private JButton todayButton;
@@ -66,7 +67,7 @@ public class YearView extends JPanel implements ActionListener {
     YearView(LocalDate initial) {
         //  @SuppressWarnings("MagicConstant")
         super(new BorderLayout());
-        jdTheDialog = null;
+        dateSelectionDialog = null;
         choice2 = null;
         intSelectionCount = 0;
 
@@ -89,6 +90,7 @@ public class YearView extends JPanel implements ActionListener {
                 titleLabel.setText("Year " + theYear);
 
                 recalc(theYear);
+                if(appTreePanel != null) appTreePanel.setViewedDate(LocalDate.of(theYear, 1, 1), ChronoUnit.YEARS);
             } // end mouseClicked
         };// end of new MouseAdapter
 
@@ -155,6 +157,7 @@ public class YearView extends JPanel implements ActionListener {
     // Handler for the 'Today' button.
     public void actionPerformed(ActionEvent e) {
         setChoice(LocalDate.now());
+        if(appTreePanel != null) appTreePanel.setSelectedDate(theChoice);
     } // end actionPerformed
 
 
@@ -168,6 +171,11 @@ public class YearView extends JPanel implements ActionListener {
     //   the second choice.
     LocalDate getChoice2() {
         return choice2;
+    }
+
+    // Used by tests
+    String getChoiceLabelText() {
+        return choiceLabel.getText().trim();
     }
 
     // This is my own conversion, to numbers that matched these
@@ -194,6 +202,8 @@ public class YearView extends JPanel implements ActionListener {
         return -1;
     }
 
+    int getYear() { return theYear; }
+
     public void recalc(int year) {
         // Look for new day data, for color/font setting.
         hasDataArray = AppUtil.findDataDays(year);
@@ -212,21 +222,29 @@ public class YearView extends JPanel implements ActionListener {
         }
     } // end recalc
 
-    // Called by an external controlling context.
-    public void setChoice(LocalDate theNewChoice) {
-        if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
-        if (theNewChoice == null) {
-            theChoice = LocalDate.now();
-            intSelectionCount = 0;
-        } else {
-            theChoice = theNewChoice;
-            intSelectionCount = 1;
-        }
-        theYear = theChoice.getYear();
-        titleLabel.setText("Year " + theYear);
-        yearBox.select(String.valueOf(theYear));
-        recalc(theYear);
 
+    public void setChoice(LocalDate theNewChoice) {
+        // This must be done at a higher level than MonthCanvas recalc (where it may be turned back on) because
+        // that recalc will happen for all 12 months of any given year, not just the year/month with the active day.
+        if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
+
+        // When this panel is used as a dialog, a null setting of the choice is allowed.
+        // But to interleave that functionality with the 'main' usage, we need to have a valid date to show,
+        // so we use the current date until we've gotten past the 'view' code, then afterwards handle it properly.
+        // TODO - see if this can be done better, without having to set the view at all, given that it is a null anyway.
+        //  It may be possible because now, choice setting can be done separately of the view (but it isn't, here) (yet?).
+        if (theNewChoice == null) {  // Only happens when this is a dialog.
+            theChoice = LocalDate.now();
+            intSelectionCount = 0;   // Used to control dialog visibility
+        } else { // Normal usage, AND dialog usage.
+            theChoice = theNewChoice;
+            intSelectionCount = 1;   // Used to control dialog visibility
+        }
+
+        setView(theChoice);
+
+        // More adjustments to handle the 'un-' setting of the choice.
+        // Maybe this could all be done instead with a new 'unsetChoice' method?
         if (theNewChoice == null) {
             activeDayLabel.reset();
             theChoice = null;
@@ -235,7 +253,7 @@ public class YearView extends JPanel implements ActionListener {
 
 
     public void setDialog(JDialog jd, int numSelections) {
-        jdTheDialog = jd;
+        dateSelectionDialog = jd;
         intNumSelections = numSelections;
         todayButton.setVisible(true);
     } // end setDialog
@@ -243,6 +261,15 @@ public class YearView extends JPanel implements ActionListener {
     void setParent(AppTreePanel atp) {
         appTreePanel = atp;
     }
+
+    void setView(LocalDate viewDate) {
+        if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
+        theYear = viewDate.getYear();
+        titleLabel.setText("Year " + theYear);
+        yearBox.select(String.valueOf(theYear));
+        recalc(theYear);
+    } // end setView
+
 
     public class MonthCanvas extends JPanel {
         private static final long serialVersionUID = 1L;
@@ -270,7 +297,8 @@ public class YearView extends JPanel implements ActionListener {
                 public void mousePressed(MouseEvent e) {
                     if (appTreePanel == null) return;
                     myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
-                    appTreePanel.showMonth(myDate);
+                    appTreePanel.setViewedDate(myDate, ChronoUnit.MONTHS);
+                    appTreePanel.showMonthView();
                 } // end mousePressed
             });//end addMouseListener
             monthHeader.add(tempLabel);
@@ -341,7 +369,7 @@ public class YearView extends JPanel implements ActionListener {
 
             boolean rollover = false;
 
-            // Cycle thru all the (possible) days in our month layout.
+            // Cycle thru all the slots (potential days) in our month layout.
             for (int i = 1; i <= 37; i++) {
 
                 // 'blank' days in the first row, before the 1st of the month.
@@ -356,21 +384,17 @@ public class YearView extends JPanel implements ActionListener {
                     continue;
                 } // end if
 
-                // Label this day
+                // Get the component (a DayLabel) for the layout slot currently under consideration
                 tmpDayLabel = (DayLabel) monthMatrix.getComponent(i - 1);
+
+                // Associate a specific Date with the DayLabel in the current layout slot
                 tmpDayLabel.setDay(tmpLocalDate);
 
-                // If this day is the current choice then highlight it.
+                // If this Date is the current choice then highlight it.
                 if (null != theChoice && theChoice.isEqual(tmpLocalDate)) {
                     // If the choice is this day -
                     activeDayLabel = tmpDayLabel;
                     activeDayLabel.highlight();
-
-                    // today is only used in the handler for the 'Today'
-                    // button.  Although we set it here to the value of
-                    // the current choice which may not really be 'today',
-                    // that handler will detect that and call this method
-                    // again with the correct choice.
                 } // end if
 
                 // Rollover test - if true, then we just processed the last visible day of this month.
@@ -457,7 +481,13 @@ public class YearView extends JPanel implements ActionListener {
                     if (intSelectionCount > 0) intSelectionCount--;
                 } // end if
             } else {
-                choice2 = theChoice;  // TODO need to verify this is working...
+                // Both theChoice and choice2 are set to the same value each time so this might look confusing.
+                // But this only happens when a calling context is using this panel as a date-range selection
+                // UI and in that case it will show the dialog twice.  That calling context is responsible for
+                // preserving the first (theChoice) date in a separate variable, before showing the dialog the
+                // second time in order to set and retrieve choice2, so separation of the values is done there,
+                // not here.
+                choice2 = theChoice;  // TODO verify this is working - date ranges are set by SearchPanel
                 theChoice = myDate;
                 intSelectionCount++;
                 // System.out.println("Choice is: " + choice);
@@ -468,14 +498,17 @@ public class YearView extends JPanel implements ActionListener {
                 activeDayLabel = this;
                 activeDayLabel.highlight();
 
-                // If the YearView is acting as a choice selection dialog -
-                if (jdTheDialog != null) {
+                // If the YearView is acting as a date selection dialog -
+                if (dateSelectionDialog != null) {
                     if (intSelectionCount >= intNumSelections) {
                         System.out.println("intSelectionCount = " + intSelectionCount);
-                        jdTheDialog.setVisible(false);
+                        dateSelectionDialog.setVisible(false);
                     }
-                } // end if there is a dialog
+                    return;
+                } // end if this is a dialog
+
                 if (appTreePanel == null) return;
+                appTreePanel.setSelectedDate(theChoice);
                 if (e.getClickCount() == 2) appTreePanel.showDay();
             } // end if/else
         } // end mousePressed

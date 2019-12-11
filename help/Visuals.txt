@@ -1,24 +1,26 @@
 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-List of all supported capabilities of the Memory Bank app -
-(format here will almost certainly change; this is just to get us started - 9/8/2019)
+List of the various visual components of the Memory Bank app -
 
-Visually, the app is MenuBar over a SplitPane.  The description of menu items will be
-    given below, in the areas where they are applicable.  This is because menu choices
-    appear conditionally, dependent on actions taken on the control below the bar in the
-    left side of the pane.  The left side shows a content navigation tree, with selectable
-     nodes that control the content of the right side.  The nodes all have descriptive
-     names so that user selection should be intuitive.  Tree branches are expandable and
-     collapsible, and their state is retained between program runs, as well as the last
-     selection that was made.   Depending on the selected left-side tree node, the right
-     side displays several different components, described below.
+The app consists of a menubar over a vertically split pane.  In the left side of the split
+    pane is an application navigation tree that controls the content of the right side of
+    the split pane as well as the available choices on the menubar.  The navigation tree
+    has selectable branches and leaves (nodes) with descriptive names so that user
+    selection is intuitive.  A listing of the available nodes is given below, along with
+    the descriptions of the associated right-side panels.  Menu options are detailed in
+    the Controls document.
 
-Tree Branch Editors - These allow selection and deselection of the branch content to
-    appear in the tree, as well as naming and order.  Associated data files may also be
-    deleted.  Currently there are three supported, for the management of:
-        Upcoming Events
-        Todo Lists
-        Search Results
+Tree Nodes:
+==================================================
+Upcoming Events - This is a branch of the tree whose leaves correspond to Event Note
+    Groups (described further below).  When this branch is selected the right side of the
+    pane displays an editor where those groups on the branch may be managed.  This is one
+    of three (so far) Branch Editors.  See the Branch Editors info for the full
+    explanation of 'managed'.
+
+To Do Lists
+
+Search Results
 
 Tree Branch Views - Currently there are two; Notes and Calendar.  No real functionality here;
     just an additional branch view of that part of the tree, but for behavioral
@@ -31,17 +33,19 @@ Upcoming Events -
 Goals - nothing going on here, yet.
 
 Year View - View a Calendar Year, one year per page, scrollable
-    Which year is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
-        for incrementing and decrementing the display by one Year.
+    Which year is initially shown in the UI is described in Date Tracking
     Initial / Current date selection is shown with a red label and bold red highlight of the numeric date.
-    A single left-click on a date will select it, changing the choice label and date highlighting.
-    A single right-click on a selected date will deselect it.  The choice label goes away.
 
-Month View - View a Calendar Month, one month per page, scrollable
-    Which month is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
-        for incrementing and decrementing the display by one Month.
+Month View - View of a (US-style) Calendar Month
+    Which month is initially shown in the UI is described in Date Tracking
 
-Day Notes   - Make / Edit / Keep time/day based notes, with optional associated icons
+Day Notes   - Make / Edit / Keep up to PAGE_SIZE number of notes associated with a specific date.
+    Each note has:
+        A line of text shown in a (x character) text field that can scroll horizontally to hold up to x characters
+        An optional time field
+
+        , with optional associated icons
+    Shows up to PAGE_SIZE number of notes for
     Which day is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
         for incrementing and decrementing the display by one Day.
     The UI shows up to 40 notes in a day.
@@ -64,6 +68,8 @@ ToDo Lists  - Make / Edit / Manage multiple named Todo Lists
     A Todo list item may be moved to the DayNote of its related Date, if it has one  (via its contex menu)
     A Todo list item may be copied or moved to any other NoteGroup type (via its contex menu)
 
+==================================================
+
 Perform a search of all user data, save resulting list and display
     search can be keyword or date-based
     results file name containing JSON data has the format:  search_<timestamp>.json
@@ -71,3 +77,10 @@ Perform a search of all user data, save resulting list and display
     more than 40 results will be 'paged'
 
 
+Branch Editors - These allow selection and deselection of the branch content to
+    appear in the tree, as well as naming and order.  Associated data files may also be
+    deleted.
+
+Tree branches are
+    expandable and collapsible, and their state is retained between program runs, as well
+    as the last selection that was made.

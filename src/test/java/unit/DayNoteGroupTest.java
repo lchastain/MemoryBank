@@ -24,7 +24,7 @@ class DayNoteGroupTest {
 
     @Test
     void testSetChoice() {
-        dng.setChoice(LocalDate.now());
+        dng.setDate(LocalDate.now());
     }
 
     @Test

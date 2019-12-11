@@ -69,8 +69,8 @@ class TodoItemFocusTest {
         // previously selected month in the center.
         todoNoteComponent4.setActive();
 
-        try {
-            Thread.sleep(800);
+        try { // A small amount of time is needed, to affect the focus change
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -83,9 +83,9 @@ class TodoItemFocusTest {
 
         // Now, make a new Date selection on the Three Month Column.
         // We are changing the base date of the TMC by setting a new choice, but
-        // the test should probably use the arrows, because those arrows could also take focus away from
+        // the test should probably use the arrows, because those arrows could also take focus
         //                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // the todoItem (except that I have coded them NOT to).
+        // away from the todoItem (except that I have coded them NOT to).
         // For that, we need to set Dates that are a certain known and constant distance apart, cannot
         // just lazily use 'today' as the new selection date.
 

@@ -2,6 +2,7 @@
  */
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -10,6 +11,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Vector;
 
 public class MonthView extends JLayeredPane {
@@ -22,16 +24,15 @@ public class MonthView extends JLayeredPane {
 
     // No need to have more than one of the vars below (so static),
     // but need them to be visible to more than one method here.
-    private static String[] monthNames;
     private static String[] dayNames;
     private static JPanel monthGrid;
-    private static DateTimeFormatter dtf;
+    static DateTimeFormatter dtf;
     private static LocalDate theChoice;
     private static Color hasDataColor = Color.blue;
     private static Color noDataColor = Color.black;
     private static Font hasDataFont = Font.decode("Dialog-bold-20");
     private static Font noDataFont = Font.decode("Dialog-bold-16");
-    private static LocalDate displayedMonth;  // Of course it also holds a year and date
+    static LocalDate displayedMonth;  // Of course it also holds a year and date
 
     // Variables needed by more than one method -
     private DayCanvas activeDayCanvas;   // recalc, event handling
@@ -48,11 +49,6 @@ public class MonthView extends JLayeredPane {
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
 
-        // Initialize month names.
-        monthNames = new String[]{"January", "February", "March",
-                "April", "May", "June", "July", "August", "September",
-                "October", "November", "December"};
-
         // Initialize day of week names.
         dayNames = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday",
                 "Thursday", "Friday", "Saturday"};
@@ -64,17 +60,15 @@ public class MonthView extends JLayeredPane {
         theChoice = null;
     } // end static
 
-    //--------------------------------------------------------------------
-    // The MonthView constructors -
-    //
-    //--------------------------------------------------------------------
     MonthView() {
         this(LocalDate.now());
     }
 
-    MonthView(LocalDate initial) {
+    MonthView(LocalDate initialChoice) {
         super();
-        displayedMonth = initial;
+        displayedMonth = initialChoice;
+//        setChoice(initialChoice); // We need to do it this way, so we also get the right 'choice' label.
+        theChoice = initialChoice;
 
         minSize = new Dimension(480, 200);  // 450
         // The values of minSize were derived simply by T&E.
@@ -107,23 +101,19 @@ public class MonthView extends JLayeredPane {
             monthGrid.add(new DayCanvas());
         } // end for i
 
-//        int initialYear = initial.getYear();
-//        int initialMonth = initial.getMonthValue() - 1;
-
-//        visibleYear = initialYear;
-//        visibleMonth = initialMonth;
-//        hasDataArray = AppUtil.findDataDays(visibleYear);
-
         monthCanvas = new MonthCanvas();
         monthCanvas.setBorder(theBorder);
 
         choiceLabel = new JLabel();
         choiceLabel.setFont(Font.decode("Dialog-bold-18"));
         choiceLabel.setForeground(Color.red);
+        setChoiceLabel();
 
+        // Respond to a click on the choiceLabel, to set the view back to the
+        // month of the selected date (if/when the view is on a different month)
         MouseAdapter ma = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                setChoice(theChoice);
+                setView(theChoice);
             } // end mouseClicked
         };// end of new MouseAdapter
         choiceLabel.addMouseListener(ma);
@@ -136,7 +126,8 @@ public class MonthView extends JLayeredPane {
         add(monthCanvas, new Integer(0));
         add(choiceLabel, new Integer(1));
 
-        setChoice(initial); // The choice will not always be the displayedMonth.
+        setView(initialChoice); // The choice will not always be the displayedMonth.
+        MonthView.this.setLabelBounds(); // adjust the label.
     } // end constructor
 
 
@@ -211,6 +202,11 @@ public class MonthView extends JLayeredPane {
         return theChoice;
     }
 
+    // Used by tests
+    String getChoiceLabelText() {
+        return choiceLabel.getText().trim();
+    }
+
     public void setChoice(LocalDate theNewChoice) {
         // Was tempted (for better performance) to avoid the recalc, if the new choice was still on the same month
         // as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have been
@@ -226,19 +222,25 @@ public class MonthView extends JLayeredPane {
 
         // Accept the new value (other than null)
         theChoice = theNewChoice;
-//        visibleYear = MonthView.theChoice.getYear();
         hasDataArray = AppUtil.findDataDays(theChoice.getYear());
-//        visibleMonth = theNewChoice.getMonthValue() - 1; // Adjusted (for now) to the old zero-based value.
         displayedMonth = theChoice;
-        monthCanvas.recalc(theChoice); // only way to find the day object
-    } // end setChoice
+        setChoiceLabel();
+
+        // Highlight the selected day, IF it appears in the currently displayed month.
+        monthCanvas.recalc(); // only way to find the day object
+    } // end setDate
+
+    void setChoiceLabel() {
+        choiceLabel.setText(dtf.format(theChoice) + " ");
+        setLabelBounds(); // adjust the label.
+    }
 
     public void setView(LocalDate theNewMonthToView) {
         activeDayCanvas.reset(); // Turn off any previous highlighting.
 
         hasDataArray = AppUtil.findDataDays(theNewMonthToView.getYear());
         displayedMonth = theNewMonthToView;
-        monthCanvas.recalc(theNewMonthToView); // only way to find the day object
+        monthCanvas.recalc(); // only way to find the day object
     } // end setView
 
     private void setLabelBounds() {
@@ -280,14 +282,13 @@ public class MonthView extends JLayeredPane {
 
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
+                    if(appTreePanel != null) appTreePanel.setViewedDate(displayedMonth, ChronoUnit.MONTHS);
 
-//                    visibleMonth = displayedMonth.getMonthValue() - 1;
                     // If we have scrolled into a new year, we need to update the 'hasData' info.
                     if (currentYear != displayedMonth.getYear()) {
-//                        visibleYear = displayedMonth.getYear();
                         hasDataArray = AppUtil.findDataDays(displayedMonth.getYear());
                     } // end if
-                    monthCanvas.recalc(displayedMonth);
+                    monthCanvas.recalc();
                 } // end mouseClicked
             };// end of new MouseAdapter
 
@@ -348,18 +349,21 @@ public class MonthView extends JLayeredPane {
             add(monthGrid, BorderLayout.CENTER);
         } // end constructor
 
-        public void recalc(LocalDate theDate) {
+        public void recalc() {
             DayCanvas tempDayCanvas;
-            String labelText;
+            String theMonthName, labelText;
 
             // Generate new title with month and year.
-            labelText = monthNames[theDate.getMonthValue() - 1] + " " + theDate.getYear();
+            theMonthName = WordUtils.capitalizeFully(displayedMonth.getMonth().toString());
+            labelText = theMonthName + " " + displayedMonth.getYear();
+            MemoryBank.debug("Displayed Month: " + labelText);
             monthLabel.setText(labelText);
 
             // Get a temp date that we can advance a day at a time,
             //  both as a source for the DayCanvases below and for a rollover test.
             LocalDate tmpLocalDate = displayedMonth; // This gets us to the right year and month.
-            MemoryBank.debug("Displayed Month: " + tmpLocalDate.getMonth() + " " + tmpLocalDate.getYear());
+            // Since Java Dates are immutable, we don't lose the value of displayedMonth when we
+            // start adjusting the tmpLocalDate below, even though it looks like we are using a reference.
 
             // Get the day of the week of the first day.
             tmpLocalDate = tmpLocalDate.withDayOfMonth(1);
@@ -389,16 +393,20 @@ public class MonthView extends JLayeredPane {
                 // Highlight the current choice, if found in this month.
                 // For this to be true, we would have clicked the +/- buttons
                 //  to get back to this month, after having gone away.
-                if (theChoice.getYear() == tmpLocalDate.getYear() &&
-                        theChoice.getMonthValue() == tmpLocalDate.getMonthValue() &&
-                        theChoice.getDayOfMonth() == tmpLocalDate.getDayOfMonth()) {
-                    activeDayCanvas = tempDayCanvas;
-                    activeDayCanvas.highlight();
+                if(theChoice != null) {
+                    if (theChoice.getYear() == tmpLocalDate.getYear() &&
+                            theChoice.getMonthValue() == tmpLocalDate.getMonthValue() &&
+                            theChoice.getDayOfMonth() == tmpLocalDate.getDayOfMonth()) {
+                        activeDayCanvas = tempDayCanvas;
+                        activeDayCanvas.highlight();
+                    }
                 } // end if there is a choice
 
-                // Rollover test - if true, then this is the last day of this month.
+                // Go forward in time by one day.
                 tmpLocalDate = tmpLocalDate.plusDays(1);
-                if (displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
+
+                // If this is true then we went into next month.
+                if (MonthView.displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
 
             } // end for i
         } // end recalc
@@ -460,9 +468,7 @@ public class MonthView extends JLayeredPane {
         public void highlight() {
             dayLabel.setForeground(Color.red);
             dayLabel.setFont(Font.decode("Dialog-bold-24"));
-
-            choiceLabel.setText(dtf.format(theChoice) + " ");
-            MonthView.this.setLabelBounds(); // adjust the label.
+            setChoiceLabel(); // may not be needed here, if a call to it can be made from a better loc.
         } // end highlight
 
 
@@ -502,7 +508,9 @@ public class MonthView extends JLayeredPane {
 
         public void mousePressed(MouseEvent e) {
             theChoice = myDate;
-//            choice = cal.getTime();
+            if(appTreePanel != null) {
+                appTreePanel.setSelectedDate(theChoice);
+            }
             activeDayCanvas.reset();
             highlight();
             activeDayCanvas = this;
