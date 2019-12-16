@@ -13,7 +13,6 @@ import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 public class YearView extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -27,10 +26,10 @@ public class YearView extends JPanel implements ActionListener {
     private LocalDate choice2;      // when 2 choices are allowed
     private DayLabel activeDayLabel;            // recalc, event handling
     private JLabel titleLabel;       // constructor, event handling
+    private JTextField yearTextField;  // User entry of the year
     private JLabel choiceLabel;      // constructor, highlight
     private JPanel yearPanel;
     private int theYear;            // numerous
-    private YearBox yearBox;        // BottomPanel constructor
     static DateTimeFormatter dtf;
     private AppTreePanel appTreePanel = null;
     private static Color hasDataColor = Color.blue;
@@ -42,9 +41,14 @@ public class YearView extends JPanel implements ActionListener {
     private int intNumSelections;
     private int intSelectionCount;
     private JButton todayButton;
+    private boolean alterButtonDepressed;
+    private Depressed depressedThread;   // A Thread to keep responding
+
 
     private static final int borderWidth = 2;
     private static LineBorder theBorder;
+    private JPanel headerPanel;
+    private JPanel titlePanel;
 
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
@@ -77,50 +81,104 @@ public class YearView extends JPanel implements ActionListener {
         theYear = initial.getYear();
 
         MouseAdapter alterButtonHandler = new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
+                if (alterButtonDepressed) depressedThread.stopit();
+                alterButtonDepressed = false;
+            } // end mouseExited
+
+            public void mousePressed(MouseEvent e) {
                 LabelButton source = (LabelButton) e.getSource();
-                String s = source.getText();
+                String s = source.getName();
+                int direction = 1;
+                if (s.equals("-")) direction = -1;
 
-                if (s.equals("-"))
-                    if (theYear > 1) theYear--;
-                if (s.equals("+"))
-                    if (theYear < 9999) theYear++;
+                alterButtonDepressed = true;
 
-                yearBox.select(String.valueOf(theYear));
-                titleLabel.setText("Year " + theYear);
+                // Since a Thread will die upon return from the run method,
+                //  need to start a new one each time.
+                depressedThread = new Depressed(direction);
+                depressedThread.start();
+            } // end mousePressed
 
-                recalc(theYear);
-                if(appTreePanel != null) appTreePanel.setViewedDate(LocalDate.of(theYear, 1, 1), ChronoUnit.YEARS);
-            } // end mouseClicked
+            public void mouseReleased(MouseEvent e) {
+                if (alterButtonDepressed) depressedThread.stopit();
+                alterButtonDepressed = false;
+            } // end mouseReleased
         };// end of new MouseAdapter
 
-        LabelButton prev = new LabelButton("-");
+        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
         prev.addMouseListener(alterButtonHandler);
         prev.setPreferredSize(new Dimension(28, 28));
         prev.setFont(Font.decode("Dialog-bold-14"));
 
-        LabelButton next = new LabelButton("+");
+        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
         next.addMouseListener(alterButtonHandler);
         next.setPreferredSize(new Dimension(28, 28));
         next.setFont(Font.decode("Dialog-bold-14"));
 
-        JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        p0.add(prev);
-        p0.add(next);
-        p0.add(new Spacer(25, 1));
+        JPanel alterButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        alterButtonsPanel.add(prev);
+        alterButtonsPanel.add(next);
 
         titleLabel = new JLabel("Year " + theYear);
         titleLabel.setFont(Font.decode("Serif-bold-20"));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setBackground(Color.lightGray);
+        titleLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                headerPanel.remove(titleLabel);
+                headerPanel.add(titlePanel, BorderLayout.CENTER);
+                headerPanel.revalidate();
+                headerPanel.repaint();
+            }
+        });
+        yearTextField = new JTextField(String.valueOf(theYear), 4);
+        yearTextField.setTransferHandler(null); // disables paste actions.
+        yearTextField.setFont(Font.decode("Serif-bold-18"));
+        yearTextField.setHorizontalAlignment(SwingConstants.CENTER);
+        yearTextField.setPreferredSize(new Dimension(25, 22));
+        yearTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent evt) {
+                super.keyTyped(evt);
+                char theChar = evt.getKeyChar();
 
-        yearBox = new YearBox(String.valueOf(initial.getYear()));
+                if(theChar == KeyEvent.VK_ENTER) {
+                    theYear = Integer.parseInt(yearTextField.getText());
+                    recalc(theYear);
+                    transferFocusUpCycle(); // Otherwise it holds on, and key mappings don't work no mo.
+                    headerPanel.remove(titlePanel);
+                    headerPanel.add(titleLabel, BorderLayout.CENTER);
+                    headerPanel.revalidate();
+                    headerPanel.repaint();
+                    evt.consume();
+                }
 
-        JPanel head1 = new JPanel(new BorderLayout());
-        head1.add(p0, "West");
-        head1.add(titleLabel, "Center");
-        head1.add(yearBox, "East");
-        add(head1, BorderLayout.NORTH);
+                // Disallow non-numerics
+                if(theChar < '0') evt.consume();
+                if(theChar > '9') evt.consume();
+
+                // Allow highlighted digits to be replaced
+                int sStart = yearTextField.getSelectionStart();
+                int sEnd = yearTextField.getSelectionEnd();
+                if(sEnd - sStart > 0) return;
+
+                // Allow up to 4 digits
+                if (yearTextField.getText().length() >= 4) evt.consume();
+            }
+        });
+        JLabel label4year = new JLabel("Year:");
+        label4year.setFont(Font.decode("Serif-bold-20"));
+        titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,4,0));
+        titlePanel.add(label4year);
+        titlePanel.add(yearTextField);
+
+        headerPanel = new JPanel(new BorderLayout());
+        headerPanel.add(alterButtonsPanel, BorderLayout.WEST);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        add(headerPanel, BorderLayout.NORTH);
 
         choiceLabel = new JLabel();
         choiceLabel.setFont(Font.decode("Dialog-bold-18"));
@@ -138,7 +196,7 @@ public class YearView extends JPanel implements ActionListener {
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         // Using a BorderLayout so that the choiceLabel can
-        //   take the 'center' and thereby expand/contract as needed.
+        //   take the center and thereby expand/contract as needed.
         todayButton = new JButton("Today");
         todayButton.setFont(Font.decode("DialogInput-bold-12"));
         todayButton.addActionListener(YearView.this);
@@ -146,11 +204,20 @@ public class YearView extends JPanel implements ActionListener {
         // This button now only needed when working as a dialog.
         todayButton.setVisible(false);
 
-        bottomPanel.add(todayButton, "West");
-        bottomPanel.add(choiceLabel, "Center");
+        bottomPanel.add(todayButton, BorderLayout.WEST);
+        bottomPanel.add(choiceLabel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
         recalc(theYear);
+
+        // Add key bindings to react to arrow keys
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),"upYear");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),"upYear");
+        getActionMap().put("upYear", new UpAction("upYear"));
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),"downYear");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),"downYear");
+        getActionMap().put("downYear", new DownAction("downYear"));
+
     } // end constructor
 
 
@@ -205,6 +272,10 @@ public class YearView extends JPanel implements ActionListener {
     int getYear() { return theYear; }
 
     public void recalc(int year) {
+        // Update the Year info
+        titleLabel.setText("Year " + theYear);
+        yearTextField.setText(String.valueOf(theYear));
+
         // Look for new day data, for color/font setting.
         hasDataArray = AppUtil.findDataDays(year);
 
@@ -222,33 +293,19 @@ public class YearView extends JPanel implements ActionListener {
         }
     } // end recalc
 
-
     public void setChoice(LocalDate theNewChoice) {
         // This must be done at a higher level than MonthCanvas recalc (where it may be turned back on) because
         // that recalc will happen for all 12 months of any given year, not just the year/month with the active day.
         if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
 
         // When this panel is used as a dialog, a null setting of the choice is allowed.
-        // But to interleave that functionality with the 'main' usage, we need to have a valid date to show,
-        // so we use the current date until we've gotten past the 'view' code, then afterwards handle it properly.
-        // TODO - see if this can be done better, without having to set the view at all, given that it is a null anyway.
-        //  It may be possible because now, choice setting can be done separately of the view (but it isn't, here) (yet?).
-        if (theNewChoice == null) {  // Only happens when this is a dialog.
-            theChoice = LocalDate.now();
+        theChoice = theNewChoice;
+        if (theChoice == null) {  // Only happens when this is a dialog.
             intSelectionCount = 0;   // Used to control dialog visibility
         } else { // Normal usage, AND dialog usage.
-            theChoice = theNewChoice;
             intSelectionCount = 1;   // Used to control dialog visibility
+            setView(theChoice);
         }
-
-        setView(theChoice);
-
-        // More adjustments to handle the 'un-' setting of the choice.
-        // Maybe this could all be done instead with a new 'unsetChoice' method?
-        if (theNewChoice == null) {
-            activeDayLabel.reset();
-            theChoice = null;
-        } // end if setting no selection
     } // end setChoice
 
 
@@ -265,8 +322,6 @@ public class YearView extends JPanel implements ActionListener {
     void setView(LocalDate viewDate) {
         if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
         theYear = viewDate.getYear();
-        titleLabel.setText("Year " + theYear);
-        yearBox.select(String.valueOf(theYear));
         recalc(theYear);
     } // end setView
 
@@ -518,86 +573,72 @@ public class YearView extends JPanel implements ActionListener {
 
     } // end DayLabel
 
-    class YearBox extends JPanel implements ItemListener {
-        private static final long serialVersionUID = 1L;
+    class Depressed extends Thread {
+        private int delay = 300; // milliseconds
+        private boolean iAmRunning;
+        private int direction;
 
-        JComboBox<String> y1;
-        JComboBox<String> y2;
-
-        YearBox(String init) {
-            super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-            y1 = new JComboBox<>();
-            y2 = new JComboBox<>();
-
-            String[] nums = {
-                    "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
-                    "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
-                    "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
-                    "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
-                    "40", "41", "42", "43", "44", "45", "46", "47", "48", "49",
-                    "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
-                    "60", "61", "62", "63", "64", "65", "66", "67", "68", "69",
-                    "70", "71", "72", "73", "74", "75", "76", "77", "78", "79",
-                    "80", "81", "82", "83", "84", "85", "86", "87", "88", "89",
-                    "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"};
-
-            for (String num : nums) {
-                y1.addItem(num);
-                y2.addItem(num);
-            } // end for i
-
-            select(init);
-
-            y1.setFont(Font.decode("DialogInput-bold-12"));
-            y2.setFont(Font.decode("DialogInput-bold-12"));
-
-            add(y1);
-            add(y2);
-
-            y1.addItemListener(this);
-            y2.addItemListener(this);
+        Depressed(int direction) {
+            super();
+            this.direction = direction;
+            iAmRunning = true;
         } // end constructor
 
-        public void select(String init) {
-            StringBuilder initBuilder = new StringBuilder(init);
-            while (initBuilder.length() < 4) initBuilder.insert(0, "0");
-            init = initBuilder.toString();
+        // A thread 'dies' upon return from run.
+        public void run() {
+            while (iAmRunning) {
 
-            y1.setSelectedItem(init.substring(0, 2));
-            y2.setSelectedItem(init.substring(2, 4));
-        } // end select
+                theYear += direction;
+                if(theYear > 9999) theYear = 1;
+                if(theYear < 1) theYear = 9999;
+                recalc(theYear);
 
-        // the ItemListener method of the YearBox
-        public void itemStateChanged(ItemEvent ie) {
-            int initialYear = theYear;
+                try {
+                    sleep(delay);  // milliseconds
+                } catch (InterruptedException ignored) {
+                }
+                if (delay > 50) delay -= 50;
+                // else delay = 0;  // This lets it go tooo fast.
+            } // end while
+        } // end run
 
-            String year = Objects.requireNonNull(y1.getSelectedItem()).toString() +
-                    Objects.requireNonNull(y2.getSelectedItem()).toString();
+        void stopit() {
+            iAmRunning = false;
+            if(appTreePanel != null) appTreePanel.setViewedDate(LocalDate.of(theYear, 1, 1), ChronoUnit.YEARS);
+        }
+    } // end class Depressed
 
-            theYear = Integer.parseInt(year);
+    public class UpAction extends AbstractAction
+    {
+        public UpAction(String name)
+        {
+            super(name);
+            putValue(SHORT_DESCRIPTION, "Increase the year");
+        }
 
-            if (initialYear == theYear) return; // selection does not represent a change.
-            // This happens every time the control is set externally - either by
-            //  a +/- key or the Today button.  By the time we arrive here to handle
-            //  the change, it's already where we want it to be.
-            // One other case - when we actually do handle this control changing,
-            //  it will be one of the two comboboxes.  The other combobox will
-            //  not need to handle the same event unless it is a rollover.
-
-            System.out.println("Year = " + year);
-
-            //int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-            if (theYear == 0) { // reset to current, if not valid
-                theYear = LocalDate.now().getYear();
-                select(String.valueOf(theYear));
-            } // end if
-
-            activeDayLabel.reset();     // turn off current choice highlight
-            titleLabel.setText("Year " + theYear);
+        public void actionPerformed(ActionEvent e)
+        {
+            theYear += 1;
+            if(theYear > 9999) theYear = 1;
             recalc(theYear);
+        }
+    }
 
-        } // end itemStateChanged
-    } // end class
+    public class DownAction extends AbstractAction
+    {
+        public DownAction(String name)
+        {
+            super(name);
+            putValue(SHORT_DESCRIPTION, "Decrease the year");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            theYear -= 1;
+            if(theYear < 1) theYear = 9999;
+            recalc(theYear);
+        }
+    }
 
 } // end class YearView
 

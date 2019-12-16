@@ -1,0 +1,49 @@
+https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html
+
+
+FlowLayout
+    FlowLayout is the default layout manager for every JPanel. It simply lays out components in a single row,
+    starting a new row if its container is not sufficiently wide.
+        Good for left or right justified, non-stretchable content.
+            new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+                    default hgap and vgap if not specified is 5, NOT zero.
+
+BorderLayout
+    Holds up to 5 components, in North, South, East, West, and Center.
+    The Center will stretch to fill the area.  The North and South components
+    fill the width so that they 'sandwich' the West, Center, and East.
+    If viewed as rows, you would see Row 1: North, Row 2: West, Center, East,
+    and Row 3: South
+        new BorderLayout();
+
+BoxLayout
+        new BoxLayout(container, direction);
+        It stretches
+
+GridLayout
+        GridLayout()     (defaults to 1,0,?,?)
+        GridLayout(int rows, int cols)
+        GridLayout(int rows, int cols, int hgap, int vgap)
+        Creates a grid layout with the specified number of rows and columns. All components in the layout are given
+        equal size. One, but not both, of rows and cols can be zero, which means that any number of objects can be
+        placed in a row or in a column.
+        (Used for MonthView, YearView, several other places)
+
+GridBagLayout
+
+CardLayout
+        This MAY be a better way to swap out panels - depends on whether or not you can 'see' the tabs but that comes
+        from a JTabbedPane, not the layout, so maybe...    Otherwise, the swapped panels need to be
+        revalidated/invalidated and repainted - see YearView headerPanel.  If CardLayout swaps don't need the repaint
+        and don't have extra visuals then this would be the better choice.
+
+GroupLayout
+
+SpringLayout
+    SpringLayout is very low-level and as such you really should only use it with a GUI builder, rather than
+    attempting to code a spring layout manager by hand.  (advice from the internet; not my own words).
+
+========================================================================
+DndLayout
+        My own, custom layout manager, for when a column needs to be dragged/dropped.
+        requires a 'header' row.

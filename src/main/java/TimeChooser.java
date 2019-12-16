@@ -266,10 +266,7 @@ public class TimeChooser extends JPanel implements ActionListener {
             else direction = 1;
 
             // Since a Thread will die upon return from the run method,
-            //  need to start a new one each time.  Do not want a thread
-            //  running but doing nothing but waiting for a mouse click
-            //  that might not come, in a program that is busy doing many
-            //  other things.
+            //  need to start a new one each time.
             dp = new Depressed(timeField, direction);
             dp.start();
         } // end mousePressed

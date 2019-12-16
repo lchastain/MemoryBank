@@ -198,14 +198,12 @@ public class ThreeMonthColumn extends JPanel {
             char c = java.io.File.separatorChar;
             String iString = MemoryBank.logHome + c + "images" + c;
 
-            downAb = new LabelButton();
+            downAb = new LabelButton("", LabelButton.DOWN);
             downAb.addMouseListener(ma);
-            downAb.setIcon(new ImageIcon(iString + "down.gif"));
             downAb.setPreferredSize(new Dimension(28, 28));
 
-            upAb = new LabelButton();
+            upAb = new LabelButton("", LabelButton.UP);
             upAb.addMouseListener(ma);
-            upAb.setIcon(new ImageIcon(iString + "up.gif"));
             upAb.setPreferredSize(new Dimension(28, 28));
 
             alterButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
