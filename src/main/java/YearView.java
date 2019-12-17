@@ -275,6 +275,9 @@ public class YearView extends JPanel implements ActionListener {
         // Update the Year info
         titleLabel.setText("Year " + theYear);
         yearTextField.setText(String.valueOf(theYear));
+        if(appTreePanel != null) {
+            appTreePanel.setViewedDate(theYear);
+        }
 
         // Look for new day data, for color/font setting.
         hasDataArray = AppUtil.findDataDays(year);
@@ -604,12 +607,13 @@ public class YearView extends JPanel implements ActionListener {
 
         void stopit() {
             iAmRunning = false;
-            if(appTreePanel != null) appTreePanel.setViewedDate(LocalDate.of(theYear, 1, 1), ChronoUnit.YEARS);
         }
     } // end class Depressed
 
     public class UpAction extends AbstractAction
     {
+        private static final long serialVersionUID = 1L;
+
         public UpAction(String name)
         {
             super(name);
@@ -626,6 +630,8 @@ public class YearView extends JPanel implements ActionListener {
 
     public class DownAction extends AbstractAction
     {
+        private static final long serialVersionUID = 1L;
+
         public DownAction(String name)
         {
             super(name);

@@ -33,10 +33,9 @@ All five panels can alter the Viewed Date via the controls on their interfaces
 
 3.  Month Notes
     When this node becomes active, the month shown is determined in this order of preference:
-        1.  The month from the Viewed Date (only if granularity is day or month)
+        1.  The month from the Viewed Date
             In many cases this will also be the Selected Date.  When it isn't, we would rather show the Viewed Date,
-               unless the user had been viewing years and hadn't specified which month of those years they were
-               looking at.
+               unless the user had been viewing years in which case we cannot get down to month granularity.
         2.  The month from the Selected Date
     Then the granularity of the viewed date is set to MONTHS.
     A new month may be viewed in this panel.  If it is, the Viewed Date is set to the new month.

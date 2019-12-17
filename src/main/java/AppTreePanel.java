@@ -76,7 +76,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
     private ChronoUnit viewedDateGranularity;
 
-    private String theLastTreeSelection;
     private DefaultMutableTreeNode theRootNode;
 
     // Predefined Tree Paths to 'leaf' nodes.
@@ -224,10 +223,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         restoringPreviousSelection = false;
 
-        TreePath tp = theTree.getSelectionPath();
-        if (tp != null) {
-            theLastTreeSelection = tp.getLastPathComponent().toString();
-        }
     } // end constructor for AppTreePanel
 
 
@@ -315,7 +310,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         NoteGroup theGroup = theNoteGroupKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
-            if(theGroup != null) { // It won't be, but IJ needs to be sure.
+            if (theGroup != null) { // It won't be, but IJ needs to be sure.
                 theNoteGroupKeeper.add(theGroup);
                 theGroup.setGroupChanged(true); // Save this empty group.
                 theGroup.preClose();
@@ -658,7 +653,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theUniqueSet.addAll(groupDataVector);
             }
         }
-        if(theUniqueSet == null) return null;
+        if (theUniqueSet == null) return null;
         groupDataVector = new Vector<>(theUniqueSet);
         theBigGroup.addNoteAllowed = false;
         theBigGroup.setGroupData(groupDataVector);
@@ -827,12 +822,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         String theContext = appMenuBar.getCurrentContext();
         switch (theContext) {
             case "Upcoming Event":
-                success =  ((EventNoteGroup) theNoteGroup).saveAs();
+                success = ((EventNoteGroup) theNoteGroup).saveAs();
                 groupParentPath = eventsPath;
                 theNoteGroupKeeper = theEventListKeeper;
                 break;
             case "To Do List":
-                success =  ((TodoNoteGroup) theNoteGroup).saveAs();
+                success = ((TodoNoteGroup) theNoteGroup).saveAs();
                 groupParentPath = todolistsPath;
                 theNoteGroupKeeper = theTodoListKeeper;
                 break;
@@ -1021,6 +1016,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         viewedDateGranularity = ChronoUnit.DAYS;
     }
 
+    void setViewedDate(int theYear) {
+        viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
+        viewedDateGranularity = ChronoUnit.YEARS;
+    }
+
     void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
         viewedDate = theViewedDate;
         viewedDateGranularity = theGranularity;
@@ -1184,16 +1184,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         if (tp == null) return; // Tree selection was cleared?
         // If the 'big' Today is already showing then there is no current tree selection.
-        // Decided not to do a toggle here because the original date choice was
-        // already lost as soon as they asked for 'today' the first time.  It may be
-        // more helpful to just remove the menu choice in this case, but this also works.
 
         String theCurrentView = tp.getLastPathComponent().toString();
         MemoryBank.debug("AppTreePanel.showToday() - current path: " + theCurrentView);
-
-        // Set the last tree selection to the current one so that the current choice update
-        // will take its value from the correct tree node.
-        theLastTreeSelection = theCurrentView;
 
         if (viewedDate.equals(LocalDate.now())) {
             theCurrentView = "Today";
@@ -1529,33 +1522,27 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(theYearView);
         } else if (theNodeString.equals("Month View")) {
 
-            // Decide which date (Selected or Viewed) that we should show.
-            // In most cases the Viewed date will already be set to the Selected date
-            // but when they differ it will be due to the user having adjusted the view
-            // while on a different date-related panel, without making a selection there
-            // before coming here.  So if the user was 'looking' at a different time
-            // period on that other panel and then came here, we should continue to
-            // show them that same time period, as long as here we have the same (or better) granularity.
-            // With only three granularity settings (currently) and DAYS keeps its Selected
-            // in sync with its Viewed, currently the only possibility where this happens is
-            // when coming here from MonthNotes (but that could change with future enhancements).
-
             if (theMonthView == null) {
                 // The MonthView must be constructed with the current choice.
                 // At least until after the choice label and selected day highlight are moved out of the construction path,
                 // which I do intend to do at some point.
                 theMonthView = new MonthView(selectedDate);
-
-                // And now, suppose it was just now constructed for a Selected Date that is months away from the Viewed Date
-                // that we expect to show right now -
-                if(!selectedDate.isEqual(viewedDate)) {
-                    theMonthView.setView(viewedDate);
-                }
-
                 theMonthView.setParent(this);
-            } else {  // The MonthView was previously constructed.  Now we need to put it to the right view AND choice.
+            } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
                 theMonthView.setChoice(selectedDate);
-                if(!selectedDate.isEqual(viewedDate)) {
+            }
+
+            // If the Selected date is not the same as the Viewed date, decide which one should be shown.
+            // When they differ it will be due to the user having adjusted the view
+            // while on a different date-related panel, without making a selection there
+            // before coming here.  So if the user was 'looking' at a different time
+            // period on that other panel and then came here, we should continue to
+            // show them that same time period here, as long as it was the same (or better) granularity.
+            // But with only three granularity settings (currently) and DAYS keeps its Selected
+            // in sync with its Viewed, currently the only possibility where this happens is
+            // when coming here from MonthNotes (but that could change with future enhancements).
+            if (!selectedDate.isEqual(viewedDate)) {
+                if (viewedDateGranularity != ChronoUnit.YEARS) {
                     theMonthView.setView(viewedDate);
                 }
             }
@@ -1571,10 +1558,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             setViewedDate(selectedDate, ChronoUnit.DAYS);
             rightPane.setViewportView(theAppDays);
         } else if (theNodeString.equals("Month Notes")) {
-            LocalDate dateToShow;
-            if(viewedDateGranularity != ChronoUnit.YEARS) dateToShow = viewedDate;
-            else dateToShow = selectedDate;
-            viewedDateGranularity = ChronoUnit.MONTHS; // Do this AFTER we've first used it to see where we came from.
+            if (viewedDateGranularity == ChronoUnit.YEARS) {
+                viewedDate = selectedDate;
+            }
+            viewedDateGranularity = ChronoUnit.MONTHS;
 
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroup(); // Takes current date as default initial 'choice'.
@@ -1582,7 +1569,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theAppMonths.setListMenu(appMenuBar.getListMenu(selectionContext));
             }
             theNoteGroup = theAppMonths;
-            theAppMonths.setDate(dateToShow);
+            theAppMonths.setDate(viewedDate);
             rightPane.setViewportView(theAppMonths);
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {

@@ -126,65 +126,69 @@ public class DateTrackingTests {
         whatItIs = appTreePanel.theYearView.getChoiceLabelText();
         Assertions.assertEquals(whatItShouldBe, whatItIs);
 
-        // 4.  Go to MonthNotes.  Verify that it shows Notes for the viewed date.
-        theTree.setSelectionPath(appTreePanel.monthNotesPath);
+// 12/17/2019 - Disabled the rest of this test, because a mismatch was discovered between initial implementation
+//   and the intended design, and it was fixed in AppTreePanel.  Now that any YearView will change granularity to YEARS,
+//   the remaining steps here have improper expectations.
+//   Need to revise these steps and/or just end here and add different tests.
 
-        // Give the AppTreePanel thread time to create the MonthView
-        while(appTreePanel.theAppMonths == null) {
-            Thread.sleep(500);
-        }
-        theChoice = appTreePanel.theAppMonths.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(viewedDate));
-
-        // 5.  Go back to the Month View.  Verify it still shows the view for the month
-        //     you previously viewed (the Viewed Date).
-
-        // This time we get there via the Tree selection and not a YearView-month click
-        theTree.setSelectionPath(appTreePanel.monthViewPath);
-
-        // The same tests as we did earlier, with fewer comments.
-        Assertions.assertTrue(MonthView.displayedMonth.isEqual(viewedDate));
-        theChoice = appTreePanel.theMonthView.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
-        whatItShouldBe = MonthView.dtf.format(knownDate);
-        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
-        Assertions.assertEquals(whatItShouldBe, whatItIs);
-
-        // 6.  Go to Day Notes.  Verify it shows the notes for the Selected Date.
-        theTree.setSelectionPath(appTreePanel.dayNotesPath);
-
-        // Give the AppTreePanel thread time to create the DayNoteGroup
-        while(appTreePanel.theAppDays == null) {
-            Thread.sleep(500);
-        }
-
-        // Verify the date shown is the Selected Date.
-        theChoice = appTreePanel.theAppDays.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
-
-        // Increase the day by two
-        knownDate = knownDate.plusDays(2);
-        appTreePanel.theAppDays.setOneForward();
-        appTreePanel.theAppDays.setOneForward();
-        theChoice = appTreePanel.theAppDays.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate));
-        // (with DayNotes, the choice is both the Selected and the Viewed Date).
-
-        // 7.  Go to Month View.  Verify it shows the selected month, with the new selected date.
-        theTree.setSelectionPath(appTreePanel.monthViewPath);
-        theChoice = appTreePanel.theMonthView.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate));  // knownDate was set in step 6.
-        whatItShouldBe = MonthView.dtf.format(knownDate);
-        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
-        Assertions.assertEquals(whatItShouldBe, whatItIs);
-
-        // 8.  Go to the Year View.  Verify it shows the selected month, with the new selected date.
-        theTree.setSelectionPath(appTreePanel.yearViewPath);
-        theChoice = appTreePanel.theYearView.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate));  // knownDate was set in step 6.
-        whatItShouldBe = YearView.dtf.format(knownDate);
-        whatItIs = appTreePanel.theYearView.getChoiceLabelText();
-        Assertions.assertEquals(whatItShouldBe, whatItIs);
+//        // 4.  Go to MonthNotes.  Verify that it shows Notes for the viewed date.
+//        theTree.setSelectionPath(appTreePanel.monthNotesPath);
+//        while(appTreePanel.theAppMonths == null) {
+//            // Give the AppTreePanel thread time to create the MonthView
+//            Thread.sleep(500);
+//        }
+//        theChoice = appTreePanel.theAppMonths.getChoice();
+//        Assertions.assertTrue(theChoice.isEqual(viewedDate));
+//
+//        // 5.  Go back to the Month View.  Verify it still shows the view for the month
+//        //     you previously viewed (the Viewed Date).
+//
+//        // This time we get there via the Tree selection and not a YearView-month click
+//        theTree.setSelectionPath(appTreePanel.monthViewPath);
+//
+//        // The same tests as we did earlier, with fewer comments.
+//        Assertions.assertTrue(MonthView.displayedMonth.isEqual(viewedDate));
+//        theChoice = appTreePanel.theMonthView.getChoice();
+//        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
+//        whatItShouldBe = MonthView.dtf.format(knownDate);
+//        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
+//        Assertions.assertEquals(whatItShouldBe, whatItIs);
+//
+//        // 6.  Go to Day Notes.  Verify it shows the notes for the Selected Date.
+//        theTree.setSelectionPath(appTreePanel.dayNotesPath);
+//
+//        // Give the AppTreePanel thread time to create the DayNoteGroup
+//        while(appTreePanel.theAppDays == null) {
+//            Thread.sleep(500);
+//        }
+//
+//        // Verify the date shown is the Selected Date.
+//        theChoice = appTreePanel.theAppDays.getChoice();
+//        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
+//
+//        // Increase the day by two
+//        knownDate = knownDate.plusDays(2);
+//        appTreePanel.theAppDays.setOneForward();
+//        appTreePanel.theAppDays.setOneForward();
+//        theChoice = appTreePanel.theAppDays.getChoice();
+//        Assertions.assertTrue(theChoice.isEqual(knownDate));
+//        // (with DayNotes, the choice is both the Selected and the Viewed Date).
+//
+//        // 7.  Go to Month View.  Verify it shows the selected month, with the new selected date.
+//        theTree.setSelectionPath(appTreePanel.monthViewPath);
+//        theChoice = appTreePanel.theMonthView.getChoice();
+//        Assertions.assertTrue(theChoice.isEqual(knownDate));  // knownDate was set in step 6.
+//        whatItShouldBe = MonthView.dtf.format(knownDate);
+//        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
+//        Assertions.assertEquals(whatItShouldBe, whatItIs);
+//
+//        // 8.  Go to the Year View.  Verify it shows the selected month, with the new selected date.
+//        theTree.setSelectionPath(appTreePanel.yearViewPath);
+//        theChoice = appTreePanel.theYearView.getChoice();
+//        Assertions.assertTrue(theChoice.isEqual(knownDate));  // knownDate was set in step 6.
+//        whatItShouldBe = YearView.dtf.format(knownDate);
+//        whatItIs = appTreePanel.theYearView.getChoiceLabelText();
+//        Assertions.assertEquals(whatItShouldBe, whatItIs);
     }
 
 }
