@@ -224,10 +224,6 @@ public abstract class NoteGroup extends JPanel {
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             //System.out.println("Getting component " + i);
             NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-            //System.out.println("  initialized: " + tempNote.initialized);
-            if (i == 0) {
-                System.out.println("breakpoint");
-            }
 
             // Only initialized components (appear to) have a data object.
             //      (I think; 8/29/2019)
