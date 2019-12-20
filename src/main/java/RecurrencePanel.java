@@ -5,15 +5,12 @@ import java.awt.event.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
-/*
- * Summary description for RecurrencePanel
- */
 public class RecurrencePanel extends JPanel implements
         ActionListener, FocusListener, ItemListener {
     private static final long serialVersionUID = 1L;
 
-    // Create a temporary Calendar variable, for get/set operations.
     private static DateTimeFormatter dtf;
 
     private int intPreferredWidth;    // See note in constructor.
@@ -152,7 +149,6 @@ public class RecurrencePanel extends JPanel implements
         // Get our start day, for multiple uses below.
         String strWhichOne = "first";
         int intDayOfWeek = AppUtil.getDayOfWeekInt(dateStart);
-//        int intDayOfWeek = calTmp.get(Calendar.DAY_OF_WEEK);
 
         // Keep the last known 'good' date, as we scan forward.
         LocalDate dateGood;
@@ -175,10 +171,7 @@ public class RecurrencePanel extends JPanel implements
         } else if (strMonthPattern.toLowerCase().contains("weekend")) {
             // System.out.println("generalized - weekend");
             // Now set the calendar to the first one in this month -
-//            calTmp.set(Calendar.DAY_OF_MONTH, 1);
-//            while (isWeekday(dateTheEndDate)) calTmp.add(Calendar.DATE, 1);
             while (isWeekday(dateTheEndDate)) dateTheEndDate = dateTheEndDate.plusDays(1);
-//            dateGood = calTmp.getTime();
             dateGood = dateTheEndDate;
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
@@ -198,33 +191,26 @@ public class RecurrencePanel extends JPanel implements
                         break;
                 }
 
-//                calTmp.add(Calendar.DATE, 1); // add a day
                 dateTheEndDate = dateTheEndDate.plusDays(1);
 
                 // and keep going, if we need to,
                 // to get to the next weekend day.
-//                while (isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
                 while (isWeekday(dateTheEndDate)) dateTheEndDate = dateTheEndDate.plusDays(1);
 
                 // System.out.println(strWhichOne + " " + calTmp.getTime());
                 if (dateTheEndDate.getMonthValue() - 1 != intMonth) {
                     // System.out.println("Shot past - resetting.");
-//                    calTmp.setTime(dateGood);
                     dateTheEndDate = dateGood;
                     break;
                 } else {
                     if (!isWeekday(dateTheEndDate)) dateGood = dateTheEndDate;
                 } // end if/else
             } // end while
-//            dateTheEndDate = calTmp.getTime();
         } else if (strMonthPattern.toLowerCase().contains("weekday")) {
             // System.out.println("generalized - weekday");
             // Now set the calendar to the first one in this month -
-//            calTmp.set(Calendar.DAY_OF_MONTH, 1);
             dateTheEndDate = dateTheEndDate.withDayOfMonth(1);
-//            while (!isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
             while (!isWeekday(dateTheEndDate)) dateTheEndDate = dateTheEndDate.plusDays(1);
-//            dateGood = calTmp.getTime();
             dateGood = dateTheEndDate;
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
@@ -280,15 +266,11 @@ public class RecurrencePanel extends JPanel implements
                     break;
                 } // end if
             } // end while
-//            dateTheEndDate = calTmp.getTime();
         } else {
             // System.out.println("specific day");
             // Now set the calendar to the first one in this month -
-//            calTmp.set(Calendar.DAY_OF_MONTH, 1);
             dateTheEndDate = dateTheEndDate.withDayOfMonth(1);
-//            while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
             while (AppUtil.getDayOfWeekInt(dateTheEndDate) != intDayOfWeek) {
-//                calTmp.add(Calendar.DATE, 1);
                 dateTheEndDate = dateTheEndDate.plusDays(1);
             } // end while
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
@@ -430,13 +412,6 @@ public class RecurrencePanel extends JPanel implements
     } // end getRecurrenceSetting
 
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always regenerated
-     * by the Windows Form Designer. Otherwise, retrieving design might not work properly.
-     * Tip: If you must revise this method, please backup this GUI file for JFrameBuilder
-     * to retrieve your design properly in future, before revising this method.
-     */
     private void initializeComponent() {
         JPanel contentPane = this.getContentPane();
         //-----
@@ -994,12 +969,10 @@ public class RecurrencePanel extends JPanel implements
     //------------------------------------------------------------
     private void recalcEndByWeek(int interval) {
         // Initialize the calendar to the start date.
-//        calTmp.setTime(dateStart);
         LocalDate tmpDate = dateStart;
 
         // Back up one day, so we will include
         //   the start as we scan forward.
-//        calTmp.add(Calendar.DATE, -1);
         tmpDate = tmpDate.minusDays(1);
 
         // Calculate the dateStopBy
@@ -1007,9 +980,7 @@ public class RecurrencePanel extends JPanel implements
             int intTmp = intStopAfter;
 
             while (intTmp > 0) {
-//                calTmp.add(Calendar.DATE, 1);
                 tmpDate = tmpDate.plusDays(1);
-                // System.out.println(calTmp.getTime());
                 switch (tmpDate.getDayOfWeek()) {
                     case SUNDAY:
                         if (chkboxSunday.isSelected()) intTmp--;
@@ -1047,16 +1018,13 @@ public class RecurrencePanel extends JPanel implements
         //----------------------------------------------------------
 
         // Calculate the intStopAfter
-        if (rbtnStopBy.isSelected()) {  // Calculate the intStopAfter
+        if (rbtnStopBy.isSelected()) {
             tmpDate = dateStart;
             intStopAfter = 0;
 
             while (tmpDate.isBefore(dateStopBy)) {
-                // Adjust the calendar (and count) for one week
-//                calTmp.add(Calendar.DATE, 1);
+                // Adjust the count for one week
                 tmpDate = tmpDate.plusDays(1);
-//                System.out.println(calTmp.getTime());
-//                switch (calTmp.get(Calendar.DAY_OF_WEEK)) {
                 switch (tmpDate.getDayOfWeek()) {
                     case SUNDAY:
                         if (chkboxSunday.isSelected()) intStopAfter++;
@@ -1228,6 +1196,43 @@ public class RecurrencePanel extends JPanel implements
 
     } // end reinitializeComponent
 
+    // Needed for Tests
+    void setPeriodicity(ChronoUnit thePeriod) {
+        // Since this change is not user-directed and does not
+        // go thru the ButtonGroup, the buttons are not mutually
+        // exclusive and therefore ALL of them must be individually.
+        rbtnNone.setSelected(false);
+        rbtnDay.setSelected(false);
+        rbtnWeek.setSelected(false);
+        rbtnMonth.setSelected(false);
+        rbtnYear.setSelected(false);
+
+        switch(thePeriod) {
+            case DAYS:
+                rbtnDay.setSelected(true);
+                break;
+            case WEEKS:
+                rbtnWeek.setSelected(true);
+                break;
+            case MONTHS:
+                rbtnMonth.setSelected(true);
+                break;
+            case YEARS:
+                rbtnYear.setSelected(true);
+                break;
+            default:
+                rbtnNone.setSelected(true);
+        }
+    }
+
+    // Used by tests; no dialog needed to choose a date
+    void setStopBy(LocalDate theStopDate) {
+        rbtnForever.setSelected(false);
+        rbtnStopAfter.setSelected(false);
+        rbtnStopBy.setSelected(true);
+        dateStopBy = theStopDate;
+        recalcEnd();
+    }
 
     // Set the 'Stop By' date
     private void setStopBy() {
@@ -1290,7 +1295,6 @@ public class RecurrencePanel extends JPanel implements
         shuffleDays();  // this did a calTemp set to dateStart.
 
         // Display the date we're working forward from.
-//        sdf.applyPattern("EEE  d MMM yyyy");
         dtf = DateTimeFormatter.ofPattern("EEE  d MMM yyyy");
         lblStartDate.setText(dtf.format(dateStart));
 
@@ -1301,13 +1305,11 @@ public class RecurrencePanel extends JPanel implements
         comboxYear.removeAllItems();
 
         // Get the month name -
-//        sdf.applyPattern("MMMM");
         dtf = DateTimeFormatter.ofPattern("MMMM");
         String strMonth = dtf.format(dateStart);
 
         // Get the numeric (as 'nice' text) within the month -
         //--------------------------------------------------------
-//        int intDate = calTmp.get(Calendar.DAY_OF_MONTH);
         int intDate = dateStart.getDayOfMonth();
         String strDate = String.valueOf(intDate);
         if ((intDate == 1) || (intDate == 21) || (intDate == 31)) {
@@ -1340,22 +1342,16 @@ public class RecurrencePanel extends JPanel implements
         // are not dependent on previous choices that were made;
         // only on the possible variations of the description for
         // dateStart.
-//        int intMonth = calTmp.get(Calendar.MONTH);
         int intMonth = dateStart.getMonthValue() - 1;
         int intWeeksBefore = 0;
         // First, how many weeks are BEFORE this one?
         LocalDate tmpDate = dateStart;
         do {
-//            calTmp.add(Calendar.DATE, -7);
             tmpDate = tmpDate.minusWeeks(1);
-//            if (calTmp.get(Calendar.MONTH) == intMonth) intWeeksBefore++;
             if (tmpDate.getMonthValue() - 1 == intMonth) intWeeksBefore++;
-//        } while (calTmp.get(Calendar.MONTH) == intMonth);
         } while (tmpDate.getMonthValue() - 1 == intMonth);
-//        calTmp.setTime(dateStart); // restore
 
         // Get the day name -
-//        sdf.applyPattern("EEEE");
         dtf = DateTimeFormatter.ofPattern("EEEE");
         String strDay = dtf.format(dateStart);
 
@@ -1376,16 +1372,11 @@ public class RecurrencePanel extends JPanel implements
                     //   the second; otherwise first.
                     boolean blnFirst = true;
                     do {
-//                        calTmp.add(Calendar.DATE, -1);
                         tmpDate = tmpDate.minusDays(1);
-//                        if (calTmp.get(Calendar.MONTH) == intMonth) {
                         if (tmpDate.getMonthValue() - 1 == intMonth) {
-//                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) blnFirst = false;
-//                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) blnFirst = false;
                             if (tmpDate.getDayOfWeek() == DayOfWeek.SATURDAY) blnFirst = false;
                             if (tmpDate.getDayOfWeek() == DayOfWeek.SUNDAY) blnFirst = false;
                         } // end if
-//                    } while (calTmp.get(Calendar.MONTH) == intMonth);
                     } while (tmpDate.getMonthValue() - 1 == intMonth);
 
                     if (blnFirst) {
@@ -1401,16 +1392,11 @@ public class RecurrencePanel extends JPanel implements
                     // Is there a 'weekend-day' offset, and if so, how much?
                     int intOffset = 0;
                     do {
-//                        calTmp.add(Calendar.DATE, -1);
                         tmpDate = tmpDate.minusDays(1);
-//                        if (calTmp.get(Calendar.MONTH) == intMonth) {
                         if (tmpDate.getMonthValue() - 1 == intMonth) {
-//                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) intOffset++;
-//                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) intOffset++;
                             if (tmpDate.getDayOfWeek() == DayOfWeek.SATURDAY) intOffset++;
                             if (tmpDate.getDayOfWeek() == DayOfWeek.SUNDAY) intOffset++;
                         } // end if
-//                    } while (calTmp.get(Calendar.MONTH) == intMonth);
                     } while (tmpDate.getMonthValue() - 1 == intMonth);
                     intDate -= intOffset;
                     switch (intDate) {
@@ -1448,16 +1434,11 @@ public class RecurrencePanel extends JPanel implements
                 if (strDay.equals("Sunday") || (strDay.equals("Saturday"))) {
                     int intOffset = 0;
                     do {
-//                        calTmp.add(Calendar.DATE, -1);
                         tmpDate = tmpDate.minusDays(1);
-//                        if (calTmp.get(Calendar.MONTH) == intMonth) {
                         if (tmpDate.getMonthValue() - 1 == intMonth) {
-//                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) intOffset++;
-//                            if (calTmp.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) intOffset++;
                             if (tmpDate.getDayOfWeek() == DayOfWeek.SATURDAY) intOffset++;
                             if (tmpDate.getDayOfWeek() == DayOfWeek.SUNDAY) intOffset++;
                         } // end if
-//                    } while (calTmp.get(Calendar.MONTH) == intMonth);
                     } while (tmpDate.getMonthValue() - 1 == intMonth);
 
                     if (intOffset == 2) { // Two before this one means it's 3rd.
@@ -1507,15 +1488,12 @@ public class RecurrencePanel extends JPanel implements
             // Is this the last day (of its kind) this month?
             boolean blnLast = true;
             if (blnWeekday) {
-//                calTmp.setTime(dateStart);
                 tmpDate = dateStart;
                 do {
-//                    calTmp.add(Calendar.DATE, 1);
                     tmpDate = tmpDate.plusDays(1);
                     if (tmpDate.getMonthValue() - 1 == intMonth) {
                         if (isWeekday(tmpDate)) blnLast = false;
                     } // end if
-//                } while (calTmp.get(Calendar.MONTH) == intMonth);
                 } while (tmpDate.getMonthValue() - 1 == intMonth);
 
                 if (blnLast) {
@@ -1526,9 +1504,7 @@ public class RecurrencePanel extends JPanel implements
 
             } else {
                 do {
-//                    calTmp.add(Calendar.DATE, 1); // add a day
                     tmpDate = tmpDate.plusDays(1);
-//                    if (calTmp.get(Calendar.MONTH) == intMonth) {
                     if (tmpDate.getMonthValue() - 1 == intMonth) {
                         if (!isWeekday(tmpDate)) blnLast = false;
                     } // end if
@@ -1542,10 +1518,7 @@ public class RecurrencePanel extends JPanel implements
             } // end if
 
             // Is this the last day of the month, period?
-//            calTmp.setTime(dateStart);
-//            calTmp.add(Calendar.DATE, 1);
             tmpDate = dateStart.plusDays(1);
-//            if (calTmp.get(Calendar.MONTH) != intMonth) {
             if (tmpDate.getMonthValue() - 1 != intMonth) {
                 strDate = "the last day";
                 comboxMonth.addItem(strDate);
@@ -1626,8 +1599,6 @@ public class RecurrencePanel extends JPanel implements
 
     private void shuffleDays() {
         // Interpret the dateStart Day
-//        calTmp.setTime(dateStart);
-//        switch (calTmp.get(Calendar.DAY_OF_WEEK)) {
         switch (dateStart.getDayOfWeek()) {
             case SUNDAY:
                 chkboxSunday.setSelected(true);

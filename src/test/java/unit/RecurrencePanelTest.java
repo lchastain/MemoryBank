@@ -3,7 +3,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 
 // Lots of work needed here but not sure where to start, and
@@ -57,10 +58,6 @@ class RecurrencePanelTest {
     }
 
     @Test
-    void testIsRecurrenceValid() {
-    }
-
-    @Test
     void testIsWeekday() {
     }
 
@@ -68,7 +65,19 @@ class RecurrencePanelTest {
     void testItemStateChanged() {
     }
 
+    // Intellij reports 4 'class' methods for RecurrencePanel; 3 are shown in the Structure view for the class
+    // but one is 'hiding' - it is known as a 'Synthetic' class, anonymously created by a switch statement that
+    // makes a call to a date-related class that might throw an exception.  This test exercises that anonymous
+    // class and gets us the coverage needed there.
     @Test
-    void testShowTheData() {
+    void testRecalcEnd() {
+        // showTheData is needed to set the Start Date, used later.
+        String theString = "Y_the 14th of February_";
+        theRecurrencePanel.showTheData(theString, LocalDate.now());
+
+        LocalDate theEndDate = LocalDate.of(LocalDate.now().plusYears(5).getYear(),7,15);
+        theRecurrencePanel.setPeriodicity(ChronoUnit.WEEKS);
+        theRecurrencePanel.setStopBy(theEndDate);
     }
+
 }
