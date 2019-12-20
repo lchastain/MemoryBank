@@ -36,7 +36,10 @@ public class DayNoteGroup extends CalendarNoteGroup
         //   assign it during the static section of this class.
         //------------------------------------------------------------------
         dayNoteDefaults = DayNoteDefaults.load(); // This may provide a different default icon.
-        if (dayNoteDefaults.defaultIconFileName.equals("")) {
+        if(dayNoteDefaults.defaultIconFileName == null) {
+            // Something wrong; just make a new one; it will not be null.
+            dayNoteDefaults = new DayNoteDefaults();
+        } else if (dayNoteDefaults.defaultIconFileName.equals("")) {
             // It IS possible that the user wants no default icon.
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
             defaultIcon = new AppIcon();

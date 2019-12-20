@@ -17,9 +17,9 @@ public abstract class IconNoteComponent extends NoteComponent {
     // Private static values that are accessed from multiple contexts.
     private static IconFileChooser iconChooser;
     private static JCheckBoxMenuItem siombMi;
-    private static JMenuItem sadMi;
+    static JMenuItem sadMi;
     private static JMenuItem resetMi;
-    private static JMenuItem blankMi;
+    static JMenuItem blankMi;
     private static JPopupMenu iconPopup;
 
     // A reference to the container that holds this component

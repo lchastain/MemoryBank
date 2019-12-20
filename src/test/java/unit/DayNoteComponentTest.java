@@ -3,64 +3,72 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 
 class DayNoteComponentTest {
-    private DayNoteComponent dnc;
+    private DayNoteComponent dayNoteComponent;
+    DayNoteGroup dayNoteGroup;
 
     @BeforeEach
     void setUp() {
         MemoryBank.setUserDataHome("test.user@lcware.net");
-        dnc = new DayNoteComponent(new DayNoteGroup() {
+        dayNoteGroup = new DayNoteGroup() {
             @Override
             public String getGroupFilename() {
-                return "TestNoteGroup";
+                return "2019\\D1220_20191220163347.json";
             }
-        }, 0);
-        dnc.initialize();
+        };
+        dayNoteComponent = new DayNoteComponent(dayNoteGroup, 0);
+        dayNoteComponent.initialize();
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        dnc = null;
+        dayNoteComponent = null;
         Thread.sleep(100); // allow some time for GC
     }
 
     @Test
     void clear() {
-        dnc.clear();
+        dayNoteComponent.clear();
     }
 
-//    @Test
-//    void getNoteData() {
-//    }
-//
-//    @Test
-//    void getPreferredSize() {
-//    }
-//
-//    @Test
-//    void initialize() {
-//    }
-//
-//    @Test
-//    void makeDataObject() {
-//    }
-//
-//    @Test
-//    void noteActivated() {
-//    }
-//
-//    @Test
-//    void resetComponent() {
-//    }
+    // This is actually a test of the abstract IconNoteComponent.
+    @Test
+    void testHandleIconPopup() {
+        ActionEvent ae1 = new ActionEvent(IconNoteComponent.sadMi, 0, "");
+        ActionEvent ae2 = new ActionEvent(IconNoteComponent.blankMi, 0, "");
+        dayNoteComponent.noteIcon.actionPerformed(ae1);
+        dayNoteComponent.noteIcon.actionPerformed(ae2);
+    }
+
+
+    // This is actually a test of the abstract IconNoteComponent.
+    @Test
+    void testShowIconPopup() {
+        JButton pressMe = new JButton("Press Me");
+        JFrame testFrame = new JFrame();
+        testFrame.add(pressMe);
+        testFrame.getContentPane().add(pressMe, "Center");
+        testFrame.pack();
+        testFrame.setLocationRelativeTo(null);
+        testFrame.setVisible(true);
+        MouseEvent me = new MouseEvent(pressMe, 1,1,1,1,1,1,true, 1);
+        dayNoteComponent.noteIcon.showIconPopup(me);
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignore) {}
+    }
 
     @Test
     void setIcon() {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 
-        dnc.setIcon(new AppIcon(testFile.getPath()));
+        dayNoteComponent.setIcon(new AppIcon(testFile.getPath()));
     }
 
 //    @Test
