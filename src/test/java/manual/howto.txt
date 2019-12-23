@@ -75,5 +75,7 @@ One-stop reference for how to do certain tasks.
 19. Fire an event:
     Event.fireEvent(component, event);
 
-
+20. Show the test that gives coverage for a line of code:
+    First, turn on 'Tracing' in the run configuration for the test.
+    Then left click on the green color in the 'gutter', select the icon for that.
 

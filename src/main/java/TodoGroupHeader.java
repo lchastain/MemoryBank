@@ -23,18 +23,9 @@ public class TodoGroupHeader extends Container implements ClingSource {
     private HeaderButton hb4;  // Deadline   // No longer used.
     private DndLayout headerLayout;
 
-    private int hb1Width;
-    private int hb2Width;
-    private int hb3Width;
-    private int hb4Width;
-
     TodoGroupHeader(TodoNoteGroup p) {
         super();
         parent = p;
-        hb1Width = 0;
-        hb2Width = 0;
-        hb3Width = 0;
-        hb4Width = 0;
         headerLayout = new DndLayout();
         headerLayout.setMoveable(true); // Must be BEFORE add.
         headerLayout.setClingSource(this);
@@ -57,7 +48,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         add(hb3, "Third");
         // add(hb4, "Fourth");
 
-        // Re-order, if necessary
+        // Re-order the columns, if necessary
         String pos = String.valueOf(parent.myVars.columnOrder);
         // System.out.println("In TodoGroupHeader, columnOrder = " + pos);
         add(hb1, pos.indexOf("1"));
@@ -205,7 +196,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
     // Inner class
     //----------------------------------------------------------------
     class HeaderButton extends LabelButton implements MouseListener {
-        private static final long serialVersionUID = 2569185275948640387L;
+        private static final long serialVersionUID = 1L;
         String prompt;
 
         HeaderButton(String s) {
@@ -275,23 +266,19 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
             if (defaultLabel.equals("Priority")) {
                 d.width = TodoNoteComponent.PriorityButton.minWidth;
-                hb1Width = d.width;
             } // end if
 
             if (defaultLabel.equals("To Do Text")) {
                 // System.out.println("'To Do Text' HeaderButton PreferredSize: " + d);
                 d.width = NoteComponent.NoteTextField.minWidth;
-                hb2Width = d.width;
             } // end if
 
             if (defaultLabel.equals("Status")) {
                 d.width = TodoNoteComponent.StatusButton.minWidth;
-                hb3Width = d.width;
             } // end if
 
             if (defaultLabel.equals("Deadline")) {
                 d.width = 0; //parent.deadWidth;
-                hb4Width = d.width;
             } // end if
 
             return d;

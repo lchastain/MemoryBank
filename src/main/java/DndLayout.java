@@ -13,6 +13,15 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Vector;
 
+// This layout presents components in a horizontal line, with one of the components
+// being 'stretchable'.  The components may be rearranged via Drag & Drop.
+
+// In production this layout is being used for both the header and the rows of certain
+// NoteGroup types.  Only the header line listens for mouseDragged events, and the
+// widths are kept in sync because both the header and the rows are in a JScrollPane
+// where the header is set by the JScrollPane.setColumnHeaderView() method.  If this
+// layout is applied to some other type of container, you may need to sync up the
+// widths of the content columns with the header columns yourself.
 
 public class DndLayout extends GridLayout implements MouseListener,
         MouseMotionListener {
@@ -20,7 +29,7 @@ public class DndLayout extends GridLayout implements MouseListener,
 
     public boolean Dragging;
 
-    private Container parent;
+    private Container clingonContainer;
     private boolean Moveable;
     private int offset;          // used with dragging
 
@@ -30,14 +39,14 @@ public class DndLayout extends GridLayout implements MouseListener,
     private Vector<JComponent> ClingLeft;
     private Vector<JComponent> ClingOns;
     private Vector<JComponent> ClingRight;
-    private ClingSource cs;
+    private ClingSource clingSource;
 
     public DndLayout() {
         super(1, 0, 0, 0);
         Moveable = false;
         Dragging = false;
         stretch = null;
-        cs = null;
+        clingSource = null;
     } // end constructor
 
     public void addLayoutComponent(String name, Component comp) {
@@ -52,7 +61,7 @@ public class DndLayout extends GridLayout implements MouseListener,
     public void layoutContainer(Container parent) {
         if (Dragging) return;
 
-        this.parent = parent;
+        this.clingonContainer = parent;
         synchronized (parent.getTreeLock()) {
             int ncols = parent.getComponentCount();
             if (ncols == 0) return;
@@ -119,13 +128,14 @@ public class DndLayout extends GridLayout implements MouseListener,
         Component c1, c2;
         int c1x, c2x;
         int c1width, c2width;
-        int count = parent.getComponentCount();
+        if(clingonContainer == null) return;
+        int count = clingonContainer.getComponentCount();
 
         while (swapped) {
             swapped = false;
             for (int i = 0; i < (count - 1); i++) {
-                c1 = parent.getComponent(i);
-                c2 = parent.getComponent(i + 1);
+                c1 = clingonContainer.getComponent(i);
+                c2 = clingonContainer.getComponent(i + 1);
 
                 c1x = c1.getX();
                 c2x = c2.getX();
@@ -134,8 +144,8 @@ public class DndLayout extends GridLayout implements MouseListener,
                 // System.out.println("c2 Width: " + c2.getWidth() + "\tPreferred: " + c2.getPreferredSize().width);
 
                 // Note:  When the 'Stretch' component is not visible, it can
-                //   report a negative width.  this will cause the 'if' structure
-                //   below to work the opposite of visible rows, resulting in swaps
+                //   report a negative width, which will cause the 'if' structure
+                //   below to handle it improperly, resulting in swaps
                 //   when not wanted, or vice-versa.  Before paging this was not a
                 //   visible problem; now when you perform a sort or column reorder
                 //   on a 'short' page, it becomes apparent when going back to a
@@ -147,12 +157,12 @@ public class DndLayout extends GridLayout implements MouseListener,
                 c2width = c2.getWidth();
                 if (c1x + c1width / 2 > c2x + c2width / 2) {
                     swapped = true;
-                    parent.add(c2, i);
+                    clingonContainer.add(c2, i);
                 } // end if
             } // end for i
         } // end while
 
-        if (cs == null) return;
+        if (clingSource == null) return;
 
         // The remainder of this method deals with
         //   handling a drag operation.
@@ -178,13 +188,14 @@ public class DndLayout extends GridLayout implements MouseListener,
         Component c;
         int thisX, thisWidth;
         int cX, cWidth;
-        int count = parent.getComponentCount();
+        if(clingonContainer == null) return;
+        int count = clingonContainer.getComponentCount();
 
         thisX = comp.getX();
         thisWidth = comp.getSize().width;
 
         for (int i = 0; i < count; i++) {
-            c = parent.getComponent(i);
+            c = clingonContainer.getComponent(i);
             if (c == comp) continue;
             if (!c.isVisible()) continue;
             cX = c.getX();
@@ -207,40 +218,40 @@ public class DndLayout extends GridLayout implements MouseListener,
             } // end if
         } // end for i
 
-        if (cs == null) return;
+        if (clingSource == null) return;
         ClingLeft = null;
         ClingRight = null;
-        if (prevComponent != null) ClingLeft = cs.getClingons(prevComponent);
-        if (nextComponent != null) ClingRight = cs.getClingons(nextComponent);
+        if (prevComponent != null) ClingLeft = clingSource.getClingons(prevComponent);
+        if (nextComponent != null) ClingRight = clingSource.getClingons(nextComponent);
     } // end resetRelativePosition
 
     public void setClingSource(ClingSource cs) {
-        this.cs = cs;
+        this.clingSource = cs;
     } // end setClingSource
 
     private void setRelativePosition(Component comp) {
-        if (cs == null) return;
+        if (clingSource == null) return;
 
         // Set the next and previous components
         prevComponent = null;
         nextComponent = null;
 
         Component tmpComp;
-        int numc = parent.getComponentCount();
+        int numc = clingonContainer.getComponentCount();
         for (int i = 0; i < numc; i++) {
-            tmpComp = parent.getComponent(i);
+            tmpComp = clingonContainer.getComponent(i);
             if (comp == tmpComp) {
-                if (i < numc - 1) nextComponent = parent.getComponent(i + 1);
-                if (i > 0) prevComponent = parent.getComponent(i - 1);
+                if (i < numc - 1) nextComponent = clingonContainer.getComponent(i + 1);
+                if (i > 0) prevComponent = clingonContainer.getComponent(i - 1);
                 break;
             } // end if
         } // end for i
 
         ClingLeft = null;
         ClingRight = null;
-        ClingOns = cs.getClingons(comp);
-        if (prevComponent != null) ClingLeft = cs.getClingons(prevComponent);
-        if (nextComponent != null) ClingRight = cs.getClingons(nextComponent);
+        ClingOns = clingSource.getClingons(comp);
+        if (prevComponent != null) ClingLeft = clingSource.getClingons(prevComponent);
+        if (nextComponent != null) ClingRight = clingSource.getClingons(nextComponent);
     } // end setRelativePosition
 
 
@@ -261,6 +272,7 @@ public class DndLayout extends GridLayout implements MouseListener,
     }
 
     public void mousePressed(MouseEvent e) {
+        //System.out.println("Mouse Event: " + e.toString());
         // First, get the offset.  This is the exact location of the
         //   mouse cursor within the component being moved.  When we
         //   want to place the component in its new location, the X
@@ -280,13 +292,14 @@ public class DndLayout extends GridLayout implements MouseListener,
 
         Component comp = (Component) e.getSource();
         setRelativePosition(comp); // initialze prev & next
-        parent.add(comp, 0);  // rearrange the Z order.
+        clingonContainer.add(comp, 0);  // rearrange the Z order.
     } // end mousePressed
 
     public void mouseReleased(MouseEvent e) {
+        //System.out.println("Mouse Event: " + e.toString());
         Dragging = false;
         resetActualPosition();
-        parent.doLayout();
+        clingonContainer.doLayout();
     }
     //---------------------------------------------------------
 
@@ -296,8 +309,12 @@ public class DndLayout extends GridLayout implements MouseListener,
     public synchronized void mouseDragged(MouseEvent me) {
         Component comp = (Component) me.getSource();
         Point p = comp.getLocation();
+        //System.out.println("Mouse Event: " + me.toString() + "  " + p.toString());
         int newX = p.x + me.getX() - offset;
         int myWidth = comp.getWidth();
+
+        // This is needed for both the 'main' line (a header, probably) and any potential clingons.
+        resetRelativePosition(comp);
 
         if (newX > p.x) { // moving to the right
             if (nextComponent != null) { // if there is another column
@@ -308,7 +325,6 @@ public class DndLayout extends GridLayout implements MouseListener,
                 if (newX >= (nextColX + nextColWidth / 2 - myWidth)) {
                     nextComponent.setLocation(nextColX - myWidth, p.y);
                     if (ClingRight != null) placeClingons(1, nextColX - myWidth);
-                    resetRelativePosition(comp);
                 } // end if
             } // end if
         } // end if
@@ -323,7 +339,6 @@ public class DndLayout extends GridLayout implements MouseListener,
                         (newX + myWidth > (prevColX + prevColWidth / 2)))) {
                     prevComponent.setLocation(prevColX + myWidth, p.y);
                     if (ClingLeft != null) placeClingons(-1, prevColX + myWidth);
-                    resetRelativePosition(comp);
                 } // end if
             } // end if
         } // end if

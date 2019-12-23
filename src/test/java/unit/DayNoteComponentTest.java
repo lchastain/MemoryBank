@@ -61,6 +61,7 @@ class DayNoteComponentTest {
         try {
             Thread.sleep(100);
         } catch (InterruptedException ignore) {}
+        testFrame.setVisible(false);
     }
 
     @Test

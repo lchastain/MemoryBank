@@ -23,18 +23,9 @@ public class SearchResultHeader extends Container implements ClingSource {
     private HeaderButton hb4;  // Deadline   // No longer used.
     private DndLayout headerLayout;
 
-    private int hb1Width;
-    private int hb2Width;
-    private int hb3Width;
-    private int hb4Width;
-
     public SearchResultHeader(SearchResultGroup p) {
         super();
         parent = p;
-        hb1Width = 0;
-        hb2Width = 0;
-        hb3Width = 0;
-        hb4Width = 0;
         headerLayout = new DndLayout();
         headerLayout.setMoveable(true); // Must be BEFORE add.
         headerLayout.setClingSource(this);
@@ -258,23 +249,19 @@ public class SearchResultHeader extends Container implements ClingSource {
 
             if (defaultLabel.equals("Found In")) {
                 d.width = SearchResultComponent.FoundInButton.intWidth;
-                hb1Width = d.width;
             } // end if
 
             if (defaultLabel.equals("Note Text")) {
                 // System.out.println("'Note Text' HeaderButton PreferredSize: " + d);
                 d.width = NoteComponent.NoteTextField.minWidth;
-                hb2Width = d.width;
             } // end if
 
             if (defaultLabel.equals("Last Mod")) {
                 d.width = SearchResultComponent.LastModLabel.intWidth;
-                hb3Width = d.width;
             } // end if
 
             if (defaultLabel.equals("Deadline")) {
                 d.width = 0; //parent.deadWidth;
-                hb4Width = d.width;
             } // end if
 
             return d;

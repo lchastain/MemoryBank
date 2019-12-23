@@ -1,6 +1,11 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+12/23/2019 0843 - Decision from before was to cool it for a while (possibly till after the Italy
+  trip), but couldn't just go cold-turkey after all; started working on the tests, to improve the
+  worst of the coverages.  Big / good progress on classes like RecurrencePanel and DndLayout, two
+  of the more difficult classes to test.  DndLayout now at 100%; overall is 89% classes, 63% lines.
+
 12/16/2019 2002 - Just wrapped up dev for the YearView new controls operations; continual year
   update in either direction, user-entered year value, arrow keys enabled, graphic arrows shown.
   Now - may take some time off from dev work.  Or not.  Don't know.
