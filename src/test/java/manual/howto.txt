@@ -1,4 +1,4 @@
-One-stop reference for how to do certain tasks.
+One-stop reference for how to do certain tasks (mostly related to Test dev).
 
 0.  Make / get rich test data:  This is done by using the app to make the data you want, then manually
     copy that entire user data collection into Test Resources.  The setup for each class can clear out
@@ -74,8 +74,12 @@ One-stop reference for how to do certain tasks.
 
 19. Fire an event:
     Event.fireEvent(component, event);
+    <Window>.dispatchEvent(WindowEvent);
 
 20. Show the test that gives coverage for a line of code:
-    First, turn on 'Tracing' in the run configuration for the test.
-    Then left click on the green color in the 'gutter', select the icon for that.
+    First, turn on 'Tracing' ('vs Sampling') in the run configuration for the test.
+    Then left click on the green color in the 'gutter' of the IDE editor, select the icon for that.
+
+21. Generate and view the html coverage report:
+    Menu:  Run / Generate Coverage Report
 

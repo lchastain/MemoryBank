@@ -1,19 +1,14 @@
-/* ***************************************************************/
-/*                      SearchPanel	                            */
-/*                                                              */
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Summary description for SearchPanel
- */
-public class SearchPanel extends JPanel {
-    private static final long serialVersionUID = -7578180659628641668L;
+public class SearchPanel extends JPanel implements DocumentListener {
+    private static final long serialVersionUID = 1L;
 
     // 'My' Variables declaration section
     //-------------------------------------------------------------
@@ -37,6 +32,7 @@ public class SearchPanel extends JPanel {
     private ButtonGroup bgMod;
     private YearView yvDateChooser;
     private boolean blnDialogClosed; // For use by inner classes
+    JDialog dialogWindow;
     //-------------------------------------------------------------
 
 
@@ -49,23 +45,25 @@ public class SearchPanel extends JPanel {
     private JCheckBox chkboxTodoLists;
     private JPanel pnlWhere;
     //-----
-    private JPanel pnlKeywords;
+    private JPanel keywordPanel;
     private JLabel lblOpenParen1;
     private JCheckBox chkboxNot1;
-    private JComboBox<String> comboxSearchText1;
+    private JTextField comboxSearchText1;
     //-----
     private JLabel lblOpenParen2;
     private JLabel lblCloseParen1;
     private JRadioButton rbtnAnd1;
     private JRadioButton rbtnOr1;
     private JCheckBox chkboxNot2;
-    private JComboBox<String> comboxSearchText2;
+    private JTextField comboxSearchText2;
     //-----
     private JLabel lblCloseParen2;
     private JRadioButton rbtnAnd2;
     private JRadioButton rbtnOr2;
     private JCheckBox chkboxNot3;
-    private JComboBox<String> comboxSearchText3;
+    private JTextField comboxSearchText3;
+    private JLabel parensOnLabel;
+    private JLabel parensOffLabel;
     //-----
     private JPanel pnlWhen;
     //-----
@@ -83,12 +81,25 @@ public class SearchPanel extends JPanel {
     //-----
     private JLabel lblModSelected;
     //-----
+
+    KeyAdapter typingListener;
     // End of variables declaration
 
 
     public SearchPanel() {
         super();
-        initializeComponent();
+
+        // Some parts of the keyword panel have variable visibility.  Others can be
+        // enabled or disabled, depending on other factors.  These variables are
+        // examined in resetKeywordPanel, and settings made accordingly.
+        typingListener = new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+                resetKeywordPanel();
+            }
+        };
+
+        initializeComponent(); // Build (most of) the panel
 
         // Although size was set explicitly in initializeComponent, each call to getSize()
         //   reported a smaller amount by (6,25) after each time the dialog was closed.
@@ -98,7 +109,8 @@ public class SearchPanel extends JPanel {
         intPreferredHeight = getSize().height;
         blnDialogClosed = false;
 
-        reinitializeComponent();
+        reinitializeComponent(); // Finishing touches on the panel construction
+        resetKeywordPanel();
     } // end constructor
 
 
@@ -111,15 +123,16 @@ public class SearchPanel extends JPanel {
     }
 
     //------------------------------------------------------------
-    // Method Name: checkAllFalse
+    // Method Name: allConditionsFalse
     //
-    // This method is a simple check to see if the only specified
-    //   conditions evaluated to false.  If so
-    //   then the truth table will certainly also evaluate to false.
-    // The return value will be true if this situation is found,
-    //   and the presence or lack of parens is not a factor.
+    // This method is a simple check to see if all three of the
+    //   individual conditions evaluates to false (keeping in mind
+    //   that a null is also treated as a false).  If so then the
+    //   truth table for the totality of conditions will certainly also evaluate to false.
+    // The return value will be true if this situation is found;
+    //   the presence or lack of parens is not a factor.
     //------------------------------------------------------------
-    private boolean checkAllFalse(Boolean blnC1, Boolean blnC2, Boolean blnC3) {
+    private boolean allConditionsFalse(Boolean blnC1, Boolean blnC2, Boolean blnC3) {
 
         if (blnC1 != null) if (blnC1) return false;
         if (blnC2 != null) if (blnC2) return false;
@@ -127,10 +140,10 @@ public class SearchPanel extends JPanel {
 
         if (blnC1 == null)
             if (blnC2 == null)
-                return blnC3 != null;
+                return blnC3 == null;
 
         return true;
-    } // end checkAllFalse
+    } // end allConditionsFalse
 
 
     //------------------------------------------------------------
@@ -138,31 +151,40 @@ public class SearchPanel extends JPanel {
     //
     // This method is a simple check to see if there is either a
     //   (false AND x) or (x AND false) situation specified.  If so
-    //   then the truth table will certainly also evaluate to false.
-    // The return value will be true if this situation is found,
-    //   but it will only be valid in the absence of parens.
+    //   then that portion of the statement will evaluate to false.
+    // The return value from this method will be true if this situation
+    //   is found.  Note that this check alone is not used to rule out
+    //   a 'hit', because prior checks and parentheses are also a factor.
     //------------------------------------------------------------
     private boolean checkFalseCombo(Boolean blnC1, Boolean blnC2, Boolean blnC3) {
         boolean rv = false;
+        // At first glance it would appear that the logic here could be simplified, but
+        // the extra wrinkle of having C2 possibly be null while still considering the
+        // interactions between C1 and C3 due to rbtnAnd2 being selected is why the
+        // extra conditional wrappers are needed.  This constitutes a 'bending over backward'
+        // assist to the user, to allow maximum versatility of the SearchPanel keyword
+        // combinations, but it does seem overly complex.
 
-        if ((blnC1 != null) && (!blnC1)) {
-            if ((rbtnAnd1.isSelected() && blnC2 != null)) return true;   // C1 && C2
+        // Tests should show whether we can even get to all the conditions here.
+
+        if ((blnC1 != null) && (!blnC1)) { // if C1 is false
+            if ((rbtnAnd1.isSelected() && blnC2 != null)) return true; // C1 && C2
             if (blnC2 == null) {
                 if ((rbtnAnd2.isSelected() && blnC3 != null)) return true; // C1 && C3
             } // end if C2 is null
         } // end if C1 is false
 
-        if ((blnC2 != null) && (!blnC2)) {
-            if ((rbtnAnd1.isSelected() && blnC1 != null)) return true; // C1 && C2
+        if ((blnC2 != null) && (!blnC2)) { // if C2 is false
+            if ((rbtnAnd1.isSelected() && blnC1 != null)) return true; // C2 && C1  (C1 can only be null or true by now)
             if ((rbtnAnd2.isSelected() && blnC3 != null)) return true; // C2 && C3
-        } // end if C1 is false
+        } // end if C2 is false
 
-        if ((blnC3 != null) && (!blnC3)) {
+        if ((blnC3 != null) && (!blnC3)) { // if C3 is false
             if (blnC2 == null) {
                 if ((rbtnAnd2.isSelected() && blnC1 != null)) return true; // C1 && C3
             } // end if C2 is null
             if ((rbtnAnd2.isSelected() && blnC2 != null)) return true;   // C2 && C3
-        } // end if C1 is false
+        } // end if C3 is false
 
         return rv;
     } // end checkFalseCombo
@@ -289,7 +311,7 @@ public class SearchPanel extends JPanel {
             blnC1 = null;
         } // end if
 
-        String strW2 = getWord1();
+        String strW2 = getWord2();
         if (strW2 != null) {
             // A non-specified word is a default 'found'.
             if (chkboxNot2.isSelected()) {
@@ -313,49 +335,71 @@ public class SearchPanel extends JPanel {
             blnC3 = null;
         } // end if
 
-        // Now we know whether each condition evaluates to T, F, or null.
+        // Now we have between zero and three conditions (based on search keywords) to use in the evaluations below.
         // The possible variations of these three conditions, along with
         //   their possible combinations of AND/OR and in some cases
         //   grouped with parentheses, results in a truth table that has
-        //   a total of 79 entries.  Of those, we are only interested in
-        //   the 39 that evaluate to false, so that we can return early.
-        // The complete truth table is contained in the documentation;
-        //   the mapping to statements is also there.
+        //   a total of 48 entries.  Of those, we are only interested in
+        //   the 24 that evaluate to false, so that we can return early.
+        // The complete truth table is contained in the documentation:
+        //   SupportingData.xlsx
 
-        // This first test applies to 15 of the 39 cases,
+        // This first check applies to 6 of the 24 false cases,
         //   regardless of whether or not there are parens.
-        if (checkAllFalse(blnC1, blnC2, blnC3)) return false; // Aaf
+        if (allConditionsFalse(blnC1, blnC2, blnC3)) return false; // Af  (All false)
 
         // Now we consider the presence or lack of the parentheses -
         if (getParens() == NOPARENS) {
-            return !checkFalseCombo(blnC1, blnC2, blnC3); // N1fc
-            // This test covered the remaining 12 cases without parens.
-        } else { // 12 more (with parens) to go -
-            if (getParens() == PARENS1) { // 3 cases
-                if (rbtnAnd2.isSelected() && (blnC3 != null && !blnC3)) return false; // P1aC3f
-            } // end if
-
-            if (getParens() == PARENS2) { // 3 cases
-                if ((blnC1 != null && !blnC1) && rbtnAnd1.isSelected()) return false; // P2C1fa
-            } // end if
-
-            // The remaining 6 cases apply whether they are P1 or P2
-            // So now we break them out according to AND/OR -
-            // (When we test for AND, we know the other is an OR, or else
-            //   we wouldn't have the parens in the first place).
+            // There are 6 remaining cases without parentheses where one false is ANDed with at
+            // least one true, so that the overall result will also be false (the case where
+            // a false is ANDed with other falses - was already covered by the 'Af' check).
+            return !checkFalseCombo(blnC1, blnC2, blnC3); // Nfat (No parens, false ANDed with true)
+        } else { // 12 cases left, that can fully evaluate to false.  6 in each parentheses grouping.
+            // If we have parens then no one condition should have remained null.  But just in case
+            // we got here thru some invisible back door, and to make IJ happy:
             assert blnC1 != null;
             assert blnC2 != null;
             assert blnC3 != null;
-            if (rbtnAnd1.isSelected()) { // 3 cases
-                if (blnC1 && !blnC2 && !blnC3) return false; // Ptafof (2)
-                if (!blnC1 && blnC2 && !blnC3) return false; // Pfatof (1)
+
+            // Note to self:  Beware of the differences between boolean logic, boolean arithmetic, truth
+            // tables, and coding logic to implement a truth table; they don't always look like they are
+            // tracking together, and reviewing this code you may think you see flaws but I have been over it
+            // repeatedly for the past 3+ days working on the logic here and inching the tests past each 'if'
+            // block while debugging to be sure that the right lines and conditions are hit.  They are. So
+            // regardless of how it may look to you on some later session, before you start to trash it, I
+            // highly recommend setting aside a pristene copy, to be kept until you are sure you no longer
+            // need it.  That includes 'fixing' the comments.
+
+            boolean p1, p2; // The composite booleans results, depending on location of parentheses.
+
+            if (getParens() == PARENS1) {  // C1 grouped with C2
+                if (rbtnOr1.isSelected()) { // This means they are OR'd
+                    p1 = blnC1 || blnC2; // C1 OR C2 - evaluates to true if either one or both are true
+                    // which means that the collective P1 is AND'd with C3
+                    // So if C3 is false, then the P1 result didn't matter.
+                    if (!blnC3) return false; // P1taC3f - 3 total cases
+                    // But if it was true then we fall thru to here and now P1 does matter -
+                    if (!p1) return false;   // P1faC3t - line 39 of the truth table.
+                } else { // This means that C1 is AND'd with C2
+                    p1 = blnC1 && blnC2; // C1 AND C2 - evaluated to true only if both are true
+                    if (!p1 && !blnC3) return false;  // P1foC3f - lines 23,35 two cases
+                }
             } // end if
 
-            if (rbtnAnd2.isSelected()) { // 3 cases
-                if (!blnC1 && !blnC2 && blnC3) return false; // Pfofat (2)
-                return blnC1 || !blnC2 || blnC3; // Pfotaf (1)
+            if (getParens() == PARENS2) { // PARENS2 -  C2 grouped with C3
+                if (rbtnOr2.isSelected()) { // This means they are OR'd
+                    p2 = blnC2 || blnC3; // C2 OR C3 - evaluates to true if either one or both are true
+                    // which means that the collective P2 is AND'd with C1
+                    // So if C1 false, then the P2 result didn't matter.
+                    if (!blnC1) return false;  // C1faP2t - 3 total cases
+                    // But if it was true then we fall thru to here and now P2 does matter -
+                    return p2;   // C1taP2f - line 24 of the truth table.
+                } else { // This means that C2 is AND'd with C3
+                    p2 = blnC2 && blnC3; // C2 AND C3 - evaluated to true only if both are true
+                    return p2 || blnC1;  // C1foP2f - lines 34,40 two cases
+                }
             } // end if
-        } // end if/else PARENS
+        } // end else there are PARENS.
         return true;
     } // end foundIt
 
@@ -380,7 +424,7 @@ public class SearchPanel extends JPanel {
         return dateLastMod2;
     }
 
-    private  LocalDate getnoteWhen1() {
+    private LocalDate getnoteWhen1() {
         return noteWhen1;
     }
 
@@ -462,13 +506,13 @@ public class SearchPanel extends JPanel {
 
         sps.whenChoice = getWhenSetting();
         localDate = getnoteWhen1();
-        if(localDate == null) {
+        if (localDate == null) {
             sps.noteDateWhen1String = null;
         } else {
             sps.noteDateWhen1String = localDate.toString();
         }
         localDate = getnoteWhen2();
-        if(localDate == null) {
+        if (localDate == null) {
             sps.noteDateWhen2String = null;
         } else {
             sps.noteDateWhen2String = localDate.toString();
@@ -476,13 +520,13 @@ public class SearchPanel extends JPanel {
 
         sps.modChoice = getLastModSetting();
         localDate = getDateLastMod1();
-        if(localDate == null) {
+        if (localDate == null) {
             sps.dateLastMod1String = null;
         } else {
             sps.dateLastMod1String = localDate.toString();
         }
         localDate = getDateLastMod2();
-        if(localDate == null) {
+        if (localDate == null) {
             sps.dateLastMod2String = null;
         } else {
             sps.dateLastMod2String = localDate.toString();
@@ -615,47 +659,59 @@ public class SearchPanel extends JPanel {
     } // end getWhenSetting
 
     private String getWord1() {
-        String s = null;
-        Object o = comboxSearchText1.getSelectedItem();
-        if (o != null) {
-            s = o.toString().trim();
-            if (s.equals("")) s = null;
-        } // end if
+        String s = comboxSearchText1.getText();
+        if (s.trim().isEmpty()) return null;
         return s;
     } // end getWord1
 
 
     private String getWord2() {
-        String s = null;
-        Object o = comboxSearchText2.getSelectedItem();
-        if (o != null) {
-            s = o.toString().trim();
-            if (s.equals("")) s = null;
-        } // end if
+        String s = comboxSearchText2.getText();
+        if (s.trim().isEmpty()) return null;
         return s;
     } // end getWord2
 
 
     private String getWord3() {
-        String s = null;
-        Object o = comboxSearchText3.getSelectedItem();
-        if (o != null) {
-            s = o.toString().trim();
-            if (s.equals("")) s = null;
-        } // end if
+        String s = comboxSearchText3.getText();
+        if (s.trim().isEmpty()) return null;
         return s;
     } // end getWord3
 
 
+    //---------------------------------------------------------
+    // DocumentListener methods
+    //---------------------------------------------------------
+    public void insertUpdate(DocumentEvent e) {
+        // System.out.println("insertUpdate: " + e.toString());
+        resetKeywordPanel();
+    } // end insertUpdate
+
+    public void removeUpdate(DocumentEvent e) {
+        System.out.println("removeUpdate: " + e.toString());
+        resetKeywordPanel();
+    } // end removeUpdate
+
+    public void changedUpdate(DocumentEvent e) {
+        System.out.println("changedUpdate: " + e.toString());
+        resetKeywordPanel();
+    } // end changedUpdate
+
+
     // Called when an AND or an OR radio button was clicked.
-    private void handleAndOrChanged() {
+    private void resetParentheses(boolean moveEm) {
+        boolean toggle = false;
         boolean blnNeedParens = false;
-        boolean blnToggle = lblOpenParen2.isVisible();
+        if (moveEm) {
+            toggle = lblOpenParen1.isVisible();
+        }
 
         lblOpenParen1.setVisible(false);
         lblOpenParen2.setVisible(false);
         lblCloseParen1.setVisible(false);
         lblCloseParen2.setVisible(false);
+        parensOnLabel.setVisible(false);
+        parensOffLabel.setVisible(true);
 
         rbtnAnd1.setToolTipText(null);
         rbtnAnd2.setToolTipText(null);
@@ -675,17 +731,22 @@ public class SearchPanel extends JPanel {
             rbtnAnd2.setToolTipText(s);
         } // end if
 
+        if (!rbtnAnd1.isEnabled()) blnNeedParens = false;
+        if (!rbtnAnd2.isEnabled()) blnNeedParens = false;
+
         if (blnNeedParens) {
-            if (blnToggle) {
-                lblOpenParen1.setVisible(true);
-                lblCloseParen1.setVisible(true);
-            } else {
+            parensOnLabel.setVisible(true);
+            parensOffLabel.setVisible(false);
+            if (toggle) {
                 lblOpenParen2.setVisible(true);
                 lblCloseParen2.setVisible(true);
+            } else {
+                lblOpenParen1.setVisible(true);
+                lblCloseParen1.setVisible(true);
             }
         } // end if
 
-    } // end handleAndOrChanged
+    } // end resetParentheses
 
 
     private void handleDateSpecChange(JRadioButton source, boolean rc) {
@@ -773,23 +834,17 @@ public class SearchPanel extends JPanel {
     boolean hasWhere() {
         boolean retVal = false;
         if (chkboxGoals.isSelected()) retVal = true;
-        if (chkboxDayNotes.isSelected()) retVal =  true;
-        if (chkboxMonthNotes.isSelected()) retVal =  true;
-        if (chkboxYearNotes.isSelected()) retVal =  true;
-        if (chkboxEvents.isSelected()) retVal =  true;
+        if (chkboxDayNotes.isSelected()) retVal = true;
+        if (chkboxMonthNotes.isSelected()) retVal = true;
+        if (chkboxYearNotes.isSelected()) retVal = true;
+        if (chkboxEvents.isSelected()) retVal = true;
         if (chkboxTodoLists.isSelected()) retVal = true;
         return retVal;
     } // end hasWhere
 
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always regenerated
-     * by the Windows Form Designer. Otherwise, retrieving design might not work properly.
-     * Tip: If you must revise this method, please backup this GUI file for JFrameBuilder
-     * to retrieve your design properly in future, before revising this method.
-     */
     private void initializeComponent() {
+
         JPanel contentPane = this.getContentPane();
         //----- 
         chkboxGoals = new JCheckBox();
@@ -800,12 +855,12 @@ public class SearchPanel extends JPanel {
         chkboxTodoLists = new JCheckBox();
         pnlWhere = new JPanel();
         //----- 
-        pnlKeywords = new JPanel();
+        keywordPanel = new JPanel();
         //----- 
         JLabel jLabel3 = new JLabel();
         lblOpenParen1 = new JLabel();
         chkboxNot1 = new JCheckBox();
-        comboxSearchText1 = new JComboBox<>();
+        comboxSearchText1 = new JTextField();
         JPanel pnlKeyword1 = new JPanel();
         //----- 
         lblOpenParen2 = new JLabel();
@@ -813,14 +868,14 @@ public class SearchPanel extends JPanel {
         rbtnAnd1 = new JRadioButton();
         rbtnOr1 = new JRadioButton();
         chkboxNot2 = new JCheckBox();
-        comboxSearchText2 = new JComboBox<>();
+        comboxSearchText2 = new JTextField();
         JPanel pnlKeyword2 = new JPanel();
         //----- 
         lblCloseParen2 = new JLabel();
         rbtnAnd2 = new JRadioButton();
         rbtnOr2 = new JRadioButton();
         chkboxNot3 = new JCheckBox();
-        comboxSearchText3 = new JComboBox<>();
+        comboxSearchText3 = new JTextField();
         JPanel pnlKeyword3 = new JPanel();
         //----- 
         pnlWhen = new JPanel();
@@ -848,11 +903,11 @@ public class SearchPanel extends JPanel {
         // contentPane 
         // 
         contentPane.setLayout(null);
-        addComponent(contentPane, pnlWhere, 293, 130, 133, 205);
-        addComponent(contentPane, pnlKeywords, 9, 10, 416, 110);
-        addComponent(contentPane, pnlWhen, 9, 130, 272, 100);
-        addComponent(contentPane, pnlLastMod, 9, 237, 272, 100);
-        // 
+        addComponent(contentPane, keywordPanel, 9, 10, 421, 135);
+        addComponent(contentPane, pnlWhen, 9, 150, 272, 100);
+        addComponent(contentPane, pnlLastMod, 9, 257, 272, 100);
+        addComponent(contentPane, pnlWhere, 293, 150, 138, 207);
+        //
         // chkboxGoals 
         // 
         chkboxGoals.setText("Goals");
@@ -882,7 +937,19 @@ public class SearchPanel extends JPanel {
         // 
         chkboxTodoLists.setText("To Do Lists");
         chkboxTodoLists.setSelected(true);
-        // 
+        //
+        // pnlKeywords
+        //
+        parensOnLabel = new JLabel("   Group keywords when AND+OR.  Same AND/OR again to move the parentheses.");
+        parensOffLabel = new JLabel("   Keyword searches are case-insensitive.");
+        keywordPanel.setLayout(new BoxLayout(keywordPanel, BoxLayout.Y_AXIS));
+        keywordPanel.add(pnlKeyword1, 0);
+        keywordPanel.add(pnlKeyword2, 1);
+        keywordPanel.add(pnlKeyword3, 2);
+        keywordPanel.add(parensOnLabel, 3);
+        keywordPanel.add(parensOffLabel, 4);
+        keywordPanel.setBorder(new TitledBorder("Title"));
+        //
         // pnlWhere 
         // 
         pnlWhere.setLayout(new BoxLayout(pnlWhere, BoxLayout.Y_AXIS));
@@ -893,15 +960,7 @@ public class SearchPanel extends JPanel {
         pnlWhere.add(chkboxEvents, 4);
         pnlWhere.add(chkboxTodoLists, 5);
         pnlWhere.setBorder(new TitledBorder("Title"));
-        // 
-        // pnlKeywords 
-        // 
-        pnlKeywords.setLayout(new BoxLayout(pnlKeywords, BoxLayout.Y_AXIS));
-        pnlKeywords.add(pnlKeyword1, 0);
-        pnlKeywords.add(pnlKeyword2, 1);
-        pnlKeywords.add(pnlKeyword3, 2);
-        pnlKeywords.setBorder(new TitledBorder("Title"));
-        // 
+        //
         // jLabel3 
         // 
         jLabel3.setText("Keyword(s)");
@@ -915,15 +974,11 @@ public class SearchPanel extends JPanel {
         chkboxNot1.setText("NOT");
         // 
         // comboxSearchText1 
-        // 
+        //
         comboxSearchText1.setEditable(true);
-        comboxSearchText1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                comboxSearchText1_actionPerformed();
-            }
+        comboxSearchText1.getDocument().addDocumentListener(this);
 
-        });
-        // 
+        //
         // pnlKeyword1 
         // 
         pnlKeyword1.setLayout(null);
@@ -955,13 +1010,9 @@ public class SearchPanel extends JPanel {
         // comboxSearchText2 
         // 
         comboxSearchText2.setEditable(true);
-        comboxSearchText2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                comboxSearchText2_actionPerformed();
-            }
+        comboxSearchText2.getDocument().addDocumentListener(this);
 
-        });
-        // 
+        //
         // pnlKeyword2 
         // 
         pnlKeyword2.setLayout(null);
@@ -991,13 +1042,9 @@ public class SearchPanel extends JPanel {
         // comboxSearchText3 
         // 
         comboxSearchText3.setEditable(true);
-        comboxSearchText3.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                comboxSearchText3_actionPerformed();
-            }
+        comboxSearchText3.getDocument().addDocumentListener(this);
 
-        });
-        // 
+        //
         // pnlKeyword3 
         // 
         pnlKeyword3.setLayout(null);
@@ -1081,38 +1128,9 @@ public class SearchPanel extends JPanel {
         // 
         // SearchPanel
         // 
-        this.setTitle();
         this.setLocation(new Point(16, 0));
         this.setSize(new Dimension(443, 337));
     } // end initializeComponent
-
-
-    private void comboxSearchText1_actionPerformed() {
-        System.out.println("\ncomboxSearchText1_actionPerformed(ActionEvent e) called.");
-
-        Object o = comboxSearchText1.getSelectedItem();
-        System.out.println(">>" + ((o == null) ? "null" : o.toString()) + " is selected.");
-        // TODO: Add any handling code here for the particular object being selected 
-
-    }
-
-    private void comboxSearchText2_actionPerformed() {
-        System.out.println("\ncomboxSearchText2_actionPerformed(ActionEvent e) called.");
-
-        Object o = comboxSearchText2.getSelectedItem();
-        System.out.println(">>" + ((o == null) ? "null" : o.toString()) + " is selected.");
-        // TODO: Add any handling code here for the particular object being selected 
-
-    }
-
-    private void comboxSearchText3_actionPerformed() {
-        System.out.println("\ncomboxSearchText3_actionPerformed(ActionEvent e) called.");
-
-        Object o = comboxSearchText3.getSelectedItem();
-        System.out.println(">>" + ((o == null) ? "null" : o.toString()) + " is selected.");
-        // TODO: Add any handling code here for the particular object being selected 
-
-    }
 
 
     /**
@@ -1135,7 +1153,7 @@ public class SearchPanel extends JPanel {
         tb.setTitle("Where to search");
         tb.setTitleFont(Font.decode("Dialog-bold-14"));
 
-        tb = (TitledBorder) pnlKeywords.getBorder();
+        tb = (TitledBorder) keywordPanel.getBorder();
         tb.setTitle("What word(s) to look for");
         tb.setTitleFont(Font.decode("Dialog-bold-14"));
 
@@ -1172,7 +1190,7 @@ public class SearchPanel extends JPanel {
         bgMod.add(rbtnModAfter);
         //-----------------------------------------------
 
-        // Increase the size and visibility of the parens
+        // Increase the size and boldness of the parens
         lblOpenParen1.setFont(Font.decode("Dialog-bold-14"));
         lblOpenParen2.setFont(Font.decode("Dialog-bold-14"));
         lblCloseParen1.setFont(Font.decode("Dialog-bold-14"));
@@ -1182,7 +1200,7 @@ public class SearchPanel extends JPanel {
         //--------------------------------------------------------
         MouseAdapter ma1 = new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
-                handleAndOrChanged();
+                resetParentheses(true);
             }
         }; // end redefined MouseAdapter
 
@@ -1191,7 +1209,7 @@ public class SearchPanel extends JPanel {
         rbtnOr1.addMouseListener(ma1);
         rbtnOr2.addMouseListener(ma1);
         //--------------------------------------------------------
-        handleAndOrChanged(); // Initialize to all non-visible
+        resetParentheses(false); // Initialize parens to all non-visible
 
         // Initialize the Date Specification prompts
         noteWhen1 = null;
@@ -1229,9 +1247,6 @@ public class SearchPanel extends JPanel {
         //--------------------------------------------------------
 
 
-        // do this for searching within results
-//  pnlWhere.setVisible(false);
-
     } // end reinitializeComponent
 
 
@@ -1266,6 +1281,39 @@ public class SearchPanel extends JPanel {
         } // end if
     } // end resetDateDisplay
 
+    void resetKeywordPanel() {
+        // Set the defaults
+        chkboxNot1.setSelected(false);
+        chkboxNot1.setEnabled(false);
+        rbtnAnd1.setEnabled(false);
+        rbtnOr1.setEnabled(false);
+        chkboxNot2.setSelected(false);
+        chkboxNot2.setEnabled(false);
+        rbtnAnd2.setEnabled(false);
+        rbtnOr2.setEnabled(false);
+        chkboxNot2.setSelected(false);
+        chkboxNot3.setEnabled(false);
+
+        if (getWord1() != null) {
+            chkboxNot1.setEnabled(true);
+        }
+        if (getWord2() != null) {
+            chkboxNot2.setEnabled(true);
+            if (getWord1() != null) {
+                rbtnAnd1.setEnabled(true);
+                rbtnOr1.setEnabled(true);
+            }
+        }
+        if (getWord3() != null) {
+            chkboxNot3.setEnabled(true);
+            if (getWord1() != null || getWord2() != null) {
+                rbtnAnd2.setEnabled(true);
+                rbtnOr2.setEnabled(true);
+            }
+        }
+        resetParentheses(false);
+    }
+
     boolean searchGoals() {
         return chkboxGoals.isSelected();
     }
@@ -1290,33 +1338,55 @@ public class SearchPanel extends JPanel {
         return chkboxTodoLists.isSelected();
     }
 
-    // Just for JFrameBuilder -
-    private void setTitle() {
+    // Used only by tests (for now).
+    // Future dev may support a 'recall' of a previously conducted search.
+    void setTheSettings(SearchPanelSettings theSettings) {
+        // All SearchPanelSettings default to null, which is NOT the same defaults
+        // in every setting on the SearchPanel.
+
+        // The SearchPanel keeps NO local variables; all values are held in the components.
+        // This just is; it wasn't by design and now - don't know if it was a good idea or not.
+        // It seems kind of cool but then it makes getting/setting a lot more complicated.
+        // And it definitely does not keep data separate of representation which goes against
+        // industry standard practices, so now that I've written it down it's looking more like
+        // it probably was NOT a good idea.  Oh well - it works and I'll keep it this way for now.
+        if (theSettings.word1 != null) comboxSearchText1.setText(theSettings.word1);
+        if (theSettings.word2 != null) comboxSearchText2.setText(theSettings.word2);
+        if (theSettings.word3 != null) comboxSearchText3.setText(theSettings.word3);
+        rbtnAnd1.setSelected(theSettings.and1);
+        rbtnOr1.setSelected(theSettings.or1);
+        rbtnAnd2.setSelected(theSettings.and2);
+        rbtnOr2.setSelected(theSettings.or2);
+        lblOpenParen1.setVisible(theSettings.paren1); // Closed tracks along with Open
+        lblOpenParen2.setVisible(theSettings.paren2); // we're depending on it.
+
+
     }
 
-    private void showDateDialog(String s, int numSelections) {
+    void showDateDialog(String s, int numSelections) {
         // Make a dialog window to choose a date from a Year.
         Frame f = JOptionPane.getFrameForComponent(this);
-        JDialog tempwin = new JDialog(f, true);
+        dialogWindow = new JDialog(f, true);
         blnDialogClosed = false;
 
-        tempwin.addWindowListener(new WindowAdapter() {
+        dialogWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
+                //System.out.println("Window closing event: " + we.toString());
                 blnDialogClosed = true;
             }
         });
 
-        tempwin.getContentPane().add(yvDateChooser, BorderLayout.CENTER);
-        tempwin.setTitle(s);
-        tempwin.setSize(yvDateChooser.getPreferredSize());
-        tempwin.setResizable(false);
-        yvDateChooser.setDialog(tempwin, numSelections);
+        dialogWindow.getContentPane().add(yvDateChooser, BorderLayout.CENTER);
+        dialogWindow.setTitle(s);
+        dialogWindow.setSize(yvDateChooser.getPreferredSize());
+        dialogWindow.setResizable(false);
+        yvDateChooser.setDialog(dialogWindow, numSelections);
 
         // Center the dialog relative to the main frame.
-        tempwin.setLocationRelativeTo(f);
+        dialogWindow.setLocationRelativeTo(f);
 
         // Go modal -
-        tempwin.setVisible(true);
+        dialogWindow.setVisible(true);
     } // end showDateDialog
 
 
