@@ -54,7 +54,13 @@ public class NoteGroupKeeper {
         if (theGroup != null) {
             MemoryBank.debug("  Removing " + aListName + " from the NoteGroupKeeper");
             theNoteGroups.removeElement(theGroup);
+        } else {
+            MemoryBank.debug("  Unable to remove " + aListName + "; it was not found in the NoteGroupKeeper");
         } // end if
     } // end remove
+
+    int size() {
+        return theNoteGroups.size();
+    }
 
 } // end class NoteGroupKeeper
