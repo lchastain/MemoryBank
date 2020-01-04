@@ -14,6 +14,7 @@ import java.util.Vector;
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
+    private static final int PAGE_SIZE = 20;
 
     // Values used in sorting.
     private static final int TOP = 0;
@@ -37,7 +38,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end static
 
     public TodoNoteGroup(String fname) {
-        super();
+        this(fname, PAGE_SIZE);
+    }
+
+    public TodoNoteGroup(String fname, int pageSize) {
+        super(pageSize);
 
         // Use an inherited (otherwise unused) method to store our list name.
         // It will be used by the 'saveAs' method.
@@ -61,12 +66,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         heading.add(lblListTitle, "Center");
 
         // Set the pager's background to the same color as this row,
-        //   since other items on this row make it slightly 'higher'
-        //   than the pager control.
+        //   since the title on this row is taller and that makes
+        //   a thin slice of 'open space' below the pager.  This is
+        //   better than stretching the pager control because that
+        //   separator spacing is actually visually preferred.
         theNotePager.setBackground(heading.getBackground());
         heading.add(theNotePager, "East");
         //----------------------------------------------------------
-
 
         add(heading, BorderLayout.NORTH);
 
@@ -83,7 +89,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end constructor
 
 
-    private static String basePath() {
+    static String basePath() {
         return NoteGroup.basePath(areaName);
     }
 

@@ -19,7 +19,6 @@ public class NoteComponent extends JPanel {
     NoteTextField noteTextField;
 
     // Needed by container classes to set their scrollbar unit increment.
-    // BUT - change to protected and make daynote use/override it
     static final int NOTEHEIGHT = 24;
 
     static final int NEEDS_TEXT = 77;    // Arbitrary values
@@ -83,12 +82,11 @@ public class NoteComponent extends JPanel {
     }
 
     NoteComponent(NoteGroup ng, int i) {
-        // This constructor will make NEW items only; loading of
-        //  data is done by 'setNoteData'.
         super(new BorderLayout(2, 0));
         myNoteGroup = ng;
         index = i;
 
+        makeDataObject();
         noteTextField = new NoteTextField();
         add(noteTextField, "Center");
 
@@ -128,7 +126,7 @@ public class NoteComponent extends JPanel {
         System.out.println("NoteComponent.clear, calling getNoteData()!"); // scr0050 troubleshooting.
         NoteData nd = getNoteData();
         System.out.println("NoteComponent.clear, calling NoteData.clear!"); // scr0050 troubleshooting.
-        if (nd != null) nd.clear();
+        if (nd != null) nd.clear(); // This can possibly affect groupDataVector.
 
         // Clear the (base) Component - ie, the noteTextField
         noteTextField.clear();
@@ -142,7 +140,7 @@ public class NoteComponent extends JPanel {
     } // end clear
 
 
-    // Do not let it grow to fill the available space in the container.
+    // Do not let this component grow to fill the available space in the container.
     public Dimension getMaximumSize() {
         Dimension d = super.getMaximumSize();
         return new Dimension(d.width, NOTEHEIGHT);
@@ -193,29 +191,20 @@ public class NoteComponent extends JPanel {
     //---------------------------------------------------------------------
     // Method Name: initialize
     //
+    // Called (by keyTyped) when a note first has data entered into it by the user.
+    //
     // 'initialized' means that a NoteComponent has had text entered into
-    //    its noteString.  This helps to reduce the work of the keyTyped
-    //    handler.
+    //    its noteTextField.  This flag helps to reduce the work of the
+    //    keyTyped handler.
     //
-    // Aside from setting this critical flag, this method asociates a new
-    //   data object with this NoteComponent (if it does not already have
-    //   one), adds the data component to the group data Vector (if it is
-    //   not already there), and enables the next NoteComponent to accept text
-    //   entry.
-    //
-    // Called when a note first has data entered into it by the user.
+    // In addition to setting this critical flag, this method (usually) enables the
+    //   next NoteComponent in the group to accept text entry.
     //---------------------------------------------------------------------
     protected void initialize() {
-        NoteData theData = getNoteData();
-        if (theData == null) makeDataObject();
-        if (index >= myNoteGroup.lastVisibleNoteIndex) {
-            // A NoteComponent will lose initialization and visible text if cleared,
-            //   but will retain its data object.  We only want to add 'new' data
-            //   to the group Vector.
-            myNoteGroup.groupDataVector.addElement(getNoteData());
-            myNoteGroup.activateNote(index);
-        }
         initialized = true;
+        if (index >= myNoteGroup.lastVisibleNoteIndex) {
+            myNoteGroup.activateNextNote(index);
+        }
     } // end initialize
 
 
@@ -224,8 +213,8 @@ public class NoteComponent extends JPanel {
     //
     // Each child of this class (that manages a child of the
     //   NoteData class) should override this method and
-    //   instantiate their own data.  Those overrides
-    //   should not call super().
+    //   instantiate their own data type.  Those overrides
+    //   should not call this 'super' method.
     //--------------------------------------------------------------
     protected void makeDataObject() {
         myNoteData = new NoteData();
@@ -241,10 +230,10 @@ public class NoteComponent extends JPanel {
     //   own thing but they should probably call this one after that.
     //--------------------------------------------------------------
     protected void noteActivated(boolean blnIAmOn) {
+        if(!initialized) return; // No need for this, on notes where nothing was ever done.
         if (!blnIAmOn) {
                 if (noteTextField.getText().trim().equals("")) {
                     NoteData nd = getNoteData();
-                    if (nd == null) return; // Can this still happen?
 
                     //   Here we enforce the rule that notes must
                     //   have text before they can have additional features.
@@ -679,7 +668,7 @@ public class NoteComponent extends JPanel {
             if (kc == KeyEvent.VK_TAB) return;
             if (kc == KeyEvent.VK_ENTER) return;
             if (kc == KeyEvent.VK_BACK_SPACE) return;
-            initialize();
+            initialize(); // this will activate the next note
             noteActivated(true); // Added for SCR0091
         } // end keyTyped
 

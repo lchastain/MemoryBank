@@ -1,6 +1,18 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+
+1/02/2020 0627 - When the test dev moved on to NotePager, began finding several problems with
+  NoteGroup growth, page rollovers, etc.  It tracks back mostly to the refactor that was done
+  on loadInterface, but ties in to unloadInterface, initialize, noteActivated, and getNoteData -
+  all together.  Now considering a major rev where the noteGroupDataVector is NOT affected by
+  loadInterface, and data presence and NoteComponent visibility/editability is more straighforward.
+  But this is a big deal; it could all blow up and I've currently got a raging head cold and
+  an upcoming visa-rejuvenating trip to Italy, along with apartment/cottage issues.  Been sitting
+  on this without making a move until it seemed more clear and the head cold cleared up a bit - now,
+  moving forward with it but the good thing is that a ~good git commit was done just prior, so
+  I should be able to get back to this point, such as it is, if I feel the need.
+
 12/23/2019 0843 - Decision from before was to cool it for a while (possibly till after the Italy
   trip), but couldn't just go cold-turkey after all; started working on the tests, to improve the
   worst of the coverages.  Big / good progress on classes like RecurrencePanel and DndLayout, two

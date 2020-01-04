@@ -14,6 +14,9 @@ import java.io.IOException;
 // 4.  An 'undo' will restore the data in the interface to its original form, and disable the menu item.
 // 5.  A 'save' will save the data, refresh the interface, and disable the menu item.
 
+// Where to look:
+// NoteGroup - setListMenu, adjustMenuItems
+
 // Not (yet?) tested:
 //--------------------
 // Component shift up/down
@@ -123,7 +126,7 @@ public class NoteAppearanceTests {
 
         // Test condition 1:  NoteGroup loads a finite amount of data, and the rest of the interface is 'empty' (not visible).
         //-------------------------------------------------------------------------------------------------------------
-        // The last data item (zero-based indexing)
+        // The last data item is visible and initialized (zero-based indexing)
         TodoNoteComponent todoNoteComponent2 = todoNoteGroup.getNoteComponent(2);
         Assertions.assertTrue(todoNoteComponent2.isVisible());
         Assertions.assertTrue(todoNoteComponent2.initialized);

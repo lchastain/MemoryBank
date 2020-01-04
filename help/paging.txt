@@ -1,13 +1,17 @@
-Paging is currently implemented for SearchResults (only?)
+Paging is currently implemented for SearchResults and Todo Lists
 
-Default page size is 40 notes.
+Default NoteGroup page size is 40 notes.  Child classes may override this; Todo Lists default page size is 20.
 
-When a DayNoteGroup gets to 40 notes -
-    no new lines are created / initialized.
-    navigation up/down will wrap around.
+When a NoteGroup that supports paging AND group growth gets to an end-of-page boundary:
+    If this happened on page one then the pager control will appear, and stay visible as long as there are
+        as many as PAGESIZE notes.
+    No new note appears, but pages needed is recalculated, to add one.
+    The view remains on the current page.
+    Navigation up/down will wrap around and stay on same page.
+    If the pager control is used to go to the next page, that new page will be empty except for one
+        user-editable line.
 
 
 When a Todo List ...
-    add 40 notes
     merge
 

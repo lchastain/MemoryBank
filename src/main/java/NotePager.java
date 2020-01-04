@@ -1,9 +1,9 @@
 /*  NotePager provides a control for altering the page number of the
  NoteGroup.  It is created by the base NoteGroup class but relies
- on the child NoteGroup to 'add' it to their container.  The
- preferred location is the upper right corner of the header.  If
- this control determines that there is only one page of data to
- display, it will set its visibility to false.
+ on the child NoteGroup to 'add' it to their container.  All NoteGroups
+ have a 'header' panel, so the preferred location is the upper right
+ corner of the header.  If this control determines that there is only
+ one page of data to display, it will set its own visibility to false.
  */
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     private int intPageSize;
     private int intGroupSize;
     private int intMaxPages;
-    private int intCurrentPage;
+    private int currentPageNumber;
     private int intPageFrom;
     private NoteGroup myNoteGroup;
     private LabelButton lbCurrentPage;
@@ -25,8 +25,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     NotePager(NoteGroup ng) {
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
         myNoteGroup = ng;
-
-        // intCurrentPage is initialized in reset().
 
         // Make a path to the images for the Alter Buttons
         char c = java.io.File.separatorChar;
@@ -37,12 +35,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         leftAb.addMouseListener(this);
         leftAb.setIcon(new ImageIcon(iString + "left.gif"));
         leftAb.setPreferredSize(new Dimension(24, 24));
-
-        LabelButton rightAb = new LabelButton();
-        rightAb.setName("rightAb");
-        rightAb.addMouseListener(this);
-        rightAb.setIcon(new ImageIcon(iString + "right.gif"));
-        rightAb.setPreferredSize(new Dimension(24, 24));
 
         lbCurrentPage = new LabelButton();
         lbCurrentPage.setName("middleButton");
@@ -71,6 +63,12 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         jtfThePageNum.setHorizontalAlignment(JTextField.CENTER);
         jtfThePageNum.setPreferredSize(new Dimension(85, 24));
 
+        LabelButton rightAb = new LabelButton();
+        rightAb.setName("rightAb");
+        rightAb.addMouseListener(this);
+        rightAb.setIcon(new ImageIcon(iString + "right.gif"));
+        rightAb.setPreferredSize(new Dimension(24, 24));
+
         add(leftAb);
         add(lbCurrentPage);
         add(jtfThePageNum);
@@ -79,13 +77,21 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     } // end constructor
 
     int getCurrentPage() {
-        return intCurrentPage;
+        return currentPageNumber;
     }
 
     int getHighestPage() {
         return intMaxPages;
     }
 
+    // This method was previously called from saveGroup, as a way to get the page number to use with unloadInterface.
+    // Now, saveGroup does not do an unload; it happens one step earlier, in preClose, and saving the data is NOT done
+    // during a page event.  This better supports an 'undo', and it is part of breaking apart the paging event into
+    // two operations (pageAway, pageTo) vs a single one (gotoPage).  Having two operations is more in line with other
+    // awt/swing events like focusLost, focusGained.  Querying the current page number should NOT be done during the
+    // paging events themselves, and neither should saving the group.  These are now separate activities.
+    // This method and note may be removed after the current paging problems are solved, test(s) in place, and there
+    // has been at least one git commit of this note.  Then, the var itself can also probably go away.
     int getPageFrom() {
         return intPageFrom;
     }
@@ -95,8 +101,8 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         int theFirst;
         int theLast;
 
-        theFirst = (intCurrentPage - 1) * intPageSize + 1;
-        theLast = intCurrentPage * intPageSize;
+        theFirst = (currentPageNumber - 1) * intPageSize + 1;
+        theLast = currentPageNumber * intPageSize;
 
         if (theLast > intGroupSize) theLast = intGroupSize;
         if (intGroupSize == 0) theFirst = 0;
@@ -112,25 +118,24 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     //-------------------------------------------------------------------------
     // Method Name: reset
     //
-    // This method is needed because this class is constructed by the
-    //   NoteGroup before it has loaded any notes, so at that point
-    //   the maximum number of pages cannot be determined.  Also, due
-    //   to reload operations, the calculation may need to be
-    //   regularly redone.  So, it is called by NoteGroup from the
+    // This method is used to update and report the maximum number of
+    //   pages.  It is called by NoteGroup from the
     //   updateGroup method (after a group load).
     //-------------------------------------------------------------------------
     public void reset(int i) {
-        intCurrentPage = i;
+        currentPageNumber = i;
         intPageFrom = i;
         intPageSize = myNoteGroup.pageSize;
         intGroupSize = myNoteGroup.groupDataVector.size();
 
         // Calculate the maximum number of pages.
-        if (intGroupSize == 0) intMaxPages = 1;
-        else if ((intGroupSize % intPageSize) == 0) {
+        if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
+        else if ((intGroupSize % intPageSize) == 0) { // The data comes out to an even number of pages, exactly.
             intMaxPages = (intGroupSize / intPageSize);
-            if (myNoteGroup.addNoteAllowed) intMaxPages++;
-        } else intMaxPages = (intGroupSize / intPageSize) + 1;
+            if (myNoteGroup.addNoteAllowed) {
+                intMaxPages = (intGroupSize / intPageSize) + 1; // Add a page for 'growth'.
+            }
+        } else intMaxPages = (intGroupSize / intPageSize) + 1;  // A partial last page.
 
         if (intMaxPages == 1) {
             // No paging control is needed if there is only one page.
@@ -139,13 +144,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         } else { // we may be getting a reset from a page 1 overflow -
             setVisible(true);
         } // end if
-
-        // Set the pager's background to the same color as its container,
-        //   since other items in the container make it slightly 'higher'
-        //   than the pager control.
-//    if(getParent() != null)
-//      setBackground(getParent().getBackground());
-        //-------------------------------------------------------------
 
         setMiddleMessage();
 
@@ -161,7 +159,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     // Called by reset and any paging operation.
     //---------------------------------------------------------------------
     private void setMiddleMessage() {
-        String s = String.valueOf(intCurrentPage);
+        String s = String.valueOf(currentPageNumber);
         jtfThePageNum.setToolTipText(s);
         s += " of " + intMaxPages;
 
@@ -179,31 +177,37 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         JTextField jtf = (JTextField) e.getSource();
         if (!jtf.getText().trim().equals("")) {
             int theNewPage = Integer.parseInt(jtf.getText());
-            if (theNewPage <= intMaxPages) {
-                intPageFrom = intCurrentPage;
-                intCurrentPage = theNewPage;
-                myNoteGroup.gotoPage(intCurrentPage);
+            if(theNewPage == currentPageNumber) { // No change?  Then no need.
+                // This should not be a back-door to a 'refresh' operation.
+                MemoryBank.debug("Explicit page nummber was set to current page!  Ignored.");
+            } else if (theNewPage <= intMaxPages) {
+                myNoteGroup.pageAway(currentPageNumber);
+                intPageFrom = currentPageNumber;
+                currentPageNumber = theNewPage;
+                myNoteGroup.pageTo(currentPageNumber);
                 setMiddleMessage();
                 myNoteGroup.pageNumberChanged();
-                intPageFrom = intCurrentPage;
+                intPageFrom = currentPageNumber;
             } // end if
         } // end if
 
         jtf.transferFocus();
     } // end actionPerformed
 
+    // Focus events for the JTextField for page number entry
+    //------------------------------------------------------
     public void focusGained(FocusEvent e) {
         // Put the entry to the current page
         if (!jtfThePageNum.getText().trim().equals("")) {
-            jtfThePageNum.setText(String.valueOf(intCurrentPage));
+            jtfThePageNum.setText(String.valueOf(currentPageNumber));
         } // end if
     } // end focusGained
 
-    // This is only used for the JTextField.
     public void focusLost(FocusEvent e) {
         jtfThePageNum.setVisible(false);
         lbCurrentPage.setVisible(true);
     } // end focusLost
+    //------------------------------------------------------
 
 
     //---------------------------------------------------------
@@ -213,7 +217,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent me) {
-        // System.out.println(e);
+        System.out.println("MouseEntered event: " + me.toString());
 
         Component source = (Component) me.getSource();
         String s = source.getName();
@@ -254,27 +258,28 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             jtfThePageNum.requestFocusInWindow();
             lbCurrentPage.setVisible(false);
         } else {
-            AppTreePanel.theInstance.requestFocusInWindow();
+//            AppTreePanel.theInstance.requestFocusInWindow();  // 1/4/2020 - this tripped up a test, so seeing if we can live without.
+            myNoteGroup.pageAway(currentPageNumber);
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");
-                if (intCurrentPage > 1) {
-                    intCurrentPage--;
-                    myNoteGroup.gotoPage(intCurrentPage);
+                if (currentPageNumber > 1) {
+                    currentPageNumber--;
+                    myNoteGroup.pageTo(currentPageNumber);
                 } else {
-                    intCurrentPage = intMaxPages;
-                    myNoteGroup.gotoPage(intCurrentPage);
+                    currentPageNumber = intMaxPages;
+                    myNoteGroup.pageTo(currentPageNumber);
                 } // end if
                 setMiddleMessage();
                 myNoteGroup.pageNumberChanged();
             }
             if (s.equals("rightAb")) {
                 // System.out.println("Next page");
-                if (intCurrentPage < intMaxPages) {
-                    intCurrentPage++;
-                    myNoteGroup.gotoPage(intCurrentPage);
+                if (currentPageNumber < intMaxPages) {
+                    currentPageNumber++;
+                    myNoteGroup.pageTo(currentPageNumber);
                 } else {
-                    intCurrentPage = 1;
-                    myNoteGroup.gotoPage(intCurrentPage);
+                    currentPageNumber = 1;
+                    myNoteGroup.pageTo(currentPageNumber);
                 } // end if
                 setMiddleMessage();
                 myNoteGroup.pageNumberChanged();
@@ -285,7 +290,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         //   when handling a paging event, but this value is
         //   already initialized in 'reset' and so only needs to
         //   be updated after a page change.
-        intPageFrom = intCurrentPage;
+        intPageFrom = currentPageNumber;
 
         //AppUtil.localDebug(false);
     } // end mousePressed

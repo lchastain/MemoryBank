@@ -64,7 +64,7 @@ public abstract class NoteGroup extends JPanel {
     private JScrollPane jsp;
 
     // Flag used to determine if saving might be necessary.
-    private boolean groupChanged = true;
+    private boolean groupChanged;
 
     // The Information/Status panel of the frame.
     private JLabel lblStatusMessage;
@@ -77,7 +77,7 @@ public abstract class NoteGroup extends JPanel {
         this(PAGE_SIZE);
     } // end constructor 1
 
-    private NoteGroup(int intPageSize) {
+    NoteGroup(int intPageSize) {
         super(new BorderLayout());
         pageSize = intPageSize;
         addNoteAllowed = true;
@@ -88,7 +88,7 @@ public abstract class NoteGroup extends JPanel {
         jsp = new JScrollPane();
         JScrollBar jsb = new JScrollBar();
 
-        // This is necessary because otherwise, once the bar appears,
+        // This is necessary because otherwise, once the bar appears
         //  the tab and up/down keys can transfer focus over to here,
         //  and the up/down keys cannot get it back.
         jsb.setFocusable(false);
@@ -123,13 +123,7 @@ public abstract class NoteGroup extends JPanel {
         } // end for
 
         // The first note should not be invisible.
-        // This is for SearchResultGroup, since he specifies a page size
-        //   that is the same as the number of records read in, since
-        //   we don't yet have paging.  At some point, this test needs
-        //   to go away or move or change logic/readability.
-        if (pageSize > 0) {
-            groupNotesListPanel.getComponent(0).setVisible(true);
-        } // end if there is at least one Note
+        groupNotesListPanel.getComponent(0).setVisible(true);
 
         add(jsp, BorderLayout.CENTER);
         jsp.setViewportView(groupNotesListPanel);
@@ -148,15 +142,30 @@ public abstract class NoteGroup extends JPanel {
 
 
     //----------------------------------------------------------------------
-    // Method Name: activateNote
+    // Method Name: activateNextNote
     //
-    // This method will set the note visible, unless:
+    // This method will set the next note visible, unless:
     //   the requested index is already visible   OR
     //   there are no more hidden notes to show, in which case it will
     //   create a new page.
+    // It is called either from NoteComponent.initialize() or loadInterface().
     //----------------------------------------------------------------------
-    void activateNote(int noteIndex) {
-        if (noteIndex < lastVisibleNoteIndex) return;  // already showing.
+    void activateNextNote(int noteIndex) {
+        if ((noteIndex >= 0) && (noteIndex < lastVisibleNoteIndex)) return;  // already showing.
+
+        // noteIndex is -1 when we have come here from loadInterface, where the displayed page is empty.
+        if(noteIndex >= 0) {
+            // Get the component for the indicated noteIndex (the note we're 'coming from').
+            NoteComponent thisNote = (NoteComponent) groupNotesListPanel.getComponent(noteIndex);
+
+            // If the note we're coming from has not been initialized, we shouldn't activate the next one.
+            // How could this happen, you ask?  Well, it happens when a note has been added to a
+            // page that we've paged away from and now we've come back to that page and
+            // the loadInterface method is trying to correctly set the lastVisibleNoteIndex.
+            // It considers the last note on the page (our new but uninitialized one) and then assumes
+            // (incorrectly, in this case) that it needs to go one better.
+            if (!thisNote.initialized) return;
+        }
 
         if (lastVisibleNoteIndex < intHighestNoteComponentIndex) {
             lastVisibleNoteIndex++;
@@ -166,17 +175,20 @@ public abstract class NoteGroup extends JPanel {
         } else {
             // Implement a page rollover.
             int tmpPage = theNotePager.getCurrentPage();
-            if (tmpPage > 0) {   // < to disable, > normal ops
-                // Ensure this only happens after the first pager reset.
-
+            if (tmpPage > 0) { // This should not be done before the first pager reset.
                 if (tmpPage == theNotePager.getHighestPage()) {
-                    unloadInterface(tmpPage);  // Add new notes to the vector.
+                    // Capture changes from the current page.  This will be needed if this method is being called
+                    // from initialize() after a note has been added into the last available slot on the current page.
+                    // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
+                    // see that the total page count should be increased (by one).
+                    if(groupChanged) unloadInterface(tmpPage);
+
                     theNotePager.reset(tmpPage);
                 } // end if
             } // end if
 
         } // end if
-    } // end activateNote
+    } // end activateNextNote
 
 
     // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
@@ -225,8 +237,6 @@ public abstract class NoteGroup extends JPanel {
             //System.out.println("Getting component " + i);
             NoteComponent tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
 
-            // Only initialized components (appear to) have a data object.
-            //      (I think; 8/29/2019)
             // The 'clear' method that is called below is overridden by child classes
             // so that they can first clear their own components.  After that, they still
             // call super.clear() which will clear the parent component and then call the
@@ -380,25 +390,6 @@ public abstract class NoteGroup extends JPanel {
         return null;
     } // end getProperties
 
-    //--------------------------------------------------------------------
-    // Method Name: gotoPage
-    //
-    // Called by the pager control
-    //--------------------------------------------------------------------
-    void gotoPage(int pageTo) {
-        MemoryBank.debug("Paging To Page: " + pageTo);
-        // We do a saveGroup here vs an unloadInterface, because:
-        //   1.  We can skip it if there were no changes (fast).
-        //   2.  The loadInterface will set groupChanged to false, so
-        //       if we do not save now, we will not know that we need
-        //       to save, later.
-        if (groupChanged) saveGroup(); // unloads the 'PageFrom' page
-
-        loadInterface(pageTo);
-//        resetVisibility();
-    } // end gotoPage
-
-
     // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of <my custom class>),
     // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
     // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them to JSON
@@ -495,58 +486,54 @@ public abstract class NoteGroup extends JPanel {
     //-------------------------------------------------------------------
     void loadInterface(int intPageNum) {
         //AppUtil.localDebug(true);
+        boolean currentChangedState = getGroupChanged();
 
         // Set the indexes into the data vector -
         int maxDataIndex = groupDataVector.size() - 1;
-        int startIndex = (intPageNum - 1) * pageSize;
-        int dataIndex = startIndex;
-        int endIndex = (intPageNum * pageSize) - 1;
-        if (endIndex > maxDataIndex) endIndex = maxDataIndex;
+        int dataIndex = (intPageNum - 1) * pageSize;
+        MemoryBank.debug("NoteGroup.loadInterface starting at vector data index " + dataIndex);
 
+        lastVisibleNoteIndex = -1;
         NoteComponent tempNoteComponent;
-
-        MemoryBank.debug("NoteGroup.loadInterface from data index " + startIndex + " to " + endIndex);
-
         for (int panelIndex = 0; panelIndex < pageSize; panelIndex++) {
             // The next line casts to NoteComponent.  Since the component is actually
             //   a child of NoteComponent, the 'setNoteData' method that is called
-            //   later will be the child class method, not the one from the base class.
-            //   That behavior is critical to this operation.
+            //   later will be the child class method that is an override of the one
+            //   in NoteComponent.  That behavior is critical to this operation.
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
 
-            if (dataIndex <= endIndex) { // Put vector data into the interface.
+            if (dataIndex <= maxDataIndex) { // Put vector data into the interface.
                 MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
-                tempNoteComponent.setNoteData(groupDataVector.elementAt(dataIndex));
+                tempNoteComponent.setNoteData(groupDataVector.elementAt(dataIndex)); // sets initialized to true
                 tempNoteComponent.setVisible(true);
+                lastVisibleNoteIndex = panelIndex;
                 dataIndex++;
             } else {  // This path is needed to wipe the rest of the interface clean.
-                // Used after a clearGroup() call, or for loading 'short' pages after
-                // a longer one was already displayed such as or when you get to the
-                // last partial page of a multi-page list.  These lines must be cleared
-                // visually, without affecting the data (if any) in the vector.
+                // These lines must be cleared visually, since they extend beyond the end of the data vector.
 
-                // Clear the visual aspects.  Cannot call clear() because that also clears
-                // the data object which is in the groupDataVector and that data object may
-                // be from a full page three when you are now clearing the rest of a partial
+                // Clear the visual aspects for all the other remaining notes on this page.
+                // We use 'makeDataObject()' below rather than clear(), because that also clears
+                // the data object which is in the groupDataVector and that data object may have
+                // been set by a reference from a full page three when you are now clearing the rest of a partial
                 // final page four.  Instead, we first give the noteComponent a new data object,
                 // then instruct it to update its appearance based on the new data and go back
                 // to being 'un' initialized.
-                if (tempNoteComponent.initialized) {
-                    MemoryBank.debug("  clearing panel index " + panelIndex);
-                    tempNoteComponent.makeDataObject(); // This is an effective 'clear' of the component.
-                    tempNoteComponent.resetComponent();
-                    tempNoteComponent.initialized = false;
-                }
-                tempNoteComponent.setVisible(false); // We do this whether initialized or not.
+                MemoryBank.debug("  clearing panel index " + panelIndex);
+
+                // These three lines are an effective 'clear' of the component, without using the
+                // reference that could point back to 'good' data that is elswhere in the vector.
+                tempNoteComponent.makeDataObject();
+                tempNoteComponent.resetComponent();
+                tempNoteComponent.initialized = false;
+                tempNoteComponent.setVisible(false);
             }
         } // end for
 
-        lastVisibleNoteIndex = endIndex;
+        if (addNoteAllowed) activateNextNote(lastVisibleNoteIndex);
         MemoryBank.debug("lastVisibleNoteIndex is " + lastVisibleNoteIndex);
-        if (addNoteAllowed) activateNote(endIndex + 1);
 
         // Each of the 'setNoteData' calls above would have set this to true.
-        setGroupChanged(false);
+        setGroupChanged(currentChangedState);
 
         //AppUtil.localDebug(false);
     } // end loadInterface
@@ -577,6 +564,18 @@ public abstract class NoteGroup extends JPanel {
     } // end pageNumberChanged
 
 
+    // Called by the pager control
+    void pageAway(int pageFrom) {
+        MemoryBank.debug("Paging away from Page: " + pageFrom);
+        unloadInterface(pageFrom);
+    } // end pageTo
+
+    // Called by the pager control
+    void pageTo(int pageTo) {
+        MemoryBank.debug("Paging To Page: " + pageTo);
+        loadInterface(pageTo);
+    } // end pageTo
+
     //----------------------------------------------------------------------
     // Method Name: preClose
     //
@@ -586,10 +585,15 @@ public abstract class NoteGroup extends JPanel {
         if (null != extendedNoteComponent && null != defaultSubject) {
             extendedNoteComponent.saveSubjects();
         }
-        if (groupChanged) saveGroup();
+        if (groupChanged) {
+            unloadInterface(theNotePager.getCurrentPage());
+            saveGroup();
+        }
     } // end preClose
 
 
+    // Called by child groups that need sorting but don't have access to unloadInterface
+    // (TodoNoteGroup  sortPriority, sortText (has more options than NoteGroup.sortNoteString))
     void preSort() {
         // Preserve current interface changes before sorting.
         unloadInterface(theNotePager.getCurrentPage());
@@ -719,17 +723,6 @@ public abstract class NoteGroup extends JPanel {
                 } // end if not a directory
             } // end if/else the path exists
         } // end if exists
-
-        // Update the vectGroupData with data from the interface.
-        //----------------------------------------------------------------
-        int pageToSave = theNotePager.getPageFrom();
-        MemoryBank.debug("  Unloading page " + pageToSave);
-        unloadInterface(pageToSave);
-        // Note that we unload the 'page from' rather than the current
-        //   page, because this method may be called during the paging
-        //   event itself but also upon closing.  'pageFrom' is updated
-        //   in the pager only after the other paging actions are done.
-        //----------------------------------------------------------------
 
         // The logic below will allow for a file with properties but no
         // notes.  This might be a todo list with no items yet, or a
@@ -950,46 +943,45 @@ public abstract class NoteGroup extends JPanel {
     // Method Name: unloadInterface
     //
     // This method transfers the visible notes from the page to their
-    //   correct places in the data vector.  It should be called
-    //   during the 'save' process.
+    //   correct places in the data vector, and adds vector elements
+    //   when needed to match the location in the interface to the data
+    //   Vector.  It may be needed during various events, not only
+    //   immediately prior to redisplaying the group.  For that reason
+    //   we allow possible 'gaps' in data from cleared items, for now.
+    //   Gaps will be removed by the getCondensedInfo() method that is
+    //   called during the 'save' process.
     //-------------------------------------------------------------------
     private void unloadInterface(int currentPage) {
-        if (currentPage == 0) return; // Pager not yet reset.
 
         // Set the indexes into the data vector -
         int startIndex = (currentPage - 1) * pageSize;
-        int endIndex = (currentPage * pageSize) - (pageSize - lastVisibleNoteIndex);
-
+        int endIndex = startIndex + lastVisibleNoteIndex;  // last visible may or may not be initialized.
         MemoryBank.debug("NoteGroup.unloadInterface into vector index " + startIndex + " to " + endIndex);
 
-        // vectGroupData size can be less than lastVisibleNoteIndex (during a Todo
-        // List Merge, for example) and it is the upper boundary that should be
-        // used to determine the highest usable index into the vectGroupData.
-        // The index will tell us whether a note
-        //   should be replaced, or just added to the end of the vector.
+        // When unloading the currently displayed interface, we need to know where the groupDataVector ends and new
+        // data begins.  groupDataVector size-1 will almost always be less than endIndex (because the last
+        // visible note usually hasn't been typed into yet, for one thing).
+        // The maxDataIndex will tell us whether a note should be replaced or just added to the end of groupDataVector.
         int maxDataIndex = groupDataVector.size() - 1;
 
         NoteComponent tempNoteComponent;
         NoteData tempNoteData;
 
-        // Scan the interface, and adjust the vectGroupData Vector so that it
+        // Scan the interface, and adjust the groupDataVector so that it
         // matches.  Don't be tempted to just rebuild from the current interface
-        // vs this more surgical approach; that does not take into account the
-        // fact that the Vector may span more than the one visible page.
+        // vs this more surgical method; that approach does not take into account
+        // the fact that the Vector may span more than the one visible page.
         int panelIndex = 0;
-        for (int i = startIndex; i <= endIndex; i++) {
+        for (int dataIndex = startIndex; dataIndex <= endIndex; dataIndex++) {
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex++);
             tempNoteData = tempNoteComponent.getNoteData();
-            if (tempNoteData != null) {
-                // The last visible (uninitialized) note has null data.
-                if (i <= maxDataIndex) {
-                    groupDataVector.setElementAt(tempNoteData, i);
-                } else {
-                    // This happens during a TodoList merge operation; one or more
-                    // new items being added all at once.
+            if (dataIndex <= maxDataIndex) {
+                groupDataVector.setElementAt(tempNoteData, dataIndex);
+            } else {  // New, user-entered data is in the interface.  Get it.
+                if(tempNoteComponent.initialized) {  // This could be false on the last note on the page.
                     System.out.println("NoteGroup.unloadInterface: Adding new element!");
                     groupDataVector.addElement(tempNoteData);
-                } // end if
+                }
             } // end if
         } // end for i
     } // end unloadInterface
@@ -1009,14 +1001,14 @@ public abstract class NoteGroup extends JPanel {
         //   when the page number was higher than 1; a condition
         //   that may be in effect during a 'refresh' which would
         //   cause the higher numbered page to be loaded with page
-        //   one data.
+        //   one data.  So - we make sure we are on page one.
         theNotePager.reset(1);
 
         loadGroup();      // Loads the data array and interface.
-        // (groupChanged is set to false at the end of loadInterface)
+        setGroupChanged(false);
 
-        // Also needed AFTER loadGroup, to examine the correct size
-        //   of the vector and determine the total number of pages.
+        // Also needed AFTER loadGroup, not to set the page number but to set the correct size
+        //   of the vector, which is needed in order to determine the total number of pages.
         theNotePager.reset(1);
 
     } // end updateGroup
