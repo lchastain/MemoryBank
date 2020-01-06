@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -195,6 +196,7 @@ public abstract class NoteGroup extends JPanel {
     // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
     private void adjustMenuItems(boolean b) {
         if (myListMenu == null) return; // Too soon.  Come back later.
+        MemoryBank.debug("NoteGroup.adjustMenuItems <" + b + ">");
 
         // And now we adjust the Menu -
         JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
@@ -439,15 +441,18 @@ public abstract class NoteGroup extends JPanel {
         groupFilename = getGroupFilename();
 
         if (groupFilename.isEmpty()) {
-            MemoryBank.debug("No data file to load, for: " + this.getClass().getName());
+            MemoryBank.debug("No filename is set for: " + this.getClass().getName());
         } else {
-            MemoryBank.debug("Loading NoteGroup data from: " + groupFilename);
+            MemoryBank.debug("NoteGroup file name is: " + groupFilename);
         }
         Object[] theGroup = AppUtil.loadNoteGroupData(groupFilename);
         if (theGroup != null) {
+            int notesLoaded = ((List) theGroup[theGroup.length - 1]).size();
+            MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
             //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
             setGroupData(theGroup);
         } else {
+            MemoryBank.debug("No data file exists.");
             // Setting the name to 'empty' IS needed; it is examined when
             //   saving and if non-empty, the old file is deleted first.  Of
             //   course, if the file already does not exist, we don't want
@@ -467,7 +472,7 @@ public abstract class NoteGroup extends JPanel {
             ems = ems + e.toString();
             ems = ems + "\nData file load operation aborted.";
             System.out.println("ems = " + ems);
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
+            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
     } // end loadGroup
@@ -756,14 +761,13 @@ public abstract class NoteGroup extends JPanel {
             if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
         }
 
-        if (notesWritten == groupDataVector.size()) {
+        if (notesWritten == trimmedList.size()) {
             intSaveGroupStatus = SUCCEEDED + notesWritten;
         } else {
             intSaveGroupStatus = OTHERFAILURE;
         } // end if note
 
-        // No need to save again until after the next data change.
-        setGroupChanged(false);
+        setGroupChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
         //AppUtil.localDebug(false);
     } // end saveGroup
 
@@ -783,9 +787,10 @@ public abstract class NoteGroup extends JPanel {
     //   time a change is made.  Child classes can override if they
     //   need to intercept a state change, but in that case they
     //   should still call this super method so that group saving
-    //   is done when needed.
+    //   is done when needed and menu items are managed correctly.
     //----------------------------------------------------------------
     void setGroupChanged(boolean b) {
+        MemoryBank.debug("NoteGroup.setGroupChanged <" + b + ">");
         groupChanged = b;
         adjustMenuItems(b);
     } // end setGroupChanged
@@ -795,8 +800,9 @@ public abstract class NoteGroup extends JPanel {
     // that do, all do the same things.  If this ever branches out into different
     // actions and/or menu items then they can override this and/or adjustMenuItems.
     void setListMenu(JMenu listMenu) {
+        MemoryBank.debug("NoteGroup.setListMenu: " + listMenu.getName());
         myListMenu = listMenu;
-        adjustMenuItems(false); // disable 'undo' and 'save', to start.
+        adjustMenuItems(groupChanged); // set enabled state for 'undo' and 'save'.
     }
 
     void setMessage(String s) {
@@ -951,7 +957,7 @@ public abstract class NoteGroup extends JPanel {
     //   Gaps will be removed by the getCondensedInfo() method that is
     //   called during the 'save' process.
     //-------------------------------------------------------------------
-    private void unloadInterface(int currentPage) {
+    void unloadInterface(int currentPage) {
 
         // Set the indexes into the data vector -
         int startIndex = (currentPage - 1) * pageSize;
@@ -959,8 +965,8 @@ public abstract class NoteGroup extends JPanel {
         MemoryBank.debug("NoteGroup.unloadInterface into vector index " + startIndex + " to " + endIndex);
 
         // When unloading the currently displayed interface, we need to know where the groupDataVector ends and new
-        // data begins.  groupDataVector size-1 will almost always be less than endIndex (because the last
-        // visible note usually hasn't been typed into yet, for one thing).
+        // data begins.  groupDataVector size-1 will almost always be less than endIndex
+        // (because on a less-than-full page, the last visible note hasn't been typed into yet, for one thing).
         // The maxDataIndex will tell us whether a note should be replaced or just added to the end of groupDataVector.
         int maxDataIndex = groupDataVector.size() - 1;
 

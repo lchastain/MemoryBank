@@ -59,6 +59,12 @@ public class NoteGroupKeeper {
         } // end if
     } // end remove
 
+    void saveAll() {
+        for(NoteGroup aNoteGroup: theNoteGroups) {
+            aNoteGroup.preClose();
+        }
+    }
+
     int size() {
         return theNoteGroups.size();
     }

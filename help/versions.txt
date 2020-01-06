@@ -3,6 +3,13 @@ Versions:
 <none>  All versions pre 2014  (there may have been an undated 0.1, for a while)
 0.2	    08 Feb 2014	TreeBranchEditor for TodoLists
 0.3	    19 Nov 2019 All data now in JSON format, multiple users, new Date classes, cut/copy/paste, Events is now a
-        Branch, a 'save/refresh' for all NoteGroups, enhanced Branch editor, junit tests, several bug fixes.
-0.4     New work ....    yearview clicks on month, week and monthview clicks on week (SCR0006)
+        Branch, new menu options 'save/refresh' and 'undo' for all NoteGroups, enhanced Branch editor, junit tests,
+        several bug fixes.
+0.4     New work ....    yearview clicks on month & week, and monthview clicks on week (SCR0006)
+            Separated View date from Selected date, make the 'Today' action only work on Selection (SCR0106)
+            On YearView, removed the YearBox control and improved change mechanisms. (SCR0018)
+            Increased Test coverage  (SCR0107)
+            Load and unload interface changes related to paging
+            Menu adjusting for NoteGroup changes, moved save to app end (SCR0108)
+
 

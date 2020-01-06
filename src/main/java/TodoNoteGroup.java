@@ -501,12 +501,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
-    @Override
-    void setGroupChanged(boolean b) {
-        if(getGroupChanged() == b) return; // No change
-        super.setGroupChanged(b);
-    } // end setGroupChanged
-
     // Used by test methods
     public void setNotifier(Notifier newNotifier) {
         optionPane = newNotifier;

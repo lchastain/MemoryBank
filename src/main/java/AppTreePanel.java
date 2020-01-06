@@ -212,11 +212,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
         restoringPreviousSelection = true;
+        // If there is a 'good' value stored as the previous selection -
         if (appOpts.theSelectionRow >= 0) theTree.setSelectionRow(appOpts.theSelectionRow);
-        // If there is a 'good' value stored as the previous selection.
-
-        // But the value COULD be higher than any 'legal' value - still need to handle that (or explain why it's ok)
-
+        else appMenuBar.manageMenus("No Selection");
         // There are a few cases where there would be no previous selection.
         // Ex: Showing the About graphic, First-time-ever for this user, lost or corrupted AppOptions.
         // In these cases leave as-is and the view will go to the About graphic.
@@ -237,6 +235,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         NoteGroupKeeper theNoteGroupKeeper = null;
 
         String theContext = appMenuBar.getCurrentContext();
+        MemoryBank.debug("Adding new group in this context: " + theContext);
         switch (theContext) {
             case "Upcoming Event":
             case "Upcoming Events Branch Editor":
@@ -257,6 +256,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Get user entry of a name for the new group.
         newName = JOptionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
+        MemoryBank.debug("Name chosen for new group: " + newName);
 
         if (newName == null) return;      // No user entry; dialog was Cancelled.
         newName = NoteGroup.prettyName(newName); // Normalize the input
@@ -270,8 +270,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Allowing 'add' to act as a back-door selection of a group that actually already
         // exists is ok, but do not add this choice to the branch if it is already there.
-        boolean addNodeToBranch = true;
-
         // So - examine the tree to see if there is already a node for the new group -
         Enumeration children = groupParentNode.children();
         while (children.hasMoreElements()) {
@@ -281,19 +279,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             }
         }
 
-        // And now we know -
-        if (theNewGroupNode == null) { // Not already a node on the tree
+        // And now we know.  If the node did not already exist, we make it now.
+        if (theNewGroupNode == null) {  // Not already a node on the tree
             theNewGroupNode = new DefaultMutableTreeNode(newName, false);
-        } else { // It's already on the tree
-            addNodeToBranch = false;
-            // This also means that we don't need the checkFilename.
-        }
-
-        if (addNodeToBranch) {
             // Ensure that the new name meets our file-naming requirements.
             String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroup.basePath(TodoNoteGroup.areaName));
             if (!theComplaint.isEmpty()) {
-                JOptionPane.showMessageDialog(theTree, theComplaint,
+                optionPane.showMessageDialog(theTree, theComplaint,
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -309,12 +301,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // and make a new one, and put it there.
         NoteGroup theGroup = theNoteGroupKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
+            MemoryBank.debug("Getting a new group from the factory.");
             theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
-            if (theGroup != null) { // It won't be, but IJ needs to be sure.
-                theNoteGroupKeeper.add(theGroup);
-                theGroup.setGroupChanged(true); // Save this empty group.
-                theGroup.preClose();
-            }
+            assert theGroup != null; // It won't be, but IJ needs to be sure.
+            theNoteGroupKeeper.add(theGroup);
+            theGroup.setGroupChanged(true); // Save this empty group.
+            theGroup.preClose();
         }
 
         // Expand the parent node (if needed) and select the group.
@@ -475,9 +467,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         todolistsPath = new TreePath(pathToRoot);
-
         theTodoListKeeper = new NoteGroupKeeper();
-        theSearchResultsKeeper = new NoteGroupKeeper();
 
         for (String s : appOpts.todoLists) {
             // Add to the tree
@@ -492,6 +482,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         searchresultsPath = new TreePath(pathToRoot);
+        theSearchResultsKeeper = new NoteGroupKeeper();
 
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
@@ -731,16 +722,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     //------------------------------------------------------------
     // Method Name:  preClose
-    // Purpose:  Preserves any unsaved changes to the current noteGroup
-    //   and updates the current state of the panel into the app options,
+    // Purpose:  Preserves any unsaved changes to all NoteGroups
+    //   and updates the current state of the tree into the app options,
     //   in advance of saving the options during app shutdown.
     //------------------------------------------------------------
     public void preClose() {
-        // The currently active NoteGroup may need this; any others would
-        //   have been saved when the view changed away from them.
-        if (theNoteGroup != null) theNoteGroup.preClose();
+        if (theAppDays != null) theAppDays.preClose();
+        if (theAppMonths != null) theAppMonths.preClose();
+        if (theAppYears != null) theAppYears.preClose();
+        theEventListKeeper.saveAll();
+        theTodoListKeeper.saveAll();
+        theSearchResultsKeeper.saveAll();
 
-        updateTreeState(true); // Update appOpts
+        updateTreeState(true); // Capture expansion states into appOpts
     } // end preClose
 
 
@@ -1308,9 +1302,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Single-selection mode; Max == Min; take either one.
         appOpts.theSelectionRow = theTree.getMaxSelectionRow();
 
-        // If there was a NoteGroup open prior to this change then save it now.
+        // If there was a NoteGroup open prior to this change then update its data now.
         if (theNoteGroup != null) {
-            theNoteGroup.preClose();
+            theNoteGroup.unloadInterface(theNoteGroup.theNotePager.getCurrentPage());
         } // end if
 
         // Get the string for the selected node.
@@ -1378,7 +1372,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
                 if (eventNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
-                    eventNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
                     theEventListKeeper.add(eventNoteGroup);
                 }
             } else {
@@ -1406,6 +1399,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
+                // There is only one menu, for ALL event lists.  It needs to be reset with every list change.
+                eventNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
+
                 theNoteGroup = eventNoteGroup;
                 rightPane.setViewportView(theNoteGroup);
             } // end if
@@ -1423,7 +1419,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
                 if (todoNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
-                    todoNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
                     theTodoListKeeper.add(todoNoteGroup);
                 }
             } else {
@@ -1451,6 +1446,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
+                // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
+                todoNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
+
                 theNoteGroup = todoNoteGroup;
                 rightPane.setViewportView(theNoteGroup);
             } // end if
