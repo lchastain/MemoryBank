@@ -8,28 +8,25 @@ class NoteGroupFactory {
     // This method will return the requested NoteGroup only if a file for
     // it exists; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static NoteGroup getGroup(String groupType, String filename) {
-        if (groupType.startsWith("Upcoming Event")) {
+    static NoteGroup getGroup(String groupName, String filename) {
+        if (groupName.startsWith("Upcoming Event")) {
             areaName = EventNoteGroup.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
                 return new EventNoteGroup(filename);
             } // end if there is a file
-            return null;
-        } else if (groupType.startsWith("To Do List")) {
+        } else if (groupName.startsWith("To Do List")) {
             areaName = TodoNoteGroup.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
                 return new TodoNoteGroup(filename);
             } // end if there is a file
-            return null;
-        } else if (groupType.startsWith("Search Result")) {
+        } else if (groupName.startsWith("Search Result")) {
             areaName = SearchResultGroup.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
                 return new SearchResultGroup(filename);
             } // end if there is a file
-            return null;
         }
         return null;
     }

@@ -45,6 +45,12 @@ class DayNoteComponentTest {
         dayNoteComponent.noteIcon.actionPerformed(ae2);
     }
 
+    @Test
+    void testNoteActivated() {
+        dayNoteComponent.noteActivated(true);
+        dayNoteComponent.noteActivated(false);
+    }
+
 
     // This is actually a test of the abstract IconNoteComponent.
     @Test
@@ -76,14 +82,16 @@ class DayNoteComponentTest {
 //    void resetTimeLabel() {
 //    }
 //
-//    @Test
-//    void setNoteData() {
-//    }
-//
-//    @Test
-//    void testSetNoteData() {
-//    }
-//
+
+    // Gettin the coverage...
+    @Test
+    void testSetNoteData() {
+        dayNoteComponent.setNoteData(new NoteData());
+        dayNoteComponent.setNoteData(new DayNoteData());
+        dayNoteComponent.setNoteData(new TodoNoteData());
+        dayNoteComponent.setNoteData(new EventNoteData());
+    }
+
 //    @Test
 //    void shiftDown() {
 //    }

@@ -1315,7 +1315,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // Get the name of the node's parent.  Thanks to the way we have created the tree and
         // the unselectability of the tree root, we never expect the parent path to be null.
-        String theParent = newPath.getParentPath().getLastPathComponent().toString();
+        String parentNodeName = newPath.getParentPath().getLastPathComponent().toString();
 
         //-----------------------------------------------------
         // These booleans will help us to avoid incorrect assumptions based on the text of the
@@ -1327,7 +1327,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         boolean isEventsBranch = theNodeString.equals("Upcoming Events");
         boolean isTodoBranch = theNodeString.equals("To Do Lists");
         boolean isSearchBranch = theNodeString.equals("Search Results");
-        boolean isTopLevel = theParent.equals("App");
+        boolean isTopLevel = parentNodeName.equals("App");
         boolean isConsolidatedView = theNodeString.equals(MemoryBank.appOpts.consolidatedEventsViewName);
 
         theNoteGroup = null; // initialize
@@ -1355,11 +1355,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             JTree jt = new JTree(node); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
-        } else if (theParent.equals("Upcoming Events") && isConsolidatedView) { // Selection of the Consolidated Events List
+        } else if (parentNodeName.equals("Upcoming Events") && isConsolidatedView) { // Selection of the Consolidated Events List
             selectionContext = "Consolidated View";  // For manageMenus
             EventNoteGroup theBigPicture = getConsolidatedView();
             rightPane.setViewportView(theBigPicture);
-        } else if (theParent.equals("Upcoming Events")) { // Selection of an Event group
+        } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
             selectionContext = "Upcoming Event";  // For manageMenus
             EventNoteGroup eventNoteGroup;
 
@@ -1369,7 +1369,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             // Otherwise load it, but only if a file for it already exists.
             if (eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
+                eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
                 if (eventNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theEventListKeeper.add(eventNoteGroup);
@@ -1405,7 +1405,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theNoteGroup = eventNoteGroup;
                 rightPane.setViewportView(theNoteGroup);
             } // end if
-        } else if (theParent.equals("To Do Lists")) {
+        } else if (parentNodeName.equals("To Do Lists")) {
             // Selection of a To Do List
             selectionContext = "To Do List";  // For manageMenus
             TodoNoteGroup todoNoteGroup;
@@ -1416,7 +1416,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             // Otherwise load it, but only if a file for it already exists.
             if (todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
+                todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
                 if (todoNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theTodoListKeeper.add(todoNoteGroup);
@@ -1452,7 +1452,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theNoteGroup = todoNoteGroup;
                 rightPane.setViewportView(theNoteGroup);
             } // end if
-        } else if (theParent.equals("Search Results")) {
+        } else if (parentNodeName.equals("Search Results")) {
             // Selection of a Search Result List
             selectionContext = "Search Result";  // For manageMenus
             SearchResultGroup searchResultGroup;
@@ -1463,7 +1463,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             // Otherwise construct it, but only if a file for it already exists.
             if (searchResultGroup == null) {
-                searchResultGroup = (SearchResultGroup) NoteGroupFactory.getGroup(theParent, theNodeString);
+                searchResultGroup = (SearchResultGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
                 if (searchResultGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theSearchResultsKeeper.add(searchResultGroup);
