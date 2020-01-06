@@ -1,0 +1,17 @@
+These notes may fit in with other docs (Controls.txt?), later.  For now -
+1/5/2020
+
+What happens when...
+
+1.  The tree view moves away from a NoteGroup that has unsaved changes.
+    The unloadInterface method is called for it.  Changes go into the group data vector but are not saved, and if/when
+      it is shown again, the 'save' and 'undo' menu items will be enabled.  At app end, any remaining unsaved changes
+      are saved at that time.
+
+2.
+
+
+
+
+
+

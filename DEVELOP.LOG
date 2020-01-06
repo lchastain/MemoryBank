@@ -1,6 +1,11 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+1/06/2020 0851 - The work mentioned below is done and seems to be ok but will wait a while before
+  doing a pub, because it also turned up problems (now fixed) with menu items after making a new
+  list, and list changes in general.  Then the fix there was also just as traumatic.  So what
+  next depends on how much is going on before Italy; safest would be to stick with test dev only.
+  Coverage is now 89% classes, 66% lines.
 
 1/02/2020 0627 - When the test dev moved on to NotePager, began finding several problems with
   NoteGroup growth, page rollovers, etc.  It tracks back mostly to the refactor that was done
