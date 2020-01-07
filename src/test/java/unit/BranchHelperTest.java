@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 class BranchHelperTest {
-    private DefaultMutableTreeNode trunk;
     private DefaultMutableTreeNode searches;
-    private JTree tree;
 
     // Note that we configure our instance of a Helper for Search Results, but it could have
     // just as easily been for Todo Lists or any other editable branch.  But we chose searches
@@ -42,14 +40,14 @@ class BranchHelperTest {
     @BeforeEach
     void setUp() {
         NoteGroupKeeper theSearchResultsKeeper = new NoteGroupKeeper();
-        trunk = new DefaultMutableTreeNode("App");
+        DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
         searches = new DefaultMutableTreeNode("Search Results");
         trunk.add(searches);
         searches.add(new DefaultMutableTreeNode("20190927161325"));
 
         // Create a default model based on the 'App' node, and create a tree from that model.
         DefaultTreeModel treeModel = new DefaultTreeModel(trunk);
-        tree = new JTree(treeModel);
+        JTree tree = new JTree(treeModel);
 
         searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, SearchResultGroup.areaName);
         searchBranchHelper.setNotifier(new TestUtil());
@@ -120,5 +118,34 @@ class BranchHelperTest {
         // But may not want to spend cycles verifying filesystem changes, when that data
         // storage methodology is not optimal and is under consideration for migration to a DB.
         searchBranchHelper.doApply(searches, changeList);
+    }
+
+    // The NodeChange class is so small, why not go ahead and include the only other test needed for it?
+    // This way, no additional test class needed for unit testing NodeChange.
+    @Test
+    void testNodeChangeToString() {
+        NodeChange nodeChange;
+        String theString;
+        nodeChange = new NodeChange("test", NodeChange.SELECTED);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
+        nodeChange = new NodeChange("test", NodeChange.MARKED);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
+        nodeChange = new NodeChange("test", NodeChange.UNMARKED);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
+        nodeChange = new NodeChange("test", NodeChange.MOVED);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
+        nodeChange = new NodeChange("test", NodeChange.DESELECTED);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
+        nodeChange = new NodeChange("test", NodeChange.RENAMED);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
+        nodeChange = new NodeChange("test", 101);
+        theString = nodeChange.toString();
+        Assertions.assertNotNull(theString);
     }
 }

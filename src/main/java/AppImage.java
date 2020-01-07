@@ -1,4 +1,4 @@
-/**
+/*
  This custom component provides an easy way to add a scaled graphic to
  a container without the overhead of the standard swing classes that
  are commonly used to display images.
@@ -16,12 +16,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
 
 public final class AppImage extends JPanel {
-    private static final long serialVersionUID = 6216448968617689802L;
+    private static final long serialVersionUID = 1L;
 
     private Image theImage;
     private Image theScaledImage;
@@ -167,67 +164,5 @@ public final class AppImage extends JPanel {
         } // end if
 
     } // end setImage
-
-
-    //-----------------------------------------------------------------
-    // Test driver for the class.
-    //-----------------------------------------------------------------
-    public static void main(String args[]) {
-        MemoryBank.debug = true;
-        //-----------------------------------------------------------
-
-        AppImage li = new AppImage();
-
-        // Construct a list of five images (although one is null) -
-        Image images[] = new Image[]{
-                new AppIcon(MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar + "icon_not.gif").getImage(),
-                new ImageIcon(MemoryBank.logHome + File.separatorChar + "images" + File.separatorChar + "ABOUT.gif").getImage(),
-                null,
-                new AppIcon(MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar + "acro.ico").getImage(),
-                new AppIcon(MemoryBank.logHome + File.separatorChar + "icons" + File.separatorChar + "new8.gif").getImage()
-        };
-
-        // Make the frame and add ourselves to it.
-        JFrame imageFrame = new JFrame("AppImage Test");
-        imageFrame.getContentPane().add(li);
-        imageFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        // Here is our way out; this is not a very interesting app.
-        imageFrame.addWindowListener(
-                new WindowAdapter() {
-                    public void windowClosing(WindowEvent we) {
-                        System.exit(0);
-                    } // end windowClosing
-                } // end new WindowAdapter
-        );
-
-        // Center the Frame in the available screen area
-        imageFrame.pack();
-        imageFrame.setSize(300, 300);
-        imageFrame.setLocationRelativeTo(null);
-
-        imageFrame.setVisible(true);
-
-        int i = 0;
-        int theWait;  // How many milliseconds to pause.
-        boolean neverFalse = true;
-
-        // Go into an endless loop, showing the defined images.
-        while (neverFalse) {
-            theWait = 10000; // Ten seconds between images.
-            if (images[i] == null) theWait = 3000; // Unless image is null, then three secs.
-            li.setImage(images[i++]);
-
-            try {
-                Thread.sleep(theWait);
-            } catch (Exception e) {
-                neverFalse = false;
-            }
-
-            if (i == images.length) i = 0;
-        } // end while
-
-    } // end main
-    //------------------------------------------------------------------*/
 
 } // end class AppImage
