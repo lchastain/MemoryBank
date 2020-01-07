@@ -267,7 +267,8 @@ public class TodoNoteComponent extends NoteComponent {
     } // end resetComponent
 
 
-    protected void resetNoteStatusMessage(int textStatus) {
+    @Override
+    void resetNoteStatusMessage(int textStatus) {
         String s = " ";
 
         switch (textStatus) {

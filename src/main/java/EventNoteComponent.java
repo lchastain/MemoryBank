@@ -34,7 +34,8 @@ public class EventNoteComponent extends IconNoteComponent {
         super.noteActivated(blnIAmOn);
     }
 
-    protected void resetNoteStatusMessage(int textStatus) {
+    @Override
+    void resetNoteStatusMessage(int textStatus) {
         String s = " ";
 
         // Since the isEditable flag is static we cannot be checking it at

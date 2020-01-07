@@ -273,7 +273,7 @@ public class NoteComponent extends JPanel {
     } // end resetComponent
 
 
-    protected void resetNoteStatusMessage(int textStatus) {
+    void resetNoteStatusMessage(int textStatus) {
         String s = " ";
 
         switch (textStatus) {
@@ -296,7 +296,7 @@ public class NoteComponent extends JPanel {
     // This method is called each time before displaying the popup menu.
     //   Child classes may override it if they have additional selections,
     //   but they can still call this one first, to add the base items.
-    protected void resetPopup() {
+    void resetPopup() {
         popup.removeAll();
         popup.add(miCutLine);   // the default state is 'enabled'.
         popup.add(miCopyLine);
