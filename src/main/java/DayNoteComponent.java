@@ -10,6 +10,7 @@ public class DayNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
 
     private static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
+    static Notifier optionPane;
 
     // The Members
     private DayNoteData myDayNoteData;
@@ -21,21 +22,23 @@ public class DayNoteComponent extends IconNoteComponent {
     private static JPopupMenu timePopup;
 
     static {
+        // Normally just a wrapper for a JOptionPane, but tests may replace this
+        // with their own instance, that would require no user interaction.
+        optionPane = new Notifier() { };
+
         //-----------------------------------
         // Create the popup menus.
         //-----------------------------------
-
         timePopup = new JPopupMenu();
         timePopup.setFocusable(false);
 
         //--------------------------------------------
-        // Define the popup menu for a DayNoteComponent
+        // Define the popup menu items for a DayNoteComponent
         //--------------------------------------------
         clearTimeMi = new JMenuItem("Clear Time");
         timePopup.add(clearTimeMi);
         setTimeMi = new JMenuItem("Set Time");
         timePopup.add(setTimeMi);
-
     } // end static section
 
 
@@ -75,6 +78,8 @@ public class DayNoteComponent extends IconNoteComponent {
         return myDayNoteData;
     } // end getNoteData
 
+    // Accessed by tests
+    NoteTimeLabel getNoteTimeLabel() { return noteTimeLabel; }
 
     // Need to keep the height constant.
     public Dimension getPreferredSize() {
@@ -249,10 +254,10 @@ public class DayNoteComponent extends IconNoteComponent {
 // Inner Classes -
 //---------------------------------------------------------
 
-    protected class NoteTimeLabel extends JLabel implements
+    class NoteTimeLabel extends JLabel implements
             ActionListener, MouseListener {
 
-        private static final long serialVersionUID = -7203985363643593551L;
+        private static final long serialVersionUID = 1L;
 
         boolean isActive;
         int timeWidth = 68;
@@ -290,13 +295,12 @@ public class DayNoteComponent extends IconNoteComponent {
             LocalTime theTime = LocalTime.parse(myDayNoteData.getTimeOfDayString());
 
             TimeChooser tc = new TimeChooser(theTime);
-            int result = JOptionPane.showConfirmDialog(
+            int result = optionPane.showConfirmDialog(
                     theFrame,                     // for modality
                     tc,                           // UI Object
                     "Set the time for this note", // pane title bar
                     JOptionPane.OK_CANCEL_OPTION, // Option type
-                    JOptionPane.QUESTION_MESSAGE, // Message type
-                    null);                       // icon
+                    JOptionPane.QUESTION_MESSAGE); // Message type
 
             DayNoteComponent.this.setBorder(null);
             if (result != JOptionPane.OK_OPTION) return;
@@ -339,6 +343,7 @@ public class DayNoteComponent extends IconNoteComponent {
         // Menu Item action handler for NoteTimeLabel
         //---------------------------------------------------------
         public void actionPerformed(ActionEvent e) {
+            MemoryBank.debug("DayNoteComponent.NoteTimeLabel.actionPerformed ActionEvent: " + e.toString());
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             switch (s) {

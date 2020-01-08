@@ -11,9 +11,11 @@ import java.io.File;
 class DayNoteComponentTest {
     private DayNoteComponent dayNoteComponent;
     DayNoteGroup dayNoteGroup;
+    Notifier theNotifier;
 
     @BeforeEach
     void setUp() {
+        MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
         dayNoteGroup = new DayNoteGroup() {
             @Override
@@ -32,7 +34,30 @@ class DayNoteComponentTest {
     }
 
     @Test
-    void clear() {
+    void testActionPerformed() {
+        DayNoteComponent.NoteTimeLabel noteTimeLabel = dayNoteComponent.getNoteTimeLabel();
+        JMenuItem jMenuItem = new JMenuItem("Clear Line");
+        ActionEvent actionEvent = new ActionEvent(jMenuItem, ActionEvent.ACTION_PERFORMED, "test");
+        noteTimeLabel.actionPerformed(actionEvent);
+
+        jMenuItem = new JMenuItem("Clear Time");
+        actionEvent = new ActionEvent(jMenuItem, ActionEvent.ACTION_PERFORMED, "test");
+        noteTimeLabel.actionPerformed(actionEvent);
+
+        theNotifier = new TestUtil();
+        DayNoteComponent.optionPane = theNotifier;
+        dayNoteComponent.setNoteData(new DayNoteData());
+        jMenuItem = new JMenuItem("Set Time");
+        actionEvent = new ActionEvent(jMenuItem, ActionEvent.ACTION_PERFORMED, "test");
+        noteTimeLabel.actionPerformed(actionEvent);
+
+        jMenuItem = new JMenuItem("blarg");
+        actionEvent = new ActionEvent(jMenuItem, ActionEvent.ACTION_PERFORMED, "test");
+        noteTimeLabel.actionPerformed(actionEvent);
+    }
+
+    @Test
+    void testClear() {
         dayNoteComponent.clear();
     }
 
@@ -43,6 +68,26 @@ class DayNoteComponentTest {
         ActionEvent ae2 = new ActionEvent(IconNoteComponent.blankMi, 0, "");
         dayNoteComponent.noteIcon.actionPerformed(ae1);
         dayNoteComponent.noteIcon.actionPerformed(ae2);
+    }
+
+    @Test
+    void testMouseListener() {
+        DayNoteComponent.NoteTimeLabel noteTimeLabel = dayNoteComponent.getNoteTimeLabel();
+        MouseEvent me = new MouseEvent(noteTimeLabel, MouseEvent.MOUSE_PRESSED, 0, 0, 18, 23, 0, false);
+        noteTimeLabel.mousePressed(me);
+
+        me = new MouseEvent(noteTimeLabel, MouseEvent.MOUSE_ENTERED, 0, 0, 18, 23, 0, false);
+        noteTimeLabel.mouseEntered(me);
+
+        me = new MouseEvent(noteTimeLabel, MouseEvent.MOUSE_EXITED, 0, 0, 18, 23, 0, false);
+        noteTimeLabel.mouseExited(me);
+
+        me = new MouseEvent(noteTimeLabel, MouseEvent.MOUSE_RELEASED, 0, 0, 18, 23, 0, false);
+        noteTimeLabel.mouseReleased(me);
+
+        me = new MouseEvent(noteTimeLabel, MouseEvent.MOUSE_CLICKED, 0, 0, 18, 23, 0, false);
+        noteTimeLabel.mouseClicked(me);
+
     }
 
     @Test
@@ -78,10 +123,6 @@ class DayNoteComponentTest {
         dayNoteComponent.setIcon(new AppIcon(testFile.getPath()));
     }
 
-//    @Test
-//    void resetTimeLabel() {
-//    }
-//
 
     // Gettin the coverage...
     @Test
@@ -100,7 +141,4 @@ class DayNoteComponentTest {
 //    void shiftUp() {
 //    }
 //
-//    @Test
-//    void swap() {
-//    }
 }
