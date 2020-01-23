@@ -548,6 +548,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     } // end setGroupChanged
 
     // Used by test methods
+    // BUT - later versions will just directly set it, no need for a test-only method.  Remove this when feasible.
     public void setNotifier(Notifier newNotifier) {
         optionPane = newNotifier;
     }

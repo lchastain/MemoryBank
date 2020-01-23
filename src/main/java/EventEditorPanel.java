@@ -960,7 +960,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //
     // The RecurrencePanel itself has already been constructed
     //   (once only) - this method simply loads it with the
-    //   correct data and displays as a modal dialog.
+    //   correct data and displays it as a modal dialog.
     //-------------------------------------------------------------
     private void showRecurrenceDialog() {
         LocalDate startDate = editedEventNoteData.getStartDate();

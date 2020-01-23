@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 public class RecurrencePanel extends JPanel implements
         ActionListener, FocusListener, ItemListener {
@@ -18,8 +17,9 @@ public class RecurrencePanel extends JPanel implements
     private LocalDate dateStart;  // Used in itemStateChanged and recalcEnd
     private LocalDate dateStopBy;
     private int intStopAfter;
-    private LabelButton btnStopBy;
+    LabelButton btnStopBy;
     private boolean blnHandleItems;
+    static Notifier optionPane;
 
     //-----
     private JLabel lblStartDate;
@@ -50,9 +50,13 @@ public class RecurrencePanel extends JPanel implements
     //-----
     private JLabel lblStopBy;
     private JRadioButton rbtnStopBy;
-    private JPanel pnlStopBy;
+    JPanel pnlStopBy;
     //-----
     // End of variables declaration
+
+    static {
+        optionPane = new Notifier() { }; // Uses all default methods.
+    }
 
     public RecurrencePanel() {
         super();
@@ -72,8 +76,8 @@ public class RecurrencePanel extends JPanel implements
     //----------------------------------------------------------
     // Method Name: actionPerformed
     //
-    // Either 'Enter' was pressed on a text field, or a combo
-    //   box selection has been made.
+    // Either 'Enter' was pressed on a text field, or a combo box
+    //   selection has been made.  OR - a test came here directly.
     //----------------------------------------------------------
     public void actionPerformed(ActionEvent e) {
         // System.out.println("actionPerformed: " + e.getActionCommand());
@@ -872,7 +876,7 @@ public class RecurrencePanel extends JPanel implements
             recalcEndByMonth(12, strTmp);
         } // end if Year
 
-        // Update the two 'End' variables.
+        // Update the two 'Stop' values.
         dtf = DateTimeFormatter.ofPattern("EEE  d MMM yyyy");
         btnStopBy.setText(dtf.format(dateStopBy));
 
@@ -890,76 +894,79 @@ public class RecurrencePanel extends JPanel implements
     //------------------------------------------------------------
     private void recalcEndByDay(int interval) {
         LocalDate tmpDate;
-        // TODO - these names (and comments) seem off - fix text or fix logic.
 
-        if (rbtnStopAfter.isSelected()) { // Calculate the dateStopBy
+        // Calculate the dateStopBy (because the StopAfter count has been explicitly set)
+        if (rbtnStopAfter.isSelected()) {
             tmpDate = dateStart;
             for (int i = 0; i < intStopAfter; i++) {
-//                calTmp.add(Calendar.DATE, interval);
                 tmpDate = tmpDate.plusDays(interval);
             } // end for
-//            dateStopBy = calTmp.getTime();
             dateStopBy = tmpDate;
         } // end if Stop After
 
-        if (rbtnStopBy.isSelected()) { // Calculate the intStopAfter
+        // Calculate the intStopAfter (because the StopBy date has been explicitly set)
+        if (rbtnStopBy.isSelected()) {
             tmpDate = dateStart;
             intStopAfter = 1;
-//            while (calTmp.getTime().before(dateStopBy)) {
             while (tmpDate.isBefore(dateStopBy)) {
-//                calTmp.add(Calendar.DATE, interval);
                 tmpDate = tmpDate.plusDays(interval);
-//                if (calTmp.getTime().before(dateStopBy)) intStopAfter++;
                 if (tmpDate.isBefore(dateStopBy)) intStopAfter++;
             } // end while
         } // end if Stop After
-
     } // end recalcEndByDay
 
     //------------------------------------------------------------
     // Method Name: recalcEndByMonth
     //
-    // Calculates either the dateStopBy or the intStopAfter
-    //   values.  Relies on the calling context to verify that
-    //   the conditions call for this calculation, as well as
-    //   the display afterwards.
+    // The panel allows for the user to explicitly set either the
+    //   date by which to stop, or the number of times that the
+    //   event should occur over time.  Only one of these may be set,
+    //   and the value that is set will be used to determine the value
+    //   of the other.  This method calculates either the dateStopBy
+    //   or the intStopAfter value.
     //------------------------------------------------------------
     private void recalcEndByMonth(int intInterval, String strMonthPattern) {
         int intAfterMonths;
 
-        // Calculate the dateStopBy
+        // Calculate the dateStopBy (because the StopAfter count has been explicitly set)
         if (rbtnStopAfter.isSelected()) {
             intAfterMonths = intInterval * (intStopAfter - 1);
             dateStopBy = getEndDateAfterMonths(intAfterMonths, strMonthPattern);
         } // end if
 
-        // Calculate the intStopAfter
+        // Calculate the intStopAfter (because the StopBy date has been explicitly set)
         if (rbtnStopBy.isSelected()) {
-            LocalDate tmpDate = dateStopBy;
-            intStopAfter = 1;
+            intStopAfter = 0;  // Initialization
+
+            // From an application-operational perspective, we should not be able to arrive
+            // at this point without having set the 'dateStopBy'.  If an alternative path was
+            // taken (for example by a test class), then you might see a null exception below.
+            // If so - that's on you and your test code; I'm not going to handle it here.
+
+            // The dateStopBy is not the same as the event end, so it is possible that the
+            // user could have set it to a value before the event even started.  In that
+            // case the recurrence is a bit moot; our result was 'calculated' as soon as it
+            // was initialized, above.
             if (dateStopBy.isBefore(dateStart)) return;
 
-//            calTmp.setTime(dateStart);
-            while (dateStart.isBefore(dateStopBy)) {
-                // In many cases the condition for this loop ends up being
-                //   false not because the calTmp is after the dateStopBy,
-                //   but because it is equal to it.
-                intAfterMonths = intInterval * (intStopAfter - 1);
-//                calTmp.setTime(getEndDateAfterMonths(intAfterMonths, strMonthPattern));
-                tmpDate = getEndDateAfterMonths(intAfterMonths, strMonthPattern);
-                intStopAfter++;
-            } // end while
-            intStopAfter--; // We know we overshot -
-            // System.out.println("Ramped up to: " + calTmp.getTime());
+            if (dateStopBy.isEqual(dateStart)) { // Also possible, edge case.
+                intStopAfter = 1;
+                return;
+            }
 
-            if (tmpDate.isAfter(dateStopBy)) {
-                // But we may have overshot by two.
-                // This happens when calTmp was set beyond the last
-                //   valid occurrence.
-                // System.out.println("We overshot!");
+            LocalDate tmpDate = dateStart;
+            while (dateStopBy.isAfter(tmpDate)) {
+                intStopAfter++;
+                intAfterMonths = intInterval * (intStopAfter - 1);
+                tmpDate = getEndDateAfterMonths(intAfterMonths, strMonthPattern);
+            } // end while
+
+            // Correction for overshoot.
+            if(tmpDate.isAfter(dateStopBy)) {
                 intStopAfter--;
-            } // end if
+            }
         } // end if recalculating due to StopBy
+
     } // end recalcEndByMonth
 
 
@@ -1196,35 +1203,6 @@ public class RecurrencePanel extends JPanel implements
 
     } // end reinitializeComponent
 
-    // Needed for Tests
-    void setPeriodicity(ChronoUnit thePeriod) {
-        // Since this change is not user-directed and does not
-        // go thru the ButtonGroup, the buttons are not mutually
-        // exclusive and therefore ALL of them must be individually.
-        rbtnNone.setSelected(false);
-        rbtnDay.setSelected(false);
-        rbtnWeek.setSelected(false);
-        rbtnMonth.setSelected(false);
-        rbtnYear.setSelected(false);
-
-        switch(thePeriod) {
-            case DAYS:
-                rbtnDay.setSelected(true);
-                break;
-            case WEEKS:
-                rbtnWeek.setSelected(true);
-                break;
-            case MONTHS:
-                rbtnMonth.setSelected(true);
-                break;
-            case YEARS:
-                rbtnYear.setSelected(true);
-                break;
-            default:
-                rbtnNone.setSelected(true);
-        }
-    }
-
     // Used by tests; no dialog needed to choose a date
     void setStopBy(LocalDate theStopDate) {
         rbtnForever.setSelected(false);
@@ -1236,32 +1214,31 @@ public class RecurrencePanel extends JPanel implements
 
     // Set the 'Stop By' date
     private void setStopBy() {
-        // Make a dialog window to choose a date from a Year.
+        // Make a dialog window to choose a date from a Year view.
         YearView yvDateChooser = new YearView();
         if (dateStopBy == null) dateStopBy = dateStart;
         yvDateChooser.setChoice(dateStopBy);
 
-        Frame f = JOptionPane.getFrameForComponent(this);
-        JDialog tempwin = new JDialog(f, true);
+        int doit = optionPane.showConfirmDialog(
+                JOptionPane.getFrameForComponent(this),
+                yvDateChooser,
+                "Select a Date to stop by",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        tempwin.getContentPane().add(yvDateChooser, BorderLayout.CENTER);
-        tempwin.setTitle("Select a Date to stop by");
-        tempwin.setSize(yvDateChooser.getPreferredSize());
-        tempwin.setResizable(false);
-
-        // Center the dialog relative to the main frame.
-        tempwin.setLocationRelativeTo(f);
-
-        // Go modal -
-        tempwin.setVisible(true);
+        if (doit == -1) return; // The X on the dialog
+        if (doit == JOptionPane.CANCEL_OPTION) return;
 
         dateStopBy = yvDateChooser.getChoice();
         recalcEnd();
     } // end setStopBy
 
-    // Set the interface fields per the input data.
-    public void showTheData(String strRecur, LocalDate d) {
-        dateStart = d;
+    // Set the interface fields per the input data.  The input string should have already
+    // been validated by the UI and validation only needs to occur again after user
+    // changes have been entered.  Test methods are responsible for generating
+    // correctly formatted input for usage by this method.
+    void showTheData(String strRecur, LocalDate firstEventDate) {
+        MemoryBank.debug("Initial recurrence string: " + strRecur);
+        dateStart = firstEventDate;
 
         // Initialize the interface; clear previous settings.
         //-------------------------------------------------------
@@ -1463,7 +1440,6 @@ public class RecurrencePanel extends JPanel implements
                 comboxYear.addItem(strDate + " in " + strMonth);
 
                 // Check to see if there is another week this month.
-//                calTmp.add(Calendar.DATE, 7);
                 tmpDate = tmpDate.plusWeeks(1);
                 if (tmpDate.getMonthValue() - 1 != intMonth) blnLastWeek = true;
 
