@@ -1,6 +1,13 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+1/24/2020 0642 - Did stick with test dev only, but adding to the RecurrencePanel tests, during
+  setup found an endless loop problem that had been there all along, undiscovered.  Although
+  it shows that the panel is highly underused, still needed fixing but didn't get to it until
+  after Italy, and now that I'm back, finding it hard to get going aggressively again right away.
+  So - did a pub of the recent works and will just continue with test devs, for now.  At this
+  point the coverage is 90% classes, 69% lines.
+
 1/06/2020 0851 - The work mentioned below is done and seems to be ok but will wait a while before
   doing a pub, because it also turned up problems (now fixed) with menu items after making a new
   list, and list changes in general.  Then the fix there was also just as traumatic.  So what

@@ -9,7 +9,7 @@ public class SearchResultGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
 
     private JLabel resultsPageOf;
-    private SearchResultHeader listHeader;
+    SearchResultHeader listHeader;
 
     private String theGroupFilename;
     static String areaName;

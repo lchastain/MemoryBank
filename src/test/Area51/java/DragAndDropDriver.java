@@ -1,36 +1,40 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Vector;
 
 // This is a class to be used in testing the DndLayout.
 // It differs from the production implementations in that the header
-// line is defined here whereas the content below is optional and
+// line is defined here whereas the content below it is optional and
 // is to be sent in by an invoking context, with the requirements:
 // It has the same number of columns as we do here, and each row
 // of content is in a panel that also has its own DndLayout (not shared
 // with other panels), and each column is the same or greater width as
 // the columns of the header we set here.  These requirements make this
 // class far from reusable, but that's how it is and why, therefore, it
-// is only defined in our Area51 and only used by the DndLayoutTest.
+// is only defined in our Area51 and only used for T&E.
 //
 // See also the DndLayout usage by TodoNoteComponent or SearchResultComponent.
 
 public class DragAndDropDriver extends JPanel implements ClingSource {
+    JFrame testFrame;
     JPanel headerPanel;
     LabelButton headerButton1;
     LabelButton headerButton2;
     LabelButton headerButton3;
     LabelButton headerButton4;
     DndLayout dndLayout;
-    Container theContainer;
+    Box theContainer;
 
     public DragAndDropDriver() {
         this(null);
     }
 
-    public DragAndDropDriver(Container theContainer) {
+    public DragAndDropDriver(Box theContainer) {
         super(new BorderLayout());
         this.theContainer = theContainer;
 
@@ -63,7 +67,20 @@ public class DragAndDropDriver extends JPanel implements ClingSource {
             int width4 = Integer.max(headerButton4.getPreferredSize().width, rowOne.getComponent(3).getPreferredSize().width);
             headerButton4.setPreferredSize(new Dimension(width4, headerButton4.getPreferredSize().height));
         }
+    }
 
+    static Box makeContent() {
+        Box theContainer = new Box(BoxLayout.Y_AXIS);
+
+        for(int i=1; i<=6; i++) {
+            JPanel newLine = new JPanel(new DndLayout());
+            newLine.add(new JButton("button 1"), "1");
+            newLine.add(new JButton("button 2"), "2");
+            newLine.add(new JButton("button 3"), "Stretch");
+            newLine.add(new JButton("button 4"), "4");
+            theContainer.add(newLine);
+        }
+        return theContainer;
     }
 
 
@@ -95,25 +112,107 @@ public class DragAndDropDriver extends JPanel implements ClingSource {
         return ClingOns;
     } // end getClingons
 
+    void testDragLeft() throws InterruptedException {
+        long mouseWhen  = LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset());
+        int mouseX = 10;
+        int mouseY = 10;
+        int mouseAbsY = 436;
+        int mouseAbsXstart = 938;
+        int mouseAbsXend = 880;
 
-    public static void main(String[] args) {
-        DragAndDropDriver theDriver = new DragAndDropDriver();
+        MouseEvent hb3Pressed = new MouseEvent(headerButton3,
+                MouseEvent.MOUSE_PRESSED, mouseWhen, 0, mouseX, mouseY,
+                mouseAbsXstart,  mouseAbsY, 0, false, 1 );
+
+        MouseEvent hb3Dragged;
+
+        MouseEvent hb3Released = new MouseEvent(headerButton3,
+                MouseEvent.MOUSE_RELEASED, mouseWhen, 0, mouseX, mouseY,
+                mouseAbsXend,  mouseAbsY, 0, false, 1 );
+
+        Thread.sleep(1000);
+
+        dndLayout.mousePressed(hb3Pressed);
+
+        for(int mouseDragX=mouseAbsXstart; mouseDragX>=mouseAbsXend; mouseDragX--) {
+            hb3Dragged = new MouseEvent(headerButton3,
+                    MouseEvent.MOUSE_DRAGGED, mouseWhen, 0, 9, mouseY,
+                    mouseDragX,  mouseAbsY, 0, false, 1 );
+            dndLayout.mouseDragged(hb3Dragged);
+            Thread.sleep(30);
+        }
+
+        dndLayout.mouseReleased(hb3Released);
+
+        // Use this to view the action.  Then close the window manually.
+        while(testFrame.isVisible()) {
+            Thread.sleep(1000);
+        }
+    } // end testDragLeft
+
+    void testDragRight() throws InterruptedException {
+        long mouseWhen  = LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset());
+        int mouseX = 16;
+        int mouseY = 10;
+        int mouseAbsY = 436;
+        int mouseAbsXstart = 735;
+        int mouseAbsXend = 793;
+
+        MouseEvent hb1Pressed = new MouseEvent(headerButton1,
+                MouseEvent.MOUSE_PRESSED, mouseWhen, 0, mouseX, mouseY, 0, false);
+
+        MouseEvent hb1Dragged;
+
+        MouseEvent hb1Released = new MouseEvent(headerButton1,
+                MouseEvent.MOUSE_RELEASED, mouseWhen, 0, mouseX, mouseY,
+                831,  mouseAbsY, 0, false, 1 );
+
+        Thread.sleep(1000);
+
+        dndLayout.mousePressed(hb1Pressed);
+
+        for(int mouseDragX=mouseAbsXstart; mouseDragX<=mouseAbsXend; mouseDragX++) {
+            hb1Dragged = new MouseEvent(headerButton1,
+                    MouseEvent.MOUSE_DRAGGED, mouseWhen, 0, 17, mouseY,
+                    mouseDragX,  mouseAbsY, 0, false, 1 );
+
+            dndLayout.mouseDragged(hb1Dragged);
+
+            Thread.sleep(40);
+        }
+
+        dndLayout.mouseReleased(hb1Released);
+
+        // Use this to view the action.  Then close the window manually.
+        while(testFrame.isVisible()) {
+            Thread.sleep(1000);
+        }
+    } // end testDragRight
+
+
+    public static void main(String[] args) throws InterruptedException {
+        Box theContainer = DragAndDropDriver.makeContent();
+        DragAndDropDriver theDriver = new DragAndDropDriver(theContainer);
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
 
-        JFrame testFrame = new JFrame("Drag And Drop Driver");
+        theDriver.testFrame = new JFrame("Drag And Drop Driver");
 
-        testFrame.addWindowListener(new WindowAdapter() {
+        theDriver.testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 System.exit(0);
             }
         });
 
-        testFrame.getContentPane().add(theDriver);
-        testFrame.pack();
-        testFrame.setSize(new Dimension(350, 250));
-        testFrame.setVisible(true);
-        testFrame.setLocationRelativeTo(null);
+        theDriver.testFrame.getContentPane().add(theDriver);
+        theDriver.testFrame.pack();
+        theDriver.testFrame.setSize(new Dimension(500, 250));
+        theDriver.testFrame.setVisible(true);
+        theDriver.testFrame.setLocationRelativeTo(null);
+
+//        theDriver.testDragLeft();
+        theDriver.testDragRight();
+
     }
 
 }

@@ -22,7 +22,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static final int STAY = 2;
     static final int INORDER = 123;
 
-    private TodoGroupHeader listHeader;
+    TodoGroupHeader listHeader;
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 

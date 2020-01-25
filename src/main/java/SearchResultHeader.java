@@ -17,11 +17,11 @@ public class SearchResultHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
 
     private SearchResultGroup parent;
-    private HeaderButton hb1;  // Found In
-    private HeaderButton hb2;  // Note Text
-    private HeaderButton hb3;  // Last Mod
-    private HeaderButton hb4;  // Deadline   // No longer used.
-    private DndLayout headerLayout;
+    HeaderButton hb1;  // Found In
+    HeaderButton hb2;  // Note Text
+    HeaderButton hb3;  // Last Mod
+    HeaderButton hb4;  // Deadline   // No longer used.
+    DndLayout headerLayout;
 
     public SearchResultHeader(SearchResultGroup p) {
         super();
@@ -41,12 +41,10 @@ public class SearchResultHeader extends Container implements ClingSource {
         hb1.setText(parent.myVars.column1Label);
         hb2.setText(parent.myVars.column2Label);
         hb3.setText(parent.myVars.column3Label);
-        hb4.setText(parent.myVars.column4Label);
 
         add(hb1, "First");
         add(hb2, "Stretch");
         add(hb3, "Third");
-        // add(hb4, "Fourth");
 
         // Re-order, if necessary
         String pos = String.valueOf(parent.myVars.columnOrder);
@@ -65,6 +63,7 @@ public class SearchResultHeader extends Container implements ClingSource {
     // Overrode this Container method in order to capture the column
     //   order change as a 'group changed' event.
     //----------------------------------------------------------------
+    @Override
     public void doLayout() {
         super.doLayout();
         if (headerLayout.Dragging) return;
@@ -92,7 +91,7 @@ public class SearchResultHeader extends Container implements ClingSource {
     //   the column 'cling' to their header during a drag operation.
     //----------------------------------------------------------------
     public Vector<JComponent> getClingons(Component comp) {
-        JComponent compTempComp;
+        JComponent compTempComp = null;
 
         Container cTheContainer = parent.groupNotesListPanel;
         int rows = cTheContainer.getComponentCount();
@@ -119,13 +118,6 @@ public class SearchResultHeader extends Container implements ClingSource {
                 case "Last Mod":
                     compTempComp = tnc.getLastModLabel();
                     break;
-                default:
-                    // Now that there are only 3, this will throw an exception
-                    //   if it ever gets here.  Left it in to show me the problem
-                    //   in case it ever happens, and also so that the compiler
-                    //   believes that compTempComp will always have a value.
-                    compTempComp = (JComponent) tnc.getComponent(3);
-                    break;
             }
             ClingOns.addElement(compTempComp);
         } // end for i
@@ -144,9 +136,6 @@ public class SearchResultHeader extends Container implements ClingSource {
                 break;
             case 3:
                 s = hb3.getText();
-                break;
-            case 4:
-                s = hb4.getText();
                 break;
         } // end switch
         return s;
@@ -181,7 +170,6 @@ public class SearchResultHeader extends Container implements ClingSource {
         d.width = hb1.getPreferredSize().width;
         d.width += hb2.getPreferredSize().width;
         d.width += hb3.getPreferredSize().width;
-        d.width += hb4.getPreferredSize().width;
 
         // System.out.println("SearchResultHeader correct width: " + total);
         return d;

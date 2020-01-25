@@ -17,11 +17,11 @@ public class TodoGroupHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
 
     private TodoNoteGroup parent;
-    private HeaderButton hb1;  // Priority
-    private HeaderButton hb2;  // To Do Text
-    private HeaderButton hb3;  // Status
-    private HeaderButton hb4;  // Deadline   // No longer used.
-    private DndLayout headerLayout;
+    HeaderButton hb1;  // Priority
+    HeaderButton hb2;  // To Do Text
+    HeaderButton hb3;  // Status
+    HeaderButton hb4;  // Deadline   // No longer used.
+    DndLayout headerLayout;
 
     TodoGroupHeader(TodoNoteGroup p) {
         super();
