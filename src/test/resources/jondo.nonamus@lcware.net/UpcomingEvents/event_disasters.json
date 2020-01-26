@@ -1,0 +1,19 @@
+[ [ {
+  "zdtLastModString" : "2019-11-09T08:19:51.830+04:00[Europe/Samara]",
+  "noteString" : "Mount St. Helens Eruption",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "locationString" : "",
+  "eventStartDateString" : null,
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+} ] ]

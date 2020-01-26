@@ -1,0 +1,11 @@
+[ [ {
+  "zdtLastModString" : "2019-03-15T15:00-05:00[America/Chicago]",
+  "noteString" : "Payday!",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Payday\n\nLocation: Auto deposit",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "iconFileString" : "icons/$button.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "15:00"
+} ] ]

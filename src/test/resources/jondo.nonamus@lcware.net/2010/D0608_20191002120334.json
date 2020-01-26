@@ -1,0 +1,101 @@
+[ [ {
+  "zdtLastModString" : "2019-10-02T05:38:39.388+04:00[Europe/Samara]",
+  "noteString" : "Taxi to airport",
+  "subjectString" : null,
+  "extendedNoteString" : "I've been summoned to the home office, for an important meeting.  No idea what to expect.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/car01.ico",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "05:27:56.941"
+}, {
+  "zdtLastModString" : "2019-10-02T05:33:34.299+04:00[Europe/Samara]",
+  "noteString" : "Dropped off suitcase, went thru security",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "07:16:11.442"
+}, {
+  "zdtLastModString" : "2019-10-02T05:29:08.474+04:00[Europe/Samara]",
+  "noteString" : "Breakfast - Love that airport food",
+  "subjectString" : null,
+  "extendedNoteString" : "And the price helps keep my wallet slim.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "07:28:28.070"
+}, {
+  "zdtLastModString" : "2019-10-02T05:29:28.933+04:00[Europe/Samara]",
+  "noteString" : "Boarded the plane",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "08:30:23.726"
+}, {
+  "zdtLastModString" : "2019-10-02T05:39:52.761+04:00[Europe/Samara]",
+  "noteString" : "Late takeoff; planes stacked up on runway",
+  "subjectString" : null,
+  "extendedNoteString" : "I think I'll still make the meeting on time, but won't be able to check in to the hotel until afterwards.  The room will be held for me, anyway.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/plane2b.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "09:30:33.055"
+}, {
+  "zdtLastModString" : "2019-10-02T05:34:32.718+04:00[Europe/Samara]",
+  "noteString" : "In-flight entertainment, lunch",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/movie.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "09:50:13.652"
+}, {
+  "zdtLastModString" : "2019-10-02T05:31:13.405+04:00[Europe/Samara]",
+  "noteString" : "Arrived",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "13:33:11.981"
+}, {
+  "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
+  "noteString" : "Taxi to office",
+  "subjectString" : null,
+  "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2019-10-02T05:41:23.248+04:00[Europe/Samara]",
+  "noteString" : "THE MEETING",
+  "subjectString" : "Work Note",
+  "extendedNoteString" : "This was BIG - but not allowed to write it down.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/mouth0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "14:30:27.368"
+}, {
+  "zdtLastModString" : "2019-10-02T05:31:56.917+04:00[Europe/Samara]",
+  "noteString" : "Drinks in the hotel bar",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/glass0a.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "17:35:52.166"
+} ] ]

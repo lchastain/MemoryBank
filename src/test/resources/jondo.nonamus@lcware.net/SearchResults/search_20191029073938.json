@@ -1,0 +1,171 @@
+[ {
+  "searchPanelSettings" : {
+    "not1" : false,
+    "not2" : false,
+    "not3" : false,
+    "word1" : "Office",
+    "word2" : null,
+    "word3" : null,
+    "and1" : false,
+    "and2" : false,
+    "or1" : true,
+    "or2" : true,
+    "paren1" : false,
+    "paren2" : false,
+    "noteDateWhen1String" : null,
+    "noteDateWhen2String" : null,
+    "whenChoice" : -1,
+    "dateLastMod1String" : null,
+    "dateLastMod2String" : null,
+    "modChoice" : -1
+  },
+  "column1Label" : "Found in",
+  "column2Label" : "Note Text",
+  "column3Label" : "Last Modified",
+  "column4Label" : "",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2019-10-02T05:38:39.388+04:00[Europe/Samara]",
+  "noteString" : "Taxi to airport",
+  "subjectString" : null,
+  "extendedNoteString" : "I've been summoned to the home office, for an important meeting.  No idea what to expect.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2010\\D0608_20191002120252.json"
+}, {
+  "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
+  "noteString" : "Taxi to office",
+  "subjectString" : null,
+  "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2010\\D0608_20191002120252.json"
+}, {
+  "zdtLastModString" : "2019-10-02T05:38:39.388+04:00[Europe/Samara]",
+  "noteString" : "Taxi to airport",
+  "subjectString" : null,
+  "extendedNoteString" : "I've been summoned to the home office, for an important meeting.  No idea what to expect.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2010\\D0608_20191002120334.json"
+}, {
+  "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
+  "noteString" : "Taxi to office",
+  "subjectString" : null,
+  "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2010\\D0608_20191002120334.json"
+}, {
+  "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
+  "noteString" : "Taxi to office",
+  "subjectString" : null,
+  "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2010\\D0611_20191002115849.json"
+}, {
+  "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
+  "noteString" : "Taxi to office",
+  "subjectString" : null,
+  "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2010\\D0612_20191002115853.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.242+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0104_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.242+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0201_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0307_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0404_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0502_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0606_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0704_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0801_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D0905_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D1003_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D1107_20191029073002.json"
+}, {
+  "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteString" : "Lease Payment Due",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
+  "extendedNoteWidthInt" : 507,
+  "extendedNoteHeightInt" : 250,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\test.user@lcware.net\\2016\\D1205_20191029073002.json"
+} ] ]

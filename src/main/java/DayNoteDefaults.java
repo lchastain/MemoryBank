@@ -35,7 +35,7 @@ public class DayNoteDefaults {
         } catch (FileNotFoundException ignore) { // not a problem; we'll use defaults.
         } catch (IOException ioe) {
             e = ioe;
-            e.printStackTrace();
+            if(MemoryBank.debug) e.printStackTrace();
         }
 
         if (e != null) {

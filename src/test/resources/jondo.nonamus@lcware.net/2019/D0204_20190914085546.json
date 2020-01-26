@@ -1,0 +1,41 @@
+[ [ {
+  "zdtLastModString" : "2019-02-04T21:30-06:00[America/Chicago]",
+  "noteString" : "Decided to take a 'personal' day",
+  "subjectString" : "Work issue",
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/ernie.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "21:30"
+}, {
+  "zdtLastModString" : "2019-02-04T21:35-06:00[America/Chicago]",
+  "noteString" : "Called it in.",
+  "subjectString" : "Work issue",
+  "extendedNoteString" : "Had to leave a message; no one else comes in this early, anyway.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/phone002.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "21:35"
+}, {
+  "zdtLastModString" : "2019-02-04T22:00-06:00[America/Chicago]",
+  "noteString" : "Paid the electric bill, online",
+  "subjectString" : "Bills",
+  "extendedNoteString" : "This month was higher than usual - why?  Maybe because it was a colder than normal winter.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : "icons/card_master.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "22:00"
+}, {
+  "zdtLastModString" : "2019-02-04T23:15-06:00[America/Chicago]",
+  "noteString" : "New High Score!",
+  "subjectString" : "Video Games",
+  "extendedNoteString" : "16,817  !!!",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "23:15"
+} ] ]

@@ -236,7 +236,10 @@ public class AppTreePanelTest {
 
     @Test
     void testShowMonth() {
-        appTreePanel.setViewedDate(LocalDate.now(), ChronoUnit.MONTHS);
+        // For the test user there is icon data in this month.
+        LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
+
+        appTreePanel.setViewedDate(theMonthToShow, ChronoUnit.MONTHS);
         appTreePanel.showMonthView();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
@@ -246,13 +249,32 @@ public class AppTreePanelTest {
 
     @Test
     void testShowToday() {
+        // Cover all the switch cases.  This will also exercise the 'set' methods
+        // within each specified NoteGroup.
+        theTree.setSelectionPath(appTreePanel.yearViewPath);
+        appTreePanel.setViewedDate(2019); // This is NOT today.
         appTreePanel.showToday();
-        TreePath tp = theTree.getSelectionPath();
-        assert tp != null;
-        // Not sure what else to look for, here.  We would need to know what view
-        // was previously showing, so we could get its choice and do a compare.
-        // Doesn't seem necessary.
-        System.out.println("End testShowToday");
+
+        theTree.setSelectionPath(appTreePanel.monthViewPath);
+        appTreePanel.setViewedDate(2019); // This is NOT today.
+        appTreePanel.showToday();
+
+        theTree.setSelectionPath(appTreePanel.dayNotesPath);
+        appTreePanel.setViewedDate(2019); // This is NOT today.
+        appTreePanel.showToday();
+
+        theTree.setSelectionPath(appTreePanel.monthNotesPath);
+        appTreePanel.theAppMonths.setDate(LocalDate.of(2019, 7, 15));
+        appTreePanel.setViewedDate(2019); // This is NOT today.
+        appTreePanel.showToday();
+
+        theTree.setSelectionPath(appTreePanel.yearNotesPath);
+        appTreePanel.theAppYears.setDate(LocalDate.of(2019, 7, 15));
+        appTreePanel.setViewedDate(2019); // This is NOT today.
+        appTreePanel.showToday();
+
+        // And once more, to cover the 'already' path.
+        appTreePanel.showToday();
     }
 
     @Test

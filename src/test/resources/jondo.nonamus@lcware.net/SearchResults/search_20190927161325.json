@@ -1,0 +1,83 @@
+[ {
+  "searchPanelSettings" : {
+    "not1" : false,
+    "not2" : false,
+    "not3" : false,
+    "word1" : "primatech",
+    "word2" : null,
+    "word3" : null,
+    "and1" : false,
+    "and2" : false,
+    "or1" : true,
+    "or2" : true,
+    "paren1" : false,
+    "paren2" : false,
+    "noteDateWhen1String" : null,
+    "noteDateWhen2String" : null,
+    "whenChoice" : -1,
+    "dateLastMod1String" : null,
+    "dateLastMod2String" : null,
+    "modChoice" : -1
+  },
+  "column1Label" : "Found in",
+  "column2Label" : "Note Text",
+  "column3Label" : "Last Modified",
+  "column4Label" : "",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2019-09-27T15:35:44.049+04:00[Europe/Samara]",
+  "noteString" : "Interview with Primatech - Odessa, TX",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0201_20190927153800.json"
+}, {
+  "zdtLastModString" : "2019-09-27T15:36:47.311+04:00[Europe/Samara]",
+  "noteString" : "Got new job!",
+  "subjectString" : "Work Note",
+  "extendedNoteString" : "Stock clerk at Primatech Paper.  ",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0206_20190927153648.json"
+}, {
+  "zdtLastModString" : "2019-09-27T15:38:37.159+04:00[Europe/Samara]",
+  "noteString" : "Payday at Primatech",
+  "subjectString" : "Work Note",
+  "extendedNoteString" : "Every other Friday.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0229_20190927153929.json"
+}, {
+  "zdtLastModString" : "2019-09-27T16:10:02.753+04:00[Europe/Samara]",
+  "noteString" : "Security at Primatech",
+  "subjectString" : null,
+  "extendedNoteString" : "Security here is crazy!  I came in just a bit early and I guess the guard wasn't expecting anyone at that time.  I almost got shot!!  ",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0303_20190927161313.json"
+}, {
+  "zdtLastModString" : "2019-09-27T16:11:47.914+04:00[Europe/Samara]",
+  "noteString" : "Primatech in the news",
+  "subjectString" : "Work Note",
+  "extendedNoteString" : "I hadn't seen any sign of it myself, but a friend who knows where I work showed me a news story from a couple years back, about some strange goings on at this company.  Will have to keep an eye out.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0305_20190927161225.json"
+}, {
+  "zdtLastModString" : "2019-09-27T15:38:37.159+04:00[Europe/Samara]",
+  "noteString" : "Payday at Primatech",
+  "subjectString" : "Work Note",
+  "extendedNoteString" : "Every other Friday.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0314_20190927153941.json"
+}, {
+  "zdtLastModString" : "2019-09-27T15:38:37.159+04:00[Europe/Samara]",
+  "noteString" : "Payday at Primatech",
+  "subjectString" : "Work Note",
+  "extendedNoteString" : "Every other Friday.",
+  "extendedNoteWidthInt" : 300,
+  "extendedNoteHeightInt" : 200,
+  "fileFoundIn" : "C:\\Users\\Lee\\workspace\\Memory Bank\\appData\\jondo.nonamus@lcware.net\\2008\\D0328_20190927153954.json"
+} ] ]
