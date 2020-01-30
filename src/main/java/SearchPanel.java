@@ -30,9 +30,10 @@ public class SearchPanel extends JPanel implements DocumentListener {
     private LocalDate dateLastMod2;
     private ButtonGroup bgWhen;
     private ButtonGroup bgMod;
-    private YearView yvDateChooser;
+    YearView yvDateChooser;
     private boolean blnDialogClosed; // For use by inner classes
     JDialog dialogWindow;
+    boolean doSearch;
     //-------------------------------------------------------------
 
 
@@ -73,7 +74,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
     //-----
     private JRadioButton rbtnModBefore;
     private JRadioButton rbtnModBetween;
-    private JRadioButton rbtnModAfter;
+    JRadioButton rbtnModAfter;
     //-----
     private JRadioButton rbtnWhenAfter;
     private JRadioButton rbtnWhenBefore;
@@ -88,6 +89,8 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
     public SearchPanel() {
         super();
+
+        doSearch = false; // A flag that can be used by tests.
 
         // Some parts of the keyword panel have variable visibility.  Others can be
         // enabled or disabled, depending on other factors.  These variables are
@@ -144,6 +147,11 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
         return true;
     } // end allConditionsFalse
+
+
+    private boolean allConditionsNull(Boolean blnC1, Boolean blnC2, Boolean blnC3) {
+        return (blnC1 == null && blnC2 == null && blnC3 == null);
+    } // end allConditionsNull
 
 
     //------------------------------------------------------------
@@ -206,7 +214,9 @@ public class SearchPanel extends JPanel implements DocumentListener {
         boolean rv = true;
         switch (getLastModSetting()) {
             case AFTER:
-                if (dateInQuestion.isBefore(dateLastMod1)) rv = false;
+                if (dateInQuestion != null) {
+                    if(dateInQuestion.isBefore(dateLastMod1)) rv = false;
+                }
                 break;
             case BEFORE:
                 if (dateInQuestion.isAfter(dateLastMod1)) rv = false;
@@ -270,15 +280,12 @@ public class SearchPanel extends JPanel implements DocumentListener {
         //   then the return value will be false.
 
         // Test the 'Last Mod' condition
-        //if (filterLastMod(Date.from(nd.getLastModDate().toInstant()))) return false;
         if (filterLastMod(nd.getLastModDate().toLocalDate())) return false;
 
-        // Test the 'Items with Dates' condition
-        // File-level filtering for DayNotes, MonthNotes, etc, should
-        //   have already been done prior to this point; here, it is
-        //   a Note-level test.  If not relevant then the NoteDate will
-        //   be null, which passes thru the filter.
-//        if (filterWhen(nd.getNoteDate())) return false; - no longer possible, didn't make sense anyway.
+        // Test the 'Items with Dates' condition (but not really; just putting it here for completeness).
+        // Filename-level date filtering for DayNotes, MonthNotes, and YearNotes will have already been
+        //   done prior to this point, and there is no date associated with a base NoteData.
+        //   No further filtering needed.
 
         // Construct a string to search, from the base NoteData elements.
         String s = nd.getNoteString();
@@ -335,7 +342,12 @@ public class SearchPanel extends JPanel implements DocumentListener {
             blnC3 = null;
         } // end if
 
-        // Now we have between zero and three conditions (based on search keywords) to use in the evaluations below.
+        // The rest of this method is concerned with keyword searching.  If no keywords have been supplied in
+        // the first place then by this point we have already done all the filtering that is possible, and
+        // the NoteData under consideration has been 'found'.
+        if(allConditionsNull(blnC1, blnC2, blnC3)) return true;
+
+        // Now we have between one and three conditions (based on search keywords) to use in the evaluations below.
         // The possible variations of these three conditions, along with
         //   their possible combinations of AND/OR and in some cases
         //   grouped with parentheses, results in a truth table that has
@@ -384,7 +396,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
                     p1 = blnC1 && blnC2; // C1 AND C2 - evaluated to true only if both are true
                     if (!p1 && !blnC3) return false;  // P1foC3f - lines 23,35 two cases
                 }
-            } // end if
+            } // end if PARENS1
 
             if (getParens() == PARENS2) { // PARENS2 -  C2 grouped with C3
                 if (rbtnOr2.isSelected()) { // This means they are OR'd
@@ -398,7 +410,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
                     p2 = blnC2 && blnC3; // C2 AND C3 - evaluated to true only if both are true
                     return p2 || blnC1;  // C1foP2f - lines 34,40 two cases
                 }
-            } // end if
+            } // end if PARENS2
         } // end else there are PARENS.
         return true;
     } // end foundIt
@@ -1129,7 +1141,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
         // SearchPanel
         // 
         this.setLocation(new Point(16, 0));
-        this.setSize(new Dimension(443, 337));
+        this.setSize(new Dimension(443, 357));
     } // end initializeComponent
 
 
@@ -1359,8 +1371,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
         rbtnOr2.setSelected(theSettings.or2);
         lblOpenParen1.setVisible(theSettings.paren1); // Closed tracks along with Open
         lblOpenParen2.setVisible(theSettings.paren2); // we're depending on it.
-
-
     }
 
     void showDateDialog(String s, int numSelections) {

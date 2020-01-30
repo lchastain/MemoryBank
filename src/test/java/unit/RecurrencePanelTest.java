@@ -78,7 +78,7 @@ class RecurrencePanelTest {
         // Configure our trojan'd Notifier to set a date on the YearView date chooser,
         // that will then be queried back out by the production code.
         Method newMethod = YearView.class.getDeclaredMethod("setChoice", LocalDate.class);
-        testUtil.setMethod(newMethod);
+        testUtil.setTheMethod(newMethod);
         testUtil.setParam1(LocalDate.of(2205, 10, 20)); // Provide the needed method parameter
 
         // Construct a MouseEvent to emulate a mouse press on the 'Stop By' button.

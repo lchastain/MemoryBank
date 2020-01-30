@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.event.WindowEvent;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SearchPanelTest {
     SearchPanel theSearchPanel;
 
@@ -36,9 +34,11 @@ class SearchPanelTest {
         // That table contains 24 cases where the find result will be false.
 
         // Test one of the six 'Af' cases (this is line 49)
-        // All default search settings and an empty (new) NoteData - does not get found.
+        // An empty (new) NoteData - one specified keyword, does not get found.
         searchPanelSettings = new SearchPanelSettings();
         NoteData searchingIn = new NoteData();
+        searchPanelSettings.word1 = word1;
+        theSearchPanel.setTheSettings(searchPanelSettings);
         theResult = theSearchPanel.foundIt(searchingIn);
         Assertions.assertFalse(theResult);
 

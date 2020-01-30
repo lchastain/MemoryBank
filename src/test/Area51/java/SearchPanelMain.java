@@ -1,7 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class SearchPanelMain {
 
@@ -9,21 +6,20 @@ public class SearchPanelMain {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("g01@doughmain.net");
 
-        JFrame testFrame = new JFrame("SearchPanel Driver");
-
         SearchPanel theSearchPanel = new SearchPanel();
 
-        testFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                System.exit(0);
-            }
-        });
+        String string1 = "Search Now";
+        String string2 = "Cancel";
+        Object[] options = {string1, string2};
 
-        testFrame.getContentPane().add(theSearchPanel, "Center");
-        testFrame.pack();
-        testFrame.setSize(new Dimension(500, 450));
-        testFrame.setVisible(true);
-        testFrame.setLocationRelativeTo(null);
+        JOptionPane.showOptionDialog(null,
+                theSearchPanel,
+                "Search - Please specify the conditions for your quest",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,     //don't use a custom Icon
+                options,  //the titles of buttons
+                string1); //the title of the default button
     }
 
 }

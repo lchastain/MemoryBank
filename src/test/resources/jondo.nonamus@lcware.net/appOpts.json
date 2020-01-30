@@ -1,11 +1,14 @@
 {
+  "eventsExpanded" : false,
   "viewsExpanded" : true,
   "notesExpanded" : true,
-  "todoListsExpanded" : true,
+  "todoListsExpanded" : false,
   "searchesExpanded" : true,
-  "theSelection" : "Day Notes",
-  "theSelectionRow" : 7,
+  "theSelection" : "Year View",
+  "theSelectionRow" : 6,
+  "eventLists" : [ "Consolidated View", "holidays", "appointments" ],
   "todoLists" : [ "Get New Job", "New Car Shopping" ],
   "searchResultList" : [ "20190927161325" ],
-  "paneSeparator" : 191
+  "paneSeparator" : 191,
+  "consolidatedEventsViewName" : "Consolidated View"
 }

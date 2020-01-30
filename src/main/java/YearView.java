@@ -42,8 +42,7 @@ public class YearView extends JPanel implements ActionListener {
     private int intSelectionCount;
     private JButton todayButton;
     private boolean alterButtonDepressed;
-    private Depressed depressedThread;   // A Thread to keep responding
-
+    private Depressed depressedThread;   // A Thread to keep responding to year up/down
 
     private static final int borderWidth = 2;
     private static LineBorder theBorder;
@@ -374,7 +373,6 @@ public class YearView extends JPanel implements ActionListener {
                         if (appTreePanel == null) return;
                         myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
                         appTreePanel.showWeek(myDate);
-//                        if (e.getClickCount() == 2) appTreePanel.showWeek();
                     } // end mousePressed
                 });//end addMouseListener
                 weekdayNameHeader.add(tempLabel);

@@ -392,8 +392,8 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     //----------------------------------------------------------------------
     // Method Name: refresh
     //
-    // Called during construction and also in response to a click on the
-    //   'Save' menu item.
+    // Called during in response to a click on the 'Save' menu item.
+    // TODO - During construction the first preClose is not needed.
     //----------------------------------------------------------------------
     @Override
     public void refresh() {

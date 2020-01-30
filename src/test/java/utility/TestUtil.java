@@ -108,8 +108,8 @@ class TestUtil implements Notifier, SubSystem {
     // When the 'message' is really an Object reference, this method allows a test
     // to change the Object content.  You need to send in a method that is available
     // to that Object.
-    void setMethod(Method newMethod) {
-        theMethod = newMethod;
+    void setTheMethod(Method theNewMethod) {
+        theMethod = theNewMethod;
     }
 
     void setParam1(Object o) {

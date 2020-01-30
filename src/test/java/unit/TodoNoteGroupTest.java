@@ -76,7 +76,7 @@ class TodoNoteGroupTest {
         // Tell the Notifier to call a method on the TodoOpts ('message') prior to returning.
         // Get the method from TodoOpts that the Notifier will call, to change the options.
         Method newMethod = TodoOpts.class.getDeclaredMethod("setNewProperties", TodoListProperties.class);
-        testUtil.setMethod(newMethod);
+        testUtil.setTheMethod(newMethod);
         testUtil.setParam1(tlp); // Provide the needed method parameter
 
         testUtil.setNotifyCount(0); // arbitrary, just needs to be known.

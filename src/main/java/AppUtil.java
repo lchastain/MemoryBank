@@ -656,7 +656,7 @@ public class AppUtil {
             bw.write(toJsonString(theGroup));
             // Set the number of notes written, only AFTER the write.
             notesWritten = ((List) theGroup[theGroup.length - 1]).size();
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
             // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
             // same name in the directory where you want to put the file, or not having write permission.
             e = ioe;

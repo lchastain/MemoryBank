@@ -99,7 +99,7 @@ public class DragAndDropTests {
 
         todoGroupHeader.headerLayout.mousePressed(hb3Pressed);
 
-        for(int mouseDragX=mouseAbsXstart; mouseDragX>=mouseAbsXend; mouseDragX--) {
+        for(int mouseDragX=mouseAbsXstart; mouseDragX>=mouseAbsXend; mouseDragX = mouseDragX - 1) {
             hb3Dragged = new MouseEvent(todoGroupHeader.hb3,
                     MouseEvent.MOUSE_DRAGGED, mouseWhen, 0, 9, mouseY,
                     mouseDragX,  mouseAbsY, 0, false, 1 );

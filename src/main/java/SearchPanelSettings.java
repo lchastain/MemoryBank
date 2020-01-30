@@ -2,7 +2,8 @@
 // After reading this:  https://dzone.com/articles/getter-setter-use-or-not-use-0
 //   decided to NOT use getters/setters here, and that encapsulation for this
 //   data class is not appropriate.  It is package-private, not intended for
-//   access from anywhere other than the SearchPanel and SearchResultGroup.
+//   access from anywhere other than the SearchPanel and SearchResultGroup
+//   (and Tests).
 //-----------------------------------------------------------------------
 class SearchPanelSettings  {
     boolean not1;

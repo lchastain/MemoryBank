@@ -54,8 +54,8 @@ One-stop reference for how to do certain tasks (mostly related to Test dev).
         ZonedDateTime zdt = ZonedDateTime.now();
         LocalDateTime ldt = zdt.toLocalDateTime();
 
-13. Convert a long (like Date.getTime()) to ZonedDateTime:
-    ZonedDateTime ld = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault());
+13. Convert a LocalDate to a ZonedDateTime:
+    ZonedDateTime zonedDateTime = LocalDate.of(2019, 5, 15).atStartOfDay(ZoneId.systemDefault());
 
 14. Convert a long (like Date.getTime()) to LocalDate:
     LocalDate ld = LocalDate.ofEpochDay(theLong);
@@ -82,4 +82,11 @@ One-stop reference for how to do certain tasks (mostly related to Test dev).
 
 21. Generate and view the html coverage report:
     Menu:  Run / Generate Coverage Report
+
+22. Perform Mouse operations on the interface components:
+    Construct a MouseEvent manually, then call the mouseClicked (or Pressed, Entered, etc) method
+       on the mouse listener on the component.
+            MouseListener[] mouseListenerArray = jRadioButton.getMouseListeners();
+
+
 

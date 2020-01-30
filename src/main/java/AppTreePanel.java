@@ -11,7 +11,6 @@
 // Management of search results should be rewritten to be closer to
 //   the way to do lists are handled.
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,12 +62,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     YearNoteGroup theAppYears;
     MonthView theMonthView;
     YearView theYearView;
-    private Vector<NoteData> noteDataVector;   // For searching
     private Vector<NoteData> foundDataVector;  // Search results
     private NoteGroupKeeper theEventListKeeper;      // keeper of all loaded Event lists.
     private NoteGroupKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
     private NoteGroupKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
-    private SearchPanel spTheSearchPanel;
+    SearchPanel spTheSearchPanel;
     private JPanel aboutPanel;
     private JSplitPane splitPane;
 
@@ -90,6 +88,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private AppOptions appOpts;
 
     boolean restoringPreviousSelection;
+    boolean searching;
 
     public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
@@ -114,6 +113,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         //<editor-fold desc="Initialize the Search Panel from a new thread">
+        searching = false;
         new Thread(new Runnable() {
             public void run() {
                 spTheSearchPanel = new SearchPanel();
@@ -528,6 +528,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     }
 
     private void doSearch() {
+        searching = true;
         Frame theFrame = JOptionPane.getFrameForComponent(this);
 
         // Now display the search dialog.
@@ -543,13 +544,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 options,  //the titles of buttons
                 string1); //the title of the default button
 
-        if (choice != JOptionPane.OK_OPTION) return;
+        if (choice != JOptionPane.OK_OPTION) {
+            if(!spTheSearchPanel.doSearch) {
+                searching = false;
+                return;
+            }
+            spTheSearchPanel.doSearch = false; // Put this flag back to non-testing mode.
+        }
 
         if (!spTheSearchPanel.hasWhere()) {
             JOptionPane.showMessageDialog(this,
                     " No location to search was chosen!",
                     "Search conditions specification error",
                     JOptionPane.ERROR_MESSAGE);
+            searching = false;
             return;
         } // end if no search location was specified.
 
@@ -563,7 +571,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } // end if
 
         // Now make a Vector that can collect the search results.
-        foundDataVector = new Vector<>(0, 1);
+        foundDataVector = new Vector<>();
+
+        // We will display the results of the search, even if it finds nothing.
+        SearchResultGroupProperties searchResultGroupProperties = new SearchResultGroupProperties();
+        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
+        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(spTheSearchPanel.getSettings()));
 
         // Now scan the user's data area for data files - we do a recursive
         //   directory search and each file is examined as soon as it is
@@ -571,11 +584,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
         File f = new File(MemoryBank.userDataHome);
         scanDataDir(f, 0); // Indirectly fills the foundDataVector
-        noteDataVector = foundDataVector;
-
-        // We will display the results of the search, even if it found nothing.
-        SearchResultGroupProperties searchResultGroupProperties = new SearchResultGroupProperties();
-        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
 
         // Make a unique name for the results
         String resultsName = AppUtil.getTimestamp();
@@ -586,7 +594,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Make a new data file to hold the searchResultData list
         Object[] theGroup = new Object[2]; // A 'wrapper' for the Properties + List
         theGroup[0] = searchResultGroupProperties;
-        theGroup[1] = noteDataVector;
+        theGroup[1] = foundDataVector;
         int notesWritten = AppUtil.saveNoteGroupData(resultsFileName, theGroup);
         if (foundDataVector.size() != notesWritten) {
             System.out.println("Possible problem - wrote " + notesWritten + " results");
@@ -597,6 +605,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Make a new tree node for these results and select it
         addSearchResult(resultsName);
 
+        searching = false;
         showWorkingDialog(false);
     } // end doSearch
 
@@ -634,9 +643,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             Object[] theData = AppUtil.loadNoteGroupData(theFilename);
 
-            NoteData.loading = true; // We don't want to affect the lastModDates!
-            groupDataVector = AppUtil.mapper.convertValue(theData[0], new TypeReference<Vector<EventNoteData>>() { });
-            NoteData.loading = false; // Restore normal lastModDate updating.
+//            NoteData.loading = true; // We don't want to affect the lastModDates!
+//            groupDataVector = AppUtil.mapper.convertValue(theData[0], new TypeReference<Vector<EventNoteData>>() { });
+            groupDataVector = new EventDataVector(theData[0]).getVector();
+//            NoteData.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
                 theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -890,7 +900,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     if (!spTheSearchPanel.searchGoals()) {
                         goLook = false;
                     }
-                } else if (theFile1Name.equals("UpcomingEvents.json")) {
+                } else if (theFile1Name.startsWith("event_")) {
                     if (!spTheSearchPanel.searchEvents()) {
                         goLook = false;
                     }
@@ -946,40 +956,35 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     // File-level (but not item-level) date filtering will
     //   have been done prior to this method being called.
     //---------------------------------------------------------
+    @SuppressWarnings({"rawtypes"})
     private void searchDataFile(File dataFile) {
         String theFilename = dataFile.getName();
         MemoryBank.debug("Searching: " + theFilename);
-        noteDataVector = new Vector<>();
+        NoteDataVector noteDataVector = new NoteDataVector();
 
         Object[] theGroupData = AppUtil.loadNoteGroupData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-            NoteData.loading = true; // We don't want to affect the lastModDates!
 
             // We don't have an instantiation of a Group, so we cannot use
             // the overridden setGroupData() like we do when NoteGroup loads
             // a file.  So - we'll use the filename to determine which
-            // generation of NoteData we need to recognize and convert.
-            if (theFilename.equals("UpcomingEvents.json")) {
-                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<EventNoteData>>() {
-                });
+            // generation of NoteData we need to recognize and construct.
+            if (theFilename.startsWith("event_")) {
+                noteDataVector = new EventDataVector(theGroupData[theGroupData.length - 1]);
             } else if ((theFilename.startsWith("M") && theFilename.charAt(3) == '_')) {
-                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<NoteData>>() {
-                });
+                noteDataVector = new NoteDataVector(theGroupData[theGroupData.length - 1]);
             } else if ((theFilename.startsWith("Y") && theFilename.charAt(1) == '_')) {
-                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<NoteData>>() {
-                });
+                noteDataVector = new NoteDataVector(theGroupData[theGroupData.length - 1]);
             } else if ((theFilename.startsWith("D") && theFilename.charAt(5) == '_')) {
-                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<DayNoteData>>() {
-                });
+                noteDataVector = new DayNoteDataVector(theGroupData[theGroupData.length - 1]);
             } else if (theFilename.startsWith("todo_")) {
-                noteDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<TodoNoteData>>() {
-                });
+                noteDataVector = new TodoDataVector(theGroupData[theGroupData.length - 1]);
             }
-            NoteData.loading = false; // Restore normal lastModDate updating.
         }
 
         // Now get on with the search -
-        for (NoteData ndTemp : noteDataVector) {
+        for (Object vectorItem : noteDataVector) {
+            NoteData ndTemp = (NoteData) vectorItem;
 
             // If we find what we're looking for in/about this note -
             if (spTheSearchPanel.foundIt(ndTemp)) {

@@ -37,7 +37,7 @@ public class SearchResultData extends NoteData {
     //   sources, decided to use alpha months rather than numeric
     //   because it "reads" best and does not affect sorting.
 
-    // BUT THAT SHOULD CHANGE - go to 'yyyy-mm-dd' or filename.
+    // BUT THAT SHOULD CHANGE - go to 'yyyy-mm-dd' or filename, so that sorting would be 'in order'.
 
     //   Had to annotate as Transient, else the JSON mapper picks this
     //   up and runs it when saving a file.  Then the loader doesn't
@@ -54,17 +54,13 @@ public class SearchResultData extends NoteData {
 
         if (fname.startsWith("todo_")) {
             retstr = fname.substring(5, fname.lastIndexOf('.'));
-        } else if (fname.endsWith(".todolist")) { // Older data; remove when it's all gone.
-            retstr = fname.substring(0, fname.lastIndexOf('.'));
-        } else if (fname.equals("UpcomingEvents")) { // This one needed to handle old data.  TODO - remove after all data is fixed.
-            retstr = "Upcoming";
-        } else if (fname.equals("UpcomingEvents.json")) {
-            retstr = "Upcoming";
-        } else if (!fpath.endsWith("MemoryBank")) {
-            // If the path does not end at the top level data
-            //   directory, then (at least at this writing) it
-            //   means that we are down one of the calendar-
-            //   based 'Year' paths.
+//      } else if (fname.endsWith(".todolist")) { // Older data; remove when it's all gone.
+//          retstr = fname.substring(0, fname.lastIndexOf('.'));
+        } else if (fname.startsWith("event_")) {
+            retstr = fname.substring(6, fname.lastIndexOf('.'));
+        } else {
+            // If the name hasn't already been recognized then it means that
+            //   we are (should be) down one of the calendar-based 'Year' paths.
             String strYear = fpath.substring(fpath.lastIndexOf(File.separatorChar) + 1);
 
             if (fname.startsWith("Y")) {
