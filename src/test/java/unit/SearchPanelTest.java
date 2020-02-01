@@ -150,7 +150,8 @@ class SearchPanelTest {
 
     // Since the Date dialog is a modal window, we need to start our 'closing' thread before
     // the window even appears.  So - we start off with a 'sleep' which will give the
-    // SearchPanel time to make and display the dialog, just in time for us to close it.
+    // SearchPanel time to make and display the dialog, just in time for our thread to wake
+    // up and close it.
     @Test
     void testShowDateDialogAndWindowClosing() {
         new Thread(new Runnable() {

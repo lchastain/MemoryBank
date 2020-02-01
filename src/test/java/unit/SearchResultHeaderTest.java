@@ -1,6 +1,5 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
@@ -12,8 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class SearchResultHeaderTest {
 
@@ -39,10 +36,6 @@ class SearchResultHeaderTest {
 
         // Load up this Test user's application options
         MemoryBank.loadOpts();
-    }
-
-    @BeforeEach
-    void setUp() {
     }
 
     // This test is needed in order to get coverage for an anonymous class that is
@@ -94,6 +87,7 @@ class SearchResultHeaderTest {
                 MouseEvent.MOUSE_EXITED, mouseWhen, 0, mouseX, mouseY, 0, false);
         searchResultHeader.hb2.mouseExited(hb2Exited);
 
+        testFrame.setVisible(false);  // needed when ALL tests run; window stays up too long.
 
         // Use this to view the action.  Then close the window manually.
 //        while(testFrame.isVisible()) {

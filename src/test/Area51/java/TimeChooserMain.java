@@ -4,8 +4,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 // This class provides a stand-alone example of usage of the TimeChooser.
-// For production usage it can be included in a JOptionPane that can be
-// queried for settings after the display has closed.
+// For production usage it can be displayed in a JOptionPane and the
+// chooser can be queried for settings after the dialog has closed.
 
 public class TimeChooserMain {
 

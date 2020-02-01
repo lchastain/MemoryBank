@@ -292,7 +292,20 @@ public class DayNoteComponent extends IconNoteComponent {
             DayNoteComponent.this.setBorder(redBorder);
 
             Frame theFrame = JOptionPane.getFrameForComponent(this);
-            LocalTime theTime = LocalTime.parse(myDayNoteData.getTimeOfDayString());
+            String timeOfDayString = myDayNoteData.getTimeOfDayString();
+
+            LocalTime theTime;
+            // The current time of the NoteData may not yet be set (ie, may be null).
+            // But the timechooser expects to be initialized with some value (NOT null)
+            // and since the user has invoked the chooser it makes more sense to
+            // initialize it with the current time rather than try to start from a 'blank'
+            // time that we know the user intends to change to something else, most likely
+            // the current time, so why not start with that instead?  Anyway, it solves
+            // the problem of how to initialize with a null - we just don't.  On the
+            // other hand, though - if they clear it (which they can do from that UI)
+            // then it can remain null.  Silly user.
+            if(timeOfDayString != null) theTime = LocalTime.parse(timeOfDayString);
+            else theTime = LocalTime.now();
 
             TimeChooser tc = new TimeChooser(theTime);
             int result = optionPane.showConfirmDialog(

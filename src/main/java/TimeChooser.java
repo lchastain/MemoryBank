@@ -21,7 +21,7 @@ public class TimeChooser extends JPanel implements ActionListener {
     private static Border up;
     private static Border down;
     private static TimeAlterButton hoursButton;
-    private static TimeAlterButton minutesButton;
+    static TimeAlterButton minutesButton;
     private static TimeAlterButton secondsButton;
     private static Font buttonFont;
 
@@ -31,7 +31,10 @@ public class TimeChooser extends JPanel implements ActionListener {
 
     private boolean showSeconds;
     private boolean iAmClear;
-    private JButton ampmButton;              // constructor, actionPerformed
+    JButton ampmButton;
+    JButton nowButton;
+    JButton clearButton;
+    JButton resetButton;
 
     static {
         up = new BevelBorder(BevelBorder.RAISED);
@@ -70,7 +73,7 @@ public class TimeChooser extends JPanel implements ActionListener {
         ampmButton.setToolTipText("Toggles AM or PM");
 
         // constructor, actionPerformed
-        JButton nowButton = new JButton("Now");
+        nowButton = new JButton("Now");
         nowButton.setMargin(new Insets(2, 2, 2, 2));
         nowButton.setFocusable(false);
         nowButton.setFont(buttonFont);
@@ -78,14 +81,14 @@ public class TimeChooser extends JPanel implements ActionListener {
         nowButton.setToolTipText("Set to current time");
 
         // constructor, actionPerformed
-        JButton clearButton = new JButton(" ");
+        clearButton = new JButton(" ");
         clearButton.setFocusable(false);
         clearButton.setFont(buttonFont);
         clearButton.addActionListener(TimeChooser.this);
         clearButton.setToolTipText("Clear the time fields");
 
         // constructor, actionPerformed
-        JButton resetButton = new JButton("Reset");
+        resetButton = new JButton("Reset");
         resetButton.setMargin(new Insets(2, 2, 2, 2));
         resetButton.setFocusable(false);
         resetButton.setFont(buttonFont);

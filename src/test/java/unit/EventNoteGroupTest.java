@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 class EventNoteGroupTest {
     private static EventNoteGroup eventNoteGroup;
+    static TestUtil testUtil;
 
     @BeforeAll
     static void beforeAll() throws IOException {
@@ -28,7 +29,7 @@ class EventNoteGroupTest {
         FileUtils.copyDirectory(testResource, testData);
 
         eventNoteGroup = new EventNoteGroup("holidays");
-        TestUtil testUtil = new TestUtil();
+        testUtil = new TestUtil();
         eventNoteGroup.setNotifier(testUtil);
     }
 
@@ -66,10 +67,11 @@ class EventNoteGroupTest {
         eventNoteGroup.editExtendedNoteComponent(eventNoteData);
     }
 
-    // Disabled this test because it only does coverage, and we get that and more from Functional Tests.
-//    @Test
-//    void testRefresh() {
-//        eventNoteGroup.refresh();
-//    }
+    @Test
+    void testMerge() {
+        // Just the coverage -
+        testUtil.setTheAnswer("appointments");
+        eventNoteGroup.merge();
+    }
 
 }
