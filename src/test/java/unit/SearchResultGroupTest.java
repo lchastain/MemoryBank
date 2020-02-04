@@ -103,6 +103,13 @@ class SearchResultGroupTest {
     }
 
     @Test
+    void testSortLastMod() {
+        // Just the coverage -
+        searchResultGroup.sortLastMod(SearchResultGroup.ASCENDING);
+        searchResultGroup.sortLastMod(SearchResultGroup.DESCENDING);
+    }
+
+    @Test
     void testSortText() {
         // Just the coverage -
         searchResultGroup.sortText(SearchResultGroup.ASCENDING);

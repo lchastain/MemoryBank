@@ -63,7 +63,7 @@ class TimeChooserTest {
 
     @Test
     void testMouseActions() throws InterruptedException {
-        timeChooser = new TimeChooser(); // redo, else shows empty.
+        timeChooser = new TimeChooser(); // needed to redo construction, else shows empty.
 
         new Thread(this::showTimeChooserDialog).start(); // Show the dialog in a thread.
         Thread.sleep(1500); // Time to bring up the chooser.

@@ -48,6 +48,8 @@ public class YearView extends JPanel implements ActionListener {
     private static LineBorder theBorder;
     private JPanel headerPanel;
     private JPanel titlePanel;
+    LabelButton prev;
+    LabelButton next;
 
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
@@ -105,12 +107,12 @@ public class YearView extends JPanel implements ActionListener {
             } // end mouseReleased
         };// end of new MouseAdapter
 
-        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
+        prev = new LabelButton("-", LabelButton.LEFT);
         prev.addMouseListener(alterButtonHandler);
         prev.setPreferredSize(new Dimension(28, 28));
         prev.setFont(Font.decode("Dialog-bold-14"));
 
-        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
+        next = new LabelButton("+", LabelButton.RIGHT);
         next.addMouseListener(alterButtonHandler);
         next.setPreferredSize(new Dimension(28, 28));
         next.setFont(Font.decode("Dialog-bold-14"));
