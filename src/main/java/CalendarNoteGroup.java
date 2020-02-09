@@ -37,11 +37,11 @@ public abstract class CalendarNoteGroup extends NoteGroup {
 
 
     //------------------------------------------------------
-    // Method Name: getGroupFilename
+    // Method Name: getLeafFilename
     //
     //------------------------------------------------------
     @Override
-    public String getGroupFilename() {
+    public String getLeafFilename() {
         String s;
 
         if (intSaveGroupStatus == ONGOING) {
@@ -55,7 +55,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
             else s = AppUtil.findFilename(theChoice, "Y");
             return s;
         } // end if saving else not saving
-    } // end getGroupFilename
+    } // end getLeafFilename
 
 
     //--------------------------------------------------------------

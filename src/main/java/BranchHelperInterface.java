@@ -71,10 +71,6 @@ public interface BranchHelperInterface {
 
         // Do we want to check to see if a file with this name already exists?
         //   No.  The handler for the renaming event will disallow that particular
-        //   situation, so we don't need to repeat that logic here.
-
-        // Do we want to check to see if a file with this name already exists?
-        //   No.  The handler for the renaming event will disallow that particular
         //   situation, so we don't need to repeat that logic here.  Likewise for
         //   the 'Save As' logic.
         //
@@ -91,6 +87,8 @@ public interface BranchHelperInterface {
         //   detect them is to try to create a file using the name we're
         //   checking.  Any io error and we can fail this check.
 
+
+
         // Now try to create the file, with an additional '.test' extension.  This will not
         // conflict with any 'legal' existing file in the directory, so if there is any
         // problem at all then we know it's a bad name.
@@ -98,7 +96,12 @@ public interface BranchHelperInterface {
         File f = new File(theFilename);
         MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
         // This existence is not the same check as the one that we said would not be done; different extension.
-        boolean b = f.exists();
+
+        // Now ensure that the container directory is already there.
+        boolean b;
+        b = f.mkdirs();
+
+        if(b) b = f.exists();
         try { // If the File operations below generate any exceptions, it's a bad name.
             // This first part & check are just to ensure that we do the rest of the test with
             // a 'clean' slate and don't have 'leftovers' from some earlier attempt(s).

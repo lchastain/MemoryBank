@@ -32,14 +32,16 @@ class NoteGroupFactory {
     }
 
     // Use this method if you want to get the group whether it has a data file or not.
-    static NoteGroup getOrMakeGroup(String theContext, String filename) {
+    static TreeLeaf getOrMakeLeaf(String theContext, String filename) {
         NoteGroup theGroup = getGroup(theContext, filename);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.
-        // If we ever support some other pathway, that may need to change.
+        // If we ever support some other way of getting here, that may need to change.
         if (theContext.startsWith("To Do List")) {
             return new TodoNoteGroup(filename);
+        } else if (theContext.startsWith("Goal")) {
+                return new GoalPanel(filename);
         } else if (theContext.startsWith("Upcoming Event")) {
             return new EventNoteGroup(filename);
         } else if (theContext.startsWith("Search Result")) {
@@ -62,13 +64,13 @@ class NoteGroupFactory {
         } else { // theName is just the filename only, without a path.
             switch (areaName) {
                 case "UpcomingEvents":
-                    theFullFilename = NoteGroup.basePath(areaName) + "event_" + theName + ".json";
+                    theFullFilename = TreeLeaf.basePath(areaName) + "event_" + theName + ".json";
                     break;
                 case "TodoLists":
-                    theFullFilename = NoteGroup.basePath(areaName) + "todo_" + theName + ".json";
+                    theFullFilename = TreeLeaf.basePath(areaName) + "todo_" + theName + ".json";
                     break;
                 case "SearchResults":
-                    theFullFilename = NoteGroup.basePath(areaName) + "search_" + theName + ".json";
+                    theFullFilename = TreeLeaf.basePath(areaName) + "search_" + theName + ".json";
                     break;
             }
         }

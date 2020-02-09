@@ -92,7 +92,7 @@ public class SearchResultGroup extends NoteGroup {
     } // end constructor
 
     private static String basePath() {
-        return NoteGroup.basePath(areaName);
+        return TreeLeaf.basePath(areaName);
     }
 
     //-------------------------------------------------------------------
@@ -117,9 +117,9 @@ public class SearchResultGroup extends NoteGroup {
     } // end checkColumnOrder
 
     @Override
-    public String getGroupFilename() {
+    public String getLeafFilename() {
         return theGroupFilename;
-    }// end getGroupFilename
+    }// end getLeafFilename
 
     //--------------------------------------------------------
     // Method Name: getNoteComponent

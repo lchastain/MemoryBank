@@ -15,6 +15,7 @@ import java.util.Vector;
 //     point of having support people.
 //-------------------------------------------------------------------------
 class AppOptions {
+    boolean goalsExpanded;
     boolean eventsExpanded;
     boolean viewsExpanded;
     boolean notesExpanded;
@@ -22,13 +23,15 @@ class AppOptions {
     boolean searchesExpanded;
     String theSelection;
     int theSelectionRow;
-    Vector<String> eventLists;
-    Vector<String> todoLists;
+    Vector<String> goalsList;
+    Vector<String> eventsList;
+    Vector<String> tasksList;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
     String consolidatedEventsViewName;
 
     AppOptions() {
+        goalsExpanded = false;
         eventsExpanded = false;
         viewsExpanded = false;
         notesExpanded = false;
@@ -37,8 +40,9 @@ class AppOptions {
         theSelection = null;
         theSelectionRow = -1;
         consolidatedEventsViewName = "Consolidated View";
-        eventLists = new Vector<>(0, 1);
-        todoLists = new Vector<>(0, 1);
+        goalsList = new Vector<>(0, 1);
+        eventsList = new Vector<>(0, 1);
+        tasksList = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
     } // end constructor
 

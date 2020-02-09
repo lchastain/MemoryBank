@@ -1,6 +1,41 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+2/08/2020 0737 - Have started.  But after comparing the results of the version tracking, can
+  see that there is not enough difference between v0.3 and v0.4 to justify the currently
+  ongoing v0.4 to be a 'final', so no version switchover yet - it will need to be a BIG
+  change, for that - such as note linkages, or Goals, the current effort.
+ 0854 - Most documentation under Help is now in need of major updating, but I want to now
+  add some design notes for Goals.  Going forward, (final) design docs should discuss first the
+  panel content, then all the available controls and their behaviors.  This should help
+  with the eventual testing of functionalities.  Use .txt files while in design mode,
+  then can move on to .docs with screenshots, when final.  Powerpoint should be for capturing
+  screenshots and older designs (for review), versioning, etc - not as a deliverable doc.
+ 1448 - It seems that a data element that had been in the design from the beginning was removed
+  back on 1/12/2014, when the NoteData was broken out of NoteComponent and put into its own
+  class file.  In that move, we lost strNoteId, which was intended to be used in linking
+  different NoteData items to each other.  This could have been prompted by IntelliJ, which
+  cares not about placeholders for future dev but will complain about unused variables.
+  Thanks IJ.  I've been taking its advice at every turn and that is probably what happened.
+  Now, the IDs are needed again, to support linkages not just between todo items, but
+  from any NoteData to a Goal.
+
+2/06/2020 0820 - Finished organizing all the earlier snapshots and versioning notes (in Help),
+  and now will preserve the work to this point as a final v0.4, before starting the changes that
+  will support the Goals work.
+
+2/05/2020 0938 - Still not fully 'on', but have been thinking a bit more deeply about AI and how
+  I want to proceed there.  Finally arrived at a decision to document (but not develop) a way
+  forward, there, while at the same time continuing to improve Memory Bank, now with a clearer
+  purpose - that the MB program will be a major resource of the new AI program, whose purpose will
+  be to assist the user in achieving their goals.  Meanwhile I have achieved 100% class coverage
+  for testing and 75% on lines, and plan to slow down now on test dev and get back to feature
+  work.  New or modified features should be clearly in support of goal identification, tracking,
+  and achievement, but should not ever lose the backward-looking capabilities that support the
+  ability to answer the question of 'what happened when'.  Memory Bank is more appropriate to
+  that part, while the todo lists and goals belong in the newer area.  It is possible that the
+  MB program could be split into separate parts.
+
 1/24/2020 0642 - Did stick with test dev only, but adding to the RecurrencePanel tests, during
   setup found an endless loop problem that had been there all along, undiscovered.  Although
   it shows that the panel is highly underused, still needed fixing but didn't get to it until

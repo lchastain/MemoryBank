@@ -192,7 +192,7 @@ public class SearchResultComponent extends NoteComponent {
 
         System.out.println("SearchResultComponent.swap");
 
-        myNoteGroup.setGroupChanged(true);
+        myNoteGroup.setLeafChanged(true);
     } // end swap
 
     //---------------------------------------------------------

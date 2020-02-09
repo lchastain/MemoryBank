@@ -4,12 +4,18 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
-public class GoalPanel extends JPanel {
+public class GoalPanel extends TreeLeaf {
     private static final long serialVersionUID = 1L;
+    static String areaName;
     private JList<String> lstGoals;
     // End of variables declaration
 
-    public GoalPanel() {
+    static {
+        areaName = "Goals"; // Directory name under user data.
+        MemoryBank.trace();
+    } // end static
+
+    public GoalPanel(String fname) {
         super();
         initializeComponent();
         this.setVisible(true);
@@ -17,10 +23,6 @@ public class GoalPanel extends JPanel {
 
     /**
      * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always regenerated
-     * by the Windows Form Designer. Otherwise, retrieving design might not work properly.
-     * Tip: If you must revise this method, please backup this GUI file for JFrameBuilder
-     * to retrieve your design properly in future, before revising this method.
      */
     private void initializeComponent() {
         ArrayList<String> arr;
@@ -162,9 +164,13 @@ public class GoalPanel extends JPanel {
         }
         JFrame jf = new JFrame();
         jf.getContentPane().setLayout(null);
-        jf.getContentPane().add(new GoalPanel());
+        jf.getContentPane().add(new GoalPanel("Test Goal"));
         jf.setSize(600, 400);
         jf.setVisible(true);
     }
 
+    @Override
+    public String getLeafFilename() {
+        return null;
+    }
 }

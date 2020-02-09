@@ -170,14 +170,14 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //  Just clearing DATA (above) does not set noteChanged (nor should it,
         //    because that data may not even be loaded into a component).
         //  So since we can't go that route to a groupChanged, just do it explicitly.
-        if (blnAnEventWasAged) setGroupChanged(true);
+        if (blnAnEventWasAged) setLeafChanged(true);
         // AppUtil.localDebug(false);
         return blnAnEventWasAged;
     } // end ageEvents
 
 
     static String basePath() {
-        return NoteGroup.basePath(areaName);
+        return TreeLeaf.basePath(areaName);
     }
 
     private File chooseMergeFile() {
@@ -337,7 +337,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         // We don't know for sure that something changed, but since the edit was not cancelled
         // we will assume that there were changes, and indicate that a save group is needed.
-        setGroupChanged(true);
+        setLeafChanged(true);
 
         return true;
     } // end editExtendedNoteComponent
@@ -347,7 +347,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         return defaultIcon;
     }
 
-    public String getGroupFilename() { return theGroupFilename; }
+    public String getLeafFilename() { return theGroupFilename; }
 
     // Returns the path + filename for a given Event group name.
     static String getGroupFilename(String groupName) {
@@ -386,7 +386,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
         setGroupData(groupDataVector);
-        setGroupChanged(true);
+        setLeafChanged(true);
     } // end merge
 
     //----------------------------------------------------------------------
@@ -515,7 +515,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         defaultIcon = li;
         eventNoteDefaults.defaultIconFileName = li.getDescription();
         eventNoteDefaults.save();
-        setGroupChanged(true);
+        setLeafChanged(true);
         preClose();
         updateGroup();
     }// end setDefaultIcon
@@ -530,7 +530,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     private void setFileName(String fname) {
         theGroupFilename = basePath() + "event_" + fname.trim() + ".json";
         setName(fname.trim());  // Keep the 'pretty' name in the component.
-        setGroupChanged(true);
+        setLeafChanged(true);
     } // end setFileName
 
 
@@ -542,9 +542,9 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     }
 
     @Override
-    void setGroupChanged(boolean b) {
-        if(getGroupChanged() == b) return; // No change
-        super.setGroupChanged(b);
+    void setLeafChanged(boolean b) {
+        if(getLeafChanged() == b) return; // No change
+        super.setLeafChanged(b);
     } // end setGroupChanged
 
     // Used by test methods

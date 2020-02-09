@@ -6,8 +6,9 @@ public class AppMenuBar extends JMenuBar{
     // Menus
     //-------------------------------------------------
     private static JMenu fileMenu;
-
     private static JMenu branchEditorMenu;
+
+    private static JMenu goalsMenu;
     private static JMenu eventsMenu;
     private static JMenu viewsMenu;
     private static JMenu notesMenu;
@@ -27,6 +28,9 @@ public class AppMenuBar extends JMenuBar{
 
         branchEditorMenu = new JMenu("List");
         branchEditorMenu.add(new JMenuItem("Add New..."));
+
+        goalsMenu = new JMenu("List");
+        goalsMenu.add(new JMenuItem("Add New..."));
 
         eventsMenu = new JMenu("List");
         eventsMenu.add(new JMenuItem("Undo All"));
@@ -69,6 +73,7 @@ public class AppMenuBar extends JMenuBar{
         super();
         add(fileMenu);
         add(branchEditorMenu);
+        add(goalsMenu);
         add(eventsMenu);
         add(viewsMenu);
         add(notesMenu);
@@ -109,6 +114,10 @@ public class AppMenuBar extends JMenuBar{
             case "To Do Lists Branch Editor":  // TodoBranchHelper
                 theMenu = branchEditorMenu;
                 break;
+            case "Goal":
+            case "Goals":
+                theMenu = goalsMenu;
+                break;
             case "Upcoming Event":
                 theMenu = eventsMenu;
                 break;
@@ -132,6 +141,7 @@ public class AppMenuBar extends JMenuBar{
         //-----------------------------------------
 
         branchEditorMenu.setVisible(false);
+        goalsMenu.setVisible(false);
         eventsMenu.setVisible(false);
         viewsMenu.setVisible(false);
         notesMenu.setVisible(false);
@@ -158,6 +168,9 @@ public class AppMenuBar extends JMenuBar{
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
                 branchEditorMenu.setVisible(true);
+                break;
+            case "Goals":
+                goalsMenu.setVisible(true);
                 break;
             case "Upcoming Event":
                 eventsMenu.setVisible(true);

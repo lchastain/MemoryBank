@@ -18,7 +18,7 @@ public class BranchHelper implements BranchHelperInterface {
     private static Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
     private JTree theTree;  // The original tree, not the one from the editor.
-    private NoteGroupKeeper theNoteGroupKeeper;
+    private LeafKeeper theLeafKeeper;
     private DefaultTreeModel theTreeModel;
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
@@ -32,9 +32,9 @@ public class BranchHelper implements BranchHelperInterface {
     private static final String AREA_TODO = "To Do Lists";
     private static final String AREA_SEARCH = "Search Results";
 
-    BranchHelper(JTree jt, NoteGroupKeeper noteGroupKeeper, String areaName) {
+    BranchHelper(JTree jt, LeafKeeper leafKeeper, String areaName) {
         theTree = jt;
-        theNoteGroupKeeper = noteGroupKeeper;
+        theLeafKeeper = leafKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         theArea = areaName;
@@ -99,7 +99,7 @@ public class BranchHelper implements BranchHelperInterface {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen, and those Exceptions may not be seen in a
         // different area of the same filesystem.
-        String theComplaint = BranchHelperInterface.checkFilename(theName, NoteGroup.basePath(theArea));
+        String theComplaint = BranchHelperInterface.checkFilename(theName, TreeLeaf.basePath(theArea));
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -151,15 +151,15 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = NoteGroup.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
-                String newNamedFile = NoteGroup.basePath(theArea) + thePrefix + nodeChange.renamedTo + ".json";
+                String oldNamedFile = TreeLeaf.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
+                String newNamedFile = TreeLeaf.basePath(theArea) + thePrefix + nodeChange.renamedTo + ".json";
                 File f = new File(oldNamedFile);
 
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
                     } // end if
-                    theNoteGroupKeeper.remove(nodeChange.nodeName);
+                    theLeafKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -179,13 +179,13 @@ public class BranchHelper implements BranchHelperInterface {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  NoteGroup.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
+                String deleteFile =  TreeLeaf.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nodeChange.nodeName);
                     } // end if
-                    theNoteGroupKeeper.remove(nodeChange.nodeName);
+                    theLeafKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -225,7 +225,7 @@ public class BranchHelper implements BranchHelperInterface {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of <theNodeName> files in the user's data directory.
-        File dataDir = new File(NoteGroup.basePath(theArea));
+        File dataDir = new File(TreeLeaf.basePath(theArea));
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is

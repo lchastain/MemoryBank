@@ -15,3 +15,6 @@ When a NoteGroup that supports paging AND group growth gets to an end-of-page bo
 When a Todo List ...
     merge
 
+ maybe the above para is not needed - do a test/merge where it grows from one to two pages,
+ if all ok then remove.
+

@@ -48,7 +48,7 @@ class AddTodoListTest {
         NoteComponent tnc3 = tng.getNoteComponent(2);
 
         // Verify that initially, no file exists
-        strGroupFilename = tng.getGroupFilename();
+        strGroupFilename = tng.getLeafFilename();
         File theFile = new File(strGroupFilename);
         Assertions.assertFalse(theFile.exists());
 

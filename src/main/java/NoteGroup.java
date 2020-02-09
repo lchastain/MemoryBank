@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Vector;
 
 
-public abstract class NoteGroup extends JPanel {
+public abstract class NoteGroup extends TreeLeaf {
     static final long serialVersionUID = 1L;
 
     // Status report codes for Load / Save
@@ -45,9 +45,6 @@ public abstract class NoteGroup extends JPanel {
     // Container for graphical members - limited to pageSize
     protected JPanel groupNotesListPanel;
 
-    // Child classes each have their own menu
-    JMenu myListMenu;
-
     // Container for a paging control
     NotePager theNotePager;
 
@@ -64,13 +61,10 @@ public abstract class NoteGroup extends JPanel {
 
     private JScrollPane jsp;
 
-    // Flag used to determine if saving might be necessary.
-    private boolean groupChanged;
-
     // The Information/Status panel of the frame.
     private JLabel lblStatusMessage;
 
-    // Access with getGroupFilename() & setGroupFilename()
+    // Access with getLeafFilename() & setGroupFilename()
     private String groupFilename;
     //-------------------------------------------------------------
 
@@ -79,7 +73,7 @@ public abstract class NoteGroup extends JPanel {
     } // end constructor 1
 
     NoteGroup(int intPageSize) {
-        super(new BorderLayout());
+        super();
         pageSize = intPageSize;
         addNoteAllowed = true;
         saveWithoutData = false;
@@ -99,7 +93,7 @@ public abstract class NoteGroup extends JPanel {
         jsp.setVerticalScrollBar(jsb);
 
         groupFilename = "";
-        setGroupChanged(false);
+        setLeafChanged(false);
 
         int borderWidth = 2;
         setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
@@ -182,7 +176,7 @@ public abstract class NoteGroup extends JPanel {
                     // from initialize() after a note has been added into the last available slot on the current page.
                     // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
                     // see that the total page count should be increased (by one).
-                    if(groupChanged) unloadInterface(tmpPage);
+                    if(leafChanged) unloadInterface(tmpPage);
 
                     theNotePager.reset(tmpPage);
                 } // end if
@@ -191,23 +185,6 @@ public abstract class NoteGroup extends JPanel {
         } // end if
     } // end activateNextNote
 
-
-    // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
-    // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
-    private void adjustMenuItems(boolean b) {
-        if (myListMenu == null) return; // Too soon.  Come back later.
-        MemoryBank.debug("NoteGroup.adjustMenuItems <" + b + ">");
-
-        // And now we adjust the Menu -
-        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-        if (theUndo != null) theUndo.setEnabled(b);
-        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-        if (theSave != null) theSave.setEnabled(b);
-    }
-
-    static String basePath(String areaName) {
-        return MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
-    }
 
     //----------------------------------------------------------------
     // Method Name: clearGroup
@@ -219,7 +196,7 @@ public abstract class NoteGroup extends JPanel {
         clearPage();
         groupDataVector.clear();
         setGroupData(groupDataVector);
-        setGroupChanged(true);
+        setLeafChanged(true);
         theNotePager.reset(1);
     } // end clearGroup
 
@@ -344,15 +321,6 @@ public abstract class NoteGroup extends JPanel {
     } // end editExtendedNoteComponent
 
 
-    boolean getGroupChanged() {
-        return groupChanged;
-    } // end getGroupChanged
-
-
-    // Returns the full path + name of the file containing the
-    //   data for this group of notes.
-    public abstract String getGroupFilename();
-
     int getHighestNoteComponentIndex() {
         return intHighestNoteComponentIndex;
     }
@@ -438,7 +406,7 @@ public abstract class NoteGroup extends JPanel {
         //   group may be highly variable, and this method may be getting
         //   called after each filename change, even though the group
         //   components themselves remain in place.
-        groupFilename = getGroupFilename();
+        groupFilename = getLeafFilename();
 
         if (groupFilename.isEmpty()) {
             MemoryBank.debug("No filename is set for: " + this.getClass().getName());
@@ -491,7 +459,7 @@ public abstract class NoteGroup extends JPanel {
     //-------------------------------------------------------------------
     void loadInterface(int intPageNum) {
         //AppUtil.localDebug(true);
-        boolean currentChangedState = getGroupChanged();
+        boolean currentChangedState = getLeafChanged();
 
         // Set the indexes into the data vector -
         int maxDataIndex = groupDataVector.size() - 1;
@@ -538,7 +506,7 @@ public abstract class NoteGroup extends JPanel {
         MemoryBank.debug("lastVisibleNoteIndex is " + lastVisibleNoteIndex);
 
         // Each of the 'setNoteData' calls above would have set this to true.
-        setGroupChanged(currentChangedState);
+        setLeafChanged(currentChangedState);
 
         //AppUtil.localDebug(false);
     } // end loadInterface
@@ -586,11 +554,12 @@ public abstract class NoteGroup extends JPanel {
     //
     // This should be called prior to closing.
     //----------------------------------------------------------------------
-    protected void preClose() {
+    @Override
+    void preClose() {
         if (null != extendedNoteComponent && null != defaultSubject) {
             extendedNoteComponent.saveSubjects();
         }
-        if (groupChanged) {
+        if (leafChanged) {
             unloadInterface(theNotePager.getCurrentPage());
             saveGroup();
         }
@@ -603,37 +572,6 @@ public abstract class NoteGroup extends JPanel {
         // Preserve current interface changes before sorting.
         unloadInterface(theNotePager.getCurrentPage());
     } // end preSort
-
-
-    //-----------------------------------------------------------------
-    // Method Name:  prettyName
-    //
-    // A formatter for a filename specifier.  Note
-    //   that this method name was chosen so as to not conflict with
-    //   the 'getName' of the Component ancestor of this class.
-    // Usage is intended for non-Calendar notegroups.
-    //-----------------------------------------------------------------
-    static String prettyName(String theLongName) {
-        // Trim any leading/trailing whitespace.
-        String thePrettyName = theLongName.trim();
-
-        // Cut off the leading path specifier characters, if present.
-        int i = thePrettyName.lastIndexOf(File.separatorChar);
-        if (i >= 0) { // if it has the File separator character
-            // then we only want the part after that
-            thePrettyName = theLongName.substring(i + 1);
-        }
-
-        // Drop the JSON file extension
-        i = thePrettyName.lastIndexOf(".json");
-        if (i > 0) thePrettyName = thePrettyName.substring(0, i);
-
-        // Cut off the leading group type (event_, todo_, search_, etc)
-        i = thePrettyName.indexOf("_");
-        if (i >= 0) thePrettyName = thePrettyName.substring(i + 1);
-
-        return thePrettyName;
-    } // end prettyName
 
 
     Vector<NoteData> getCondensedInfo() {
@@ -695,7 +633,7 @@ public abstract class NoteGroup extends JPanel {
         // The name of the file to save to may not always be the same as
         //   the one we previously loaded (or attempted to load).  So, we
         //   let the child NoteGroup set the name of the file to save to.
-        groupFilename = getGroupFilename();
+        groupFilename = getLeafFilename();
         MemoryBank.debug("  Saving NoteGroup data in " + shortName());
 
         // Verify that the path is a valid one.
@@ -767,7 +705,7 @@ public abstract class NoteGroup extends JPanel {
             intSaveGroupStatus = OTHERFAILURE;
         } // end if note
 
-        setGroupChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
+        setLeafChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
         //AppUtil.localDebug(false);
     } // end saveGroup
 
@@ -780,29 +718,13 @@ public abstract class NoteGroup extends JPanel {
         this.defaultSubject = defaultSubject;
     }
 
-    //----------------------------------------------------------------
-    // Method Name: setGroupChanged
-    //
-    // Called by all contexts that make a change to the data, each
-    //   time a change is made.  Child classes can override if they
-    //   need to intercept a state change, but in that case they
-    //   should still call this super method so that group saving
-    //   is done when needed and menu items are managed correctly.
-    //----------------------------------------------------------------
-    void setGroupChanged(boolean b) {
-        MemoryBank.debug("NoteGroup.setGroupChanged <" + b + ">");
-        groupChanged = b;
-        adjustMenuItems(b);
-    } // end setGroupChanged
-
-
     // Not all NoteGroups need to manage enablement of items in their menu but those
     // that do, all do the same things.  If this ever branches out into different
     // actions and/or menu items then they can override this and/or adjustMenuItems.
     void setListMenu(JMenu listMenu) {
         MemoryBank.debug("NoteGroup.setListMenu: " + listMenu.getName());
         myListMenu = listMenu;
-        adjustMenuItems(groupChanged); // set enabled state for 'undo' and 'save'.
+        adjustMenuItems(leafChanged); // set enabled state for 'undo' and 'save'.
     }
 
     void setMessage(String s) {
@@ -1011,7 +933,7 @@ public abstract class NoteGroup extends JPanel {
         theNotePager.reset(1);
 
         loadGroup();      // Loads the data array and interface.
-        setGroupChanged(false);
+        setLeafChanged(false);
 
         // Also needed AFTER loadGroup, not to set the page number but to set the correct size
         //   of the vector, which is needed in order to determine the total number of pages.

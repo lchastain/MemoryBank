@@ -90,7 +90,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     static String basePath() {
-        return NoteGroup.basePath(areaName);
+        return TreeLeaf.basePath(areaName);
     }
 
     //-------------------------------------------------------------------
@@ -175,7 +175,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end dateSelected
 
 
-    public String getGroupFilename() {
+    public String getLeafFilename() {
         return theGroupFilename;
     }
 
@@ -247,7 +247,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
         setGroupData(groupDataVector);
-        setGroupChanged(true);
+        setLeafChanged(true);
     } // end merge
 
     //------------------------------------------------------------------
@@ -472,7 +472,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // to be removed from the keeper.  The calling context will take care of that.
         theGroupFilename = basePath() + "todo_" + newName + ".json";
         setName(newName);  // Put the new 'pretty' name in the component.
-        setGroupChanged(true);
+        setLeafChanged(true);
 
         // Since this is effectively a new file, before we save we need to ensure that
         // the app will not fail in an attempt to remove the (nonexistent) old file.
@@ -526,7 +526,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Get the values back out of the Option Panel
         myVars = todoOpts.getValues();
-        setGroupChanged(true);
+        setLeafChanged(true);
 
         // Was there a reset-worthy change?
         if (myVars.showPriority != blnOrigShowPriority) {

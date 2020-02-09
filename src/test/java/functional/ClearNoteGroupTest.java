@@ -94,7 +94,7 @@ class ClearNoteGroupTest {
         NoteComponent mnc3 = mng.getNoteComponent(2);
 
         // Ensure that initially, no file exists
-        strGroupFilename = mng.getGroupFilename();
+        strGroupFilename = mng.getLeafFilename();
         File theFile = new File(strGroupFilename); // this works even when filename is empty.
         if (theFile.exists()) Assert.assertTrue(theFile.delete());
 
@@ -122,7 +122,7 @@ class ClearNoteGroupTest {
         mng.preClose();
 
         // Verify that there is now a file for it
-        strGroupFilename = mng.getGroupFilename();
+        strGroupFilename = mng.getLeafFilename();
         Assertions.assertTrue(new File(strGroupFilename).exists());
 
         // Now clear the group -

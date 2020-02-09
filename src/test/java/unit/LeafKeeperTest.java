@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NoteGroupKeeperTest {
+class LeafKeeperTest {
     TodoNoteGroup theNoteGroup1;
     TodoNoteGroup theNoteGroup2;
-    NoteGroupKeeper noteGroupKeeper;
+    LeafKeeper leafKeeper;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -33,36 +33,36 @@ class NoteGroupKeeperTest {
     @BeforeEach
     void setUp() {
         // These steps also take care of coverage for the 'add' method.
-        noteGroupKeeper = new NoteGroupKeeper();
+        leafKeeper = new LeafKeeper();
         theNoteGroup1 = new TodoNoteGroup("Get New Job");
-        noteGroupKeeper.add(theNoteGroup1);
+        leafKeeper.add(theNoteGroup1);
         theNoteGroup2 = new TodoNoteGroup("New Car Shopping");
-        noteGroupKeeper.add(theNoteGroup2);
+        leafKeeper.add(theNoteGroup2);
     }
 
     @Test
     void testGet() {
         // This one can be found.
-        NoteGroup theNoteGroup = noteGroupKeeper.get("Get New Job");
+        NoteGroup theNoteGroup = (NoteGroup) leafKeeper.get("Get New Job");
         Assertions.assertNotNull(theNoteGroup);
         assertEquals(theNoteGroup, theNoteGroup1);
 
         // This one will not be found.
-        theNoteGroup = noteGroupKeeper.get("Get Lost");
+        theNoteGroup = (NoteGroup) leafKeeper.get("Get Lost");
         Assertions.assertNull(theNoteGroup);
     }
 
     @Test
     void testRemove() {
         // This verifies our starting point, plus shows that 'add' worked correctly.
-        assertEquals(2, noteGroupKeeper.size());
+        assertEquals(2, leafKeeper.size());
 
         // This one can be found.
-        noteGroupKeeper.remove("New Car Shopping");
-        assertEquals(1, noteGroupKeeper.size());
+        leafKeeper.remove("New Car Shopping");
+        assertEquals(1, leafKeeper.size());
 
         // This one will not be found.
-        noteGroupKeeper.remove("Get Lost");
-        assertEquals(1, noteGroupKeeper.size());
+        leafKeeper.remove("Get Lost");
+        assertEquals(1, leafKeeper.size());
     }
 }

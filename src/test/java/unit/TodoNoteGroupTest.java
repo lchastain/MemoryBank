@@ -55,7 +55,7 @@ class TodoNoteGroupTest {
         theNewName = "blarg";
         testUtil.setTheAnswer(theNewName);
         todoNoteGroup.saveAs();
-        String theGroupName = todoNoteGroup.getGroupFilename();
+        String theGroupName = todoNoteGroup.getLeafFilename();
         Assertions.assertTrue(theGroupName.endsWith(File.separatorChar + "todo_" + theNewName + ".json"));
         File f = new File(theGroupName);
         Assertions.assertTrue(f.exists());

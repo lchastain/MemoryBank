@@ -5,7 +5,7 @@
   "searchesExpanded" : true,
   "theSelection" : "Day Notes",
   "theSelectionRow" : 7,
-  "todoLists" : [ "Get New Job", "New Car Shopping" ],
+  "tasksList" : [ "Get New Job", "New Car Shopping" ],
   "searchResultList" : [ "20190927161325" ],
   "paneSeparator" : 191
 }
