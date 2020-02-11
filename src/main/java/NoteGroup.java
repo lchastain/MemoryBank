@@ -718,15 +718,6 @@ public abstract class NoteGroup extends TreeLeaf {
         this.defaultSubject = defaultSubject;
     }
 
-    // Not all NoteGroups need to manage enablement of items in their menu but those
-    // that do, all do the same things.  If this ever branches out into different
-    // actions and/or menu items then they can override this and/or adjustMenuItems.
-    void setListMenu(JMenu listMenu) {
-        MemoryBank.debug("NoteGroup.setListMenu: " + listMenu.getName());
-        myListMenu = listMenu;
-        adjustMenuItems(leafChanged); // set enabled state for 'undo' and 'save'.
-    }
-
     void setMessage(String s) {
         lblStatusMessage.setText("  " + s);
         lblStatusMessage.invalidate();

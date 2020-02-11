@@ -95,7 +95,7 @@ public class DragAndDropTests {
                 MouseEvent.MOUSE_RELEASED, mouseWhen, 0, mouseX, mouseY,
                 mouseAbsXend,  mouseAbsY, 0, false, 1 );
 
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         todoGroupHeader.headerLayout.mousePressed(hb3Pressed);
 
@@ -104,11 +104,12 @@ public class DragAndDropTests {
                     MouseEvent.MOUSE_DRAGGED, mouseWhen, 0, 9, mouseY,
                     mouseDragX,  mouseAbsY, 0, false, 1 );
             todoGroupHeader.headerLayout.mouseDragged(hb3Dragged);
-            Thread.sleep(20);
+            Thread.sleep(10);
         }
 
         todoGroupHeader.headerLayout.mouseReleased(hb3Released);
 
+        Thread.sleep(300); // Just enough time to see the final 'drop' into place.
         // Use this to view the action.  Then close the window manually.
 //        while(testFrame.isVisible()) {
 //            Thread.sleep(1000);
@@ -149,7 +150,7 @@ public class DragAndDropTests {
                 MouseEvent.MOUSE_RELEASED, mouseWhen, 0, mouseX, mouseY,
                 831,  mouseAbsY, 0, false, 1 );
 
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         searchResultHeader.headerLayout.mousePressed(hb1Pressed);
 
@@ -160,11 +161,12 @@ public class DragAndDropTests {
 
             searchResultHeader.headerLayout.mouseDragged(hb1Dragged);
 
-            Thread.sleep(20);
+            Thread.sleep(10);
         }
 
         searchResultHeader.headerLayout.mouseReleased(hb1Released);
 
+        Thread.sleep(300); // Just enough time to see the final 'drop' into place.
         // Use this to view the action.  Then close the window manually.
 //        while(testFrame.isVisible()) {
 //            Thread.sleep(1000);

@@ -4,8 +4,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
-public class GoalPanel extends TreeLeaf {
+public class GoalPanel extends NoteGroup {
     private static final long serialVersionUID = 1L;
+    private String goalFileName;
     static String areaName;
     private JList<String> lstGoals;
     // End of variables declaration
@@ -17,14 +18,31 @@ public class GoalPanel extends TreeLeaf {
 
     public GoalPanel(String fname) {
         super();
-        initializeComponent();
+
+        MemoryBank.debug("Constructing: " + getName());
+
+        goalFileName = basePath(areaName) + "goal_" + fname + ".json";
+
+        buildPanelContent();
         this.setVisible(true);
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     */
-    private void initializeComponent() {
+    // Called from within the constructor to create and place the visual components of the panel.
+    private void buildPanelContent() {
+        setLayout(new BorderLayout());
+
+        JLabel goalTitleText = new JLabel("Get a degree in Engineering");
+        goalTitleText.setHorizontalAlignment(JLabel.CENTER);
+        goalTitleText.setFont(Font.decode("Serif-bold-20"));
+        add(goalTitleText, BorderLayout.NORTH);
+
+        JTextArea goalPlan = new JTextArea();
+        add(goalPlan, BorderLayout.CENTER);
+    }
+
+
+    // Called from within the constructor to create and place the visual components of the panel.
+    private void buildPanelContent0() {
         ArrayList<String> arr;
 
         JLabel jLabel1 = new JLabel();
@@ -48,25 +66,8 @@ public class GoalPanel extends TreeLeaf {
         // 
         txtfGoalText.setText("The text of the goal");
         txtfGoalText.addActionListener(this::txtfGoalText_actionPerformed);
-        // 
-        // lstGoals 
-        // 
-        arr = new ArrayList<>();
-        arr.add("List");
-        arr.add("of");
-        arr.add("goals");
-
-        String[] array = new String[arr.size()];
-        arr.toArray(array); // fill the array
-
-        lstGoals.setListData(array);
-        lstGoals.addListSelectionListener(this::lstGoals_valueChanged);
-        // 
-        // jspGoals 
-        // 
-        jspGoals.setViewportView(lstGoals);
-        // 
-        // txtaPlan 
+        //
+        // txtaPlan
         // 
         txtaPlan.setText("The Plan - may include a description.");
         // 
@@ -94,18 +95,13 @@ public class GoalPanel extends TreeLeaf {
         contentPane.setLayout(null);
         addComponent(contentPane, jLabel1, 153, 164, 276, 18);
         addComponent(contentPane, txtfGoalText, 138, 21, 298, 21);
-        addComponent(contentPane, jspGoals, 18, 23, 102, 205);
         addComponent(contentPane, jspPlan, 140, 60, 294, 85);
-        addComponent(contentPane, jButton1, 151, 208, 57, 25);
-        addComponent(contentPane, jButton2, 254, 204, 55, 25);
-        addComponent(contentPane, jButton3, 347, 204, 65, 25);
-        // 
+        //
         // GoalPanel
         // 
-        this.setTitle("Goals");
         this.setLocation(new Point(0, 0));
         this.setSize(new Dimension(478, 270));
-    }
+    }// end buildPanelContent
 
 
     /**
@@ -147,30 +143,8 @@ public class GoalPanel extends TreeLeaf {
         System.out.println("\njButton3_actionPerformed(ActionEvent e) called.");
     }
 
-    // Just for JFrameBuilder -
-    public void setTitle(String s) {
-        // ignore, for now.
-    } // end setTitle
-
-
-    public static void main(String[] args) {
-        JFrame.setDefaultLookAndFeelDecorated(true);
-        JDialog.setDefaultLookAndFeelDecorated(true);
-        try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        } catch (Exception ex) {
-            System.out.println("Failed loading L&F: ");
-            ex.printStackTrace();
-        }
-        JFrame jf = new JFrame();
-        jf.getContentPane().setLayout(null);
-        jf.getContentPane().add(new GoalPanel("Test Goal"));
-        jf.setSize(600, 400);
-        jf.setVisible(true);
-    }
-
     @Override
     public String getLeafFilename() {
-        return null;
+        return goalFileName;
     }
 }

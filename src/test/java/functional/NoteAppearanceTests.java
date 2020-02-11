@@ -72,7 +72,7 @@ public class NoteAppearanceTests {
         //-------------------------------------------------------------------------------------------------------------
 
         // Test condition 2:  Disabled menu items
-        JMenu theMenu = appMenuBar.getListMenu("Upcoming Event");
+        JMenu theMenu = appMenuBar.getNodeMenu("Upcoming Event");
         eventNoteGroup.setListMenu(theMenu);
         JMenuItem theUndo = AppUtil.getMenuItem(theMenu, "Undo All");
         Assertions.assertFalse(theUndo.isEnabled());
@@ -143,7 +143,7 @@ public class NoteAppearanceTests {
         //-------------------------------------------------------------------------------------------------------------
 
         // Test condition 2:  Disabled menu items
-        JMenu theMenu = appMenuBar.getListMenu("To Do List");
+        JMenu theMenu = appMenuBar.getNodeMenu("To Do List");
         todoNoteGroup.setListMenu(theMenu);
         JMenuItem theUndo = AppUtil.getMenuItem(theMenu, "Undo All");
         Assertions.assertFalse(theUndo.isEnabled());

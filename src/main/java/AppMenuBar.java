@@ -30,7 +30,12 @@ public class AppMenuBar extends JMenuBar{
         branchEditorMenu.add(new JMenuItem("Add New..."));
 
         goalsMenu = new JMenu("List");
+        goalsMenu.add(new JMenuItem("Undo All"));
+        goalsMenu.add(new JMenuItem("Close"));
         goalsMenu.add(new JMenuItem("Add New..."));
+        goalsMenu.add(new JMenuItem("Save"));
+        goalsMenu.add(new JMenuItem("Save As..."));
+        goalsMenu.add(new JMenuItem("Clear All"));
 
         eventsMenu = new JMenu("List");
         eventsMenu.add(new JMenuItem("Undo All"));
@@ -92,7 +97,8 @@ public class AppMenuBar extends JMenuBar{
         return theCurrentContext;
     }
 
-    JMenu getListMenu(String selectionContext) {
+    // Get the additional menu that is appropriate for the selected tree node
+    JMenu getNodeMenu(String selectionContext) {
         JMenu theMenu;
         switch (selectionContext) {
             case "Year View":
@@ -109,13 +115,14 @@ public class AppMenuBar extends JMenuBar{
                 theMenu = searchesMenu;
                 searchesMenu.setVisible(true);
                 break;
-            case "Consolidated View":
+            case "Goals Branch Editor":
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
+            case "Consolidated View":
+                // For the Search Results Branch Editor, there is no additional menu.
                 theMenu = branchEditorMenu;
                 break;
             case "Goal":
-            case "Goals":
                 theMenu = goalsMenu;
                 break;
             case "Upcoming Event":
@@ -124,15 +131,15 @@ public class AppMenuBar extends JMenuBar{
             case "To Do List":
                 theMenu = todolistsMenu;
                 break;
-            default: // Not a valid choice
+            default: // No additional menu is defined for the specified node.
                 theMenu = null;
                 break;
         }
         return theMenu;
-    } // end getListMenu
+    } // end getNodeMenu
 
-    // Given a string to indicate what 'mode' we are in,
-    // display the menu that is appropriate to that mode.
+    // Given a string to indicate what Tree node is selected,
+    // display the menu that is appropriate to that node.
     void manageMenus(String theContext) {
         theCurrentContext = theContext;
 
@@ -164,12 +171,14 @@ public class AppMenuBar extends JMenuBar{
             case "Search Result":  // Search Results
                 searchesMenu.setVisible(true);
                 break;
-            case "Consolidated View":
+            case "Goals Branch Editor":
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
+            case "Consolidated View":
+                // While this menu only has 'Add New...', not right for Search Results.
                 branchEditorMenu.setVisible(true);
                 break;
-            case "Goals":
+            case "Goal":
                 goalsMenu.setVisible(true);
                 break;
             case "Upcoming Event":

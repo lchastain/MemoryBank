@@ -8,8 +8,14 @@ class NoteGroupFactory {
     // This method will return the requested NoteGroup only if a file for
     // it exists; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static NoteGroup getGroup(String groupName, String filename) {
-        if (groupName.startsWith("Upcoming Event")) {
+    static TreeLeaf getGroup(String groupName, String filename) {
+        if (groupName.startsWith("Goal")) {
+            areaName = GoalPanel.areaName;
+            if (exists(filename)) {
+                MemoryBank.debug("Loading " + filename + " from filesystem");
+                return new GoalPanel(filename);
+            } // end if there is a file
+        } else if (groupName.startsWith("Upcoming Event")) {
             areaName = EventNoteGroup.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
@@ -33,7 +39,7 @@ class NoteGroupFactory {
 
     // Use this method if you want to get the group whether it has a data file or not.
     static TreeLeaf getOrMakeLeaf(String theContext, String filename) {
-        NoteGroup theGroup = getGroup(theContext, filename);
+        TreeLeaf theGroup = getGroup(theContext, filename);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.
@@ -63,6 +69,9 @@ class NoteGroupFactory {
             theFullFilename = theName;
         } else { // theName is just the filename only, without a path.
             switch (areaName) {
+                case "Goals":
+                    theFullFilename = TreeLeaf.basePath(areaName) + "goal_" + theName + ".json";
+                    break;
                 case "UpcomingEvents":
                     theFullFilename = TreeLeaf.basePath(areaName) + "event_" + theName + ".json";
                     break;

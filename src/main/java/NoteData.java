@@ -1,14 +1,16 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 
 class NoteData {
-    private String zdtLastModString;
+    protected String zdtLastModString;
     UUID noteId;
     String noteString;
     String subjectString;
-    protected String extendedNoteString;
+    String extendedNoteString;
+    ArrayList<Linkage> linkages;
 
     @JsonIgnore
     int extendedNoteWidthInt;
@@ -47,7 +49,7 @@ class NoteData {
         this.zdtLastModString = ndCopy.getLastModDate().toString();
     } // end constructor
 
-    protected void clear() {
+    void clear() {
         noteString = "";
 
         // initialize subject to null to indicate that a group-specified default subject should be used.

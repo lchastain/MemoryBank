@@ -27,7 +27,8 @@ public class BranchHelper implements BranchHelperInterface {
     private String theArea;
     private Notifier optionPane;  // for Testing
     private String thePrefix; // event_, todo_, search_
-    private String theAreaNodeName; // Events, To Do Lists, Search Results
+    private String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
+    private static final String AREA_GOAL = "Goals";
     private static final String AREA_EVENT = "Upcoming Events";
     private static final String AREA_TODO = "To Do Lists";
     private static final String AREA_SEARCH = "Search Results";
@@ -40,7 +41,10 @@ public class BranchHelper implements BranchHelperInterface {
         theArea = areaName;
 
         // This Helper is for one of these Branches -
-        if (EventNoteGroup.areaName.equals(theArea)) {
+        if (GoalPanel.areaName.equals(theArea)) {
+            theAreaNodeName = AREA_GOAL;
+            thePrefix = "goal_";
+        } else if (EventNoteGroup.areaName.equals(theArea)) {
             theAreaNodeName = AREA_EVENT;
             thePrefix = "event_";
         } else if (TodoNoteGroup.areaName.equals(theArea)) {

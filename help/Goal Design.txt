@@ -1,0 +1,72 @@
+There can be multiple goals active in the app at any given time.
+Goals will be accessible via the tree node 'Goals'
+
+Goal data:
+====================================================================
+Short name - the filename of the data file, after 'goal_'
+Last Mod Date - when text or associated list(s) change
+Title Line - single line of text beyond the short name, descriptive of the goal
+The plan - shown in a TextArea
+    Textual description of what needs to be done.
+A series of steps, in the right order if order matters
+      A step can be an associated NoteGroup or an item from a NoteGroup.  (except SearchResults)
+      A step will have a status
+
+
+Current status (applies to both the overall plan and single steps)
+    Scheduled
+        on track, ahead, behind
+    stalled
+    working
+    etc.
+
+ChangeLog    (not sure how to use this, but possibly optional add-in when reviewing Log)
+    linkages / unlinkages
+    text change
+    status change
+
+
+====================================================================
+
+Associate an entire TodoNoteGroup, or a single todo item
+Associate an entire Event category, or a single event
+Associate an entire DayNoteGroup, or a single entry
+Associate an entire MonthNoteGroup, or a single entry
+Associate an entire YearNoteGroup, or a single entry
+
+Linkages should be stored with the goal.  If the goal goes away, no effect on the target.
+if a linked list or item goes away - update the goal with the note that it went away.
+The update may not happen until the goal checks on the linkage, possibly with an 'update'
+button.
+
+during a merge - two identical todo items but one is linked, another is not.
+they would have different IDs...
+
+a todo item could be linked to more than one goal
+
+a menu selection called 'filter', which then removes (temporarily, from the app view) all NoteGroups that are not
+linked or do not have a linked item.
+    selective filter?  or just all on or all off?
+        todolists
+        events
+        daynotes
+        monthnotes
+        yearnotes
+        searchresults??
+           For the calendar-based groups, may also need to implement the SCR that asks for 'only notes with data'.
+    (during this development, consider whether it is also a good methodology for Subject filtering).
+
+To tie Notes to a goal we finally begin to use the note ID.  A linkage will be the combination of
+which notegroup, and the note ID.  If it is to the group itself then the note ID can be null.
+
+Decided NOT to use subjects for goal linkages because they have other uses but we can only have one subject.
+  What if a movie you saw (Subject Movies) was also an accomplished step on a Stephen King goal?
+  (to see/read ALL SK material) - you could not have two subjects.
+
+
+
+
+
+
+
+

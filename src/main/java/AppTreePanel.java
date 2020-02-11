@@ -241,7 +241,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         MemoryBank.debug("Adding new group in this context: " + theContext);
         switch (theContext) {
             case "Goal":
-            case "Goals":
+            case "Goals Branch Editor":
                 prompt = "Enter a name for the Goal\n";
                 prompt += "Ex: Graduate, Learn a Language, etc";
                 title = "Add a new Goal";
@@ -407,6 +407,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         goalsPath = new TreePath(pathToRoot);
         theGoalListKeeper = new LeafKeeper();
 
+        for (String s : appOpts.goalsList) {
+            // Add to the tree
+            leaf = new DefaultMutableTreeNode(s, false);
+            MemoryBank.debug("  Adding List: " + s);
+            branch.add(leaf);
+        } // end for
+
+
         //---------------------------------------------------
         // Events
         //---------------------------------------------------
@@ -414,7 +422,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         eventsPath = new TreePath(pathToRoot);
-
         theEventListKeeper = new LeafKeeper();
 
         for (String s : appOpts.eventsList) {
@@ -1345,6 +1352,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //   the selection is a branch before we would start handling it as a leaf, and by
         //   then we will know which branch the leaf falls under.
         //-----------------------------------------------------
+        boolean isGoalsBranch = theNodeString.equals("Goals");
         boolean isEventsBranch = theNodeString.equals("Upcoming Events");
         boolean isTodoBranch = theNodeString.equals("To Do Lists");
         boolean isSearchBranch = theNodeString.equals("Search Results");
@@ -1354,7 +1362,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         theNoteGroup = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (isEventsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
+        if (isGoalsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
+            BranchHelper tbh = new BranchHelper(theTree, theGoalListKeeper, GoalPanel.areaName);
+            TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
+            selectionContext = "Goals Branch Editor";
+            rightPane.setViewportView(tbe);
+        } else if (isEventsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
             BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, EventNoteGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", node, tbh);
             selectionContext = "Upcoming Events Branch Editor";
@@ -1376,6 +1389,53 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             JTree jt = new JTree(node); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
+        } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
+            selectionContext = "Goal";  // For manageMenus
+            GoalPanel goalPanel;
+
+            // If this group has been previously loaded during this session,
+            // we can retrieve it from the keeper.
+            goalPanel = (GoalPanel) theGoalListKeeper.get(theNodeString);
+
+            // Otherwise load it, but only if a file for it already exists.
+            if (goalPanel == null) {
+                goalPanel = (GoalPanel) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                if (goalPanel != null) {
+                    log.debug("Loaded " + theNodeString + " from filesystem");
+                    theTodoListKeeper.add(goalPanel);
+                }
+            } else {
+                log.debug("Retrieved '" + theNodeString + "' from the keeper");
+            }
+
+            if (goalPanel == null) {
+                // We just tried to retrieve it or to load it, so if it is STILL null
+                //   then we take it to mean that the file is effectively not there.
+
+                // We can show a notice about what went wrong and what we're
+                // going to do about it, but that will only be helpful if
+                // the user had just asked to see the selection, and NOT
+                // in the case where this situation arose during a program
+                // restart where the missing file just happens to be
+                // the last selection that had been made during a previous run,
+                // and now it is being restored, possibly several days later.
+                if (!restoringPreviousSelection) { // We are here due to a recent user action.
+                    showWorkingDialog(false);
+                    JOptionPane.showMessageDialog(this,
+                            "Cannot read in the Goal.\n" +
+                                    "This list selection will be removed.",
+                            "List not accessible", JOptionPane.WARNING_MESSAGE);
+                } // end if
+
+                closeGroup(); // File is already gone; this just removes the tree node.
+            } else {
+                // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
+                goalPanel.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+
+//                theNoteGroup = todoNoteGroup;  // this isn't one of those, but do we need to do something equivalent for it?
+                rightPane.setViewportView(goalPanel);
+            } // end if
+
         } else if (parentNodeName.equals("Upcoming Events") && isConsolidatedView) { // Selection of the Consolidated Events List
             selectionContext = "Consolidated View";  // For manageMenus
             EventNoteGroup theBigPicture = getConsolidatedView();
@@ -1421,7 +1481,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 // There is only one menu, for ALL event lists.  It needs to be reset with every list change.
-                eventNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
+                eventNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
 
                 theNoteGroup = eventNoteGroup;
                 rightPane.setViewportView(theNoteGroup);
@@ -1468,7 +1528,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
-                todoNoteGroup.setListMenu(appMenuBar.getListMenu(selectionContext));
+                todoNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
 
                 theNoteGroup = todoNoteGroup;
                 rightPane.setViewportView(theNoteGroup);
@@ -1517,15 +1577,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 theNoteGroup = searchResultGroup;
                 rightPane.setViewportView(theNoteGroup);
             } // end if
-        } else if (theNodeString.equals("Goals")) {
-            JTree jt = new JTree(node); // Show as a tree but no editing.
-            jt.setShowsRootHandles(true);
-            rightPane.setViewportView(jt);
-
-//            if (theGoalPanel == null) {
-//                theGoalPanel = new GoalPanel();
-//            }
-//            rightPane.setViewportView(theGoalPanel);
         } else if (theNodeString.equals("Year View")) {
             if (theYearView == null) {
                 theYearView = new YearView(viewedDate);
@@ -1574,7 +1625,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroup();
                 theAppDays.setParent(this);
-                theAppDays.setListMenu(appMenuBar.getListMenu(selectionContext));
+                theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             }
             theNoteGroup = theAppDays;
             theAppDays.setDate(selectedDate);
@@ -1589,7 +1640,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroup(); // Takes current date as default initial 'choice'.
                 theAppMonths.setParent(this);
-                theAppMonths.setListMenu(appMenuBar.getListMenu(selectionContext));
+                theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             }
             theNoteGroup = theAppMonths;
             theAppMonths.setDate(viewedDate);
@@ -1598,7 +1649,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroup();
                 theAppYears.setParent(this);
-                theAppYears.setListMenu(appMenuBar.getListMenu(selectionContext));
+                theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             }
             theNoteGroup = theAppYears;
             theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
@@ -1614,7 +1665,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //</editor-fold>
 
         appMenuBar.manageMenus(selectionContext);
-        showWorkingDialog(false); // This may have already been done, but if not then no harm in doing it again.
+        showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
 
 
@@ -1625,6 +1676,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   and variable group contents, and put it into appOpts (AppOptions class).
     //-------------------------------------------------
     void updateTreeState(boolean updateLists) {
+        appOpts.goalsExpanded = theTree.isExpanded(goalsPath);
         appOpts.eventsExpanded = theTree.isExpanded(eventsPath);
         appOpts.viewsExpanded = theTree.isExpanded(viewsPath);
         appOpts.notesExpanded = theTree.isExpanded(notesPath);
@@ -1644,6 +1696,21 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Variables reused in multiple places, below.
         DefaultMutableTreeNode leafLink;
         int numLists;
+
+        // Preserve the names of the active Goals in the AppOptions.
+        DefaultMutableTreeNode theGoalsNode = BranchHelperInterface.getNodeByName(theRootNode, "Goals");
+        appOpts.goalsList.clear();
+
+        numLists = theGoalsNode.getChildCount();
+        if (numLists > 0) {
+            leafLink = theGoalsNode.getFirstLeaf();
+            while (numLists-- > 0) {
+                String s = leafLink.toString();
+                //MemoryBank.debug("  Preserving Goal: " + s);
+                appOpts.goalsList.addElement(s);
+                leafLink = leafLink.getNextLeaf();
+            } // end while
+        } // end if
 
         // Preserve the names of the Event Lists in the AppOptions.
         DefaultMutableTreeNode theEventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");

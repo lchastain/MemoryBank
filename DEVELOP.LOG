@@ -1,6 +1,15 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+2/11/2020 1427 - In order to make Goals be of any use, NoteData linkages are needed NOW.  Began
+  implementing and found that it had a placeholder in TodoNoteData - that is too low; it's
+  needed in NoteData.  Then began looking for DataFix, for this and the other NoteData items
+  that had been json-ignored but not yet removed, and couldn't find it!  Turns out all the
+  DataFix directories ARE there, but marked in IJ as excluded, so I just wasn't seeing them.
+  This is only worth noting because it will probably happen again, after I've written the new
+  one and then 'put it away'.  But also thinking now that the older is already in two previous
+  archive snapshots; they could be removed, now, and just keep the latest one or two.
+
 2/08/2020 0737 - Have started.  But after comparing the results of the version tracking, can
   see that there is not enough difference between v0.3 and v0.4 to justify the currently
   ongoing v0.4 to be a 'final', so no version switchover yet - it will need to be a BIG
