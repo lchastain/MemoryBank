@@ -1,6 +1,12 @@
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+2/12/2020 0808 - Data fix was written, and works.  So while keeping that one (hidden), went
+  ahead and removed the earlier four and the archived 'export' folder.  Also moved all the
+  CalendarNoteGroup type data into its own folder (Years), similar to other NoteGroups.
+  Next up:  populate a 'linkages' list with at least one linkage, and verify that it will
+  save and reload properly.  Then - on with Goals.
+
 2/11/2020 1427 - In order to make Goals be of any use, NoteData linkages are needed NOW.  Began
   implementing and found that it had a placeholder in TodoNoteData - that is too low; it's
   needed in NoteData.  Then began looking for DataFix, for this and the other NoteData items
