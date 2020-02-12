@@ -1,10 +1,10 @@
 [ [ {
   "zdtLastModString" : "2019-09-27T15:35:44.049+04:00[Europe/Samara]",
+  "noteId" : "ef93214e-1747-4d42-8a3b-aeeb3002fa29",
   "noteString" : "Interview with Primatech - Odessa, TX",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/question.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "15:35"

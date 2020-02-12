@@ -1,40 +1,40 @@
 [ [ {
   "zdtLastModString" : "2019-02-04T21:30-06:00[America/Chicago]",
+  "noteId" : "b929933d-7eaf-41f5-87a3-bb72ba815589",
   "noteString" : "Decided to take a 'personal' day",
   "subjectString" : "Work issue",
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/ernie.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "21:30"
 }, {
   "zdtLastModString" : "2019-02-04T21:35-06:00[America/Chicago]",
+  "noteId" : "9905ea0e-e52c-42fd-bb92-09af25f42425",
   "noteString" : "Called it in.",
   "subjectString" : "Work issue",
   "extendedNoteString" : "Had to leave a message; no one else comes in this early, anyway.",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/phone002.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "21:35"
 }, {
   "zdtLastModString" : "2019-02-04T22:00-06:00[America/Chicago]",
+  "noteId" : "02604cab-7057-4283-93a7-4f53e72b1dae",
   "noteString" : "Paid the electric bill, online",
   "subjectString" : "Bills",
   "extendedNoteString" : "This month was higher than usual - why?  Maybe because it was a colder than normal winter.",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/card_master.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "22:00"
 }, {
   "zdtLastModString" : "2019-02-04T23:15-06:00[America/Chicago]",
+  "noteId" : "468b612d-3439-4672-a55d-46c6014fd8a9",
   "noteString" : "New High Score!",
   "subjectString" : "Video Games",
   "extendedNoteString" : "16,817  !!!",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "23:15"

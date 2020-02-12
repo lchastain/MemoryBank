@@ -1,10 +1,10 @@
 [ [ {
   "zdtLastModString" : "2019-09-02T00:00+04:00[Europe/Samara]",
+  "noteId" : "166f3fc0-50e6-447c-9c62-5ddd6c935f0d",
   "noteString" : "Labor Day",
   "subjectString" : "Event",
   "extendedNoteString" : "Holiday\n",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : "icons/constru3.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "00:00"

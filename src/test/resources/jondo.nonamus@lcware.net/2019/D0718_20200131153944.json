@@ -1,11 +1,11 @@
 [ [ {
   "zdtLastModString" : "2019-07-18T14:00+04:00[Europe/Samara]",
+  "noteId" : "80606207-ea3f-4c17-af00-201b5dc886e1",
   "noteString" : "Voctor's Birthday Party",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
-  "iconFileString" : "icons/birthday.gif",
+  "linkages" : null,
+  "iconFileString" : "C:/Users/Lee/workspace/Memory Bank/icons/birthday.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "14:00"
 } ] ]

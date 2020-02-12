@@ -1,10 +1,10 @@
 [ [ {
   "zdtLastModString" : "2019-10-09T20:55:00.107+04:00[Europe/Samara]",
+  "noteId" : "f228cb36-91cc-405c-b739-2bbdc2f4a131",
   "noteString" : "Thanksgiving",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : "icons/hatchet.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -18,11 +18,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:09:20.686+04:00[Europe/Samara]",
+  "noteId" : "1d832988-a0a6-472d-98db-5640f9032f82",
   "noteString" : "Valentine's Day",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : "icons/heart0c.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -36,11 +36,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T20:53:20.132+04:00[Europe/Samara]",
+  "noteId" : "7a7d40e0-2989-4120-9706-dc28aa05edd1",
   "noteString" : "Daylight Savings Time Starts",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : "icons/clock.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -54,11 +54,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:02:02.977+04:00[Europe/Samara]",
+  "noteId" : "88adab80-f107-4349-af10-3f7d6bf64c2d",
   "noteString" : "Independence Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/us_flag.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -72,11 +72,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:01:53.922+04:00[Europe/Samara]",
+  "noteId" : "29466441-1345-4330-8e21-ea9b987442fc",
   "noteString" : "Memorial Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/crossbon.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -90,11 +90,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-23T07:14:54.066+04:00[Europe/Samara]",
+  "noteId" : "35bb4a3b-e0a1-46c0-b7b3-444bd610c908",
   "noteString" : "Halloween",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : "icons/smiley2_pumpkin.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -108,11 +108,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-27T07:43:15.197+04:00[Europe/Samara]",
+  "noteId" : "85fef088-d181-4789-aba0-581078f0ebf3",
   "noteString" : "New Event",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "locationString" : "",
@@ -126,11 +126,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:00:25.676+04:00[Europe/Samara]",
+  "noteId" : "71c807bb-46c7-4345-aa55-335ae268322d",
   "noteString" : "Daylight Savings Time Ends",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/clock.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -144,11 +144,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:00:51.500+04:00[Europe/Samara]",
+  "noteId" : "2e3ccfac-e1cf-4fab-b0a2-88107c7817b8",
   "noteString" : "Christmas",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/xtree1b.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -162,11 +162,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:01:15.307+04:00[Europe/Samara]",
+  "noteId" : "dc2c668e-8162-4f3b-bce5-408c256387b4",
   "noteString" : "Man's Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/simpsn4.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -180,11 +180,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-11-07T09:18:27.718+04:00[Europe/Samara]",
+  "noteId" : "18f23199-58ca-46b3-924b-f1d33f9c25be",
   "noteString" : "International Women's Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : "icons/simp18.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -198,11 +198,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-10-09T12:02:13.870+04:00[Europe/Samara]",
+  "noteId" : "a1f3a21a-7a0a-4189-8e0e-d6efaf66077f",
   "noteString" : "Labor Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200,
+  "linkages" : null,
   "iconFileString" : "icons/worker1b.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",

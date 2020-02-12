@@ -1,8 +1,8 @@
 [ [ {
   "zdtLastModString" : "2019-11-01T00:00+04:00[Europe/Samara]",
+  "noteId" : "92c1c233-221f-4f41-820d-8fe03806a27c",
   "noteString" : "New November note",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "extendedNoteWidthInt" : 300,
-  "extendedNoteHeightInt" : 200
+  "linkages" : null
 } ] ]

@@ -1,10 +1,10 @@
 [ [ {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
+  "noteId" : "bc01102f-3d89-4e18-ac7b-80b88725fd61",
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "extendedNoteWidthInt" : 507,
-  "extendedNoteHeightInt" : 250,
+  "linkages" : null,
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : null

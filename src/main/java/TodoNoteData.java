@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 
 public class TodoNoteData extends NoteData {
@@ -11,7 +13,18 @@ public class TodoNoteData extends NoteData {
     private String todoDateString; // This can be a deadline or a 'do after', or ...   Set/chosen on the TMC
     private int intPriority;
     private int intStatus;
+
+    @JsonIgnore
     private String strLinkage;
+
+    @JsonIgnore
+    private String linkage;
+
+    @JsonIgnore
+    private int priority;
+
+    @JsonIgnore
+    private int status;
 
 
     public TodoNoteData() {
@@ -72,19 +85,17 @@ public class TodoNoteData extends NoteData {
         return intStatus == otherData.getStatus();
     }
 
-    public String getLinkage() {
-        return strLinkage;
-    }
-
     LocalDate getTodoDate() {
         if(todoDateString == null) return null;
         return LocalDate.parse(todoDateString);
     }
 
+    @JsonIgnore
     public int getPriority() {
         return intPriority;
     }
 
+    @JsonIgnore
     public int getStatus() {
         return intStatus;
     }
@@ -125,14 +136,12 @@ public class TodoNoteData extends NoteData {
         return 1;
     }
 
-    public void setLinkage(String val) {
-        strLinkage = val;
-    }
-
+    @JsonIgnore
     public void setPriority(int val) {
         intPriority = val;
     }
 
+    @JsonIgnore
     public void setStatus(int val) {
         intStatus = val;
     }
