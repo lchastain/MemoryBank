@@ -3,6 +3,7 @@ import java.awt.*;
 import java.io.File;
 
 public abstract class TreeLeaf extends JPanel {
+    static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
 
     protected boolean leafChanged; // Flag used to determine if saving might be necessary.
     JMenu myListMenu; // Child classes each have their own menu

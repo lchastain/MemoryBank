@@ -1,0 +1,49 @@
+[ [ {
+  "zdtLastModString" : "2019-11-30T19:34:10.974+04:00[Europe/Samara]",
+  "noteString" : "One",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0a.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "13:01"
+}, {
+  "zdtLastModString" : "2019-11-30T19:34:13.224+04:00[Europe/Samara]",
+  "noteString" : "Two",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0b.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "14:02"
+}, {
+  "zdtLastModString" : "2019-11-30T19:34:16.805+04:00[Europe/Samara]",
+  "noteString" : "Three",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "15:03"
+}, {
+  "zdtLastModString" : "2019-11-30T19:36:12.228+04:00[Europe/Samara]",
+  "noteString" : "Four",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0d.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "16:04"
+}, {
+  "zdtLastModString" : "2019-11-30T19:36:16.185+04:00[Europe/Samara]",
+  "noteString" : "Five",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0e.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "17:05"
+}, {
+  "zdtLastModString" : "2019-11-30T19:36:19.250+04:00[Europe/Samara]",
+  "noteString" : "Six",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0f.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "18:06"
+} ] ]

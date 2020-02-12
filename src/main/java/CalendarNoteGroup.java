@@ -9,12 +9,17 @@ import java.time.temporal.ChronoUnit;
 
 public abstract class CalendarNoteGroup extends NoteGroup {
     private static final long serialVersionUID = 1L;
+    static String areaName;
 
     LocalDate theChoice;  // Holds the 'current' date of the displayed Group.
     DateTimeFormatter dtf;
 
     private AppTreePanel appTreePanel = null;
     private ChronoUnit dateType;
+
+    static {
+        areaName = "Years"; // Directory name under user data.
+    }
 
     CalendarNoteGroup(String defaultSubject) {
         super();
@@ -29,6 +34,10 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         updateGroup();
     } // end constructor
 
+
+    static String basePath() {
+        return TreeLeaf.basePath(areaName);
+    }
 
     // A NoteGroup does not have a 'choice'; a CalendarNoteGroup does.
     public LocalDate getChoice() {

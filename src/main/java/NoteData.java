@@ -1,5 +1,3 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -11,12 +9,6 @@ class NoteData {
     String subjectString;
     String extendedNoteString;
     ArrayList<Linkage> linkages;
-
-    @JsonIgnore
-    int extendedNoteWidthInt;
-
-    @JsonIgnore
-    int extendedNoteHeightInt;
 
     static boolean loading = false;
 
@@ -37,6 +29,7 @@ class NoteData {
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
         this.zdtLastModString = ndCopy.zdtLastModString;
+        this.linkages = ndCopy.linkages;
     } // end constructor
 
     // Construct a NoteData from a TodoNoteData.
@@ -47,6 +40,7 @@ class NoteData {
         this.subjectString = ndCopy.subjectString;
         this.extendedNoteString = ndCopy.extendedNoteString;
         this.zdtLastModString = ndCopy.getLastModDate().toString();
+        this.linkages = ndCopy.linkages;
     } // end constructor
 
     void clear() {

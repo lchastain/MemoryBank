@@ -1,0 +1,15 @@
+[ [ {
+  "zdtLastModString" : "2019-10-14T15:10:30.604+04:00[Europe/Samara]",
+  "noteString" : "Chess Club",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "iconFileString" : "icons/chess10.ico",
+  "showIconOnMonthBoolean" : false,
+  "locationString" : "Basement of the Student Union",
+  "eventStartDateString" : "2019-07-02",
+  "eventStartTimeString" : "13:00:09.959",
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "W2_Tu_",
+  "blnRetainNote" : true
+} ] ]

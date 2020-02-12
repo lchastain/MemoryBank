@@ -18,9 +18,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     private static AppIcon defaultIcon;
     private static JLabel dayTitle;
     static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
-
-    // Set by other NoteGroups (Event, Todo)
-    static boolean blnNoteAdded;
+    static boolean blnNoteAdded; // Set by other NoteGroups (Event, Todo)
 
     static {
         // Create the panel title
@@ -90,7 +88,6 @@ public class DayNoteGroup extends CalendarNoteGroup
         updateHeader();
         MemoryBank.trace();
     } // end constructor
-
 
     private String getChoiceString() {
         return dtf.format(theChoice);

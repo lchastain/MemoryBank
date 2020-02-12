@@ -38,7 +38,7 @@ class EventAgingTest {
         FileUtils.copyFile(testFile, newname);
 
         // the setup - After our BeforeAll there should be no Day data, at all.  Verify this, to some extent.
-        File theFolder = new File(MemoryBank.userDataHome + File.separatorChar + "2018");
+        File theFolder = new File(CalendarNoteGroup.basePath() + "2018");
         Assertions.assertFalse(theFolder.exists()); // if no directory then no files either.
         // This one missing directory gives us a high confidence that there are none.
 

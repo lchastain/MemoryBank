@@ -1,0 +1,240 @@
+[ {
+  "showPriority" : true,
+  "maxPriority" : 20,
+  "deadWidth" : 170,
+  "pHeader" : true,
+  "pFooter" : true,
+  "pBorder" : true,
+  "pCSpace" : true,
+  "pEText" : false,
+  "pPriority" : true,
+  "pDeadline" : false,
+  "pCutoff" : 99,
+  "lineSpace" : 1,
+  "whenNoKey" : 1,
+  "column1Label" : "Priority",
+  "column2Label" : "To Do Text",
+  "column3Label" : "Status",
+  "column4Label" : "Deadline",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2020-01-04T13:20:33.858+04:00[Europe/Samara]",
+  "noteId" : "5c0ff449-f446-4e90-8513-529c740dc835",
+  "noteString" : "a",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:35.369+04:00[Europe/Samara]",
+  "noteId" : "5f3b1b6b-9c1b-482b-b955-150bb8d746d2",
+  "noteString" : "b",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-07T04:28:22.362+04:00[Europe/Samara]",
+  "noteId" : "536eade0-fcc5-4fe8-93ca-313b6652504d",
+  "noteString" : "c",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-07T04:28:23.226+04:00[Europe/Samara]",
+  "noteId" : "4adb77aa-9d56-4fa7-8429-b55a3c512d1f",
+  "noteString" : "d",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:37.275+04:00[Europe/Samara]",
+  "noteId" : "e7d494be-5d25-432f-b58a-c3b28ff6753c",
+  "noteString" : "e",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:37.666+04:00[Europe/Samara]",
+  "noteId" : "6db3517d-0d2f-485b-b791-cab448be94e3",
+  "noteString" : "f",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:38.041+04:00[Europe/Samara]",
+  "noteId" : "105dcd0c-f043-45e4-85e3-4a511717f832",
+  "noteString" : "g",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:38.401+04:00[Europe/Samara]",
+  "noteId" : "67acfd98-7ced-46ed-a7b9-bf0f5c22c9a0",
+  "noteString" : "h",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:38.793+04:00[Europe/Samara]",
+  "noteId" : "a89d71e0-e785-4e1d-b1c2-7aae9cd23f16",
+  "noteString" : "i",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:39.199+04:00[Europe/Samara]",
+  "noteId" : "aaf952f3-8e8c-438b-a789-4446874eeb82",
+  "noteString" : "j",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-07T04:28:24.875+04:00[Europe/Samara]",
+  "noteId" : "28cc9aff-e030-49e6-9d3e-36de1410e608",
+  "noteString" : "k",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:39.966+04:00[Europe/Samara]",
+  "noteId" : "78d8c197-ebea-4e69-ab85-bc3eaee2958c",
+  "noteString" : "l",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:40.647+04:00[Europe/Samara]",
+  "noteId" : "791dcd16-d159-4599-b888-a4aeb56f10df",
+  "noteString" : "m",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:41.225+04:00[Europe/Samara]",
+  "noteId" : "88ea9d86-951b-42c7-9067-b96a43453841",
+  "noteString" : "n",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:42.741+04:00[Europe/Samara]",
+  "noteId" : "e8eaa12e-e5de-4b7c-8e61-aceb31eaee6f",
+  "noteString" : "o",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:46.101+04:00[Europe/Samara]",
+  "noteId" : "be81a5e9-d5b6-4489-985c-c691490d00bc",
+  "noteString" : "p",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:48.820+04:00[Europe/Samara]",
+  "noteId" : "32c3059a-b4a7-47ca-8953-ee109b8a2230",
+  "noteString" : "q",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:49.633+04:00[Europe/Samara]",
+  "noteId" : "bf4128f6-279b-4c0a-89b0-896f120b8bfd",
+  "noteString" : "r",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:51.260+04:00[Europe/Samara]",
+  "noteId" : "61cf115e-64b9-40f0-af15-0a3033e75f21",
+  "noteString" : "s",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:20:52.979+04:00[Europe/Samara]",
+  "noteId" : "c1f42282-4be6-41bc-9e27-f1805dc932ca",
+  "noteString" : "t",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:21:21.982+04:00[Europe/Samara]",
+  "noteId" : "8073d3b0-95e0-4d70-9098-89c45456fad0",
+  "noteString" : "u",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2020-01-04T13:21:23.241+04:00[Europe/Samara]",
+  "noteId" : "4908796b-ed90-4214-9198-a46cf11b9140",
+  "noteString" : "v",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkages" : null,
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+} ] ]

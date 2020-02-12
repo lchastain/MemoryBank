@@ -49,17 +49,6 @@ class DayNoteData extends IconNoteData {
     DayNoteData(TodoNoteData todoNoteData) {
         super(todoNoteData);  // takes care of IconNoteData & NoteData members.
 
-        // Adjust the height of the extended text, if needed.
-        int newHite = todoNoteData.extendedNoteHeightInt;
-        boolean thereIsExtText = todoNoteData.extendedNoteString.trim().length() != 0;
-        if (thereIsExtText) newHite += 28 + (21 * 2); // 2 new lines.
-        // If the item had extended text, in 'porting' it to a
-        //  DayNoteComponent we have to account for the 'subject' combobox
-        //  plus any lines that we add, to adjust to same visibility.
-        // If it had none to start, then the new data we're adding will
-        //  fit inside the default text area without the need to expand.
-        // As for width, no need to adjust it; use as-is from the TodoNoteData.
-
         //----------------------------------------------------------------
         // Create the DayNote Extended Text from the TodoNote by prefixing
         //   Priorty and Status info that would otherwise be lost in the move.
@@ -82,8 +71,6 @@ class DayNoteData extends IconNoteData {
 
         // Make the remaining DayNoteData assignments
         extendedNoteString = newExtText;
-        extendedNoteHeightInt = newHite;
-        extendedNoteWidthInt = todoNoteData.extendedNoteWidthInt;
         iconFileString = TodoNoteComponent.getIconFilename(todoNoteData.getStatus());
         showIconOnMonthBoolean = false;
         timeOfDayString = null;

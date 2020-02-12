@@ -66,9 +66,7 @@ public class EventNoteData extends IconNoteData {
         eventEndDateString = endCopy.eventEndDateString;
         eventStartTimeString = endCopy.eventStartTimeString;
         eventEndTimeString = endCopy.eventEndTimeString;
-        extendedNoteHeightInt = endCopy.extendedNoteHeightInt;
         extendedNoteString = endCopy.extendedNoteString;
-        extendedNoteWidthInt = endCopy.extendedNoteWidthInt;
         iconFileString = endCopy.iconFileString;
         calculatedDurationValue = endCopy.calculatedDurationValue;
         noteString = endCopy.noteString;

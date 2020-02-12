@@ -1,0 +1,101 @@
+[ {
+  "showPriority" : true,
+  "maxPriority" : 20,
+  "deadWidth" : 170,
+  "pHeader" : true,
+  "pFooter" : true,
+  "pBorder" : true,
+  "pCSpace" : true,
+  "pEText" : false,
+  "pPriority" : true,
+  "pDeadline" : false,
+  "pCutoff" : 99,
+  "lineSpace" : 1,
+  "whenNoKey" : 1,
+  "numberOfItems" : 15,
+  "column1Label" : "Priority",
+  "column2Label" : "To Do Text",
+  "column3Label" : "Status",
+  "column4Label" : "Deadline",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2019-10-21T10:33:44.393+04:00[Europe/Samara]",
+  "noteString" : "Thing One",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 2
+}, {
+  "zdtLastModString" : "2019-10-21T10:33:48.097+04:00[Europe/Samara]",
+  "noteString" : "Thing Two",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 2,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-10-21T10:37:43.858+04:00[Europe/Samara]",
+  "noteString" : "Thing Three",
+  "subjectString" : null,
+  "extendedNoteString" : "So easy, it was done almost as soon as I put it on this list.",
+  "todoDateString" : null,
+  "intPriority" : 5,
+  "intStatus" : 1
+}, {
+  "zdtLastModString" : "2019-10-21T10:38:40.089+04:00[Europe/Samara]",
+  "noteString" : "Thing Four",
+  "subjectString" : null,
+  "extendedNoteString" : "Still figuring out how to go about this..",
+  "todoDateString" : null,
+  "intPriority" : 6,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-10-21T10:34:01.619+04:00[Europe/Samara]",
+  "noteString" : "Thing Five",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 3
+}, {
+  "zdtLastModString" : "2019-10-21T10:34:05.979+04:00[Europe/Samara]",
+  "noteString" : "Thing Six",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 1,
+  "intStatus" : 3
+}, {
+  "zdtLastModString" : "2019-10-21T10:34:09.089+04:00[Europe/Samara]",
+  "noteString" : "Thing Seven",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 1,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-10-21T10:37:14.878+04:00[Europe/Samara]",
+  "noteString" : "Thing Eight",
+  "subjectString" : null,
+  "extendedNoteString" : "It didn't make sense to do this; not sure why I put it on the list.",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 5
+}, {
+  "zdtLastModString" : "2019-10-21T10:34:16.702+04:00[Europe/Samara]",
+  "noteString" : "Thing Nine",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 18,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-10-21T10:34:19.893+04:00[Europe/Samara]",
+  "noteString" : "Thing Ten",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 7,
+  "intStatus" : 4
+} ] ]
