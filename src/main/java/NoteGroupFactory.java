@@ -47,7 +47,7 @@ class NoteGroupFactory {
         if (theContext.startsWith("To Do List")) {
             return new TodoNoteGroup(filename);
         } else if (theContext.startsWith("Goal")) {
-                return new GoalPanel(filename);
+            return new GoalPanel(filename);
         } else if (theContext.startsWith("Upcoming Event")) {
             return new EventNoteGroup(filename);
         } else if (theContext.startsWith("Search Result")) {

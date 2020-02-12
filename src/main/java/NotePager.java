@@ -118,9 +118,10 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     //-------------------------------------------------------------------------
     // Method Name: reset
     //
-    // This method is used to update and report the maximum number of
-    //   pages.  It is called by NoteGroup from the
-    //   updateGroup method (after a group load).
+    // This method is used set the current page number and to
+    //   calculate the maximum number of pages.  It is called
+    //   by NoteGroup.updateGroup() where it sets the current
+    //   page to 1, both before and after a group load.
     //-------------------------------------------------------------------------
     public void reset(int i) {
         currentPageNumber = i;

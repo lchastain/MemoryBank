@@ -319,7 +319,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             theGroup = NoteGroupFactory.getOrMakeLeaf(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
             theLeafKeeper.add(theGroup);
-            theGroup.setLeafChanged(true); // Save this empty group.
+            theGroup.setLeafChanged(true); // Save this (may be empty) group.
             theGroup.preClose();
         }
 

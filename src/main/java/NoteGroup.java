@@ -926,8 +926,8 @@ public abstract class NoteGroup extends TreeLeaf {
         loadGroup();      // Loads the data array and interface.
         setLeafChanged(false);
 
-        // Also needed AFTER loadGroup, not to set the page number but to set the correct size
-        //   of the vector, which is needed in order to determine the total number of pages.
+        // Also needed AFTER loadGroup, not to set the page number but to set the
+        //   total number of pages, which will be shown in the pager control.
         theNotePager.reset(1);
 
     } // end updateGroup

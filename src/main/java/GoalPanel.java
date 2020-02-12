@@ -22,6 +22,8 @@ public class GoalPanel extends NoteGroup {
         MemoryBank.debug("Constructing: " + getName());
 
         goalFileName = basePath(areaName) + "goal_" + fname + ".json";
+        saveWithoutData = true;
+        updateGroup();
 
         buildPanelContent();
         this.setVisible(true);
