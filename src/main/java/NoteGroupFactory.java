@@ -8,7 +8,7 @@ class NoteGroupFactory {
     // This method will return the requested NoteGroup only if a file for
     // it exists; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static TreeLeaf getGroup(String groupName, String filename) {
+    static NoteGroup getGroup(String groupName, String filename) {
         if (groupName.startsWith("Goal")) {
             areaName = GoalPanel.areaName;
             if (exists(filename)) {
@@ -38,8 +38,8 @@ class NoteGroupFactory {
     }
 
     // Use this method if you want to get the group whether it has a data file or not.
-    static TreeLeaf getOrMakeLeaf(String theContext, String filename) {
-        TreeLeaf theGroup = getGroup(theContext, filename);
+    static NoteGroup getOrMakeGroup(String theContext, String filename) {
+        NoteGroup theGroup = getGroup(theContext, filename);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.
@@ -57,34 +57,22 @@ class NoteGroupFactory {
     }
 
     private static boolean exists(String shortName) {
-        String fullFileName = getFullFilename(shortName);
-        return new File(fullFileName).exists();
-    }
+        String fullFilename;
 
-    private static String getFullFilename(String theName) {
-        String theFullFilename = null;
-        int sepCharIndex = theName.lastIndexOf(File.separatorChar);
-        if (sepCharIndex > 0) { // The calling context sent in a path+filename.
-            // We now assume (correctly or not) that it's already the full-blown specifier.
-            theFullFilename = theName;
-        } else { // theName is just the filename only, without a path.
-            switch (areaName) {
-                case "Goals":
-                    theFullFilename = TreeLeaf.basePath(areaName) + "goal_" + theName + ".json";
-                    break;
-                case "UpcomingEvents":
-                    theFullFilename = TreeLeaf.basePath(areaName) + "event_" + theName + ".json";
-                    break;
-                case "TodoLists":
-                    theFullFilename = TreeLeaf.basePath(areaName) + "todo_" + theName + ".json";
-                    break;
-                case "SearchResults":
-                    theFullFilename = TreeLeaf.basePath(areaName) + "search_" + theName + ".json";
-                    break;
-            }
+        int i = shortName.lastIndexOf(File.separatorChar);
+        int j = shortName.lastIndexOf('/');
+        int k = Math.max(i, j);
+
+        if (k >= 0) { // if it has the File separator character
+            // Then we assume (rightly or not) that the calling context has sent in
+            // a path+filename, and that it is the correct full-blown File specifier
+            // so that further grooming is unnecessary.
+            fullFilename = shortName;
+        } else {
+            fullFilename = DataGroup.getFullFilename(areaName, shortName);
         }
-        return theFullFilename;
-    }
 
+        return new File(fullFilename).exists();
+    }
 
 }

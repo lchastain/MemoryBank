@@ -241,7 +241,7 @@ public class DayNoteComponent extends IconNoteComponent {
         if (dnd2 == null) this.clear();
         else this.setDayNoteData(dnd2);
 
-        myNoteGroup.setLeafChanged(true);
+        myNoteGroup.setGroupChanged(true);
     } // end swap
 
 

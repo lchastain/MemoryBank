@@ -1,8 +1,8 @@
 import java.util.Vector;
 
 /*
- Basically a wrapper for a vector of TreeLeaf.  The idea is
- that since loading of a node can sometimes take long enough for the user to
+ Basically a wrapper for a vector of DataGroups.  The idea is
+ that since loading of a list can sometimes take long enough for the user to
  notice/care, we could just load them once, and when not currently
  selected, keep them out of sight but in memory and ready to quickly redisplay.
  Using a vector vs an ArrayList, for additional speed and less overhead; we do
@@ -10,25 +10,25 @@ import java.util.Vector;
  The idea does work (fairly well, actually) but it turns out that there are
  some operations (RENAME, SAVE-AS) that after they complete, it would be better
  to remove the copy here so that upon reselection, the list will be reloaded.
- For those operations we provide the 'remove' method, and every new leaf action
+ For those operations we provide the 'remove' method, and every new list action
  should consider whether or not to use it.
  */
 
-public class LeafKeeper {
-    private Vector<TreeLeaf> theLeaves;
+public class DataGroupKeeper {
+    private Vector<DataGroup> theNoteGroups;
 
-    LeafKeeper() {
-        theLeaves = new Vector<>();
+    DataGroupKeeper() {
+        theNoteGroups = new Vector<>();
     }
 
-    public void add(TreeLeaf treeLeaf) { theLeaves.add(treeLeaf); }
+    public void add(DataGroup tng) { theNoteGroups.add(tng); }
 
-    public TreeLeaf get(String aLeafName) {
+    public DataGroup get(String aListName) {
         // Search the Vector for the list.
-        for (TreeLeaf treeLeaf : theLeaves) {
-            String tngName = TreeLeaf.prettyName(treeLeaf.getLeafFilename());
-            if (aLeafName.equals(tngName)) {
-                return treeLeaf;
+        for (DataGroup noteGroup : theNoteGroups) {
+            String tngName = noteGroup.prettyName();
+            if (aListName.equals(tngName)) {
+                return noteGroup;
             } // end if
         } // end for
         return null;
@@ -37,11 +37,11 @@ public class LeafKeeper {
     // Scan the vector looking for the indicated group and if found, remove.
     //----------------------------------------------------------------
     public void remove(String aListName) {
-        TreeLeaf theGroup = null; // Keep a temporary reference
+        DataGroup theGroup = null; // Keep a temporary reference
 
         // Search the Vector for the group.
-        for (TreeLeaf noteGroup : theLeaves) {
-            String tngName = TreeLeaf.prettyName(noteGroup.getLeafFilename());
+        for (DataGroup noteGroup : theNoteGroups) {
+            String tngName = noteGroup.prettyName();
             if (aListName.equals(tngName)) {
                 theGroup = noteGroup;
                 // Note: cannot remove from within this loop;
@@ -52,21 +52,21 @@ public class LeafKeeper {
 
         // If found, then remove.  Otherwise no action needed.
         if (theGroup != null) {
-            MemoryBank.debug("  Removing " + aListName + " from the TreeLeafKeeper");
-            theLeaves.removeElement(theGroup);
+            MemoryBank.debug("  Removing " + aListName + " from the NoteGroupKeeper");
+            theNoteGroups.removeElement(theGroup);
         } else {
-            MemoryBank.debug("  Unable to remove " + aListName + "; it was not found in the TreeLeafKeeper");
+            MemoryBank.debug("  Unable to remove " + aListName + "; it was not found in the NoteGroupKeeper");
         } // end if
     } // end remove
 
     void saveAll() {
-        for(TreeLeaf aNoteGroup: theLeaves) {
+        for(DataGroup aNoteGroup: theNoteGroups) {
             aNoteGroup.preClose();
         }
     }
 
     int size() {
-        return theLeaves.size();
+        return theNoteGroups.size();
     }
 
-} // end class TreeLeafKeeper
+} // end class NoteGroupKeeper

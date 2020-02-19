@@ -38,7 +38,7 @@ class TodoItemFocusTest {
 
         todoNoteGroup = new TodoNoteGroup("Get New Job");
         theFrame = new JFrame("ItemFocusTest");
-        theFrame.setContentPane(todoNoteGroup);
+        theFrame.setContentPane(todoNoteGroup.theBasePanel);
         theFrame.pack();
         theFrame.setSize(new Dimension(800, 600));
         theFrame.setVisible(true);

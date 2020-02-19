@@ -12,7 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
-    private static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
     private static final int PAGE_SIZE = 20;
 
@@ -26,14 +25,17 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 
-    private String theGroupFilename;
     static String areaName;
+    static String areaPath;
+    static String filePrefix;
 
     // This is saved/loaded
     public TodoListProperties myVars; // Variables - flags and settings
 
     static {
         areaName = "TodoLists"; // Directory name under user data.
+        areaPath = basePath + areaName + File.separatorChar;
+        filePrefix = "todo_";
         MemoryBank.trace();
     } // end static
 
@@ -44,12 +46,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     public TodoNoteGroup(String fname, int pageSize) {
         super(pageSize);
 
-        // Use an inherited (otherwise unused) method to store our list name.
-        // It will be used by the 'saveAs' method.
-        setName(fname.trim());
+        // Store our simple list name.  It will be used by the 'saveAs' method.
+        setName(fname);
         log.debug("Constructing: " + getName());
 
-        theGroupFilename = basePath() + "todo_" + fname + ".json";
+        setGroupFilename(areaPath + filePrefix + fname + ".json");
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
@@ -74,12 +75,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         heading.add(theNotePager, "East");
         //----------------------------------------------------------
 
-        add(heading, BorderLayout.NORTH);
+        theBasePanel.add(heading, BorderLayout.NORTH);
 
         // Wrapped tmc in a FlowLayout panel, to prevent stretching.
         JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         pnl1.add(tmc);
-        add(pnl1, BorderLayout.EAST);
+        theBasePanel.add(pnl1, BorderLayout.EAST);
 
         updateGroup(); // This is where the file gets loaded (if it exists)
         myVars = new TodoListProperties();
@@ -88,10 +89,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         setGroupHeader(listHeader);
     } // end constructor
 
-
-    static String basePath() {
-        return TreeLeaf.basePath(areaName);
-    }
 
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
@@ -115,14 +112,14 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end checkColumnOrder
 
     private File chooseMergeFile() {
-        File dataDir = new File(basePath());
-        String myName = prettyName(theGroupFilename);
+        File dataDir = new File(areaPath);
+        String myName = getName(); // two usages below; this way the method is only called once.
 
         // Get the complete list of Todo List filenames, except this one.
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
-                    // known that the basePath will not under normal program
+                    // known that the dataDir will not under normal program
                     // operation contain directories.
                     public boolean accept(File f, String s) {
                         if (myName.equals(prettyName(s))) return false;
@@ -145,12 +142,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         String message = "Choose a list to merge with " + myName;
         String title = "Merge TodoLists";
-        String theChoice = optionPane.showInputDialog(this, message,
+        String theChoice = optionPane.showInputDialog(theBasePanel, message,
                 title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
 
         System.out.println("The choice is: " + theChoice);
         if (theChoice == null) return null;
-        return new File(basePath() + "todo_" + theChoice + ".json");
+        return new File(areaPath + "todo_" + theChoice + ".json");
     } // end chooseMergeFile
 
     //-------------------------------------------------------------
@@ -174,10 +171,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         tNoteComponent.setTodoNoteData(tnd);
     } // end dateSelected
 
-
-    public String getLeafFilename() {
-        return theGroupFilename;
-    }
 
     int getMaxPriority() {
         return myVars.maxPriority;
@@ -247,7 +240,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
         setGroupData(groupDataVector);
-        setLeafChanged(true);
+        setGroupChanged(true);
     } // end merge
 
     //------------------------------------------------------------------
@@ -277,7 +270,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     @Override
-    protected void preClose() {
+    void preClose() {
         saveProperties();
         super.preClose();
     }
@@ -402,7 +395,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // then if ok, saves the file with that name.
     //-----------------------------------------------------------------
     boolean saveAs() {
-        Frame theFrame = JOptionPane.getFrameForComponent(this);
+        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
 
         String thePrompt = "Please enter the new list name";
         int q = JOptionPane.QUESTION_MESSAGE;
@@ -414,7 +407,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, basePath());
+        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -453,7 +446,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = basePath() + "todo_" + newName + ".json";
+        String newFilename = areaPath + "todo_" + newName + ".json";
         if ((new File(newFilename)).exists()) {
             ems = "A list named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
@@ -466,16 +459,21 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         //------------------------------------
         log.debug("Saving " + oldName + " as " + newName);
 
-        // 'setName' sets the name of the component itself, which translates into an
+        // 'setName' sets the name of the group, which translates into an
         // in-place change of the name of the list held by the TodoListKeeper.
         // Unfortunately, that list will still have the old title, so it still needs
         // to be removed from the keeper.  The calling context will take care of that.
-        theGroupFilename = basePath() + "todo_" + newName + ".json";
-        setName(newName);  // Put the new 'pretty' name in the component.
-        setLeafChanged(true);
+//        setName(newName);  // Put the new 'pretty' name in the component.
+// Not needed, since we save next and reload after that.
+        setGroupFilename(areaPath + filePrefix + newName + ".json");
+        setGroupChanged(true);
 
         // Since this is effectively a new file, before we save we need to ensure that
-        // the app will not fail in an attempt to remove the (nonexistent) old file.
+        // the app will not fail in an attempt to remove the nonexistent 'old' file with
+        // this new name.
+        // So this setting will route us around the remove-before-save logic so that
+        // this 'new' file saves without issue, but the side effect is that the original
+        // file will remain.  Still thinking on whether or not that is the desired outcome.
         AppUtil.localArchive(true);
         preClose();
         AppUtil.localArchive(false);
@@ -518,7 +516,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Show a dialog whereby the options can be changed
         int doit = optionPane.showConfirmDialog(
-                JOptionPane.getFrameForComponent(this), todoOpts,
+                JOptionPane.getFrameForComponent(theBasePanel), todoOpts,
                 "Set Options", JOptionPane.OK_CANCEL_OPTION);
 
         if (doit == -1) return; // The X on the dialog
@@ -526,7 +524,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Get the values back out of the Option Panel
         myVars = todoOpts.getValues();
-        setLeafChanged(true);
+        setGroupChanged(true);
 
         // Was there a reset-worthy change?
         if (myVars.showPriority != blnOrigShowPriority) {

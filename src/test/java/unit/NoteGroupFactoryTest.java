@@ -9,8 +9,8 @@ class NoteGroupFactoryTest {
 
     @Test
     void testGetOrMakeGroup() {
-        NoteGroupFactory.getOrMakeLeaf("Upcoming Event", "blarg");
-        NoteGroupFactory.getOrMakeLeaf("To Do List", "blarg");
-        NoteGroupFactory.getOrMakeLeaf("Search Result", "blarg");
+        NoteGroupFactory.getOrMakeGroup("Upcoming Event", "blarg");
+        NoteGroupFactory.getOrMakeGroup("To Do List", "blarg");
+        NoteGroupFactory.getOrMakeGroup("Search Result", "blarg");
     }
 }

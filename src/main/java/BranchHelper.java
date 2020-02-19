@@ -18,7 +18,7 @@ public class BranchHelper implements BranchHelperInterface {
     private static Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
     private JTree theTree;  // The original tree, not the one from the editor.
-    private LeafKeeper theLeafKeeper;
+    private DataGroupKeeper theDataGroupKeeper;
     private DefaultTreeModel theTreeModel;
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
@@ -33,9 +33,9 @@ public class BranchHelper implements BranchHelperInterface {
     private static final String AREA_TODO = "To Do Lists";
     private static final String AREA_SEARCH = "Search Results";
 
-    BranchHelper(JTree jt, LeafKeeper leafKeeper, String areaName) {
+    BranchHelper(JTree jt, DataGroupKeeper dataGroupKeeper, String areaName) {
         theTree = jt;
-        theLeafKeeper = leafKeeper;
+        theDataGroupKeeper = dataGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         theArea = areaName;
@@ -101,9 +101,10 @@ public class BranchHelper implements BranchHelperInterface {
         }
 
         // It is important to check filename validity in the area where the new file would be created,
-        // so that any possible Security Exception is seen, and those Exceptions may not be seen in a
+        // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        String theComplaint = BranchHelperInterface.checkFilename(theName, TreeLeaf.basePath(theArea));
+        File aFile = new File(DataGroup.getFullFilename(theArea, theName));
+        String theComplaint = BranchHelperInterface.checkFilename(theName, aFile.getParent());
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -155,15 +156,15 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = TreeLeaf.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
-                String newNamedFile = TreeLeaf.basePath(theArea) + thePrefix + nodeChange.renamedTo + ".json";
+                String oldNamedFile = DataGroup.getFullFilename(theArea, nodeChange.nodeName);
+                String newNamedFile = DataGroup.getFullFilename(theArea, nodeChange.renamedTo);
                 File f = new File(oldNamedFile);
 
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
                     } // end if
-                    theLeafKeeper.remove(nodeChange.nodeName);
+                    theDataGroupKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -183,13 +184,13 @@ public class BranchHelper implements BranchHelperInterface {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  TreeLeaf.basePath(theArea) + thePrefix + nodeChange.nodeName + ".json";
+                String deleteFile =  DataGroup.getFullFilename(theArea, nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nodeChange.nodeName);
                     } // end if
-                    theLeafKeeper.remove(nodeChange.nodeName);
+                    theDataGroupKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -228,13 +229,13 @@ public class BranchHelper implements BranchHelperInterface {
     public ArrayList<String> getChoices() {
         ArrayList<String> theChoices = new ArrayList<>();
 
-        // Get a list of <theNodeName> files in the user's data directory.
-        File dataDir = new File(TreeLeaf.basePath(theArea));
+        // Get a list of <theNodeName> files in that area of the user's data directory.
+        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + theArea);
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is
-                    // known that the basePath will not under normal program
-                    // operation contain directories.
+                    // known that the dataDir will not under normal program
+                    // operation contain directories (except for the Calendar notes).
                     public boolean accept(File f, String s) {
                         return s.startsWith(thePrefix);
                     }

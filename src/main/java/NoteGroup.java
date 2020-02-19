@@ -9,29 +9,17 @@ import java.util.List;
 import java.util.Vector;
 
 
-public abstract class NoteGroup extends TreeLeaf {
-    static final long serialVersionUID = 1L;
-
-    // Status report codes for Load / Save
-    private static final int INITIAL = 500;
-    static final int ONGOING = 501;
-    private static final int DELETEOLDFILEFAILED = 502;
-    private static final int DIRECTORYINMYPLACE = 503;
-    private static final int CANNOTMAKEAPATH = 504;
-    private static final int FILEINMYDIRPATH = 505;
-    private static final int OTHERFAILURE = 506;
-    private static final int SUCCEEDED = 600;
-
-    // Directions for Sort operations
-    static final int ASCENDING = 0;
-    static final int DESCENDING = 1;
-
+public abstract class NoteGroup extends DataGroup {
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
     static Notifier optionPane;
     static String ems;     // Error Message String
+    JPanel theBasePanel;
     ExtendedNoteComponent extendedNoteComponent;
+    JMenu myListMenu; // Child classes each have their own menu
+
+
     boolean addNoteAllowed;
     boolean saveWithoutData;
     int lastVisibleNoteIndex = 0;
@@ -51,6 +39,7 @@ public abstract class NoteGroup extends TreeLeaf {
     // Container for the (complete collection of) Group data objects.
     // It may hold more than the PAGE_SIZE number of visible notes.
     Vector<NoteData> groupDataVector;
+//    DataVector groupDataVector;
 
     // Private members
     //-------------------------------------------------------------
@@ -64,8 +53,6 @@ public abstract class NoteGroup extends TreeLeaf {
     // The Information/Status panel of the frame.
     private JLabel lblStatusMessage;
 
-    // Access with getLeafFilename() & setGroupFilename()
-    private String groupFilename;
     //-------------------------------------------------------------
 
     NoteGroup() {
@@ -74,13 +61,33 @@ public abstract class NoteGroup extends TreeLeaf {
 
     NoteGroup(int intPageSize) {
         super();
+        theBasePanel = new JPanel(new BorderLayout()) {
+            //--------------------------------------------------------------------
+            // Method Name: getPreferredSize
+            //
+            // This preference is necessary to set a limit of a maximum height value.
+            //   After we add content to the scrollable area of this panel, if the
+            //   height of that content exceeds the limit that we set here then
+            //   the vertical scrollbar will kick in.
+            //--------------------------------------------------------------------
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(super.getPreferredSize().width, 400);
+            } // end getPreferredSize
+        };
         pageSize = intPageSize;
         addNoteAllowed = true;
         saveWithoutData = false;
         intHighestNoteComponentIndex = pageSize - 1;
 
         groupDataVector = new Vector<>();
-        jsp = new JScrollPane();
+//        groupDataVector = new DataVector();
+        jsp = new JScrollPane() {
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(super.getPreferredSize().width, 400);
+            } // end getPreferredSize
+        };
         JScrollBar jsb = new JScrollBar();
 
         // This is necessary because otherwise, once the bar appears
@@ -92,11 +99,8 @@ public abstract class NoteGroup extends TreeLeaf {
         jsb.setBlockIncrement(NoteComponent.NOTEHEIGHT);
         jsp.setVerticalScrollBar(jsb);
 
-        groupFilename = "";
-        setLeafChanged(false);
-
         int borderWidth = 2;
-        setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
+        theBasePanel.setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
 
         groupNotesListPanel = new JPanel();
         groupNotesListPanel.setLayout(
@@ -120,12 +124,12 @@ public abstract class NoteGroup extends TreeLeaf {
         // The first note should not be invisible.
         groupNotesListPanel.getComponent(0).setVisible(true);
 
-        add(jsp, BorderLayout.CENTER);
+        theBasePanel.add(jsp, BorderLayout.CENTER);
         jsp.setViewportView(groupNotesListPanel);
 
         String s = "Use the mouse pointer for context-sensitive help";
         lblStatusMessage = new JLabel(s);
-        add(lblStatusMessage, BorderLayout.SOUTH);
+        theBasePanel.add(lblStatusMessage, BorderLayout.SOUTH);
 
         // A variant of JOptionPane, for testing.
         optionPane = new Notifier() { }; // Uses all default methods.
@@ -176,7 +180,7 @@ public abstract class NoteGroup extends TreeLeaf {
                     // from initialize() after a note has been added into the last available slot on the current page.
                     // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
                     // see that the total page count should be increased (by one).
-                    if(leafChanged) unloadInterface(tmpPage);
+                    if(groupChanged) unloadInterface(tmpPage);
 
                     theNotePager.reset(tmpPage);
                 } // end if
@@ -186,17 +190,21 @@ public abstract class NoteGroup extends TreeLeaf {
     } // end activateNextNote
 
 
+    void add(JComponent component, Object object) {
+        theBasePanel.add(component, object);
+    }
+
     //----------------------------------------------------------------
     // Method Name: clearGroup
     //
     // Clear all data (which may span more than one page) and the interface.
     //----------------------------------------------------------------
     void clearGroup() {
-        transferFocusUpCycle(); // Otherwise can get unwanted focus events.
+        theBasePanel.transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
         groupDataVector.clear();
         setGroupData(groupDataVector);
-        setLeafChanged(true);
+        setGroupChanged(true);
         theNotePager.reset(1);
     } // end clearGroup
 
@@ -238,12 +246,12 @@ public abstract class NoteGroup extends TreeLeaf {
         if (f.exists() && !f.delete() && f.exists()) {
             (new Exception("File removal exception!")).printStackTrace();
             ems = "Error - unable to remove: " + f.getName();
-            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
+            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } else {
             // System.out.println(f.getName() + " was removed");
-            groupFilename = "";
+//            setGroupFilename("");   //  TODO  Not good, when it is a SearchResultGroup.  Others???
             return true;
         } // end if
     } // end deleteFile
@@ -258,7 +266,6 @@ public abstract class NoteGroup extends TreeLeaf {
     //
     //---------------------------------------------------------------
     boolean editExtendedNoteComponent(NoteData noteData) {
-        final Dimension d = new Dimension();
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
         // Load the enc with the correct data
@@ -271,8 +278,6 @@ public abstract class NoteGroup extends TreeLeaf {
 
         // Preserve initial values, for later comparison to
         //   determine if there was a change.
-//        int origWidth = noteData.getExtendedNoteWidthInt();
-//        int origHeight = noteData.getExtendedNoteHeightInt();
         String origSubject = noteData.getSubjectString();
         String origExtendedString = noteData.getExtendedNoteString();
 
@@ -280,7 +285,7 @@ public abstract class NoteGroup extends TreeLeaf {
         // Present the ExtendedNoteComponent in a dialog
         //---------------------------------------------------------
         int doit = JOptionPane.showConfirmDialog(
-                JOptionPane.getFrameForComponent(this),
+                JOptionPane.getFrameForComponent(theBasePanel),
                 extendedNoteComponent,
                 noteData.getNoteString(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -337,20 +342,6 @@ public abstract class NoteGroup extends TreeLeaf {
 
 
     //--------------------------------------------------------------------
-    // Method Name: getPreferredSize
-    //
-    // This preference is necessary to set a limit of a maximum height value.
-    //   After we add content to the scrollable area of this panel, if the
-    //   height of that content exceeds the limit that we set here then
-    //   the vertical scrollbar will kick in.
-    //--------------------------------------------------------------------
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(super.getPreferredSize().width, 400);
-    } // end getPreferredSize
-
-
-    //--------------------------------------------------------------------
     // Method Name: getProperties
     //
     //  Called by saveGroup - child classes may override and return
@@ -359,6 +350,21 @@ public abstract class NoteGroup extends TreeLeaf {
     protected Object getProperties() {
         return null;
     } // end getProperties
+
+    //----------------------------------------------------------------
+    // Method Name: setGroupChanged
+    //
+    // Called by all contexts that make a change to the data, each
+    //   time a change is made.  Child classes can override if they
+    //   need to intercept a state change, but in that case they
+    //   should still call this super method so that group saving
+    //   is done when needed and menu items are managed correctly.
+    //----------------------------------------------------------------
+    @Override
+    void setGroupChanged(boolean b) {
+        super.setGroupChanged(b);
+        adjustMenuItems(b);
+    } // end setGroupChanged
 
     // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of <my custom class>),
     // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
@@ -406,7 +412,7 @@ public abstract class NoteGroup extends TreeLeaf {
         //   group may be highly variable, and this method may be getting
         //   called after each filename change, even though the group
         //   components themselves remain in place.
-        groupFilename = getLeafFilename();
+        String groupFilename = getGroupFilename();
 
         if (groupFilename.isEmpty()) {
             MemoryBank.debug("No filename is set for: " + this.getClass().getName());
@@ -425,7 +431,7 @@ public abstract class NoteGroup extends TreeLeaf {
             //   saving and if non-empty, the old file is deleted first.  Of
             //   course, if the file already does not exist, we don't want
             //   to let it try to do that.
-            groupFilename = "";
+//            setGroupFilename("");
         }
 
         Exception e = null;
@@ -440,7 +446,7 @@ public abstract class NoteGroup extends TreeLeaf {
             ems = ems + e.toString();
             ems = ems + "\nData file load operation aborted.";
             System.out.println("ems = " + ems);
-            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
+            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
     } // end loadGroup
@@ -459,7 +465,7 @@ public abstract class NoteGroup extends TreeLeaf {
     //-------------------------------------------------------------------
     void loadInterface(int intPageNum) {
         //AppUtil.localDebug(true);
-        boolean currentChangedState = getLeafChanged();
+        boolean currentChangedState = getGroupChanged();
 
         // Set the indexes into the data vector -
         int maxDataIndex = groupDataVector.size() - 1;
@@ -505,8 +511,10 @@ public abstract class NoteGroup extends TreeLeaf {
         if (addNoteAllowed) activateNextNote(lastVisibleNoteIndex);
         MemoryBank.debug("lastVisibleNoteIndex is " + lastVisibleNoteIndex);
 
-        // Each of the 'setNoteData' calls above would have set this to true.
-        setLeafChanged(currentChangedState);
+        // Each of the 'setNoteData' calls above would have set this to true, but this method may
+        // have been called simply to handle a paging event; no real change to the data.  So -
+        // having preserved the original value, we now set it back to that.
+        setGroupChanged(currentChangedState);
 
         //AppUtil.localDebug(false);
     } // end loadInterface
@@ -554,12 +562,11 @@ public abstract class NoteGroup extends TreeLeaf {
     //
     // This should be called prior to closing.
     //----------------------------------------------------------------------
-    @Override
     void preClose() {
         if (null != extendedNoteComponent && null != defaultSubject) {
             extendedNoteComponent.saveSubjects();
         }
-        if (leafChanged) {
+        if (groupChanged) {
             unloadInterface(theNotePager.getCurrentPage());
             saveGroup();
         }
@@ -606,6 +613,7 @@ public abstract class NoteGroup extends TreeLeaf {
     private void saveGroup() {
         //AppUtil.localDebug(true);
         intSaveGroupStatus = ONGOING;
+        String groupFilename = getGroupFilename();
         File f;
 
         // At this point, we may or may not have previously loaded a file
@@ -633,7 +641,7 @@ public abstract class NoteGroup extends TreeLeaf {
         // The name of the file to save to may not always be the same as
         //   the one we previously loaded (or attempted to load).  So, we
         //   let the child NoteGroup set the name of the file to save to.
-        groupFilename = getLeafFilename();
+        groupFilename = getGroupFilename();
         MemoryBank.debug("  Saving NoteGroup data in " + shortName());
 
         // Verify that the path is a valid one.
@@ -705,7 +713,7 @@ public abstract class NoteGroup extends TreeLeaf {
             intSaveGroupStatus = OTHERFAILURE;
         } // end if note
 
-        setLeafChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
+        setGroupChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
         //AppUtil.localDebug(false);
     } // end saveGroup
 
@@ -721,7 +729,7 @@ public abstract class NoteGroup extends TreeLeaf {
     void setMessage(String s) {
         lblStatusMessage.setText("  " + s);
         lblStatusMessage.invalidate();
-        validate();
+        theBasePanel.validate();
     } // end setMessage
 
 
@@ -823,7 +831,7 @@ public abstract class NoteGroup extends TreeLeaf {
     // Returns a short (no path) version of the groupFilename
     // but stops short of 'prettifying' it.
     private String shortName() {
-        String s = groupFilename;
+        String s = getGroupFilename();
         int ix = s.lastIndexOf(File.separatorChar);
         if (ix != -1) s = s.substring(ix + 1);
         return s;
@@ -924,7 +932,7 @@ public abstract class NoteGroup extends TreeLeaf {
         theNotePager.reset(1);
 
         loadGroup();      // Loads the data array and interface.
-        setLeafChanged(false);
+        setGroupChanged(false);
 
         // Also needed AFTER loadGroup, not to set the page number but to set the
         //   total number of pages, which will be shown in the pager control.
@@ -979,6 +987,36 @@ public abstract class NoteGroup extends TreeLeaf {
             } // end if
         } // end compare
     } // end class NoteStringComparator
+
+
+
+    boolean getGroupChanged() {
+        return groupChanged;
+    } // end getGroupChanged
+
+    // The rest was in TreeLeaf - TODO - finalize the hierarchy, put these in the right place(s).
+
+    // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
+    // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
+    protected void adjustMenuItems(boolean b) {
+        if (myListMenu == null) return; // Too soon.  Come back later.
+        MemoryBank.debug("NoteGroup.adjustMenuItems <" + b + ">");
+
+        // And now we adjust the Menu -
+        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
+        if (theUndo != null) theUndo.setEnabled(b);
+        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
+        if (theSave != null) theSave.setEnabled(b);
+    }
+
+    // Not all NoteGroups need to manage enablement of items in their menu but those
+    // that do, all do the same things.  If this ever branches out into different
+    // actions and/or menu items then they can override this and/or adjustMenuItems.
+    void setListMenu(JMenu listMenu) {
+        MemoryBank.debug("TreeLeaf.setListMenu: " + listMenu.getText());
+        myListMenu = listMenu;
+        adjustMenuItems(groupChanged); // set enabled state for 'undo' and 'save'.
+    }
 
 
 } // end class NoteGroup

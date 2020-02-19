@@ -53,7 +53,7 @@ class SearchResultHeaderTest {
             }
         });
 
-        testFrame.getContentPane().add(searchResultGroup);
+        testFrame.getContentPane().add(searchResultGroup.theBasePanel);
         testFrame.pack();
         testFrame.setSize(new Dimension(620, 540));
         testFrame.setVisible(true);

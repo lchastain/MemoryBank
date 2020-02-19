@@ -3,13 +3,14 @@
 
  */
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public abstract class CalendarNoteGroup extends NoteGroup {
-    private static final long serialVersionUID = 1L;
     static String areaName;
+    static String areaPath;
 
     LocalDate theChoice;  // Holds the 'current' date of the displayed Group.
     DateTimeFormatter dtf;
@@ -19,6 +20,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
 
     static {
         areaName = "Years"; // Directory name under user data.
+        areaPath = basePath + areaName + File.separatorChar;
     }
 
     CalendarNoteGroup(String defaultSubject) {
@@ -35,10 +37,6 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     } // end constructor
 
 
-    static String basePath() {
-        return TreeLeaf.basePath(areaName);
-    }
-
     // A NoteGroup does not have a 'choice'; a CalendarNoteGroup does.
     public LocalDate getChoice() {
         return theChoice;
@@ -46,11 +44,11 @@ public abstract class CalendarNoteGroup extends NoteGroup {
 
 
     //------------------------------------------------------
-    // Method Name: getLeafFilename
+    // Method Name: getGroupFilename
     //
     //------------------------------------------------------
     @Override
-    public String getLeafFilename() {
+    public String getGroupFilename() {
         String s;
 
         if (intSaveGroupStatus == ONGOING) {
@@ -64,7 +62,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
             else s = AppUtil.findFilename(theChoice, "Y");
             return s;
         } // end if saving else not saving
-    } // end getLeafFilename
+    } // end getGroupFilename
 
 
     //--------------------------------------------------------------

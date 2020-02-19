@@ -1,30 +1,36 @@
-import java.time.ZonedDateTime;
-import java.util.Vector;
-
-// From the base class -
-// noteString will be used as the Goal statement / title.
-// extendedNoteString will hold the Plan.
 
 public class Goal extends NoteData {
-    private String goalFilename;
-    Vector planSteps;  // discrete tasks, events, notes
+//    private String theGroupFilename;
+
+    // Specific to a Goal -
+    //-----------------------------------------------------------------------------------
+    // NoteData.noteString will be used as the Goal statement / title.
+    // NoteData.extendedNoteString will hold the high-level Plan.
+    // NoteData.noteId will be the ID of the goal
+    // NoteData.linkages will be the list of linkages from other entities to this Goal.
+
     int goalStatus;
-    Vector goalLog;
 
-    static boolean loading = false;
+    static float percentageComplete; // Did some research to consider float vs double.
+    // And the results were inconclusive.  For a percentage with two decimal points we
+    // don't need the extra precision that a double would give, but some argue that all
+    // modern processors are 64-bit so that using only 32 bits would actually take longer.
+    // But then there are others who claim that the 'modern' processors are optimized to
+    // do 32-bit operations when appropriate, so that they are faster.  Decided that I
+    // like that answer but speed isn't the issue here anyway, so the smaller data type
+    // wins out due to being the 'best fit' for the computational need.
+    //-----------------------------------------------------------------------------------
 
-    // We don't call super here because we don't need the UUID
-    public Goal() {
-        if(!loading) {
-            zdtLastModString = ZonedDateTime.now().toString();
-        }
-        clear();
+
+    static {
+        MemoryBank.trace();
+    } // end static
+
+    public Goal(String fname) {
+        super();
+
+
     }
-
-    // base class all that's needed?
-//    void clear() {
-//        goalStatement = "";
-//    } // end clear
 
 
 

@@ -187,8 +187,7 @@ public class TodoNoteComponent extends NoteComponent {
         // TodoNoteData items have a 'slot' for a Subject, but no UI to set one.  So
         // now as it goes over to a DayNote, the Subject will be the name of the list
         // from which this item is being removed.
-        String s = TreeLeaf.prettyName(myNoteGroup.getLeafFilename());
-        myTodoNoteData.setSubjectString(s);
+        myTodoNoteData.setSubjectString(myNoteGroup.prettyName());
 
         // Get the Date to which we will move this item.
         LocalDate moveToDate;
@@ -224,7 +223,7 @@ public class TodoNoteComponent extends NoteComponent {
             clear();  // This creates a 'gap'.
         } else {
             MemoryBank.debug("Move failed");
-            s = "Cannot preserve this item.\n";
+            String s = "Cannot preserve this item.\n";
             s += "Review the error stream for more info.";
             JOptionPane.showMessageDialog(this, s,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -362,7 +361,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (tnd2 == null) this.clear();
         else this.setTodoNoteData(tnd2);
 
-        myNoteGroup.setLeafChanged(true);
+        myNoteGroup.setGroupChanged(true);
     } // end swap
 
     //---------------------------------------------------------
@@ -524,7 +523,7 @@ public class TodoNoteComponent extends NoteComponent {
                 else Priority = myNoteGroup.getMaxPriority();
                 rightClicked = false;
             } // end if
-            myNoteGroup.setLeafChanged(true);
+            myNoteGroup.setGroupChanged(true);
             if (Priority == 0) setText(" ");
             else setText(String.valueOf(Priority));
             myTodoNoteData.setPriority(Priority);
@@ -661,7 +660,7 @@ public class TodoNoteComponent extends NoteComponent {
             //  This allows several 'clicks' to occur but no required list save,
             //  as long as the user leaves the status where they found it.
             if (theOriginalStatus != myTodoNoteData.getStatus()) {
-                myNoteGroup.setLeafChanged(true);
+                myNoteGroup.setGroupChanged(true);
             } // end if
         } // end mouseExited
 
@@ -702,7 +701,7 @@ public class TodoNoteComponent extends NoteComponent {
                     System.out.println(s);
                     break;
             }
-            tnc.myNoteGroup.setLeafChanged(true);
+            tnc.myNoteGroup.setGroupChanged(true);
         } // end actionPerformed
     } // end class PopHandler
 

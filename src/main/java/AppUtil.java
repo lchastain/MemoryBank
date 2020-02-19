@@ -37,7 +37,8 @@ public class AppUtil {
         // and the day integers from 0-30 to 1-31
 
         // System.out.println("Searching for data in the year: " + year);
-        String FileName = CalendarNoteGroup.basePath() + year;
+//        String FileName = CalendarNoteGroup.basePath() + year;
+        String FileName = CalendarNoteGroup.areaPath + year;
         MemoryBank.debug("Looking in " + FileName);
 
         String[] foundFiles = null;
@@ -75,7 +76,7 @@ public class AppUtil {
     static String findFilename(LocalDate theDate, String dateType) {
         String[] foundFiles = null;
         String lookfor = dateType;
-        String fileName = CalendarNoteGroup.basePath();
+        String fileName = CalendarNoteGroup.areaPath;
         fileName += String.valueOf(theDate.getYear());
 
         // System.out.println("Looking in " + fileName);
@@ -117,7 +118,7 @@ public class AppUtil {
             // data elements do each have their LMDs, and each 'prefix' is unique to the
             // containing 'year' directory, so what is the value-added, anyway?
             // Think about it...
-            fileName = CalendarNoteGroup.basePath();
+            fileName = CalendarNoteGroup.areaPath;
             fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
             fileName += File.separatorChar;
             fileName += foundFiles[foundFiles.length - 1];
@@ -489,7 +490,7 @@ public class AppUtil {
     // over there, since this method (and findFilename) is their only 'client'.
     // -----------------------------------------------------------------
     static String makeFilename(LocalDate localDate, String noteType) {
-        StringBuilder filename = new StringBuilder(CalendarNoteGroup.basePath());
+        StringBuilder filename = new StringBuilder(CalendarNoteGroup.areaPath);
         filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
         filename.append(File.separatorChar);
         filename.append(noteType);

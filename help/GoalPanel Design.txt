@@ -1,0 +1,28 @@
+There can be multiple goals active in the app at any given time.
+
+Goals will be accessible under the expandable tree node 'Goals'
+
+The Panel
+    A NoteGroup (default Layout manager is BorderLayout)
+
+Data is:
+String - filename
+NoteData -
+    ID
+    Statement  (one-liner)
+    Plan (text area)
+    Linkages
+
+=======================================
+still thinking on these...
+
+status (dropdown, cycling icons like a todo item?)
+
+
+notes, milestones and roadblocks (list)
+    items that have been linked to this goal.
+    each item also gets a status ?
+
+change log
+
+

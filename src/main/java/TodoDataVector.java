@@ -2,7 +2,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Vector;
 
-public class TodoDataVector extends NoteDataVector {
+public class TodoDataVector extends DataVector {
 
     public TodoDataVector(Object theData) {
         NoteData.loading = true; // We don't want to affect the lastModDates!

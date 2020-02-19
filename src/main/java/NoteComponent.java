@@ -133,7 +133,7 @@ public class NoteComponent extends JPanel {
 
         // Notify the NoteGroup
         System.out.println("NoteComponent.clear, calling myNoteGroup.setGroupChanged!"); // scr0050 troubleshooting.
-        myNoteGroup.setLeafChanged(true);  // Ensure a group 'save'
+        myNoteGroup.setGroupChanged(true);  // Ensure a group 'save'
 
         // Reset our own state and prepare this component to be reused -
         initialized = false;
@@ -330,7 +330,7 @@ public class NoteComponent extends JPanel {
 
 
     public void setNoteChanged() {
-        myNoteGroup.setLeafChanged(true);
+        myNoteGroup.setGroupChanged(true);
     } // end setNoteChanged
 
 
@@ -399,7 +399,7 @@ public class NoteComponent extends JPanel {
 
         System.out.println("NoteComponent.swap");
 
-        myNoteGroup.setLeafChanged(true);
+        myNoteGroup.setGroupChanged(true);
     } // end swap
 
     //---------------------------------------------------------

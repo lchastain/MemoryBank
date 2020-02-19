@@ -1,37 +1,48 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.ArrayList;
 
 public class GoalPanel extends NoteGroup {
-    private static final long serialVersionUID = 1L;
-    private String goalFileName;
+    private static Logger log = LoggerFactory.getLogger(GoalPanel.class);
     static String areaName;
+    static String areaPath;
+    static String filePrefix;
     private JList<String> lstGoals;
     // End of variables declaration
 
     static {
         areaName = "Goals"; // Directory name under user data.
+        areaPath = MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
+        filePrefix = "goal_";
         MemoryBank.trace();
     } // end static
 
     public GoalPanel(String fname) {
         super();
 
-        MemoryBank.debug("Constructing: " + getName());
+        // Store our simple list name.
+        setName(fname);
+        log.debug("Constructing: " + getName());
 
-        goalFileName = basePath(areaName) + "goal_" + fname + ".json";
+        setGroupFilename(areaPath + filePrefix + fname + ".json");
+
+
         saveWithoutData = true;
         updateGroup();
 
         buildPanelContent();
-        this.setVisible(true);
+//        this.setVisible(true);
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
-        setLayout(new BorderLayout());
+        theBasePanel.setLayout(new BorderLayout());
 
         JLabel goalTitleText = new JLabel("Get a degree in Engineering");
         goalTitleText.setHorizontalAlignment(JLabel.CENTER);
@@ -57,7 +68,7 @@ public class GoalPanel extends NoteGroup {
         JButton jButton1 = new JButton();
         JButton jButton2 = new JButton();
         JButton jButton3 = new JButton();
-        JPanel contentPane = this.getContentPane();
+        JPanel contentPane = theBasePanel;
 
         // 
         // jLabel1 
@@ -101,8 +112,8 @@ public class GoalPanel extends NoteGroup {
         //
         // GoalPanel
         // 
-        this.setLocation(new Point(0, 0));
-        this.setSize(new Dimension(478, 270));
+        theBasePanel.setLocation(new Point(0, 0));
+        theBasePanel.setSize(new Dimension(478, 270));
     }// end buildPanelContent
 
 
@@ -112,12 +123,6 @@ public class GoalPanel extends NoteGroup {
     private void addComponent(Container container, Component c, int x, int y, int width, int height) {
         c.setBounds(x, y, width, height);
         container.add(c);
-    }
-
-
-    // This method is only here to 'fool' JFramebuilder-generated code.
-    public JPanel getContentPane() {
-        return GoalPanel.this;
     }
 
 
@@ -145,8 +150,4 @@ public class GoalPanel extends NoteGroup {
         System.out.println("\njButton3_actionPerformed(ActionEvent e) called.");
     }
 
-    @Override
-    public String getLeafFilename() {
-        return goalFileName;
-    }
 }

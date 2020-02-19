@@ -78,7 +78,6 @@ public interface BranchHelperInterface {
         //   method, the AppTreePanel handles that situation by simply opening it, a
         //   kind of back-door selection of the existing list.
 
-
         // Note - I thought it would be a good idea to check for 'illegal'
         //   characters in the filename, but when I started testing, the
         //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
@@ -86,8 +85,6 @@ public interface BranchHelperInterface {
         //   still be illegal on another OS.  So, the best way to
         //   detect them is to try to create a file using the name we're
         //   checking.  Any io error and we can fail this check.
-
-
 
         // Now try to create the file, with an additional '.test' extension.  This will not
         // conflict with any 'legal' existing file in the directory, so if there is any

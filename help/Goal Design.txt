@@ -1,48 +1,37 @@
-There can be multiple goals active in the app at any given time.
-Goals will be accessible via the tree node 'Goals'
 
 Goal data:
 ====================================================================
 Short name - the filename of the data file, after 'goal_'
-Last Mod Date - when text or associated list(s) change
-Title Line - single line of text beyond the short name, descriptive of the goal
-The plan - shown in a TextArea
-    Textual description of what needs to be done.
-A series of steps, in the right order if order matters
-      A step can be an associated NoteGroup or an item from a NoteGroup.  (except SearchResults)
-      A step will have a status
 
+NoteData, containing:
+    ID
+    Last Mod Date - when text or associated list(s) change
+    noteString - Title Line - single line of text beyond the short name, descriptive of the goal
+    extendedNoteString - The plan - textual description of what needs to be done.
+    linkages - a list of every other note that is linked to this goal
 
-Current status (applies to both the overall plan and single steps)
+Current Goal status
     Scheduled
         on track, ahead, behind
-    stalled
-    working
-    etc.
+        stalled
+        working
+        waiting
+          other?
 
-ChangeLog    (not sure how to use this, but possibly optional add-in when reviewing Log)
-    linkages / unlinkages
-    text change
-    status change
+Percentage complete would be calculated; a static member.
 
+====================================================================
+Linkage:
+    A link can exist between a Goal and other NoteGroups or NoteData items.  A link can have a status.
+    A goal will contain (and display) a list of all its linkages, in the right order if order matters.
+    Filters that can be applied to the linkages list:
+        ALL
+        completed progress/activity     shows your progress so far
+        in-progress/next/upcoming/todo  what needs to happen next.
 
 ====================================================================
 
-Associate an entire TodoNoteGroup, or a single todo item
-Associate an entire Event category, or a single event
-Associate an entire DayNoteGroup, or a single entry
-Associate an entire MonthNoteGroup, or a single entry
-Associate an entire YearNoteGroup, or a single entry
-
-Linkages should be stored with the goal.  If the goal goes away, no effect on the target.
-if a linked list or item goes away - update the goal with the note that it went away.
-The update may not happen until the goal checks on the linkage, possibly with an 'update'
-button.
-
-during a merge - two identical todo items but one is linked, another is not.
-they would have different IDs...
-
-a todo item could be linked to more than one goal
+A todo item can be linked to more than one goal
 
 a menu selection called 'filter', which then removes (temporarily, from the app view) all NoteGroups that are not
 linked or do not have a linked item.
@@ -59,14 +48,57 @@ linked or do not have a linked item.
 To tie Notes to a goal we finally begin to use the note ID.  A linkage will be the combination of
 which notegroup, and the note ID.  If it is to the group itself then the note ID can be null.
 
-Decided NOT to use subjects for goal linkages because they have other uses but we can only have one subject.
-  What if a movie you saw (Subject Movies) was also an accomplished step on a Stephen King goal?
-  (to see/read ALL SK material) - you could not have two subjects.
+==========================================================================================================
+Considered and rejected:
+
+1.  Using subjects for linking a NoteData to a Goal -
+    Because a NoteData has only one subject.
+    What if a movie you saw (Subject Movies) was also an accomplished step on a goal?
+    (perhaps a research project, proposed goal/subject 'Research') - you cannot have two subjects.
+
+2.  Keeping a most-recent-first log of user-entered and edited notes on the goal -
+    The user would have entry/edit capability already, via linkages from the NoteGroup items.  Better to keep the
+        links as shown in the goal as non user-editable.
+    As for showing the list - sorting and filtering can be done on the linkages.  The user will still have the
+        ability to manually sort them.
+
+3.  Keeping Plan Steps as a discrete, low-level list
+    Because discrete steps can be too much like todo list items.  Instead, 'the plan' is only a high-level textual
+        statement (extended text), and any step-like todo list items, events, or notes will come into the goal
+        via a linkage.
+
+4.  For ease of storage, retrieval and display, limit the number of linkages
+    A.  From a single NoteData - Yes.  Will keep this, also to head off possible mal-usage of the link capability.
+        Ten is the initial thought; manageable via a popup dialog (JOPtionPane).
+    B.  To a Goal  - No.  What if a goal has been long-running over a period of years?  There is no good
+        or reasonable value to which a limit should be set.
+
+5.  ChangeLog
+        linkages / unlinkages
+        text change
+        status change
+    This would actually apply to ALL NoteGroups, if we would implement it.  But right now it is too big of a task
+        to just add in to this one.  Future dev, to apply to ALL groups, IF the user has paid for this add-on
+        service.  Otherwise too costly for processing overhead, storage, and would need a paging UI to be able to
+        review and search for specific LMDs.
 
 
 
 
+==========================================================================================================
+Not yet handled:
 
+During a merge - two identical todo items but one is linked, another is not.
+they would have different IDs...
+
+A linked todo item is moved to a DayNote, or copied somewhere.
+
+If the goal goes away...
+if a linked list or item goes away - update the goal with the note that it went away.
+The update may not happen until the goal checks on the linkage, possibly with an 'update'
+button.
+
+Link status choices same as Goal statuses?
 
 
 

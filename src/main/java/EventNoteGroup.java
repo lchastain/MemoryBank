@@ -17,7 +17,6 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 
 public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelection {
-    private static final long serialVersionUID = 1L;
     private static Logger log = LoggerFactory.getLogger(EventNoteGroup.class);
 
     // Notes on the implemented interfaces:
@@ -41,10 +40,12 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     private EventHeader theHeader;
     private EventNoteComponent eventNoteComponent;
     static String areaName;
-    private static String filePrefix;
+    static String areaPath;
+    static String filePrefix;
 
     static {
         areaName = "UpcomingEvents"; // Directory name under user data.
+        areaPath = basePath + areaName + File.separatorChar;
         filePrefix = "event_";
         eventNoteDefaults = EventNoteDefaults.load();
 
@@ -67,7 +68,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         setName(groupName.trim());
         MemoryBank.debug("Constructing: " + getName());
 
-        theGroupFilename = basePath() + filePrefix + groupName + ".json";
+        theGroupFilename = areaPath + filePrefix + groupName + ".json";
         saveWithoutData = true;
 
         eventNoteComponent = null;
@@ -170,19 +171,15 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //  Just clearing DATA (above) does not set noteChanged (nor should it,
         //    because that data may not even be loaded into a component).
         //  So since we can't go that route to a groupChanged, just do it explicitly.
-        if (blnAnEventWasAged) setLeafChanged(true);
+        if (blnAnEventWasAged) setGroupChanged(true);
         // AppUtil.localDebug(false);
         return blnAnEventWasAged;
     } // end ageEvents
 
 
-    static String basePath() {
-        return TreeLeaf.basePath(areaName);
-    }
-
     private File chooseMergeFile() {
-        File dataDir = new File(basePath());
-        String myName = prettyName(theGroupFilename);
+        File dataDir = new File(areaPath);
+        String myName = getName(); // two usages below; this way the method is only called once.
 
         // Get the complete list of Upcoming Event filenames, except this one.
         String[] theFileList = dataDir.list(
@@ -192,7 +189,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
                     // operation contain directories.
                     public boolean accept(File f, String s) {
                         if (myName.equals(prettyName(s))) return false;
-                        return s.startsWith("event_");
+                        return s.startsWith(filePrefix);
                     }
                 }
         );
@@ -211,12 +208,12 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         String message = "Choose an Event group to merge with " + myName;
         String title = "Merge Event Groups";
-        String theChoice = optionPane.showInputDialog(this, message,
+        String theChoice = optionPane.showInputDialog(theBasePanel, message,
                 title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
 
         System.out.println("The choice is: " + theChoice);
         if (theChoice == null) return null;
-        return new File(basePath() + "event_" + theChoice + ".json");
+        return new File(areaPath + "event_" + theChoice + ".json");
     } // end chooseMergeFile
 
     //-------------------------------------------------------------
@@ -324,7 +321,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         ((EventEditorPanel) extendedNoteComponent).showTheData(eventNoteData);
 
         int doit = optionPane.showConfirmDialog(
-                JOptionPane.getFrameForComponent(this),
+                JOptionPane.getFrameForComponent(theBasePanel),
                 extendedNoteComponent,
                 noteData.getNoteString(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -337,7 +334,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         // We don't know for sure that something changed, but since the edit was not cancelled
         // we will assume that there were changes, and indicate that a save group is needed.
-        setLeafChanged(true);
+        setGroupChanged(true);
 
         return true;
     } // end editExtendedNoteComponent
@@ -347,12 +344,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         return defaultIcon;
     }
 
-    public String getLeafFilename() { return theGroupFilename; }
-
-    // Returns the path + filename for a given Event group name.
-    static String getGroupFilename(String groupName) {
-        return basePath() + filePrefix + groupName + ".json";
-    }
+    public String getGroupFilename() { return theGroupFilename; }
 
 
     // -------------------------------------------------------------------
@@ -386,7 +378,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
         setGroupData(groupDataVector);
-        setLeafChanged(true);
+        setGroupChanged(true);
     } // end merge
 
     //----------------------------------------------------------------------
@@ -423,7 +415,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     // then if ok, saves the file with that name.
     //-----------------------------------------------------------------
     boolean saveAs() {
-        Frame theFrame = JOptionPane.getFrameForComponent(this);
+        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
 
         String thePrompt = "Please enter the new group name";
         int q = JOptionPane.QUESTION_MESSAGE;
@@ -435,7 +427,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, basePath());
+        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -474,7 +466,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = basePath() + "event_" + newName + ".json";
+        String newFilename = areaPath + filePrefix + newName + ".json";
         if ((new File(newFilename)).exists()) {
             ems = "A group named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
@@ -515,7 +507,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         defaultIcon = li;
         eventNoteDefaults.defaultIconFileName = li.getDescription();
         eventNoteDefaults.save();
-        setLeafChanged(true);
+        setGroupChanged(true);
         preClose();
         updateGroup();
     }// end setDefaultIcon
@@ -528,9 +520,9 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     // is responsible for providing a valid name; no checking done here.
     //-----------------------------------------------------------------
     private void setFileName(String fname) {
-        theGroupFilename = basePath() + "event_" + fname.trim() + ".json";
+        theGroupFilename = areaPath + filePrefix + fname.trim() + ".json";
         setName(fname.trim());  // Keep the 'pretty' name in the component.
-        setLeafChanged(true);
+        setGroupChanged(true);
     } // end setFileName
 
 
@@ -542,9 +534,9 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     }
 
     @Override
-    void setLeafChanged(boolean b) {
-        if(getLeafChanged() == b) return; // No change
-        super.setLeafChanged(b);
+    void setGroupChanged(boolean b) {
+        if(getGroupChanged() == b) return; // No change
+        super.setGroupChanged(b);
     } // end setGroupChanged
 
     // Used by test methods

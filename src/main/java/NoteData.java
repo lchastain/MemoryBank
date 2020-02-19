@@ -51,6 +51,7 @@ class NoteData {
         subjectString = null;  // null, not "".
 
         extendedNoteString = "";
+        linkages = new ArrayList<>();
     } // end clear
 
     // A copy constructor cannot be called in a class-unspecified manner;

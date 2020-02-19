@@ -6,30 +6,30 @@ import java.io.File;
 import java.util.Vector;
 
 public class SearchResultGroup extends NoteGroup {
-    private static final long serialVersionUID = 1L;
-
     private JLabel resultsPageOf;
     SearchResultHeader listHeader;
 
-    private String theGroupFilename;
     static String areaName;
+    static String areaPath;
+    static String filePrefix;
 
     // This is saved/loaded
     public SearchResultGroupProperties myVars; // Variables - flags and settings
 
     static {
         areaName = "SearchResults";  // Directory name under user data.
+        areaPath = basePath + areaName + File.separatorChar;
+        filePrefix = "search_";
     }
 
-    // The File Name (fname) may be either a simple single word text as seen in the app tree,
-    // or it could be the full-blown path specifier including the .json extension.
+    // The File Name (fname) is a simple single word text as seen in the app tree.
     SearchResultGroup(String fname) {
         super();
         // super(10);  // test, for paging
 
         addNoteAllowed = false;
 
-        theGroupFilename = basePath() + "search_" + fname + ".json";
+        setGroupFilename(areaPath + filePrefix + fname + ".json");
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
         checkColumnOrder();
@@ -53,7 +53,7 @@ public class SearchResultGroup extends NoteGroup {
         resultsTitle.setHorizontalAlignment(JLabel.CENTER);
         resultsTitle.setForeground(Color.white);
         resultsTitle.setFont(Font.decode("Serif-bold-20"));
-        resultsTitle.setText(prettyName(fname));
+        resultsTitle.setText(fname);
 
         // Set the pager's background to the same color as this row,
         //   since other items on this row make it slightly 'higher'
@@ -91,10 +91,6 @@ public class SearchResultGroup extends NoteGroup {
         add(heading, BorderLayout.NORTH);
     } // end constructor
 
-    private static String basePath() {
-        return TreeLeaf.basePath(areaName);
-    }
-
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
     //
@@ -116,11 +112,6 @@ public class SearchResultGroup extends NoteGroup {
         } // end for
     } // end checkColumnOrder
 
-    @Override
-    public String getLeafFilename() {
-        return theGroupFilename;
-    }// end getLeafFilename
-
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
@@ -137,7 +128,7 @@ public class SearchResultGroup extends NoteGroup {
     // Method Name: getProperties
     //
     //  Called by saveGroup.
-    //  Returns an actual object, vs the overriden method
+    //  Returns an actual object, vs the overridden method
     //    in the base class that returns a null.
     //--------------------------------------------------------------
     protected Object getProperties() {
@@ -190,50 +181,6 @@ public class SearchResultGroup extends NoteGroup {
         saveProperties();
         super.preClose();
     }
-
-    //-----------------------------------------------------------------
-    // Method Name:  prettyName
-    //
-    // A formatter for a filename specifier - drop off the path
-    //   prefix and/or trailing '.json', if present.
-    //-----------------------------------------------------------------
-    public static String prettyName(String longName) {
-        int i;
-        String newName = longName;
-
-        // The offset of +8 into the final part of the
-        // pathname will not only get us past the
-        // separator char but also past the 'search_'.
-        i = longName.lastIndexOf(File.separatorChar);
-        if (i != -1) {
-            newName = longName.substring(i + 8);
-        } // end if
-
-        // Even though a Windows path separator char should be a
-        //   backslash, in Java a forward slash is often also
-        //   accepted, so the following section might
-        //   occasionally be needed.  (But HOW?  I'm the only
-        //   one coding here, and no one is entering file
-        //   paths, just search names and we don't even support
-        //   that, yet.  So maybe they will put a slash into
-        //   an as-yet unsupported search name?  This is
-        //   overkill - you should disallow that at time of
-        //   input, if it ever happens, and have a verifier at
-        //   any other point of (possibly automated) entry.
-        //   So this code is effectively useless and should
-        //   be removed.  Noted 9/8/2019 - remove after next
-        //   commit).
-        i = newName.lastIndexOf("/");
-        if (i != -1) {
-            newName = newName.substring(i + 8);
-        } // end if
-
-        // Drop the suffix
-        i = newName.lastIndexOf(".json");
-        if (i == -1) return newName;
-        return newName.substring(0, i);
-    } // end prettyName
-
 
     // Disabled this 9/03/2019 so that it does not pull down code coverage for tests.
     // But it appears to have never been used - there was no menu item leading here.

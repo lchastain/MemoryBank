@@ -19,7 +19,7 @@ public class TodoNoteGroupMain {
             }
         });
 
-        testFrame.getContentPane().add(todoNoteGroup, "Center");
+        testFrame.getContentPane().add(todoNoteGroup.theBasePanel, "Center");
         testFrame.pack();
         testFrame.setSize(new Dimension(650, 550));
         testFrame.setVisible(true);

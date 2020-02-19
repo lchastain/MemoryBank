@@ -3,19 +3,18 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class YearNoteGroupMain {
+public class GoalPanelMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("g01@doughmain.net");
 
-        JFrame testFrame = new JFrame("YearNoteGroup Driver");
+        JFrame testFrame = new JFrame("Goal Panel Driver");
 
-        YearNoteGroup yng = new YearNoteGroup();
+        GoalPanel theGoalPanel = new GoalPanel("finances");
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                System.out.println("MonthNoteGroup selection choice is: " + yng.getChoice());
                 System.exit(0);
             }
         });
@@ -26,11 +25,11 @@ public class YearNoteGroupMain {
             UIManager.setLookAndFeel(laf);
         } catch (Exception ignored) {
         }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(yng.theBasePanel);
+        SwingUtilities.updateComponentTreeUI(theGoalPanel.theBasePanel);
 
-        testFrame.getContentPane().add(yng.theBasePanel, "Center");
+        testFrame.getContentPane().add(theGoalPanel.theBasePanel, "Center");
         testFrame.pack();
-        testFrame.setSize(new Dimension(600, 500));
+        testFrame.setSize(new Dimension(540, 450));
         testFrame.setVisible(true);
         testFrame.setLocationRelativeTo(null);
     }

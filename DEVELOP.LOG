@@ -1,9 +1,44 @@
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
 Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
 Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
 
+
+2/19/2020 0747 - Finished getting the JPanel out of the NoteGroup hierarchy, and
+  making it a child of the new DataGroup, that currently only handles filenames
+  and paths.  Meanwhile the Goal design has continued to evolve, and the
+  GoalPanel can become a new type of NoteGroup.  GoalPanel design now looks a
+  lot like a predetermined SearchResult but that's ok, I think.  Goals may need
+  to come off of the SearchPanel, since the idea is to just put linked notes
+  directly into the GoalPanel.  More on that in terms of keeping them updated-
+  later.  Tests all repaired but coverage went down some, what with some new
+  classes - 98% classes, 75% lines.  Now - will check in code to preserve all
+  the structural changes and keep them separate of upcoming Goal development.
+
+2/16/2020 0756 - The new TreeLeaf class was too much like the NoteGroup; just a separation of
+  some of the powers, while not well supporting the need to separate data from representation
+  that I am still trying to do with Goals.  So serialization had serious issues, and TreeLeaf
+  needed to come back out, at least in its original form and it also didn't work well as an
+  interface, although some interface may be the answer to how to have NoteGroups mixed in with
+  other Leaf types.  Resolving this first, before getting back to Goal serialization.
+ 1137 - One of the biggest problems with getting representation separated of a NoteGroup, is that
+  NoteGroup extends JPanel.  It shouldn't.  If it didn't then it could instead extend from my own
+  class(es), that deal with data and not panels.
+
+2/15/2020 0821 - Well the first attempt did NOT work well; a Linkage cannot extend a NoteData,
+  at least not while NoteData now includes a linkages list, and I'm still hoping to keep that.
+  Goal data definition continues to harden / evolve, and the .txt files on design are keeping
+  in sync.  But one significant evolving issue is the separation of data from panel, in a
+  NoteGroup, with Goal being the first to go there but this may reflect back through ALL of
+  them, just like it did when TreeLeaf was recently inserted into the root of that same hierarchy.
+  Now I envision a NoteGroupPenel being constructed with a Group instance that is effectively its
+  data only, and the class for that data being constructed with the filename.  Still working this
+  out while not yet knowing how to handle the list of linkages in terms of load/save/display and
+  reorder, given that they cannot directly inherit from NoteData.  The intermediate NoteComponent
+  class may be the answer, if the one for a Goal can be constructed from a Link.  Working on it.
+
 2/12/2020 0808 - Data fix was written, and works.  So while keeping that one (hidden), went
   ahead and removed the earlier four and the archived 'export' folder.  Also moved all the
-  CalendarNoteGroup type data into its own folder (Years), similar to other NoteGroups.
+  CalendarNoteGroup type data into its own folder (Years), similar to data for other NoteGroups.
   Next up:  populate a 'linkages' list with at least one linkage, and verify that it will
   save and reload properly.  Then - on with Goals.
 

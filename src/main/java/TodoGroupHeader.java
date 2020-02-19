@@ -75,7 +75,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         int origColumnOrder = parent.myVars.columnOrder;
         if (getColumnOrder() != origColumnOrder) {
             parent.myVars.columnOrder = getColumnOrder();
-            parent.setLeafChanged(true);
+            parent.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }
     } // end doLayout
@@ -229,7 +229,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
 //                    break;
             }
 
-            parent.setLeafChanged(true);
+            parent.setGroupChanged(true);
             AppTreePanel.showWorkingDialog(false);
         } // end doSorting
 
@@ -255,7 +255,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
             if (columnName.equals(s1)) return; // No difference
             if (columnName.equals("")) columnName = s2; // reset value
-            parent.setLeafChanged(true);
+            parent.setGroupChanged(true);
 
             setText(columnName);
         } // end doUserHeader

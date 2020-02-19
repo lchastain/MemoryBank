@@ -39,7 +39,7 @@ class BranchHelperTest {
 
     @BeforeEach
     void setUp() {
-        LeafKeeper theSearchResultsKeeper = new LeafKeeper();
+        DataGroupKeeper theSearchResultsKeeper = new DataGroupKeeper();
         DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
         searches = new DefaultMutableTreeNode("Search Results");
         trunk.add(searches);

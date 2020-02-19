@@ -72,7 +72,7 @@ public class DragAndDropTests {
             }
         });
 
-        testFrame.getContentPane().add(todoNoteGroup);
+        testFrame.getContentPane().add(todoNoteGroup.theBasePanel);
         testFrame.pack();
         testFrame.setSize(new Dimension(620, 540));
         testFrame.setVisible(true);
@@ -128,7 +128,7 @@ public class DragAndDropTests {
             }
         });
 
-        testFrame.getContentPane().add(searchResultGroup);
+        testFrame.getContentPane().add(searchResultGroup.theBasePanel);
         testFrame.pack();
         testFrame.setSize(new Dimension(620, 540));
         testFrame.setVisible(true);

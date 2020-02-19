@@ -61,9 +61,9 @@ C:\Dropbox\Memory Bank Archives - Most recent archive snapshots; these may event
 C:\Users\Lee\workspace\Memory Bank - current development
 
 
-Version numbers of the apps reset back down to 0.2 when the name changed to Memory Bank.
+Version numbers of the apps were reset back down to 0.2 when the name changed to Memory Bank.
 They did not go all the way back down to 0.1 because that was set aside to acknowledge
-the growth from the earlier-named apps.
+the growth from the earlier-named apps, primarily the stand-alone ToDo List.
 
 Descriptions of recent versions (find the repo for these in the lists above):
 ==========================================================================================================
@@ -99,6 +99,10 @@ Ver.    Notes
         <date - current work, not archived>
         Restored an ID to NoteData
         Goals became a branch, vs leaf/placeholder
+        Inserted new DataGroup class as an ancestor of NoteGroup, made 'Panel' a data member vs a 'this'
+        Reworked the groupFilename settings for consistency, now located in DataGroup.
+            New static variables basePath, areaName, areaPath.  No more direct setting for
+              groupFilename; it is a private member, with getter/setter.
 
 
 

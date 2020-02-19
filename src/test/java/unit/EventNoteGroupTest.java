@@ -56,7 +56,7 @@ class EventNoteGroupTest {
 
     @Test
     void testGetGroupFilename() {
-        String theFileName = eventNoteGroup.getLeafFilename();
+        String theFileName = eventNoteGroup.getGroupFilename();
         Assertions.assertNotNull(theFileName);
     }
 

@@ -26,9 +26,9 @@ public class MonthNoteGroupMain {
             UIManager.setLookAndFeel(laf);
         } catch (Exception ignored) {
         }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(mng);
+        SwingUtilities.updateComponentTreeUI(mng.theBasePanel);
 
-        testFrame.getContentPane().add(mng, "Center");
+        testFrame.getContentPane().add(mng.theBasePanel, "Center");
         testFrame.pack();
         testFrame.setSize(new Dimension(600, 500));
         testFrame.setVisible(true);

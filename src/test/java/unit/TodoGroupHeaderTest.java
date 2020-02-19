@@ -58,7 +58,7 @@ class TodoGroupHeaderTest {
             }
         });
 
-        testFrame.getContentPane().add(todoNoteGroup);
+        testFrame.getContentPane().add(todoNoteGroup.theBasePanel);
         testFrame.pack();
         testFrame.setSize(new Dimension(620, 540));
         testFrame.setVisible(true);

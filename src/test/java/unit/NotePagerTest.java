@@ -38,12 +38,12 @@ class NotePagerTest {
         // Retrieve fresh test data from test resources.
         // We don't want a full set of data for these tests; just two Todo lists.
         String fileName = "todo_Long List.json";
-        File newname = new File(TodoNoteGroup.basePath() + fileName);
+        File newname = new File(TodoNoteGroup.areaPath + fileName);
         File testFile = FileUtils.toFile(TodoNoteGroup.class.getResource("NotePagerTest" + File.separatorChar + fileName));
         FileUtils.copyFile(testFile, newname);
 
         fileName = "todo_PageRollover.json";
-        newname = new File(TodoNoteGroup.basePath() + fileName);
+        newname = new File(TodoNoteGroup.areaPath + fileName);
         testFile = FileUtils.toFile(TodoNoteGroup.class.getResource("NotePagerTest" + File.separatorChar + fileName));
         FileUtils.copyFile(testFile, newname);
     }

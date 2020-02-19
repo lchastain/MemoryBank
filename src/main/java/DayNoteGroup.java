@@ -220,7 +220,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
         dayNoteDefaults.defaultIconFileName = li.getDescription();
-        setLeafChanged(true);
+        setGroupChanged(true);
         preClose();
         updateGroup();
     } // end setDefaultIcon
@@ -267,7 +267,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             getNoteComponent(i).resetTimeLabel();
         } // end for i
-        setLeafChanged(true);
+        setGroupChanged(true);
     } // end toggleMilitary
 
     //--------------------------------------------------------------
