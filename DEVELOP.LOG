@@ -1,14 +1,13 @@
 12345678901234567890123456789012345678901234567890123456789012345678901234567890
-Development notes for MemoryBank - record of issues and accomplishments (not comprehensive).
-Earlier DESIGN DECISIONs are below but current ones are now kept separately, in the WW project.
+Development notes for MemoryBank - record of issues and accomplishments.
+Not comprehensive.
 
-
-2/19/2020 0747 - Finished getting the JPanel out of the NoteGroup hierarchy, and
-  making it a child of the new DataGroup, that currently only handles filenames
-  and paths.  Meanwhile the Goal design has continued to evolve, and the
-  GoalPanel can become a new type of NoteGroup.  GoalPanel design now looks a
-  lot like a predetermined SearchResult but that's ok, I think.  Goals may need
-  to come off of the SearchPanel, since the idea is to just put linked notes
+2/19/2020 0747 - Finished getting the JPanel out of the NoteGroup hierarchy,
+  and making it a child of the new DataGroup, that currently only handles
+  filenames and paths.  Meanwhile the Goal design has continued to evolve, and
+  the GoalPanel can become a new type of NoteGroup.  GoalPanel design now looks
+  a lot like a predetermined SearchResult but that's ok, I think.  Goals may
+  need to come off of the SearchPanel, since the idea is to just put linked notes
   directly into the GoalPanel.  More on that in terms of keeping them updated-
   later.  Tests all repaired but coverage went down some, what with some new
   classes - 98% classes, 75% lines.  Now - will check in code to preserve all

@@ -56,6 +56,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
     static JDialog theWorkingDialog;
     private NoteGroup theNoteGroup; // A reference to the current selection
+    private NoteGroup deletedNoteGroup;
     private GoalPanel theGoalPanel;
     DayNoteGroup theAppDays;
     MonthNoteGroup theAppMonths;
@@ -551,6 +552,50 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         return newRoot;
     }
 
+    // Delete the data file for this group.
+    // This method is provided as a more direct route to file deletion than going thru
+    // the BranchHelper.  This section of the code is similar to what is done there,
+    // except that we don't remove it from the DataGroupKeeper.  This will allow for
+    // an 'undo', if desired.
+    private void deleteGroup() {
+        // They get one warning..
+        String deleteWarning;
+        boolean doDelete;
+        deleteWarning = "Are you sure?" + System.lineSeparator();
+        deleteWarning += "This deletion may be undone (via the menu option) but only while still on this Editor.";
+        doDelete = optionPane.showConfirmDialog(theTree, deleteWarning,
+                "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        if(!doDelete) return;
+
+        // Preserve the reference to the group to be deleted.
+        deletedNoteGroup = theNoteGroup;
+
+        // First - we need to close the group.
+        closeGroup(); // This will change the selection and null out 'theNoteGroup'.
+
+        // Now delete the file
+        String deleteFile = deletedNoteGroup.getGroupFilename();
+        MemoryBank.debug("Deleting " + deleteFile);
+        try {
+            if (!(new File(deleteFile)).delete()) { // Delete the file.
+                throw new Exception("Unable to delete " + deleteFile);
+            } // end if
+        } catch (Exception se) {
+            MemoryBank.debug(se.getMessage());
+        } // end try/catch
+
+        // Now make sure that the group will not be saved upon app exit.
+        // That could happen because it is still being held in its DataGroupKeeper.
+        deletedNoteGroup.setGroupChanged(false);
+
+        // And finally, give the user an 'undo' capability.  This will be a one-time,
+        //   one file only option.  Upon deletion they will have gone back to the
+        //   Branch Editor.  If they then go on to some other list, the 'undo' menu
+        //   option goes away.
+        appMenuBar.showRestoreOption(true);
+        appMenuBar.manageMenus(appMenuBar.getCurrentContext());
+    }
+
     private void doSearch() {
         searching = true;
         Frame theFrame = JOptionPane.getFrameForComponent(this);
@@ -697,13 +742,23 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Close")) closeGroup();
         else if (what.startsWith("Clear ")) theNoteGroup.clearGroup();
         else if (what.equals("Contents")) showHelp();
+        else if (what.equals("Delete")) deleteGroup();
         else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
         else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
-        else if (what.equals("Review...")) System.out.println("Review was selected.");
+        else if (what.equals("Review...")) System.out.println("Review was selected.  It aint reddy yet."); // SCR00084
         else if (what.equals("Save")) theNoteGroup.refresh();
         else if (what.startsWith("Save As")) saveGroupAs();
+        else if (what.equals("Undo Delete")) {
+            appMenuBar.manageMenus(appMenuBar.getCurrentContext());
+            deletedNoteGroup.setGroupChanged(true);
+            deletedNoteGroup.preClose();
+            System.out.println("Did it.");
+            deletedNoteGroup = null;
+            appMenuBar.showRestoreOption(false);
+            treeSelectionChanged(theTree.getSelectionPath()); // Reload the branch editor, to show the 'new' file.
+        }
         else if (what.equals("Icon Manager...")) {
             theTree.clearSelection();
             JPanel jp = new JPanel(new GridBagLayout());
@@ -1024,7 +1079,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             } // end if
         } // end for
-    }//end searchDataFile
+    }// end searchDataFile
 
     // Used by test methods
     // BUT - later versions will just directly set it, no need for a test-only method.  Remove this when feasible.
@@ -1777,6 +1832,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //   and that defeats its entire purpose.
     //-------------------------------------------------------------
     public void valueChanged(TreeSelectionEvent e) {
+        // This event-handling method is called due to user action to change the selection
+        // and would not run if the current selection was simply being rehandled.  So - this
+        // is the best place to accept that an offer to undo a deletion has been abandoned.
+        appMenuBar.showRestoreOption(false);
 
         final TreePath newPath = e.getNewLeadSelectionPath();
         if (restoringPreviousSelection) {

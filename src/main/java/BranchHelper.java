@@ -220,6 +220,13 @@ public class BranchHelper implements BranchHelperInterface {
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
         if(null != AppTreePanel.theInstance) { // It may be null if we got here from a Test.
+            // IF an 'undo deletion' menu option was being shown and was NOT used, then the
+            // action of the user clicking on the 'Apply' button needs to take away that menu option.
+            // That will happen when the menus are re-managed upon showing the About panel, and
+            // it will also happen with any other Tree selection, after the call to
+            // showRestoreOption() below sets the flag to false.
+            AppTreePanel.appMenuBar.showRestoreOption(false);
+
             AppTreePanel.theInstance.showAbout();
         }
     }  // end doApply

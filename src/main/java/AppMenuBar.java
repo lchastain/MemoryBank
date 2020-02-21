@@ -7,6 +7,7 @@ public class AppMenuBar extends JMenuBar{
     //-------------------------------------------------
     private static JMenu fileMenu;
     private static JMenu branchEditorMenu;
+    private static JMenu deletedMenu;
 
     private static JMenu goalsMenu;
     private static JMenu eventsMenu;
@@ -19,6 +20,7 @@ public class AppMenuBar extends JMenuBar{
     //-------------------------------------------------
 
     private String theCurrentContext;
+    private boolean showDeleteUndo;
 
     static {
         fileMenu = new JMenu("App");
@@ -29,15 +31,19 @@ public class AppMenuBar extends JMenuBar{
         branchEditorMenu = new JMenu("List");
         branchEditorMenu.add(new JMenuItem("Add New..."));
 
-        goalsMenu = new JMenu("List");
+        deletedMenu = new JMenu("Deleted");
+        deletedMenu.add(new JMenuItem("Undo Delete"));
+
+        goalsMenu = new JMenu("Goal");
         goalsMenu.add(new JMenuItem("Undo All"));
         goalsMenu.add(new JMenuItem("Close"));
         goalsMenu.add(new JMenuItem("Add New..."));
         goalsMenu.add(new JMenuItem("Save"));
         goalsMenu.add(new JMenuItem("Save As..."));
         goalsMenu.add(new JMenuItem("Clear All"));
+        goalsMenu.add(new JMenuItem("Delete"));
 
-        eventsMenu = new JMenu("List");
+        eventsMenu = new JMenu("Event");
         eventsMenu.add(new JMenuItem("Undo All"));
         eventsMenu.add(new JMenuItem("Close"));
         eventsMenu.add(new JMenuItem("Add New..."));
@@ -45,17 +51,18 @@ public class AppMenuBar extends JMenuBar{
         eventsMenu.add(new JMenuItem("Save"));
         eventsMenu.add(new JMenuItem("Save As..."));
         eventsMenu.add(new JMenuItem("Clear All"));
+        eventsMenu.add(new JMenuItem("Delete"));
 
         viewsMenu = new JMenu("View");
         viewsMenu.add(new JMenuItem("Today"));
 
-        notesMenu = new JMenu("List");
+        notesMenu = new JMenu("Notes");
         notesMenu.add(new JMenuItem("Undo All"));
         notesMenu.add(new JMenuItem("Today"));
         notesMenu.add(new JMenuItem("Save"));
         notesMenu.add(new JMenuItem("Clear All"));
 
-        todolistsMenu = new JMenu("List");
+        todolistsMenu = new JMenu("To Do");
         todolistsMenu.add(new JMenuItem("Undo All"));
         todolistsMenu.add(new JMenuItem("Close"));
         todolistsMenu.add(new JMenuItem("Add New..."));
@@ -64,10 +71,12 @@ public class AppMenuBar extends JMenuBar{
         todolistsMenu.add(new JMenuItem("Save"));
         todolistsMenu.add(new JMenuItem("Save As..."));
         todolistsMenu.add(new JMenuItem("Clear All"));
+        todolistsMenu.add(new JMenuItem("Delete"));
 
-        searchesMenu = new JMenu("List");
+        searchesMenu = new JMenu("Search");
         searchesMenu.add(new JMenuItem("Close"));
-        searchesMenu.add(new JMenuItem("Review..."));
+        searchesMenu.add(new JMenuItem("Review...")); // Not yet working..
+        searchesMenu.add(new JMenuItem("Delete"));
 
         helpMenu = new JMenu("Help");
         helpMenu.add(new JMenuItem("Contents"));
@@ -78,12 +87,14 @@ public class AppMenuBar extends JMenuBar{
         super();
         add(fileMenu);
         add(branchEditorMenu);
+        add(deletedMenu);
         add(goalsMenu);
         add(eventsMenu);
         add(viewsMenu);
         add(notesMenu);
         add(todolistsMenu);
         add(searchesMenu);
+        showDeleteUndo = false;
 
         // This puts the 'Help' on the far right side.
         add(Box.createHorizontalGlue());
@@ -119,7 +130,8 @@ public class AppMenuBar extends JMenuBar{
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
             case "Consolidated View":
-                // For the Search Results Branch Editor, there is no additional menu.
+                // Search Results Branch Editor - NO, there is no additional menu;
+                // all the others have an 'Add New' option; not so with Searches.
                 theMenu = branchEditorMenu;
                 break;
             case "Goal":
@@ -154,6 +166,12 @@ public class AppMenuBar extends JMenuBar{
         notesMenu.setVisible(false);
         todolistsMenu.setVisible(false);
         searchesMenu.setVisible(false);
+
+        if(showDeleteUndo) {
+            deletedMenu.setVisible(true);
+        } else {
+            deletedMenu.setVisible(false);
+        }
 
         MemoryBank.debug("Setting MenuBar Configuration: " + theCurrentContext);
 
@@ -193,5 +211,9 @@ public class AppMenuBar extends JMenuBar{
                 break;
         }
     } // end manageMenus
+
+    void showRestoreOption(boolean showIt) {
+        showDeleteUndo = showIt;
+    }
 
 } // end class AppMenuBar
