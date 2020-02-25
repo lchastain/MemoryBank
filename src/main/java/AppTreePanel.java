@@ -11,6 +11,7 @@
 // Management of search results should be rewritten to be closer to
 //   the way to do lists are handled.
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static AppMenuBar appMenuBar;
 
     private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
-    private static final int LIST_GONE = -3; // used in constr, createTree
 
-    private Notifier optionPane;
+    Notifier optionPane;
     //-------------------------------------------------------------------
 
     private JTree theTree;
@@ -57,17 +57,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     static JDialog theWorkingDialog;
     private NoteGroup theNoteGroup; // A reference to the current selection
     private NoteGroup deletedNoteGroup;
-    private GoalPanel theGoalPanel;
+    private GoalGroup theGoalGroup;
     DayNoteGroup theAppDays;
     MonthNoteGroup theAppMonths;
     YearNoteGroup theAppYears;
     MonthView theMonthView;
     YearView theYearView;
     private Vector<NoteData> foundDataVector;  // Search results
-    private DataGroupKeeper theGoalListKeeper;       // keeper of all loaded Goals.
-    private DataGroupKeeper theEventListKeeper;      // keeper of all loaded Event lists.
-    private DataGroupKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
-    private DataGroupKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
+    private FileGroupKeeper theGoalListKeeper;       // keeper of all loaded Goals.
+    private FileGroupKeeper theEventListKeeper;      // keeper of all loaded Event lists.
+    private FileGroupKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
+    private FileGroupKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
     SearchPanel spTheSearchPanel;
     private JPanel aboutPanel;
     private JSplitPane splitPane;
@@ -235,7 +235,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         String prompt = "no prompt";
         String title = "no title";
         TreePath groupParentPath = null;
-        DataGroupKeeper theDataGroupKeeper = null;
+        FileGroupKeeper theFileGroupKeeper = null;
 
         String theContext = appMenuBar.getCurrentContext();
         String areaName = null;
@@ -247,8 +247,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 prompt += "Ex: Graduate, Learn a Language, etc";
                 title = "Add a new Goal";
                 groupParentPath = goalsPath;
-                theDataGroupKeeper = theGoalListKeeper;
-                areaName = GoalPanel.areaName;
+                theFileGroupKeeper = theGoalListKeeper;
+                areaName = GoalGroup.areaName;
                 break;
             case "Upcoming Event":
             case "Upcoming Events Branch Editor":
@@ -256,7 +256,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 prompt += "Ex: meetings, appointments, birthdays, etc";
                 title = "Add a new Events category";
                 groupParentPath = eventsPath;
-                theDataGroupKeeper = theEventListKeeper;
+                theFileGroupKeeper = theEventListKeeper;
                 areaName = EventNoteGroup.areaName;
                 break;
             case "To Do List":
@@ -264,7 +264,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 prompt = "Enter a name for the new To Do List";
                 title = "Add a new To Do List";
                 groupParentPath = todolistsPath;
-                theDataGroupKeeper = theTodoListKeeper;
+                theFileGroupKeeper = theTodoListKeeper;
                 areaName = TodoNoteGroup.areaName;
                 break;
         }
@@ -301,7 +301,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (theNewGroupNode == null) {  // Not already a node on the tree
             theNewGroupNode = new DefaultMutableTreeNode(newName, false);
             // Ensure that the new name meets our file-naming requirements.
-            File aFile = new File(DataGroup.getFullFilename(areaName, newName));
+            File aFile = new File(FileGroup.getFullFilename(areaName, newName));
             String theComplaint = BranchHelperInterface.checkFilename(newName, aFile.getParent());
             if (!theComplaint.isEmpty()) {
                 optionPane.showMessageDialog(theTree, theComplaint,
@@ -318,12 +318,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Try to get this Group from the NoteGroupKeeper (the 'Add New' request might just be a back-door
         // selection rather than actually intending to make a new one).  If not found there then go ahead
         // and make a new one, and put it there.
-        DataGroup theGroup = theDataGroupKeeper.get(newName);
+        FileGroup theGroup = theFileGroupKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             MemoryBank.debug("Getting a new group from the factory.");
             theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
-            theDataGroupKeeper.add(theGroup);
+            theFileGroupKeeper.add(theGroup);
             theGroup.setGroupChanged(true); // Save this (may be empty) group.
             theGroup.preClose();
         }
@@ -410,7 +410,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         goalsPath = new TreePath(pathToRoot);
-        theGoalListKeeper = new DataGroupKeeper();
+        theGoalListKeeper = new FileGroupKeeper();
 
         for (String s : appOpts.goalsList) {
             // Add to the tree
@@ -427,7 +427,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         eventsPath = new TreePath(pathToRoot);
-        theEventListKeeper = new DataGroupKeeper();
+        theEventListKeeper = new FileGroupKeeper();
 
         for (String s : appOpts.eventsList) {
             // Add to the tree
@@ -492,7 +492,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         todolistsPath = new TreePath(pathToRoot);
-        theTodoListKeeper = new DataGroupKeeper();
+        theTodoListKeeper = new FileGroupKeeper();
 
         for (String s : appOpts.tasksList) {
             // Add to the tree
@@ -507,7 +507,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         trunk.add(branch);
         pathToRoot = branch.getPath();
         searchresultsPath = new TreePath(pathToRoot);
-        theSearchResultsKeeper = new DataGroupKeeper();
+        theSearchResultsKeeper = new FileGroupKeeper();
 
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
@@ -570,7 +570,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // Preserve the reference to the group to be deleted.
         deletedNoteGroup = theNoteGroup;
 
-        // First - we need to close the group.
+        // Now we need to close the group.
         closeGroup(); // This will change the selection and null out 'theNoteGroup'.
 
         // Now delete the file
@@ -590,11 +590,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         // And finally, give the user an 'undo' capability.  This will be a one-time,
         //   one file only option.  Upon deletion they will have gone back to the
-        //   Branch Editor.  If they then go on to some other list, the 'undo' menu
-        //   option goes away.
+        //   Branch Editor.  If they then apply other actions on the Editor, or go on
+        //   to some other list, the 'undo' menu option goes away.
         appMenuBar.showRestoreOption(true);
         appMenuBar.manageMenus(appMenuBar.getCurrentContext());
-    }
+    }// end deleteGroup
 
     private void doSearch() {
         searching = true;
@@ -680,7 +680,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
 
     // Make a Consolidated View group from all the currently selected Event Groups.
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes"})
     private EventNoteGroup getConsolidatedView() {
         // First, get all the nodes that are currently under Upcoming Events.
         DefaultMutableTreeNode eventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
@@ -707,10 +707,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             if (theNodeName.equals(MemoryBank.appOpts.consolidatedEventsViewName)) continue;
 
             // And for the others (if any) - merge them into the CV group.
-            String theFilename = DataGroup.getFullFilename(EventNoteGroup.areaName, theNodeName);
+            String theFilename = FileGroup.getFullFilename(EventNoteGroup.areaName, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
-            Object[] theData = AppUtil.loadNoteGroupData(theFilename);
-            groupDataVector = new EventDataVector(theData[0]).getVector();
+            Object[] theData = FileGroup.loadFileData(theFilename);
+            NoteData.loading = true; // We don't want to affect the lastModDates!
+            groupDataVector = AppUtil.mapper.convertValue(theData[0], new TypeReference<Vector<EventNoteData>>() {  });
+            NoteData.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
                 theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -896,7 +898,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     private void saveGroupAs() {
         String oldName = theNoteGroup.getName();
         boolean success = false;
-        DataGroupKeeper theDataGroupKeeper = null;
+        FileGroupKeeper theFileGroupKeeper = null;
         TreePath groupParentPath = null;
 
         String theContext = appMenuBar.getCurrentContext();
@@ -904,12 +906,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             case "Upcoming Event":
                 success = ((EventNoteGroup) theNoteGroup).saveAs();
                 groupParentPath = eventsPath;
-                theDataGroupKeeper = theEventListKeeper;
+                theFileGroupKeeper = theEventListKeeper;
                 break;
             case "To Do List":
                 success = ((TodoNoteGroup) theNoteGroup).saveAs();
                 groupParentPath = todolistsPath;
-                theDataGroupKeeper = theTodoListKeeper;
+                theFileGroupKeeper = theTodoListKeeper;
                 break;
         }
         if (null == groupParentPath) return; // Should not happen in normal operation.
@@ -929,7 +931,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // operation changed the name of the list held by the ListKeeper, it
             // still shows a title that was developed from the old file name.
             // Reloading from the file with the new name will fix that.
-            theDataGroupKeeper.remove(newName);
+            theFileGroupKeeper.remove(newName);
 
             // Rename the leaf.
             // This will refresh the branch and reselect the same tree row to
@@ -1031,43 +1033,35 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     //
     // File-level (but not item-level) date filtering will
     //   have been done prior to this method being called.
+    // For item-level filtering is not done; date-filtering
+    //   is done against Calendar notes, by using their
+    //   filename, only.  Todo items will all just pass thru
+    //   the filter so if not desired, don't search there.
     //---------------------------------------------------------
-    @SuppressWarnings({"rawtypes"})
     private void searchDataFile(File dataFile) {
         String theFilename = dataFile.getName();
         MemoryBank.debug("Searching: " + theFilename);
-        DataVector noteDataVector = null;
+        Vector<AllNoteData> searchDataVector = null;
 
-        Object[] theGroupData = AppUtil.loadNoteGroupData(dataFile);
+        Object[] theGroupData = FileGroup.loadFileData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-
-            // We don't have an instantiation of a Group, so we cannot use
-            // the overridden setGroupData() like we do when NoteGroup loads
-            // a file.  So - we'll use the filename to determine which
-            // generation of NoteData we need to recognize and construct.
-            if (theFilename.startsWith("event_")) {
-                noteDataVector = new EventDataVector(theGroupData[theGroupData.length - 1]);
-            } else if ((theFilename.startsWith("M") && theFilename.charAt(3) == '_')) {
-                noteDataVector = new NoteDataVector(theGroupData[theGroupData.length - 1]);
-            } else if ((theFilename.startsWith("Y") && theFilename.charAt(1) == '_')) {
-                noteDataVector = new NoteDataVector(theGroupData[theGroupData.length - 1]);
-            } else if ((theFilename.startsWith("D") && theFilename.charAt(5) == '_')) {
-                noteDataVector = new DayNoteDataVector(theGroupData[theGroupData.length - 1]);
-            } else if (theFilename.startsWith("todo_")) {
-                noteDataVector = new TodoDataVector(theGroupData[theGroupData.length - 1]);
-            }
+            NoteData.loading = true; // We don't want to affect the lastModDates!
+            // During a search these notes would not be re-preserved anyway, but the reason we care is that
+            // the search parameters may have specified a date-specific search; we don't want all Last Mod
+            // dates to get updated to this moment and thereby muck up the search results.
+            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
+            NoteData.loading = false; // Restore normal lastModDate updating.
         }
-        if(noteDataVector == null) return;
+        if(searchDataVector == null) return;
 
         // Now get on with the search -
-        for (Object vectorItem : noteDataVector) {
-            NoteData ndTemp = (NoteData) vectorItem;
+        for (AllNoteData vectorItem : searchDataVector) {
 
             // If we find what we're looking for in/about this note -
-            if (spTheSearchPanel.foundIt(ndTemp)) {
+            if (spTheSearchPanel.foundIt(vectorItem)) {
 
                 // Make new search result data for this find.
-                SearchResultData srd = new SearchResultData(ndTemp);
+                SearchResultData srd = new SearchResultData(vectorItem);
 
                 // The copy constructor used above will preserve the
                 //   dateLastMod of the original note.  Members specific
@@ -1080,12 +1074,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             } // end if
         } // end for
     }// end searchDataFile
-
-    // Used by test methods
-    // BUT - later versions will just directly set it, no need for a test-only method.  Remove this when feasible.
-    public void setNotifier(Notifier newNotifier) {
-        optionPane = newNotifier;
-    }
 
     void setSelectedDate(LocalDate theSelection) {
         selectedDate = theSelection;
@@ -1422,7 +1410,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         //<editor-fold desc="Actions Depending on the selection">
         if (isGoalsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theGoalListKeeper, GoalPanel.areaName);
+            BranchHelper tbh = new BranchHelper(theTree, theGoalListKeeper, GoalGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
             selectionContext = "Goals Branch Editor";
             rightPane.setViewportView(tbe);
@@ -1450,24 +1438,24 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(jt);
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
             selectionContext = "Goal";  // For manageMenus
-            GoalPanel goalPanel;
+            GoalGroup goalGroup;
 
             // If this group has been previously loaded during this session,
             // we can retrieve it from the keeper.
-            goalPanel = (GoalPanel) theGoalListKeeper.get(theNodeString);
+            goalGroup = (GoalGroup) theGoalListKeeper.get(theNodeString);
 
             // Otherwise load it, but only if a file for it already exists.
-            if (goalPanel == null) {
-                goalPanel = (GoalPanel) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
-                if (goalPanel != null) {
+            if (goalGroup == null) {
+                goalGroup = (GoalGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                if (goalGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
-                    theTodoListKeeper.add(goalPanel);
+                    theTodoListKeeper.add(goalGroup);
                 }
             } else {
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
-            if (goalPanel == null) {
+            if (goalGroup == null) {
                 // We just tried to retrieve it or to load it, so if it is STILL null
                 //   then we take it to mean that the file is effectively not there.
 
@@ -1488,11 +1476,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
-                // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
-                goalPanel.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+                // There is only one menu, for ALL Goals.  It needs to be reset with every list change.
+                goalGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
 
-//                theNoteGroup = todoNoteGroup;  // this isn't one of those, but do we need to do something equivalent for it?
-                rightPane.setViewportView(goalPanel.theBasePanel);
+                theNoteGroup = goalGroup;
+                rightPane.setViewportView(goalGroup.theBasePanel);
             } // end if
 
         } else if (parentNodeName.equals("Upcoming Events") && isConsolidatedView) { // Selection of the Consolidated Events List

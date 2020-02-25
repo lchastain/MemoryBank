@@ -28,7 +28,7 @@ class TodoNoteGroupTest {
 
         todoNoteGroup = new TodoNoteGroup("Get New Job");
         testUtil = new TestUtil();
-        todoNoteGroup.setNotifier(testUtil);
+        NoteGroup.optionPane = testUtil;
     }
 
     @Test
@@ -68,14 +68,14 @@ class TodoNoteGroupTest {
         // and whether or not they had an effect can be tested in the functional testing.
 
         // Make some options and set them differently than the ones our test user has now.
-        TodoListProperties tlp = new TodoListProperties();
+        TodoListGroupProperties tlp = new TodoListGroupProperties();
         tlp.showPriority = false;
 
         // Testing this method will cause it to try to get User input.  But we have changed
         // its Notifier, so that process is automated for this test.
         // Tell the Notifier to call a method on the TodoOpts ('message') prior to returning.
         // Get the method from TodoOpts that the Notifier will call, to change the options.
-        Method newMethod = TodoOpts.class.getDeclaredMethod("setNewProperties", TodoListProperties.class);
+        Method newMethod = TodoOpts.class.getDeclaredMethod("setNewProperties", TodoListGroupProperties.class);
         testUtil.setTheMethod(newMethod);
         testUtil.setParam1(tlp); // Provide the needed method parameter
 

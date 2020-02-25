@@ -1,6 +1,12 @@
-import java.io.File;
+import org.apache.commons.io.FileUtils;
 
-public abstract class DataGroup {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
+public abstract class FileGroup {
     static String basePath;
 
     // Status report codes for Load / Save
@@ -17,14 +23,10 @@ public abstract class DataGroup {
     static final int ASCENDING = 0;
     static final int DESCENDING = 1;
 
+    UUID theId;
     private String theName;
     private String groupFilename; // Access with getGroupFilename() & setGroupFilename()
     boolean groupChanged;  // Flag used to determine if saving data might be necessary.
-
-//    public DataGroup() {
-//        groupFilename = "";  // Remove this, if class goes abstract.
-//        setGroupChanged(false);
-//    }
 
     static {
         // We return with a trailing separatorChar because we really
@@ -51,6 +53,30 @@ public abstract class DataGroup {
         return basePath + areaName + File.separatorChar + prefix + prettyName + ".json";
     }
 
+    // ---------------------------------------------------------------------------------
+    // Method Name: loadGroupData
+    //
+    // This is a static data loader that helps separate the loading of the data
+    //   from the various components and methods that act upon it.
+    // ---------------------------------------------------------------------------------
+    static Object[] loadFileData(String theFilename) {
+        // theFilename string needs to be the full path to the file.
+        return loadFileData(new File(theFilename));
+    }
+
+    static Object[] loadFileData(File theFile) {
+        Object[] theGroup = null;
+        try {
+            String text = FileUtils.readFileToString(theFile, StandardCharsets.UTF_8.name());
+            theGroup = AppUtil.mapper.readValue(text, Object[].class);
+            //System.out.println("Group data from JSON file: " + AppUtil.toJsonString(theGroup));
+        } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } // end try/catch
+        return theGroup;
+    }
+
     public String getGroupFilename() {
         return groupFilename;
     }// end getGroupFilename
@@ -61,12 +87,8 @@ public abstract class DataGroup {
         return theName;
     }
 
-    // No-op in this class; children need it.
-    // But I don't want this class to be abstract; at least not yet; there are
-    // instances where it is instantiated, as an alternative to
-    // having the basePath method being static.  And why don't I want it to be
-    // static?  Shut up.
-    void preClose() {}
+    // Called to prompt implementations to save their data before they go away.
+    abstract void preClose();
 
     //-----------------------------------------------------------------
     // Method Name:  prettyName

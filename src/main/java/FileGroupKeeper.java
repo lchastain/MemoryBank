@@ -1,7 +1,7 @@
 import java.util.Vector;
 
 /*
- Basically a wrapper for a vector of DataGroups.  The idea is
+ Basically a wrapper for a vector of FileGroups.  The idea is
  that since loading of a list can sometimes take long enough for the user to
  notice/care, we could just load them once, and when not currently
  selected, keep them out of sight but in memory and ready to quickly redisplay.
@@ -14,18 +14,18 @@ import java.util.Vector;
  should consider whether or not to use it.
  */
 
-public class DataGroupKeeper {
-    private Vector<DataGroup> theNoteGroups;
+public class FileGroupKeeper {
+    private Vector<FileGroup> theNoteGroups;
 
-    DataGroupKeeper() {
+    FileGroupKeeper() {
         theNoteGroups = new Vector<>();
     }
 
-    public void add(DataGroup tng) { theNoteGroups.add(tng); }
+    public void add(FileGroup tng) { theNoteGroups.add(tng); }
 
-    public DataGroup get(String aListName) {
+    public FileGroup get(String aListName) {
         // Search the Vector for the list.
-        for (DataGroup noteGroup : theNoteGroups) {
+        for (FileGroup noteGroup : theNoteGroups) {
             String tngName = noteGroup.prettyName();
             if (aListName.equals(tngName)) {
                 return noteGroup;
@@ -37,10 +37,10 @@ public class DataGroupKeeper {
     // Scan the vector looking for the indicated group and if found, remove.
     //----------------------------------------------------------------
     public void remove(String aListName) {
-        DataGroup theGroup = null; // Keep a temporary reference
+        FileGroup theGroup = null; // Keep a temporary reference
 
         // Search the Vector for the group.
-        for (DataGroup noteGroup : theNoteGroups) {
+        for (FileGroup noteGroup : theNoteGroups) {
             String tngName = noteGroup.prettyName();
             if (aListName.equals(tngName)) {
                 theGroup = noteGroup;
@@ -60,7 +60,7 @@ public class DataGroupKeeper {
     } // end remove
 
     void saveAll() {
-        for(DataGroup aNoteGroup: theNoteGroups) {
+        for(FileGroup aNoteGroup: theNoteGroups) {
             aNoteGroup.preClose();
         }
     }

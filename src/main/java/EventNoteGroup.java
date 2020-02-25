@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Vector;
 
+@SuppressWarnings({"unchecked"})
 public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelection {
     private static Logger log = LoggerFactory.getLogger(EventNoteGroup.class);
 
@@ -33,7 +34,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     //------------------------------------------------------------------
     private static EventNoteDefaults eventNoteDefaults;
     private static AppIcon defaultIcon;
-    private String theGroupFilename;
     private static Notifier optionPane;
 
     private ThreeMonthColumn tmc;
@@ -68,7 +68,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         setName(groupName.trim());
         MemoryBank.debug("Constructing: " + getName());
 
-        theGroupFilename = areaPath + filePrefix + groupName + ".json";
+        setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;
 
         eventNoteComponent = null;
@@ -108,7 +108,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         EventNoteData tempNoteData;
 
         // AppUtil.localDebug(true);
-        for (NoteData ndTmp : groupDataVector) {
+        for (Object ndTmp : groupDataVector) {
             blnDropThisEvent = false;
             tempNoteData = (EventNoteData) ndTmp;
 
@@ -344,9 +344,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         return defaultIcon;
     }
 
-    public String getGroupFilename() { return theGroupFilename; }
-
-
     // -------------------------------------------------------------------
     // Method Name: makeNewNote
     //
@@ -359,20 +356,21 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     } // end makeNewNote
 
 
+    @SuppressWarnings({"unchecked"})
     public void merge() {
         File mergeFile = chooseMergeFile();
         if (mergeFile == null) return;
 
         // Load the file to merge in -
-        Object[] theGroup = AppUtil.loadNoteGroupData(mergeFile);
+        Object[] theGroup = FileGroup.loadFileData(mergeFile);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-        Vector<EventNoteData> mergeVector;
+
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        mergeVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() {} );
+        Vector<EventNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() {  });
         NoteData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(groupDataVector);
+        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(groupDataVector);
         theUniqueSet.addAll(mergeVector);
 
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
@@ -479,17 +477,15 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //------------------------------------
         log.debug("Saving " + oldName + " as " + newName);
 
-        // 'setFileName' wants the 'pretty' name as parameter, even though we already
-        // have its long form from when we checked for pre-existence, above.  But one
-        // other HUGE consideration is that it also sets the name of the component
-        // itself, which translates into an in-place change of the name of the list
-        // held by the TodoListKeeper.  Unfortunately, that list will still have the
-        // old title, so it still needs to be removed from the keeper.  The calling
-        // context will take care of that.
-        setFileName(newName);
+        setGroupFilename(areaPath + filePrefix + newName + ".json");
+        setGroupChanged(true);
 
         // Since this is effectively a new file, before we save we need to ensure that
-        // the app will not fail in an attempt to remove the (nonexistent) old file.
+        // the app will not fail in an attempt to remove the nonexistent 'old' file with
+        // this new name.
+        // So this setting will route us around the remove-before-save logic so that
+        // this 'new' file saves without issue, but the side effect is that the original
+        // file will remain.  Still thinking on whether or not that is the desired outcome.
         AppUtil.localArchive(true);
         preClose();
         AppUtil.localArchive(false);
@@ -513,23 +509,10 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     }// end setDefaultIcon
 
 
-    //-----------------------------------------------------------------
-    // Method Name:  setFileName
-    //
-    // Provided as support for a 'Save As' functionality.  The calling context
-    // is responsible for providing a valid name; no checking done here.
-    //-----------------------------------------------------------------
-    private void setFileName(String fname) {
-        theGroupFilename = areaPath + filePrefix + fname.trim() + ".json";
-        setName(fname.trim());  // Keep the 'pretty' name in the component.
-        setGroupChanged(true);
-    } // end setFileName
-
-
     @Override
     void setGroupData(Object[] theGroup) {
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() { });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() {  });
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 

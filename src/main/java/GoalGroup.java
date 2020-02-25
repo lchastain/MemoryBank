@@ -8,8 +8,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 
-public class GoalPanel extends NoteGroup {
-    private static Logger log = LoggerFactory.getLogger(GoalPanel.class);
+public class GoalGroup extends NoteGroup {
+    private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
     static String areaName;
     static String areaPath;
     static String filePrefix;
@@ -23,7 +23,7 @@ public class GoalPanel extends NoteGroup {
         MemoryBank.trace();
     } // end static
 
-    public GoalPanel(String fname) {
+    public GoalGroup(String fname) {
         super();
 
         // Store our simple list name.

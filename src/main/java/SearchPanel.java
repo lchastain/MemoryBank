@@ -423,11 +423,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
         return rbtnAnd2.isSelected();
     }
 
-    // This method is only here to 'fool' JFramebuilder-generated code.
-    private JPanel getContentPane() {
-        return SearchPanel.this;
-    }
-
     private LocalDate getDateLastMod1() {
         return dateLastMod1;
     }
@@ -857,7 +852,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
     private void initializeComponent() {
 
-        JPanel contentPane = this.getContentPane();
+        JPanel contentPane = SearchPanel.this;
         //----- 
         chkboxGoals = new JCheckBox();
         chkboxDayNotes = new JCheckBox();

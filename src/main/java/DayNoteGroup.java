@@ -13,7 +13,6 @@ import java.util.Vector;
 
 public class DayNoteGroup extends CalendarNoteGroup
         implements IconKeeper, MouseListener {
-    private static final long serialVersionUID = 1L;
 
     private static AppIcon defaultIcon;
     private static JLabel dayTitle;
@@ -226,6 +225,12 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end setDefaultIcon
 
 
+    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of <my custom class>),
+    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
+    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
+    // to JSON string, then parsed the string back in to a DayNoteData and added it to a new Vector.  But that was
+    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
+    // Exception that needed to be caught.
     void setGroupData(Object[] theGroup)  {
         NoteData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });

@@ -2,13 +2,44 @@
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
+2/26 - Dermatology appointment at 16:30
+
+
+2/25/2020 0458 - DataVector is now gone, entirely.  The ancestor of NoteGroup is FileGroup, and
+  it deals only with the file name and load/save of Object arrays.  Type conversions of data
+  vectors have moved back into the individual NoteGroup child classes.  This paves the way for
+  the stability needed to get back to adding a new class:  GoalNoteComponent.  Some of the
+  earlier ideas as listed below - just didn't work out; the status as stated here is how it is.
+
+2/24/2020 0714 - Aside from the fact that I've been able to shoehorn it in to a NoteGroup, the
+  only place that the DataVector class is really needed is in the Search.  If an alternative
+  solution can be found there then DataVector and its children could all go away.  Didn't yet
+  get started on #1 below, and #2 is still in progress with this new thought in mind.  On #3 -
+  went ahead and made a FileGroup, to handle only file / name operations, and static
+  loading/saving of the Object arrays, moved there from AppUtil.
+
+2/23/2020 1706 - Continuing the work on Goals and having started the implmentation without having
+  the design fully fleshed out, set some next steps to accomplish before continuing coding:
+    1.  Describe the Vector for a Goal (in GoalGroupDesign.txt), plan out how to load one Vector
+            element into a GoalNoteComponent with individual status, possibly an icon, a dropdown
+            menu, etc.
+    2.  Determine the separation / usage of a DataVector vs a Vector<NoteData>.  The mix
+            of the two within the app is confusing.  Lay out each usage and determine if there is a point of
+            commonality and get them combined or eliminate one, OR make the separation more obvious.
+    3.  Change to DataGroup - move the vector into it, or rename to just FileGroup - depends on outcome of #2, above.
+  And while those are still ongoing, need to comment on how the merge/combine option for #2 above was
+    possible to a point but not enough to fully eliminate either one.  Now a Vector<NoteData> may be
+    obtained from a DataVector, and used (after casting) in the NoteGroup.  However, since a Vector does
+    not inherit from a DataVector and vice-versa, the two classes remain similar but separate.
+  Now looking into make DataVector into an interface...
+
 2/19/2020 0747 - Finished getting the JPanel out of the NoteGroup hierarchy,
-  and making it a child of the new DataGroup, that currently only handles
+  and making it a child of the new FileGroup, that currently only handles
   filenames and paths.  Meanwhile the Goal design has continued to evolve, and
-  the GoalPanel can become a new type of NoteGroup.  GoalPanel design now looks
+  the GoalGroup can become a new type of NoteGroup.  GoalGroup design now looks
   a lot like a predetermined SearchResult but that's ok, I think.  Goals may
   need to come off of the SearchPanel, since the idea is to just put linked notes
-  directly into the GoalPanel.  More on that in terms of keeping them updated-
+  directly into the GoalGroup.  More on that in terms of keeping them updated-
   later.  Tests all repaired but coverage went down some, what with some new
   classes - 98% classes, 75% lines.  Now - will check in code to preserve all
   the structural changes and keep them separate of upcoming Goal development.

@@ -1,49 +1,67 @@
 
+A Goal will be represented by a GoalGroup; one GoalGroup per Goal.
+
 Goal data:
 ====================================================================
-Short name - the filename of the data file, after 'goal_'
 
-NoteData, containing:
-    ID
-    Last Mod Date - when text or associated list(s) change
-    noteString - Title Line - single line of text beyond the short name, descriptive of the goal
-    extendedNoteString - The plan - textual description of what needs to be done.
-    linkages - a list of every other note that is linked to this goal
+Short name -
+    This will show in the 'Title' area of the GoalGroup.
+    Should also be descriptive of the goal, if possible in 1-3 words
+    This is not a class member; it is just the filename of the data file
+        (after 'goal_' and before '.json')
 
-Current Goal status
-    Scheduled
-        on track, ahead, behind
-        stalled
-        working
-        waiting
-          other?
+Properties (an extended NoteData):
+    Members inherited from the base NoteData class:
+        noteId - The ID of this goal will be present in a Linkage of a NoteData item that points to this goal.
+            It will be a UUID and will dereference the name of the goal from its unique identifier, allowing
+            for renaming of a Goal while not breaking the linkage of any Note that points to it.
+        Last Mod Date - when title, status, or the plan changes
+        noteString - Title Line - single line of text beyond the Short name, descriptive of the goal
+        extendedNoteString - The plan - textual description of what needs to be done.
+        linkages - (remains null)
 
-Percentage complete would be calculated; a static member.
+    New data members:
+        Status
+            Overall
+                on track, ahead, behind
+            At the Moment
+                stalled
+                working
+                waiting
+                other?
+
+A list of every other note that is linked to this goal, in its Group Vector.
+XXX    See GoalGroup Design for more on Vector makeup.
+
+  DataVector (GoalLinkDataVector) a
+  OR NOT - seems that NoteGroups are not using the DataVector class.
+    which could call for a big rename throughout the NoteData hierarchy. (putting it back to what it was)
+    What DOES use that class:  the Search method, in AppTreePanel.
 
 ====================================================================
 Linkage:
     A link can exist between a Goal and other NoteGroups or NoteData items.  A link can have a status.
     A goal will contain (and display) a list of all its linkages, in the right order if order matters.
-    Filters that can be applied to the linkages list:
-        ALL
-        completed progress/activity     shows your progress so far
-        in-progress/next/upcoming/todo  what needs to happen next.
 
 ====================================================================
 
-A todo item can be linked to more than one goal
+A todo item can be linked to more than one goal.
 
-a menu selection called 'filter', which then removes (temporarily, from the app view) all NoteGroups that are not
-linked or do not have a linked item.
-    selective filter?  or just all on or all off?
+No SearchResult will be linked to a Goal, because a SearchResult has a 'FoundIn' and when you go there you
+    have the original note, and THAT one can be linked to a Goal.
+
+A menu selection called 'filter', which then removes (visually, only, from the Goal view) all Notes that are not
         todolists
         events
         daynotes
         monthnotes
         yearnotes
-        searchresults??
-           For the calendar-based groups, may also need to implement the SCR that asks for 'only notes with data'.
-    (during this development, consider whether it is also a good methodology for Subject filtering).
+    give it a 'Select All' option, like the one in the Excel data filter.
+
+Filtering may (also or alternatively) take a different approach, based on status.
+        completed      shows your progress so far
+        in-progress/next/upcoming/todo  what needs to (or will) happen next.
+
 
 To tie Notes to a goal we finally begin to use the note ID.  A linkage will be the combination of
 which notegroup, and the note ID.  If it is to the group itself then the note ID can be null.
@@ -81,6 +99,10 @@ Considered and rejected:
         to just add in to this one.  Future dev, to apply to ALL groups, IF the user has paid for this add-on
         service.  Otherwise too costly for processing overhead, storage, and would need a paging UI to be able to
         review and search for specific LMDs.
+
+6.  Having a filter that affects other NoteGroups in the app/tree.
+    A filter at the app-level, based on a Goal - is not needed, since the Goal itself IS that filter.  Filtering
+        may be done within the goal, only, as described above.
 
 
 

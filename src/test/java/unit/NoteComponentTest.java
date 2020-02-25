@@ -7,8 +7,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class NoteComponentTest {
     NoteComponent theNoteComponent;
     private static TodoNoteGroup todoNoteGroup;
@@ -30,8 +28,7 @@ class NoteComponentTest {
 
         todoNoteGroup = new TodoNoteGroup("Get New Job");
         testUtil = new TestUtil();
-        todoNoteGroup.setNotifier(testUtil);
-
+        NoteGroup.optionPane = testUtil;
     }
 
     @BeforeEach

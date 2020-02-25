@@ -59,7 +59,7 @@ public class Area51 {
     // infinite recursion introduced by the Panel in all Notegroups.  But it does
     // work when Goal inherits from Object and has a NoteData member.
     private void try3() {
-        Goal goal = new Goal("fname");
+        GoalGroupProperties goal = new GoalGroupProperties("fname");
         Linkage linkage = new Linkage();
         linkage.theId = UUID.fromString("5f3b1b6b-9c1b-482b-b955-150bb8d746d2");
 

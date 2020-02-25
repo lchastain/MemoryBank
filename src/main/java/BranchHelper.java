@@ -18,7 +18,7 @@ public class BranchHelper implements BranchHelperInterface {
     private static Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
     private JTree theTree;  // The original tree, not the one from the editor.
-    private DataGroupKeeper theDataGroupKeeper;
+    private FileGroupKeeper theFileGroupKeeper;
     private DefaultTreeModel theTreeModel;
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
@@ -33,15 +33,15 @@ public class BranchHelper implements BranchHelperInterface {
     private static final String AREA_TODO = "To Do Lists";
     private static final String AREA_SEARCH = "Search Results";
 
-    BranchHelper(JTree jt, DataGroupKeeper dataGroupKeeper, String areaName) {
+    BranchHelper(JTree jt, FileGroupKeeper fileGroupKeeper, String areaName) {
         theTree = jt;
-        theDataGroupKeeper = dataGroupKeeper;
+        theFileGroupKeeper = fileGroupKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         theArea = areaName;
 
         // This Helper is for one of these Branches -
-        if (GoalPanel.areaName.equals(theArea)) {
+        if (GoalGroup.areaName.equals(theArea)) {
             theAreaNodeName = AREA_GOAL;
             thePrefix = "goal_";
         } else if (EventNoteGroup.areaName.equals(theArea)) {
@@ -103,7 +103,7 @@ public class BranchHelper implements BranchHelperInterface {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        File aFile = new File(DataGroup.getFullFilename(theArea, theName));
+        File aFile = new File(FileGroup.getFullFilename(theArea, theName));
         String theComplaint = BranchHelperInterface.checkFilename(theName, aFile.getParent());
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
@@ -156,15 +156,15 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = DataGroup.getFullFilename(theArea, nodeChange.nodeName);
-                String newNamedFile = DataGroup.getFullFilename(theArea, nodeChange.renamedTo);
+                String oldNamedFile = FileGroup.getFullFilename(theArea, nodeChange.nodeName);
+                String newNamedFile = FileGroup.getFullFilename(theArea, nodeChange.renamedTo);
                 File f = new File(oldNamedFile);
 
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
                     } // end if
-                    theDataGroupKeeper.remove(nodeChange.nodeName);
+                    theFileGroupKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -184,13 +184,13 @@ public class BranchHelper implements BranchHelperInterface {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  DataGroup.getFullFilename(theArea, nodeChange.nodeName);
+                String deleteFile =  FileGroup.getFullFilename(theArea, nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nodeChange.nodeName);
                     } // end if
-                    theDataGroupKeeper.remove(nodeChange.nodeName);
+                    theFileGroupKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch

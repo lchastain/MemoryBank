@@ -62,7 +62,7 @@ class EventAgingTest {
 
         // Read the last file, verify one note inside
         File theLastFile = new File(filename4);
-        Object[] theData = AppUtil.loadNoteGroupData(theLastFile);
+        Object[] theData = FileGroup.loadFileData(theLastFile);
         Assertions.assertNotNull(theData);
         Assertions.assertEquals(1, ((ArrayList) theData[0]).size());
 
@@ -71,7 +71,7 @@ class EventAgingTest {
         eventNoteGroup.refresh();
 
         // Reload the data file and verify that it did not grow.
-        theData = AppUtil.loadNoteGroupData(theLastFile);
+        theData = FileGroup.loadFileData(theLastFile);
         Assertions.assertNotNull(theData);
         Assertions.assertEquals(1, ((ArrayList) theData[0]).size());
     }

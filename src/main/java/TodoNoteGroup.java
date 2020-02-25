@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Vector;
 
+@SuppressWarnings({"unchecked"})
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
     private static Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
     private static final int PAGE_SIZE = 20;
@@ -30,7 +31,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static String filePrefix;
 
     // This is saved/loaded
-    public TodoListProperties myVars; // Variables - flags and settings
+    public TodoListGroupProperties myVars; // Variables - flags and settings
 
     static {
         areaName = "TodoLists"; // Directory name under user data.
@@ -83,7 +84,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         theBasePanel.add(pnl1, BorderLayout.EAST);
 
         updateGroup(); // This is where the file gets loaded (if it exists)
-        myVars = new TodoListProperties();
+        myVars = new TodoListGroupProperties();
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
@@ -214,23 +215,24 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-------------------------------------------------------------------
     @Override
     JComponent makeNewNote(int i) {
-        if (i == 0) myVars = new TodoListProperties();
+        if (i == 0) myVars = new TodoListGroupProperties();
         TodoNoteComponent tnc = new TodoNoteComponent(this, i);
         tnc.setVisible(false);
         return tnc;
     } // end makeNewNote
 
 
+    @SuppressWarnings({"unchecked"})
     public void merge() {
         File mergeFile = chooseMergeFile();
         if (mergeFile == null) return;
 
         // Load the file to merge in -
-        Object[] theGroup = AppUtil.loadNoteGroupData(mergeFile);
+        Object[] theGroup = FileGroup.loadFileData(mergeFile);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-        Vector<TodoNoteData> mergeVector;
+
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {} );
+        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
         NoteData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
@@ -492,17 +494,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     @Override
     void setGroupData(Object[] theGroup) {
-        myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListProperties.class);
-        NoteData.loading = true; // We don't want to affect the lastModDates!
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {
-        });
-        NoteData.loading = false; // Restore normal lastModDate updating.
-    }
+        myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListGroupProperties.class);
 
-    // Used by test methods
-    // BUT - later versions will just directly set it, no need for a test-only method.  Remove this when feasible.
-    public void setNotifier(Notifier newNotifier) {
-        optionPane = newNotifier;
+        NoteData.loading = true; // We don't want to affect the lastModDates!
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
+        NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
     public void setOptions() {

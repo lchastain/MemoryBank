@@ -6,10 +6,12 @@ import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 
-public abstract class NoteGroup extends DataGroup {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public abstract class NoteGroup extends FileGroup {
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
@@ -38,8 +40,7 @@ public abstract class NoteGroup extends DataGroup {
 
     // Container for the (complete collection of) Group data objects.
     // It may hold more than the PAGE_SIZE number of visible notes.
-    Vector<NoteData> groupDataVector;
-//    DataVector groupDataVector;
+    Vector groupDataVector;
 
     // Private members
     //-------------------------------------------------------------
@@ -61,7 +62,9 @@ public abstract class NoteGroup extends DataGroup {
 
     NoteGroup(int intPageSize) {
         super();
+        theId = UUID.randomUUID();
         theBasePanel = new JPanel(new BorderLayout()) {
+            private static final long serialVersionUID = 1L;
             //--------------------------------------------------------------------
             // Method Name: getPreferredSize
             //
@@ -81,8 +84,8 @@ public abstract class NoteGroup extends DataGroup {
         intHighestNoteComponentIndex = pageSize - 1;
 
         groupDataVector = new Vector<>();
-//        groupDataVector = new DataVector();
         jsp = new JScrollPane() {
+            private static final long serialVersionUID = 1L;
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(super.getPreferredSize().width, 400);
@@ -366,15 +369,15 @@ public abstract class NoteGroup extends DataGroup {
         adjustMenuItems(b);
     } // end setGroupChanged
 
-    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of <my custom class>),
+    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of NoteData),
     // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
-    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them to JSON
-    // string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was  a several-line
-    // method; this conversion is a one-liner, and my version had the possibility of throwing an Exception that needed
-    // to be caught.  Child classes override this, to set the Vector content type to their own internal data class.
+    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
+    // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
+    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
+    // Exception that needed to be caught.
     void setGroupData(Object[] theGroup) {
         NoteData.loading = true; // We don't want to affect the lastModDates!
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() { });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() {  });
         NoteData.loading = false; // Restore normal lastModDate updating.
     }
 
@@ -401,7 +404,7 @@ public abstract class NoteGroup extends DataGroup {
     //--------------------------------------------------------------------
 
 
-    private void loadGroup() {
+    private void loadNoteGroup() {
         groupDataVector.clear(); // Clear before loading
         lastVisibleNoteIndex = 0;
 
@@ -419,7 +422,7 @@ public abstract class NoteGroup extends DataGroup {
         } else {
             MemoryBank.debug("NoteGroup file name is: " + groupFilename);
         }
-        Object[] theGroup = AppUtil.loadNoteGroupData(groupFilename);
+        Object[] theGroup = FileGroup.loadFileData(groupFilename);
         if (theGroup != null) {
             int notesLoaded = ((List) theGroup[theGroup.length - 1]).size();
             MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
@@ -483,7 +486,7 @@ public abstract class NoteGroup extends DataGroup {
 
             if (dataIndex <= maxDataIndex) { // Put vector data into the interface.
                 MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
-                tempNoteComponent.setNoteData(groupDataVector.elementAt(dataIndex)); // sets initialized to true
+                tempNoteComponent.setNoteData((NoteData)groupDataVector.elementAt(dataIndex)); // sets initialized to true
                 tempNoteComponent.setVisible(true);
                 lastVisibleNoteIndex = panelIndex;
                 dataIndex++;
@@ -568,7 +571,7 @@ public abstract class NoteGroup extends DataGroup {
         }
         if (groupChanged) {
             unloadInterface(theNotePager.getCurrentPage());
-            saveGroup();
+            saveNoteGroup();
         }
     } // end preClose
 
@@ -585,12 +588,13 @@ public abstract class NoteGroup extends DataGroup {
         Vector<NoteData> trimmedList = new Vector<>();
 
         // Xfer the 'good' data over to a new, temporary Vector.
-        for (NoteData tempNoteData : groupDataVector) {
+        for (Object object : groupDataVector) {
 
             // This can happen with an 'empty' NoteGroup.
-            if (tempNoteData == null) continue;
+            if (object == null) continue;
 
             // Don't retain this note if there is no significant primary text.
+            NoteData tempNoteData = (NoteData) object;
             if (tempNoteData.getNoteString().trim().isEmpty()) continue;
 
             // Add each 'good' note to the 'keeper' list.
@@ -610,7 +614,7 @@ public abstract class NoteGroup extends DataGroup {
     //   results should check it and handle the values according to
     //   those situations.
     //--------------------------------------------------------------
-    private void saveGroup() {
+    private void saveNoteGroup() {
         //AppUtil.localDebug(true);
         intSaveGroupStatus = ONGOING;
         String groupFilename = getGroupFilename();
@@ -931,7 +935,7 @@ public abstract class NoteGroup extends DataGroup {
         //   one data.  So - we make sure we are on page one.
         theNotePager.reset(1);
 
-        loadGroup();      // Loads the data array and interface.
+        loadNoteGroup();      // Loads the data array and interface.
         setGroupChanged(false);
 
         // Also needed AFTER loadGroup, not to set the page number but to set the

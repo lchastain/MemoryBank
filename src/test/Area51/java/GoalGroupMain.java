@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class GoalPanelMain {
+public class GoalGroupMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
@@ -11,7 +11,7 @@ public class GoalPanelMain {
 
         JFrame testFrame = new JFrame("Goal Panel Driver");
 
-        GoalPanel theGoalPanel = new GoalPanel("finances");
+        GoalGroup theGoalGroup = new GoalGroup("finances");
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
@@ -25,9 +25,9 @@ public class GoalPanelMain {
             UIManager.setLookAndFeel(laf);
         } catch (Exception ignored) {
         }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(theGoalPanel.theBasePanel);
+        SwingUtilities.updateComponentTreeUI(theGoalGroup.theBasePanel);
 
-        testFrame.getContentPane().add(theGoalPanel.theBasePanel, "Center");
+        testFrame.getContentPane().add(theGoalGroup.theBasePanel, "Center");
         testFrame.pack();
         testFrame.setSize(new Dimension(540, 450));
         testFrame.setVisible(true);

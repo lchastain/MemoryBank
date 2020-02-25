@@ -99,8 +99,8 @@ Ver.    Notes
         <date - current work, not archived>
         Restored an ID to NoteData
         Goals became a branch, vs leaf/placeholder
-        Inserted new DataGroup class as an ancestor of NoteGroup, made 'Panel' a data member vs a 'this'
-        Reworked the groupFilename settings for consistency, now located in DataGroup.
+        Inserted new FileGroup class as an ancestor of NoteGroup, made 'Panel' a data member vs a 'this'
+        Reworked the groupFilename settings for consistency, now located in FileGroup.
             New static variables basePath, areaName, areaPath.  No more direct setting for
               groupFilename; it is a private member, with getter/setter.
 

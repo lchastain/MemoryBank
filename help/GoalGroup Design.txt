@@ -1,0 +1,27 @@
+There can be multiple goals active in the app at any given time.
+Goals will be accessible under the expandable tree node 'Goals'
+Goal data is described in the Goal Design .txt document
+
+The Panel
+    A NoteGroup (default Layout manager is BorderLayout)
+
+
+
+
+Percentage complete - a static member, not preserved and held at the group level, only.
+    Calculated when needed.
+
+An 'Evaluate' button - ask the computer to give a report on how you are doing and it
+    will 'calculate' your overall status.  The user will be able to override this.
+
+
+=======================================
+still thinking on these...
+
+notes, milestones and roadblocks (list)
+    items that have been linked to this goal.
+    each item also gets a status ?
+
+change log
+
+

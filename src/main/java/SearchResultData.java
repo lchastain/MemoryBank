@@ -1,8 +1,9 @@
 import java.beans.Transient;
 import java.io.File;
 
-public class SearchResultData extends NoteData {
+// This class is used to preserve Search results.
 
+public class SearchResultData extends NoteData {
     private File fileFoundIn;
 
     // The JSON mapper uses this one during a load; IntelliJ doesn't find a usage.

@@ -1,0 +1,22 @@
+A NoteGroup extends from a FileGroup.
+    both are abstract classes.
+
+Inherited from FileGroup:
+    Filename definition & manipulation
+    Group 'changed' status
+
+Data Members:
+    A Vector of NoteData.
+
+All NoteGroups encapsulate a JPanel where their data is presented for view/edit.
+  Each group is responsible for building and configuring its own JComponents.
+
+What they do not have is a separate data class that loads into them; as well as
+  the 'view', they ARE that data class although it is not all stored in one place.
+
+So when a NoteGroup is 'saved', what is preserved is any group-specific metadata
+  in the first position of an Object array, and the Vector is stored separately,
+  in the next position.  The 'short' name of the group (used to statically derive
+  the data file path/name) is stored in the application options, unless it is a
+  calendar-based group where the filename is derived from the Date.
+

@@ -572,32 +572,6 @@ public class AppUtil {
         return theJson;
     }
 
-    // ---------------------------------------------------------------------------------
-    // Method Name: loadNoteGroupData
-    //
-    // This is a 'generic' NoteData loader that can handle the loading of data
-    //   for ANY class that is a generation of NoteGroup.  This static method
-    //   helps separate the load of the data from the various components and
-    //   methods that act upon it.
-    // ---------------------------------------------------------------------------------
-    static Object[] loadNoteGroupData(String theFilename) {
-        // theFilename string needs to be the full path to the file.
-        return loadNoteGroupData(new File(theFilename));
-    }
-
-    static Object[] loadNoteGroupData(File theFile) {
-        Object[] theGroup = null;
-        try {
-            String text = FileUtils.readFileToString(theFile, StandardCharsets.UTF_8.name());
-            theGroup = mapper.readValue(text, Object[].class);
-            //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-        } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } // end try/catch
-        return theGroup;
-    }
-
 
     //---------------------------------------------------------------
     // Method Name: addNote
@@ -622,7 +596,7 @@ public class AppUtil {
         // the new note needs to be inserted into an encapsulated ArrayList.
         // However, a database based methodology would not have that same restriction.
         // (note to self, for future upgrade).
-        theGroup = loadNoteGroupData(theFilename);
+        theGroup = FileGroup.loadFileData(theFilename);
 
         // No pre-existing data file is ok in this case; we'll just make one.
         if (theGroup == null) {

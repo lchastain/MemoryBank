@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DataGroupKeeperTest {
+class FileGroupKeeperTest {
     TodoNoteGroup theNoteGroup1;
     TodoNoteGroup theNoteGroup2;
-    DataGroupKeeper dataGroupKeeper;
+    FileGroupKeeper fileGroupKeeper;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -33,36 +33,36 @@ class DataGroupKeeperTest {
     @BeforeEach
     void setUp() {
         // These steps also take care of coverage for the 'add' method.
-        dataGroupKeeper = new DataGroupKeeper();
+        fileGroupKeeper = new FileGroupKeeper();
         theNoteGroup1 = new TodoNoteGroup("Get New Job");
-        dataGroupKeeper.add(theNoteGroup1);
+        fileGroupKeeper.add(theNoteGroup1);
         theNoteGroup2 = new TodoNoteGroup("New Car Shopping");
-        dataGroupKeeper.add(theNoteGroup2);
+        fileGroupKeeper.add(theNoteGroup2);
     }
 
     @Test
     void testGet() {
         // This one can be found.
-        NoteGroup theNoteGroup = (NoteGroup) dataGroupKeeper.get("Get New Job");
+        NoteGroup theNoteGroup = (NoteGroup) fileGroupKeeper.get("Get New Job");
         Assertions.assertNotNull(theNoteGroup);
         assertEquals(theNoteGroup, theNoteGroup1);
 
         // This one will not be found.
-        theNoteGroup = (NoteGroup) dataGroupKeeper.get("Get Lost");
+        theNoteGroup = (NoteGroup) fileGroupKeeper.get("Get Lost");
         Assertions.assertNull(theNoteGroup);
     }
 
     @Test
     void testRemove() {
         // This verifies our starting point, plus shows that 'add' worked correctly.
-        assertEquals(2, dataGroupKeeper.size());
+        assertEquals(2, fileGroupKeeper.size());
 
         // This one can be found.
-        dataGroupKeeper.remove("New Car Shopping");
-        assertEquals(1, dataGroupKeeper.size());
+        fileGroupKeeper.remove("New Car Shopping");
+        assertEquals(1, fileGroupKeeper.size());
 
         // This one will not be found.
-        dataGroupKeeper.remove("Get Lost");
-        assertEquals(1, dataGroupKeeper.size());
+        fileGroupKeeper.remove("Get Lost");
+        assertEquals(1, fileGroupKeeper.size());
     }
 }

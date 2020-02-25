@@ -10,10 +10,10 @@ class NoteGroupFactory {
     // to simply calling a constructor, which of course cannot return a null.
     static NoteGroup getGroup(String groupName, String filename) {
         if (groupName.startsWith("Goal")) {
-            areaName = GoalPanel.areaName;
+            areaName = GoalGroup.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
-                return new GoalPanel(filename);
+                return new GoalGroup(filename);
             } // end if there is a file
         } else if (groupName.startsWith("Upcoming Event")) {
             areaName = EventNoteGroup.areaName;
@@ -47,7 +47,7 @@ class NoteGroupFactory {
         if (theContext.startsWith("To Do List")) {
             return new TodoNoteGroup(filename);
         } else if (theContext.startsWith("Goal")) {
-            return new GoalPanel(filename);
+            return new GoalGroup(filename);
         } else if (theContext.startsWith("Upcoming Event")) {
             return new EventNoteGroup(filename);
         } else if (theContext.startsWith("Search Result")) {
@@ -69,7 +69,7 @@ class NoteGroupFactory {
             // so that further grooming is unnecessary.
             fullFilename = shortName;
         } else {
-            fullFilename = DataGroup.getFullFilename(areaName, shortName);
+            fullFilename = FileGroup.getFullFilename(areaName, shortName);
         }
 
         return new File(fullFilename).exists();

@@ -15,28 +15,28 @@ public class TodoOpts extends JTabbedPane {
     private PriorityPanel priorityPanel;
     private PrintPanel pp;
     private SortPanel sortPanel;
-    private TodoListProperties todoListProperties;
+    private TodoListGroupProperties todoListGroupProperties;
 
-    public TodoOpts(TodoListProperties todoListProperties) {
+    public TodoOpts(TodoListGroupProperties todoListGroupProperties) {
         super();
-        this.todoListProperties = todoListProperties;
+        this.todoListGroupProperties = todoListGroupProperties;
         priorityPanel = new PriorityPanel();
         pp = new PrintPanel();
-        sortPanel = new SortPanel(this.todoListProperties.whenNoKey);
+        sortPanel = new SortPanel(this.todoListGroupProperties.whenNoKey);
         addTab("Priority", null, priorityPanel,
                 "Set priority visibility and limit");
         addTab("Print", null, pp, "Configure the printout");
         addTab("Sort", null, sortPanel, "How to Sort");
     } // end constructor
 
-    public TodoListProperties getValues() {
+    public TodoListGroupProperties getValues() {
         String digit;
         String userInt;
 
         //----------------------------------------------------
         // Priority panel
         //----------------------------------------------------
-        todoListProperties.showPriority = priorityPanel.cb1.isSelected();
+        todoListGroupProperties.showPriority = priorityPanel.cb1.isSelected();
 
         // Idiot-proofing...
         userInt = priorityPanel.tf1.getText().trim();
@@ -49,16 +49,16 @@ public class TodoOpts extends JTabbedPane {
             digit = userInt.substring(1, 2);
             if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        todoListProperties.maxPriority = new Integer(userInt);
+        todoListGroupProperties.maxPriority = new Integer(userInt);
 
         // Print panel
-        todoListProperties.pHeader = pp.cb1.isSelected();
-        todoListProperties.pFooter = pp.cb2.isSelected();
-        todoListProperties.pBorder = pp.cb3.isSelected();
-        todoListProperties.pCSpace = pp.cb4.isSelected();
-        todoListProperties.pPriority = pp.cb5.isSelected();
-        todoListProperties.pDeadline = pp.cb6.isSelected();
-        todoListProperties.pEText = pp.cb7.isSelected();
+        todoListGroupProperties.pHeader = pp.cb1.isSelected();
+        todoListGroupProperties.pFooter = pp.cb2.isSelected();
+        todoListGroupProperties.pBorder = pp.cb3.isSelected();
+        todoListGroupProperties.pCSpace = pp.cb4.isSelected();
+        todoListGroupProperties.pPriority = pp.cb5.isSelected();
+        todoListGroupProperties.pDeadline = pp.cb6.isSelected();
+        todoListGroupProperties.pEText = pp.cb7.isSelected();
 
         // Idiot-proofing...
         userInt = pp.tf2.getText().trim();
@@ -70,20 +70,20 @@ public class TodoOpts extends JTabbedPane {
             digit = userInt.substring(1, 2);
             if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        todoListProperties.pCutoff = new Integer(userInt);
+        todoListGroupProperties.pCutoff = new Integer(userInt);
 
-        todoListProperties.lineSpace = pp.sp.getValue();
+        todoListGroupProperties.lineSpace = pp.sp.getValue();
 
         // Sort panel
-        todoListProperties.whenNoKey = sortPanel.getNoKey();
+        todoListGroupProperties.whenNoKey = sortPanel.getNoKey();
 
-        return todoListProperties;
+        return todoListGroupProperties;
     } // end getValues
 
-    void setNewProperties(TodoListProperties newProperties) {
-        todoListProperties = newProperties;
+    void setNewProperties(TodoListGroupProperties newProperties) {
+        todoListGroupProperties = newProperties;
         priorityPanel = new PriorityPanel();
-        sortPanel = new SortPanel(todoListProperties.whenNoKey);
+        sortPanel = new SortPanel(todoListGroupProperties.whenNoKey);
     }
 
     class PriorityPanel extends JPanel implements ChangeListener {
@@ -124,7 +124,7 @@ public class TodoOpts extends JTabbedPane {
             });
 
             tf1.setFont(new Font("Serif", Font.BOLD, 16));
-            tf1.setText(String.valueOf(todoListProperties.maxPriority));
+            tf1.setText(String.valueOf(todoListGroupProperties.maxPriority));
             //------------------------------------------------------------------
             fp.add(tf1);
 
@@ -132,7 +132,7 @@ public class TodoOpts extends JTabbedPane {
 
             fp.setVisible(false);
             cb1.addChangeListener(this);
-            cb1.setSelected(todoListProperties.showPriority);
+            cb1.setSelected(todoListGroupProperties.showPriority);
         } // end constructor
 
         public void stateChanged(ChangeEvent ce) {
@@ -169,13 +169,13 @@ public class TodoOpts extends JTabbedPane {
             cb5 = new JCheckBox("Priority");
             cb6 = new JCheckBox("Deadline");
             cb7 = new JCheckBox("Extended Text");
-            cb1.setSelected(todoListProperties.pHeader);
-            cb2.setSelected(todoListProperties.pFooter);
-            cb3.setSelected(todoListProperties.pBorder);
-            cb4.setSelected(todoListProperties.pCSpace);
-            cb5.setSelected(todoListProperties.pPriority);
-            cb6.setSelected(todoListProperties.pDeadline);
-            cb7.setSelected(todoListProperties.pEText);
+            cb1.setSelected(todoListGroupProperties.pHeader);
+            cb2.setSelected(todoListGroupProperties.pFooter);
+            cb3.setSelected(todoListGroupProperties.pBorder);
+            cb4.setSelected(todoListGroupProperties.pCSpace);
+            cb5.setSelected(todoListGroupProperties.pPriority);
+            cb6.setSelected(todoListGroupProperties.pDeadline);
+            cb7.setSelected(todoListGroupProperties.pEText);
             p1.add(cb1);
             p1.add(cb2);
             p1.add(cb3);
@@ -189,12 +189,12 @@ public class TodoOpts extends JTabbedPane {
             JPanel p3 = new JPanel();
             p3.add(new JLabel("Priority Cutoff"));
             tf2 = new JTextField(2);
-            tf2.setText(String.valueOf(todoListProperties.pCutoff));
+            tf2.setText(String.valueOf(todoListGroupProperties.pCutoff));
             p3.add(tf2);
             add(p3, gbc);
             gbc.gridy++;
 
-            sp = new spacing(todoListProperties.lineSpace);
+            sp = new spacing(todoListGroupProperties.lineSpace);
             add(sp, gbc);
             gbc.gridy++;
         } // end constructor

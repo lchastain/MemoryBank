@@ -51,7 +51,7 @@ public class AppTreePanelTest {
         appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
 
-        appTreePanel.setNotifier(new TestUtil());
+        appTreePanel.optionPane = new TestUtil();
         theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
         amb = AppTreePanel.appMenuBar;
 

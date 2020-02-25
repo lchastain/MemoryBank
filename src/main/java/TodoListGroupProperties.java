@@ -1,6 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class TodoListProperties {
+public class TodoListGroupProperties {
 
     // Priority
     public boolean showPriority;
@@ -31,7 +31,7 @@ public class TodoListProperties {
     public String column4Label;
     public int columnOrder;
 
-    public TodoListProperties() { // Constructor with defaults
+    public TodoListGroupProperties() { // Constructor with defaults
         showPriority = true;
         maxPriority = 20;
         deadWidth = 170;
