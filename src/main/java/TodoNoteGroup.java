@@ -231,9 +231,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         Object[] theGroup = FileGroup.loadFileData(mergeFile);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
 
-        NoteData.loading = true; // We don't want to affect the lastModDates!
+        BaseData.loading = true; // We don't want to affect the lastModDates!
         Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
-        NoteData.loading = false; // Restore normal lastModDate updating.
+        BaseData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
         LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -496,9 +496,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     void setGroupData(Object[] theGroup) {
         myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListGroupProperties.class);
 
-        NoteData.loading = true; // We don't want to affect the lastModDates!
+        BaseData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
-        NoteData.loading = false; // Restore normal lastModDate updating.
+        BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
     public void setOptions() {

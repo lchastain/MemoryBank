@@ -1,5 +1,6 @@
 import javax.swing.*;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class Area51 {
     private Notifier optionPane = new Notifier() {};
@@ -38,41 +39,39 @@ public class Area51 {
     }
 
     // Developing and testing linkages and how/where to add them into the NoteData hierarchy.
-    // 1. Having Linkage inherit from NoteData causes infinite serialization loop - cannot do that.
-    private void try2() {
-        Linkage linkage = new Linkage();
-
-        linkage.theGroup = "Long List";
-        // When Linkage inherited from NoteData:
-        //        linkage.noteId = UUID.fromString("5f3b1b6b-9c1b-482b-b955-150bb8d746d2");
-        //        linkage.linkages.add(linkage);
-
-        // Now when Linkage inherits from Object:
-        linkage.theId = UUID.fromString("5f3b1b6b-9c1b-482b-b955-150bb8d746d2");
-
-        // Only the second one works -
-        System.out.println("The linkage to JSON is: " + AppUtil.toJsonString(linkage));
-    }
-
     // Testing Goal serialization prior to adding its ability to load/save a file;
-    // Was likewise unable to inherit, this time from NoteGroup, because of the
-    // infinite recursion introduced by the Panel in all Notegroups.  But it does
-    // work when Goal inherits from Object and has a NoteData member.
-    private void try3() {
-        GoalGroupProperties goal = new GoalGroupProperties("fname");
-        Linkage linkage = new Linkage();
-        linkage.theId = UUID.fromString("5f3b1b6b-9c1b-482b-b955-150bb8d746d2");
+    @SuppressWarnings({"unchecked"})
+    private void try2() {
+        // Make a new GoalGroup (and its properties)
+        GoalGroup goalGroup = new GoalGroup("WorldPlan1");
+        GoalGroupProperties goalGroupProperties = new GoalGroupProperties();
+        goalGroupProperties.goalTitle = "Take Over The World";
+        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroupProperties));
 
-        goal.linkages.add(linkage);
+        // Make a todo list item and a link to the Goal, and add the link to the todo item's linkages list.
+        TodoNoteData todoNoteData = new TodoNoteData();
+        todoNoteData.noteString = "Notify the media";
+        todoNoteData.linkages = new ArrayList();
+        LinkData linkage = new LinkData(todoNoteData);
+        linkage.theGroup = "goal_WorldPlan1";
+        linkage.setTargetId(goalGroupProperties.noteId);
+        todoNoteData.linkages.add(linkage);
+        System.out.println("The TodoNoteData to JSON is: " + AppUtil.toJsonString(todoNoteData));
 
-        System.out.println("The goal to JSON is: " + AppUtil.toJsonString(goal));
+        // Add the linkage to our GoalGroup
+        goalGroup.groupDataVector = new Vector<LinkData>();
+        goalGroup.groupDataVector.add(linkage);
+        System.out.println("The Goal Group data vector to JSON is: " + AppUtil.toJsonString(goalGroup.groupDataVector));
+
+        // A GoalGroup (like any other NoteGroup) is not itself saved (serialized).  Its relevant data components
+        // (properties and the data vector) are what go out to the data file.
     }
 
     public static void main(String[] args) {
         Area51 a51 = new Area51();
         //a51.try1();
-        //a51.try2();
-        a51.try3();
+        a51.try2();
+        //a51.try3();
 
     }
 

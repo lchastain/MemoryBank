@@ -151,9 +151,9 @@ public class MonthView extends JLayeredPane {
         String iconFileString;
 
         Object[] theDayGroup = FileGroup.loadFileData(theFilename);
-        NoteData.loading = true; // We don't want to affect the lastModDates!
+        BaseData.loading = true; // We don't want to affect the lastModDates!
         Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theDayGroup[0], new TypeReference<Vector<DayNoteData>>() { });
-        NoteData.loading = false; // Restore normal lastModDate updating.
+        BaseData.loading = false; // Restore normal lastModDate updating.
 
         for (DayNoteData tempDayData : theDayNotes) {
             if (tempDayData.getShowIconOnMonthBoolean()) {

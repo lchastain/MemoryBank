@@ -376,9 +376,9 @@ public abstract class NoteGroup extends FileGroup {
     // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
     // Exception that needed to be caught.
     void setGroupData(Object[] theGroup) {
-        NoteData.loading = true; // We don't want to affect the lastModDates!
+        BaseData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() {  });
-        NoteData.loading = false; // Restore normal lastModDate updating.
+        BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
     // Provides a way for a management class (AppTreePanel) to set the displayed data, vs loading it from a file.

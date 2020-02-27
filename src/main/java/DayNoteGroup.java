@@ -232,9 +232,9 @@ public class DayNoteGroup extends CalendarNoteGroup
     // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
     // Exception that needed to be caught.
     void setGroupData(Object[] theGroup)  {
-        NoteData.loading = true; // We don't want to affect the lastModDates!
+        BaseData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });
-        NoteData.loading = false; // Restore normal lastModDate updating.
+        BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
     public void shiftDown(int index) {

@@ -2,11 +2,22 @@
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
-2/26 - Dermatology appointment at 16:30
 
+
+
+
+2/27/2020 1511 - Stability restored, class hierarchy revised a good deal.  Added BaseData, that
+  NoteData now extends, and so does GoalGroupProperties.  Added another UUID to LinkData, so the
+  connection can be two-way, used in the 'reverse' direction currently (planned) only by GoalGroup
+  but possibly by others in future mods.  LinkData extends NoteData by overloading and ignoring
+  the linkages list so that it remains serializable.  Overall Goal design continues to evolve.
+  Still need to add a GoalNoteComponent.
+  Currently in design mode for that component; how / what to show from a link.
+
+2/26 - Dermatology appointment at 16:30 (and blood draw next morning, ~0800)
 
 2/25/2020 0458 - DataVector is now gone, entirely.  The ancestor of NoteGroup is FileGroup, and
-  it deals only with the file name and load/save of Object arrays.  Type conversions of data
+  that one deals only with the file name and load/save of Object arrays.  Type conversions of data
   vectors have moved back into the individual NoteGroup child classes.  This paves the way for
   the stability needed to get back to adding a new class:  GoalNoteComponent.  Some of the
   earlier ideas as listed below - just didn't work out; the status as stated here is how it is.

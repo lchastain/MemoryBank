@@ -1,19 +1,14 @@
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.UUID;
 
-class NoteData {
-    protected String zdtLastModString;
-    UUID noteId;
+class NoteData extends BaseData{
     String noteString;
     String subjectString;
     String extendedNoteString;
-    ArrayList<Linkage> linkages;
-
-    static boolean loading = false;
+    ArrayList linkages;
 
     NoteData() {
-        noteId = UUID.randomUUID();
+        super();
         if(!loading) {
             zdtLastModString = ZonedDateTime.now().toString();
         }

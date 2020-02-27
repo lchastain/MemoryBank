@@ -4,6 +4,7 @@ A NoteGroup extends from a FileGroup.
 Inherited from FileGroup:
     Filename definition & manipulation
     Group 'changed' status
+    Load and Save of Object array from/to the data file
 
 Data Members:
     A Vector of NoteData.

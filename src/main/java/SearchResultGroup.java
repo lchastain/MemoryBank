@@ -265,9 +265,9 @@ public class SearchResultGroup extends NoteGroup {
     @Override
     void setGroupData(Object[] theGroup) {
         myVars = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
-        NoteData.loading = true; // We don't want to affect the lastModDates!
+        BaseData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
-        NoteData.loading = false; // Restore normal lastModDate updating.
+        BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
     //--------------------------------------------------------------

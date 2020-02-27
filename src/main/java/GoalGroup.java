@@ -32,6 +32,8 @@ public class GoalGroup extends NoteGroup {
 
         setGroupFilename(areaPath + filePrefix + fname + ".json");
 
+        GoalGroupProperties goalGroupProperties = new GoalGroupProperties();
+
 
         saveWithoutData = true;
         updateGroup();

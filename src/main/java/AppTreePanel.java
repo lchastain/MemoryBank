@@ -710,9 +710,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             String theFilename = FileGroup.getFullFilename(EventNoteGroup.areaName, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = FileGroup.loadFileData(theFilename);
-            NoteData.loading = true; // We don't want to affect the lastModDates!
+            BaseData.loading = true; // We don't want to affect the lastModDates!
             groupDataVector = AppUtil.mapper.convertValue(theData[0], new TypeReference<Vector<EventNoteData>>() {  });
-            NoteData.loading = false; // Restore normal lastModDate updating.
+            BaseData.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
                 theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -1045,12 +1045,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
         Object[] theGroupData = FileGroup.loadFileData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-            NoteData.loading = true; // We don't want to affect the lastModDates!
+            BaseData.loading = true; // We don't want to affect the lastModDates!
             // During a search these notes would not be re-preserved anyway, but the reason we care is that
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
             searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
-            NoteData.loading = false; // Restore normal lastModDate updating.
+            BaseData.loading = false; // Restore normal lastModDate updating.
         }
         if(searchDataVector == null) return;
 

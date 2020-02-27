@@ -1,26 +1,35 @@
+// Initially this class was going to extend a NoteData, but after going to some lengths to make it workable,
+//   that approach was abandoned, for two main reasons - First, I didn't want to reuse the inherited data
+//   members with names that did not match their intended usages (like using noteString in place of the Goal
+//   Title), and I really did not like the need to @JsonIgnore the linkages in order to get this one to
+//   serialize.  Secondly, this approach is contrary to how the other Groups with properties define their
+//   members, and it would motivate me to shoehorn them in as well, for consistency, when the real direction
+//   I needed to go was back out, to a more appropriate class.  Turns out that the main reusables from
+//   NoteData are the ID and Last Mod Data, so now those have been pulled out into the new base class
+//   (BaseData) that both NoteData and group Properties extend, down separate paths.
 
-public class GoalGroupProperties extends NoteData{
-    // Usage of NoteData members:
-    //-----------------------------------------------------------------------------------
-    // NoteData.noteString will be used as the Goal statement / title.
-    // NoteData.extendedNoteString will hold the high-level Plan.
-    // NoteData.noteId will be the ID of the goal
-    // NoteData.linkages will remain null - some thought was given to using it in place
-    //   of the Group DataVector, but the Vector needs to contain GoalNoteData, not
-    //   Linkages, and doing it this way allows the GoalGroup to behave just like all the
-    //   others in terms of interface management, new data creation, loading, and saving.
-    //   Another alternative would be to hold another copy of the all the various
-    //   linkages that are defined in the source notes, but there seems to be no need to
-    //   do that at this time, given that the Vector will restate anything that needs to
-    //   be seen by the user, and changes to source notes will be reflected into the
-    //   relevant Goal vectors as they occur; no need to 'point back', although a
-    //   GoalNoteComponent may hold the Linkage from which it is created, and that would
-    //   provide another path to the complete list of linkages although not as direct.
+// To elaborate on the 'linkages' problem touched on above - when this class extended from NoteData, some
+//   thought was given to using linkages as the GoalGroup DataVector, but that was seen as being too
+//   far outside the norm of how the other NoteGroups access their displayed data, while keeping
+//   their metadata in a separate 'properties' bucket.  Another alternative would have been for it to hold
+//   another copy of the linkages from the data vector, but there seems to be no need to do that;
+//   it would be a wasteful redundancy.  And finally, the problem of infinite recursion
+//   during serialization that was seen by LinkData would be here as well, so just like with that one,
+//   it would need to be overloaded and ignored.
 
-    int goalStatus;
+
+public class GoalGroupProperties extends BaseData {
+    // From BaseData this class gets its ID and Last Mod Date.
+    String goalTitle;  // A single line of text, descriptive of the goal
+    String goalPlan;   // The plan statement at the high level, not including Todo item-like steps.
+
+//    int goalStatus;  // This is the overall status, as opposed to status of link sources.
+// Do not go 'live' until naming is more certain.  We still need the immediate status, as well as the overall.
     // Unscheduled - no particular timeline set
     // Scheduled - by a certain date
         // On track, ahead, behind
+    // Could be 'calculated', but allow the user to override.
+
 
     static float percentageComplete; // Did some research to consider float vs double.
     // And the results were inconclusive.  For a percentage with two decimal points we
@@ -37,9 +46,9 @@ public class GoalGroupProperties extends NoteData{
         MemoryBank.trace();
     } // end static
 
-    public GoalGroupProperties(String fname) {
+    public GoalGroupProperties() {
         super();
-        goalStatus = 0;
+//        goalStatus = 0;
 
 
     }
