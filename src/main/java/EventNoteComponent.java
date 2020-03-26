@@ -5,7 +5,6 @@
 public class EventNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
     private EventNoteGroup myNoteGroup;
-    static boolean isEditable = true;
 
     // The Member
     private EventNoteData myEventNoteData;
@@ -13,10 +12,6 @@ public class EventNoteComponent extends IconNoteComponent {
     EventNoteComponent(EventNoteGroup eng, int i) {
         super(eng, i);
         myNoteGroup = eng;
-        if(!isEditable) {
-            noteTextField.setEditable(false);
-            noteIcon.removeMouseListener(noteIcon);
-        }
         MemoryBank.trace();
     } // end constructor
 
@@ -59,7 +54,7 @@ public class EventNoteComponent extends IconNoteComponent {
             s = "Events shown in the Consolidated View are non-editable.  ";
             s += "Go to the original source if a change is needed.";
         }
-        myNoteGroup.setMessage(s);
+        myNoteGroup.setStatusMessage(s);
     } // end resetNoteStatusMessage
 
 

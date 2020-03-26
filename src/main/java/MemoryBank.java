@@ -1,15 +1,15 @@
-import org.apache.commons.io.FileUtils;
-
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Vector;
 
+@SuppressWarnings("rawtypes")
 public class MemoryBank {
     static Color amColor;
     static Color pmColor;
@@ -32,6 +32,8 @@ public class MemoryBank {
     static JFrame logFrame;
     static Notifier optionPane;
     static SubSystem system;
+    static Vector groupNames;
+    static boolean readOnly;
 
     static {
         // These can be 'defined' in the startup command.  Ex:
@@ -53,6 +55,7 @@ public class MemoryBank {
         setProgramDataLocation();
 
         appOpts = new AppOptions(); // Start with default values.
+        readOnly = false;
 
         // Set the Look and Feel
         try {
@@ -71,32 +74,6 @@ public class MemoryBank {
         pmColor = Color.black;
         archive = false;
     } // end static
-
-
-    static void loadOpts() {
-        Exception e = null;
-        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
-
-        try {
-            String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
-            appOpts = AppUtil.mapper.readValue(text, AppOptions.class);
-            System.out.println("appOpts from JSON file: " + AppUtil.toJsonString(appOpts));
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; use defaults.
-            debug("User tree options not found; using defaults");
-        } catch (IOException ioe) {
-            e = ioe;
-            e.printStackTrace();
-        }
-
-        if (e != null) {
-            String ems = "Error in loading " + filename + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\nOptions load operation aborted.";
-            optionPane.showMessageDialog(null,
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-        } // end if
-    } // end loadOpts
 
 
     //-----------------------------------------------------------------
@@ -380,11 +357,13 @@ public class MemoryBank {
         setUserDataHome(userEmail);
 
 
-        loadOpts();  // Load the user settings - will not exist for new user but if available, can override defaults.
+        AppOptions.loadOpts();  // Load the user settings - will not exist for new user but if available, can override defaults.
         // New attributes to store and retrieve (future work):
         // size of main frame         - only if it makes sense after the future sizing work is done.
         // location of main frame     - only if it makes sense after the future sizing work is done.
         // user's preferred Log name (vs the system's user name) - needs a dialog to take in the new string.
+
+        GroupInfo.load(); // Load the list of Group Names.
 
         //--------------------------------------
         // Specify logFrame attributes
@@ -430,40 +409,11 @@ public class MemoryBank {
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
                 appTreePanel.preClose();
-                saveOpts(); // temp
+                AppOptions.saveOpts(); // temp
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
     } // end main
-
-    static void saveOpts() {
-        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
-        MemoryBank.debug("Saving application option data in " + filename);
-
-        try (FileWriter writer = new FileWriter(filename);
-             BufferedWriter bw = new BufferedWriter(writer)) {
-            bw.write(AppUtil.toJsonString(appOpts));
-            bw.flush();
-        } catch (IOException ioe) {
-            // Since saveOpts is to be called via a shutdown hook that is not going to
-            // wait around for the user to 'OK' an error dialog, any error in saving
-            // will only be reported in a printout via MemoryBank.debug because
-            // otherwise the entire process will hang up waiting for the user's 'OK'
-            // on the dialog that will NOT be showing.
-
-            // A normal user will not see the debug error printout but
-            // they will most likely see other popups such as filesystem full, access
-            // denied, etc, that a sysadmin type can resolve for them, that will
-            // also fix this issue.
-            String ems = ioe.getMessage();
-            ems = ems + "\nMemory Bank options save operation aborted.";
-            MemoryBank.debug(ems);
-            // This popup caused a hangup and the vm had to be 'kill'ed.
-            // JOptionPane.showMessageDialog(null,
-            //    ems, "Error", JOptionPane.ERROR_MESSAGE);
-            // Yes, even though the parent was null.
-        } // end try/catch
-    } // end saveOpts
 
 
 } // end class MemoryBank

@@ -1,3 +1,8 @@
+import org.apache.commons.io.FileUtils;
+
+import javax.swing.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 //-------------------------------------------------------------------------
@@ -5,7 +10,7 @@ import java.util.Vector;
 //
 // The purpose of this class is to preserve the current state of the
 //   application - JTree expanded nodes, variable leaf names, current
-//   selection, etc.
+//   view, etc.
 //
 // Considered for storage but not implemented:
 // 1.  A custom icon for the app
@@ -27,6 +32,7 @@ class AppOptions {
     Vector<String> eventsList;
     Vector<String> tasksList;
     Vector<String> searchResultList;
+    Vector<LinkedNoteData> linkages;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
     String consolidatedEventsViewName;
 
@@ -44,6 +50,60 @@ class AppOptions {
         eventsList = new Vector<>(0, 1);
         tasksList = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
+        linkages = new Vector<>(0, 1);
     } // end constructor
 
+    static void loadOpts() {
+        Exception e = null;
+        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
+
+        try {
+            String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
+            MemoryBank.appOpts = AppUtil.mapper.readValue(text, AppOptions.class);
+            System.out.println("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
+        } catch (FileNotFoundException fnfe) {
+            // not a problem; use defaults.
+            MemoryBank.debug("User tree options not found; using defaults");
+        } catch (IOException ioe) {
+            e = ioe;
+            e.printStackTrace();
+        }
+
+        if (e != null) {
+            String ems = "Error in loading " + filename + " !\n";
+            ems = ems + e.toString();
+            ems = ems + "\nOptions load operation aborted.";
+            MemoryBank.optionPane.showMessageDialog(null,
+                    ems, "Error", JOptionPane.ERROR_MESSAGE);
+        } // end if
+    } // end loadOpts
+
+    static void saveOpts() {
+        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
+        MemoryBank.debug("Saving application option data in " + filename);
+
+        try (FileWriter writer = new FileWriter(filename);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+            bw.write(AppUtil.toJsonString(MemoryBank.appOpts));
+            bw.flush();
+        } catch (IOException ioe) {
+            // Since saveOpts is to be called via a shutdown hook that is not going to
+            // wait around for the user to 'OK' an error dialog, any error in saving
+            // will only be reported in a printout via MemoryBank.debug because
+            // otherwise the entire process will hang up waiting for the user's 'OK'
+            // on the dialog that will NOT be showing.
+
+            // A normal user will not see the debug error printout but
+            // they will most likely see other popups such as filesystem full, access
+            // denied, etc, that a sysadmin type can resolve for them, that will
+            // also fix this issue.
+            String ems = ioe.getMessage();
+            ems = ems + "\nMemory Bank options save operation aborted.";
+            MemoryBank.debug(ems);
+            // This popup caused a hangup and the vm had to be 'kill'ed.
+            // JOptionPane.showMessageDialog(null,
+            //    ems, "Error", JOptionPane.ERROR_MESSAGE);
+            // Yes, even though the parent was null.
+        } // end try/catch
+    } // end saveOpts
 } // end class AppOptions

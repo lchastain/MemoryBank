@@ -198,7 +198,7 @@ public class DayNoteComponent extends IconNoteComponent {
             resetTimeLabel();
             DayNoteComponent.this.setNoteChanged();
         } else {
-            myNoteGroup.shiftDown(index);
+            myManager.shiftDown(index);
         } // end if
     } // end shiftDown
 
@@ -211,7 +211,7 @@ public class DayNoteComponent extends IconNoteComponent {
             resetTimeLabel();
             DayNoteComponent.this.setNoteChanged();
         } else {
-            myNoteGroup.shiftUp(index);
+            myManager.shiftUp(index);
         } // end if
     } // end shiftUp
 
@@ -241,7 +241,7 @@ public class DayNoteComponent extends IconNoteComponent {
         if (dnd2 == null) this.clear();
         else this.setDayNoteData(dnd2);
 
-        myNoteGroup.setGroupChanged(true);
+        myManager.setGroupChanged(true);
     } // end swap
 
 
@@ -424,12 +424,12 @@ public class DayNoteComponent extends IconNoteComponent {
 
         public void mouseEntered(MouseEvent e) {
             if (!initialized) return;
-            myNoteGroup.setMessage("Left click mouse to activate, then " +
+            myManager.setStatusMessage("Left click mouse to activate, then " +
                     "shift up/down arrows to adjust time");
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
-            myNoteGroup.setMessage(" ");
+            myManager.setStatusMessage(" ");
         }
 
         public void mousePressed(MouseEvent e) {

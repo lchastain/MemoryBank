@@ -1,35 +1,21 @@
 This is a one-time-use module that will be used to:
 
-    1.  Remove from NoteData:
-            extendedNoteWidthInt
-            extendedNoteHeightInt
-        Previously just json-ignored but as long as there's this datafix anyway, time to
-        completely remove.
+    1.  Remove from BaseData:
+            noteId - replaced with 'instanceId'; more global, not tied to 'notes'.
 
-    2.  Restore to NoteData:
-            the ID - as a UUID
-        This was there for a long long time, hoping to be used in linkages.  Finally it was removed
-        after IJ complained too much about the unused var, but now - it's going to be used.
+    2.  Remove from NoteData:
+            linkages - moved from being a list of LinkData on individual noteDatas to an overall single global list of
+                a new class (LinkedNoteData) in appOptions.  LinkedNoteData has its own list of another new class -
+                LinkTarget.
 
-    3.  Add to NoteData:
-            ArrayList<Linkage> linkages;
-        A list of links to other items.  Also adding the Linkage.java class
+    3.  Create the GroupNames list - this obviates the need to give every NoteGroup a properties class.
+            (temporarily, at least)
 
-    4.  Remove from TodoNoteData:
-            private String strLinkage;
-                and also the 'linkage' that was made by Jackson converter, for the get/set of strLinkage.
-        Because the list of linkages in NoteData will replace this.  They are json-ignored during this run,
-            then can be removed altogether.
+And a manual fix of moving all the 'year' data under a 'Years' directory in the user data area.
 
-FixUtil is just the AppUtil that was being used to load/save, at the time this data fix was needed.  It was
-copied to here so that this code might be used again if needed, even if AppUtil evolves.  A rename was
-necessary in order to avoid a name collision with the one still in production code (that is otherwise still
-identical to the one here but that can only certain for the current usage of this datafix).
-
-But there are still other 'production' classes involved; no guarantee that this code will continue to work
-correctly after its one-time use and the codebase has moved on.
-
-All 'datafix' accesses to FixUtil are static.
+Some now-obsolete production classes have been copied to this area so that the fixit MIGHT continue to work and be
+  usable after its one-time use.  But there are other 'production' classes involved; no guarantee that this code
+  will continue to work after the codebase has moved on.
 
 How to remove a newly json-ignored data member from a class (IF you don't need any values from it):
    1.  After it has been ignored, need to load and then re-save the data.  It will not appear in the saved data,

@@ -35,7 +35,7 @@ class SearchResultHeaderTest {
         FileUtils.copyDirectory(testResource, testDataLoc);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
     }
 
     // This test is needed in order to get coverage for an anonymous class that is

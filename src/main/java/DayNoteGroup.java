@@ -162,11 +162,11 @@ public class DayNoteGroup extends CalendarNoteGroup
                 s = "Click here to see time in 24 hour format";
                 break;
         }
-        setMessage(s);
+        setStatusMessage(s);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
-        setMessage(" ");
+        setStatusMessage(" ");
     }
     public void mousePressed(MouseEvent e) { }
     public void mouseReleased(MouseEvent e) { }

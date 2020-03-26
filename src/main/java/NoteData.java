@@ -1,11 +1,9 @@
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 
-class NoteData extends BaseData{
+class NoteData extends BaseData {
     String noteString;
     String subjectString;
     String extendedNoteString;
-    ArrayList linkages;
 
     NoteData() {
         super();
@@ -19,24 +17,12 @@ class NoteData extends BaseData{
     // The copy constructor (clone)
     NoteData(NoteData ndCopy) {
         this();
-        this.noteId = ndCopy.noteId;
+        this.instanceId = ndCopy.instanceId;
         this.extendedNoteString = ndCopy.extendedNoteString;
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
         this.zdtLastModString = ndCopy.zdtLastModString;
-        this.linkages = ndCopy.linkages;
-    } // end constructor
-
-    // Construct a NoteData from a TodoNoteData.
-    NoteData(TodoNoteData ndCopy) {
-        this();
-        this.noteId = ndCopy.noteId;
-        this.noteString = ndCopy.noteString;
-        this.subjectString = ndCopy.subjectString;
-        this.extendedNoteString = ndCopy.extendedNoteString;
-        this.zdtLastModString = ndCopy.getLastModDate().toString();
-        this.linkages = ndCopy.linkages;
-    } // end constructor
+    } // end of the copy constructor
 
     void clear() {
         noteString = "";
@@ -46,11 +32,10 @@ class NoteData extends BaseData{
         subjectString = null;  // null, not "".
 
         extendedNoteString = "";
-        linkages = new ArrayList<>();
     } // end clear
 
-    // A copy constructor cannot be called in a class-unspecified manner;
-    //   this method can be.  Child classes will override so that a calling
+    // A copy constructor cannot be called from a reference;
+    //   this method can be.  Child classes will override it so that a calling
     //   context does not need to know what generation of NoteData it is
     //   really getting, just that it will look like a NoteData.
     protected NoteData copy() {

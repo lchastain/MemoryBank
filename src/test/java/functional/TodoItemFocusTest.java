@@ -34,7 +34,7 @@ class TodoItemFocusTest {
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
 
         todoNoteGroup = new TodoNoteGroup("Get New Job");
         theFrame = new JFrame("ItemFocusTest");

@@ -239,11 +239,11 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
                 break;
         }
 
-        myNoteGroup.setMessage(mouseMsg);
+        myNoteGroup.setStatusMessage(mouseMsg);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
-        myNoteGroup.setMessage("");
+        myNoteGroup.setStatusMessage("");
     }
 
     public void mousePressed(MouseEvent e) {

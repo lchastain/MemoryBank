@@ -41,7 +41,7 @@ class CollapseChangesTest {
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
     }
 
     @Test

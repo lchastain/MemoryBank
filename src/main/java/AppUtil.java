@@ -1,13 +1,11 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -610,50 +608,9 @@ public class AppUtil {
         // just add the note to the array of LinkedHashMap.
         ((ArrayList) theGroup[0]).add(nd); // reason for suppressing the 'unchecked' warning.
 
-        int notesWritten = saveNoteGroupData(theFilename, theGroup);
+        int notesWritten = FileGroup.saveFileData(theFilename, theGroup);
         return notesWritten >= 1;
     } // end addNote
-
-    // ---------------------------------------------------------------------------------
-    // Method Name: saveNoteGroupData
-    //
-    // This static method is needed to separate the writing of the data to a file,
-    // from the various components and methods that display and modify it.
-    // ---------------------------------------------------------------------------------
-    static int saveNoteGroupData(String theFilename, Object[] theGroup) {
-        int notesWritten = 0;
-        BufferedWriter bw = null;
-        Exception e = null;
-        try {
-            FileOutputStream fileStream = FileUtils.openOutputStream(new File(theFilename)); // Creates parent directories, if needed.
-            OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
-            bw = new BufferedWriter(writer);
-            bw.write(toJsonString(theGroup));
-            // Set the number of notes written, only AFTER the write.
-            notesWritten = ((List) theGroup[theGroup.length - 1]).size();
-        } catch (Exception ioe) {
-            // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
-            // same name in the directory where you want to put the file, or not having write permission.
-            e = ioe;
-        } finally {
-            if (e != null) {
-                // This one may have been ignorable; print the message and see.
-                System.out.println("Exception in AppUtil.saveNoteGroupData: \n  " + e.getMessage());
-            } // end if there was an exception
-            // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
-            try {
-                if (bw != null) {
-                    bw.flush();
-                    bw.close(); // Also closes the wrapped FileWriter
-                }
-            } catch (IOException ioe) {
-                // This one would be more serious - raise a 'louder' alarm.
-                ioe.printStackTrace(System.out);
-            } // end try/catch
-        } // end try/catch
-
-        return notesWritten;
-    }
 
     // This is my own conversion, to numbers that matched these
     // that were being returned by Calendar queries, now deprecated.

@@ -2,7 +2,7 @@ A Goal will be represented by a GoalGroup; one GoalGroup per Goal.
 
 There can be multiple goals active in the app at any given time.
 Goals will be accessible under the expandable tree node 'Goals'
-GoalGroup data is described in the GoalGroupData Design.txt document
+GoalGroup data is described in the 'GoalGroup Data Design.txt' file
 
 The Panel  (groupNotesListPanel)
     Inherited from NoteGroup (default Layout manager is BorderLayout)
@@ -11,7 +11,7 @@ The Panel  (groupNotesListPanel)
 
 
 
-Percentage complete - a static member, not preserved and held at the group level, only.
+Percentage complete - a static member, not preserved, and held at the group level, only.
     Calculated when needed.
 
 An 'Evaluate' button - ask the computer to give a report on how you are doing and it

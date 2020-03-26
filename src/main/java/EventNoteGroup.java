@@ -70,6 +70,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;
+        addNoteAllowed = !MemoryBank.readOnly;
 
         eventNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -225,7 +226,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         if (eventNoteComponent == null) {
             String s;
             s = "You must select an Event before a Start date can be set!";
-            setMessage(s);
+            setStatusMessage(s);
             tmc.setChoice(null);
             return;
         } // end if
@@ -308,7 +309,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
 
     @Override
-    boolean editExtendedNoteComponent(NoteData noteData) {
+    public boolean editExtendedNoteComponent(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
         if(extendedNoteComponent == null) {
             extendedNoteComponent = new EventEditorPanel("Upcoming Event");
@@ -375,7 +376,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
-        setGroupData(groupDataVector);
+        showGroupData(groupDataVector);
         setGroupChanged(true);
     } // end merge
 
@@ -517,7 +518,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     }
 
     @Override
-    void setGroupChanged(boolean b) {
+    public void setGroupChanged(boolean b) {
         if(getGroupChanged() == b) return; // No change
         super.setGroupChanged(b);
     } // end setGroupChanged

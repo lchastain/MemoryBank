@@ -52,7 +52,7 @@ public abstract class IconNoteComponent extends NoteComponent {
     } // end static section
 
 
-    IconNoteComponent(NoteGroup ng, int i) {
+    IconNoteComponent(NoteComponentManager ng, int i) {
         super(ng, i);
         index = i;
 
@@ -164,7 +164,9 @@ public abstract class IconNoteComponent extends NoteComponent {
 
         NoteIcon() {
             super();
-            addMouseListener(this);
+            if(isEditable) {
+                addMouseListener(this);
+            }
             setBorder(highBorder);
         } // end constructor
 
@@ -338,11 +340,11 @@ public abstract class IconNoteComponent extends NoteComponent {
             if (!initialized) return;
             String s;
             s = "Left click here to set a new Icon";
-            myNoteGroup.setMessage(s);
+            myManager.setStatusMessage(s);
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
-            myNoteGroup.setMessage(" ");
+            myManager.setStatusMessage(" ");
         }
 
         public void mousePressed(MouseEvent e) {

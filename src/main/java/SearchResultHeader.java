@@ -38,16 +38,16 @@ public class SearchResultHeader extends Container implements ClingSource {
         hb4 = new HeaderButton("Deadline");
 
         // Whatever was stored...
-        hb1.setText(parent.myVars.column1Label);
-        hb2.setText(parent.myVars.column2Label);
-        hb3.setText(parent.myVars.column3Label);
+        hb1.setText(parent.myProperties.column1Label);
+        hb2.setText(parent.myProperties.column2Label);
+        hb3.setText(parent.myProperties.column3Label);
 
         add(hb1, "First");
         add(hb2, "Stretch");
         add(hb3, "Third");
 
         // Re-order, if necessary
-        String pos = String.valueOf(parent.myVars.columnOrder);
+        String pos = String.valueOf(parent.myProperties.columnOrder);
         // System.out.println("In SearchResultHeader, columnOrder = " + pos);
         add(hb1, pos.indexOf("1"));
         add(hb2, pos.indexOf("2"));
@@ -70,9 +70,9 @@ public class SearchResultHeader extends Container implements ClingSource {
 
         // System.out.println("SearchResultHeader.doLayout");
 
-        int origColumnOrder = parent.myVars.columnOrder;
+        int origColumnOrder = parent.myProperties.columnOrder;
         if (getColumnOrder() != origColumnOrder) {
-            parent.myVars.columnOrder = getColumnOrder();
+            parent.myProperties.columnOrder = getColumnOrder();
             parent.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }
@@ -273,14 +273,14 @@ public class SearchResultHeader extends Container implements ClingSource {
         public void mouseEntered(MouseEvent e) {
             String theHeaderText = getText();
             if(defaultLabel.equals("Found In")) {
-                parent.setMessage("Sorry, unable to sort by '" + theHeaderText + "'.");
+                parent.setStatusMessage("Sorry, unable to sort by '" + theHeaderText + "'.");
             } else {
-                parent.setMessage("Click to Sort by " + theHeaderText + " and shift-click to sort descending.");
+                parent.setStatusMessage("Click to Sort by " + theHeaderText + " and shift-click to sort descending.");
             }
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
-            parent.setMessage(" ");
+            parent.setStatusMessage(" ");
         } // end mouseExited
 
         // It was necessary to override this next method, to fix a problem

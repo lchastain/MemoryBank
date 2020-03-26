@@ -24,10 +24,14 @@ public class GoalGroupProperties extends BaseData {
     String goalPlan;   // The plan statement at the high level, not including Todo item-like steps.
 
 //    int goalStatus;  // This is the overall status, as opposed to status of link sources.
-// Do not go 'live' until naming is more certain.  We still need the immediate status, as well as the overall.
+// Do not go 'live' until naming and values are more certain.  We still need the immediate status, as well as the overall.
+
+
     // Unscheduled - no particular timeline set
     // Scheduled - by a certain date
-        // On track, ahead, behind
+        // in progress, On track, ahead, behind
+        // stalled, waiting
+    // Scheduled - a set of tasks (similar to a todo list?)
     // Could be 'calculated', but allow the user to override.
 
 

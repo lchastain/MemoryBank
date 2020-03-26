@@ -44,7 +44,7 @@ class MemoryBankTest {
     @Test
     void testLoadOpts() {
         MemoryBank.setUserDataHome(null);
-        MemoryBank.loadOpts(); // Outputs an expected stacktrace.
+        AppOptions.loadOpts(); // Outputs an expected stacktrace.
     }
 
     // Testing the improper usage.
@@ -67,6 +67,6 @@ class MemoryBankTest {
     @Test
     void testSaveOpts() {
         MemoryBank.setUserDataHome(null);
-        MemoryBank.saveOpts();
+        AppOptions.saveOpts();
     }
 }

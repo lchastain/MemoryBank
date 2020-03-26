@@ -1,9 +1,9 @@
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import javax.swing.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class FileGroup {
@@ -29,10 +29,30 @@ public abstract class FileGroup {
     boolean groupChanged;  // Flag used to determine if saving data might be necessary.
 
     static {
-        // We return with a trailing separatorChar because we really
-        // do want a base path as opposed to a final / complete path.
+        // We give this string a trailing separatorChar because we really
+        // do want a 'base' path as opposed to a complete path.  The common usage
+        // is to build on it to make a final path to a lower level, but occasionally
+        // it does get used by itself, and the trailing char causes no problems.
         basePath = MemoryBank.userDataHome + File.separatorChar;
     }
+
+    protected boolean deleteFile(File f) {
+        // There are a couple of cases where we could try to delete a file that is not there
+        // in the first place.  So - we verify that the file is really there and only if it is
+        // do we try to delete it.  Then we check for existence again because the deletion can
+        // occasionally return a false negative (because of gc/timing issues?).
+        // But File.delete() does not ever return a false positive (that I've seen).
+        // With this sandwiched condition, the user is only notified of a problem if the file still exists.
+        if (f.exists() && !f.delete() && f.exists()) {
+            (new Exception("File removal exception!")).printStackTrace();
+            NoteGroup.ems = "Error - unable to remove: " + f.getName();
+            NoteGroup.optionPane.showMessageDialog(null,
+                    NoteGroup.ems, "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } else {
+            return true;
+        } // end if
+    } // end deleteFile
 
     static String getFullFilename(String areaName, String prettyName) {
         String prefix = "";
@@ -53,8 +73,18 @@ public abstract class FileGroup {
         return basePath + areaName + File.separatorChar + prefix + prettyName + ".json";
     }
 
+    public String getGroupFilename() {
+        return groupFilename;
+    }// end getGroupFilename
+
+    // Previously we used the getName/setName that is built into a JComponent.  Now that JComponent
+    // is no longer in the direct hierarchy of a NoteGroup, we need to provide our own versions.
+    String getName() {
+        return theName;
+    }
+
     // ---------------------------------------------------------------------------------
-    // Method Name: loadGroupData
+    // Method Name: loadFileData
     //
     // This is a static data loader that helps separate the loading of the data
     //   from the various components and methods that act upon it.
@@ -75,16 +105,6 @@ public abstract class FileGroup {
             ex.printStackTrace();
         } // end try/catch
         return theGroup;
-    }
-
-    public String getGroupFilename() {
-        return groupFilename;
-    }// end getGroupFilename
-
-    // Previously we used the getName/setName that is built into a JComponent.  Now that JComponent
-    // is no longer in the direct hierarchy of a NoteGroup, we need to provide our own versions.
-    String getName() {
-        return theName;
     }
 
     // Called to prompt implementations to save their data before they go away.
@@ -144,6 +164,47 @@ public abstract class FileGroup {
         return thePrettyName;
     } // end prettyName
 
+    // ---------------------------------------------------------------------------------
+    // Method Name: saveNoteGroupData
+    //
+    // This static method is needed to separate the writing of the data to a file,
+    // from the various components and methods that display and modify it.
+    // ---------------------------------------------------------------------------------
+    static int saveFileData(String theFilename, Object[] theGroup) {
+        int notesWritten = 0;
+        BufferedWriter bw = null;
+        Exception e = null;
+        try {
+            FileOutputStream fileStream = FileUtils.openOutputStream(new File(theFilename)); // Creates parent directories, if needed.
+            OutputStreamWriter writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
+            bw = new BufferedWriter(writer);
+            bw.write(AppUtil.toJsonString(theGroup));
+            // Set the number of notes written, only AFTER the write.
+            notesWritten = ((List) theGroup[theGroup.length - 1]).size();
+        } catch (Exception ioe) {
+            // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
+            // same name in the directory where you want to put the file, or not having write permission.
+            e = ioe;
+        } finally {
+            if (e != null) {
+                // This one may have been ignorable; print the message and see.
+                System.out.println("Exception in AppUtil.saveNoteGroupData: \n  " + e.getMessage());
+            } // end if there was an exception
+            // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
+            try {
+                if (bw != null) {
+                    bw.flush();
+                    bw.close(); // Also closes the wrapped FileWriter
+                }
+            } catch (IOException ioe) {
+                // This one would be more serious - raise a 'louder' alarm.
+                ioe.printStackTrace(System.out);
+            } // end try/catch
+        } // end try/catch
+
+        return notesWritten;
+    }
+
     //----------------------------------------------------------------
     // Method Name: setGroupChanged
     //
@@ -163,7 +224,7 @@ public abstract class FileGroup {
         else theName = newName.trim();
     }
 
-    void setGroupFilename(String theName) {
-        groupFilename = theName;
+    void setGroupFilename(String newName) {
+        groupFilename = newName;
     }
 }

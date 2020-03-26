@@ -1,6 +1,4 @@
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Vector;
 
 public class Area51 {
     private Notifier optionPane = new Notifier() {};
@@ -38,39 +36,37 @@ public class Area51 {
         System.out.println("The choice is: " + theChoice);
     }
 
-    // Developing and testing linkages and how/where to add them into the NoteData hierarchy.
-    // Testing Goal serialization prior to adding its ability to load/save a file;
-    @SuppressWarnings({"unchecked"})
-    private void try2() {
-        // Make a new GoalGroup (and its properties)
-        GoalGroup goalGroup = new GoalGroup("WorldPlan1");
-        GoalGroupProperties goalGroupProperties = new GoalGroupProperties();
-        goalGroupProperties.goalTitle = "Take Over The World";
-        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroupProperties));
-
-        // Make a todo list item and a link to the Goal, and add the link to the todo item's linkages list.
-        TodoNoteData todoNoteData = new TodoNoteData();
-        todoNoteData.noteString = "Notify the media";
-        todoNoteData.linkages = new ArrayList();
-        LinkData linkage = new LinkData(todoNoteData);
-        linkage.theGroup = "goal_WorldPlan1";
-        linkage.setTargetId(goalGroupProperties.noteId);
-        todoNoteData.linkages.add(linkage);
-        System.out.println("The TodoNoteData to JSON is: " + AppUtil.toJsonString(todoNoteData));
-
-        // Add the linkage to our GoalGroup
-        goalGroup.groupDataVector = new Vector<LinkData>();
-        goalGroup.groupDataVector.add(linkage);
-        System.out.println("The Goal Group data vector to JSON is: " + AppUtil.toJsonString(goalGroup.groupDataVector));
-
-        // A GoalGroup (like any other NoteGroup) is not itself saved (serialized).  Its relevant data components
-        // (properties and the data vector) are what go out to the data file.
-    }
+    // Developing and testing linkages and serialization issues.
+//    @SuppressWarnings({"unchecked"})
+//    private void try2() {
+//        // Make an instance of the AppOptions
+//        AppOptions appOptions = new AppOptions();
+//
+//        // Make a new GoalGroup
+//        String groupName = "WorldPlan1";
+//        GoalGroup goalGroup = new GoalGroup(groupName);
+//        appOptions.goalsList.add(groupName);
+//        goalGroup.myProperties.goalTitle = "Take Over The World";
+//        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
+//
+//        // Make a todo list item and a link to the Goal.
+//        NoteData todoNoteData = new TodoNoteData();
+//        todoNoteData.noteString = "Notify the media";
+//        LinkData linkage = new LinkData();
+//        linkage.setSourceGroupId(UUID.randomUUID());
+//        linkage.setSourceNoteData((AllNoteData) (NoteData) todoNoteData);
+//        linkage.setTargetGroupId(goalGroup.myProperties.instanceId);
+//        //System.out.println("The TodoNoteData to JSON is: " + AppUtil.toJsonString(todoNoteData));
+//
+//        // Add the linkage to the overall list
+//        appOptions.linkages.add(linkage);
+//        System.out.println("The AppOptions to JSON is: " + AppUtil.toJsonString(appOptions));
+//    }
 
     public static void main(String[] args) {
         Area51 a51 = new Area51();
         //a51.try1();
-        a51.try2();
+//        a51.try2();
         //a51.try3();
 
     }

@@ -2,9 +2,120 @@
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
+IF we make Groups not linkable as the source, may be able to have a group-group effective linkage by
+having a note in one of the groups linking to the other group.  Something like:  in List 1, Complete all the tasks
+in List 2.  Then it could get a before/after link type, and the connection is made.  This method will need to be
+explained in the docs.
+
+Run the DataFix, remove the @JsonIgnores, do a pub to sync up prod data and code.
+    DataFix a copy of the prod data and then move it back to prod, taking the new 'Years' org.
+
+Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
+    group deletions, group show/no-show.
+
+// SearchResultData will not be linked to any other note or group, because doing so would make it
+//   appear as though there are duplicates, when viewing the linkages of the various targets.
+//   And, a SearchResult has a 'FoundInFile' field that is similar to a LinkData in that it can be
+//   used to get to the original note, and THAT one can be linked to some other Note or Group.
 
 
+LinkagesEditorPanel:
+====================================
+When there are no existing links to start - check / fix L&F
 
+
+LinkTargetPanel:
+====================================
+Get selection and put it into the 'North' of the dialog, where you otherwise see "Linking: " <what> TO: (no selection yet)
+Fix status messages for groups with readOnly notes
+Goal Display - but that requires completion of the GoalPanel
+Implement Date selections - general date of Day, Month, Year, and then specific notes within.
+    Maybe New interface:  YearViewSelectionHandler - already implemented by AppTreePanel (and other(s)?) ,
+    needs to be pulled out into its own class and also implemented by LinkTargetPanel
+Handle the OK button - put the new link into the LinkagesEditorPanel
+    Goals
+    Dates
+Handle case where there are no - Goals, Events, To Do Lists
+Need an opening screen message for Dates selections
+    Dates may need to be a fourth (at the top) expandable node, with three items:
+        Days
+        Months
+        Years
+Handle no-data-yet conditions.
+
+=====================================================================================================
+
+
+3/26/2020 0459 - Big problem with the DataFix - the AllNoteData load does not allow for specific
+  re-saving; we get AllNoteData vectors - blam!  Cannot use the new search code as the driver for a DataFix.
+  Solution seems to be to reinstate the specific DataVector classes, for DataFixes only.  This is one of
+  the aforementioned steps backward.  Of course - have not yet done the pub.
+ 0745 - ok, DataFix remediated, and test data also fixed.  All seems ok; proceeding with the pub.  No longer need
+  a 'FixUtil' specific to DataFixes, but DO need all the NoteDataVector classes.  The new DataFix needs to be the
+  new starting template for future data fixes, as opposed to the search functionality in AppTreePanel.  But of
+  course it can be consulted, if there has been any evolution there.  Moved the 'save' code, to coreside with the
+  loading code which had already moved to FileGroup.  And although the datafix has put into place the GroupNames,
+  it seems like I may still go with just adding a Properties member to ALL notegroup files, and then wouldn't
+  have a separate file of GroupInfo.  Still ruminating on this one.
+
+3/25/2020 1656 - The linkages work drags on.  I am getting only a few lines of code per day, if any; sometimes there
+  are steps backwards.  But it does
+  appear to be coming together, nonetheless.  Now I can see that the new work is restricted to a single menu item
+  on the NoteComponent, and it may be helpful to commit and publish up to the current dev point, even though it is
+  not ready to use.  After all, there are / have been other placeholders in the code before now, and I keep getting
+  tripped up by having a 'linkages' member on a NoteData, that really should come out with the DataFix.  So - I will
+  do it.   More new developments since last time:
+    Dropped LinkData, in favor of two new classes.  Source entity now becomes LinkedNoteData, that can contain
+        a list of linkages of LinkTargets.  Now the AppOptions holds a list of LinkedNoteData.  Major refactor.
+        Went back to the idea that a NoteGroup cannot be a source of a link; only a target.  If you really want
+        a group-to-group link, the equivalent effect can be achieved with a new note that effectively 'wraps' a group.
+    Added a somewhat complex 'Info' panel to the LinkTargetPanel, to handle the manipulations of the
+        expandable tree nodes, give user instructions, and show an opening screen and a way to get back to it without
+        starting over.
+    A NoteData does not exist outside of a NoteGroup, even though it has so far not needed to know about its location.
+        But now it often does need to know/report this, and now that a NoteGroup reference can be reduced to a single ID,
+        it seems time to add that value as a new LinkedNoteData member.  Of course it could remain null in the right
+        situations.  But will also need to add move/copy handling - could get messy.
+
+3/16/2020 0846 - Link selection, definition, & display has been brutal - tremendous effort over the last several
+  days, in the creation of two dialog panels and all the data support needed for them, too much to cover, and
+  still underway but has pretty much taken a near-final shape.  So some significant developments:
+    Began seeing too much clutter at the top level of a user's data directory, so moved all year-folders into
+        a new containing folder, 'Years'.  Similar now to all other NoteGroup types.  Next 'pub' will have
+        to account for that, plus the many lower-level data changes needing a DataFix.  The DataFix will also
+        create a new list embedded in AppOptions, to match group names with their new IDs.
+    Added Link Type to the LinkagesEditorPanel.
+    Fixed long-running problem of arrow key scrolling increment size in a JScrollPane (from the noteString)
+    Added NoteData selection capability to NoteGroups via NoteComponent textfield focus events and a new
+        interface - NoteComponentManager.
+
+3/11/2020 1200 - Recently added the GroupInfo class, and now have completed the L&F for the
+  LinkagesEditorPanel, and it calls up the LinkTargetPanel, that still needs work.  Dr. appt
+  for skin allergy followup, today at 4pm.
+
+3/07/2020 1312 - While working on the new LinkNoteComponent, found that the target Group name
+  is needed, and it is not present in the new design for LinkData.  But putting it there would
+  mean a lot of improper data duplication, and complicate matters when a group name changes.  So -
+  decided that a new support list is needed - a GroupNames list, which mates the IDs with the Names.
+  Working on adding that in, now.  Decided to quick-start it, with a DataFix, and now is a good time
+  to follow through with all the @JsonIgnore removals.
+
+3/3/2020 0656 - Done with reworking LinkData (again, for the nth time) - now it inherits from
+  a new class - BaseData, as does NoteData.  It now appears that this will not break the load
+  of Goal data, because the load will only be for AppOpts (which contains a 'linkages' list)
+  and the Vector that a Goal needs to show will have to be developed from that, every time it
+  is shown.  Otherwise, most of the NoteGroup methods that it has inherited can be used as-is.
+
+2/29/2020 0850 - Due to the realization that LinkData needs to go both ways, the location(s) of
+  where to access it need to change to a more centralized repo, vs all the individual NoteDatas.
+  Now removing 'linkages' from NoteData, and will instead keep a single Vector of them, at the
+  App level.  This will allow easier future growth in terms of showing the links that a NoteData
+  has, in either direction.  It also provides for complete updates when changes are made on
+  either side of the link (one-stop shopping).  But a downside is that the LinkData now
+  needs both a source and a target, both parent group ID and item ID, and that means it has much
+  less in common with a NoteData and so should not extend it.  But does that break the handling
+  during load/unload interface, or group loads/saves?  If so, may be able to fix that with an
+  additional Interface.  Considering..
 
 2/27/2020 1511 - Stability restored, class hierarchy revised a good deal.  Added BaseData, that
   NoteData now extends, and so does GoalGroupProperties.  Added another UUID to LinkData, so the

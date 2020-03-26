@@ -23,7 +23,7 @@ public class DayNoteDefaults {
         military = false;
     }
 
-    public static DayNoteDefaults load() {
+    static DayNoteDefaults load() {
         String fileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
         Exception e = null;
 

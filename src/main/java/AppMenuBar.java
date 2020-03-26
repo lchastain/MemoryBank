@@ -43,7 +43,7 @@ public class AppMenuBar extends JMenuBar{
         goalsMenu.add(new JMenuItem("Clear All"));
         goalsMenu.add(new JMenuItem("Delete"));
 
-        eventsMenu = new JMenu("Event");
+        eventsMenu = new JMenu("Upcoming Event");
         eventsMenu.add(new JMenuItem("Undo All"));
         eventsMenu.add(new JMenuItem("Close"));
         eventsMenu.add(new JMenuItem("Add New..."));
@@ -62,7 +62,7 @@ public class AppMenuBar extends JMenuBar{
         notesMenu.add(new JMenuItem("Save"));
         notesMenu.add(new JMenuItem("Clear All"));
 
-        todolistsMenu = new JMenu("To Do");
+        todolistsMenu = new JMenu("To Do List");
         todolistsMenu.add(new JMenuItem("Undo All"));
         todolistsMenu.add(new JMenuItem("Close"));
         todolistsMenu.add(new JMenuItem("Add New..."));
@@ -73,7 +73,7 @@ public class AppMenuBar extends JMenuBar{
         todolistsMenu.add(new JMenuItem("Clear All"));
         todolistsMenu.add(new JMenuItem("Delete"));
 
-        searchesMenu = new JMenu("Search");
+        searchesMenu = new JMenu("Search Results");
         searchesMenu.add(new JMenuItem("Close"));
         searchesMenu.add(new JMenuItem("Review...")); // Not yet working..
         searchesMenu.add(new JMenuItem("Delete"));

@@ -9,8 +9,8 @@ import java.awt.*;
 public class Spacer extends JComponent {
     private static final long serialVersionUID = 1L;
 
-    int Width;
-    int Height;
+    int myWidth;
+    int myHeight;
     Color bColor;
     Color fColor;
     Color c = null;
@@ -19,19 +19,12 @@ public class Spacer extends JComponent {
         super();
         bColor = getBackground();
         fColor = getForeground();
-
-        // This 'if' is not used/needed, except to fool IJ into going
-        // 'green' because it thinks these methods are getting used.
-        if (c == Color.black) {  // This does not ever happen.
-            resetColor();
-            setColor(c);
-        }
     } // end constructor
 
     public Spacer(int width, int height) {  // constructor
         this();
-        Width = width;
-        Height = height;
+        myWidth = width;
+        myHeight = height;
     } // end constructor
 
     public Dimension getMaximumSize() {
@@ -43,8 +36,11 @@ public class Spacer extends JComponent {
     }
 
     public Dimension getPreferredSize() {
-        if (Width == 0 || Height == 0) return super.getPreferredSize();
-        return new Dimension(Width, Height);
+        int theWidth = myWidth;
+        int theHeight = myHeight;
+        if(myWidth == 0) theWidth = super.getPreferredSize().width;
+        if(myHeight == 0) theHeight = super.getPreferredSize().height;
+        return new Dimension(theWidth, theHeight);
     } // end getPreferredSize
 
     public void resetColor() {

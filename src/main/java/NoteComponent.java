@@ -13,9 +13,10 @@ import java.awt.event.*;
 
 public class NoteComponent extends JPanel {
     private static final long serialVersionUID = 1L;
+    static boolean isEditable = true;
 
     // The Members
-    private NoteData myNoteData;
+    NoteData myNoteData;
     NoteTextField noteTextField;
 
     // Needed by container classes to set their scrollbar unit increment.
@@ -38,15 +39,20 @@ public class NoteComponent extends JPanel {
     static NoteComponent theNoteComponent;
 
     // Internal Variables needed by more than one method -
-    protected NoteGroup myNoteGroup;
+    NoteComponentManager myManager;
+    static NoteSelection mySelectionMonitor;
     protected boolean initialized = false;
     protected int index;
     private static JMenuItem miClearLine;
     private static JMenuItem miCutLine;
     private static JMenuItem miCopyLine;
+    private static JMenuItem miLinkLine;
     private static JMenuItem miPasteLine;
 
     static {
+        // This ensures that mySelectionMonitor will never be null; now it may or may not be replaced.
+        mySelectionMonitor = new NoteSelection() { }; // It just uses the default (no-op) methods.
+
         //-----------------------------------
         // Create the borders.
         //-----------------------------------
@@ -70,6 +76,8 @@ public class NoteComponent extends JPanel {
         miCutLine.addActionListener(popHandler);
         miCopyLine = popup.add("Copy Line");
         miCopyLine.addActionListener(popHandler);
+        miLinkLine = popup.add("Edit Linkages");
+        miLinkLine.addActionListener(popHandler);
         miPasteLine = popup.add("Paste Line");
         miPasteLine.addActionListener(popHandler);
         miClearLine = popup.add("Clear Line");
@@ -81,45 +89,56 @@ public class NoteComponent extends JPanel {
         return noteTextField.hasFocus();
     }
 
-    NoteComponent(NoteGroup ng, int i) {
+    NoteComponent(NoteComponentManager noteComponentManager, int i) {
         super(new BorderLayout(2, 0));
-        myNoteGroup = ng;
+        myManager = noteComponentManager;  // A NoteGroup, or the LinkagesEditorPanel
         index = i;
 
         makeDataObject();
+
         noteTextField = new NoteTextField();
+        if(!isEditable) {
+            noteTextField.setEditable(false);
+        }
+
+        // This section disables the automatic scrolling done by a JScrollPane
+        // when a component that it contains 'hears' an UP or DOWN arrow key.
+        // This is done because we have our own 'scrollRectToVisible' controlling that, and
+        // ours works better because it works in whole-note heights, vs the half-height that
+        // we get otherwise.  Also, ours only kicks in when the note line would otherwise
+        // not be fully visible, as opposed to every time the focus moves.
+        //-------------------------------------------------------------------------------------
+        InputMap im = noteTextField.getInputMap();
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "scrollDown");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "scrollUp");
+        ActionMap am = noteTextField.getActionMap();
+        am.put("scrollDown", new AbstractAction() {
+            static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println(e.getSource() + " - no go down");
+            }
+        });
+        am.put("scrollUp", new AbstractAction() {
+            static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println(e.getSource() + " - no go up");
+            }
+        });
+        //-------------------------------------------------------------------------------------
+
         add(noteTextField, "Center");
 
         MemoryBank.trace();
     } // end constructor
 
 
+    // Method Name: clear
     // Clear the visible text field AND clear the underlying data.
     // Child classes will override this in order to clear their own
     // components first, but they should call this method afterwards.
     //-----------------------------------------------------------------
-//    protected void clear() {
-//        //  Get the data object.  Since throughout the NoteComponent
-//        //    hierarchy there is only one data object, the next lines
-//        //    work for any child class's encapsulated data.
-//        NoteData nd = getNoteData();
-//
-//        // This MUST happen BEFORE clearing the NoteTextField, because listeners on the text
-//        // field will query this data when we set it, below, and if it still has 'good' data,
-//        // the retrieval path can get thread-deadlocked with the one that is doing the text
-//        // clearing.  Result is app freeze-up on the 'setText' line.
-//        if (nd != null) nd.clear();
-//
-//        // Clear the Component
-//        noteTextField.setText(null);
-//        noteTextField.setForeground(Color.black);
-//        noteTextField.setToolTipText(null);
-//
-//        myNoteGroup.setGroupChanged(true);  // Ensure a group 'save'
-//        initialized = false;    // Needs to be last.
-//    } // end clear    //-----------------------------------------------------------------
-    // Method Name: clear
-    //
     protected void clear() {
         // Clear the data object.  Since child classes override the
         //   getNoteData method, this works for them as well.
@@ -131,9 +150,8 @@ public class NoteComponent extends JPanel {
         // Clear the (base) Component - ie, the noteTextField
         noteTextField.clear();
 
-        // Notify the NoteGroup
-        System.out.println("NoteComponent.clear, calling myNoteGroup.setGroupChanged!"); // scr0050 troubleshooting.
-        myNoteGroup.setGroupChanged(true);  // Ensure a group 'save'
+        // Notify the Manager
+        myManager.setGroupChanged(true);  // Ensure a group 'save'
 
         // Reset our own state and prepare this component to be reused -
         initialized = false;
@@ -145,6 +163,7 @@ public class NoteComponent extends JPanel {
         Dimension d = super.getMaximumSize();
         return new Dimension(d.width, NOTEHEIGHT);
     } // end getMaximumSize
+
 
     //-----------------------------------------------------------------
     // Method Name: getNoteData
@@ -202,8 +221,8 @@ public class NoteComponent extends JPanel {
     //---------------------------------------------------------------------
     protected void initialize() {
         initialized = true;
-        if (index >= myNoteGroup.lastVisibleNoteIndex) {
-            myNoteGroup.activateNextNote(index);
+        if (index >= myManager.getLastVisibleNoteIndex()) {
+            myManager.activateNextNote(index);
         }
     } // end initialize
 
@@ -289,7 +308,7 @@ public class NoteComponent extends JPanel {
                 s = "Double-click or press 'Enter' to see/edit";
                 s += " the subject and extended note.";
         } // end switch
-        myNoteGroup.setMessage(s);
+        myManager.setStatusMessage(s);
     } // end resetNoteStatusMessage
 
 
@@ -300,12 +319,14 @@ public class NoteComponent extends JPanel {
         popup.removeAll();
         popup.add(miCutLine);   // the default state is 'enabled'.
         popup.add(miCopyLine);
+        popup.add(miLinkLine);
         popup.add(miPasteLine);
         popup.add(miClearLine);
 
         if (!initialized) {
             miCutLine.setEnabled(false);
             miCopyLine.setEnabled(false);
+            miLinkLine.setEnabled(false);
             miPasteLine.setEnabled(MemoryBank.clipboardNote != null);
             miClearLine.setEnabled(false);
             return;
@@ -315,6 +336,7 @@ public class NoteComponent extends JPanel {
         if (null != menuNoteData && menuNoteData.hasText()) {
             miCutLine.setEnabled(true);
             miCopyLine.setEnabled(true);
+            miLinkLine.setEnabled(true);
             miPasteLine.setEnabled(false);
             miClearLine.setEnabled(true);
         } else {
@@ -330,7 +352,7 @@ public class NoteComponent extends JPanel {
 
 
     public void setNoteChanged() {
-        myNoteGroup.setGroupChanged(true);
+        myManager.setGroupChanged(true);
     } // end setNoteChanged
 
 
@@ -365,11 +387,11 @@ public class NoteComponent extends JPanel {
     // Known (needed) overrides at this time: DayNoteComponent.
     //----------------------------------------------------------------------------
     protected void shiftDown() {
-        myNoteGroup.shiftDown(index);
+        myManager.shiftDown(index);
     } // end shiftDown
 
     protected void shiftUp() {
-        myNoteGroup.shiftUp(index);
+        myManager.shiftUp(index);
     } // end shiftUp
 
     //------------------------------------------------------------------
@@ -399,7 +421,7 @@ public class NoteComponent extends JPanel {
 
         System.out.println("NoteComponent.swap");
 
-        myNoteGroup.setGroupChanged(true);
+        myManager.setGroupChanged(true);
     } // end swap
 
     //---------------------------------------------------------
@@ -545,7 +567,7 @@ public class NoteComponent extends JPanel {
             NoteComponent.this.setBorder(redBorder);
 
             NoteData tmpNoteData = getNoteData();
-            extendedNoteChanged = myNoteGroup.editExtendedNoteComponent(tmpNoteData);
+            extendedNoteChanged = myManager.editExtendedNoteComponent(tmpNoteData);
 
             if (extendedNoteChanged) {
                 // Set (or clear) the tool tip.
@@ -600,9 +622,12 @@ public class NoteComponent extends JPanel {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
             NoteComponent.this.scrollRectToVisible(getBounds());
+            mySelectionMonitor.noteSelected(getNoteData());
 
             // We occasionally get a null pointer exception at startup.
             if (getCaret() == null) return;
+// trying to disable the pre-selected text seen in todo lists.  Need to reproduce, first.
+//            setSelectionStart(getSelectionEnd());
             getCaret().setVisible(true);
 
             if (!initialized) return;
@@ -613,6 +638,9 @@ public class NoteComponent extends JPanel {
             // System.out.println("focusLost for index " + index);
             setBorder(offBorder);
             getCaret().setVisible(false);
+            // We do not de-select at this point because any selection would be lost
+            // when the user clicks 'ok', for instance.
+            // Instead, selections are cleared prior to presenting new choices.
 
             noteActivated(false);
         } // end focusLost
@@ -731,7 +759,7 @@ public class NoteComponent extends JPanel {
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
-            myNoteGroup.setMessage(" ");
+            myManager.setStatusMessage(" ");
         }
 
         public void mousePressed(MouseEvent e) {
@@ -766,6 +794,23 @@ public class NoteComponent extends JPanel {
                 case "Copy Line":
                     nd = theNoteComponent.getNoteData();
                     MemoryBank.clipboardNote = nd.copy();
+                    break;
+                case "Edit Linkages":
+                    nd = theNoteComponent.getNoteData();
+                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(LinkedNoteData.getLinkedNoteData(nd));
+
+                    int choice = JOptionPane.showConfirmDialog(
+                            theNoteComponent,
+                            linkagesEditorPanel,
+                            "Linkages from: " + nd.noteString, // pane title bar
+                            JOptionPane.OK_CANCEL_OPTION, // Option type
+                            JOptionPane.PLAIN_MESSAGE);    // Message type
+
+                    if (choice == JOptionPane.OK_OPTION) {
+                        LinkedNoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
+                        MemoryBank.appOpts.linkages.add(updatedLinkNoteData);
+                        AppOptions.saveOpts();  // Accept the addition(s) and save.
+                    }
                     break;
                 case "Paste Line":
                     theNoteComponent.initialize();

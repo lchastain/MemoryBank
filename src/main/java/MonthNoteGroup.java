@@ -120,11 +120,11 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
         if (s.equals("+")) {
             s = "Click here to see next month";
         }
-        setMessage(s);
+        setStatusMessage(s);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
-        setMessage(" ");
+        setStatusMessage(" ");
     }
 
     public void mousePressed(MouseEvent e) {

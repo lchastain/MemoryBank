@@ -42,7 +42,7 @@ public class AppTreePanelTest {
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
 
         // The problem with just having this in the BeforeEach was that we started
         // multiple JMenuItem listeners with each new atp, and each test ran so

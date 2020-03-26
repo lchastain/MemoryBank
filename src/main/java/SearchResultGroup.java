@@ -1,4 +1,6 @@
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,6 +8,7 @@ import java.io.File;
 import java.util.Vector;
 
 public class SearchResultGroup extends NoteGroup {
+    private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
     private JLabel resultsPageOf;
     SearchResultHeader listHeader;
 
@@ -14,7 +17,7 @@ public class SearchResultGroup extends NoteGroup {
     static String filePrefix;
 
     // This is saved/loaded
-    public SearchResultGroupProperties myVars; // Variables - flags and settings
+    public SearchResultGroupProperties myProperties; // Variables - flags and settings
 
     static {
         areaName = "SearchResults";  // Directory name under user data.
@@ -22,18 +25,27 @@ public class SearchResultGroup extends NoteGroup {
         filePrefix = "search_";
     }
 
-    // The File Name (fname) is a simple single word text as seen in the app tree.
-    SearchResultGroup(String fname) {
+    // groupName is a simple single word text as seen in the app tree.
+    SearchResultGroup(String groupName) {
         super();
         // super(10);  // test, for paging
 
+        // Store our simple list name.
+        setName(groupName);
+        log.debug("Constructing: " + getName());
+
         addNoteAllowed = false;
 
-        setGroupFilename(areaPath + filePrefix + fname + ".json");
+        setGroupFilename(areaPath + filePrefix + getName() + ".json");
+
+        myProperties = new SearchResultGroupProperties();
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
         checkColumnOrder();
+        buildPanelContent();
+    } // end constructor
 
+    void buildPanelContent() {
         // Header for the group of SearchResultComponents
         listHeader = new SearchResultHeader(this);
         setGroupHeader(listHeader);
@@ -43,17 +55,17 @@ public class SearchResultGroup extends NoteGroup {
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
 
-        // The First Row -   (Title & paging control)
+        // The First Header Row -   (Title & paging control)
         //----------------------------------------------------------
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
 
-        // Create the window title
+        // Title
         JLabel resultsTitle = new JLabel();
         resultsTitle.setHorizontalAlignment(JLabel.CENTER);
         resultsTitle.setForeground(Color.white);
         resultsTitle.setFont(Font.decode("Serif-bold-20"));
-        resultsTitle.setText(fname);
+        resultsTitle.setText(getName());
 
         // Set the pager's background to the same color as this row,
         //   since other items on this row make it slightly 'higher'
@@ -64,7 +76,7 @@ public class SearchResultGroup extends NoteGroup {
         headingRow1.add(theNotePager, "East");
         //----------------------------------------------------------
 
-        // The Second Row -     (record count and search text)
+        // The Second Header Row -     (record count and search text)
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
         headingRow2.setBackground(Color.blue);
@@ -82,14 +94,14 @@ public class SearchResultGroup extends NoteGroup {
         searchSummary.setHorizontalAlignment(JLabel.CENTER);
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
-        searchSummary.setText(SearchPanel.getSummary(myVars.searchPanelSettings));
+        searchSummary.setText(SearchPanel.getSummary(myProperties.searchPanelSettings));
         headingRow2.add(searchSummary, "Center");
         //----------------------------------------------------------
 
         heading.add(headingRow1);
         heading.add(headingRow2);
         add(heading, BorderLayout.NORTH);
-    } // end constructor
+    }
 
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
@@ -108,7 +120,7 @@ public class SearchResultGroup extends NoteGroup {
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
             tempNote = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-            tempNote.resetColumnOrder(myVars.columnOrder);
+            tempNote.resetColumnOrder(myProperties.columnOrder);
         } // end for
     } // end checkColumnOrder
 
@@ -131,8 +143,9 @@ public class SearchResultGroup extends NoteGroup {
     //  Returns an actual object, vs the overridden method
     //    in the base class that returns a null.
     //--------------------------------------------------------------
+    @Override
     protected Object getProperties() {
-        return myVars;
+        return myProperties;
     } // end getProperties
 
 
@@ -170,7 +183,6 @@ public class SearchResultGroup extends NoteGroup {
     //-------------------------------------------------------------------
     @Override
     protected JComponent makeNewNote(int i) {
-        if (i == 0) myVars = new SearchResultGroupProperties();
         SearchResultComponent src = new SearchResultComponent(this, i);
         src.setVisible(false);
         return src;
@@ -264,7 +276,7 @@ public class SearchResultGroup extends NoteGroup {
 
     @Override
     void setGroupData(Object[] theGroup) {
-        myVars = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
+        myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
         BaseData.loading = true; // We don't want to affect the lastModDates!
         groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
         BaseData.loading = false; // Restore normal lastModDate updating.
@@ -276,10 +288,10 @@ public class SearchResultGroup extends NoteGroup {
     //--------------------------------------------------------------
     private void saveProperties() {
         // Update the header text of the columns.
-        myVars.column1Label = listHeader.getColumnHeader(1);
-        myVars.column2Label = listHeader.getColumnHeader(2);
-        myVars.column3Label = listHeader.getColumnHeader(3);
-        myVars.columnOrder = listHeader.getColumnOrder();
+        myProperties.column1Label = listHeader.getColumnHeader(1);
+        myProperties.column2Label = listHeader.getColumnHeader(2);
+        myProperties.column3Label = listHeader.getColumnHeader(3);
+        myProperties.columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
 
 

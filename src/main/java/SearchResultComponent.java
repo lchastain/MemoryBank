@@ -135,7 +135,7 @@ public class SearchResultComponent extends NoteComponent {
 
         s = "Search result text is non-editable.  Go to the ";
         s += "original source if a change is needed.";
-        myNoteGroup.setMessage(s);
+        myNoteGroup.setStatusMessage(s);
     } // end resetNoteStatusMessage
 
 
@@ -267,14 +267,14 @@ public class SearchResultComponent extends NoteComponent {
 
             String s;
             s = "Click here to go to the editable original source";
-            myNoteGroup.setMessage(s);
+            myNoteGroup.setStatusMessage(s);
         }
 
         public void mouseExited(MouseEvent e) {
             // System.out.println(e);
             rightClicked = false;
             leftClicked = false;
-            myNoteGroup.setMessage(" ");
+            myNoteGroup.setStatusMessage(" ");
         } // end mouseExited
 
         public void mousePressed(MouseEvent e) {
@@ -329,11 +329,11 @@ public class SearchResultComponent extends NoteComponent {
                     String s;
                     s = "This is the last date (prior to this search) ";
                     s += "that a change was made to this note.";
-                    myNoteGroup.setMessage(s);
+                    myNoteGroup.setStatusMessage(s);
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    myNoteGroup.setMessage(" ");
+                    myNoteGroup.setStatusMessage(" ");
                 } // end mouseExited
 
             });

@@ -132,11 +132,11 @@ public class EventHeader extends JPanel implements MouseListener {
                 s = "Click here to update the Events to current date/time";
                 break;
         }
-        smTheHeaderContainer.setMessage(s);
+        smTheHeaderContainer.setStatusMessage(s);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
-        smTheHeaderContainer.setMessage(" ");
+        smTheHeaderContainer.setStatusMessage(" ");
     } // end mouseExited
 
     public void mousePressed(MouseEvent e) {

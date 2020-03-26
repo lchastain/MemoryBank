@@ -31,7 +31,7 @@ public class BadFileTests {
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
     }
 
     // The exceptions for these classes are caught and handled; we're just causing them now to get the coverage

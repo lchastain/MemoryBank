@@ -44,7 +44,7 @@ class PreserveExpansionStatesTest {
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
 
         // There were problems when trying to instantiate a single AppTreePanel here;
         // the framework's efforts to isolate test data interfered with our expectation
@@ -81,10 +81,10 @@ class PreserveExpansionStatesTest {
 
         // Get the tree state from the tree, and save it in the application options file.
         atp.updateTreeState(false);
-        MemoryBank.saveOpts();
+        AppOptions.saveOpts();
 
         // Load the file again -
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
 
         // And verify that the 'expanded' flags are false.
         assertFalse(MemoryBank.appOpts.viewsExpanded);
@@ -121,10 +121,10 @@ class PreserveExpansionStatesTest {
 
         // Get the tree state from the tree, and save it in the application options file.
         atp.updateTreeState(false);
-        MemoryBank.saveOpts();
+        AppOptions.saveOpts();
 
         // Load the file again -
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
 
         // And verify that the 'expanded' flag for Search Results is true.
         assertTrue(MemoryBank.appOpts.viewsExpanded);

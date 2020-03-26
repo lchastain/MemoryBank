@@ -259,6 +259,7 @@ public class TodoNoteComponent extends NoteComponent {
     // Called after a change to the encapsulated data, to show
     //   the visual effects of the change.
     //----------------------------------------------------------
+    @Override
     protected void resetComponent() {
         pbThePriorityButton.setPriority(myTodoNoteData.getPriority());
         sbTheStatusButton.setStatus(myTodoNoteData.getStatus());
@@ -283,7 +284,7 @@ public class TodoNoteComponent extends NoteComponent {
                 s = "Double-click here to see/edit";
                 s += " the additional details for this task.";
         } // end switch
-        myNoteGroup.setMessage(s);
+        myNoteGroup.setStatusMessage(s);
     } // end resetNoteStatusMessage
 
 
@@ -389,7 +390,7 @@ public class TodoNoteComponent extends NoteComponent {
             super("  ");
 
             setFont(Font.decode("Monospaced-bold-12"));
-            addMouseListener(this);
+            if(isEditable) addMouseListener(this);
             disableEvents(AWTEvent.FOCUS_EVENT_MASK + AWTEvent.COMPONENT_EVENT_MASK
                     + AWTEvent.ACTION_EVENT_MASK + AWTEvent.MOUSE_MOTION_EVENT_MASK
                     + AWTEvent.ITEM_EVENT_MASK);
@@ -479,14 +480,14 @@ public class TodoNoteComponent extends NoteComponent {
             } else {
                 s = "Right mouse click to decrease priority";
             } // end if
-            myNoteGroup.setMessage(s);
+            myNoteGroup.setStatusMessage(s);
         }
 
         public void mouseExited(MouseEvent e) {
             // System.out.println(e);
             rightClicked = false;
             leftClicked = false;
-            myNoteGroup.setMessage(" ");
+            myNoteGroup.setStatusMessage(" ");
         } // end mouseExited
 
         public void mousePressed(MouseEvent e) {
@@ -510,7 +511,7 @@ public class TodoNoteComponent extends NoteComponent {
             if (!initialized) {
                 String s;
                 s = "An item must have text before a priority can be set!";
-                myNoteGroup.setMessage(s);
+                myNoteGroup.setStatusMessage(s);
                 return;
             } // end if
 
@@ -534,7 +535,7 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     protected class StatusButton extends LabelButton implements MouseListener {
-        private static final long serialVersionUID = -6742084936189173516L;
+        private static final long serialVersionUID = 1L;
 
         public static final int minWidth = 40;
 
@@ -543,7 +544,7 @@ public class TodoNoteComponent extends NoteComponent {
 
         public StatusButton() {
             super();
-            addMouseListener(this);
+            if(isEditable) addMouseListener(this);
 
             setOpaque(true);
             showStatusIcon();
@@ -615,7 +616,7 @@ public class TodoNoteComponent extends NoteComponent {
             if (!initialized) {
                 String s;
                 s = "An item must have text before a status can be set!";
-                myNoteGroup.setMessage(s);
+                myNoteGroup.setStatusMessage(s);
                 return;
             } // end if
 
@@ -636,7 +637,7 @@ public class TodoNoteComponent extends NoteComponent {
             showStatusIcon();
 
             //showStatusMessage();
-            myNoteGroup.setMessage(myTodoNoteData.getStatusString());
+            myNoteGroup.setStatusMessage(myTodoNoteData.getStatusString());
         } // end mouseClicked
 
 
@@ -645,14 +646,14 @@ public class TodoNoteComponent extends NoteComponent {
 
             // System.out.println(e);
             if (!myTodoNoteData.hasText()) return;
-            myNoteGroup.setMessage(myTodoNoteData.getStatusString());
+            myNoteGroup.setStatusMessage(myTodoNoteData.getStatusString());
             theOriginalStatus = myTodoNoteData.getStatus();
         } // end mouseEntered
 
 
         public void mouseExited(MouseEvent e) {
             // System.out.println(e);
-            myNoteGroup.setMessage(" ");
+            myNoteGroup.setStatusMessage(" ");
 
             if (!initialized) return;
 

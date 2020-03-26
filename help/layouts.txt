@@ -1,5 +1,23 @@
 https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html
 
+JScrollPane has its own layout: ScrollPaneLayout. If you want to use any other, you don't set it on the
+  scroll pane itself, you put a JPanel inside it and set the layout on that panel.
+
+Needs:
+    1.  Different height rows in a single column:
+        Obvious choice is GridBagLayout, but there is a 'wrapping' alternative for the single-column case:
+        Use an outermost panel with a BoxLayout (Y_AXIS).  Its size can be set with a setPreferredSize call
+            if that works, otherwise an override of getPreferredSize.  See notes for that layout for more info.
+        Add rows as panels that allow stretching of their content (Border or Box) or disallow it (Flow).
+            The height of these inner panels can be set directly but possibly not by the makeup of their components.
+        Update - using this alternative with LinkTargetPanel, which is close to how it's done in most NoteGroups,
+            but have trouble with multiple rows inside the 2nd (last) row of the outermost panel - something wrong.
+            BUT didn't track it down; just built my additonal text lines into a single text area vs multiple rows
+            of JLabels.  Better solution anyway, but it leaves this question unanswered, for now.
+
+    2.  Horizontal layout, with one component stretching to fill the remaining available width:
+        use a DndLayout, with that component named 'Stretch'.
+
 
 FlowLayout
     FlowLayout is the default layout manager for every JPanel. It simply lays out components in a single row,
@@ -18,16 +36,19 @@ BorderLayout
 
 BoxLayout
         new BoxLayout(container, direction);
-        It stretches
+        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+        It stretches its components BUT that can be disabled because it will respect your overrides of getMaximumSize
+            and getPreferredSize; some others (like GridLayout?) will not.
 
 GridLayout
         GridLayout()     (defaults to 1,0,?,?)
         GridLayout(int rows, int cols)
         GridLayout(int rows, int cols, int hgap, int vgap)
         Creates a grid layout with the specified number of rows and columns. All components in the layout are given
-        equal size. One, but not both, of rows and cols can be zero, which means that any number of objects can be
-        placed in a row or in a column.
+        equal size. One, but not both, of rows and cols can be zero, which means that any number of objects in that
+        dimension is not limited.
         (Used for MonthView, YearView, several other places)
+        It stretches its components
 
 GridBagLayout
 
@@ -45,5 +66,14 @@ SpringLayout
 
 ========================================================================
 DndLayout
-        My own, custom layout manager, for when a column needs to be dragged/dropped.
-        requires a 'header' row.
+        My own, custom layout manager.
+        It lays out components in a single horizontal line.
+        It left-justifies the Components, for when an outer layout manager might stretch the containing panel.
+           When that happens, a FlowLayout would center the components.
+        It horizontally stretches the component named 'Stretch', to the remaining width of the JPanel
+          that contains that component.  Override the panel's preferred width, to make it stretch.
+          Primarily useful for JTextFields.
+        No need to 'name' any other component.
+        It supports a 'Drag and Drop' feature, for column reordering.
+           For the Dnd, you need some extra plumbing - see the Dnd-capable NoteGroups; those will have
+           a 'header' row; a secondary class that implements a needed interface and gets them the rest of the way.

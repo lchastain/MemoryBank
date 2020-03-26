@@ -162,7 +162,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         if (tNoteComponent == null) {
             String s;
             s = "You must select an item before a date can be linked!";
-            setMessage(s);
+            setStatusMessage(s);
             tmc.setChoice(null);
             return;
         } // end if
@@ -241,7 +241,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
         groupDataVector = new Vector<>(theUniqueSet);
-        setGroupData(groupDataVector);
+        showGroupData(groupDataVector);
         setGroupChanged(true);
     } // end merge
 

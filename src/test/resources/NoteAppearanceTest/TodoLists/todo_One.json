@@ -25,11 +25,7 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 1,
-  "intStatus" : 1,
-  "strLinkage" : null,
-  "priority" : 1,
-  "status" : 1,
-  "linkage" : null
+  "intStatus" : 1
 }, {
   "zdtLastModString" : "2019-11-30T19:26:39.180+04:00[Europe/Samara]",
   "noteString" : "Two",
@@ -37,11 +33,7 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 2,
-  "intStatus" : 2,
-  "strLinkage" : null,
-  "priority" : 2,
-  "status" : 2,
-  "linkage" : null
+  "intStatus" : 2
 }, {
   "zdtLastModString" : "2019-11-30T19:26:41.627+04:00[Europe/Samara]",
   "noteString" : "Three",
@@ -49,9 +41,5 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 3,
-  "intStatus" : 3,
-  "strLinkage" : null,
-  "priority" : 3,
-  "status" : 3,
-  "linkage" : null
+  "intStatus" : 3
 } ] ]

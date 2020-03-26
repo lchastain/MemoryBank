@@ -25,11 +25,7 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 2,
-  "intStatus" : 2,
-  "strLinkage" : null,
-  "priority" : 2,
-  "status" : 2,
-  "linkage" : null
+  "intStatus" : 2
 }, {
   "zdtLastModString" : "2019-11-30T19:27:42.600+04:00[Europe/Samara]",
   "noteString" : "Four",
@@ -37,11 +33,7 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 4,
-  "intStatus" : 1,
-  "strLinkage" : null,
-  "priority" : 4,
-  "status" : 1,
-  "linkage" : null
+  "intStatus" : 1
 }, {
   "zdtLastModString" : "2019-11-30T19:27:45.137+04:00[Europe/Samara]",
   "noteString" : "Six",
@@ -49,11 +41,7 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 6,
-  "intStatus" : 3,
-  "strLinkage" : null,
-  "priority" : 6,
-  "status" : 3,
-  "linkage" : null
+  "intStatus" : 3
 }, {
   "zdtLastModString" : "2019-11-30T19:27:47.372+04:00[Europe/Samara]",
   "noteString" : "Eight",
@@ -61,11 +49,7 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 8,
-  "intStatus" : 4,
-  "strLinkage" : null,
-  "priority" : 8,
-  "status" : 4,
-  "linkage" : null
+  "intStatus" : 4
 }, {
   "zdtLastModString" : "2019-11-30T19:27:49.218+04:00[Europe/Samara]",
   "noteString" : "Ten",
@@ -73,9 +57,5 @@
   "extendedNoteString" : "",
   "todoDateString" : null,
   "intPriority" : 10,
-  "intStatus" : 5,
-  "strLinkage" : null,
-  "priority" : 10,
-  "status" : 5,
-  "linkage" : null
+  "intStatus" : 5
 } ] ]

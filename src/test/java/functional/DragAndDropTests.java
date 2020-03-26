@@ -48,7 +48,7 @@ public class DragAndDropTests {
         FileUtils.copyDirectory(testResource, testDataLoc);
 
         // Load up this Test user's application options
-        MemoryBank.loadOpts();
+        AppOptions.loadOpts();
     }
 
     @AfterAll

@@ -308,11 +308,11 @@ public class TodoGroupHeader extends Container implements ClingSource {
             else
                 s = "Click to Sort by " + getText();
 
-            parent.setMessage(s);
+            parent.setStatusMessage(s);
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
-            parent.setMessage(" ");
+            parent.setStatusMessage(" ");
         } // end mouseExited
 
         // It was necessary to override this next method, to fix a problem

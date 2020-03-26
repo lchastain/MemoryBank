@@ -381,6 +381,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         treeModel.nodeStructureChanged(theParent);
         theTree.addTreeSelectionListener(this);
 
+        updateTreeState(true); // Needed prior to new link target selection.
+
         // Select the parent branch
         TreeNode[] pathToRoot = theParent.getPath();
         theTree.setSelectionPath(new TreePath(pathToRoot));
@@ -530,7 +532,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         theTree.getSelectionModel().setSelectionMode
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-        // Do not show the 'Log' root of the tree.
+        // Do not show the 'App' root of the tree.
         theTree.setRootVisible(false);
 
         // But do show the link that all children have to it.
@@ -664,7 +666,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         Object[] theGroup = new Object[2]; // A 'wrapper' for the Properties + List
         theGroup[0] = searchResultGroupProperties;
         theGroup[1] = foundDataVector;
-        int notesWritten = AppUtil.saveNoteGroupData(resultsFileName, theGroup);
+        int notesWritten = FileGroup.saveFileData(resultsFileName, theGroup);
         if (foundDataVector.size() != notesWritten) {
             System.out.println("Possible problem - wrote " + notesWritten + " results");
         } else {
@@ -695,9 +697,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // So we don't actually use it.
             if (theBigGroup == null) {
                 // Instead, we instantiate a new (empty) EventNoteGroup, named for the Consolidated View (CV).
-                EventNoteComponent.isEditable = false; // This is a non-editable group.
+                NoteComponent.isEditable = false; // This is a non-editable group.
                 theBigGroup = new EventNoteGroup((MemoryBank.appOpts.consolidatedEventsViewName));
-                EventNoteComponent.isEditable = true; // Put it back to the default value.
+                NoteComponent.isEditable = true; // Put it back to the default value.
                 continue;
             }
             // Then we can look at merging in any possible child nodes, but
@@ -723,7 +725,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         if (theUniqueSet == null) return null;
         groupDataVector = new Vector<>(theUniqueSet);
         theBigGroup.addNoteAllowed = false;
-        theBigGroup.setGroupData(groupDataVector);
+        theBigGroup.showGroupData(groupDataVector);
         theBigGroup.doSort();
         return theBigGroup;
     } // end getConsolidatedView
@@ -1130,7 +1132,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             theTree.setSelectionRow(appOpts.theSelectionRow);
         } else {
             // Capture the current state; we may have to 'toggle' back to it.
-            updateTreeState(false);
+            updateTreeState(true); // Now updating lists every time, due to link target selection.
             theTree.clearSelection();
 
             // Show it.

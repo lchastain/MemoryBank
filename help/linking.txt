@@ -1,0 +1,124 @@
+In the context menu of linkable NoteData instances there is an option to 'Edit Linkages'.
+   This option calls up a 'LinkagesEditorPanel' dialog, where linkages to all other 'live' NoteData
+   instances or NoteGroup instances may be set or unset.  When a link is made, a LinkedNoteData is
+   created to hold the relationship.
+
+All LinkedNoteData instances are kept in the AppOptions.linkages Vector.
+
+LinkedNoteData
+    encapsulates everything from the source NoteData from which it is created.
+    myGroupId (UUID) - ID of the group that contains the encapsulated NoteData
+    linkTargets - a Vector of LinkTarget.  A LinkTarget extends BaseData and has these members:
+            targetGroupId (UUID) - ID of the target group
+            targetNoteData (NoteData) - NoteData, or null if N/A
+    type of link - related (generally), depends on, is depended on by, before, during, after.  See the
+        class definition for complete and specific list of integer type values.
+        The link type describes the relationship with the target entity from the perspective of the source entity.
+
+
+Link Management Operations:
+------------------------------------------------------------------------------------------------------------
+1.  GoalGroup show links:
+    The linkages Vector is scanned for links where this GoalGroup is either the target (common) or
+      the source (uncommon).  If the related item is a Calendar type then it will be shown.  Showing
+      means either the note text if it is a note, or the Date if it is a Group.  Otherwise the note
+      text or Group name will only be shown if the other end of the link is also currently in the app tree.
+    The concept of a 'keeper' is not feasible for a GoalGroup, because it does not (directly) load its data
+      from a file and it must review the linkages every single time it is shown.  But what about keeping a
+      'linkages changed' flag, so that the review is not always needed?  Possible, but then the management
+      of that flag becomes more trouble than just re-reviewing an unchanged Vector.  But this idea may be
+      revisited, if performance becomes an issue due to excessive growth of the linkages list.  Then again,
+      moving to a database could speed the query of goal-related links considerably, and provide yet another
+      reason that a keeper would not be needed.
+
+2.  A linked Note is altered, moved, or removed:
+    The linkages Vector is updated to reflect the result of the change.  This will be done from
+    a view containing the source or if one end of the link is a Goal then a removal could be done from there.
+    If the current view was the Goal then the removal will be seen there immediately.  Otherwise there is not
+    (currently) any visual indication in a NoteGroup that a link has changed.
+
+3.  After a linked Note has been changed in a group with an 'Undo' menu, and then 'Undo' is selected:
+    If it had been removed then the Note will come back but the link will not.  This is acceptable because it
+      is in line with the behavior of the new 'remove' menu option for a Group, where if undo is used after a
+      removal then the file is restored but not reselected.  Lost links would have to be reestablished manually
+      by the user, after the note was restored via an undo.
+    If it was a change of text then the link remains in its changed form (that has now been undone), until it
+      is displayed.  At display, all links are updated from the source and target, first.  This approach will keep
+      it in sync with the note in its current state.
+
+4.  A Group is renamed:
+    The GroupInfo list is scanned for the presence of this group's ID, and its entry is updated.
+    Not precisely a link operation but listed here because this methodology (along with the GroupInfo list) was
+        established while designing the LinkNoteComponent, as an alternative to having the group names in
+        all the links, vs just having ther IDs.  The real need is for a database table, where group IDs can be
+        quickly looked up to retrieve the group name.  Not needed before now for two reasons - first, the group
+        name has been the file name, not stored elsewhere and only used within the group, and second, there was no
+        need to get the group name via some other group feature with a unique value, as there is now via the
+        LinkedNoteData that has group IDs.
+
+5.  A Group is removed:
+    The linkages list is scanned for the presence of this group.  All links containing it are also removed.
+    If the removal is undone, links must be restored manually by the user, if so desired.  The GroupInfo list is
+    also scanned and the associated entry removed from there, but only after the ability to undo the removal has
+    gone away. (HOW?  or - if the removal was done immediately and the undo could check the list for this group and
+    restore it also, if needed)
+
+===================================================================================================================
+
+
+Goal Display of Links - Scan the list of links for the Goal ID
+1.  If found, check each one to see if the other end is in a currently showing Group.
+    a.  If so - search for the other end in that Group.
+        1) If found, update the link with its info, even if no changes had been made.  This is a catch-all.
+        2) If not found, just remove it. (this could happen after an addition of a note and linking it, and then an undo)
+    b.  If the related group is not showing, verify that it at least exists.
+        1) if not then delete this link from the overall list.
+            This may be double work, now that there is a GroupInfo list planned.  May not be needed.
+        2) if the other group exists then keep this note, but not shown.
+            It may eventually be verified (by 2a) if/when the group is again shown.
+2.  If not found - you are done.
+
+
+For the LinkTargetPanel implementation, click on an expandable - expands if not already,
+and puts the title on the right, and issues a 'select a group' message.
+Selecting a group then loads it for individual NoteData selection.
+
+
+
+
+
+Link Viewing -
+  The links of an individual NoteData will be shown when the LinkagesEditorPanel for that note is displayed.
+  The links of a target NoteGroup will not be shown (except for Goals) - at least not in Link/Goals v1.0
+  The links that have been made to a Goal will be shown as its primary data list (the group Vector) rather
+    than as an additional popup modal dialog.
+
+
+    The linkTargetPanel - will show a list of existing links for the entity, as well as allowing a new selection.
+    New selections (link creation) must be made one at a time - this is a limiting factor that helps fight DOS.
+        but once the creation becomes a service - need a better limiter than just the UI.
+
+Link Sorting - only done for Links where a Goal is on one end, done from the Goal panel.
+    (still working this design, but) - A manual sort, with the effects going directly back to the overall list
+    of links.  Other links will just keep their relative positions.  If one todo list item applies to more than
+    one goal - no problem; there will be two separate links in that case.   OR -
+    Keep a list of linked IDs, in the Goal properties, to use in sorting.  But that list would need more management.
+    Also need to decide - new Links come in to the list at the top, or bottom?
+    Could the LinkTargetPanel also allow a manual sort?  Beneficial, but could complicate matters especially if it is
+    used to move a link that connects to a Goal that has a different sort order.
+    All TBD.
+
+
+Example links:
+   event to todo (Todo: attend concert  Event:  Concert)    Type:   RELATED  (the concert happens regardless of whether or not you attend)
+       but better would be to reverse the perspective, then:  todo to event, Type: DURING
+       But should not have both.  If viewing the event's links, it would still be displayed, but from a Todo perspective.
+       So - should a Group-to-NoteData direction/perspective be allowed to be created?  Maybe not.
+   todo to event (Todo: buy tickets     Event:  Concert)    Type:   BEFORE
+
+-------------------------------------------------------------------------------------------------------------------
+
+  the GoalGroup - needs an interface to commonize with NoteData.  Otherwise it
+        //   would have to handle a new data type during interface loading/unloading, component management,
+        //   and group data persistence.
+MAYBE NOT - now links are not loaded directly into a Goal.

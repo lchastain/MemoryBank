@@ -175,6 +175,7 @@ public class ExtendedNoteComponent extends JPanel {
     } // end setSubject
 
 
+    // This could be made static, IF you made 'subjects' into a return value.
     private void loadSubjects() {
         Exception e = null;
 

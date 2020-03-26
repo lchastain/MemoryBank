@@ -11,7 +11,7 @@ import java.util.Vector;
 
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class NoteGroup extends FileGroup {
+public abstract class NoteGroup extends FileGroup implements NoteComponentManager, NoteSelection {
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
@@ -20,7 +20,6 @@ public abstract class NoteGroup extends FileGroup {
     JPanel theBasePanel;
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
-
 
     boolean addNoteAllowed;
     boolean saveWithoutData;
@@ -152,7 +151,7 @@ public abstract class NoteGroup extends FileGroup {
     //   create a new page.
     // It is called either from NoteComponent.initialize() or loadInterface().
     //----------------------------------------------------------------------
-    void activateNextNote(int noteIndex) {
+    public void activateNextNote(int noteIndex) {
         if ((noteIndex >= 0) && (noteIndex < lastVisibleNoteIndex)) return;  // already showing.
 
         // noteIndex is -1 when we have come here from loadInterface, where the displayed page is empty.
@@ -206,7 +205,7 @@ public abstract class NoteGroup extends FileGroup {
         theBasePanel.transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
         groupDataVector.clear();
-        setGroupData(groupDataVector);
+        showGroupData(groupDataVector);
         setGroupChanged(true);
         theNotePager.reset(1);
     } // end clearGroup
@@ -239,27 +238,6 @@ public abstract class NoteGroup extends FileGroup {
     } // end clearPage
 
 
-    private boolean deleteFile(File f) {
-        // There are a couple of cases where we could try to delete a file that is not there
-        // in the first place.  So - we verify that the file is really there and only if it is
-        // do we try to delete it.  Then we check for existence again because the deletion can
-        // occasionally return a false negative (because of gc/timing issues?).
-        // But File.delete does not ever return a false positive (that I've seen).
-        // The user is only notified of a problem if the file still exists.
-        if (f.exists() && !f.delete() && f.exists()) {
-            (new Exception("File removal exception!")).printStackTrace();
-            ems = "Error - unable to remove: " + f.getName();
-            optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        } else {
-            // System.out.println(f.getName() + " was removed");
-//            setGroupFilename("");   //  TODO  Not good, when it is a SearchResultGroup.  Others???
-            return true;
-        } // end if
-    } // end deleteFile
-
-
     //---------------------------------------------------------------
     // Method Name: editExtendedNoteComponent
     //
@@ -268,7 +246,7 @@ public abstract class NoteGroup extends FileGroup {
     //   was a change; false otherwise.
     //
     //---------------------------------------------------------------
-    boolean editExtendedNoteComponent(NoteData noteData) {
+    public boolean editExtendedNoteComponent(NoteData noteData) {
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
         // Load the enc with the correct data
@@ -333,6 +311,10 @@ public abstract class NoteGroup extends FileGroup {
         return intHighestNoteComponentIndex;
     }
 
+    public int getLastVisibleNoteIndex() {
+        return lastVisibleNoteIndex;
+    }
+
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
@@ -354,6 +336,7 @@ public abstract class NoteGroup extends FileGroup {
         return null;
     } // end getProperties
 
+
     //----------------------------------------------------------------
     // Method Name: setGroupChanged
     //
@@ -364,7 +347,7 @@ public abstract class NoteGroup extends FileGroup {
     //   is done when needed and menu items are managed correctly.
     //----------------------------------------------------------------
     @Override
-    void setGroupChanged(boolean b) {
+    public void setGroupChanged(boolean b) {
         super.setGroupChanged(b);
         adjustMenuItems(b);
     } // end setGroupChanged
@@ -381,8 +364,8 @@ public abstract class NoteGroup extends FileGroup {
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
-    // Provides a way for a management class (AppTreePanel) to set the displayed data, vs loading it from a file.
-    void setGroupData(Vector<NoteData> newGroupData) {
+    // Provides a way to set the displayed data, vs loading it from a file.
+    void showGroupData(Vector<NoteData> newGroupData) {
         groupDataVector = newGroupData;
         loadInterface(1);
     }
@@ -697,11 +680,11 @@ public abstract class NoteGroup extends FileGroup {
 
         if (saveWithoutData) {
             // We save a file, with data or not.
-            notesWritten = AppUtil.saveNoteGroupData(groupFilename, theGroup);
+            notesWritten = FileGroup.saveFileData(groupFilename, theGroup);
         } else {
             // If there is data to preserve, do so now.
             if ((groupProperties != null) || (trimmedList.size() > 0)) {
-                notesWritten = AppUtil.saveNoteGroupData(groupFilename, theGroup);
+                notesWritten = FileGroup.saveFileData(groupFilename, theGroup);
             } // end if
 
             // We didn't try to write a file if there was no data, but there are cases where
@@ -730,7 +713,12 @@ public abstract class NoteGroup extends FileGroup {
         this.defaultSubject = defaultSubject;
     }
 
-    void setMessage(String s) {
+    void setSelectionMonitor(NoteSelection noteSelection) {
+
+    }
+
+    @Override
+    public void setStatusMessage(String s) {
         lblStatusMessage.setText("  " + s);
         lblStatusMessage.invalidate();
         theBasePanel.validate();
@@ -928,7 +916,7 @@ public abstract class NoteGroup extends FileGroup {
     public void updateGroup() {
         clearPage(); // Clears the data (not Components) from the interface.
 
-        // This is needed BEFORE loadGroup, in case we came here
+        // The reset is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition
         //   that may be in effect during a 'refresh' which would
         //   cause the higher numbered page to be loaded with page

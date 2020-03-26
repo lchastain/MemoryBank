@@ -2,19 +2,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
+
+// A GoalGroup (like any other NoteGroup) is not itself saved (serialized).  Its
+// properties are what goes out to the data file.
 
 public class GoalGroup extends NoteGroup {
     private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
     static String areaName;
     static String areaPath;
     static String filePrefix;
-    private JList<String> lstGoals;
-    // End of variables declaration
+
+    // This is saved/loaded
+    GoalGroupProperties myProperties; // Variables - flags and settings
+
 
     static {
         areaName = "Goals"; // Directory name under user data.
@@ -23,36 +27,54 @@ public class GoalGroup extends NoteGroup {
         MemoryBank.trace();
     } // end static
 
-    public GoalGroup(String fname) {
+    public GoalGroup(String groupName) {
         super();
 
         // Store our simple list name.
-        setName(fname);
+        setName(groupName);
         log.debug("Constructing: " + getName());
 
-        setGroupFilename(areaPath + filePrefix + fname + ".json");
+        addNoteAllowed = false;
 
-        GoalGroupProperties goalGroupProperties = new GoalGroupProperties();
+        setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
+        myProperties = new GoalGroupProperties();
 
+        buildPanelContent(); // Content other than the groupDataVector
         saveWithoutData = true;
-        updateGroup();
+        updateGroup(); // This is where the file gets loaded (in the parent class)
 
-        buildPanelContent();
-//        this.setVisible(true);
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
-        theBasePanel.setLayout(new BorderLayout());
 
-        JLabel goalTitleText = new JLabel("Get a degree in Engineering");
+        // Now the 2-row Header for the GoalGroup -
+        //-----------------------------------------------------
+        JPanel heading = new JPanel();
+        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
+
+        // The First Header Row -   Title
+        JPanel headingRow1 = new JPanel(new BorderLayout());
+        headingRow1.setBackground(Color.blue);
+        JTextField goalTitleText = new JTextField(getName());
         goalTitleText.setHorizontalAlignment(JLabel.CENTER);
+//        goalTitleText.setForeground(Color.white);
         goalTitleText.setFont(Font.decode("Serif-bold-20"));
-        add(goalTitleText, BorderLayout.NORTH);
+//        add(goalTitleText, BorderLayout.NORTH);
 
+        headingRow1.add(goalTitleText, "Center");
+
+        // The Second Header Row -  Goal Plan
+        //----------------------------------------------------------
+        JPanel headingRow2 = new JPanel(new BorderLayout());
+        headingRow2.setBackground(Color.cyan);
         JTextArea goalPlan = new JTextArea();
-        add(goalPlan, BorderLayout.CENTER);
+        headingRow2.add(goalPlan, BorderLayout.CENTER);
+
+        heading.add(headingRow1);
+        heading.add(headingRow2);
+        add(heading, BorderLayout.NORTH);
     }
 
 
@@ -63,7 +85,6 @@ public class GoalGroup extends NoteGroup {
         JLabel jLabel1 = new JLabel();
         // Variables declaration
         JTextField txtfGoalText = new JTextField();
-        lstGoals = new JList<>();
         JScrollPane jspGoals = new JScrollPane();
         JTextArea txtaPlan = new JTextArea();
         JScrollPane jspPlan = new JScrollPane();
@@ -128,16 +149,30 @@ public class GoalGroup extends NoteGroup {
     }
 
 
-    private void txtfGoalText_actionPerformed(ActionEvent e) {
-        System.out.println("\ntxtfGoalText_actionPerformed(ActionEvent e) called.");
+    //--------------------------------------------------------------
+    // Method Name: getProperties
+    //
+    //  Called by saveGroup.
+    //  Returns an actual object, vs the overridden method
+    //    in the base class that returns a null.
+    //--------------------------------------------------------------
+    @Override
+    protected Object getProperties() {
+        return myProperties;
+    } // end getProperties
+
+
+    @Override
+    void setGroupData(Object[] theGroup) {
+        myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
+        BaseData.loading = true; // We don't want to affect the lastModDates!
+        //groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<LinkData>>() { });
+        // Plan now is to embed a LinkagesEditorPanel, not to have a separate Vector.
+        BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
-    private void lstGoals_valueChanged(ListSelectionEvent e) {
-        System.out.println("\nlstGoals_valueChanged(ListSelectionEvent e) called.");
-        if (!e.getValueIsAdjusting()) {
-            Object o = lstGoals.getSelectedValue();
-            System.out.println(">>" + ((o == null) ? "null" : o.toString()) + " is selected.");
-        }
+    private void txtfGoalText_actionPerformed(ActionEvent e) {
+        System.out.println("\ntxtfGoalText_actionPerformed(ActionEvent e) called.");
     }
 
     private void jButton1_actionPerformed(ActionEvent e) {
