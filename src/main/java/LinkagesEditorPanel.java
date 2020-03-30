@@ -41,11 +41,11 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         addButtonActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
-                LinkTargetPanel linkTargetPanel = new LinkTargetPanel(linkedNoteData);
-                NoteComponent.mySelectionMonitor = linkTargetPanel;
+                LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(linkedNoteData);
+                NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
                 int choice = JOptionPane.showConfirmDialog(
                         null,
-                        linkTargetPanel,
+                        linkTargetSelectionPanel,
                         "New Link Selection",
                         JOptionPane.OK_CANCEL_OPTION, // Option type
                         JOptionPane.PLAIN_MESSAGE);    // Message type
@@ -54,9 +54,9 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 NoteComponent.mySelectionMonitor = originalSelectionMonitor;
 
                 if (choice == JOptionPane.OK_OPTION) {
-                    LinkTarget linkTarget = new LinkTarget(linkTargetPanel.selectedTargetGroupInfo.instanceId,
-                            new NoteData(linkTargetPanel.selectedNoteData));
-                    linkedNoteData.linkTargets.add(linkTarget);
+                    LinkTargetData linkTargetData = new LinkTargetData(linkTargetSelectionPanel.selectedTargetGroupInfo.instanceId,
+                            new NoteData(linkTargetSelectionPanel.selectedNoteData));
+                    linkedNoteData.linkTargets.add(linkTargetData);
 
                     MemoryBank.appOpts.linkages.add(linkedNoteData);
                     rebuildDialog(linkedNoteData);
@@ -92,8 +92,8 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         MemoryBank.appOpts.linkages.remove(linkedNoteData);
 
         int index = 0;
-        for (LinkTarget linkTarget : linkedNoteData.linkTargets) {
-            LinkNoteComponent linkNoteComponent = new LinkNoteComponent(this, linkTarget, index++);
+        for (LinkTargetData linkTargetData : linkedNoteData.linkTargets) {
+            LinkNoteComponent linkNoteComponent = new LinkNoteComponent(this, linkTargetData, index++);
             groupNotesListPanel.add(linkNoteComponent);
             lastVisibleNoteIndex++;
         }
@@ -155,6 +155,10 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     @Override
     public int getLastVisibleNoteIndex() {
         return lastVisibleNoteIndex;
+    }
+
+    static String getOptionPaneTitle(int linkCount) {
+        return new String("This aint it");
     }
 
     @Override

@@ -10,7 +10,7 @@ Needs:
             if that works, otherwise an override of getPreferredSize.  See notes for that layout for more info.
         Add rows as panels that allow stretching of their content (Border or Box) or disallow it (Flow).
             The height of these inner panels can be set directly but possibly not by the makeup of their components.
-        Update - using this alternative with LinkTargetPanel, which is close to how it's done in most NoteGroups,
+        Update - using this alternative with LinkTargetSelectionPanel, which is close to how it's done in most NoteGroups,
             but have trouble with multiple rows inside the 2nd (last) row of the outermost panel - something wrong.
             BUT didn't track it down; just built my additonal text lines into a single text area vs multiple rows
             of JLabels.  Better solution anyway, but it leaves this question unanswered, for now.

@@ -1,11 +1,12 @@
 import javax.swing.*;
 import java.awt.event.WindowEvent;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LinkEditorMain {
 
     public static void main(String[] args) {
-        boolean createFakeData = true;
+        boolean createFakeData = false;
 
         // Create an icon on the taskbar that can be used to bring the dialogs
         //   forward, when Intellij has overlaid them during debug sessions.
@@ -31,17 +32,17 @@ public class LinkEditorMain {
 
         LinkedNoteData linkedNoteData = new LinkedNoteData(sourceGroupId, sourceNoteData);
 
-        if(createFakeData) {
+          if(new AtomicBoolean(createFakeData).get()) { // Fancy way to check it, without the 'always' complaint.
             for (int i = 0; i < 7; i++) {
-                LinkTarget linkTarget = new LinkTarget();
-                linkTarget.theType = LinkTarget.LinkType.getRandomType();  // one of the valid choices
+                LinkTargetData linkTargetData = new LinkTargetData();
+                linkTargetData.theType = LinkTargetData.LinkType.getRandomType();  // one of the valid choices
 
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);
                 targetNoteData.setExtendedNoteString("Extended note.  And more, later."); // Don't care right now about a Subject
-                linkTarget.setLinkTargetGroupId(((GroupInfo) MemoryBank.groupNames.elementAt(i * 2)).instanceId);
-                linkTarget.setLinkTargetNoteData(targetNoteData);
-                linkedNoteData.linkTargets.add(linkTarget);
+                linkTargetData.setLinkTargetGroupId(((GroupInfo) MemoryBank.groupNames.elementAt(i * 2)).instanceId);
+                linkTargetData.setLinkTargetNoteData(targetNoteData);
+                linkedNoteData.linkTargets.add(linkTargetData);
             }
             MemoryBank.appOpts.linkages.add(linkedNoteData);
         }
@@ -52,6 +53,8 @@ public class LinkEditorMain {
         String theTitle = "  Edit Linkages:  Checked links will be deleted.  " +
                 "Click link text to highlight it.  " +
                 "You can move a highlighted link by shift-up or shift-down arrow.";
+
+        theTitle = LinkagesEditorPanel.getOptionPaneTitle(0);
 
         //new TestUtil().showConfirmDialog(
         int choice = JOptionPane.showConfirmDialog(

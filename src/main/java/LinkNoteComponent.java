@@ -17,27 +17,27 @@ import java.awt.event.MouseEvent;
 public class LinkNoteComponent extends NoteComponent {
     static final long serialVersionUID = 1L;
     NoteComponentManager myManager;
-    private LinkTarget myLinkTargetData;
+    private LinkTargetData myLinkTargetDataData;
     JComboBox<String> linkTypeDropdown;
     JCheckBox deleteCheckBox;
     JLabel linkTitleLabel;
 
     @SuppressWarnings({"unchecked"})
-    LinkNoteComponent(NoteComponentManager noteComponentManager, LinkTarget linkTarget, int i) {
+    LinkNoteComponent(NoteComponentManager noteComponentManager, LinkTargetData linkTargetData, int i) {
         super(noteComponentManager, i);
         myManager = noteComponentManager;
-        myLinkTargetData = linkTarget;
+        myLinkTargetDataData = linkTargetData;
 
         removeAll();   // We will redo the base layout.
         setLayout(new BorderLayout());
 
-        setNoteData(myLinkTargetData.getTargetNoteData()); // The part of the link that needs to be shown.
+        setNoteData(myLinkTargetDataData.getTargetNoteData()); // The part of the link that needs to be shown.
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                myLinkTargetData.deleteMe = !myLinkTargetData.deleteMe; // toggle
-                deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
+                myLinkTargetDataData.deleteMe = !myLinkTargetDataData.deleteMe; // toggle
+                deleteCheckBox.setSelected(myLinkTargetDataData.deleteMe);
             }
         };
 
@@ -50,26 +50,26 @@ public class LinkNoteComponent extends NoteComponent {
         //-------------------------------------------------------------------------------------
         // The link type dropdown
         linkTypeDropdown = new JComboBox<>();
-        linkTypeDropdown.setModel(new DefaultComboBoxModel(LinkTarget.LinkType.values()));
-        linkTypeDropdown.setSelectedItem(linkTarget.theType);
+        linkTypeDropdown.setModel(new DefaultComboBoxModel(LinkTargetData.LinkType.values()));
+        linkTypeDropdown.setSelectedItem(linkTargetData.theType);
         linkTypeDropdown.setFocusable(false);
         westPanel.add(linkTypeDropdown);
 
         // The 'delete me' checkbox
         deleteCheckBox = new JCheckBox();
         deleteCheckBox.setFocusable(false);
-        deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
+        deleteCheckBox.setSelected(myLinkTargetDataData.deleteMe);
         deleteCheckBox.addMouseListener(mouseAdapter);
         westPanel.add(deleteCheckBox);
 
         // The Group Type - Group Name label
-        GroupInfo groupInfo = GroupInfo.getGroupInfo(linkTarget.getTargetGroupId());
+        GroupInfo groupInfo = GroupInfo.getGroupInfo(linkTargetData.getTargetGroupId());
         if (groupInfo != null) {
-            myLinkTargetData.linkTitle = groupInfo.getGroupType() + ": " + groupInfo.getGroupName();
+            myLinkTargetDataData.linkTitle = groupInfo.getGroupType() + ": " + groupInfo.getGroupName();
         } else {
-            myLinkTargetData.linkTitle = "Group Type - Group Name: ";
+            myLinkTargetDataData.linkTitle = "Group Type - Group Name: ";
         }
-        linkTitleLabel = new JLabel(myLinkTargetData.linkTitle) {
+        linkTitleLabel = new JLabel(myLinkTargetDataData.linkTitle) {
             static final long serialVersionUID = 1L;
             @Override
             public Dimension getPreferredSize() {
@@ -82,7 +82,7 @@ public class LinkNoteComponent extends NoteComponent {
         add(westPanel, BorderLayout.WEST);
 
         //-------------------------------------------------------------------------------------
-        noteTextField.setText(linkTarget.getTargetNoteData().noteString);
+        noteTextField.setText(linkTargetData.getTargetNoteData().noteString);
         noteTextField.setEditable(false);
         centerPanel.add(noteTextField, "Stretch");
         add(centerPanel, BorderLayout.CENTER);
@@ -96,25 +96,25 @@ public class LinkNoteComponent extends NoteComponent {
     @Override
     protected void clear() {
         // We need to clear out our own members and components before clearing the base component.
-        myLinkTargetData.deleteMe = false;
-        deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
-        myLinkTargetData.linkTitle = "";
-        linkTitleLabel.setText(myLinkTargetData.linkTitle);
+        myLinkTargetDataData.deleteMe = false;
+        deleteCheckBox.setSelected(myLinkTargetDataData.deleteMe);
+        myLinkTargetDataData.linkTitle = "";
+        linkTitleLabel.setText(myLinkTargetDataData.linkTitle);
 
         super.clear(); // This also sets the component 'initialized' to false.
     } // end clear
 
 
-    public LinkTarget getLinkTarget() {
-        myLinkTargetData.theType = (LinkTarget.LinkType) linkTypeDropdown.getSelectedItem();
-        myLinkTargetData.deleteMe = deleteCheckBox.isSelected();
-        return myLinkTargetData;
+    public LinkTargetData getLinkTarget() {
+        myLinkTargetDataData.theType = (LinkTargetData.LinkType) linkTypeDropdown.getSelectedItem();
+        myLinkTargetDataData.deleteMe = deleteCheckBox.isSelected();
+        return myLinkTargetDataData;
     }
 
 
     @Override
     public NoteData getNoteData() {
-        return myLinkTargetData.getTargetNoteData();
+        return myLinkTargetDataData.getTargetNoteData();
     }
 
     //----------------------------------------------------------
@@ -125,16 +125,16 @@ public class LinkNoteComponent extends NoteComponent {
     //----------------------------------------------------------
     @Override
     protected void resetComponent() {
-        linkTypeDropdown.setSelectedItem(myLinkTargetData.theType);
-        deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
-        linkTitleLabel.setText(myLinkTargetData.linkTitle);
+        linkTypeDropdown.setSelectedItem(myLinkTargetDataData.theType);
+        deleteCheckBox.setSelected(myLinkTargetDataData.deleteMe);
+        linkTitleLabel.setText(myLinkTargetDataData.linkTitle);
 
         super.resetComponent(); // the note text
     } // end resetComponent
 
 
-    void setLinkTarget(LinkTarget newLinkData) {
-        myLinkTargetData = newLinkData;
+    void setLinkTarget(LinkTargetData newLinkData) {
+        myLinkTargetDataData = newLinkData;
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
@@ -145,7 +145,7 @@ public class LinkNoteComponent extends NoteComponent {
     // The base class uses this; we redirect any 'NoteData' operations to our Target NoteData.
     @Override
     public void setNoteData(NoteData newNoteData) {
-        myLinkTargetData.setLinkTargetNoteData(newNoteData);
+        myLinkTargetDataData.setLinkTargetNoteData(newNoteData);
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
@@ -160,8 +160,8 @@ public class LinkNoteComponent extends NoteComponent {
     @Override
     public void swap(NoteComponent theNoteComponent) {
         // Get a reference to the two data objects
-        LinkTarget data1 = this.getLinkTarget();
-        LinkTarget data2 = ((LinkNoteComponent) theNoteComponent).getLinkTarget();
+        LinkTargetData data1 = this.getLinkTarget();
+        LinkTargetData data2 = ((LinkNoteComponent) theNoteComponent).getLinkTarget();
 
         // Note: getLinkData and setLinkData are working with references
         //   to data objects.  If you 'get' data from the NoteComponent
@@ -170,8 +170,8 @@ public class LinkNoteComponent extends NoteComponent {
         //   had a separatate copy of the data object, just the reference to it.
 
         // So - copy the data objects.
-        if (data1 != null) data1 = new LinkTarget(data1);
-        if (data2 != null) data2 = new LinkTarget(data2);
+        if (data1 != null) data1 = new LinkTargetData(data1);
+        if (data2 != null) data2 = new LinkTargetData(data2);
 
         if (data1 == null) theNoteComponent.clear();
         else ((LinkNoteComponent) theNoteComponent).setLinkTarget(data1);

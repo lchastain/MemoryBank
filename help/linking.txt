@@ -3,12 +3,23 @@ In the context menu of linkable NoteData instances there is an option to 'Edit L
    instances or NoteGroup instances may be set or unset.  When a link is made, a LinkedNoteData is
    created to hold the relationship.
 
+SearchResultData will not be linked to any other note or group, because doing so would make it
+  appear as though there are duplicates, when viewing the linkages of the various targets.
+  And, a SearchResult has a 'FoundInFile' field that is similar to a LinkData in that it can be
+  used to get to the original note, and THAT one can be linked to some other Note or Group.
+
+NoteGroups are not linkable as the source but you may be able to have a group-group effective linkage by
+  having a note in one of the groups linking to the other group.  Something like:  for one of the notes
+  in List 1, "Complete all the tasks in List 2".  Then going beyond its text, it could get a link type to
+  list 2.
+
+
 All LinkedNoteData instances are kept in the AppOptions.linkages Vector.
 
 LinkedNoteData
     encapsulates everything from the source NoteData from which it is created.
     myGroupId (UUID) - ID of the group that contains the encapsulated NoteData
-    linkTargets - a Vector of LinkTarget.  A LinkTarget extends BaseData and has these members:
+    linkTargets - a Vector of LinkTargetData.  A LinkTargetData extends BaseData and has these members:
             targetGroupId (UUID) - ID of the target group
             targetNoteData (NoteData) - NoteData, or null if N/A
     type of link - related (generally), depends on, is depended on by, before, during, after.  See the
@@ -79,7 +90,7 @@ Goal Display of Links - Scan the list of links for the Goal ID
 2.  If not found - you are done.
 
 
-For the LinkTargetPanel implementation, click on an expandable - expands if not already,
+For the LinkTargetSelectionPanel implementation, click on an expandable - expands if not already,
 and puts the title on the right, and issues a 'select a group' message.
 Selecting a group then loads it for individual NoteData selection.
 
@@ -94,7 +105,7 @@ Link Viewing -
     than as an additional popup modal dialog.
 
 
-    The linkTargetPanel - will show a list of existing links for the entity, as well as allowing a new selection.
+    The linkTargetSelectionPanel - will show a list of existing links for the entity, as well as allowing a new selection.
     New selections (link creation) must be made one at a time - this is a limiting factor that helps fight DOS.
         but once the creation becomes a service - need a better limiter than just the UI.
 
@@ -104,7 +115,7 @@ Link Sorting - only done for Links where a Goal is on one end, done from the Goa
     one goal - no problem; there will be two separate links in that case.   OR -
     Keep a list of linked IDs, in the Goal properties, to use in sorting.  But that list would need more management.
     Also need to decide - new Links come in to the list at the top, or bottom?
-    Could the LinkTargetPanel also allow a manual sort?  Beneficial, but could complicate matters especially if it is
+    Could the LinkTargetSelectionPanel also allow a manual sort?  Beneficial, but could complicate matters especially if it is
     used to move a link that connects to a Goal that has a different sort order.
     All TBD.
 

@@ -2,21 +2,8 @@
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
-IF we make Groups not linkable as the source, may be able to have a group-group effective linkage by
-having a note in one of the groups linking to the other group.  Something like:  in List 1, Complete all the tasks
-in List 2.  Then it could get a before/after link type, and the connection is made.  This method will need to be
-explained in the docs.
-
-Run the DataFix, remove the @JsonIgnores, do a pub to sync up prod data and code.
-    DataFix a copy of the prod data and then move it back to prod, taking the new 'Years' org.
-
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
     group deletions, group show/no-show.
-
-// SearchResultData will not be linked to any other note or group, because doing so would make it
-//   appear as though there are duplicates, when viewing the linkages of the various targets.
-//   And, a SearchResult has a 'FoundInFile' field that is similar to a LinkData in that it can be
-//   used to get to the original note, and THAT one can be linked to some other Note or Group.
 
 
 LinkagesEditorPanel:
@@ -24,14 +11,14 @@ LinkagesEditorPanel:
 When there are no existing links to start - check / fix L&F
 
 
-LinkTargetPanel:
+LinkTargetSelectionPanel:
 ====================================
 Get selection and put it into the 'North' of the dialog, where you otherwise see "Linking: " <what> TO: (no selection yet)
 Fix status messages for groups with readOnly notes
 Goal Display - but that requires completion of the GoalPanel
 Implement Date selections - general date of Day, Month, Year, and then specific notes within.
     Maybe New interface:  YearViewSelectionHandler - already implemented by AppTreePanel (and other(s)?) ,
-    needs to be pulled out into its own class and also implemented by LinkTargetPanel
+    needs to be pulled out into its own class and also implemented by LinkTargetSelectionPanel
 Handle the OK button - put the new link into the LinkagesEditorPanel
     Goals
     Dates
@@ -69,7 +56,7 @@ Handle no-data-yet conditions.
         a list of linkages of LinkTargets.  Now the AppOptions holds a list of LinkedNoteData.  Major refactor.
         Went back to the idea that a NoteGroup cannot be a source of a link; only a target.  If you really want
         a group-to-group link, the equivalent effect can be achieved with a new note that effectively 'wraps' a group.
-    Added a somewhat complex 'Info' panel to the LinkTargetPanel, to handle the manipulations of the
+    Added a somewhat complex 'Info' panel to the LinkTargetSelectionPanel, to handle the manipulations of the
         expandable tree nodes, give user instructions, and show an opening screen and a way to get back to it without
         starting over.
     A NoteData does not exist outside of a NoteGroup, even though it has so far not needed to know about its location.
@@ -90,7 +77,7 @@ Handle no-data-yet conditions.
         interface - NoteComponentManager.
 
 3/11/2020 1200 - Recently added the GroupInfo class, and now have completed the L&F for the
-  LinkagesEditorPanel, and it calls up the LinkTargetPanel, that still needs work.  Dr. appt
+  LinkagesEditorPanel, and it calls up the LinkTargetSelectionPanel, that still needs work.  Dr. appt
   for skin allergy followup, today at 4pm.
 
 3/07/2020 1312 - While working on the new LinkNoteComponent, found that the target Group name

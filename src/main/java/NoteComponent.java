@@ -103,7 +103,7 @@ public class NoteComponent extends JPanel {
 
         // This section disables the automatic scrolling done by a JScrollPane
         // when a component that it contains 'hears' an UP or DOWN arrow key.
-        // This is done because we have our own 'scrollRectToVisible' controlling that, and
+        // This is done because we have our own scrolling logic, and
         // ours works better because it works in whole-note heights, vs the half-height that
         // we get otherwise.  Also, ours only kicks in when the note line would otherwise
         // not be fully visible, as opposed to every time the focus moves.
@@ -139,7 +139,7 @@ public class NoteComponent extends JPanel {
     // Child classes will override this in order to clear their own
     // components first, but they should call this method afterwards.
     //-----------------------------------------------------------------
-    protected void clear() {
+    void clear() {
         // Clear the data object.  Since child classes override the
         //   getNoteData method, this works for them as well.
         System.out.println("NoteComponent.clear, calling getNoteData()!"); // scr0050 troubleshooting.
@@ -797,6 +797,9 @@ public class NoteComponent extends JPanel {
                     break;
                 case "Edit Linkages":
                     nd = theNoteComponent.getNoteData();
+                    // Need to also get its group id.
+                    // Once you have it, you can invoke the panel with the proper new LinkedNoteData, rather than
+                    // calling the 'get', which gives you one with a null group id.
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(LinkedNoteData.getLinkedNoteData(nd));
 
                     int choice = JOptionPane.showConfirmDialog(

@@ -9,7 +9,7 @@ import java.util.UUID;
 // It does extend BaseData, because it needs to have its own unique id separate of the one for the
 //   NoteData instance that it contains, so that it can distinguish between duplicate links.
 
-public class LinkTarget extends BaseData {
+public class LinkTargetData extends BaseData {
 
     private UUID targetGroupId;
     private NoteData targetNoteData;
@@ -47,22 +47,22 @@ public class LinkTarget extends BaseData {
         }
     }
 
-    LinkTarget.LinkType theType;     // Says what kind of connection this is.  Values defined above.
+    LinkTargetData.LinkType theType;     // Says what kind of connection this is.  Values defined above.
     // status - or 'order' / priority
 
-    public LinkTarget() {
+    public LinkTargetData() {
         super();
-        theType = LinkTarget.LinkType.RELATED;
+        theType = LinkTargetData.LinkType.RELATED;
     }
 
-    public LinkTarget(UUID theGroupId, NoteData theNoteData) {
+    public LinkTargetData(UUID theGroupId, NoteData theNoteData) {
         this();
         targetGroupId = theGroupId;
         targetNoteData = theNoteData;
     }
 
     // The copy constructor (clone) - used by 'swap' code.
-    public LinkTarget(LinkTarget theCopy) {
+    public LinkTargetData(LinkTargetData theCopy) {
         this();
 
         // These may not be default values.

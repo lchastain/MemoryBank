@@ -2,11 +2,13 @@ import java.util.UUID;
 import java.util.Vector;
 
 public class LinkedNoteData extends NoteData {
-    // A LinkedNoteData instance is a copy of a NoteData that can have zero or more links to a LinkTarget.
-    //   The ID of this LinkedNoteData will be the same as the ID of the NoteData that has been linked (from).
+    // A LinkedNoteData instance is a copy of a NoteData that can have zero or more links to other
+    //   NoteGroups or NoteData instances.  Each link is defined in a LinkTarget, and this class
+    //   encapsulates a list of LinkTarget.
+    // The ID of this LinkedNoteData will be the same as the ID of the NoteData that has been linked (from).
 
     private UUID myGroupId;
-    Vector<LinkTarget> linkTargets;
+    Vector<LinkTargetData> linkTargets;
 
     public LinkedNoteData() {
         super();
@@ -49,11 +51,6 @@ public class LinkedNoteData extends NoteData {
     }
 
     UUID getMyGroupId() { return myGroupId; }
-
-//    @JsonIgnore
-//    public NoteData getSourceNoteData() {
-//        return (NoteData) this;
-//    }
 
     void setMyGroupId(UUID groupId) {
         myGroupId = groupId;

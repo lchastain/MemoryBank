@@ -19,9 +19,9 @@ import java.time.LocalDate;
 // of the selections.  Panel/layout nesting is done where needed in order to achieve the desired visual
 // effects, but at the cost of clarity, at times.  Comments are there to help with that.
 
-public class LinkTargetPanel extends JPanel implements TreeSelectionListener, NoteSelection {
+public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionListener, NoteSelection {
     private static final long serialVersionUID = 1L;
-    private static Logger log = LoggerFactory.getLogger(LinkTargetPanel.class);
+    private static Logger log = LoggerFactory.getLogger(LinkTargetSelectionPanel.class);
 
     private JTree theTree;
     private JScrollPane rightPane;
@@ -35,7 +35,7 @@ public class LinkTargetPanel extends JPanel implements TreeSelectionListener, No
     GroupInfo selectedTargetGroupInfo;
     NoteData selectedNoteData;
 
-    public LinkTargetPanel(NoteData theFromEntity) {
+    public LinkTargetSelectionPanel(NoteData theFromEntity) {
         super(new BorderLayout());
         chosenCategory = "";
         appOpts = MemoryBank.appOpts;
