@@ -19,8 +19,8 @@ public class LinkEditorMain {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("lex@doughmain.net");
         AppOptions.loadOpts();
-        MemoryBank.appOpts.linkages.clear(); // Don't want to keep growing this test list.
-        GroupInfo.load();
+//        MemoryBank.appOpts.linkages.clear(); // Don't want to keep growing this test list.
+//        GroupProperties.load();
 
         // Generate up some test-only data -
         //---------------------------------------------------------------------------------------------------
@@ -30,25 +30,29 @@ public class LinkEditorMain {
         sourceNoteData.subjectString = "This note's subject";
         sourceNoteData.extendedNoteString = "An extended note";
 
-        LinkedNoteData linkedNoteData = new LinkedNoteData(sourceGroupId, sourceNoteData);
-
-          if(new AtomicBoolean(createFakeData).get()) { // Fancy way to check it, without the 'always' complaint.
+        // The 'createFakeData' boolean is used to determine whether we use real data, or
+        // a constant set that we create here during this run.  But since that flag is
+        // set at the top of this file to be either true or false on any given run and does
+        // not change otherwise, IntelliJ will give an annoying 'always true or always false'
+        // complaint, in our 'if' statement below.  So instead we use this fancy way to check
+        // it, that avoids that complaint.
+        if (new AtomicBoolean(createFakeData).get()) {
             for (int i = 0; i < 7; i++) {
                 LinkTargetData linkTargetData = new LinkTargetData();
-                linkTargetData.theType = LinkTargetData.LinkType.getRandomType();  // one of the valid choices
+                linkTargetData.linkType = LinkTargetData.LinkType.getRandomType();  // one of the valid choices
 
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);
                 targetNoteData.setExtendedNoteString("Extended note.  And more, later."); // Don't care right now about a Subject
-                linkTargetData.setLinkTargetGroupId(((GroupInfo) MemoryBank.groupNames.elementAt(i * 2)).instanceId);
+//                linkTargetData.setLinkTargetGroupId(((GroupProperties) MemoryBank.groupNames.elementAt(i * 2)).instanceId);
                 linkTargetData.setLinkTargetNoteData(targetNoteData);
-                linkedNoteData.linkTargets.add(linkTargetData);
+                sourceNoteData.linkTargets.add(linkTargetData);
             }
-            MemoryBank.appOpts.linkages.add(linkedNoteData);
+//            MemoryBank.appOpts.linkages.add(sourceNoteData);
         }
 
         //---------------------------------------------------------------------------------------------------
-        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(linkedNoteData);
+        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(sourceNoteData);
 
         String theTitle = "  Edit Linkages:  Checked links will be deleted.  " +
                 "Click link text to highlight it.  " +
@@ -64,15 +68,17 @@ public class LinkEditorMain {
                 JOptionPane.OK_CANCEL_OPTION, // Option type
                 JOptionPane.PLAIN_MESSAGE);    // Message type
 
-        // We don't actually want to do either of the branches below, given that this is a
-        // test driver.  But - you might see a similar section in the 'live' code.
+        // We don't actually want to handle the 'Ok' button, given that this
+        // is just a test driver.  But we will show the result -
         if (choice == JOptionPane.OK_OPTION) {
-            LinkedNoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
-            MemoryBank.appOpts.linkages.add(updatedLinkNoteData);
-            AppOptions.saveOpts();  // Accept the addition(s) and save.
+            NoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
+            System.out.println("\nEditing results: \n");
+            System.out.println(AppUtil.toJsonString(updatedLinkNoteData));
         } else {
-            //AppOptions.loadOpts();  // Cancel.
+            System.out.println("Linkages editing was cancelled.");
         }
+
+        // NO - show the result - collect it and give a json printout.  or a cancel message.
 
 
 // Enable the code below IF you want to have it in a resizable dialog, vs a static JOptionPane -

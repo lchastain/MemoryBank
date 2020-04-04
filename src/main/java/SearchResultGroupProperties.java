@@ -1,8 +1,10 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 
 // This class holds the persistent data for the SearchResultGroup
 //-----------------------------------------------------------------------
-public class SearchResultGroupProperties {
+public class SearchResultGroupProperties extends GroupProperties {
 
     SearchPanelSettings searchPanelSettings;
     String searchDateString; // This is needed, now that a search can be renamed.  No way to 'see' it, yet.
@@ -10,7 +12,7 @@ public class SearchResultGroupProperties {
     public String column1Label;
     public String column2Label;
     public String column3Label;
-    public String column4Label;
+    @JsonIgnore public String column4Label;
 
     public int columnOrder;
 

@@ -31,7 +31,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static String filePrefix;
 
     // This is saved/loaded
-    public TodoListGroupProperties myVars; // Variables - flags and settings
+    public TodoGroupProperties myVars; // Variables - flags and settings
 
     static {
         areaName = "TodoLists"; // Directory name under user data.
@@ -44,14 +44,13 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         this(fname, PAGE_SIZE);
     }
 
-    public TodoNoteGroup(String fname, int pageSize) {
-        super(pageSize);
+    public TodoNoteGroup(String groupName, int pageSize) {
+        super(groupName, GroupProperties.GroupType.TODO_LIST, pageSize);
 
-        // Store our simple list name.  It will be used by the 'saveAs' method.
-        setName(fname);
-        log.debug("Constructing: " + getName());
+        log.debug("Constructing: " + groupName);
+        makeProperties(groupName, GroupProperties.GroupType.TODO_LIST);
 
-        setGroupFilename(areaPath + filePrefix + fname + ".json");
+        setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
@@ -61,7 +60,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         lblListTitle.setHorizontalAlignment(JLabel.CENTER);
         lblListTitle.setForeground(Color.white);
         lblListTitle.setFont(Font.decode("Serif-bold-20"));
-        lblListTitle.setText(fname);
+        lblListTitle.setText(groupName);
 
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
@@ -84,7 +83,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         theBasePanel.add(pnl1, BorderLayout.EAST);
 
         updateGroup(); // This is where the file gets loaded (if it exists)
-        myVars = new TodoListGroupProperties();
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
@@ -215,12 +213,18 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-------------------------------------------------------------------
     @Override
     JComponent makeNewNote(int i) {
-        if (i == 0) myVars = new TodoListGroupProperties();
+//        if (i == 0) myProperties = new TodoListGroupProperties();
         TodoNoteComponent tnc = new TodoNoteComponent(this, i);
         tnc.setVisible(false);
         return tnc;
     } // end makeNewNote
 
+
+    @Override
+    GroupProperties makeProperties(String groupName, GroupProperties.GroupType groupType) {
+        myVars = new TodoGroupProperties(groupName);
+        return myVars;
+    }
 
     @SuppressWarnings({"unchecked"})
     public void merge() {
@@ -450,7 +454,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         //--------------------------------------------------------------
         String newFilename = areaPath + "todo_" + newName + ".json";
         if ((new File(newFilename)).exists()) {
-            ems = "A list named " + newName + " already exists!\n";
+            ems = "A list named '" + newName + "' already exists!\n";
             ems += "  operation cancelled.";
             optionPane.showMessageDialog(theFrame, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -494,9 +498,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     @Override
     void setGroupData(Object[] theGroup) {
-        myVars = AppUtil.mapper.convertValue(theGroup[0], TodoListGroupProperties.class);
-
         BaseData.loading = true; // We don't want to affect the lastModDates!
+        myProperties = AppUtil.mapper.convertValue(theGroup[0], TodoGroupProperties.class);
         groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
@@ -519,7 +522,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         if (doit == JOptionPane.CANCEL_OPTION) return;
 
         // Get the values back out of the Option Panel
-        myVars = todoOpts.getValues();
+        myProperties = todoOpts.getValues();
         setGroupChanged(true);
 
         // Was there a reset-worthy change?

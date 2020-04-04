@@ -4,9 +4,9 @@ import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 
 public abstract class FileGroup {
+    GroupProperties myProperties;
     static String basePath;
 
     // Status report codes for Load / Save
@@ -23,17 +23,24 @@ public abstract class FileGroup {
     static final int ASCENDING = 0;
     static final int DESCENDING = 1;
 
-    UUID theId;
-    private String theName;
     private String groupFilename; // Access with getGroupFilename() & setGroupFilename()
-    boolean groupChanged;  // Flag used to determine if saving data might be necessary.
+    transient boolean groupChanged;  // Flag used to determine if saving data might be necessary.
 
     static {
         // We give this string a trailing separatorChar because we really
         // do want a 'base' path as opposed to a complete path.  The common usage
         // is to build on it to make a final path to a lower level, but occasionally
-        // it does get used by itself, and the trailing char causes no problems.
+        // it does get used by itself, and the trailing separatorChar causes no problems.
         basePath = MemoryBank.userDataHome + File.separatorChar;
+    }
+
+    // Used by the Jackson code during data load / conversion.
+    FileGroup() {
+        super();
+    }
+
+    FileGroup(String groupName, GroupProperties.GroupType groupType) {
+        myProperties = makeProperties(groupName, groupType);
     }
 
     protected boolean deleteFile(File f) {
@@ -78,9 +85,9 @@ public abstract class FileGroup {
     }// end getGroupFilename
 
     // Previously we used the getName/setName that is built into a JComponent.  Now that JComponent
-    // is no longer in the direct hierarchy of a NoteGroup, we need to provide our own versions.
+    // is no longer in the direct hierarchy of a FileGroup, we need to provide our own versions.
     String getName() {
-        return theName;
+        return myProperties.getName();
     }
 
     // ---------------------------------------------------------------------------------
@@ -103,11 +110,16 @@ public abstract class FileGroup {
         } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
         } catch (IOException ex) {
             ex.printStackTrace();
-        } // end try/catch
+        }// end try/catch
         return theGroup;
     }
 
-    // Called to prompt implementations to save their data before they go away.
+    // Child classes that have more properties than what is in the base - can override this method.
+    GroupProperties makeProperties(String groupName, GroupProperties.GroupType groupType) {
+        return new GroupProperties(groupName, groupType);
+    }
+
+    // Called by the shutdown hook to prompt implementations to save their data before they go away.
     abstract void preClose();
 
     //-----------------------------------------------------------------
@@ -217,12 +229,6 @@ public abstract class FileGroup {
     void setGroupChanged(boolean b) {
         groupChanged = b;
     } // end setGroupChanged
-
-    // This is the (short) name of the group; not always the short version of the data file name.
-    void setName(String newName) {
-        if(newName == null) theName = "";
-        else theName = newName.trim();
-    }
 
     void setGroupFilename(String newName) {
         groupFilename = newName;

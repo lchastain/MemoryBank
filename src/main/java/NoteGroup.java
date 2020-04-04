@@ -6,7 +6,6 @@ import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.Vector;
 
 
@@ -44,7 +43,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     // Private members
     //-------------------------------------------------------------
     private String defaultSubject;
-    private static final int PAGE_SIZE = 40;
+    static final int PAGE_SIZE = 40;
 
     private int intHighestNoteComponentIndex;
 
@@ -56,12 +55,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //-------------------------------------------------------------
 
     NoteGroup() {
-        this(PAGE_SIZE);
+        this(null, GroupProperties.GroupType.UNKNOWN, PAGE_SIZE);
     } // end constructor 1
 
-    NoteGroup(int intPageSize) {
-        super();
-        theId = UUID.randomUUID();
+    NoteGroup(String groupName, GroupProperties.GroupType groupType, int intPageSize) {
+        super(groupName, groupType);
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
             //--------------------------------------------------------------------
@@ -396,8 +394,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         //   group will have changed so that the file to load is not the
         //   same as it was at group construction; the filename for the
         //   group may be highly variable, and this method may be getting
-        //   called after each filename change, even though the group
-        //   components themselves remain in place.
+        //   called after each filename change, even though the panel
+        //   components that hold and show the file data remain in place.
         String groupFilename = getGroupFilename();
 
         if (groupFilename.isEmpty()) {
@@ -510,7 +508,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     // Method Name: makeNewNote
     //
     // This is called from the constructor; should be overridden by
-    //   child classes.
+    //   child classes and those children should NOT call this one.
     //-------------------------------------------------------------------
     JComponent makeNewNote(int i) {
         NoteComponent nc = new NoteComponent(this, i);

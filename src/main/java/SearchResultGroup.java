@@ -27,12 +27,10 @@ public class SearchResultGroup extends NoteGroup {
 
     // groupName is a simple single word text as seen in the app tree.
     SearchResultGroup(String groupName) {
-        super();
+        super(groupName, GroupProperties.GroupType.SEARCH_RESULTS, NoteGroup.PAGE_SIZE);
         // super(10);  // test, for paging
 
-        // Store our simple list name.
-        setName(groupName);
-        log.debug("Constructing: " + getName());
+        log.debug("Constructing: " + groupName);
 
         addNoteAllowed = false;
 
@@ -276,8 +274,8 @@ public class SearchResultGroup extends NoteGroup {
 
     @Override
     void setGroupData(Object[] theGroup) {
-        myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
         BaseData.loading = true; // We don't want to affect the lastModDates!
+        myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
         groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }

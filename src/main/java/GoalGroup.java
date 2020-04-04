@@ -8,7 +8,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 // A GoalGroup (like any other NoteGroup) is not itself saved (serialized).  Its
-// properties are what goes out to the data file.
+// properties are what goes out to the data file.  But unlike the other NoteGroup
+// children, it has no list of NoteData items.
 
 public class GoalGroup extends NoteGroup {
     private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
@@ -28,11 +29,9 @@ public class GoalGroup extends NoteGroup {
     } // end static
 
     public GoalGroup(String groupName) {
-        super();
+        super(groupName, GroupProperties.GroupType.GOALS, 0);
 
-        // Store our simple list name.
-        setName(groupName);
-        log.debug("Constructing: " + getName());
+        log.debug("Constructing: " + groupName);
 
         addNoteAllowed = false;
 

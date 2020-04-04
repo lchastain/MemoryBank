@@ -9,5 +9,5 @@ public interface NoteSelection {
         return null;
     }
 
-    default void noteSelected(NoteData newNoteData) { }
+    default void noteSelected(NoteData noteData) { }
 }

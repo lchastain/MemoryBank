@@ -363,8 +363,6 @@ public class MemoryBank {
         // location of main frame     - only if it makes sense after the future sizing work is done.
         // user's preferred Log name (vs the system's user name) - needs a dialog to take in the new string.
 
-        GroupInfo.load(); // Load the list of Group Names.
-
         //--------------------------------------
         // Specify logFrame attributes
         //--------------------------------------
@@ -409,7 +407,7 @@ public class MemoryBank {
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
                 appTreePanel.preClose();
-                AppOptions.saveOpts(); // temp
+                AppOptions.saveOpts();
             } // end run
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);

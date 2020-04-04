@@ -58,8 +58,8 @@ Link Management Operations:
       it in sync with the note in its current state.
 
 4.  A Group is renamed:
-    The GroupInfo list is scanned for the presence of this group's ID, and its entry is updated.
-    Not precisely a link operation but listed here because this methodology (along with the GroupInfo list) was
+    The GroupProperties list is scanned for the presence of this group's ID, and its entry is updated.
+    Not precisely a link operation but listed here because this methodology (along with the GroupProperties list) was
         established while designing the LinkNoteComponent, as an alternative to having the group names in
         all the links, vs just having ther IDs.  The real need is for a database table, where group IDs can be
         quickly looked up to retrieve the group name.  Not needed before now for two reasons - first, the group
@@ -69,7 +69,7 @@ Link Management Operations:
 
 5.  A Group is removed:
     The linkages list is scanned for the presence of this group.  All links containing it are also removed.
-    If the removal is undone, links must be restored manually by the user, if so desired.  The GroupInfo list is
+    If the removal is undone, links must be restored manually by the user, if so desired.  The GroupProperties list is
     also scanned and the associated entry removed from there, but only after the ability to undo the removal has
     gone away. (HOW?  or - if the removal was done immediately and the undo could check the list for this group and
     restore it also, if needed)
@@ -84,7 +84,7 @@ Goal Display of Links - Scan the list of links for the Goal ID
         2) If not found, just remove it. (this could happen after an addition of a note and linking it, and then an undo)
     b.  If the related group is not showing, verify that it at least exists.
         1) if not then delete this link from the overall list.
-            This may be double work, now that there is a GroupInfo list planned.  May not be needed.
+            This may be double work, now that there is a GroupProperties list planned.  May not be needed.
         2) if the other group exists then keep this note, but not shown.
             It may eventually be verified (by 2a) if/when the group is again shown.
 2.  If not found - you are done.

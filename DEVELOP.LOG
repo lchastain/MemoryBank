@@ -1,6 +1,15 @@
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
+12345678901234567890123456789012345678901234567890123456789012345678901234567890    80
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
+
+NEXT:
+    Add GroupProperties to Events - the event data, index zero.
+    Finish the L&F for low/no preexisting data.  Work on the text messages and possibly another infoPanel, for the LEP.
+        also color-coding
+
+        Link creation, storing and retrieval   now separate of:
+        Goal Panel
+
 
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
     group deletions, group show/no-show.
@@ -32,6 +41,24 @@ Handle no-data-yet conditions.
 
 =====================================================================================================
 
+4/04/2020 0417 - At last note I still only had a partial solution; since then the GroupInfo class has evolved into
+  GroupProperties, which is the basis for properties for all NoteGroups.  This class can be a new member of a
+  LinkTargetData, and that solves the rest of the issues with establishing, saving, and loading the links.  Only
+  working so far for Todo lists; there is a lot of work needed now to finish this part of the work, and to
+  harden the result.  After Events, still need the Goal presentation, and linking to Dates.  This will continue
+  for quite some time.  Meanwhile in the real world - we are in coronavirus quarantine (social distancing; we
+  don't ourselves have any symptoms, haven't been exposed as far as we know), since the 2nd officially
+  and voluntarily for about a week before that.  And it goes until at least the 30th.  Regaining some weight.
+
+3/31/2020 0615 - Suspended work over the last few days, instead working on a better organization of my video
+  collection files.  Now back to it, and what's been immobilizing me is the idea that I don't really like the
+  way that all linkages are kept in AppOptions.  My original intent of putting them onto the individual notes -
+  keeps popping up and getting shot down due to infinite class recursion.  But the classes keep mutating as I
+  try to shoehorn in the Link concept, and now I want to try again.  Now that a LinkedNoteData has a Vector of
+  LinkTargetData and that one does NOT extend NoteData but instead encapsulates it, it may be possible. So the
+  right answer would be to just absorb the two new data members of LinkedNoteData into NoteData.  Trying...
+ 0755 - yes, this can work, after testing in area51.  But there is a possible pitfall that recursion could be
+  reintroduced by a chain of links, so the linkTargets list is set to null when a note is used in a new link.
 
 3/26/2020 0459 - Big problem with the DataFix - the AllNoteData load does not allow for specific
   re-saving; we get AllNoteData vectors - blam!  Cannot use the new search code as the driver for a DataFix.
@@ -43,7 +70,7 @@ Handle no-data-yet conditions.
   course it can be consulted, if there has been any evolution there.  Moved the 'save' code, to coreside with the
   loading code which had already moved to FileGroup.  And although the datafix has put into place the GroupNames,
   it seems like I may still go with just adding a Properties member to ALL notegroup files, and then wouldn't
-  have a separate file of GroupInfo.  Still ruminating on this one.
+  have a separate file of GroupProperties.  Still ruminating on this one.
 
 3/25/2020 1656 - The linkages work drags on.  I am getting only a few lines of code per day, if any; sometimes there
   are steps backwards.  But it does
@@ -76,7 +103,7 @@ Handle no-data-yet conditions.
     Added NoteData selection capability to NoteGroups via NoteComponent textfield focus events and a new
         interface - NoteComponentManager.
 
-3/11/2020 1200 - Recently added the GroupInfo class, and now have completed the L&F for the
+3/11/2020 1200 - Recently added the GroupProperties class, and now have completed the L&F for the
   LinkagesEditorPanel, and it calls up the LinkTargetSelectionPanel, that still needs work.  Dr. appt
   for skin allergy followup, today at 4pm.
 

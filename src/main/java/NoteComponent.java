@@ -40,6 +40,7 @@ public class NoteComponent extends JPanel {
 
     // Internal Variables needed by more than one method -
     NoteComponentManager myManager;
+    protected NoteGroup myNoteGroup;
     static NoteSelection mySelectionMonitor;
     protected boolean initialized = false;
     protected int index;
@@ -51,7 +52,8 @@ public class NoteComponent extends JPanel {
 
     static {
         // This ensures that mySelectionMonitor will never be null; now it may or may not be replaced.
-        mySelectionMonitor = new NoteSelection() { }; // It just uses the default (no-op) methods.
+//        mySelectionMonitor = new NoteSelection() { }; // It just uses the default (no-op) methods.
+        // Not needed; there IS no default selection handler, at this time.
 
         //-----------------------------------
         // Create the borders.
@@ -92,9 +94,12 @@ public class NoteComponent extends JPanel {
     NoteComponent(NoteComponentManager noteComponentManager, int i) {
         super(new BorderLayout(2, 0));
         myManager = noteComponentManager;  // A NoteGroup, or the LinkagesEditorPanel
+        if(myManager instanceof NoteGroup) {
+            myNoteGroup = (NoteGroup) myManager;
+        }
         index = i;
 
-        makeDataObject();
+        makeDataObject(); // Child classes override this method and set their own data types.
 
         noteTextField = new NoteTextField();
         if(!isEditable) {
@@ -170,7 +175,8 @@ public class NoteComponent extends JPanel {
     //
     // Returns the data object that this component encapsulates and manages.
     //-----------------------------------------------------------------
-    public NoteData getNoteData() {
+    NoteData getNoteData() {
+        myNoteData.myNoteGroup = myNoteGroup;
         return myNoteData;
     } // end getNoteData
 
@@ -622,7 +628,7 @@ public class NoteComponent extends JPanel {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
             NoteComponent.this.scrollRectToVisible(getBounds());
-            mySelectionMonitor.noteSelected(getNoteData());
+            if(mySelectionMonitor != null) mySelectionMonitor.noteSelected(getNoteData());
 
             // We occasionally get a null pointer exception at startup.
             if (getCaret() == null) return;
@@ -800,7 +806,7 @@ public class NoteComponent extends JPanel {
                     // Need to also get its group id.
                     // Once you have it, you can invoke the panel with the proper new LinkedNoteData, rather than
                     // calling the 'get', which gives you one with a null group id.
-                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(LinkedNoteData.getLinkedNoteData(nd));
+                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(nd);
 
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
@@ -809,10 +815,11 @@ public class NoteComponent extends JPanel {
                             JOptionPane.OK_CANCEL_OPTION, // Option type
                             JOptionPane.PLAIN_MESSAGE);    // Message type
 
+                    // The act of editing the linkages, whether a change was made or not, will set groupChanged to true
+                    // after it is done.  Then the menu items will offer a save or cancel, or the shutdown hook will save.
                     if (choice == JOptionPane.OK_OPTION) {
-                        LinkedNoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
-                        MemoryBank.appOpts.linkages.add(updatedLinkNoteData);
-                        AppOptions.saveOpts();  // Accept the addition(s) and save.
+                        NoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
+                        System.out.println(AppUtil.toJsonString(updatedLinkNoteData));
                     }
                     break;
                 case "Paste Line":

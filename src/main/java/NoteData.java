@@ -1,9 +1,12 @@
 import java.time.ZonedDateTime;
+import java.util.Vector;
 
 class NoteData extends BaseData {
     String noteString;
     String subjectString;
     String extendedNoteString;
+    Vector<LinkTargetData> linkTargets;
+    transient NoteGroup myNoteGroup;
 
     NoteData() {
         super();
@@ -14,7 +17,10 @@ class NoteData extends BaseData {
     } // end constructor
 
 
-    // The copy constructor (clone)
+    // The copy constructor (clone).  Primary usage is by the 'swap' methods,
+    // and when child classes need to have their additional members stripped off
+    // so that the result is an an isolated copy of the base class members from
+    // the original note (for Link Target serialization).
     NoteData(NoteData ndCopy) {
         this();
         this.instanceId = ndCopy.instanceId;
@@ -22,9 +28,13 @@ class NoteData extends BaseData {
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
         this.zdtLastModString = ndCopy.zdtLastModString;
-    } // end of the copy constructor
+        this.myNoteGroup = ndCopy.myNoteGroup;
+        this.linkTargets = ndCopy.linkTargets;
+    }// end of the copy constructor
 
     void clear() {
+        // We don't clear the notegroup.
+        linkTargets = new Vector<>(0, 1);
         noteString = "";
 
         // initialize subject to null to indicate that a group-specified default subject should be used.

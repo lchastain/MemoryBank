@@ -1,7 +1,6 @@
 // This class is for describing the target of a connection to another entity.
 
 import java.util.Random;
-import java.util.UUID;
 
 // This class does not extend a NoteData, because it encapsulates a NoteData member and would
 //   not be serializable if it did extend from NoteData, due to infinite recursion.
@@ -11,7 +10,7 @@ import java.util.UUID;
 
 public class LinkTargetData extends BaseData {
 
-    private UUID targetGroupId;
+    private GroupProperties targetGroupProperties;
     private NoteData targetNoteData;
 
     transient boolean deleteMe;
@@ -47,18 +46,18 @@ public class LinkTargetData extends BaseData {
         }
     }
 
-    LinkTargetData.LinkType theType;     // Says what kind of connection this is.  Values defined above.
-    // status - or 'order' / priority
+    LinkType linkType;     // Says what kind of connection this is.  Values defined above.
 
     public LinkTargetData() {
         super();
-        theType = LinkTargetData.LinkType.RELATED;
+        linkType = LinkTargetData.LinkType.RELATED;
     }
 
-    public LinkTargetData(UUID theGroupId, NoteData theNoteData) {
+    public LinkTargetData(GroupProperties groupProperties, NoteData noteData) {
         this();
-        targetGroupId = theGroupId;
-        targetNoteData = theNoteData;
+        targetGroupProperties = groupProperties;
+        targetNoteData = noteData;
+        if(targetNoteData != null) targetNoteData.linkTargets = null;// To avoid recursion.  No LinkTarget on a LinkTarget.
     }
 
     // The copy constructor (clone) - used by 'swap' code.
@@ -66,24 +65,24 @@ public class LinkTargetData extends BaseData {
         this();
 
         // These may not be default values.
-        targetGroupId = theCopy.targetGroupId;
+        targetGroupProperties = theCopy.targetGroupProperties;
         targetNoteData = theCopy.targetNoteData;
-        theType = theCopy.theType;
+        linkType = theCopy.linkType;
         deleteMe = theCopy.deleteMe;
         linkTitle = theCopy.linkTitle;
     } // end constructor
 
 
-    public UUID getTargetGroupId() {
-        return targetGroupId;
+    public GroupProperties getTargetGroupProperties() {
+        return targetGroupProperties;
     }
 
     public NoteData getTargetNoteData() {
         return targetNoteData;
     }
 
-    public void setLinkTargetGroupId(UUID newGroupId) {
-        targetGroupId = newGroupId;
+    public void setLinkTargetGroupProperties(GroupProperties newGroupProperties) {
+        targetGroupProperties = newGroupProperties;
     }
 
     public void setLinkTargetNoteData(NoteData newNoteData) {

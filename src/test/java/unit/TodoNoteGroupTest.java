@@ -67,21 +67,27 @@ class TodoNoteGroupTest {
         // storage/retrieval is already tested above.  The actual value of options
         // and whether or not they had an effect can be tested in the functional testing.
 
+        // Preserve the current properties; needed by the 'saveAs' test.
+        GroupProperties originalTodoGroupProperties = todoNoteGroup.myProperties;
+
         // Make some options and set them differently than the ones our test user has now.
-        TodoListGroupProperties tlp = new TodoListGroupProperties();
+        TodoGroupProperties tlp = new TodoGroupProperties("noname");
         tlp.showPriority = false;
 
         // Testing this method will cause it to try to get User input.  But we have changed
         // its Notifier, so that process is automated for this test.
         // Tell the Notifier to call a method on the TodoOpts ('message') prior to returning.
         // Get the method from TodoOpts that the Notifier will call, to change the options.
-        Method newMethod = TodoOpts.class.getDeclaredMethod("setNewProperties", TodoListGroupProperties.class);
+        Method newMethod = TodoOpts.class.getDeclaredMethod("setNewProperties", TodoGroupProperties.class);
         testUtil.setTheMethod(newMethod);
         testUtil.setParam1(tlp); // Provide the needed method parameter
 
         testUtil.setNotifyCount(0); // arbitrary, just needs to be known.
         todoNoteGroup.setOptions();
         Assertions.assertEquals(1, testUtil.getNotifyCount());
+
+        // Restore the original properties.
+        todoNoteGroup.myProperties = originalTodoGroupProperties;
     }
 
     @Test

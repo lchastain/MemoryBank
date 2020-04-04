@@ -1,7 +1,8 @@
 import javax.swing.*;
 
 public class Area51 {
-    private Notifier optionPane = new Notifier() {};
+    private Notifier optionPane = new Notifier() {
+    };
 
     static {
         MemoryBank.debug = true;
@@ -36,38 +37,80 @@ public class Area51 {
         System.out.println("The choice is: " + theChoice);
     }
 
-    // Developing and testing linkages and serialization issues.
-//    @SuppressWarnings({"unchecked"})
-//    private void try2() {
-//        // Make an instance of the AppOptions
-//        AppOptions appOptions = new AppOptions();
-//
-//        // Make a new GoalGroup
-//        String groupName = "WorldPlan1";
-//        GoalGroup goalGroup = new GoalGroup(groupName);
-//        appOptions.goalsList.add(groupName);
-//        goalGroup.myProperties.goalTitle = "Take Over The World";
-//        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
-//
-//        // Make a todo list item and a link to the Goal.
-//        NoteData todoNoteData = new TodoNoteData();
-//        todoNoteData.noteString = "Notify the media";
-//        LinkData linkage = new LinkData();
-//        linkage.setSourceGroupId(UUID.randomUUID());
-//        linkage.setSourceNoteData((AllNoteData) (NoteData) todoNoteData);
-//        linkage.setTargetGroupId(goalGroup.myProperties.instanceId);
-//        //System.out.println("The TodoNoteData to JSON is: " + AppUtil.toJsonString(todoNoteData));
-//
-//        // Add the linkage to the overall list
-//        appOptions.linkages.add(linkage);
-//        System.out.println("The AppOptions to JSON is: " + AppUtil.toJsonString(appOptions));
-//    }
+    // Developing linkages and testing serialization issues.
+    private void try2() {
+        // Make a new GoalGroup
+        String groupName = "WorldPlan1";
+        GoalGroup goalGroup = new GoalGroup(groupName);
+        goalGroup.myProperties.goalTitle = "Take Over The World";
+        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
+
+        // Make a todo list item and a link to the Goal.
+        TodoNoteData todoNoteData = new TodoNoteData();
+        todoNoteData.noteString = "Notify the media";
+
+//        LinkTargetData linkage = new LinkTargetData(goalGroup.myProperties.instanceId, null);
+//        todoNoteData.linkTargets.add(linkage);
+
+        System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
+    }
+
+
+    // Developing linkages and testing serialization issues.
+    private void try3() {
+        // Make a new EventNoteGroup
+        String groupName = "holidays";
+        EventNoteGroup goalGroup = new EventNoteGroup(groupName);
+
+        // Make a new EventNoteData
+        EventNoteData eventNoteData = new EventNoteData();
+        eventNoteData.noteString = "An exciting event";
+
+        // Make a todo list item.
+        TodoNoteData todoNoteData = new TodoNoteData();
+        todoNoteData.noteString = "Notify the media";
+
+        // Make a  link to the Event Note
+        // We send a 'new' NoteData vs the original eventNoteData, in order to strip off unwanted Event data members.
+        // Also this approach has the effect of isolating changes to the encapsulated NoteData (such as nulling out
+        // its linkTargets to avoid infinite recursion) from the original EventNoteData.
+        NoteData targetNoteData = new NoteData(eventNoteData);
+//        LinkTargetData linkage = new LinkTargetData(UUID.randomUUID(), targetNoteData);
+//        todoNoteData.linkTargets.add(linkage);
+
+        System.out.println("The TodoNoteData with link to an Event and its note, to JSON is: " + AppUtil.toJsonString(todoNoteData));
+    }
+
+    // Developing linkages and testing serialization issues.
+    private void try4() {
+        FileGroup fileGroup = new FileGroup() {
+            @Override
+            void preClose() {
+
+            }
+        };
+
+        // Make a new GoalGroup
+        String groupName = "WorldPlan1";
+        GoalGroup goalGroup = new GoalGroup(groupName);
+        goalGroup.myProperties.goalTitle = "Take Over The World";
+        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
+
+        // Make a todo list item and a link to the Goal.
+        TodoNoteData todoNoteData = new TodoNoteData();
+        todoNoteData.noteString = "Notify the media";
+
+//        LinkTargetData linkage = new LinkTargetData(goalGroup.myProperties.instanceId, null);
+//        todoNoteData.linkTargets.add(linkage);
+
+        System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
+    }
 
     public static void main(String[] args) {
         Area51 a51 = new Area51();
         //a51.try1();
-//        a51.try2();
-        //a51.try3();
+        a51.try2();
+        a51.try3();
 
     }
 

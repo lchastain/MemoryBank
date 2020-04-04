@@ -147,7 +147,8 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     @Override
-    public NoteData getNoteData() {
+    NoteData getNoteData() {
+        myTodoNoteData.myNoteGroup = myNoteGroup;
         return myTodoNoteData;
     } // end getNoteData
 
@@ -449,13 +450,6 @@ public class TodoNoteComponent extends NoteComponent {
         }
 
         public void setForeground() {
-        }
-
-        //---------------------------------------------------------
-        // FocusListener methods
-        //---------------------------------------------------------
-        public void focusGained() {
-            transferFocus();
         }
 
         public void focusLost() {

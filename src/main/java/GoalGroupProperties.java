@@ -18,13 +18,22 @@
 //   it would need to be overloaded and ignored.
 
 
-public class GoalGroupProperties extends BaseData {
+public class GoalGroupProperties extends GroupProperties {
     // From BaseData this class gets its ID and Last Mod Date.
     String goalTitle;  // A single line of text, descriptive of the goal
     String goalPlan;   // The plan statement at the high level, not including Todo item-like steps.
 
-//    int goalStatus;  // This is the overall status, as opposed to status of link sources.
+//    int goalStatus;  // This is the overall status of the goal; individual linkTargets do not have this.
 // Do not go 'live' until naming and values are more certain.  We still need the immediate status, as well as the overall.
+
+    // At some point - consider an 'analyze' button.  A bit of low-level AI to examine the available data and make
+    // suggestions.
+    //  Add a goal
+    //      add a plan
+    //          make a todo list
+    //              link a todo item to the goal
+    //  and then it gets hard....
+
 
 
     // Unscheduled - no particular timeline set

@@ -11,12 +11,15 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     JScrollPane jsp;
     JScrollBar jsb;
     ActionListener addButtonActionListener;
-    LinkedNoteData linkedNoteData;
+    NoteData linkedNoteData;
 
-    LinkagesEditorPanel(LinkedNoteData aLinkedNoteData) {
+    LinkagesEditorPanel(NoteData aLinkedNoteData) {
         super(new BorderLayout());
         linkedNoteData = aLinkedNoteData;
 
+        // The center of this panel will hold this JScrollPane.
+        // Here is where we set our fixed width, so that horizontal scrolling will not be needed.
+        // Expand this section to see the 'real' code.
         jsp = new JScrollPane() {
             private static final long serialVersionUID = 1L;
 
@@ -27,20 +30,25 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         };
 
         // Explicitly define the vertical scrollbar to allow for these additional settings:
-        //  Scroll increments, and also disable focus because once the bar appears, the tab
+        //  Scroll increments, and also disable focus or else once the bar appears, the tab
         //  and up/down keys can transfer focus over to it, and the up/down keys do not bring
-        //  it back.  But even if they did, that's not the behavior we would want.
+        //  it back.  But even if they did, that's not the behavior we would want, so - no focus.
         jsb = new JScrollBar();
         jsb.setFocusable(false);
         jsb.setUnitIncrement(NoteComponent.NOTEHEIGHT);
         jsb.setBlockIncrement(NoteComponent.NOTEHEIGHT);
 
+        // Assign both scrollbars of the scrollpane.
         jsp.setVerticalScrollBar(jsb);
-        jsp.setHorizontalScrollBar(null);
+        jsp.setHorizontalScrollBar(null); // We use a set width.
 
+        // Define the listener for the 'Add New Link' text.
         addButtonActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+                // Since the NoteComponent selection monitor is a static setting, we need to
+                // preserve it before changing it here, so we can set it back when done.
                 NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
+
                 LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(linkedNoteData);
                 NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
                 int choice = JOptionPane.showConfirmDialog(
@@ -54,11 +62,17 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 NoteComponent.mySelectionMonitor = originalSelectionMonitor;
 
                 if (choice == JOptionPane.OK_OPTION) {
-                    LinkTargetData linkTargetData = new LinkTargetData(linkTargetSelectionPanel.selectedTargetGroupInfo.instanceId,
-                            new NoteData(linkTargetSelectionPanel.selectedNoteData));
-                    linkedNoteData.linkTargets.add(linkTargetData);
+                    NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
+                    GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroupProperties;
+                    // We use 'new' in the parameter list below, to convert the params to their base classes.
+                    // Of course they could just go that way without that, and would pass through the implicit
+                    // cast back to the base class, but later, upon serialization, we would get all the extra
+                    // baggage that they carry.  This way - it's gone, the data stored is smaller, and most
+                    // importantly, loads back in without complaint.
+                    LinkTargetData linkTargetData = new LinkTargetData(new GroupProperties(selectedGroupProperties),
+                            new NoteData(selectedNoteData));
 
-                    MemoryBank.appOpts.linkages.add(linkedNoteData);
+                    linkedNoteData.linkTargets.add(linkTargetData);
                     rebuildDialog(linkedNoteData);
                 }
             }
@@ -69,8 +83,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
     // This method is called initially to display all currently existing links, and is then called after each
     // link is added.  Links are only added one at a time.  The display is rebuilt each time.
-//    private void rebuildDialog(NoteData noteData)
-    private void rebuildDialog(LinkedNoteData linkedNoteData) {
+    private void rebuildDialog(NoteData linkedNoteData) {
         removeAll();
         revalidate();
 
@@ -87,9 +100,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         JLabel messageLabel = new JLabel(theMessage);
         messageLabel.setFont(Font.decode("Dialog-bold-12"));
         add(messageLabel, BorderLayout.NORTH);
-
-        // pull this one out of the main list.  We will process its links in the next loop.
-        MemoryBank.appOpts.linkages.remove(linkedNoteData);
 
         int index = 0;
         for (LinkTargetData linkTargetData : linkedNoteData.linkTargets) {
@@ -137,7 +147,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
     // Cycle through the interface and reconstruct the linkages
     // for the result.
-    public LinkedNoteData getEditedLinkedNote() {
+    public NoteData getEditedLinkedNote() {
         int numLinks = groupNotesListPanel.getComponentCount();
         linkedNoteData.linkTargets.clear();
 
@@ -158,7 +168,14 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     }
 
     static String getOptionPaneTitle(int linkCount) {
-        return new String("This aint it");
+        // Return a title for zero, one, or more than one pre-existing links.
+        if(linkCount == 0) {
+            return new String("This aint it 0");
+        } else if(linkCount == 1) {
+            return new String("This aint it 1");
+        } else {
+            return new String("This aint it 2+");
+        }
     }
 
     @Override

@@ -32,7 +32,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     JLabel infoPanelTitleLabel;
     JTextArea infoPanelTextArea;
     String chosenCategory;
-    GroupInfo selectedTargetGroupInfo;
+    NoteGroup selectedTargetGroup;
+    GroupProperties selectedTargetGroupProperties;
     NoteData selectedNoteData;
 
     public LinkTargetSelectionPanel(NoteData theFromEntity) {
@@ -205,8 +206,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         String groupName = "";
         String targetNoteString = "";
 
-        if (selectedTargetGroupInfo != null) {
-            groupName = selectedTargetGroupInfo.getGroupName();
+        if (selectedTargetGroupProperties != null) {
+            groupName = selectedTargetGroupProperties.getName();
 
             if (selectedNoteData != null) {
                 targetNoteString = selectedNoteData.noteString;
@@ -296,7 +297,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         // Get the string for the selected node.
         String theNodeString = node.toString();
         log.debug("New tree selection: " + theNodeString);
-        appOpts.theSelection = theNodeString;
 
         // Set up for a selection that is somehow missing its data (error handling)
         JLabel missingDataLabel = new JLabel();
@@ -310,7 +310,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
         // Clear the selection report - needed when the user has changed from a 'good'
         // selection to one that is somehow missing.
-        selectedTargetGroupInfo = null;
+        selectedTargetGroupProperties = null;
         setSelectedNoteData(null);
         resetTargetSelectionLabel();
 
@@ -371,7 +371,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             } else {
                 eventNoteGroup.addNoteAllowed = false;
                 eventNoteGroup.setSelectionMonitor(this);
-                selectedTargetGroupInfo = GroupInfo.getGroupInfo("event_" + theNodeString + ".json");
+                selectedTargetGroup = eventNoteGroup;
+                selectedTargetGroupProperties = eventNoteGroup.myProperties;
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } // end if
@@ -394,7 +395,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 todoNoteGroup.addNoteAllowed = false;
-                selectedTargetGroupInfo = GroupInfo.getGroupInfo("todo_" + theNodeString + ".json");
+                selectedTargetGroup = todoNoteGroup;
+                selectedTargetGroupProperties = todoNoteGroup.myProperties;
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(todoNoteGroup.theBasePanel);
             } // end if

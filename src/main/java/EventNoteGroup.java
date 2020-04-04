@@ -61,12 +61,9 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
 
     EventNoteGroup(String groupName) {
-        super();
+        super(groupName, GroupProperties.GroupType.EVENTS, NoteGroup.PAGE_SIZE);
 
-        // Use an inherited (otherwise unused) method to store our list name.
-        // It will be used by the 'saveAs' method.
-        setName(groupName.trim());
-        MemoryBank.debug("Constructing: " + getName());
+        MemoryBank.debug("Constructing: " + groupName);
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;

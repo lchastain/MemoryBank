@@ -32,7 +32,6 @@ class AppOptions {
     Vector<String> eventsList;
     Vector<String> tasksList;
     Vector<String> searchResultList;
-    Vector<LinkedNoteData> linkages;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
     String consolidatedEventsViewName;
 
@@ -50,7 +49,6 @@ class AppOptions {
         eventsList = new Vector<>(0, 1);
         tasksList = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
-        linkages = new Vector<>(0, 1);
     } // end constructor
 
     static void loadOpts() {

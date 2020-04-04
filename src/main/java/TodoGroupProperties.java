@@ -1,6 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class TodoListGroupProperties {
+public class TodoGroupProperties extends GroupProperties {
 
     // Priority
     public boolean showPriority;
@@ -31,7 +31,11 @@ public class TodoListGroupProperties {
     public String column4Label;
     public int columnOrder;
 
-    public TodoListGroupProperties() { // Constructor with defaults
+    public TodoGroupProperties() {} // Needed / used by Jackson.
+
+    public TodoGroupProperties(String groupName) { // Constructor with defaults
+        super(groupName, GroupType.TODO_LIST);
+
         showPriority = true;
         maxPriority = 20;
         deadWidth = 170;
@@ -46,7 +50,6 @@ public class TodoListGroupProperties {
         lineSpace = 1;
         whenNoKey = TodoNoteGroup.BOTTOM;
 
-//        numberOfItems = 15;
         column1Label = "Priority";
         column2Label = "To Do Text";
         column3Label = "Status";
