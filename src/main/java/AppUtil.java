@@ -505,6 +505,19 @@ public class AppUtil {
         return filename.toString();
     }
 
+    // Wrap the text in html, used for JLabel text with style adjustments.
+    static String makeHtml(String theString) {
+        return "<html>" + theString + "</html>";
+    }
+
+    // This only works for JLabel text that is also wrapped in html
+    static String makeRed(String theString) {
+        String redOn = "<font color=#ff0000>";
+        String redOff = "</font>";
+        return redOn + theString + redOff;
+    }
+
+
 
     static String makeTimeString(LocalTime localTime) {
         String theString;

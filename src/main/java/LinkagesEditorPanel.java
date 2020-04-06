@@ -12,10 +12,12 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     JScrollBar jsb;
     ActionListener addButtonActionListener;
     NoteData linkedNoteData;
+    boolean deleteCheckedLinks;
 
     LinkagesEditorPanel(NoteData aLinkedNoteData) {
         super(new BorderLayout());
         linkedNoteData = aLinkedNoteData;
+        deleteCheckedLinks = true;
 
         // The center of this panel will hold this JScrollPane.
         // Here is where we set our fixed width, so that horizontal scrolling will not be needed.
@@ -47,6 +49,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
             public void actionPerformed(ActionEvent ae) {
                 // Since the NoteComponent selection monitor is a static setting, we need to
                 // preserve it before changing it here, so we can set it back when done.
+                // Currently this is null in most cases anyway.
                 NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
 
                 LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(linkedNoteData);
@@ -62,15 +65,26 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 NoteComponent.mySelectionMonitor = originalSelectionMonitor;
 
                 if (choice == JOptionPane.OK_OPTION) {
-                    NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
+                    // First - capture any changes in link type or their ordering.
+                    deleteCheckedLinks = false;
+                    linkedNoteData = getEditedLinkedNote();
+                    deleteCheckedLinks = true;
+
                     GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroupProperties;
+                    if(selectedGroupProperties == null) return; // No Group selection - just go back.
+                    NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
                     // We use 'new' in the parameter list below, to convert the params to their base classes.
                     // Of course they could just go that way without that, and would pass through the implicit
                     // cast back to the base class, but later, upon serialization, we would get all the extra
                     // baggage that they carry.  This way - it's gone, the data stored is smaller, and most
                     // importantly, loads back in without complaint.
-                    LinkTargetData linkTargetData = new LinkTargetData(new GroupProperties(selectedGroupProperties),
-                            new NoteData(selectedNoteData));
+                    LinkTargetData linkTargetData;
+                    if(selectedNoteData != null) {
+                        linkTargetData = new LinkTargetData(new GroupProperties(selectedGroupProperties),
+                                new NoteData(selectedNoteData));
+                    } else {
+                        linkTargetData = new LinkTargetData(new GroupProperties(selectedGroupProperties), null);
+                    }
 
                     linkedNoteData.linkTargets.add(linkTargetData);
                     rebuildDialog(linkedNoteData);
@@ -87,20 +101,41 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         removeAll();
         revalidate();
 
-        // The global linkages list will be referenced from memory and not storage, since we
-        // call this method repeatedly during link additions that might eventually be cancelled rather than accepted.
-        // Cycle thru the global Linkages list scanning for the link Source entity.  Create a local list of
-        // LinkNoteComponents, one for each time the source appears in a linkage.
+        // Declare the panel to hold the header information.
+        // The header will contain one or two JLabels.
+        JPanel headerInfoPanel = new JPanel(new BorderLayout());
+
+        // Declare and decorate the labels that will be shown in the header.
+        JLabel sourceInfoLabel = new JLabel();
+        sourceInfoLabel.setFont(Font.decode("Dialog-bold-14"));
+        JLabel userInstructionsLabel = new JLabel();
+        userInstructionsLabel.setFont(Font.decode("Dialog-12"));
+
+        // Variable messages and instructions, depending on how many links already exist.
+        String theUserInstructions;
+        String theSourceNoteText;
+        int linkCount = linkedNoteData.linkTargets.size();
+        if(linkCount == 0) {
+            theSourceNoteText = "There are no existing links.  Click on 'Add New Link' to add one.";
+        } else if(linkCount == 1) {
+            theUserInstructions = "Use the dropdown to change the link type, or put a check in the checkbox to mark it for deletion";
+            userInstructionsLabel.setText(theUserInstructions);
+            headerInfoPanel.add(userInstructionsLabel, BorderLayout.NORTH);
+            theSourceNoteText = "Existing link - " + AppUtil.makeRed(linkedNoteData.noteString) + " IS:";
+        } else {
+            theUserInstructions = "Checked links will be deleted.  " +
+                    "You can move a highlighted link by shift-up or shift-down arrow.\n";
+            userInstructionsLabel.setText(theUserInstructions);
+            headerInfoPanel.add(userInstructionsLabel, BorderLayout.NORTH);
+            theSourceNoteText = "Existing links - " + AppUtil.makeRed(linkedNoteData.noteString) + " IS:";
+        }
+        headerInfoPanel.add(sourceInfoLabel, BorderLayout.SOUTH);
+        sourceInfoLabel.setText(AppUtil.makeHtml(theSourceNoteText));
+        add(headerInfoPanel, BorderLayout.NORTH);
+
+        // Fill in the list of links (if any)
         groupNotesListPanel = new JPanel();
         groupNotesListPanel.setLayout(new BoxLayout(groupNotesListPanel, BoxLayout.Y_AXIS));
-
-        String theMessage = "  Checked links will be deleted.  " +
-                "You can move a highlighted link by shift-up or shift-down arrow.";
-        theMessage = "Existing links - " + linkedNoteData.noteString + " IS:";
-        JLabel messageLabel = new JLabel(theMessage);
-        messageLabel.setFont(Font.decode("Dialog-bold-12"));
-        add(messageLabel, BorderLayout.NORTH);
-
         int index = 0;
         for (LinkTargetData linkTargetData : linkedNoteData.linkTargets) {
             LinkNoteComponent linkNoteComponent = new LinkNoteComponent(this, linkTargetData, index++);
@@ -154,7 +189,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         // This will fix any reordering, as well as drop out deletions.
         for(int i=0; i<numLinks; i++) {
             LinkNoteComponent linkNoteComponent = (LinkNoteComponent) groupNotesListPanel.getComponent(i);
-            if(!linkNoteComponent.deleteCheckBox.isSelected()) {
+            if(!linkNoteComponent.deleteCheckBox.isSelected() || !deleteCheckedLinks) {
                 linkedNoteData.linkTargets.add(linkNoteComponent.getLinkTarget());
             }
 
@@ -165,17 +200,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     @Override
     public int getLastVisibleNoteIndex() {
         return lastVisibleNoteIndex;
-    }
-
-    static String getOptionPaneTitle(int linkCount) {
-        // Return a title for zero, one, or more than one pre-existing links.
-        if(linkCount == 0) {
-            return new String("This aint it 0");
-        } else if(linkCount == 1) {
-            return new String("This aint it 1");
-        } else {
-            return new String("This aint it 2+");
-        }
     }
 
     @Override

@@ -3,52 +3,50 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 NEXT:
-    Add GroupProperties to Events - the event data, index zero.
-    Finish the L&F for low/no preexisting data.  Work on the text messages and possibly another infoPanel, for the LEP.
-        also color-coding
-
-        Link creation, storing and retrieval   now separate of:
-        Goal Panel
+        Date selection for links
+        Goal Panel display - bring in the Linkages panel, with reversed links?
 
 
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
     group deletions, group show/no-show.
 
 
-LinkagesEditorPanel:
-====================================
-When there are no existing links to start - check / fix L&F
 
 
 LinkTargetSelectionPanel:
 ====================================
-Get selection and put it into the 'North' of the dialog, where you otherwise see "Linking: " <what> TO: (no selection yet)
 Fix status messages for groups with readOnly notes
-Goal Display - but that requires completion of the GoalPanel
+Goal Display - AFTER completion of the GoalPanel
 Implement Date selections - general date of Day, Month, Year, and then specific notes within.
     Maybe New interface:  YearViewSelectionHandler - already implemented by AppTreePanel (and other(s)?) ,
     needs to be pulled out into its own class and also implemented by LinkTargetSelectionPanel
 Handle the OK button - put the new link into the LinkagesEditorPanel
     Goals
     Dates
-Handle case where there are no - Goals, Events, To Do Lists
 Need an opening screen message for Dates selections
     Dates may need to be a fourth (at the top) expandable node, with three items:
         Days
         Months
         Years
-Handle no-data-yet conditions.
 
 =====================================================================================================
 
 4/04/2020 0417 - At last note I still only had a partial solution; since then the GroupInfo class has evolved into
-  GroupProperties, which is the basis for properties for all NoteGroups.  This class can be a new member of a
-  LinkTargetData, and that solves the rest of the issues with establishing, saving, and loading the links.  Only
-  working so far for Todo lists; there is a lot of work needed now to finish this part of the work, and to
+  GroupProperties, which is the basis for properties for all NoteGroups.  This class can be the type of a new member
+  of a LinkTargetData, and that solves the rest of the issues with establishing, saving, and loading the links.
+  Only working so far for Todo lists; there is a lot of work needed now to finish this part of the work, and to
   harden the result.  After Events, still need the Goal presentation, and linking to Dates.  This will continue
   for quite some time.  Meanwhile in the real world - we are in coronavirus quarantine (social distancing; we
   don't ourselves have any symptoms, haven't been exposed as far as we know), since the 2nd officially
   and voluntarily for about a week before that.  And it goes until at least the 30th.  Regaining some weight.
+ 1516 Working on events, saw that the current solution would automatically give  Properties to Dates and that would
+  cause problems with storage and retrieval since they don't already have properties, like Todo groups did.  But
+  Dates may not need properties anyway, so overrode the 'makeProperties' to set the default back to a null.  For
+  events, which also do not already have that data element in their files - will do a manual data fix to add them,
+  since there are not that many of them, and they are all in one place.  Dates will still need attention but now
+  it can wait until Events are done to the same point that Todo lists are.
+ 1542 Loading and saving of Events, with or without properties - is ok now.  Properties are added automatically.
+  And it appears that that was all that was additionally needed, to get Links working for Events.
 
 3/31/2020 0615 - Suspended work over the last few days, instead working on a better organization of my video
   collection files.  Now back to it, and what's been immobilizing me is the idea that I don't really like the

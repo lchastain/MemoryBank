@@ -48,7 +48,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         super(groupName, GroupProperties.GroupType.TODO_LIST, pageSize);
 
         log.debug("Constructing: " + groupName);
-        makeProperties(groupName, GroupProperties.GroupType.TODO_LIST);
+        myVars = (TodoGroupProperties) myProperties;
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
@@ -192,9 +192,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     // Method Name: getProperties
     //
     //  Called by saveGroup.
-    //  Returns an actual object, vs the overriden method
+    //  Returns an actual object, vs the method
     //    in the base class that returns a null.
     //--------------------------------------------------------------
+    @Override
     protected Object getProperties() {
         return myVars;
     } // end getProperties
@@ -213,7 +214,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     //-------------------------------------------------------------------
     @Override
     JComponent makeNewNote(int i) {
-//        if (i == 0) myProperties = new TodoListGroupProperties();
         TodoNoteComponent tnc = new TodoNoteComponent(this, i);
         tnc.setVisible(false);
         return tnc;
@@ -221,9 +221,8 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     @Override
-    GroupProperties makeProperties(String groupName, GroupProperties.GroupType groupType) {
-        myVars = new TodoGroupProperties(groupName);
-        return myVars;
+    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
+        myProperties = new TodoGroupProperties(groupName);
     }
 
     @SuppressWarnings({"unchecked"})

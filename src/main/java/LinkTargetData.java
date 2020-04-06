@@ -56,8 +56,14 @@ public class LinkTargetData extends BaseData {
     public LinkTargetData(GroupProperties groupProperties, NoteData noteData) {
         this();
         targetGroupProperties = groupProperties;
-        targetNoteData = noteData;
-        if(targetNoteData != null) targetNoteData.linkTargets = null;// To avoid recursion.  No LinkTarget on a LinkTarget.
+        if (noteData == null) {
+            NoteData newNoteData = new NoteData();
+            newNoteData.setNoteString("(all) " + targetGroupProperties.getName());
+            targetNoteData = newNoteData;// linkTargets initializes to empty; no need to null it out.
+        } else {
+            targetNoteData = noteData;
+            targetNoteData.linkTargets = null;// To avoid recursion.  No LinkTarget on a LinkTarget.
+        }
     }
 
     // The copy constructor (clone) - used by 'swap' code.

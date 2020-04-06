@@ -342,6 +342,19 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         return defaultIcon;
     }
 
+    //--------------------------------------------------------------
+    // Method Name: getProperties
+    //
+    //  Called by saveGroup.
+    //  Returns an actual object, vs the method
+    //    in the base class that returns a null.
+    //--------------------------------------------------------------
+    @Override
+    protected Object getProperties() {
+        return myProperties;
+    } // end getProperties
+
+
     // -------------------------------------------------------------------
     // Method Name: makeNewNote
     //
@@ -364,7 +377,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
 
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        Vector<EventNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() {  });
+        Vector<EventNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[theGroup.length - 1], new TypeReference<Vector<EventNoteData>>() {  });
         BaseData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
@@ -509,8 +522,12 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
     @Override
     void setGroupData(Object[] theGroup) {
+        int theSize = theGroup.length;
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<EventNoteData>>() {  });
+        if(theSize == 2) {
+            myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+        }
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[theSize - 1], new TypeReference<Vector<EventNoteData>>() {  });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 

@@ -42,10 +42,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         appOpts = MemoryBank.appOpts;
 
         // Set up for selection reporting -
-        String redOn = "<font color=#ff0000>";
-        String redOff = "</font>";
-        baseTargetSelectionString = "<html>" + redOn + "Linking:&nbsp; " + redOff + theFromEntity.noteString;
-        baseTargetSelectionString += redOn + " &nbsp; TO: &nbsp; " + redOff;
+        baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(theFromEntity.noteString);
+        baseTargetSelectionString += " &nbsp; TO: &nbsp; ";
 
         createTree();  // Create the tree.
         theTree.addTreeSelectionListener(this); // Listen for when the selection changes.
@@ -114,7 +112,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
                 if (rightClick) {
                     theTree.collapsePath(theTree.getSelectionPath());
-//                    theTree.clearSelection();
+                    theTree.clearSelection();
                 }
             }
         };
@@ -210,7 +208,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             groupName = selectedTargetGroupProperties.getName();
 
             if (selectedNoteData != null) {
-                targetNoteString = selectedNoteData.noteString;
+                targetNoteString = AppUtil.makeRed(selectedNoteData.noteString);
             }
         }
 
@@ -219,11 +217,11 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (groupName.isEmpty()) {
             selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; (no selection yet)";
         } else if (targetNoteString.isEmpty()) {
-            selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + groupName;
+            selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + AppUtil.makeRed(groupName);
         } else {
-            selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + groupName + " - " + targetNoteString;
+            selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + AppUtil.makeRed(groupName+ " - ")  + targetNoteString;
         }
-        targetSelectionLabel.setText(selectionText +  "</html>");
+        targetSelectionLabel.setText(AppUtil.makeHtml(selectionText));
     }
 
     private void setSelectedNoteData(NoteData noteData) {
@@ -236,6 +234,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         if(chosenCategory.endsWith("s")) chosenCategory = chosenCategory.substring(0, chosenCategory.length()-1);
         String theMessage = "No info"; // Not used; just required initialization.
         infoPanelTitleLabel.setBackground(Color.cyan); // The default title background
+        int theCount;
 
         switch (infoTitle) {
             case "Linking":
@@ -253,23 +252,40 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 // Need a 'no data here yet' message, for all but Dates.
                 break;
             case "Goals":
+                theCount = MemoryBank.appOpts.goalsList.size();
                 theMessage = "\n From here you can select the Goal to be linked.\n";
+                if(theCount == 0) {
+                    theMessage += "\n Or at least you could have, if you had any Goals defined and enabled.\n";
+                    theMessage += "\n Return here after defining (or re-enabling) at least one goal.\n";
+                }
                 break;
             case "Upcoming Events":
-                theMessage = "\n From here you can select the Event type to be linked.\n";
-                theMessage += "\n Once a selection is made, if there are specific events defined then an event listing will appear.\n";
-                theMessage += "\n If events are presented, you can select one.\n";
-                theMessage += "  Click on the text to see the red border.\n";
-                theMessage += "\n Make no event selection if you are linking to the entire event type.";
-                theMessage += "\n   You can clear an event selection by leaving the group, and then return.";
+                theCount = MemoryBank.appOpts.eventsList.size();
+                theMessage = "\n From here you can select the Event list to be linked.\n";
+                if(theCount == 0) {
+                    theMessage += "\n Or at least you could have, if you had any Event lists defined and enabled.\n";
+                    theMessage += "\n Return here after defining (or re-enabling) one or more Event lists.\n";
+                } else {
+                    theMessage += "\n Once a selection is made, if there are specific events defined then an event listing will appear.\n";
+                    theMessage += "\n If events are presented, you can select one.\n";
+                    theMessage += "  Click on the text to see the red border.\n";
+                    theMessage += "\n Make no event selection if you are linking to the entire event type.";
+                    theMessage += "\n   You can clear an event selection by leaving the group, and then return.";
+                }
                 break;
             case "To Do Lists":
+                theCount = MemoryBank.appOpts.tasksList.size();
                 theMessage = "\n From here you can select the To Do List to to be linked.\n";
-                theMessage += "\n Once a selection is made, if there are specific tasks defined then a listing will appear.\n";
-                theMessage += "\n If tasks are presented, you can select one.\n";
-                theMessage += "  Click on the text to see the red border.\n";
-                theMessage += "\n Make no task selection if you are linking to the entire list.";
-                theMessage += "\n   You can clear a task selection by leaving the list, and then return.";
+                if(theCount == 0) {
+                    theMessage += "\n Or at least you could have, if you had any To Do lists defined and enabled.\n";
+                    theMessage += "\n Return here after creating (or re-enabling) one or more To Do lists.\n";
+                } else {
+                    theMessage += "\n Once a selection is made, if there are specific tasks defined then a listing will appear.\n";
+                    theMessage += "\n If tasks are presented, you can select one.\n";
+                    theMessage += "  Click on the text to see the red border.\n";
+                    theMessage += "\n Make no task selection if you are linking to the entire list.";
+                    theMessage += "\n   You can clear a task selection by leaving the list, and then return.";
+                }
                 break;
         }
 
@@ -347,11 +363,12 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
             // Set right pane to a selection result message
             // rightPane.setViewportView(theBigPicture.theBasePanel);
-
+            chosenCategory = parentNodeName;
             jp = new JPanel(new GridBagLayout());
             jp.add(new JLabel(theNodeString));
             rightPane.setViewportView(jp);
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
+            chosenCategory = parentNodeName;
             EventNoteGroup eventNoteGroup;
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
@@ -377,6 +394,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } // end if
         } else if (parentNodeName.equals("To Do Lists")) { // Selection of a To Do List
+            chosenCategory = parentNodeName;
             TodoNoteGroup todoNoteGroup;
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
@@ -395,6 +413,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 todoNoteGroup.addNoteAllowed = false;
+                todoNoteGroup.setSelectionMonitor(this);
                 selectedTargetGroup = todoNoteGroup;
                 selectedTargetGroupProperties = todoNoteGroup.myProperties;
                 resetTargetSelectionLabel();

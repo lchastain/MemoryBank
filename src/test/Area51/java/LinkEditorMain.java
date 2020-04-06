@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.event.WindowEvent;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LinkEditorMain {
@@ -18,14 +17,12 @@ public class LinkEditorMain {
 
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("lex@doughmain.net");
+        //MemoryBank.setUserDataHome("newuser@doughmain.net");
         AppOptions.loadOpts();
-//        MemoryBank.appOpts.linkages.clear(); // Don't want to keep growing this test list.
-//        GroupProperties.load();
 
         // Generate up some test-only data -
         //---------------------------------------------------------------------------------------------------
         NoteData sourceNoteData = new NoteData();
-        UUID sourceGroupId = UUID.randomUUID();
         sourceNoteData.noteString = "Something interesting";
         sourceNoteData.subjectString = "This note's subject";
         sourceNoteData.extendedNoteString = "An extended note";
@@ -44,27 +41,19 @@ public class LinkEditorMain {
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);
                 targetNoteData.setExtendedNoteString("Extended note.  And more, later."); // Don't care right now about a Subject
-//                linkTargetData.setLinkTargetGroupId(((GroupProperties) MemoryBank.groupNames.elementAt(i * 2)).instanceId);
                 linkTargetData.setLinkTargetNoteData(targetNoteData);
                 sourceNoteData.linkTargets.add(linkTargetData);
             }
-//            MemoryBank.appOpts.linkages.add(sourceNoteData);
         }
 
         //---------------------------------------------------------------------------------------------------
         LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(sourceNoteData);
 
-        String theTitle = "  Edit Linkages:  Checked links will be deleted.  " +
-                "Click link text to highlight it.  " +
-                "You can move a highlighted link by shift-up or shift-down arrow.";
-
-        theTitle = LinkagesEditorPanel.getOptionPaneTitle(0);
-
-        //new TestUtil().showConfirmDialog(
+//        int choice = new TestUtil().showConfirmDialog(
         int choice = JOptionPane.showConfirmDialog(
                 null,
                 linkagesEditorPanel,
-                theTitle, // pane title bar
+                "Linkages Editor", // pane title bar
                 JOptionPane.OK_CANCEL_OPTION, // Option type
                 JOptionPane.PLAIN_MESSAGE);    // Message type
 

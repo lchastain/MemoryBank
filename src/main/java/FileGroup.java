@@ -40,7 +40,7 @@ public abstract class FileGroup {
     }
 
     FileGroup(String groupName, GroupProperties.GroupType groupType) {
-        myProperties = makeProperties(groupName, groupType);
+        makeProperties(groupName, groupType);
     }
 
     protected boolean deleteFile(File f) {
@@ -115,8 +115,8 @@ public abstract class FileGroup {
     }
 
     // Child classes that have more properties than what is in the base - can override this method.
-    GroupProperties makeProperties(String groupName, GroupProperties.GroupType groupType) {
-        return new GroupProperties(groupName, groupType);
+    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
+        myProperties = new GroupProperties(groupName, groupType);
     }
 
     // Called by the shutdown hook to prompt implementations to save their data before they go away.

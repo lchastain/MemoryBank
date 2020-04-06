@@ -803,15 +803,12 @@ public class NoteComponent extends JPanel {
                     break;
                 case "Edit Linkages":
                     nd = theNoteComponent.getNoteData();
-                    // Need to also get its group id.
-                    // Once you have it, you can invoke the panel with the proper new LinkedNoteData, rather than
-                    // calling the 'get', which gives you one with a null group id.
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(nd);
 
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
                             linkagesEditorPanel,
-                            "Linkages from: " + nd.noteString, // pane title bar
+                            "Linkages Editor",
                             JOptionPane.OK_CANCEL_OPTION, // Option type
                             JOptionPane.PLAIN_MESSAGE);    // Message type
 

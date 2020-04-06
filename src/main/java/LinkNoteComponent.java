@@ -65,11 +65,7 @@ public class LinkNoteComponent extends NoteComponent {
         // The Group Type - Group Name label
         GroupProperties groupProperties = linkTargetData.getTargetGroupProperties();
 
-        if (groupProperties != null) {
-            myLinkTargetData.linkTitle = groupProperties.groupType.toString() + ": " + groupProperties.getName();
-        } else {
-            myLinkTargetData.linkTitle = "Group Type - Group Name: ";
-        }
+        myLinkTargetData.linkTitle = groupProperties.groupType.toString() + ": " + groupProperties.getName();
         linkTitleLabel = new JLabel(myLinkTargetData.linkTitle) {
             static final long serialVersionUID = 1L;
             @Override
@@ -83,11 +79,13 @@ public class LinkNoteComponent extends NoteComponent {
         add(westPanel, BorderLayout.WEST);
 
         //-------------------------------------------------------------------------------------
-        noteTextField.setText(linkTargetData.getTargetNoteData().noteString);
+        NoteData targetNoteData = linkTargetData.getTargetNoteData();
+        noteTextField.getDocument().removeDocumentListener(noteTextField);
+        noteTextField.setText(targetNoteData.noteString);
         noteTextField.setEditable(false);
         centerPanel.add(noteTextField, "Stretch");
         add(centerPanel, BorderLayout.CENTER);
-    }
+    }// end constructor
 
     //-----------------------------------------------------------------
     // Method Name: clear
@@ -132,6 +130,7 @@ public class LinkNoteComponent extends NoteComponent {
         linkTitleLabel.setText(myLinkTargetData.linkTitle);
 
         super.resetComponent(); // the note text
+        noteTextField.getDocument().removeDocumentListener(noteTextField);
     } // end resetComponent
 
 
@@ -144,17 +143,14 @@ public class LinkNoteComponent extends NoteComponent {
         setNoteChanged();
     } // end setLinkData
 
-    // The base class uses this; we redirect any 'NoteData' operations to our Target NoteData.
+    // The base class calls this; we redirect any 'NoteData' operations to our Target NoteData.
     @Override
     public void setNoteData(NoteData newNoteData) {
         myLinkTargetData.setLinkTargetNoteData(newNoteData);
-
-        // update visual components...
-        initialized = true;  // without updating the 'lastModDate'
-
-        // Just do the text and its color, for now.
+        initialized = true;  // update visual components without updating the 'lastModDate'
+        if(newNoteData == null) return;
         super.resetComponent();
-        setNoteChanged();
+//        setNoteChanged();
     }
 
     // Exchange data content between this component and the input

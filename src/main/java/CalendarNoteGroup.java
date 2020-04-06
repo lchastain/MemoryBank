@@ -65,6 +65,16 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     } // end getGroupFilename
 
 
+    // The Date-type groups do not need user-visible names, so they do not need properties.
+    // But they get them by default, so this override is needed to null them out so that
+    // they don't get persisted when the note data is saved.
+    @Override
+    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
+        //System.out.println("CalendarNoteGroup.makeProperties: " + groupName + "  " + groupType.toString());
+        myProperties = null;
+    }
+
+
     //--------------------------------------------------------------
     // Method Name: setDate
     //

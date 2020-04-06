@@ -713,7 +713,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = FileGroup.loadFileData(theFilename);
             BaseData.loading = true; // We don't want to affect the lastModDates!
-            groupDataVector = AppUtil.mapper.convertValue(theData[0], new TypeReference<Vector<EventNoteData>>() {  });
+            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {  });
             BaseData.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {

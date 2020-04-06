@@ -984,8 +984,6 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         return groupChanged;
     } // end getGroupChanged
 
-    // The rest was in TreeLeaf - TODO - finalize the hierarchy, put these in the right place(s).
-
     // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
     // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
     protected void adjustMenuItems(boolean b) {
