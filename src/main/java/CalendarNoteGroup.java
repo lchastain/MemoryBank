@@ -26,6 +26,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     CalendarNoteGroup(String defaultSubject) {
         super();
         super.setDefaultSubject(defaultSubject);
+        addNoteAllowed = !MemoryBank.readOnly;
 
         theChoice = LocalDate.now();
 
@@ -64,6 +65,9 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         } // end if saving else not saving
     } // end getGroupFilename
 
+    String getTitle() {
+        return dtf.format(getChoice());
+    }
 
     // The Date-type groups do not need user-visible names, so they do not need properties.
     // But they get them by default, so this override is needed to null them out so that

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LinkEditorMain {
 
     public static void main(String[] args) {
-        boolean createFakeData = false;
+        boolean createFakeData = true;
 
         // Create an icon on the taskbar that can be used to bring the dialogs
         //   forward, when Intellij has overlaid them during debug sessions.
@@ -34,9 +34,11 @@ public class LinkEditorMain {
         // complaint, in our 'if' statement below.  So instead we use this fancy way to check
         // it, that avoids that complaint.
         if (new AtomicBoolean(createFakeData).get()) {
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 6; i++) {
                 LinkTargetData linkTargetData = new LinkTargetData();
                 linkTargetData.linkType = LinkTargetData.LinkType.getRandomType();  // one of the valid choices
+                GroupProperties groupProperties = new GroupProperties("Group " + i, GroupProperties.GroupType.getRandomType());
+                linkTargetData.setLinkTargetGroupProperties(groupProperties);
 
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);

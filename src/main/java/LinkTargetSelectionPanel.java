@@ -6,12 +6,14 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.LocalDate;
 
 // This panel has a BorderLayout, where the NORTH component provides info about the source of the link
 // and the CENTER component is a JSplitPane with highly variable content.  The left side of the split
@@ -33,6 +35,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     JTextArea infoPanelTextArea;
     String chosenCategory;
     NoteGroup selectedTargetGroup;
+    CalendarNoteGroup calendarNoteGroup;
     GroupProperties selectedTargetGroupProperties;
     NoteData selectedNoteData;
 
@@ -119,8 +122,14 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
 
         // It begins -
-        branch = new DefaultMutableTreeNode("Dates");
+        branch = new DefaultMutableTreeNode("Notes");
         trunk.add(branch);
+        leaf = new DefaultMutableTreeNode("Day Notes", false);
+        branch.add(leaf);
+        leaf = new DefaultMutableTreeNode("Month Notes", false);
+        branch.add(leaf);
+        leaf = new DefaultMutableTreeNode("Year Notes", false);
+        branch.add(leaf);
 
         branch = new DefaultMutableTreeNode("Goals");
         trunk.add(branch);
@@ -187,9 +196,12 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     } // end createTree
 
 
-    // Similar in concept to noteSelected, but no interface;
-    void groupSelected(String groupName) {
-
+    // Utility function for nicer labels.  Useful, but klunky.
+    private String noEndingS(String pluralForm) {
+        if (!pluralForm.endsWith("s")) {
+            return pluralForm;
+        }
+        return pluralForm.substring(0, pluralForm.length() - 1);
     }
 
     // This is called by NoteComponent; implementation of the NoteSelection interface.
@@ -212,14 +224,14 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             }
         }
 
-        if(chosenCategory.isEmpty()) {
+        if (chosenCategory.isEmpty()) {
             selectionText = baseTargetSelectionString + "&nbsp; (no category yet)";
         } else if (groupName.isEmpty()) {
             selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; (no selection yet)";
         } else if (targetNoteString.isEmpty()) {
             selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + AppUtil.makeRed(groupName);
         } else {
-            selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + AppUtil.makeRed(groupName+ " - ")  + targetNoteString;
+            selectionText = baseTargetSelectionString + chosenCategory + ":&nbsp; " + AppUtil.makeRed(groupName + " - ") + targetNoteString;
         }
         targetSelectionLabel.setText(AppUtil.makeHtml(selectionText));
     }
@@ -228,10 +240,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         selectedNoteData = noteData;
     }
 
-
     private void showInfoPanel(String infoTitle) {
-        chosenCategory = infoTitle;
-        if(chosenCategory.endsWith("s")) chosenCategory = chosenCategory.substring(0, chosenCategory.length()-1);
+        chosenCategory = noEndingS(infoTitle);
         String theMessage = "No info"; // Not used; just required initialization.
         infoPanelTitleLabel.setBackground(Color.cyan); // The default title background
         int theCount;
@@ -251,10 +261,18 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 // What if this is a new user, looking at linkages when they do not yet have any notes at all?
                 // Need a 'no data here yet' message, for all but Dates.
                 break;
+            case "Notes":
+                theMessage = "\n From here you can select the type of note to be linked.\n";
+                theMessage += "\n Once the note type is known, if there are notes for it then they will appear.\n";
+                theMessage += "\n Make no note selection if you are linking to the overall list, only.\n";
+                theMessage += "\n You can select a note by clicking on the text of the note.  A selection will have a red border.\n";
+                theMessage += " If you need to clear a selection just leave the group, and then return.\n";
+                theMessage += "\n If your selected type is date-based you can use the controls to set the view to a new date.";
+                break;
             case "Goals":
                 theCount = MemoryBank.appOpts.goalsList.size();
                 theMessage = "\n From here you can select the Goal to be linked.\n";
-                if(theCount == 0) {
+                if (theCount == 0) {
                     theMessage += "\n Or at least you could have, if you had any Goals defined and enabled.\n";
                     theMessage += "\n Return here after defining (or re-enabling) at least one goal.\n";
                 }
@@ -262,7 +280,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             case "Upcoming Events":
                 theCount = MemoryBank.appOpts.eventsList.size();
                 theMessage = "\n From here you can select the Event list to be linked.\n";
-                if(theCount == 0) {
+                if (theCount == 0) {
                     theMessage += "\n Or at least you could have, if you had any Event lists defined and enabled.\n";
                     theMessage += "\n Return here after defining (or re-enabling) one or more Event lists.\n";
                 } else {
@@ -276,7 +294,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             case "To Do Lists":
                 theCount = MemoryBank.appOpts.tasksList.size();
                 theMessage = "\n From here you can select the To Do List to to be linked.\n";
-                if(theCount == 0) {
+                if (theCount == 0) {
                     theMessage += "\n Or at least you could have, if you had any To Do lists defined and enabled.\n";
                     theMessage += "\n Return here after creating (or re-enabling) one or more To Do lists.\n";
                 } else {
@@ -297,6 +315,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     }
 
     void treeSelectionChanged(TreePath newPath) {
+        calendarNoteGroup = null;
         if (newPath == null) {  // When selection is cleared.
             showInfoPanel("Linking");
             return;
@@ -330,49 +349,66 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         setSelectedNoteData(null);
         resetTargetSelectionLabel();
 
-        if (isTopLevel) {
-            theTree.expandPath(newPath);
-            resetTargetSelectionLabel();
-        }
-
-        JPanel jp;  // This panel is used by most of the selections but not Dates).
+        JPanel jp;  // This panel is used by the top-level selections.
         //   When used, put all content here and show it in the Viewport.
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (theNodeString.equals("Dates")) {
-            YearView theYearView = new YearView(LocalDate.now());
-            //theYearView.setParent(this);
+        if (isTopLevel) { // This is for the expandable NoteGroups.
+            theTree.expandPath(newPath);
+            resetTargetSelectionLabel();
 
-            // The choice and view settings, whether they happened during construction or
-            // via the 'else' branch, do not get reflected back to here, so if there was
-            // no change to the view while the panel was active then the viewed date
-            // granularity that we had going in, can remain unchanged after we come back
-            // out.  If there WAS a view change then the granularity would have gone to
-            // YEARS at that time.
-
-            rightPane.setViewportView(theYearView);
-        } else if (isTopLevel) { // This is for the expandable NoteGroups.
-            // (Dates is also top-level, but it's already been handled, at this point)
             // Show a message that is appropriate for the specific top-level group that is selected.
             showInfoPanel(theNodeString);
+        } else if (parentNodeName.equals("Notes")) { // Selection of a Note type
+            chosenCategory = noEndingS(parentNodeName);
+
+            // Static flags - must be set before the group is instantiated.
+            MemoryBank.readOnly = true;
+            NoteComponent.isEditable = false;
+
+            switch (theNodeString) {
+                case "Day Notes":
+                    calendarNoteGroup = new DayNoteGroup();
+                    break;
+                case "Month Notes":
+                    calendarNoteGroup = new MonthNoteGroup();
+                    break;
+                case "Year Notes":
+                    calendarNoteGroup = new YearNoteGroup();
+                    break;
+            }
+            // Reset the static flags
+            NoteComponent.isEditable = true;
+            MemoryBank.readOnly = false;
+
+            if (calendarNoteGroup != null) {
+                calendarNoteGroup.setSelectionMonitor(this);
+                selectedTargetGroup = calendarNoteGroup;
+                selectedTargetGroupProperties = new GroupProperties(theNodeString, GroupProperties.GroupType.NOTES);
+                resetTargetSelectionLabel();
+                rightPane.setViewportView(calendarNoteGroup.theBasePanel);
+            } else {
+                jp = new JPanel(new GridBagLayout());
+                jp.add(new JLabel(theNodeString));
+                rightPane.setViewportView(jp);
+            }
+
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
+            chosenCategory = noEndingS(parentNodeName);
 
-            //         log.debug("New tree selection: " + theNodeString);
-            // Get the ID of the group for this node name.
-            // Set the targetNoteData to null
+            selectedTargetGroupProperties = new GroupProperties(theNodeString, GroupProperties.GroupType.GOALS);
+            resetTargetSelectionLabel();
 
-            // Set right pane to a selection result message
-            // rightPane.setViewportView(theBigPicture.theBasePanel);
-            chosenCategory = parentNodeName;
             jp = new JPanel(new GridBagLayout());
             jp.add(new JLabel(theNodeString));
             rightPane.setViewportView(jp);
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
-            chosenCategory = parentNodeName;
-            EventNoteGroup eventNoteGroup;
+            chosenCategory = noEndingS(parentNodeName);
+
+            // Static flags - must be set before the group is instantiated, and reset afterwards.
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
-            eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+            EventNoteGroup eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
             NoteComponent.isEditable = true;
             MemoryBank.readOnly = false;
 
@@ -386,7 +422,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
             } else {
-                eventNoteGroup.addNoteAllowed = false;
                 eventNoteGroup.setSelectionMonitor(this);
                 selectedTargetGroup = eventNoteGroup;
                 selectedTargetGroupProperties = eventNoteGroup.myProperties;
@@ -394,11 +429,12 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } // end if
         } else if (parentNodeName.equals("To Do Lists")) { // Selection of a To Do List
-            chosenCategory = parentNodeName;
-            TodoNoteGroup todoNoteGroup;
+            chosenCategory = noEndingS(parentNodeName);
+
+            // Static flags - must be set before the group is instantiated, and reset afterwards.
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
-            todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+            TodoNoteGroup todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
             NoteComponent.isEditable = true;
             MemoryBank.readOnly = false;
 
@@ -412,7 +448,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
             } else {
-                todoNoteGroup.addNoteAllowed = false;
                 todoNoteGroup.setSelectionMonitor(this);
                 selectedTargetGroup = todoNoteGroup;
                 selectedTargetGroupProperties = todoNoteGroup.myProperties;

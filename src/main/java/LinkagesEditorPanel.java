@@ -65,20 +65,28 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 NoteComponent.mySelectionMonitor = originalSelectionMonitor;
 
                 if (choice == JOptionPane.OK_OPTION) {
-                    // First - capture any changes in link type or their ordering.
+                    // First - capture any link type or ordering changes in the existing list.
                     deleteCheckedLinks = false;
                     linkedNoteData = getEditedLinkedNote();
                     deleteCheckedLinks = true;
 
                     GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroupProperties;
                     if(selectedGroupProperties == null) return; // No Group selection - just go back.
+
+                    if(selectedGroupProperties.groupType == GroupProperties.GroupType.NOTES) {
+                        String theGroupName = selectedGroupProperties.getName();
+                        CalendarNoteGroup calendarNoteGroup = linkTargetSelectionPanel.calendarNoteGroup;
+                        String theNewGroupName = theGroupName + " " + calendarNoteGroup.getTitle();
+                        selectedGroupProperties = new GroupProperties(calendarNoteGroup.getTitle(), GroupProperties.GroupType.NOTES);
+                    }
+
                     NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
-                    // We use 'new' in the parameter list below, to convert the params to their base classes.
-                    // Of course they could just go that way without that, and would pass through the implicit
-                    // cast back to the base class, but later, upon serialization, we would get all the extra
-                    // baggage that they carry.  This way - it's gone, the data stored is smaller, and most
-                    // importantly, loads back in without complaint.
                     LinkTargetData linkTargetData;
+                    // We utilize copy constructors to send parameters to a new LinkTargetData, to convert the params
+                    // to their base classes.  Of course they could just go that way without conversion and would pass
+                    // through the implicit cast back to the base class, but later, upon serialization, we would get
+                    // all the extra baggage that the child classes carry.  This way - it's gone, the data stored is
+                    // smaller, and most importantly, loads back in without complaint.
                     if(selectedNoteData != null) {
                         linkTargetData = new LinkTargetData(new GroupProperties(selectedGroupProperties),
                                 new NoteData(selectedNoteData));

@@ -58,7 +58,11 @@ public class LinkTargetData extends BaseData {
         targetGroupProperties = groupProperties;
         if (noteData == null) {
             NoteData newNoteData = new NoteData();
-            newNoteData.setNoteString("(all) " + targetGroupProperties.getName());
+            String theName = targetGroupProperties.getName();
+            newNoteData.setNoteString(theName);
+            if(targetGroupProperties.groupType != GroupProperties.GroupType.GOALS) {
+                newNoteData.setNoteString("(all) " + theName);
+            }
             targetNoteData = newNoteData;// linkTargets initializes to empty; no need to null it out.
         } else {
             targetNoteData = noteData;
@@ -87,6 +91,7 @@ public class LinkTargetData extends BaseData {
         return targetNoteData;
     }
 
+    // Used by the test driver
     public void setLinkTargetGroupProperties(GroupProperties newGroupProperties) {
         targetGroupProperties = newGroupProperties;
     }

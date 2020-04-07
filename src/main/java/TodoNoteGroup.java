@@ -50,6 +50,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         log.debug("Constructing: " + groupName);
         myVars = (TodoGroupProperties) myProperties;
 
+        addNoteAllowed = !MemoryBank.readOnly;
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
         tmc = new ThreeMonthColumn();

@@ -3,8 +3,10 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 NEXT:
-        Date selection for links
         Goal Panel display - bring in the Linkages panel, with reversed links?
+            or add some form of a link list to a Goal definition?
+                and if you did that, would it also apply to other NoteGroup?
+                    and at that point, could you then have a NoteGroup as a link source?
 
 
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
@@ -30,6 +32,16 @@ Need an opening screen message for Dates selections
         Years
 
 =====================================================================================================
+
+4/07/2020 0928 - Creation, display, storage and retrieval of links in all four categories - is done.  Doing a
+  commit and a new pub, before going back to work on Goal panel L&F.
+
+4/06/2020 1026 - Finished the work on the dialogs for low/no data, then committed all work to this point, which is
+  that linking is now usable for Todo Lists and Events, and the dialogs and classes are hardened.  Events fix
+  themselves automatically because there is no pre-existing data, so the loaded data just adjusts accordingly
+  and is saved back out correctly.  For todo lists, they needed to be re-saved one time before they could be used
+  in a link; ok otherwise.  The app opts needed a hand-edit to remove the original linkages solution but otherwise
+  the new code was immediately usable, so I did a pub.
 
 4/04/2020 0417 - At last note I still only had a partial solution; since then the GroupInfo class has evolved into
   GroupProperties, which is the basis for properties for all NoteGroups.  This class can be the type of a new member

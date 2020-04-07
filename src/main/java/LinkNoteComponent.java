@@ -62,7 +62,7 @@ public class LinkNoteComponent extends NoteComponent {
         deleteCheckBox.addMouseListener(mouseAdapter);
         westPanel.add(deleteCheckBox);
 
-        // The Group Type - Group Name label
+        // The linkTitleLabel (Group Type - Group Name)
         GroupProperties groupProperties = linkTargetData.getTargetGroupProperties();
 
         myLinkTargetData.linkTitle = groupProperties.groupType.toString() + ": " + groupProperties.getName();
@@ -163,9 +163,9 @@ public class LinkNoteComponent extends NoteComponent {
 
         // Note: getLinkData and setLinkData are working with references
         //   to data objects.  If you 'get' data from the NoteComponent
-        //   into a local variable and then later clear the component, you have
-        //   also just cleared the data in your local variable because you never
-        //   had a separatate copy of the data object, just the reference to it.
+        //   into a local variable and then later clear the component you have
+        //   also just cleared the data in both the local variable and your original
+        //   data object because you never had a separatate copy of it, just its reference.
 
         // So - copy the data objects.
         if (data1 != null) data1 = new LinkTargetData(data1);

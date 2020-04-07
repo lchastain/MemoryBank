@@ -2,11 +2,14 @@
 // In addition to the ID and LastModDate that it gets from BaseData, it holds
 //   a simple group name (String) and the type of group (enum).
 
+import java.util.Random;
+
 public class GroupProperties extends BaseData {
     private String simpleName; // The short (pretty) name of the group, as shown in the Tree.
+    static Random random = new Random();
 
     enum GroupType {
-        DATES("Date"),
+        NOTES("Note"),
         GOALS("Goal"),
         EVENTS("Event"),
         TODO_LIST("To Do List"),
@@ -17,6 +20,11 @@ public class GroupProperties extends BaseData {
 
         GroupType(String s) {
             display = s;
+        }
+
+        // Used in dev/test
+        public static GroupType getRandomType() {
+            return values()[random.nextInt(values().length)];
         }
 
         @Override
@@ -37,7 +45,8 @@ public class GroupProperties extends BaseData {
     // When this copy constructor is called with child classes of GroupProperties,
     // the effect is to strip off their extra baggage.  A simple upcast gives you
     // the right class but does not remove the unwanted members.  After this, the
-    // result cannot be cast back to its original type.
+    // result will be serialized with only the base data, and it cannot be cast back
+    // to its original type.
     GroupProperties(GroupProperties theCopy) {
         super();
         instanceId = theCopy.instanceId;
