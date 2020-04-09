@@ -23,7 +23,21 @@ public class GoalGroupProperties extends GroupProperties {
     String longTitle;  // A single line of text, descriptive of the goal
     String goalPlan;   // The plan statement at the high level, not including Todo item-like steps.
 
-//    int goalStatus;  // This is the overall status of the goal; individual linkTargets do not have this.
+    // currentGoalStatus - the immediate status; what is happening on this goal right now.
+    //    disabled, until a Plan is entered.
+    //      stalled  - might be waiting, maybe a (temporary?) loss of drive
+    //      not started / started
+    //          initial not started.  When user sets to started,
+    //      underway
+    //
+    // overallGoalStatus - related to time (you could be stalled but still on track)
+    //      undefined / defined   - depends on plan empty/not
+    //          undefined until there is a plan, then defined,
+    //              then the user could set it to any of the others; these two not in the list.
+    //      on track
+    //      ahead of schedule
+    //      behind schedule
+    //
 // Do not go 'live' until naming and values are more certain.  We still need the immediate status, as well as the overall.
 
     // At some point - consider an 'analyze' button.  A bit of low-level AI to examine the available data and make

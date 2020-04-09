@@ -22,6 +22,13 @@ Need to address (code and document) the Link management ops - after creation, ha
 
 =====================================================================================================
 
+4/09/2020 0720 - Ok, the GoalPanel makeup and display is taking shape, well enough to publish it in its incomplete
+  current form, which now has Plan instructions, capability to show a longer title (but no way to set one), and a
+  couple of status dropdowns (but no setting there either).  Have now decided that the Goal will hold a list after
+  all, the list of source notes that link to it.  Not yet sure if this calls for a new class, or just use the same
+  LinkTargetData but null out the linkTargets.  But I keep getting distracted by the desire to start on the Russian
+  flashcards project; I can see that this project could just keep on going indefinitely, unless I just put it on hold
+  until I get this distraction dealt with.  So - it goes on hold, today.
 
 4/08/2020 0834 - Just a short way along the path for showing a Goal, I can see that the single-direction links that
   I spent so much time on - is just half the answer; we need links going in both directions, if we are to have

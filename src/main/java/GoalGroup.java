@@ -30,7 +30,7 @@ public class GoalGroup extends NoteGroup {
     } // end static
 
     public GoalGroup(String groupName) {
-        super(groupName, GroupProperties.GroupType.GOALS, 1);
+        super(groupName, GroupProperties.GroupType.GOALS, 10);
 
         log.debug("Constructing: " + groupName);
 
@@ -51,7 +51,7 @@ public class GoalGroup extends NoteGroup {
 //        theBasePanel.removeAll();
 //        theBasePanel.revalidate();
 
-        // Now the 2-row Header for the GoalGroup -
+        // Now the multi-row Header for the GoalGroup -
         //-----------------------------------------------------
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
@@ -60,27 +60,31 @@ public class GoalGroup extends NoteGroup {
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
         JLabel goalNameLabel = new JLabel(myProperties.getName());
+        String longTitle = myProperties.longTitle;
+        if(null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
         goalNameLabel.setHorizontalAlignment(JLabel.CENTER);
         goalNameLabel.setBackground(Color.blue);
         goalNameLabel.setForeground(Color.white);
         goalNameLabel.setFont(Font.decode("Serif-bold-20"));
-
+        goalNameLabel.setToolTipText("Click here to enter a longer Goal title");
         headingRow1.add(goalNameLabel, "Center");
 
         // The Second Header Row -  Goal Plan
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
-//        headingRow2.setBackground(Color.cyan);
-
-        final JTextArea goalPlan = new JTextArea("Search");
+        String userInfo;
+        userInfo = "Enter your plan for accomplishing this goal.  It should be stated in general terms\n";
+        userInfo += "to describe what needs to be done, but not how.  If it boils down to a single task\n";
+        userInfo += "then it should go to a To Do List and not here.  That To Do List item (or any other\n";
+        userInfo += "type of note) can then be linked to this Goal.";
+        final String defaultText = userInfo;
+        final JTextArea goalPlan = new JTextArea(defaultText);
         goalPlan.setPreferredSize(new Dimension(goalPlan.getPreferredSize().width, 80));
-
-//        goalPlan.setOpaque(false);  // so the background color shows.
         goalPlan.setForeground(Color.GRAY);
         goalPlan.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (goalPlan.getText().equals("Search")) {
+                if (goalPlan.getText().equals(defaultText)) {
                     goalPlan.setText("");
                     goalPlan.setForeground(Color.BLACK); // looks a bit gray, when on cyan.
                 }
@@ -89,17 +93,47 @@ public class GoalGroup extends NoteGroup {
             public void focusLost(FocusEvent e) {
                 if (goalPlan.getText().isEmpty()) {
                     goalPlan.setForeground(Color.GRAY);
-                    goalPlan.setText("Search");
+                    goalPlan.setText(defaultText);
                 }
             }
         });
-
-
-
         headingRow2.add(goalPlan, BorderLayout.CENTER);
+
+        // The Third Header Row -   Status
+        //----------------------------------------------------------
+        JPanel headingRow3 = new JPanel(new BorderLayout());
+
+        JPanel currentStatusPanel = new JPanel(new FlowLayout());
+        currentStatusPanel.add(new JLabel("Current Status:"));
+        JComboBox<String> currentStatus = new JComboBox<>();
+        currentStatus.addItem("Not Started");
+        currentStatus.addItem("Started");
+        currentStatus.addItem("Stalled");
+        currentStatus.addItem("Underway");
+        currentStatusPanel.add(currentStatus);
+
+        JPanel overallStatusPanel = new JPanel(new FlowLayout());
+        overallStatusPanel.add(new JLabel("Overall Status:"));
+        JComboBox<String> overallStatus = new JComboBox<>();
+        overallStatus.addItem("Undefined");
+        overallStatus.addItem("Defined");
+        overallStatus.addItem("Ahead of Schedule");
+        overallStatus.addItem("On Schedule");
+        overallStatus.addItem("Behind Schedule");
+        overallStatusPanel.add(overallStatus);
+
+        headingRow3.add(currentStatusPanel, BorderLayout.WEST);
+        JLabel listHeader = new JLabel("Linked Notes");
+        listHeader.setHorizontalAlignment(JLabel.CENTER);
+        listHeader.setFont(Font.decode("Serif-bold-14"));
+        headingRow3.add(listHeader, BorderLayout.CENTER);
+        headingRow3.add(overallStatusPanel, BorderLayout.EAST);
+
+
 
         heading.add(headingRow1);
         heading.add(headingRow2);
+        heading.add(headingRow3);
         add(heading, BorderLayout.NORTH);
     }
 
@@ -197,8 +231,9 @@ public class GoalGroup extends NoteGroup {
     void setGroupData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
         myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
-        //groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<LinkData>>() { });
-        // Plan now is to embed a LinkagesEditorPanel, not to have a separate Vector.
+        //groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<?LinkData?>>() { });
+        // Need to define the link type for reversing a link, get a list of sources that is added to each time a link is made.
+        // may be similar to SearchResultData / component.
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
