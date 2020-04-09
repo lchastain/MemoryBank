@@ -3,35 +3,36 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 NEXT:
-        Goal Panel display - bring in the Linkages panel, with reversed links?
-            or add some form of a link list to a Goal definition?
-                and if you did that, would it also apply to other NoteGroup?
+        Goal Panel display
+            Title, Short description, the plan.  Then -
+                how to show notes that are linked to it?  bring in the Linkages panel, with reversed links?
+                or add some form of a link list to a Goal definition?
+                and if you did that, could it also apply to other NoteGroup?
                     and at that point, could you then have a NoteGroup as a link source?
+                        maybe, but just not necessary and there is no existing interface to define that direction of a link.
+        Fix status messages for groups with readOnly notes when they are shown via the LinkTargetSelectionPanel
 
 
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
     group deletions, group show/no-show.
 
+    mods - may not matter; let the users delete and recreate their links that go stale.
 
 
-
-LinkTargetSelectionPanel:
-====================================
-Fix status messages for groups with readOnly notes
-Goal Display - AFTER completion of the GoalPanel
-Implement Date selections - general date of Day, Month, Year, and then specific notes within.
-    Maybe New interface:  YearViewSelectionHandler - already implemented by AppTreePanel (and other(s)?) ,
-    needs to be pulled out into its own class and also implemented by LinkTargetSelectionPanel
-Handle the OK button - put the new link into the LinkagesEditorPanel
-    Goals
-    Dates
-Need an opening screen message for Dates selections
-    Dates may need to be a fourth (at the top) expandable node, with three items:
-        Days
-        Months
-        Years
 
 =====================================================================================================
+
+
+4/08/2020 0834 - Just a short way along the path for showing a Goal, I can see that the single-direction links that
+  I spent so much time on - is just half the answer; we need links going in both directions, if we are to have
+  anything to show for a Goal.  Otherwise we would have to do a (file-based? unacceptable!) search thru all existing
+  links and find all the ones that point to the displayed Goal.  This means two lists on NoteData and at least one
+  new one on NoteGroups (Lists of LinksFrom / LinksTo ?).
+  This will result in more class and variable renamings but of even greater concern - selection of a Group or a Note
+  during link creation - needs to cause a 'save' of the associated target NoteGroup, to preserve its side of the link.
+ 0857 - There are 'scoping' considerations - a solution could be limited to only doing this for Goals (for now?),
+  which makes sense since we have no way to show bidirectional links on NoteData or any way to set or show links at
+  all on the other NoteGroup types.  Will be working on this..
 
 4/07/2020 0928 - Creation, display, storage and retrieval of links in all four categories - is done.  Doing a
   commit and a new pub, before going back to work on Goal panel L&F.

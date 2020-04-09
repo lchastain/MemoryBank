@@ -116,7 +116,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         //   into the container.  Every Group method that accesses the
         //   container contents will either be overridden and cast the
         //   note to the correect type, or it will call a method common
-        //   to all of them, such as the 'setVisible' in the next section.
+        //   to all JComponents, such as 'setVisible'.
         for (int i = 0; i <= intHighestNoteComponentIndex; i++) {
             groupNotesListPanel.add(makeNewNote(i));
         } // end for

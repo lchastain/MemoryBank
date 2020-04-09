@@ -243,7 +243,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         switch (theContext) {
             case "Goal":
             case "Goals Branch Editor":
-                prompt = "Enter a name for the Goal\n";
+                prompt = "Enter a short name for the Goal\n";
                 prompt += "Ex: Graduate, Learn a Language, etc";
                 title = "Add a new Goal";
                 groupParentPath = goalsPath;
@@ -1448,7 +1448,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             // Otherwise load it, but only if a file for it already exists.
             if (goalGroup == null) {
+                MemoryBank.readOnly = true;
+                NoteComponent.isEditable = false;
                 goalGroup = (GoalGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                NoteComponent.isEditable = true;
+                MemoryBank.readOnly = false;
+
                 if (goalGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theTodoListKeeper.add(goalGroup);
@@ -1472,8 +1477,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                     showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the Goal.\n" +
-                                    "This list selection will be removed.",
-                            "List not accessible", JOptionPane.WARNING_MESSAGE);
+                                    "This Goal selection will be removed.",
+                            "Data not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
                 closeGroup(); // File is already gone; this just removes the tree node.

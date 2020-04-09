@@ -20,7 +20,7 @@
 
 public class GoalGroupProperties extends GroupProperties {
     // From BaseData this class gets its ID and Last Mod Date.
-    String goalTitle;  // A single line of text, descriptive of the goal
+    String longTitle;  // A single line of text, descriptive of the goal
     String goalPlan;   // The plan statement at the high level, not including Todo item-like steps.
 
 //    int goalStatus;  // This is the overall status of the goal; individual linkTargets do not have this.
@@ -59,8 +59,10 @@ public class GoalGroupProperties extends GroupProperties {
         MemoryBank.trace();
     } // end static
 
-    public GoalGroupProperties() {
-        super();
+    public GoalGroupProperties() {} // Needed / used by Jackson.
+
+    public GoalGroupProperties(String groupName) {
+        super(groupName, GroupProperties.GroupType.GOALS);
 //        goalStatus = 0;
 
 

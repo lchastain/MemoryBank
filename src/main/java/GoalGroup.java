@@ -4,6 +4,8 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -20,7 +22,6 @@ public class GoalGroup extends NoteGroup {
     // This is saved/loaded
     GoalGroupProperties myProperties; // Variables - flags and settings
 
-
     static {
         areaName = "Goals"; // Directory name under user data.
         areaPath = MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
@@ -29,7 +30,7 @@ public class GoalGroup extends NoteGroup {
     } // end static
 
     public GoalGroup(String groupName) {
-        super(groupName, GroupProperties.GroupType.GOALS, 0);
+        super(groupName, GroupProperties.GroupType.GOALS, 1);
 
         log.debug("Constructing: " + groupName);
 
@@ -37,16 +38,18 @@ public class GoalGroup extends NoteGroup {
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
-        myProperties = new GoalGroupProperties();
+        // All our goal data is in the properties, unlike other NoteGroup that also have a NoteData vector.
+        saveWithoutData = true;
+
+        updateGroup(); // This will load the properties (myProperties)
 
         buildPanelContent(); // Content other than the groupDataVector
-        saveWithoutData = true;
-        updateGroup(); // This is where the file gets loaded (in the parent class)
-
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
+//        theBasePanel.removeAll();
+//        theBasePanel.revalidate();
 
         // Now the 2-row Header for the GoalGroup -
         //-----------------------------------------------------
@@ -56,19 +59,43 @@ public class GoalGroup extends NoteGroup {
         // The First Header Row -   Title
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
-        JTextField goalTitleText = new JTextField(getName());
-        goalTitleText.setHorizontalAlignment(JLabel.CENTER);
-//        goalTitleText.setForeground(Color.white);
-        goalTitleText.setFont(Font.decode("Serif-bold-20"));
-//        add(goalTitleText, BorderLayout.NORTH);
+        JLabel goalNameLabel = new JLabel(myProperties.getName());
+        goalNameLabel.setHorizontalAlignment(JLabel.CENTER);
+        goalNameLabel.setBackground(Color.blue);
+        goalNameLabel.setForeground(Color.white);
+        goalNameLabel.setFont(Font.decode("Serif-bold-20"));
 
-        headingRow1.add(goalTitleText, "Center");
+        headingRow1.add(goalNameLabel, "Center");
 
         // The Second Header Row -  Goal Plan
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
-        headingRow2.setBackground(Color.cyan);
-        JTextArea goalPlan = new JTextArea();
+//        headingRow2.setBackground(Color.cyan);
+
+        final JTextArea goalPlan = new JTextArea("Search");
+        goalPlan.setPreferredSize(new Dimension(goalPlan.getPreferredSize().width, 80));
+
+//        goalPlan.setOpaque(false);  // so the background color shows.
+        goalPlan.setForeground(Color.GRAY);
+        goalPlan.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (goalPlan.getText().equals("Search")) {
+                    goalPlan.setText("");
+                    goalPlan.setForeground(Color.BLACK); // looks a bit gray, when on cyan.
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (goalPlan.getText().isEmpty()) {
+                    goalPlan.setForeground(Color.GRAY);
+                    goalPlan.setText("Search");
+                }
+            }
+        });
+
+
+
         headingRow2.add(goalPlan, BorderLayout.CENTER);
 
         heading.add(headingRow1);
@@ -162,9 +189,14 @@ public class GoalGroup extends NoteGroup {
 
 
     @Override
+    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
+        myProperties = new GoalGroupProperties(groupName);
+    }
+
+    @Override
     void setGroupData(Object[] theGroup) {
-        myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
         BaseData.loading = true; // We don't want to affect the lastModDates!
+        myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
         //groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<LinkData>>() { });
         // Plan now is to embed a LinkagesEditorPanel, not to have a separate Vector.
         BaseData.loading = false; // Restore normal lastModDate updating.
