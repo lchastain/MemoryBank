@@ -30,8 +30,9 @@ BorderLayout
     Holds up to 5 components, in North, South, East, West, and Center.
     The Center will stretch to fill the area.  The North and South components
     fill the width so that they 'sandwich' the West, Center, and East.
-    If viewed as rows, you would see Row 1: North, Row 2: West, Center, East,
-    and Row 3: South
+    If viewed as rows, you would see Row 1: North,
+    Row 2: West, Center, East, and
+    Row 3: South
         new BorderLayout();
 
 BoxLayout
@@ -39,6 +40,9 @@ BoxLayout
         myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
         It stretches its components BUT that can be disabled because it will respect your overrides of getMaximumSize
             and getPreferredSize; some others (like GridLayout?) will not.
+        Disabling stretching, however, does NOT disable centering within the available space.
+        If your content preferred size is less than container size, it WILL center them, horizontally or vertically.
+        No matter what you do to reduce the height, if you succeed then it will just go to some other row.
 
 GridLayout
         GridLayout()     (defaults to 1,0,?,?)
@@ -51,6 +55,7 @@ GridLayout
         It stretches its components
 
 GridBagLayout
+        This is the only one that allows you to set Insets.
 
 CardLayout
         This MAY be a better way to swap out panels - depends on whether or not you can 'see' the tabs but that comes
@@ -67,8 +72,8 @@ SpringLayout
 ========================================================================
 DndLayout
         My own, custom layout manager.
-        It lays out components in a single horizontal line.
-        It left-justifies the Components, for when an outer layout manager might stretch the containing panel.
+        It lays out components in a single left-justified horizontal line.
+        The left-justification is needed when an outer layout manager places the containing panel.
            When that happens, a FlowLayout would center the components.
         It horizontally stretches the component named 'Stretch', to the remaining width of the JPanel
           that contains that component.  Override the panel's preferred width, to make it stretch.

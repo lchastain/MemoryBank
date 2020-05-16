@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class Area51 {
     private Notifier optionPane = new Notifier() {
@@ -106,11 +107,26 @@ public class Area51 {
         System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
     }
 
+    private void try5() {
+                JFrame f = new JFrame();
+                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                Box rowOne = Box.createHorizontalBox();
+                rowOne.add(new JLabel("Username"));
+                rowOne.add(new JTextField());
+                Component rowTwo = Box.createHorizontalGlue();
+
+                f.add(rowOne, BorderLayout.NORTH);
+//                f.add(rowTwo, BorderLayout.SOUTH);
+                f.setSize(300, 200);
+                f.setVisible(true);
+    }
+
     public static void main(String[] args) {
         Area51 a51 = new Area51();
         //a51.try1();
-        a51.try2();
-        a51.try3();
+        //a51.try2();
+        //a51.try3();
+        a51.try5();
 
     }
 

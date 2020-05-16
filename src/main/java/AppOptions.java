@@ -58,7 +58,7 @@ class AppOptions {
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             MemoryBank.appOpts = AppUtil.mapper.readValue(text, AppOptions.class);
-            System.out.println("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
+            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
         } catch (FileNotFoundException fnfe) {
             // not a problem; use defaults.
             MemoryBank.debug("User tree options not found; using defaults");

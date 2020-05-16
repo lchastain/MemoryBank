@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 // A label (linkTypeLabel) giving the target type and group name
 // A read-only text field that contains the target notestring, if one was chosen
 
-@SuppressWarnings("rawtypes")
 public class LinkNoteComponent extends NoteComponent {
     static final long serialVersionUID = 1L;
     NoteComponentManager myManager;
@@ -22,7 +21,7 @@ public class LinkNoteComponent extends NoteComponent {
     JCheckBox deleteCheckBox;
     JLabel linkTitleLabel;
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     LinkNoteComponent(NoteComponentManager noteComponentManager, LinkTargetData linkTargetData, int i) {
         super(noteComponentManager, i);
         myManager = noteComponentManager;
