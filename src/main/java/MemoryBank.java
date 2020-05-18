@@ -9,6 +9,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
+// One important setting in IntelliJ:
+// File / Settings / Editor / File Encodings - set all to UTF-8.
+
 @SuppressWarnings("rawtypes")
 public class MemoryBank {
     static Color amColor;

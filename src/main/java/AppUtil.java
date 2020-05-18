@@ -1,11 +1,13 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -214,108 +216,31 @@ public class AppUtil {
     } // end getDateFromFilename
 
     // -------------------------------------------------------------
-    // Method Name: getBrokenString
+    // Method Name: getTooltipString
     //
     // This method takes a string and returns it with inserted
-    // line breaks, if needed.  Character column limit is 60,
-    // and lines are limited to 12.
+    // line breaks, if needed.  Character column and line limits
+    // are hardcoded.
     // -------------------------------------------------------------
-    static String getBrokenString(String s) {
-        StringBuilder strTheBrokenString;
-        StringBuilder strNextLine;
-        int numColumns = 60;
-        int numLines = 12;
+    static String getTooltipString(String s) {
+        StringBuilder theTooltipString = new StringBuilder();
+        String[] strings = s.split("\n");
+        int maxColumns = 60;
+        int maxLines = 22;
+        int lineCount = 0;
+        // First, break on the line feeds that are already present in the string.
+        // Then use the wrap utility to further break apart lines.
+        // Keep a count of broken lines, observing the limit.
+        for (String oneLine: strings) {
+            if(lineCount > maxLines) break;
+            String wrappedLine = WordUtils.wrap(oneLine, maxColumns, System.lineSeparator(), true);
+            theTooltipString.append(wrappedLine);
+            theTooltipString.append(System.lineSeparator()); // This is cr/lf in Windows, but we only show it vs storing it.
+            lineCount++;
+        }
 
-        int intLastBreak; // Index into the strNextLine
-        int intCurrentCharCount; // Number of chars this line
-        int i; // index thru the input string
-
-        // The calling context should NOT be sending a null string.
-        if (s == null) return null;
-        // Therefore our response is immediate, uninformative, and unapologetic.
-
-        int intLength = s.length();
-        int intLineCount = 1;
-
-        byte[] aryTheChars = s.getBytes();
-
-        // Look through the character array and
-        // insert line breaks as needed.
-        strTheBrokenString = new StringBuilder();
-        strNextLine = new StringBuilder();
-        intLastBreak = -1;
-        intCurrentCharCount = 0;
-        for (i = 0; i < intLength; i++) {
-            // Get the next char.
-            intCurrentCharCount++;
-
-            // Did we encounter a linefeed ?
-            if (aryTheChars[i] == '\n') {
-                // First, take the line up to (not including) the lf.
-                strTheBrokenString.append(strNextLine);
-                strNextLine = new StringBuilder();
-
-                // Now, bail if we're at the line limit.
-                if ((intLineCount >= numLines))
-                    break;
-
-                // Otherwise, add the lf
-                strTheBrokenString.append('\n');
-                intLineCount++;
-
-                // And reset the counts
-                intCurrentCharCount = 0;
-                intLastBreak = -1;
-            } else {
-                strNextLine.append((char) aryTheChars[i]);
-            } // end if this char is a linefeed
-
-            if (aryTheChars[i] == ' ') {
-                // we encountered a space
-                intLastBreak = intCurrentCharCount - 1;
-            } else if (aryTheChars[i] == '\t') {
-                // we encountered a tab
-                intLastBreak = intCurrentCharCount - 1;
-            } // end if
-
-            // We let it go past so that if this next offending
-            // character had been the linefeed, we'd have
-            // done the reset, above. That we're here means
-            // that this is not a linefeed char.
-            if (intCurrentCharCount > numColumns) {
-                if (intLastBreak > 0) {
-                    // We can break at the last whitespace
-                    strTheBrokenString.append(strNextLine.substring(0, intLastBreak + 1));
-                    strNextLine = new StringBuilder(strNextLine.substring(intLastBreak + 1));
-                    intLastBreak = -1;
-                    intCurrentCharCount = strNextLine.length();
-                } else {
-                    // The string has no logical breaks; just break here.
-                    strTheBrokenString.append(strNextLine.substring(0, numColumns + 1));
-                    strNextLine = new StringBuilder(strNextLine.substring(numColumns + 1)); // one char
-                    intCurrentCharCount = strNextLine.length();
-                } // end if we had a good place to break the line
-
-                // Now, bail if we're at the line limit.
-                if (intLineCount >= numLines) {
-                    strNextLine = new StringBuilder();
-                    break;
-                }
-
-                // Otherwise, insert a linefeed and keep going
-                intLineCount++;
-                strTheBrokenString.append('\n');
-            } // end if we need to break the line
-        } // end for i
-
-        // Take the remaining last partial line, if any.
-        strTheBrokenString.append(strNextLine);
-
-        // System.out.println("Final line count: " + intLineCount);
-
-        return strTheBrokenString.toString();
-    } // end getBrokenString
-
+        return theTooltipString.toString();
+    }
 
     // A utility function to retrieve a specified JMenuItem.
     static JMenuItem getMenuItem(JMenu jMenu, String text) {

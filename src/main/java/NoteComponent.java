@@ -523,7 +523,7 @@ public class NoteComponent extends JPanel {
             //   and the extended note.  If one is not present then
             //   it will just be the other.  If neither, then null.
             if ((ss != null) && !ns.equals("")) {
-                strToolTip = ss + "\n" + ns;
+                strToolTip = ss + System.lineSeparator() + ns;
             } else if (ss != null) {
                 strToolTip = ss;
             } else if (!ns.equals("")) {
@@ -535,7 +535,7 @@ public class NoteComponent extends JPanel {
             if (strToolTip != null) {
                 // Insert line breaks as needed and enforce
                 //   an overall text length limit.
-                strToolTip = AppUtil.getBrokenString(strToolTip);
+                strToolTip = AppUtil.getTooltipString(strToolTip);
 
                 // In case we had a (too large) gap of linefeeds in the middle
                 //   and the cutoff didn't make it back to real text -
