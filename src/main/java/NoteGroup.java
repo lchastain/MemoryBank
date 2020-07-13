@@ -24,6 +24,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     boolean saveWithoutData;
     int lastVisibleNoteIndex = 0;
     int pageSize;
+    private String groupFilename;
 
     // Child classes that check this variable should test for a
     //   value >= SUCCEEDED; if true, the count of records written
@@ -396,7 +397,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         //   group may be highly variable, and this method may be getting
         //   called after each filename change, even though the panel
         //   components that hold and show the file data remain in place.
-        String groupFilename = getGroupFilename();
+        groupFilename = getGroupFilename();
 
         if (groupFilename.isEmpty()) {
             MemoryBank.debug("No filename is set for: " + this.getClass().getName());
@@ -585,10 +586,10 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     }
 
     //--------------------------------------------------------------
-    // Method Name: saveGroup
+    // Method Name: saveNoteGroup
     //
-    // Saving is an operation that happens automatically and often;
-    //   if errors are encountered, this method can trap and print
+    // Saving is an operation that happens often, and sometimes automatically.
+    //   If errors are encountered, this method can trap and print
     //   them to the screen but it will not halt execution or
     //   attempt interaction with the user.  A status variable is
     //   set at various points; child classes that 'care' about the
@@ -598,7 +599,6 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     private void saveNoteGroup() {
         //AppUtil.localDebug(true);
         intSaveGroupStatus = ONGOING;
-        String groupFilename = getGroupFilename();
         File f;
 
         // At this point, we may or may not have previously loaded a file
@@ -624,8 +624,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         } // end if
 
         // The name of the file to save to may not always be the same as
-        //   the one we previously loaded (or attempted to load).  So, we
-        //   let the child NoteGroup set the name of the file to save to.
+        //   the one we previously loaded (or attempted to load), primarily due to timestamping
+        //   differences.  So, we let the child NoteGroup set the name of the file to save to.
         groupFilename = getGroupFilename();
         MemoryBank.debug("  Saving NoteGroup data in " + shortName());
 

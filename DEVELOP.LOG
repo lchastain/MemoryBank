@@ -12,7 +12,6 @@ NEXT:
                         maybe, but just not necessary and there is no existing interface to define that direction of a link.
         Fix status messages for groups with readOnly notes when they are shown via the LinkTargetSelectionPanel
 
-
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
     group deletions, group show/no-show.
 
@@ -21,6 +20,9 @@ Need to address (code and document) the Link management ops - after creation, ha
 
 
 =====================================================================================================
+7/13/2020 0757 - The Flashcards app is done to the point of reliable usability; now returning to this project.  Some
+  problems that have been noticed are first up, before continuing with Goal work.  A cleared line can come back, if
+  if is the last note in the group.  Will work on that.
 
 4/09/2020 0720 - Ok, the GoalPanel makeup and display is taking shape, well enough to publish it in its incomplete
   current form, which now has Plan instructions, capability to show a longer title (but no way to set one), and a
@@ -672,9 +674,9 @@ causing a known start or end to be recalculated.
   lists two other docs that had been done to that point (and are still valid), plus some long-ago
   future planned docs, that I no longer intend to produce:
              VDD?
-             SUM – possibly an HTML compilation that can double as context-sensitive help.
-             Requirements – What is needed
-             Software Design Description – How it will be done, design decisions
+             SUM ï¿½ possibly an HTML compilation that can double as context-sensitive help.
+             Requirements ï¿½ What is needed
+             Software Design Description ï¿½ How it will be done, design decisions
              Test Plan
   Those types of docs came from DoD type projects and now that I'm out of that kind of environment,
   I don't want to try to copy them.  Need to keep working to find the best approach.
