@@ -25,6 +25,7 @@ public class AppMenuBar extends JMenuBar{
     static {
         fileMenu = new JMenu("App");
         fileMenu.add(new JMenuItem("Search..."));
+        fileMenu.add(new JMenuItem("Show Scheduled Events"));
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 
@@ -108,7 +109,8 @@ public class AppMenuBar extends JMenuBar{
         return theCurrentContext;
     }
 
-    // Get the additional menu that is appropriate for the selected tree node
+    // Get the additional menu that is appropriate for the selected tree node.
+    // This is NOT the main handler; just answers the 'what menu was this?' question.
     JMenu getNodeMenu(String selectionContext) {
         JMenu theMenu;
         switch (selectionContext) {
@@ -129,9 +131,6 @@ public class AppMenuBar extends JMenuBar{
             case "Goals Branch Editor":
             case "Upcoming Events Branch Editor":  // Upcoming Events
             case "To Do Lists Branch Editor":  // TodoBranchHelper
-            case "Consolidated View":
-                // Search Results Branch Editor - NO, there is no additional menu;
-                // all the others have an 'Add New' option; not so with Searches.
                 theMenu = branchEditorMenu;
                 break;
             case "Goal":
@@ -190,10 +189,15 @@ public class AppMenuBar extends JMenuBar{
                 searchesMenu.setVisible(true);
                 break;
             case "Goals Branch Editor":
+                branchEditorMenu.setText("Goals");
+                branchEditorMenu.setVisible(true);
+                break;
             case "Upcoming Events Branch Editor":  // Upcoming Events
+                branchEditorMenu.setText("Events");
+                branchEditorMenu.setVisible(true);
+                break;
             case "To Do Lists Branch Editor":  // TodoBranchHelper
-            case "Consolidated View":
-                // While this menu only has 'Add New...', not right for Search Results.
+                branchEditorMenu.setText("To Do Lists");
                 branchEditorMenu.setVisible(true);
                 break;
             case "Goal":

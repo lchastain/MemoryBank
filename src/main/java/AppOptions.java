@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
@@ -33,7 +34,9 @@ class AppOptions {
     Vector<String> tasksList;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
-    String consolidatedEventsViewName;
+
+    @JsonIgnore
+    String consolidatedEventsViewName; // No longer going to use this..
 
     AppOptions() {
         goalsExpanded = false;
@@ -44,7 +47,7 @@ class AppOptions {
         searchesExpanded = false;
         theSelection = null;
         theSelectionRow = -1;
-        consolidatedEventsViewName = "Consolidated View";
+        consolidatedEventsViewName = "Consolidated View"; // Leaving this until it is no longer in the user data.
         goalsList = new Vector<>(0, 1);
         eventsList = new Vector<>(0, 1);
         tasksList = new Vector<>(0, 1);

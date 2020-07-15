@@ -696,19 +696,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             DefaultMutableTreeNode eventNode = (DefaultMutableTreeNode) e.nextElement();
             // So we don't actually use it.
             if (theBigGroup == null) {
-                // Instead, we instantiate a new (empty) EventNoteGroup, named for the Consolidated View (CV).
+                // Instead, we instantiate a new (empty) EventNoteGroup, that will be used to show scheduled events.
                 NoteComponent.isEditable = false; // This is a non-editable group.
-                theBigGroup = new EventNoteGroup((MemoryBank.appOpts.consolidatedEventsViewName));
+                theBigGroup = new EventNoteGroup("Scheduled Events");
                 NoteComponent.isEditable = true; // Put it back to the default value.
                 continue;
             }
-            // Then we can look at merging in any possible child nodes, but
-            // we have to skip the one node that actually does denote the CV.
-            // This one could be anywhere in the list; just skip it when we come to it.
+            // Then we can look at merging any possible child nodes into the CV group.
             theNodeName = eventNode.toString();
-            if (theNodeName.equals(MemoryBank.appOpts.consolidatedEventsViewName)) continue;
-
-            // And for the others (if any) - merge them into the CV group.
             String theFilename = FileGroup.getFullFilename(EventNoteGroup.areaName, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = FileGroup.loadFileData(theFilename);
@@ -746,6 +741,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         else if (what.equals("Close")) closeGroup();
         else if (what.startsWith("Clear ")) theNoteGroup.clearGroup();
         else if (what.equals("Contents")) showHelp();
+        else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Delete")) deleteGroup();
         else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroup) theNoteGroup).setOptions();
@@ -1150,6 +1146,29 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
     } // end showDay
 
 
+    void showEvents() {
+        JDialog dialogWindow;
+
+        EventNoteGroup theBigPicture = getConsolidatedView();
+        if(theBigPicture == null) return;
+
+        // Make a dialog window.
+        // A dialog is preferred to the JOptionPane.showMessageDialog, because it is easier to control
+        // the size, and we need no additional buttons.
+        dialogWindow = new JDialog((Frame) null, true);
+        dialogWindow.getContentPane().add(theBigPicture.theBasePanel, BorderLayout.CENTER);
+//        dialogWindow.setTitle("Scheduled Events");
+        dialogWindow.setSize(680, 580);
+        dialogWindow.setResizable(false);
+
+        // Center the dialog.
+        dialogWindow.setLocationRelativeTo(MemoryBank.logFrame);
+
+        // Go modal -
+        dialogWindow.setVisible(true);
+    } // end showDialog
+
+
     //------------------------------------------------------------
     // Method Name:  showFoundIn
     //
@@ -1490,12 +1509,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 rightPane.setViewportView(goalGroup.theBasePanel);
             } // end if
 
-        } else if (parentNodeName.equals("Upcoming Events") && isConsolidatedView) { // Selection of the Consolidated Events List
-            selectionContext = "Consolidated View";  // For manageMenus
-            EventNoteGroup theBigPicture = getConsolidatedView();
-            if (theBigPicture != null) {
-                rightPane.setViewportView(theBigPicture.theBasePanel);
-            }
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
             selectionContext = "Upcoming Event";  // For manageMenus
             EventNoteGroup eventNoteGroup;

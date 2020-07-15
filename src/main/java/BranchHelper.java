@@ -86,20 +86,6 @@ public class BranchHelper implements BranchHelperInterface {
         // there is a difference in the casing then we will get past this check.
         if (renameTo.equals(renameFrom)) return false;
 
-        // Now a special case, for a selection under Events, only - the Consolidated Events List Name.
-        // This will be a non-intuitive way to reset it back to the default string, after the user
-        // had changed it to something else and now wants to go back to how it was out-of-the-box
-        // but there is no apparent 'reset' button for that.  The way to reset it will be to
-        // simply clear it out; this method will see an empty string and can restore the default.
-        if(renameFrom.equals(MemoryBank.appOpts.consolidatedEventsViewName)) {
-            if(theAreaNodeName.equals(AREA_EVENT)) {
-                if (theName.isEmpty()) {
-                    renameTo = new AppOptions().consolidatedEventsViewName;
-                    return true;
-                }
-            }
-        }
-
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
@@ -115,9 +101,13 @@ public class BranchHelper implements BranchHelperInterface {
 
     @Override
     public boolean deleteAllowed(String theSelection) {
-        if(AREA_EVENT.equals(theAreaNodeName)) {
-            return !theSelection.equals(MemoryBank.appOpts.consolidatedEventsViewName);
-        }
+        // This method previously had only one usage; disallowing the removal of the Event Consolidated List.
+        // However, since then I removed it myself, permananently.  But this mechanism of potentially diabling
+        // the ability to remove a selection - seems highly likely to be needed again, so leaving it as a
+        // placeholder / example.
+//        if(AREA_EVENT.equals(theAreaNodeName)) {
+//            return !theSelection.equals(MemoryBank.appOpts.consolidatedEventsViewName);
+//        }
         return true;
     }
 
@@ -146,11 +136,11 @@ public class BranchHelper implements BranchHelperInterface {
             MemoryBank.debug(nodeChange.toString());
             if (nodeChange.changeType == NodeChange.RENAMED) {
 
-                // Checking for the special case -
-                if(theAreaNodeName.equals("Upcoming Events")) {
-                    if (nodeChange.nodeName.equals(MemoryBank.appOpts.consolidatedEventsViewName)) {
+                // Checking special cases where there is no corresponding file -
+                if(theAreaNodeName.equals("We no longer have such a case in any area, at this time.")) {
+                    if (nodeChange.nodeName.equals("a node with no associated file")) {
                         // An exception to the norm - this one has no corresponding file.
-                        MemoryBank.appOpts.consolidatedEventsViewName = nodeChange.renamedTo;
+                        // < now do whatever change is needed instead of the file rename >
                         continue;
                     }
                 }
@@ -250,9 +240,6 @@ public class BranchHelper implements BranchHelperInterface {
         );
 
         // Create the list of files.
-        if(theAreaNodeName.equals(AREA_EVENT)) {
-            theChoices.add(MemoryBank.appOpts.consolidatedEventsViewName);
-        }
         if (theFileList != null) {
             log.debug("Number of " + theAreaNodeName + " files found: " + theFileList.length);
             int theDot;
