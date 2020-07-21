@@ -15,17 +15,11 @@ public class DayNoteGroup extends CalendarNoteGroup
         implements IconKeeper, MouseListener {
 
     private static AppIcon defaultIcon;
-    private static JLabel dayTitle;
+    private JLabel dayTitle;
     static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
     static boolean blnNoteAdded; // Set by other NoteGroups (Event, Todo)
 
     static {
-        // Create the panel title
-        dayTitle = new JLabel();
-        dayTitle.setHorizontalAlignment(JLabel.CENTER);
-        dayTitle.setForeground(Color.white);
-        dayTitle.setFont(Font.decode("Serif-bold-20"));
-
         // Because the parent NoteGroup class is where all NoteComponents get
         //   made and that constructor runs before the one here, the defaultIcon
         //   (seen in a DayNoteComponent) MUST be present BEFORE that
@@ -53,6 +47,13 @@ public class DayNoteGroup extends CalendarNoteGroup
 
     DayNoteGroup() {
         super("Day Note");
+
+        // Create the panel title
+        dayTitle = new JLabel();
+        dayTitle.setHorizontalAlignment(JLabel.CENTER);
+        dayTitle.setForeground(Color.white);
+        dayTitle.setFont(Font.decode("Serif-bold-20"));
+
         dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
 
         LabelButton timeFormatButton = new LabelButton("24");

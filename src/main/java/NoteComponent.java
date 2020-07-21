@@ -837,7 +837,15 @@ public class NoteComponent extends JPanel {
                 case "Paste Line":
                     theNoteComponent.initialize();
                     // Pasting a copy allows us to do a paste multiple times without re-copying.
-                    theNoteComponent.setNoteData(MemoryBank.clipboardNote.copy());
+
+                    // But we need to use the right data type for the component; a copy/paste could cross over data types.
+                    if(theNoteComponent.getNoteData().getClass() == MemoryBank.clipboardNote.getClass()) {
+                        // If they are the same type then we can take a full copy.
+                        theNoteComponent.setNoteData(MemoryBank.clipboardNote.copy());
+                    } else {
+                        // Otherwise we can only take the elements of the base class.
+                        theNoteComponent.setNoteData(new NoteData(MemoryBank.clipboardNote));
+                    }
                     break;
                 case "Clear Line":
                     theNoteComponent.clear();

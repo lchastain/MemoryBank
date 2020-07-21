@@ -3,10 +3,23 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 NEXT:
+    Problems -
+
+
+
+    Issues:
+      The TMC gets shoved down, in both the Event and the Goal groups - rethink the UI.
+
+        Editing (and so Viewing) of linkages is one-way; viewing the linkages of the targets will not show the link in
+            the other direction.
+
+
+Type in a plan, save and retrieve it.
+Then work on linkages retention / display.
+
         Goal Panel display
             Title, Short description, the plan.  Then -
-                how to show notes that are linked to it?  bring in the Linkages panel, with reversed links?
-                or add some form of a link list to a Goal definition?
+                how to show notes that are linked to it? add some form of a link list to a Goal definition
                 and if you did that, could it also apply to other NoteGroup?
                     and at that point, could you then have a NoteGroup as a link source?
                         maybe, but just not necessary and there is no existing interface to define that direction of a link.
@@ -15,14 +28,49 @@ NEXT:
 Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
     group deletions, group show/no-show.
 
-    mods - may not matter; let the users delete and recreate their links that go stale.
+    mods to links - may not matter; let the users delete and recreate their links that go stale.
 
 
 
 =====================================================================================================
+
+7/21/2020 - Took a 'break' to fix some hi-pri problems:
+  A pasted note can wipe out the file for that group (!!! seen in PROD on monthnotes, for Jun 2020).
+     This turned up a problem when crossing data types.  Added logic to the paste section.
+  Once a TodoItem is linked to a 'Note', the group for that note type (Day, Month, etc - loses its heading title.
+     This is because the constructor ran twice but the title label is static and was reused.  Fairly easy fix.
+
+7/20/2020 0712 - Now have a complete idea of how to show / work with a Goal, and it is VERY close to a To Do List.
+  A Goal will be a collection of Milestones, just a a To Do List is a collection of To Do Items.  Link capability
+  is already built in to the base classes; just need to expand handling for Milestones.  Now working on adding
+  the main note panel.
+
+7/19/2020 1127 - The problem with my original thinking on Goals is that I cared more about how they should look and
+  getting other note types linked to them, and not enough about what a Goal actually is, and how to model it.  Now
+  I'm onto the latter track, and of course a portion of what I thought before is going out the window.  Now -
+  A goal needs to be a collection of Milestones, and those will be link-to-able.  It can also have a short description
+  of how you intend to achieve the remaining milestones, and a boolean to flag whether or not to show previously
+  completed milestones.  As for showing linkages, which is what I WAS going to show in the Goal group - now I'm
+  thinking of a menu item (similar to the Consolidated View) where all linkages to a group (ANY group - Goal, ToDo list, etc)
+  can be seen (seeing them at the item level for other Notes is already possible).  So now - need to fully develop
+  a Milestone as a new note type and make it linkable (bidirectionally) but first of all - model the Milestone before
+  doing that (noting that the lesson was learned).
+
+7/18/2020 0532 - Upon some tentative steps back into Goals, began rethinking (again) how they should be represented.
+  Now, considering adding 'milestones' as a discrete class, and modeling a Goal as a collection of them.  This way
+  they can be retained after accomplishment and shown or not, to help with Goal Evolution.  This could change the
+  entire UI, again - making the 'plan' text less important but making a more solid and trackable 'Plan'.  However,
+  this could greatly complicate things if linking is allowed to go down to this lower level on a Goal.  Need to think
+  this out the rest of the way and see if it still smells good.
+
+7/15/2020 0739 - Fixed the problem referenced below, then went ahead and moved the Consolidated View out of the tree
+  and instead onto the main menu as 'Show Scheduled Events'.  This will help with Goals linking by removing the CV
+  from the app tree, which would have been an invalid choice.  Did a pub of recent work.  Next up: back to Goal
+  presentation & load/save.
+
 7/13/2020 0757 - The Flashcards app is done to the point of reliable usability; now returning to this project.  Some
   problems that have been noticed are first up, before continuing with Goal work.  A cleared line can come back, if
-  if is the last note in the group.  Will work on that.
+  if is the only/last note in the group.  Will work on that.
 
 4/09/2020 0720 - Ok, the GoalPanel makeup and display is taking shape, well enough to publish it in its incomplete
   current form, which now has Plan instructions, capability to show a longer title (but no way to set one), and a

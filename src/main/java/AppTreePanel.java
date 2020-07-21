@@ -1420,27 +1420,26 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         //   the selection is a branch before we would start handling it as a leaf, and by
         //   then we will know which branch the leaf falls under.
         //-----------------------------------------------------
-        boolean isGoalsBranch = theNodeString.equals("Goals");
-        boolean isEventsBranch = theNodeString.equals("Upcoming Events");
-        boolean isTodoBranch = theNodeString.equals("To Do Lists");
-        boolean isSearchBranch = theNodeString.equals("Search Results");
         boolean isTopLevel = parentNodeName.equals("App");
-        boolean isConsolidatedView = theNodeString.equals(MemoryBank.appOpts.consolidatedEventsViewName);
+        boolean isGoalsBranch = isTopLevel && theNodeString.equals("Goals");
+        boolean isEventsBranch = isTopLevel && theNodeString.equals("Upcoming Events");
+        boolean isTodoBranch = isTopLevel && theNodeString.equals("To Do Lists");
+        boolean isSearchBranch = isTopLevel && theNodeString.equals("Search Results");
 
         theNoteGroup = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (isGoalsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
+        if (isGoalsBranch) {  // Edit the Upcoming Events parent branch
             BranchHelper tbh = new BranchHelper(theTree, theGoalListKeeper, GoalGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
             selectionContext = "Goals Branch Editor";
             rightPane.setViewportView(tbe);
-        } else if (isEventsBranch && isTopLevel) {  // Edit the Upcoming Events parent branch
+        } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
             BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, EventNoteGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", node, tbh);
             selectionContext = "Upcoming Events Branch Editor";
             rightPane.setViewportView(tbe);
-        } else if (isTodoBranch && isTopLevel) {  // Edit the Todo parent branch
+        } else if (isTodoBranch) {  // Edit the Todo parent branch
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
@@ -1448,7 +1447,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", node, tbh);
             selectionContext = "To Do Lists Branch Editor";
             rightPane.setViewportView(tbe);
-        } else if (isSearchBranch && isTopLevel) {  // Edit the Search parent branch
+        } else if (isSearchBranch) {  // Edit the Search parent branch
             BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, SearchResultGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor("Search Results", node, sbh);
             selectionContext = "Search Results Branch Editor";
@@ -1465,17 +1464,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // we can retrieve it from the keeper.
             goalGroup = (GoalGroup) theGoalListKeeper.get(theNodeString);
 
-            // Otherwise load it, but only if a file for it already exists.
+            // Otherwise load it if it exists or make a new one if it does not exist.
             if (goalGroup == null) {
-                MemoryBank.readOnly = true;
-                NoteComponent.isEditable = false;
                 goalGroup = (GoalGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
-                NoteComponent.isEditable = true;
-                MemoryBank.readOnly = false;
 
                 if (goalGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
-                    theTodoListKeeper.add(goalGroup);
+                    theGoalListKeeper.add(goalGroup);
                 }
             } else {
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");

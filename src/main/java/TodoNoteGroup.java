@@ -202,7 +202,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     } // end getProperties
 
 
-    // Provided for Tests
     ThreeMonthColumn getThreeMonthColumn() {
         return tmc;
     }

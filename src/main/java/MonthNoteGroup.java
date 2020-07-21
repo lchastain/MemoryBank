@@ -13,15 +13,9 @@ import java.time.format.DateTimeFormatter;
 public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private static JLabel monthTitle;
+    private JLabel monthTitle;
 
     static {
-        // Create the window title
-        monthTitle = new JLabel();
-        monthTitle.setHorizontalAlignment(JLabel.CENTER);
-        monthTitle.setForeground(Color.white);
-        monthTitle.setFont(Font.decode("Serif-bold-20"));
-
         MemoryBank.trace();
     } // end static
 
@@ -29,6 +23,13 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
 
     MonthNoteGroup() {
         super("Month Note");
+
+        // Create the window title
+        monthTitle = new JLabel();
+        monthTitle.setHorizontalAlignment(JLabel.CENTER);
+        monthTitle.setForeground(Color.white);
+        monthTitle.setFont(Font.decode("Serif-bold-20"));
+
         dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         LabelButton prev = new LabelButton("-");

@@ -1,23 +1,31 @@
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.Vector;
 
 // A GoalGroup (like any other NoteGroup) is not itself saved (serialized).  Its
-// properties are what goes out to the data file.  But unlike the other NoteGroup
-// children, it has no list of NoteData items.
+// properties and linked notes are what are persisted to the data file.
 
-public class GoalGroup extends NoteGroup {
+
+public class GoalGroup extends NoteGroup implements DateSelection {
     private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
     static String areaName;
     static String areaPath;
     static String filePrefix;
+    static String userInfo;
+    static String defaultPlanText;
+
+    private ThreeMonthColumn tmc;  // For Date selection
+    private MilestoneComponent milestoneComponent;
 
     // This is saved/loaded
     GoalGroupProperties myProperties; // Variables - flags and settings
@@ -27,6 +35,13 @@ public class GoalGroup extends NoteGroup {
         areaPath = MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
         filePrefix = "goal_";
         MemoryBank.trace();
+
+        userInfo = "Enter the major (remaining) steps for achieving this goal.  These are the milestones ";
+        userInfo += "(in order when appropriate), without specifics as to how they will be accomplished.  ";
+        userInfo += "The tasks needed to complete each milestone should go to a To Do List and those ";
+        userInfo += "To Do List items (or any other type of note) can then be linked back to this Goal.";
+        defaultPlanText = userInfo; // final because it is used by event handlers
+
     } // end static
 
     public GoalGroup(String groupName) {
@@ -34,24 +49,30 @@ public class GoalGroup extends NoteGroup {
 
         log.debug("Constructing: " + groupName);
 
-        addNoteAllowed = false;
+        addNoteAllowed = !MemoryBank.readOnly; // Allows construction for selection-only dialogs
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
-        // All our goal data is in the properties, unlike other NoteGroup that also have a NoteData vector.
+        tmc = new ThreeMonthColumn();
+        tmc.setSubscriber(this);
+
+        // We can still have goal data without having (yet) defined milestones.
         saveWithoutData = true;
 
-        updateGroup(); // This will load the properties (myProperties)
+        // Wrapped tmc in a FlowLayout panel, to prevent stretching.
+        JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pnl1.add(tmc);
+        theBasePanel.add(pnl1, BorderLayout.EAST);
+
+        updateGroup(); // This will load the properties (myProperties) and the groupDataVector
 
         buildPanelContent(); // Content other than the groupDataVector
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
-//        theBasePanel.removeAll();
-//        theBasePanel.revalidate();
 
-        // Now the multi-row Header for the GoalGroup -
+        // The multi-row Header for the GoalGroup -
         //-----------------------------------------------------
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
@@ -61,7 +82,7 @@ public class GoalGroup extends NoteGroup {
         headingRow1.setBackground(Color.blue);
         JLabel goalNameLabel = new JLabel(myProperties.getName());
         String longTitle = myProperties.longTitle;
-        if(null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
+        if (null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
         goalNameLabel.setHorizontalAlignment(JLabel.CENTER);
         goalNameLabel.setBackground(Color.blue);
         goalNameLabel.setForeground(Color.white);
@@ -72,32 +93,9 @@ public class GoalGroup extends NoteGroup {
         // The Second Header Row -  Goal Plan
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
-        String userInfo;
-        userInfo = "Enter your plan for accomplishing this goal.  It should be stated in general terms\n";
-        userInfo += "to describe what needs to be done, but not how.  If it boils down to a single task\n";
-        userInfo += "then it should go to a To Do List and not here.  That To Do List item (or any other\n";
-        userInfo += "type of note) can then be linked to this Goal.";
-        final String defaultText = userInfo;
-        final JTextArea goalPlan = new JTextArea(defaultText);
-        goalPlan.setPreferredSize(new Dimension(goalPlan.getPreferredSize().width, 80));
-        goalPlan.setForeground(Color.GRAY);
-        goalPlan.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (goalPlan.getText().equals(defaultText)) {
-                    goalPlan.setText("");
-                    goalPlan.setForeground(Color.BLACK); // looks a bit gray, when on cyan.
-                }
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (goalPlan.getText().isEmpty()) {
-                    goalPlan.setForeground(Color.GRAY);
-                    goalPlan.setText(defaultText);
-                }
-            }
-        });
-        headingRow2.add(goalPlan, BorderLayout.CENTER);
+        String thePlanString = myProperties.goalPlan;
+        if (thePlanString == null) thePlanString = defaultPlanText;
+        headingRow2.add(makePlanTextArea(thePlanString), BorderLayout.CENTER);
 
         // The Third Header Row -   Status
         //----------------------------------------------------------
@@ -129,8 +127,6 @@ public class GoalGroup extends NoteGroup {
         headingRow3.add(listHeader, BorderLayout.CENTER);
         headingRow3.add(overallStatusPanel, BorderLayout.EAST);
 
-
-
         heading.add(headingRow1);
         heading.add(headingRow2);
         heading.add(headingRow3);
@@ -138,75 +134,38 @@ public class GoalGroup extends NoteGroup {
     }
 
 
-    // Called from within the constructor to create and place the visual components of the panel.
-    private void buildPanelContent0() {
-        ArrayList<String> arr;
+    //-------------------------------------------------------------
+    // Method Name:  dateSelected
+    //
+    // Interface to the Three Month Calendar; called by the tmc.
+    //-------------------------------------------------------------
+    public void dateSelected(LocalDate ld) {
+        MemoryBank.debug("Date selected on TMC = " + ld);
 
-        JLabel jLabel1 = new JLabel();
-        // Variables declaration
-        JTextField txtfGoalText = new JTextField();
-        JScrollPane jspGoals = new JScrollPane();
-        JTextArea txtaPlan = new JTextArea();
-        JScrollPane jspPlan = new JScrollPane();
-        JButton jButton1 = new JButton();
-        JButton jButton2 = new JButton();
-        JButton jButton3 = new JButton();
-        JPanel contentPane = theBasePanel;
+        if (milestoneComponent == null) {
+            String s;
+            s = "You must select an item before a date can be linked!";
+            setStatusMessage(s);
+            tmc.setChoice(null);
+            return;
+        } // end if
 
-        // 
-        // jLabel1 
-        // 
-        jLabel1.setText("Some way to display and select related todo lists.");
-        // 
-        // txtfGoalText 
-        // 
-        txtfGoalText.setText("The text of the goal");
-        txtfGoalText.addActionListener(this::txtfGoalText_actionPerformed);
-        //
-        // txtaPlan
-        // 
-        txtaPlan.setText("The Plan - may include a description.");
-        // 
-        // jspPlan 
-        // 
-        jspPlan.setViewportView(txtaPlan);
-        // 
-        // jButton1 
-        // 
-        jButton1.setText("New");
-        jButton1.addActionListener(this::jButton1_actionPerformed);
-        // 
-        // jButton2 
-        // 
-        jButton2.setText("Add");
-        jButton2.addActionListener(this::jButton2_actionPerformed);
-        // 
-        // jButton3 
-        // 
-        jButton3.setText("Delete");
-        jButton3.addActionListener(this::jButton3_actionPerformed);
-        // 
-        // contentPane 
-        // 
-        contentPane.setLayout(null);
-        addComponent(contentPane, jLabel1, 153, 164, 276, 18);
-        addComponent(contentPane, txtfGoalText, 138, 21, 298, 21);
-        addComponent(contentPane, jspPlan, 140, 60, 294, 85);
-        //
-        // GoalPanel
-        // 
-        theBasePanel.setLocation(new Point(0, 0));
-        theBasePanel.setSize(new Dimension(478, 270));
-    }// end buildPanelContent
+        TodoNoteData tnd = (TodoNoteData) (milestoneComponent.getNoteData());
+        tnd.setTodoDate(ld);
+        milestoneComponent.setTodoNoteData(tnd);
+    } // end dateSelected
 
 
-    /**
-     * Add Component Without a Layout Manager (Absolute Positioning)
-     */
-    private void addComponent(Container container, Component c, int x, int y, int width, int height) {
-        c.setBounds(x, y, width, height);
-        container.add(c);
-    }
+    //--------------------------------------------------------
+    // Method Name: getNoteComponent
+    //
+    // Returns a TodoNoteComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
+    //--------------------------------------------------------
+    @Override
+    public MilestoneComponent getNoteComponent(int i) {
+        return (MilestoneComponent) groupNotesListPanel.getComponent(i);
+    } // end getNoteComponent
 
 
     //--------------------------------------------------------------
@@ -222,35 +181,110 @@ public class GoalGroup extends NoteGroup {
     } // end getProperties
 
 
+    ThreeMonthColumn getThreeMonthColumn() {
+        return tmc;
+    }
+
+    @Override
+    JComponent makeNewNote(int i) {
+        MilestoneComponent tnc = new MilestoneComponent(this, i);
+        tnc.setVisible(false);
+        return tnc;
+    } // end makeNewNote
+
+
+    JTextArea makePlanTextArea(String thePlanString) {
+        final JTextArea goalPlanTextArea = new JTextArea(thePlanString);
+        goalPlanTextArea.setLineWrap(true);
+        goalPlanTextArea.setWrapStyleWord(true);
+        goalPlanTextArea.setPreferredSize(new Dimension(goalPlanTextArea.getPreferredSize().width, 100));
+        if (thePlanString.equals(defaultPlanText)) goalPlanTextArea.setForeground(Color.GRAY);
+
+        // Desired behavior from the event listeners below:  Initial display contains only the default, gray text.
+        //   If the user presses any key, the text area is cleared and the key they pressed, if printable,
+        //     appears in the text area.  If not printable, the text area remains blank.  If the focus
+        //     shifts away from the text area while it is empty, the default text is restored.
+        goalPlanTextArea.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (goalPlanTextArea.getText().trim().isEmpty()) {
+                    goalPlanTextArea.setForeground(Color.GRAY);
+                    goalPlanTextArea.setText(defaultPlanText);
+                }
+            }
+        });
+        goalPlanTextArea.addKeyListener(new KeyAdapter() {
+            boolean clearingDefault;
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                char theyTyped = e.getKeyChar();
+                if (goalPlanTextArea.getText().equals(defaultPlanText)) {
+                    goalPlanTextArea.setText("");
+                    goalPlanTextArea.setForeground(Color.BLACK);
+                    clearingDefault = true;
+                }
+
+                if (Character.isLetterOrDigit(theyTyped)) {
+                    clearingDefault = false;
+                }
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if (!clearingDefault) {
+                    if (goalPlanTextArea.getText().trim().isEmpty()) {
+                        goalPlanTextArea.setForeground(Color.GRAY);
+                        goalPlanTextArea.setText(defaultPlanText);
+                    }
+                }
+            }
+        });
+        return goalPlanTextArea;
+    }
+
     @Override
     void makeProperties(String groupName, GroupProperties.GroupType groupType) {
         myProperties = new GoalGroupProperties(groupName);
     }
 
+    //--------------------------------------------------------------
+    // Method Name: showComponent
+    //
+    //  Several actions needed when a line has
+    //    either gone active or inactive.
+    //--------------------------------------------------------------
+    void showComponent(MilestoneComponent nc, boolean showit) {
+        if (showit) {
+            milestoneComponent = nc;
+            TodoNoteData tnd = (TodoNoteData) nc.getNoteData();
+
+            // Show the previously selected date
+            if (tnd.getTodoDate() != null) {
+                tmc.setChoice(tnd.getTodoDate());
+            }
+        } else {
+            milestoneComponent = null;
+            tmc.setChoice(null);
+        } // end if
+    } // end showComponent
+
+
     @Override
+        // This method is called when loading the Goal from a file
     void setGroupData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
         myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
-        //groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<?LinkData?>>() { });
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
         // Need to define the link type for reversing a link, get a list of sources that is added to each time a link is made.
         // may be similar to SearchResultData / component.
         BaseData.loading = false; // Restore normal lastModDate updating.
-    }
-
-    private void txtfGoalText_actionPerformed(ActionEvent e) {
-        System.out.println("\ntxtfGoalText_actionPerformed(ActionEvent e) called.");
-    }
-
-    private void jButton1_actionPerformed(ActionEvent e) {
-        System.out.println("\njButton1_actionPerformed(ActionEvent e) called.");
-    }
-
-    private void jButton2_actionPerformed(ActionEvent e) {
-        System.out.println("\njButton2_actionPerformed(ActionEvent e) called.");
-    }
-
-    private void jButton3_actionPerformed(ActionEvent e) {
-        System.out.println("\njButton3_actionPerformed(ActionEvent e) called.");
     }
 
 }

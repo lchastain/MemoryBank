@@ -20,7 +20,8 @@ class NoteData extends BaseData {
     // The copy constructor (clone).  Primary usage is by the 'swap' methods,
     // and when child classes need to have their additional members stripped off
     // so that the result is an an isolated copy of the base class members from
-    // the original note (for Link Target serialization).
+    // the original note (for Link Target serialization or pasting from one type
+    // of NoteData child to a different type).
     NoteData(NoteData ndCopy) {
         this();
         this.instanceId = ndCopy.instanceId;
