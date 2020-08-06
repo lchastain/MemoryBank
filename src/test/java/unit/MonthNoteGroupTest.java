@@ -1,8 +1,5 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MonthNoteGroupTest {
     private MonthNoteGroup mng;
@@ -16,9 +13,5 @@ class MonthNoteGroupTest {
     void tearDown() {
     }
 
-    @Test
-    void testRecalc() {
-        mng.recalc();
-    }
 
 }

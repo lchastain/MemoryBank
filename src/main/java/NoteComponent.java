@@ -647,7 +647,7 @@ public class NoteComponent extends JPanel {
 
             // We occasionally get a null pointer exception at startup.
             if (getCaret() == null) return;
-// trying to disable the pre-selected text seen in todo lists.  Need to reproduce, first.
+// trying to disable the pre-highlighted text seen in todo lists.  Need to consistently reproduce, first.
 //            setSelectionStart(getSelectionEnd());
             getCaret().setVisible(true);
 
@@ -804,22 +804,23 @@ public class NoteComponent extends JPanel {
             if (theNoteComponent == null) return;
 
             JMenuItem jm = (JMenuItem) e.getSource();
-            NoteData nd; // Needed to isolate old/source data from new/pasted.
+            NoteData nd = theNoteComponent.getNoteData(); // Not used in every case, below.
             String theMenuItemText = jm.getText();
             switch (theMenuItemText) {
                 case "Cut Line":
-                    nd = theNoteComponent.getNoteData();
-                    MemoryBank.clipboardNote = nd.copy();
+                    MemoryBank.clipboardNote = nd.copy();  // isolate source data
                     theNoteComponent.clear();
                     break;
                 case "Copy Line":
-                    nd = theNoteComponent.getNoteData();
-                    MemoryBank.clipboardNote = nd.copy();
+                    MemoryBank.clipboardNote = nd.copy();  // isolate source data
                     break;
                 case "Edit Linkages":
-                    nd = theNoteComponent.getNoteData();
-                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(nd);
+                    //GroupProperties groupProperties = (GroupProperties) nd.myNoteGroup.getGroupProperties();
+                    GroupProperties groupProperties = theNoteComponent.myNoteGroup.getGroupProperties();
+                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, nd);
 
+                    // The act of editing the linkages, whether a change is made or not, will set groupChanged to true
+                    // after it is done.  Then the menu items will offer a save or cancel, or the shutdown hook will save.
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
                             linkagesEditorPanel,
@@ -827,12 +828,17 @@ public class NoteComponent extends JPanel {
                             JOptionPane.OK_CANCEL_OPTION, // Option type
                             JOptionPane.PLAIN_MESSAGE);    // Message type
 
-                    // The act of editing the linkages, whether a change was made or not, will set groupChanged to true
-                    // after it is done.  Then the menu items will offer a save or cancel, or the shutdown hook will save.
                     if (choice == JOptionPane.OK_OPTION) {
                         NoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
+
+                        // Take the linkTargets from the edited note.
+                        nd.linkTargets = updatedLinkNoteData.linkTargets;
+
+                        // These lines may be useful during dev - can disable eventually.
+                        System.out.println("Serializing the new link:");
                         System.out.println(AppUtil.toJsonString(updatedLinkNoteData));
                     }
+
                     break;
                 case "Paste Line":
                     theNoteComponent.initialize();

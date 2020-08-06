@@ -152,7 +152,15 @@ public class MonthView extends JLayeredPane {
 
         Object[] theDayGroup = FileGroup.loadFileData(theFilename);
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theDayGroup[0], new TypeReference<Vector<DayNoteData>>() { });
+
+        // relatively new 'adjustment', to adapt to addition of properties to data files
+        // and the possibility that a properties is all that the file contains.
+        Object theObject = theDayGroup[theDayGroup.length-1];
+        String theClass = theObject.getClass().getName();
+        System.out.println("The DayGroup class type is: " + theClass);
+        if(!theClass.equals("java.util.ArrayList")) return null;
+
+        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<DayNoteData>>() { });
         BaseData.loading = false; // Restore normal lastModDate updating.
 
         for (DayNoteData tempDayData : theDayNotes) {

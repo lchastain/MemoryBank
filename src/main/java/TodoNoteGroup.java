@@ -31,7 +31,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static String filePrefix;
 
     // This is saved/loaded
-    public TodoGroupProperties myVars; // Variables - flags and settings
+//    public TodoGroupProperties myGroupProperties; // Variables - flags and settings
 
     static {
         areaName = "TodoLists"; // Directory name under user data.
@@ -45,11 +45,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     }
 
     public TodoNoteGroup(String groupName, int pageSize) {
-        super(groupName, GroupProperties.GroupType.TODO_LIST, pageSize);
+        super(pageSize);
 
         log.debug("Constructing: " + groupName);
-        myVars = (TodoGroupProperties) myProperties;
 
+        myProperties = new TodoGroupProperties(groupName);
         addNoteAllowed = !MemoryBank.readOnly;
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
@@ -107,7 +107,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
             tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-            tempNote.resetColumnOrder(myVars.columnOrder);
+            tempNote.resetColumnOrder(((TodoGroupProperties) myProperties).columnOrder);
         } // end for
     } // end checkColumnOrder
 
@@ -173,7 +173,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     int getMaxPriority() {
-        return myVars.maxPriority;
+        return ((TodoGroupProperties) myProperties).maxPriority;
     } // end getMaxPriority
 
 
@@ -187,19 +187,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     public TodoNoteComponent getNoteComponent(int i) {
         return (TodoNoteComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
-
-
-    //--------------------------------------------------------------
-    // Method Name: getProperties
-    //
-    //  Called by saveGroup.
-    //  Returns an actual object, vs the method
-    //    in the base class that returns a null.
-    //--------------------------------------------------------------
-    @Override
-    protected Object getProperties() {
-        return myVars;
-    } // end getProperties
 
 
     ThreeMonthColumn getThreeMonthColumn() {
@@ -219,11 +206,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         return tnc;
     } // end makeNewNote
 
-
-    @Override
-    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
-        myProperties = new TodoGroupProperties(groupName);
-    }
 
     @SuppressWarnings({"unchecked"})
     public void merge() {
@@ -488,10 +470,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
     private void saveProperties() {
         // Update the header text of the columns.
-        myVars.column1Label = listHeader.getColumnHeader(1);
-        myVars.column2Label = listHeader.getColumnHeader(2);
-        myVars.column3Label = listHeader.getColumnHeader(3);
-        myVars.columnOrder = listHeader.getColumnOrder();
+        ((TodoGroupProperties) myProperties).column1Label = listHeader.getColumnHeader(1);
+        ((TodoGroupProperties) myProperties).column2Label = listHeader.getColumnHeader(2);
+        ((TodoGroupProperties) myProperties).column3Label = listHeader.getColumnHeader(3);
+        ((TodoGroupProperties) myProperties).columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
 
 
@@ -507,10 +489,10 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         TodoNoteComponent tempNote;
 
         // Preserve original value
-        boolean blnOrigShowPriority = myVars.showPriority;
+        boolean blnOrigShowPriority = ((TodoGroupProperties) myProperties).showPriority;
 
         // Construct the Option Panel (TodoOpts) using the current TodoListProperties
-        TodoOpts todoOpts = new TodoOpts(myVars);
+        TodoOpts todoOpts = new TodoOpts(((TodoGroupProperties) myProperties));
 
         // Show a dialog whereby the options can be changed
         int doit = optionPane.showConfirmDialog(
@@ -525,7 +507,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         setGroupChanged(true);
 
         // Was there a reset-worthy change?
-        if (myVars.showPriority != blnOrigShowPriority) {
+        if (((TodoGroupProperties) myProperties).showPriority != blnOrigShowPriority) {
             System.out.println("Resetting the list and header");
             for (int i = 0; i < getHighestNoteComponentIndex(); i++) {
                 tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
@@ -572,25 +554,25 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Prettyprinting of sort conditions -
         if (direction == ASCENDING) MemoryBank.dbg("  ASCENDING \t");
         else MemoryBank.dbg("  DESCENDING \t");
-        if (myVars.whenNoKey == TOP) MemoryBank.dbg("TOP");
-        else if (myVars.whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
-        else if (myVars.whenNoKey == STAY) MemoryBank.dbg("STAY");
+        if (((TodoGroupProperties) myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
+        else if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
+        else if (((TodoGroupProperties) myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
             todoData1 = (TodoNoteData) groupDataVector.elementAt(i);
             if (todoData1 == null) pri1 = 0;
             else pri1 = todoData1.getPriority();
-            if (pri1 == 0) if (myVars.whenNoKey == STAY) continue; // No key; skip.
+            if (pri1 == 0) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
                 todoData2 = (TodoNoteData) groupDataVector.elementAt(j);
                 if (todoData2 == null) pri2 = 0;
                 else pri2 = todoData2.getPriority();
-                if (pri2 == 0) if (myVars.whenNoKey == STAY) continue; // No key; skip.
+                if (pri2 == 0) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
 
                 if (direction == ASCENDING) {
-                    if (myVars.whenNoKey == BOTTOM) {
+                    if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) {
                         if (((pri1 > pri2) && (pri2 != 0)) || (pri1 == 0)) doSwap = true;
                     } else {
                         // TOP and STAY have same behavior for ASCENDING, unless a
@@ -598,7 +580,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                         if (pri1 > pri2) doSwap = true;
                     } // end if TOP/BOTTOM
                 } else if (direction == DESCENDING) {
-                    if (myVars.whenNoKey == TOP) {
+                    if (((TodoGroupProperties) myProperties).whenNoKey == TOP) {
                         if (((pri1 < pri2) && (pri1 != 0)) || (pri2 == 0)) doSwap = true;
                     } else {
                         // BOTTOM and STAY have same behavior for DESCENDING, unless a
@@ -639,25 +621,25 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // Prettyprinting of sort conditions -
         if (direction == ASCENDING) MemoryBank.dbg("  ASCENDING \t");
         else MemoryBank.dbg("  DESCENDING \t");
-        if (myVars.whenNoKey == TOP) MemoryBank.dbg("TOP");
-        else if (myVars.whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
-        else if (myVars.whenNoKey == STAY) MemoryBank.dbg("STAY");
+        if (((TodoGroupProperties) myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
+        else if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
+        else if (((TodoGroupProperties) myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
             todoData1 = (TodoNoteData) groupDataVector.elementAt(i);
             if (todoData1 == null) str1 = "";
             else str1 = todoData1.getNoteString().trim();
-            if (str1.equals("")) if (myVars.whenNoKey == STAY) continue; // No key; skip.
+            if (str1.equals("")) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
                 todoData2 = (TodoNoteData) groupDataVector.elementAt(j);
                 if (todoData2 == null) str2 = "";
                 else str2 = todoData2.getNoteString().trim();
-                if (str2.equals("")) if (myVars.whenNoKey == STAY) continue; // No key; skip.
+                if (str2.equals("")) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
 
                 if (direction == ASCENDING) {
-                    if (myVars.whenNoKey == BOTTOM) {
+                    if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) {
                         if (((str1.compareTo(str2) > 0) && (!str2.equals(""))) || (str1.equals(""))) doSwap = true;
                     } else {
                         // TOP and STAY have same behavior for ASCENDING, unless a
@@ -665,7 +647,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
                         if (str1.compareTo(str2) > 0) doSwap = true;
                     } // end if TOP/BOTTOM
                 } else if (direction == DESCENDING) {
-                    if (myVars.whenNoKey == TOP) {
+                    if (((TodoGroupProperties) myProperties).whenNoKey == TOP) {
                         if (((str1.compareTo(str2) < 0) && (!str1.equals(""))) || (str2.equals(""))) doSwap = true;
                     } else {
                         // BOTTOM and STAY have same behavior for DESCENDING, unless a

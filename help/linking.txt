@@ -1,30 +1,54 @@
-In the context menu of linkable NoteData instances there is an option to 'Edit Linkages'.
-   This option calls up a 'LinkagesEditorPanel' dialog, where linkages to all other 'live' NoteData
-   instances or NoteGroup instances may be set or unset.  When a link is made, a LinkedNoteData is
-   created to hold the relationship.
+Notes and their Groups can be linked to other Notes and Groups, to show that there is a relationship
+  between them.  The 'LinkagesEditorPanel' is the dialog where linkages are created or removed.
 
-SearchResultData will not be linked to any other note or group, because doing so would make it
+The dialog is invoked for a NoteData via its context menu.  For a Group, it comes from the main menu.
+
+When a link is made, a LinkedEntityData is created to hold the relationship.
+
+LinkedEntityData - A single instance of a link to another NoteGroup or NoteData.
+    A LinkedEntityData extends BaseData and also has these members:
+       targetGroupProperties - (transient) the full properties of the target group
+       targetNoteData - (transient) the full target NoteData, or null if the target is the full group
+       targetGroupInfo - the base info of the groupProperties
+       targetNoteInfo - the base info of the noteData
+       linkType - the type of relationship that the source has with the target.
+            See the class definition for the list of enumerated values.
+    A Vector of LinkedEntityData (named linkTargets) is a class member of both NoteData and NoteGroup.
+    When source info is needed during link operations, it will come from the entity that contains the
+       linkTargets vector.
+
+
+<STARTING to reconsider this, at least at the 'Group' level >
+SearchResultData will not be linked to any other note or group, because that would make it
   appear as though there are duplicates, when viewing the linkages of the various targets.
   And, a SearchResult has a 'FoundInFile' field that is similar to a LinkData in that it can be
   used to get to the original note, and THAT one can be linked to some other Note or Group.
 
-NoteGroups are not linkable as the source but you may be able to have a group-group effective linkage by
-  having a note in one of the groups linking to the other group.  Something like:  for one of the notes
-  in List 1, "Complete all the tasks in List 2".  Then going beyond its text, it could get a link type to
-  list 2.
+When editing linkages only the links to the current source will be shown.
+  This means that when the edit source is a full group, that group may contain notes that also have links,
+    but those links will not be shown/editable.  The linkages of those notes will be separately editable
+    when those contained notes (as opposed to the full group) are the defined source for the editor dialog.
+  CURRENTLY there is no way to call up the editor for a NoteGroup, but a menubar option should be possible.
+  LATER - yet another menubar option for a Group:  Show ALL linkages.  This would not be the editor panel,
+    but a new one that would show the group's links, followed by its notes that have links, with those links
+    shown below each note.  This is to provide a full view of linkages for a NoteGroup (Goal, most appropriate),
+    which could be the best high-level view.
+
+When a link is established it is stored on the source and that source's links may be viewed as needed by calling
+  up the editor dialog.  But what if you want to know about what other entities are linked TO an entity?  Since
+  the editor dialog only gives the 'FROM' perspective, there would be no way of knowing - EXCEPT that when a link
+  is created and put onto a source, a 'reverse' link is also created, and placed onto the target.  Now when that
+  target's links are viewed, the relationship will be there, but in either case a link is always FROM the source;
+  you don't actually ever get a view of the 'TO' perpective.
 
 
-All LinkedNoteData instances are kept in the AppOptions.linkages Vector.
+Rethinking the FROM/TO solution - what about adding another link member, to indicate if the link is a reverse or not?
+Then the interface could present TWO lists, a FROM and a TO list.  Maybe the TO list is not editable?  Maybe show both,
+or have a button/view switch?  or ALL?   show direction on each line?   thoughts.....
+Save the SAME link in both places, then when editing if sourceInfo not mine, it is a TO link, notecomponent configures differently -
+    reverse the type, make non-deletable, etc.
+    A delete would have to also work on both locations.
 
-LinkedNoteData
-    encapsulates everything from the source NoteData from which it is created.
-    myGroupId (UUID) - ID of the group that contains the encapsulated NoteData
-    linkTargets - a Vector of LinkTargetData.  A LinkTargetData extends BaseData and has these members:
-            targetGroupId (UUID) - ID of the target group
-            targetNoteData (NoteData) - NoteData, or null if N/A
-    type of link - related (generally), depends on, is depended on by, before, during, after.  See the
-        class definition for complete and specific list of integer type values.
-        The link type describes the relationship with the target entity from the perspective of the source entity.
 
 
 Link Management Operations:
@@ -120,16 +144,5 @@ Link Sorting - only done for Links where a Goal is on one end, done from the Goa
     All TBD.
 
 
-Example links:
-   event to todo (Todo: attend concert  Event:  Concert)    Type:   RELATED  (the concert happens regardless of whether or not you attend)
-       but better would be to reverse the perspective, then:  todo to event, Type: DURING
-       But should not have both.  If viewing the event's links, it would still be displayed, but from a Todo perspective.
-       So - should a Group-to-NoteData direction/perspective be allowed to be created?  Maybe not.
-   todo to event (Todo: buy tickets     Event:  Concert)    Type:   BEFORE
-
 -------------------------------------------------------------------------------------------------------------------
 
-  the GoalGroup - needs an interface to commonize with NoteData.  Otherwise it
-        //   would have to handle a new data type during interface loading/unloading, component management,
-        //   and group data persistence.
-MAYBE NOT - now links are not loaded directly into a Goal.

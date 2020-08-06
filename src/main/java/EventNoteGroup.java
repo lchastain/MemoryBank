@@ -61,13 +61,14 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
 
     EventNoteGroup(String groupName) {
-        super(groupName, GroupProperties.GroupType.EVENTS, NoteGroup.PAGE_SIZE);
+        super();
 
         MemoryBank.debug("Constructing: " + groupName);
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;
         addNoteAllowed = !MemoryBank.readOnly;
+        myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
 
         eventNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -341,19 +342,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     public AppIcon getDefaultIcon() {
         return defaultIcon;
     }
-
-    //--------------------------------------------------------------
-    // Method Name: getProperties
-    //
-    //  Called by saveGroup.
-    //  Returns an actual object, vs the method
-    //    in the base class that returns a null.
-    //--------------------------------------------------------------
-    @Override
-    protected Object getProperties() {
-        return myProperties;
-    } // end getProperties
-
 
     // -------------------------------------------------------------------
     // Method Name: makeNewNote

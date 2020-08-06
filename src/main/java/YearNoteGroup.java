@@ -57,19 +57,6 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     } // end constructor
 
 
-    //--------------------------------------------------------------
-    // Method Name: recalc
-    //
-    // Repaints the display.
-    //--------------------------------------------------------------
-    public void recalc() {
-        updateGroup();
-        updateHeader();
-
-        MemoryBank.debug("YearNoteGroup recalc - " + dtf.format(getChoice()));
-    } // end recalc
-
-
     // This is called from AppTreePanel.
     public void setDate(LocalDate theNewChoice) {
 
@@ -108,7 +95,8 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
             setOneForward();
         }
 
-        recalc();
+        updateGroup();
+        updateHeader();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {

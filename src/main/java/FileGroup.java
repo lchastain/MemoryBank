@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public abstract class FileGroup {
-    GroupProperties myProperties;
     static String basePath;
 
     // Status report codes for Load / Save
@@ -39,10 +38,6 @@ public abstract class FileGroup {
         super();
     }
 
-    FileGroup(String groupName, GroupProperties.GroupType groupType) {
-        makeProperties(groupName, groupType);
-    }
-
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there
         // in the first place.  So - we verify that the file is really there and only if it is
@@ -65,7 +60,7 @@ public abstract class FileGroup {
         String prefix = "";
         switch (areaName) {
             case "Goals":
-                prefix = "goal_";
+                prefix = GoalGroup.filePrefix;
                 break;
             case "UpcomingEvents":
                 prefix = EventNoteGroup.filePrefix;
@@ -83,12 +78,6 @@ public abstract class FileGroup {
     public String getGroupFilename() {
         return groupFilename;
     }// end getGroupFilename
-
-    // Previously we used the getName/setName that is built into a JComponent.  Now that JComponent
-    // is no longer in the direct hierarchy of a FileGroup, we need to provide our own versions.
-    String getName() {
-        return myProperties.getName();
-    }
 
     // ---------------------------------------------------------------------------------
     // Method Name: loadFileData
@@ -112,11 +101,6 @@ public abstract class FileGroup {
             ex.printStackTrace();
         }// end try/catch
         return theGroup;
-    }
-
-    // Child classes that have more properties than what is in the base - can override this method.
-    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
-        myProperties = new GroupProperties(groupName, groupType);
     }
 
     // Called by the shutdown hook to prompt implementations to save their data before they go away.

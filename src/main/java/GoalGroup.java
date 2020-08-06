@@ -28,7 +28,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
     private MilestoneComponent milestoneComponent;
 
     // This is saved/loaded
-    GoalGroupProperties myProperties; // Variables - flags and settings
+//    GoalGroupProperties myProperties; // Variables - flags and settings
 
     static {
         areaName = "Goals"; // Directory name under user data.
@@ -45,12 +45,13 @@ public class GoalGroup extends NoteGroup implements DateSelection {
     } // end static
 
     public GoalGroup(String groupName) {
-        super(groupName, GroupProperties.GroupType.GOALS, 10);
+        super(10);
 
         log.debug("Constructing: " + groupName);
 
         addNoteAllowed = !MemoryBank.readOnly; // Allows construction for selection-only dialogs
 
+        myProperties = new GoalGroupProperties(groupName);
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
         tmc = new ThreeMonthColumn();
@@ -81,7 +82,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
         JLabel goalNameLabel = new JLabel(myProperties.getName());
-        String longTitle = myProperties.longTitle;
+        String longTitle = ((GoalGroupProperties) myProperties).longTitle;
         if (null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
         goalNameLabel.setHorizontalAlignment(JLabel.CENTER);
         goalNameLabel.setBackground(Color.blue);
@@ -93,7 +94,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         // The Second Header Row -  Goal Plan
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
-        String thePlanString = myProperties.goalPlan;
+        String thePlanString = ((GoalGroupProperties) myProperties).goalPlan;
         if (thePlanString == null) thePlanString = defaultPlanText;
         headingRow2.add(makePlanTextArea(thePlanString), BorderLayout.CENTER);
 
@@ -168,19 +169,6 @@ public class GoalGroup extends NoteGroup implements DateSelection {
     } // end getNoteComponent
 
 
-    //--------------------------------------------------------------
-    // Method Name: getProperties
-    //
-    //  Called by saveGroup.
-    //  Returns an actual object, vs the overridden method
-    //    in the base class that returns a null.
-    //--------------------------------------------------------------
-    @Override
-    protected Object getProperties() {
-        return myProperties;
-    } // end getProperties
-
-
     ThreeMonthColumn getThreeMonthColumn() {
         return tmc;
     }
@@ -247,11 +235,6 @@ public class GoalGroup extends NoteGroup implements DateSelection {
             }
         });
         return goalPlanTextArea;
-    }
-
-    @Override
-    void makeProperties(String groupName, GroupProperties.GroupType groupType) {
-        myProperties = new GoalGroupProperties(groupName);
     }
 
     //--------------------------------------------------------------

@@ -21,7 +21,7 @@
 public class GoalGroupProperties extends GroupProperties {
     // From BaseData this class gets its ID and Last Mod Date.
     String longTitle;  // A single line of text, descriptive of the goal
-    String goalPlan;   // The plan statement at the high level, not including Todo item-like steps.
+    String goalPlan;   // Textual description of what needs to happen
 
     // currentGoalStatus - the immediate status; what is happening on this goal right now.
     //    disabled, until a Plan is entered.
@@ -77,11 +77,7 @@ public class GoalGroupProperties extends GroupProperties {
 
     public GoalGroupProperties(String groupName) {
         super(groupName, GroupProperties.GroupType.GOALS);
-//        goalStatus = 0;
-
-
     }
-
 
 
 }

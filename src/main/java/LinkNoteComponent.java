@@ -16,27 +16,33 @@ import java.awt.event.MouseEvent;
 public class LinkNoteComponent extends NoteComponent {
     static final long serialVersionUID = 1L;
     NoteComponentManager myManager;
-    private LinkTargetData myLinkTargetData;
+    private LinkedEntityData myLinkedEntityData;
     JComboBox<String> linkTypeDropdown;
     JCheckBox deleteCheckBox;
     JLabel linkTitleLabel;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    LinkNoteComponent(NoteComponentManager noteComponentManager, LinkTargetData linkTargetData, int i) {
+    LinkNoteComponent(NoteComponentManager noteComponentManager, LinkedEntityData linkedEntityData, int i) {
         super(noteComponentManager, i);
         myManager = noteComponentManager;
-        myLinkTargetData = linkTargetData;
+        myLinkedEntityData = linkedEntityData;
 
         removeAll();   // We will redo the base layout.
         setLayout(new BorderLayout());
 
-        setNoteData(myLinkTargetData.getTargetNoteData()); // The part of the link that needs to be shown.
+        // Make a good NoteData that we can show, from the link sent in to the constructor.
+        NoteInfo noteInfo = myLinkedEntityData.getTargetNoteInfo();
+        if(noteInfo == null) {
+            noteInfo = new NoteInfo();
+            noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getName();
+        }
+        myNoteData = new NoteData(noteInfo);
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                myLinkTargetData.deleteMe = !myLinkTargetData.deleteMe; // toggle
-                deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
+                myLinkedEntityData.deleteMe = !myLinkedEntityData.deleteMe; // toggle
+                deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
             }
         };
 
@@ -49,71 +55,65 @@ public class LinkNoteComponent extends NoteComponent {
         //-------------------------------------------------------------------------------------
         // The link type dropdown
         linkTypeDropdown = new JComboBox<>();
-        linkTypeDropdown.setModel(new DefaultComboBoxModel(LinkTargetData.LinkType.values()));
-        linkTypeDropdown.setSelectedItem(linkTargetData.linkType);
+        linkTypeDropdown.setModel(new DefaultComboBoxModel(LinkedEntityData.LinkType.values()));
+        linkTypeDropdown.setSelectedItem(linkedEntityData.linkType);
         linkTypeDropdown.setFocusable(false);
         westPanel.add(linkTypeDropdown);
 
         // The 'delete me' checkbox
         deleteCheckBox = new JCheckBox();
         deleteCheckBox.setFocusable(false);
-        deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
+        deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
         deleteCheckBox.addMouseListener(mouseAdapter);
         westPanel.add(deleteCheckBox);
 
-        // The linkTitleLabel (Group Type - Group Name)
-        GroupProperties groupProperties = linkTargetData.getTargetGroupProperties();
-
-        myLinkTargetData.linkTitle = groupProperties.groupType.toString() + ": " + groupProperties.getName();
-        linkTitleLabel = new JLabel(myLinkTargetData.linkTitle) {
+        // The linkTitleLabel
+        linkTitleLabel = new JLabel() {
             static final long serialVersionUID = 1L;
+
             @Override
             public Dimension getPreferredSize() {
                 // This helps to standardize the apparent lengths of the text in the West panel.
                 return new Dimension(180, super.getPreferredSize().height);
             }
         };
+        // Looked for better places to make this call -
+        // but this component is the only one who needs the linkTitle, so why not here?
+        // It's a transient, so doing it at linkedEntityData construction is a no-go because
+        //   that one is also loaded from file, so it wouldn't get populated at that time,
+        //   and the other members needed during the method would not yet be present.
+        if(myLinkedEntityData.linkTitle == null) myLinkedEntityData.makeLinkTitle();
+
+        linkTitleLabel.setText(myLinkedEntityData.linkTitle);
         linkTitleLabel.addMouseListener(mouseAdapter);
         westPanel.add(linkTitleLabel);
         add(westPanel, BorderLayout.WEST);
 
         //-------------------------------------------------------------------------------------
-        NoteData targetNoteData = linkTargetData.getTargetNoteData();
         noteTextField.getDocument().removeDocumentListener(noteTextField);
-        noteTextField.setText(targetNoteData.noteString);
+        noteTextField.setText(myNoteData.noteString);
         noteTextField.setEditable(false);
         centerPanel.add(noteTextField, "Stretch");
         add(centerPanel, BorderLayout.CENTER);
     }// end constructor
 
-    //-----------------------------------------------------------------
-    // Method Name: clear
-    //
     // Clears both the Graphical elements and the underlying data.
-    //-----------------------------------------------------------------
     @Override
     protected void clear() {
         // We need to clear out our own members and components before clearing the base component.
-        myLinkTargetData.deleteMe = false;
-        deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
-        myLinkTargetData.linkTitle = "";
-        linkTitleLabel.setText(myLinkTargetData.linkTitle);
+        myLinkedEntityData.deleteMe = false;
+        deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
+        linkTitleLabel.setText("");
+        myNoteData.clear();
 
         super.clear(); // This also sets the component 'initialized' to false.
     } // end clear
 
 
-    public LinkTargetData getLinkTarget() {
-        myLinkTargetData.linkType = (LinkTargetData.LinkType) linkTypeDropdown.getSelectedItem();
-        myLinkTargetData.deleteMe = deleteCheckBox.isSelected();
-        return myLinkTargetData;
-    }
-
-
-    @Override
-    public NoteData getNoteData() {
-        myLinkTargetData.getTargetNoteData().myNoteGroup = myNoteGroup;
-        return myLinkTargetData.getTargetNoteData();
+    public LinkedEntityData getLinkTarget() {
+        myLinkedEntityData.linkType = (LinkedEntityData.LinkType) linkTypeDropdown.getSelectedItem();
+        myLinkedEntityData.deleteMe = deleteCheckBox.isSelected();
+        return myLinkedEntityData;
     }
 
     //----------------------------------------------------------
@@ -124,17 +124,18 @@ public class LinkNoteComponent extends NoteComponent {
     //----------------------------------------------------------
     @Override
     protected void resetComponent() {
-        linkTypeDropdown.setSelectedItem(myLinkTargetData.linkType);
-        deleteCheckBox.setSelected(myLinkTargetData.deleteMe);
-        linkTitleLabel.setText(myLinkTargetData.linkTitle);
+        linkTypeDropdown.setSelectedItem(myLinkedEntityData.linkType);
+        deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
+        linkTitleLabel.setText(myLinkedEntityData.linkTitle);
+//        linkTitleLabel.setText(makeTitleString());
 
         super.resetComponent(); // the note text
         noteTextField.getDocument().removeDocumentListener(noteTextField);
     } // end resetComponent
 
 
-    void setLinkTarget(LinkTargetData newLinkData) {
-        myLinkTargetData = newLinkData;
+    void setLinkTarget(LinkedEntityData newLinkData) {
+        myLinkedEntityData = newLinkData;
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
@@ -142,23 +143,14 @@ public class LinkNoteComponent extends NoteComponent {
         setNoteChanged();
     } // end setLinkData
 
-    // The base class calls this; we redirect any 'NoteData' operations to our Target NoteData.
-    @Override
-    public void setNoteData(NoteData newNoteData) {
-        myLinkTargetData.setLinkTargetNoteData(newNoteData);
-        initialized = true;  // update visual components without updating the 'lastModDate'
-        if(newNoteData == null) return;
-        super.resetComponent();
-//        setNoteChanged();
-    }
 
     // Exchange data content between this component and the input
     // parameter, that is an instance of the same NoteComponent child-class.
     @Override
     public void swap(NoteComponent theNoteComponent) {
         // Get a reference to the two data objects
-        LinkTargetData data1 = this.getLinkTarget();
-        LinkTargetData data2 = ((LinkNoteComponent) theNoteComponent).getLinkTarget();
+        LinkedEntityData data1 = this.getLinkTarget();
+        LinkedEntityData data2 = ((LinkNoteComponent) theNoteComponent).getLinkTarget();
 
         // Note: getLinkData and setLinkData are working with references
         //   to data objects.  If you 'get' data from the NoteComponent
@@ -167,14 +159,22 @@ public class LinkNoteComponent extends NoteComponent {
         //   data object because you never had a separatate copy of it, just its reference.
 
         // So - copy the data objects.
-        if (data1 != null) data1 = new LinkTargetData(data1);
-        if (data2 != null) data2 = new LinkTargetData(data2);
+        if (data1 != null) data1 = new LinkedEntityData(data1);
+        if (data2 != null) data2 = new LinkedEntityData(data2);
+        NoteData nd1 = new NoteData(theNoteComponent.myNoteData);
+        NoteData nd2 = new NoteData(this.myNoteData);
 
         if (data1 == null) theNoteComponent.clear();
-        else ((LinkNoteComponent) theNoteComponent).setLinkTarget(data1);
+        else {
+            ((LinkNoteComponent) theNoteComponent).setLinkTarget(data1);
+            theNoteComponent.setNoteData(nd2);
+        }
 
         if (data2 == null) this.clear();
-        else this.setLinkTarget(data2);
+        else {
+            this.setLinkTarget(data2);
+            this.setNoteData(nd1);
+        }
 
         myManager.setGroupChanged(true);
     } // end swap

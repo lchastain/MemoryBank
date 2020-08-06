@@ -139,13 +139,12 @@ public abstract class IconNoteComponent extends NoteComponent {
         // will automatically change to the new appearance.
         // If it was explicitly cleared, it will be "" and will not
         // be affected by changes to the default.
-        MemoryBank.dbg("IconNoteComponent resetComponent:  ");
         if (infs == null) {
-            MemoryBank.debug("Icon string null - using default");
+           // MemoryBank.debug("IconNoteComponent resetComponent:  Icon string null - using default");
             setIcon(myContainer.getDefaultIcon());
         } else {
             if (infs.trim().equals("")) {
-                MemoryBank.debug("Icon string empty - showing blank icon");
+                MemoryBank.debug("IconNoteComponent resetComponent:  Icon string empty - showing blank icon");
                 return;
             } // end if
 

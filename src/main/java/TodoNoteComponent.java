@@ -316,7 +316,7 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     public void resetVisibility() {
-        pbThePriorityButton.setVisible(myNoteGroup.myVars.showPriority);
+        pbThePriorityButton.setVisible(((TodoGroupProperties) myNoteGroup.myProperties).showPriority);
     } // end resetVisibility
 
 

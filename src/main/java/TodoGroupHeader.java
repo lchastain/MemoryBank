@@ -38,10 +38,10 @@ public class TodoGroupHeader extends Container implements ClingSource {
         hb4 = new HeaderButton("Deadline");
 
         // Whatever was stored...
-        hb1.setText(parent.myVars.column1Label);
-        hb2.setText(parent.myVars.column2Label);
-        hb3.setText(parent.myVars.column3Label);
-        hb4.setText(parent.myVars.column4Label);
+        hb1.setText(((TodoGroupProperties) parent.myProperties).column1Label);
+        hb2.setText(((TodoGroupProperties) parent.myProperties).column2Label);
+        hb3.setText(((TodoGroupProperties) parent.myProperties).column3Label);
+        hb4.setText(((TodoGroupProperties) parent.myProperties).column4Label);
 
         add(hb1, "First");
         add(hb2, "Stretch");
@@ -49,14 +49,14 @@ public class TodoGroupHeader extends Container implements ClingSource {
         // add(hb4, "Fourth");
 
         // Re-order the columns, if necessary
-        String pos = String.valueOf(parent.myVars.columnOrder);
+        String pos = String.valueOf(((TodoGroupProperties) parent.myProperties).columnOrder);
         // System.out.println("In TodoGroupHeader, columnOrder = " + pos);
         add(hb1, pos.indexOf("1"));
         add(hb2, pos.indexOf("2"));
         add(hb3, pos.indexOf("3"));
         // add(hb4, pos.indexOf("4"));
 
-        hb1.setVisible(parent.myVars.showPriority);
+        hb1.setVisible(((TodoGroupProperties) parent.myProperties).showPriority);
     } // end constructor
 
 
@@ -72,9 +72,9 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
         if (headerLayout.Dragging) return;
 
-        int origColumnOrder = parent.myVars.columnOrder;
+        int origColumnOrder = ((TodoGroupProperties) parent.myProperties).columnOrder;
         if (getColumnOrder() != origColumnOrder) {
-            parent.myVars.columnOrder = getColumnOrder();
+            ((TodoGroupProperties) parent.myProperties).columnOrder = getColumnOrder();
             parent.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }
@@ -189,7 +189,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
 
     void resetVisibility() {
-        hb1.setVisible(parent.myVars.showPriority);
+        hb1.setVisible(((TodoGroupProperties) parent.myProperties).showPriority);
     } // end resetVisibility
 
 

@@ -38,16 +38,16 @@ public class SearchResultHeader extends Container implements ClingSource {
         hb4 = new HeaderButton("Deadline");
 
         // Whatever was stored...
-        hb1.setText(parent.myProperties.column1Label);
-        hb2.setText(parent.myProperties.column2Label);
-        hb3.setText(parent.myProperties.column3Label);
+        hb1.setText(((SearchResultGroupProperties) parent.myProperties).column1Label);
+        hb2.setText(((SearchResultGroupProperties) parent.myProperties).column2Label);
+        hb3.setText(((SearchResultGroupProperties) parent.myProperties).column3Label);
 
         add(hb1, "First");
         add(hb2, "Stretch");
         add(hb3, "Third");
 
         // Re-order, if necessary
-        String pos = String.valueOf(parent.myProperties.columnOrder);
+        String pos = String.valueOf(((SearchResultGroupProperties) parent.myProperties).columnOrder);
         // System.out.println("In SearchResultHeader, columnOrder = " + pos);
         add(hb1, pos.indexOf("1"));
         add(hb2, pos.indexOf("2"));
@@ -70,9 +70,9 @@ public class SearchResultHeader extends Container implements ClingSource {
 
         // System.out.println("SearchResultHeader.doLayout");
 
-        int origColumnOrder = parent.myProperties.columnOrder;
+        int origColumnOrder = ((SearchResultGroupProperties) parent.myProperties).columnOrder;
         if (getColumnOrder() != origColumnOrder) {
-            parent.myProperties.columnOrder = getColumnOrder();
+            ((SearchResultGroupProperties) parent.myProperties).columnOrder = getColumnOrder();
             parent.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }

@@ -2,46 +2,124 @@
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
-NEXT:
-    Problems -
 
+NEXT:
+    Need to fix 'myNoteGroup' in GroupInfo - get it set properly, possibly when making Properties.
+        This will be needed/used to persist the reverse link.
+
+    Reverse Links - refactor as an exact copy of the forward link, then attach to the original target.
+        do the NoteData reverses first; worry about reverse links for NoteGroups later; we have no way to see them, yet.
+        Saving them - having only a GroupProperties, need to be able to get that group and save it.
+                use the 'myNoteGroup' data member; it
+                    solves this issue by having the myNoteGroup.saveGroup() method (no longer private).
+                    (also saving outside of a NoteGroup: Todo or Event 'move to day' - saved by AppUtil.  Look there.
+        CalendarNoteGroups and EventNoteGroups do not save without data, which is ok
+                unless their properties now has a non-empty linkTargets (as a result of a reverse link)
+        Need a different component visualization for a reverse link - possibly a background color
+        What if the source link is deleted?
+            handle then, or later?
+        More testing after all is stable - handle all 'altered' cases - groups renamed/removed, etc.
+
+    Run full tests - fix issues, check coverage
 
 
     Issues:
+
+      The 'saveWithoutData' flag is now obsolete; every group can have properties.  But do not save/create a file if
+      there are both no notes and no linkages in the group's properties and it's not a TodoList or SearchResult.
+      Ok, this logic has too many exceptions; needs work....
+
+      Verify that a swap will pull along the linkTargets (and not leave any behind)
+
       The TMC gets shoved down, in both the Event and the Goal groups - rethink the UI.
 
-        Editing (and so Viewing) of linkages is one-way; viewing the linkages of the targets will not show the link in
-            the other direction.
+      When editing links, the source note should be highlighted.  Compare with EventNoteComponent
 
+      Fix status messages for groups with readOnly notes when they are shown via the LinkTargetSelectionPanel
 
-Type in a plan, save and retrieve it.
-Then work on linkages retention / display.
+      Need to address (code, and document in linking.txt) the Link management ops - after creation, handle note mods,
+        group name changes, copied/pasted note with links, group deletions, group show/no-show.
 
-        Goal Panel display
-            Title, Short description, the plan.  Then -
-                how to show notes that are linked to it? add some form of a link list to a Goal definition
-                and if you did that, could it also apply to other NoteGroup?
-                    and at that point, could you then have a NoteGroup as a link source?
-                        maybe, but just not necessary and there is no existing interface to define that direction of a link.
-        Fix status messages for groups with readOnly notes when they are shown via the LinkTargetSelectionPanel
+      User makes mods to link sources or targets - what happens?
+        Could just let the users delete and recreate their links that go stale
 
-Need to address (code and document) the Link management ops - after creation, handle note mods, group name changes,
-    group deletions, group show/no-show.
+      Initial implementation of the goal data is too much of a copy of TodoList - a MilestoneComponent is a TodoNoteComponent,
+        but it does work...
 
-    mods to links - may not matter; let the users delete and recreate their links that go stale.
+      When a Day Note item is selected but then the day changes, the LinkTargetSelection panel header does not drop the
+        selected note, AND - if a new day is accepted the linkagesEditorPanel shows nothing in the note area.
+
+New:
 
 
 
 =====================================================================================================
 
+8/06/2020 0810
+  All GroupProperty groups are being named correctly, including the CalendarNote types.
+  Fixed all link selection reporting as it proceeds from none-->category-->group-->note, in the
+      LinkTargetSelectionPanel, as well as the final representation in the LinkagesEditorPanel.
+  The work since the July restart sent me back to 'the drawing board' for link class makeup, creation process and
+    representation, as well as many related issues, some of which are now resolved or at least 'designed'.  I thought
+    I was going to roar ahead with Goals but after Milestones coalesced into the way to proceed, the representation
+    of links to the Goal became even more important yet I had no way to show them, so that is when the concept of
+    the reverse link came into being.  But adding a linkTargets vector to NoteGroups reintroduced the infinite
+    recursion problem and the original solution to that was already klunky enough; now that it appeared on another
+    class that had previously persisted without issue, it called for a better design and so some new intermediate
+    classes were introduced, that were more appropriately modeled to persist link data.  This 'reset' took
+    precedence over Goals and ultimately required going back to the Link panels to deal with the class changes as well
+    as some doing much-needed refactoring and usability improvements.  So this is a new stable point before going
+    ahead with the reverse links, and that makes it a good time to commit/pub - doing that now.
+  Next:  Create and persist reverse links.  Saving Groups without data can come after that, since a reverse
+      link is the only way that would happen (not really without data, just without its own notes, but it would have
+      linkTargets (reverse links) in its properties, so would need saving).
+
+8/02/2020 1854
+  Needed to make several data-loading adjustments for those classes that previously had no Properties, to allow
+    for older data.  Also added @JsonIgnore tags to two older link members, so that the older link data will not
+    cause continued problems.  However, those same members are now being used transiently, so that isn't great
+    that we have to @JsonIgnore them vs having them be private transient.
+  Changed link creation to work on a copy of the containing entity until either the OK button accepts all changes,
+    or they are thrown away by the CANCEL.  This resolves all previously noted 'cancel' issues.
+  More thoughts on the reverse links - now, will save the SAME link in both places.  See the linking.txt for the
+    full reasoning, how they will be managed and displayed.
+  Next: Clear up GroupProperties issues for CalendarNoteGroups, and group saving without data (if there are links).
+
+7/31/2020 1441
+  Need for a GroupProperties to be able to reference the group that it is in.  For this, moved the
+      placement from a FileGroup to a NoteGroup.  This had a big ripple effect and in the process, removed all child
+      notegroup declarations of properties.  Now only one, defined in the base, and those that need more property members
+      will provide a 'makeProperties' method, where usage of the getProperties() object will require a cast.
+  Reintroduced recursion with the reverse links, due to 'linkTargets'.  To resolve, made new intermediate classes
+      GroupInfo and NoteInfo, that hold all 'base' data except those vectors.  Now, links are defined with the
+      intermediate classes, and only the true data classes have the list of them; recursion eliminated but this
+      does invalidate all links currently in prod (which is no biggie since it is still a work in progress feature).
+  Reverse links now being created for Events, Todo Lists, and Goals.  Calendar types are more
+      problematic because they do not save without data and previously had no properties.  Working on that now...
+
+7/25/2020 0725 - Lots of 'design' thinking:
+    GoalGroup layout redesigned;  Title, Plan Statement, Statuses, Milestones.  And the milestones (just TodoItems,
+        at this point) are saved and retrieved.
+    With Goal data now being the new Milestone class, now need a new place to store the links to the overall Goal as
+      opposed to any one milestone.  Decided
+      to add a 'linkTargets' vector to GroupProperties, so solve this.  This list will be editable via the same
+      interface used for individual NoteComponents, but to be invoked from the main menu and since the data is on
+      the base class, this could be used for links to/from ANY group type, not only Goals.
+    Solved the problem of displaying 'reverse' links - new links will be created twice; once on the
+      source and once on the target.  Then when Editing, the list will be complete and the entity under examination
+      will be the source for all the links shown.  Implementation to follow; this was just the concept.
+
 7/21/2020 - Took a 'break' to fix some hi-pri problems:
   A pasted note can wipe out the file for that group (!!! seen in PROD on monthnotes, for Jun 2020).
-     This turned up a problem when crossing data types.  Added logic to the paste section.
+     This turned up a problem when crossing data types.  It worked, but saved data that could not be loaded due to
+     the cast that is done by the Jackson json interpreter.  Added logic to the paste section, to drop any child
+     data class attributes if the paste is being done to a different class component.
   Once a TodoItem is linked to a 'Note', the group for that note type (Day, Month, etc - loses its heading title.
-     This is because the constructor ran twice but the title label is static and was reused.  Fairly easy fix.
+     This is because the constructor ran twice but the title label is static and was reused.  This was an easy fix,
+     in three Notes group types (day/month/year).
 
 7/20/2020 0712 - Now have a complete idea of how to show / work with a Goal, and it is VERY close to a To Do List.
-  A Goal will be a collection of Milestones, just a a To Do List is a collection of To Do Items.  Link capability
+  A Goal will be a collection of Milestones, just as a To Do List is a collection of To Do Items.  Link capability
   is already built in to the base classes; just need to expand handling for Milestones.  Now working on adding
   the main note panel.
 
@@ -76,7 +154,7 @@ Need to address (code and document) the Link management ops - after creation, ha
   current form, which now has Plan instructions, capability to show a longer title (but no way to set one), and a
   couple of status dropdowns (but no setting there either).  Have now decided that the Goal will hold a list after
   all, the list of source notes that link to it.  Not yet sure if this calls for a new class, or just use the same
-  LinkTargetData but null out the linkTargets.  But I keep getting distracted by the desire to start on the Russian
+  LinkedEntityData but null out the linkTargets.  But I keep getting distracted by the desire to start on the Russian
   flashcards project; I can see that this project could just keep on going indefinitely, unless I just put it on hold
   until I get this distraction dealt with.  So - it goes on hold, today.
 
@@ -103,7 +181,7 @@ Need to address (code and document) the Link management ops - after creation, ha
 
 4/04/2020 0417 - At last note I still only had a partial solution; since then the GroupInfo class has evolved into
   GroupProperties, which is the basis for properties for all NoteGroups.  This class can be the type of a new member
-  of a LinkTargetData, and that solves the rest of the issues with establishing, saving, and loading the links.
+  of a LinkedEntityData, and that solves the rest of the issues with establishing, saving, and loading the links.
   Only working so far for Todo lists; there is a lot of work needed now to finish this part of the work, and to
   harden the result.  After Events, still need the Goal presentation, and linking to Dates.  This will continue
   for quite some time.  Meanwhile in the real world - we are in coronavirus quarantine (social distancing; we
@@ -123,7 +201,7 @@ Need to address (code and document) the Link management ops - after creation, ha
   way that all linkages are kept in AppOptions.  My original intent of putting them onto the individual notes -
   keeps popping up and getting shot down due to infinite class recursion.  But the classes keep mutating as I
   try to shoehorn in the Link concept, and now I want to try again.  Now that a LinkedNoteData has a Vector of
-  LinkTargetData and that one does NOT extend NoteData but instead encapsulates it, it may be possible. So the
+  LinkedEntityData and that one does NOT extend NoteData but instead encapsulates it, it may be possible. So the
   right answer would be to just absorb the two new data members of LinkedNoteData into NoteData.  Trying...
  0755 - yes, this can work, after testing in area51.  But there is a possible pitfall that recursion could be
   reintroduced by a chain of links, so the linkTargets list is set to null when a note is used in a new link.

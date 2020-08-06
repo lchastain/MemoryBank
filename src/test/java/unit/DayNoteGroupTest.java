@@ -68,11 +68,6 @@ class DayNoteGroupTest {
         dng.mouseReleased(me);
     }
 
-    @Test
-    void TestRecalc() {
-        // We're just doing coverage here, for now.
-        dng.recalc();
-    }
 
     @Test
     void testShifting() {

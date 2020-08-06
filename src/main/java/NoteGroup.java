@@ -16,9 +16,12 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //=============================================================
     static Notifier optionPane;
     static String ems;     // Error Message String
+
     JPanel theBasePanel;
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
+    GroupProperties myProperties;
+    TypeReference myGroupDataType;
 
     boolean addNoteAllowed;
     boolean saveWithoutData;
@@ -46,21 +49,25 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     private String defaultSubject;
     static final int PAGE_SIZE = 40;
 
-    private int intHighestNoteComponentIndex;
+    private final int intHighestNoteComponentIndex;
 
-    private JScrollPane jsp;
+    private final JScrollPane jsp;
 
     // The Information/Status panel of the frame.
-    private JLabel lblStatusMessage;
+    private final JLabel lblStatusMessage;
 
     //-------------------------------------------------------------
 
+    // A NoteGroup instance is just the encapsulation of the central container panel and
+    // the methods that work on it.  It does not have a Header / Title or any other panels.
     NoteGroup() {
-        this(null, GroupProperties.GroupType.UNKNOWN, PAGE_SIZE);
+        this(PAGE_SIZE);
     } // end constructor 1
 
-    NoteGroup(String groupName, GroupProperties.GroupType groupType, int intPageSize) {
-        super(groupName, groupType);
+    NoteGroup(int intPageSize) {
+        super();
+        myGroupDataType = new TypeReference<Vector<NoteData>>() { };
+
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
             //--------------------------------------------------------------------
@@ -314,6 +321,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         return lastVisibleNoteIndex;
     }
 
+    // The (simple) name of the group (as seen as a node in the tree (except for CalendarNoteGroup types)
+    String getName() {
+        return getGroupProperties().getName();
+    }
+
     //--------------------------------------------------------
     // Method Name: getNoteComponent
     //
@@ -326,14 +338,13 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
 
     //--------------------------------------------------------------------
-    // Method Name: getProperties
+    // Method Name: getGroupProperties
     //
-    //  Called by saveGroup - child classes may override and return
-    //    an actual Object; otherwise returns null.
+    //  Called by saveGroup
     //--------------------------------------------------------------------
-    protected Object getProperties() {
-        return null;
-    } // end getProperties
+    GroupProperties getGroupProperties() {
+        return myProperties;
+    } // end getGroupProperties
 
 
     //----------------------------------------------------------------
@@ -357,11 +368,39 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
     // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
     // Exception that needed to be caught.
-    void setGroupData(Object[] theGroup) {
+    void setGroupData(Object[] theGroup)  {
+        int theLength = theGroup.length;
+        // This method should not be called if 'theGroup' is null.  Otherwise it
+        // will be an object array but the array could still be empty, somehow.
+        if(theLength == 0) return;
+
+        // Now the length can either be 1 or 2.  If 2 then it will be a group properties and
+        // the group data vector, but this is a relatively new structure where previously there
+        // were no properties for this class, so there are several years-worth of data files
+        // already out there, where the only element is the group data, and rather than attempting
+        // to fix old data, the decision is to examine the content first, then load the correct type.
+        // As a developer I know this is not the best solution but it does work and I'm lazy, so I'm
+        // going with it for now.  One possible future 'data fix' (other than writing a DataFix program)
+        // could come when/if the app is ever ported into a database.
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<NoteData>>() {  });
+        if(theLength == 1) {
+            // There are two cases where there might only be one element in the object array:
+            // 1.  Old, legacy data that was originally saved without GroupProperties.
+            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
+            String theClass = theGroup[0].getClass().getName();
+            System.out.println("The NoteData class type is: " + theClass);
+            if(theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
+                groupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
+            } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
+                myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+            }
+        } else { // 2 (or more, but more would mean that there has been yet another structure change)
+            myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+            groupDataVector = AppUtil.mapper.convertValue(theGroup[1], myGroupDataType);
+        }
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
+
 
     // Provides a way to set the displayed data, vs loading it from a file.
     void showGroupData(Vector<NoteData> newGroupData) {
@@ -389,6 +428,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     private void loadNoteGroup() {
         groupDataVector.clear(); // Clear before loading
         lastVisibleNoteIndex = 0;
+        myProperties = null;  // yes now, but this is not the only time it's needed.
 
         // This string is set now, just prior to loading the group
         //   rather than earlier, because in some child classes the
@@ -410,13 +450,6 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
             //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
             setGroupData(theGroup);
-        } else {
-            MemoryBank.debug("No data file exists.");
-            // Setting the name to 'empty' IS needed; it is examined when
-            //   saving and if non-empty, the old file is deleted first.  Of
-            //   course, if the file already does not exist, we don't want
-            //   to let it try to do that.
-//            setGroupFilename("");
         }
 
         Exception e = null;
@@ -482,13 +515,15 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
                 // final page four.  Instead, we first give the noteComponent a new data object,
                 // then instruct it to update its appearance based on the new data and go back
                 // to being 'un' initialized.
-                MemoryBank.debug("  clearing panel index " + panelIndex);
+                //MemoryBank.debug("  clearing panel index " + panelIndex);
 
                 // These three lines are an effective 'clear' of the component, without using the
                 // reference that could point back to 'good' data that is elswhere in the vector.
                 tempNoteComponent.makeDataObject();
                 tempNoteComponent.resetComponent();
                 tempNoteComponent.initialized = false;
+
+                // And now make it invisible.
                 tempNoteComponent.setVisible(false);
             }
         } // end for
@@ -588,7 +623,9 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //--------------------------------------------------------------
     // Method Name: saveNoteGroup
     //
-    // Saving is an operation that happens often, and sometimes automatically.
+    // Saving is an operation that happens often, sometimes per user
+    //   action and sometimes automatically.
+    //   TODO - we should be able to tell the difference and act accordingly.
     //   If errors are encountered, this method can trap and print
     //   them to the screen but it will not halt execution or
     //   attempt interaction with the user.  A status variable is
@@ -596,7 +633,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //   results should check it and handle the values according to
     //   those situations.
     //--------------------------------------------------------------
-    private void saveNoteGroup() {
+    void saveNoteGroup() {
         //AppUtil.localDebug(true);
         intSaveGroupStatus = ONGOING;
         File f;
@@ -611,8 +648,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             MemoryBank.debug("NoteGroup.saveGroup: old filename = " + groupFilename);
             if (MemoryBank.archive) {
                 MemoryBank.debug("  Archiving: " + shortName());
-                // Note: need to implement archiving but for now, what happens
-                // is what does not happen - we do not delete the old version.
+                // Note: need to fully implement archiving but for now, what happens
+                // is what does not happen - we simply do not delete the old version.
             } else {
                 f = new File(groupFilename);
                 if (!deleteFile(f)) {
@@ -662,11 +699,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
         // The logic below will allow for a file with properties but no
         // notes.  This might be a todo list with no items yet, or a
-        // search that found no notes, both of which are allowed.
+        // search that found no notes, etc.
         int notesWritten = 0;
         Object[] theGroup;  // A new 'wrapper' for the Properties + List
         Vector<NoteData> trimmedList = getCondensedInfo();
-        Object groupProperties = getProperties();
+        Object groupProperties = getGroupProperties();
         if (groupProperties != null) {
             theGroup = new Object[2];
             theGroup[0] = groupProperties;

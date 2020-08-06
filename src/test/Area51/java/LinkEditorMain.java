@@ -35,21 +35,21 @@ public class LinkEditorMain {
         // it, that avoids that complaint.
         if (new AtomicBoolean(createFakeData).get()) {
             for (int i = 0; i < 6; i++) {
-                LinkTargetData linkTargetData = new LinkTargetData();
-                linkTargetData.linkType = LinkTargetData.LinkType.getRandomType();  // one of the valid choices
                 GroupProperties groupProperties = new GroupProperties("Group " + i, GroupProperties.GroupType.getRandomType());
-                linkTargetData.setLinkTargetGroupProperties(groupProperties);
+                LinkedEntityData linkedEntityData = new LinkedEntityData(groupProperties);
+                linkedEntityData.linkType = LinkedEntityData.LinkType.getRandomType();  // one of the valid choices
+                linkedEntityData.setLinkTargetGroupInfo(groupProperties);
 
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);
                 targetNoteData.setExtendedNoteString("Extended note.  And more, later."); // Don't care right now about a Subject
-                linkTargetData.setLinkTargetNoteData(targetNoteData);
-                sourceNoteData.linkTargets.add(linkTargetData);
+                linkedEntityData.setLinkTargetNoteInfo(targetNoteData);
+                sourceNoteData.linkTargets.add(linkedEntityData);
             }
         }
 
         //---------------------------------------------------------------------------------------------------
-        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(sourceNoteData);
+        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(new GroupProperties(), sourceNoteData);
 
 //        int choice = new TestUtil().showConfirmDialog(
         int choice = JOptionPane.showConfirmDialog(
@@ -68,9 +68,6 @@ public class LinkEditorMain {
         } else {
             System.out.println("Linkages editing was cancelled.");
         }
-
-        // NO - show the result - collect it and give a json printout.  or a cancel message.
-
 
 // Enable the code below IF you want to have it in a resizable dialog, vs a static JOptionPane -
 // (but you also would need additional/different imports, and you get no ok/cancel buttons).

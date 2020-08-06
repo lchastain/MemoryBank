@@ -13,13 +13,12 @@ import java.time.format.DateTimeFormatter;
 public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private JLabel monthTitle;
+    private final JLabel monthTitle;
 
     static {
         MemoryBank.trace();
     } // end static
 
-    //=============================================================
 
     MonthNoteGroup() {
         super("Month Note");
@@ -56,18 +55,6 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
         updateHeader();
     } // end constructor
 
-
-    //--------------------------------------------------------------
-    // Method Name: recalc
-    //
-    // Repaints the display.
-    //--------------------------------------------------------------
-    public void recalc() {
-        updateGroup();
-        updateHeader();
-
-        MemoryBank.debug("MonthNoteGroup recalc - " + dtf.format(getChoice()));
-    } // end recalc
 
 
     // This is called from AppTreePanel.
@@ -109,7 +96,8 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
             setOneForward();
         }
 
-        recalc();
+        updateGroup();
+        updateHeader();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {

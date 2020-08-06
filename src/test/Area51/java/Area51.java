@@ -43,7 +43,7 @@ public class Area51 {
         // Make a new GoalGroup
         String groupName = "WorldPlan1";
         GoalGroup goalGroup = new GoalGroup(groupName);
-        goalGroup.myProperties.longTitle = "Take Over The World";
+        ((GoalGroupProperties) goalGroup.myProperties).longTitle = "Take Over The World";
         System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
 
         // Make a todo list item and a link to the Goal.
@@ -94,7 +94,7 @@ public class Area51 {
         // Make a new GoalGroup
         String groupName = "WorldPlan1";
         GoalGroup goalGroup = new GoalGroup(groupName);
-        goalGroup.myProperties.longTitle = "Take Over The World";
+        ((GoalGroupProperties) goalGroup.myProperties).longTitle = "Take Over The World";
         System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
 
         // Make a todo list item and a link to the Goal.

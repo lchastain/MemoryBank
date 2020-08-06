@@ -17,7 +17,7 @@ public class SearchResultGroup extends NoteGroup {
     static String filePrefix;
 
     // This is saved/loaded
-    public SearchResultGroupProperties myProperties; // Variables - flags and settings
+//    public SearchResultGroupProperties myProperties; // Variables - flags and settings
 
     static {
         areaName = "SearchResults";  // Directory name under user data.
@@ -27,7 +27,7 @@ public class SearchResultGroup extends NoteGroup {
 
     // groupName is a simple single word text as seen in the app tree.
     SearchResultGroup(String groupName) {
-        super(groupName, GroupProperties.GroupType.SEARCH_RESULTS, NoteGroup.PAGE_SIZE);
+        super();
         // super(10);  // test, for paging
 
         log.debug("Constructing: " + groupName);
@@ -92,7 +92,7 @@ public class SearchResultGroup extends NoteGroup {
         searchSummary.setHorizontalAlignment(JLabel.CENTER);
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
-        searchSummary.setText(SearchPanel.getSummary(myProperties.searchPanelSettings));
+        searchSummary.setText(SearchPanel.getSummary(((SearchResultGroupProperties) myProperties).searchPanelSettings));
         headingRow2.add(searchSummary, "Center");
         //----------------------------------------------------------
 
@@ -118,7 +118,7 @@ public class SearchResultGroup extends NoteGroup {
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
             tempNote = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-            tempNote.resetColumnOrder(myProperties.columnOrder);
+            tempNote.resetColumnOrder(((SearchResultGroupProperties) myProperties).columnOrder);
         } // end for
     } // end checkColumnOrder
 
@@ -132,19 +132,6 @@ public class SearchResultGroup extends NoteGroup {
     public SearchResultComponent getNoteComponent(int i) {
         return (SearchResultComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
-
-
-    //--------------------------------------------------------------
-    // Method Name: getProperties
-    //
-    //  Called by saveGroup.
-    //  Returns an actual object, vs the overridden method
-    //    in the base class that returns a null.
-    //--------------------------------------------------------------
-    @Override
-    protected Object getProperties() {
-        return myProperties;
-    } // end getProperties
 
 
     //------------------------------------------------------------------
@@ -286,10 +273,10 @@ public class SearchResultGroup extends NoteGroup {
     //--------------------------------------------------------------
     private void saveProperties() {
         // Update the header text of the columns.
-        myProperties.column1Label = listHeader.getColumnHeader(1);
-        myProperties.column2Label = listHeader.getColumnHeader(2);
-        myProperties.column3Label = listHeader.getColumnHeader(3);
-        myProperties.columnOrder = listHeader.getColumnOrder();
+        ((SearchResultGroupProperties) myProperties).column1Label = listHeader.getColumnHeader(1);
+        ((SearchResultGroupProperties) myProperties).column2Label = listHeader.getColumnHeader(2);
+        ((SearchResultGroupProperties) myProperties).column3Label = listHeader.getColumnHeader(3);
+        ((SearchResultGroupProperties) myProperties).columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
 
 

@@ -567,7 +567,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         deleteWarning += "This deletion may be undone (via the menu option) but only while still on this Editor.";
         doDelete = optionPane.showConfirmDialog(theTree, deleteWarning,
                 "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-        if(!doDelete) return;
+        if (!doDelete) return;
 
         // Preserve the reference to the group to be deleted.
         deletedNoteGroup = theNoteGroup;
@@ -616,7 +616,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
                 string1); //the title of the default button
 
         if (choice != JOptionPane.OK_OPTION) {
-            if(!spTheSearchPanel.doSearch) {
+            if (!spTheSearchPanel.doSearch) {
                 searching = false;
                 return;
             }
@@ -708,7 +708,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = FileGroup.loadFileData(theFilename);
             BaseData.loading = true; // We don't want to affect the lastModDates!
-            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {  });
+            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
+            });
             BaseData.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
@@ -758,8 +759,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             deletedNoteGroup = null;
             appMenuBar.showRestoreOption(false);
             treeSelectionChanged(theTree.getSelectionPath()); // Reload the branch editor, to show the 'new' file.
-        }
-        else if (what.equals("Icon Manager...")) {
+        } else if (what.equals("Icon Manager...")) {
             theTree.clearSelection();
             JPanel jp = new JPanel(new GridBagLayout());
             jp.add(new JLabel(what));
@@ -767,21 +767,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             rightPane.setViewportView(jp);
         } else if (what.equals("Today")) showToday();
         else if (what.equals("Undo All")) {
-            String s = appOpts.theSelection;
-            switch (s) {
-                case "Day Notes":
-                    theAppDays.recalc();
-                    break;
-                case "Month Notes":
-                    theAppMonths.recalc();
-                    break;
-                case "Year Notes":
-                    theAppYears.recalc();
-                    break;
-                default:
-                    theNoteGroup.updateGroup(); // reload without save
-                    break;
-            }
+            theNoteGroup.updateGroup(); // reload without save
         } else {
             AppUtil.localDebug(true);
             MemoryBank.debug("  " + what);
@@ -1047,10 +1033,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
             // During a search these notes would not be re-preserved anyway, but the reason we care is that
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
-            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
+            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() {
+            });
             BaseData.loading = false; // Restore normal lastModDate updating.
         }
-        if(searchDataVector == null) return;
+        if (searchDataVector == null) return;
 
         // Now get on with the search -
         for (AllNoteData vectorItem : searchDataVector) {
@@ -1150,7 +1137,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         JDialog dialogWindow;
 
         EventNoteGroup theBigPicture = getConsolidatedView();
-        if(theBigPicture == null) return;
+        if (theBigPicture == null) return;
 
         // Make a dialog window.
         // A dialog is preferred to the JOptionPane.showMessageDialog, because it is easier to control
@@ -1429,7 +1416,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         theNoteGroup = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (isGoalsBranch) {  // Edit the Upcoming Events parent branch
+        if (isGoalsBranch) {  // Edit the Goals parent branch
             BranchHelper tbh = new BranchHelper(theTree, theGoalListKeeper, GoalGroup.areaName);
             TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
             selectionContext = "Goals Branch Editor";
