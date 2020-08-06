@@ -234,7 +234,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 //            // There are two cases where there might only be one element in the object array:
 //            // 1.  Old, legacy data that was originally saved without GroupProperties.
 //            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
-//            String theClass = theGroup[0].getClass().getName();
+//            String theClass = theGroup[0].getClass().getSimpleName();
 //            System.out.println("The DayNoteData class type is: " + theClass);
 //            if(theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
 //                groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });

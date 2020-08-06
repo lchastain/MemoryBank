@@ -27,7 +27,7 @@ public class PlafSelectionPanel extends JPanel implements ActionListener {
 
         for (UIManager.LookAndFeelInfo lafi : lafiArray) {
             //System.out.print(lafi.getClassName() + "\t");
-            //System.out.println(lafi.getName());
+            //System.out.println(lafi.getSimpleName());
             String theName = lafi.getName();
             String theClassName = lafi.getClassName();
             hm.put(theName, theClassName);

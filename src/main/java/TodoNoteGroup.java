@@ -13,7 +13,7 @@ import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
 public class TodoNoteGroup extends NoteGroup implements DateSelection {
-    private static Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
+    private static final Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
     private static final int PAGE_SIZE = 20;
 
     // Values used in sorting.
@@ -23,7 +23,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static final int INORDER = 123;
 
     TodoGroupHeader listHeader;
-    private ThreeMonthColumn tmc;  // For Date selection
+    private final ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 
     static String areaName;
@@ -84,6 +84,12 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         theBasePanel.add(pnl1, BorderLayout.EAST);
 
         updateGroup(); // This is where the file gets loaded (if it exists)
+
+        // These lines needed to be added for when the list is new -
+        if(myProperties == null) {
+            myProperties = new TodoGroupProperties();
+            myProperties.setSimpleName(groupName);
+        }
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);

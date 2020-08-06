@@ -81,7 +81,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         // The First Header Row -   Title
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
-        JLabel goalNameLabel = new JLabel(myProperties.getName());
+        JLabel goalNameLabel = new JLabel(myProperties.getSimpleName());
         String longTitle = ((GoalGroupProperties) myProperties).longTitle;
         if (null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
         goalNameLabel.setHorizontalAlignment(JLabel.CENTER);

@@ -16,6 +16,16 @@ public class SearchResultGroupProperties extends GroupProperties {
 
     public int columnOrder;
 
+    public SearchResultGroupProperties(String groupName) {
+        super(groupName, GroupType.TODO_LIST);
+        searchDateString = LocalDate.now().toString();
+        column1Label = "Found in";
+        column2Label = "Note Text";
+        column3Label = "Last Modified";
+        column4Label = "";  // placeholder
+        columnOrder = 123;  // 1234
+    }
+
     public SearchResultGroupProperties() {
         searchDateString = LocalDate.now().toString();
         column1Label = "Found in";

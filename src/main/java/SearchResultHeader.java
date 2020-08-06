@@ -16,7 +16,7 @@ import java.util.Vector;
 public class SearchResultHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
 
-    private SearchResultGroup parent;
+    private final SearchResultGroup parent;
     HeaderButton hb1;  // Found In
     HeaderButton hb2;  // Note Text
     HeaderButton hb3;  // Last Mod

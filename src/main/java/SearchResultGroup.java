@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.Vector;
 
 public class SearchResultGroup extends NoteGroup {
-    private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
+    private static final Logger log = LoggerFactory.getLogger(SearchResultGroup.class);
     private JLabel resultsPageOf;
     SearchResultHeader listHeader;
 
@@ -32,21 +32,23 @@ public class SearchResultGroup extends NoteGroup {
 
         log.debug("Constructing: " + groupName);
 
+        myProperties = new SearchResultGroupProperties(groupName);
         addNoteAllowed = false;
-
         setGroupFilename(areaPath + filePrefix + getName() + ".json");
 
-        myProperties = new SearchResultGroupProperties();
-
         updateGroup(); // This is where the file gets loaded (in the parent class)
-        checkColumnOrder();
+        // Older data files have no group name; the one we constructed the Properties from -
+        //   gets overwritten with whatever came out of the file, including "".
+        myProperties.setSimpleName(groupName);
+//        checkColumnOrder();
+
+        listHeader = new SearchResultHeader(this);
+        setGroupHeader(listHeader);
         buildPanelContent();
     } // end constructor
 
     void buildPanelContent() {
         // Header for the group of SearchResultComponents
-        listHeader = new SearchResultHeader(this);
-        setGroupHeader(listHeader);
 
         // Now the 2-row Header for the SearchResultGroup -
         //-----------------------------------------------------
@@ -259,18 +261,6 @@ public class SearchResultGroup extends NoteGroup {
 //    } // end printList
 
 
-    @Override
-    void setGroupData(Object[] theGroup) {
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
-        BaseData.loading = false; // Restore normal lastModDate updating.
-    }
-
-    //--------------------------------------------------------------
-    // Method Name: saveProperties
-    //
-    //--------------------------------------------------------------
     private void saveProperties() {
         // Update the header text of the columns.
         ((SearchResultGroupProperties) myProperties).column1Label = listHeader.getColumnHeader(1);
@@ -278,6 +268,15 @@ public class SearchResultGroup extends NoteGroup {
         ((SearchResultGroupProperties) myProperties).column3Label = listHeader.getColumnHeader(3);
         ((SearchResultGroupProperties) myProperties).columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
+
+
+    @Override
+    void setGroupData(Object[] theGroup) {
+        BaseData.loading = true; // We don't want to affect the lastModDates!
+        myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
+        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
+        BaseData.loading = false; // Restore normal lastModDate updating.
+    }
 
 
     public void shiftDown(int index) {

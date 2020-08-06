@@ -128,7 +128,7 @@ public class LinkedEntityData extends BaseData {
 
         String category = targetGroupInfo.getCategory();  // Note, Goal, Event, or To Do List
         String groupType = targetGroupInfo.groupType.toString(); // Same as above except for Notes, which are more specific
-        String groupName = targetGroupInfo.getName(); // User-provided at group creation, except for Notes, which are date-based.
+        String groupName = targetGroupInfo.getSimpleName(); // User-provided at group creation, except for Notes, which are date-based.
 
         if(targetNoteInfo == null) {
             theTitleString = category;

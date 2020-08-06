@@ -37,7 +37,7 @@ public class GroupInfo extends BaseData {
     }
 
     GroupType groupType;     // Says what kind of group this is.  Values defined above.
-    private final String simpleName; // The short (pretty) name of the group, as shown in the Tree.
+    private String simpleName; // The short (pretty) name of the group, as shown in the Tree.
 
     public GroupInfo() {
         this("No Name Yet", GroupType.UNKNOWN);
@@ -78,6 +78,7 @@ public class GroupInfo extends BaseData {
         return myNoteGroup;
     }
 
-    String getName() { return simpleName; }
+    String getSimpleName() { return simpleName; }
+    void setSimpleName(String theName) { simpleName = theName; }
 
 }

@@ -34,7 +34,7 @@ public class LinkNoteComponent extends NoteComponent {
         NoteInfo noteInfo = myLinkedEntityData.getTargetNoteInfo();
         if(noteInfo == null) {
             noteInfo = new NoteInfo();
-            noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getName();
+            noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getSimpleName();
         }
         myNoteData = new NoteData(noteInfo);
 

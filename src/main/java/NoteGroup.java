@@ -323,7 +323,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
     // The (simple) name of the group (as seen as a node in the tree (except for CalendarNoteGroup types)
     String getName() {
-        return getGroupProperties().getName();
+        return getGroupProperties().getSimpleName();
     }
 
     //--------------------------------------------------------
