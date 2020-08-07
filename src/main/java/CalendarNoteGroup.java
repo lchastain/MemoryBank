@@ -18,7 +18,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     LocalDate theChoice;  // Holds the 'current' date of the displayed Group.
     DateTimeFormatter dtf;
 
-    private AppTreePanel appTreePanel = null;
+    private AlteredDateListener alteredDateListener = null;
     private ChronoUnit dateType;
 
     static {
@@ -123,57 +123,21 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     public void setOneBack() {
         preClose();
         myProperties = null; // There may be no file to load, so this is needed here.
-        switch(dateType) {
-            case DAYS:
-                theChoice = theChoice.minusDays(1);
-                if(appTreePanel != null) {
-                    appTreePanel.setSelectedDate(theChoice);
-                }
-                break;
-            case MONTHS:
-                theChoice = theChoice.minusMonths(1);
-                if(appTreePanel != null) {
-                    appTreePanel.setViewedDate(theChoice, dateType);
-                }
-                break;
-            case YEARS:
-                theChoice = theChoice.minusYears(1);
-                if(appTreePanel != null) {
-                    appTreePanel.setViewedDate(theChoice, dateType);
-                }
-                break;
-        }
+        theChoice = theChoice.minus(1, dateType);
+        if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
     } // end setOneBack
 
 
     public void setOneForward() {
         preClose();
         myProperties = null; // There may be no file to load, so this is needed here.
-        switch(dateType) {
-            case DAYS:
-                theChoice = theChoice.plusDays(1);
-                if(appTreePanel != null) {
-                    appTreePanel.setSelectedDate(theChoice);
-                }
-                break;
-            case MONTHS:
-                theChoice = theChoice.plusMonths(1);
-                if(appTreePanel != null) {
-                    appTreePanel.setViewedDate(theChoice, dateType);
-                }
-                break;
-            case YEARS:
-                theChoice = theChoice.plusYears(1);
-                if(appTreePanel != null) {
-                    appTreePanel.setViewedDate(theChoice, dateType);
-                }
-                break;
-        }
+        theChoice = theChoice.plus(1, dateType);
+        if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
     } // end setOneForward
 
 
-    void setParent(AppTreePanel atp) {
-        appTreePanel = atp;
+    void setAlteredDateListener(AlteredDateListener adl) {
+        alteredDateListener = adl;
     }
 
 } // end class CalendarNoteGroup

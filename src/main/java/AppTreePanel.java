@@ -34,7 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 
 
-public class AppTreePanel extends JPanel implements TreeSelectionListener {
+public class AppTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
     static AppMenuBar appMenuBar;
@@ -538,6 +538,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // But do show the link that all children have to it.
         theTree.setShowsRootHandles(true);
     } // end createTree
+
+    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+        viewedDate = theNewDate;
+        viewedDateGranularity = theGranularity;
+    }
+
+    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+        viewedDate = theNewDate;
+        viewedDateGranularity = theGranularity;
+    }
+
 
     //----------------------------------------------------------------
     // Method Name:  deepClone
@@ -1675,7 +1688,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theNodeString.equals("Day Notes")) {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroup();
-                theAppDays.setParent(this);
+                theAppDays.setAlteredDateListener(this);
                 theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             }
             theNoteGroup = theAppDays;
@@ -1690,7 +1703,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
 
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroup(); // Takes current date as default initial 'choice'.
-                theAppMonths.setParent(this);
+                theAppMonths.setAlteredDateListener(this);
                 theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             }
             theNoteGroup = theAppMonths;
@@ -1699,7 +1712,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroup();
-                theAppYears.setParent(this);
+                theAppYears.setAlteredDateListener(this);
                 theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             }
             theNoteGroup = theAppYears;
@@ -1826,6 +1839,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener {
         // and would not run if the current selection was simply being rehandled.  So - this
         // is the best place to accept that an offer to undo a deletion has been abandoned.
         appMenuBar.showRestoreOption(false);
+        appMenuBar.requestFocus(); // Do not start out with a note already selected.
 
         final TreePath newPath = e.getNewLeadSelectionPath();
         if (restoringPreviousSelection) {

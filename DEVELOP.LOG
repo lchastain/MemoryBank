@@ -20,8 +20,6 @@ NEXT:
             handle then, or later?
         More testing after all is stable - handle all 'altered' cases - groups renamed/removed, etc.
 
-    Run full tests - fix issues, check coverage
-
 
     Issues:
 
@@ -46,14 +44,43 @@ NEXT:
       Initial implementation of the goal data is too much of a copy of TodoList - a MilestoneComponent is a TodoNoteComponent,
         but it does work...
 
-      When a Day Note item is selected but then the day changes, the LinkTargetSelection panel header does not drop the
-        selected note, AND - if a new day is accepted the linkagesEditorPanel shows nothing in the note area.
+      When a user wants to link to a Day Note that is too far away (months, years) -
+        Could give a different alter button behavior, or larger scale buttons, OR
+        Track the Viewed date and let Year and Month changes control the Day.
+
 
 New:
 
 
 
+
+
+
+
 =====================================================================================================
+8/07/2020 1704
+    Ran full tests - fixed issues, checked coverage  (90% classes, 69% lines)
+    Fixed: When a Day Note item is selected but then the day changes, the LinkTargetSelection panel header does not
+        drop the selected note, AND - if a new day is accepted the linkagesEditorPanel shows nothing in the note area.
+        For this, added a new Interface (AlteredDateListener) and made it listen for the AlterButtons.  Changed the
+        current handling in AppTreePanel to use this interface, making the CalendarNoteGroup more generic.  AppTree
+        Panel still reacts by setting viewed and selected dates as desired, but now LinkTargetSelectionPanel also
+        implements the interface and will deselect any currently selected note, allowing the user to choose a new
+        one, or not.
+    Fixed a long-standing problem that selection does not go away when a group changes on the AppTreePanel.  Now,
+        focus is transferred to the menubar when a new choice is made.
+    Problem:  The selection highlight does not go away when a CalendarNoteGroup changes due to an AlterButton click.
+        Only goes away if that led to a non-existent group/file.  Highlight can stay on the same line, unless
+        there are fewer lines, in which case it moves to the first note.  This is a problem for both
+        the AppTreePanel and the LinkTargetSelectionPanel.  If you then want to actually select  the highlighted
+        line, you need to select some other one first, then you can get to the one that appeared to be active.
+        Fixed this in the three CalendarNoteGroups, by having the mouseClick pull focus to the source component.
+        In this case, the clickable LabelButtons do not have an 'active' outline because they are Labels, not Buttons,
+        and they are defaulted to not focusable but that apparently does not stop them from being able to ask for it,
+        and getting it when they do, or at least getting it away from the NoteComponents.
+    Fixed - Color and tooltip of a link target note with extended note, in the LinkagesEditorPanel.  Extended note
+        was there but not being visualized properly.  Now there is a new call to resetComponent as soon as the
+        LinkNoteComponent is instantiated, to resolve.
 
 8/06/2020 0810
   All GroupProperty groups are being named correctly, including the CalendarNote types.

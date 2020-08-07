@@ -84,6 +84,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     //---------------------------------------------------------
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
+        source.requestFocus(); // Remove selection highlighting
         String s = source.getText();
 
         // One of the two mutually exclusive conditions below is expected

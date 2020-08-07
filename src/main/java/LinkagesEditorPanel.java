@@ -164,10 +164,11 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 // Since the NoteComponent selection monitor is a static setting, we need to
                 // preserve it before changing it here, so we can set it back when done.
                 // Currently this is null in most cases anyway.
-                NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
-
+//                NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
+//
                 LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(editedNoteData);
-                NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
+//                NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
+
                 // Show the choices of groups / notes to which to make this link.
                 // The dialog that is shown will have its own OK/CANCEL, and an OK there will return us to here
                 //   with a new choice having been defined.
@@ -179,7 +180,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                         JOptionPane.PLAIN_MESSAGE);    // Message type
 
                 // Restore the original (if any) Note selection monitor.
-                NoteComponent.mySelectionMonitor = originalSelectionMonitor;
+//                NoteComponent.mySelectionMonitor = originalSelectionMonitor;
 
                 if (choice == JOptionPane.OK_OPTION) { // From link addition, not this editor panel
 
@@ -270,6 +271,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         int index = 0;
         for (LinkedEntityData linkedEntityData : editedNoteData.linkTargets) {
             LinkNoteComponent linkNoteComponent = new LinkNoteComponent(this, linkedEntityData, index++);
+            linkNoteComponent.resetComponent(); // To properly colorize and set tooltip, if there is extended note.
             groupNotesListPanel.add(linkNoteComponent);
             lastVisibleNoteIndex++;
         }

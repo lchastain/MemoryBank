@@ -91,8 +91,6 @@ public class LabelButton extends JLabel {
         addMouseListener(ma);
     }
 
-    //==========================================================
-
     public Dimension getPreferredSize() {
         if (!isVisible()) return new Dimension(0, 0);
         return super.getPreferredSize();

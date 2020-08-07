@@ -104,6 +104,8 @@ public class LinkedEntityData extends BaseData {
         // These primitive types are the true copies
         linkType = theCopy.linkType;
         deleteMe = theCopy.deleteMe;
+
+        makeLinkTitle();
     } // end constructor
 
 
@@ -130,10 +132,10 @@ public class LinkedEntityData extends BaseData {
         String groupType = targetGroupInfo.groupType.toString(); // Same as above except for Notes, which are more specific
         String groupName = targetGroupInfo.getSimpleName(); // User-provided at group creation, except for Notes, which are date-based.
 
-        if(targetNoteInfo == null) {
+        if(targetNoteInfo == null) { // The link is to a full group
             theTitleString = category;
             if(!category.equals(groupType)) theTitleString += ": " + groupType;
-        } else {
+        } else { // The link is to a specific Note within a Group
             if(groupType.equals("Day Note")) {
                 // Drop the leading spelled-out day name and comma-space
                 String shorterName = groupName.substring(groupName.indexOf(",") + 1);

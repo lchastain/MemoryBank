@@ -10,7 +10,7 @@ import java.util.Vector;
 
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class NoteGroup extends FileGroup implements NoteComponentManager, NoteSelection {
+public abstract class NoteGroup extends FileGroup implements NoteComponentManager {
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
@@ -746,10 +746,6 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
     void setDefaultSubject(String defaultSubject) {
         this.defaultSubject = defaultSubject;
-    }
-
-    void setSelectionMonitor(NoteSelection noteSelection) {
-
     }
 
     @Override

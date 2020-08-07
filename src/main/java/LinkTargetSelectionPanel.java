@@ -14,6 +14,8 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 // This panel has a BorderLayout, where the NORTH component provides info about the source of the link
 // and the CENTER component is a JSplitPane with highly variable content.  The left side of the split
@@ -21,7 +23,7 @@ import java.awt.event.MouseEvent;
 // of the selections.  Panel/layout nesting is done where needed in order to achieve the desired visual
 // effects, but at the cost of clarity, at times.  Comments are there to help with that.
 
-public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionListener, NoteSelection {
+public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionListener, NoteSelection, AlteredDateListener {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(LinkTargetSelectionPanel.class);
 
@@ -195,6 +197,16 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         theTree.addMouseListener(deselector);
     } // end createTree
 
+
+    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+        selectedNoteData = null;
+        resetTargetSelectionLabel();
+    }
+
+    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+        selectedNoteData = null;
+        resetTargetSelectionLabel();
+    }
 
     // This is called by NoteComponent; implementation of the NoteSelection interface.
     @Override
@@ -371,7 +383,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             MemoryBank.readOnly = false;
 
             if (calendarNoteGroup != null) {
-                calendarNoteGroup.setSelectionMonitor(this);
+                calendarNoteGroup.setAlteredDateListener(this);
                 selectedTargetGroup = calendarNoteGroup;
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(calendarNoteGroup.theBasePanel);
@@ -401,7 +413,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
             } else {
-                goalGroup.setSelectionMonitor(this);
                 selectedTargetGroup = goalGroup;
 //                selectedTargetGroupProperties = goalGroup.getGroupProperties();
                 resetTargetSelectionLabel();
@@ -427,7 +438,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
             } else {
-                eventNoteGroup.setSelectionMonitor(this);
                 selectedTargetGroup = eventNoteGroup;
 //                selectedTargetGroupProperties = eventNoteGroup.myProperties;
                 resetTargetSelectionLabel();
@@ -453,7 +463,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
             } else {
-                todoNoteGroup.setSelectionMonitor(this);
                 selectedTargetGroup = todoNoteGroup;
 //                selectedTargetGroupProperties = todoNoteGroup.myProperties;
                 resetTargetSelectionLabel();

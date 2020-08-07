@@ -120,6 +120,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     //<editor-fold desc="MouseListener methods">
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
+        source.requestFocus(); // Remove selection highlighting
         String s = source.getText();
 
         switch (s) {

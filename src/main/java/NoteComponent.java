@@ -27,7 +27,7 @@ public class NoteComponent extends JPanel {
     static final int HAS_EXT_TEXT = 99;
 
     // Static values that are accessed from multiple contexts.
-    private static Border offBorder;
+    private static final Border offBorder;
     static Border redBorder;
     static Border highBorder;
     static Border lowBorder;
@@ -44,16 +44,16 @@ public class NoteComponent extends JPanel {
     static NoteSelection mySelectionMonitor;
     protected boolean initialized = false;
     protected int index;
-    private static JMenuItem miClearLine;
-    private static JMenuItem miCutLine;
-    private static JMenuItem miCopyLine;
-    private static JMenuItem miLinkLine;
-    private static JMenuItem miPasteLine;
+    private static final JMenuItem miClearLine;
+    private static final JMenuItem miCutLine;
+    private static final JMenuItem miCopyLine;
+    private static final JMenuItem miLinkLine;
+    private static final JMenuItem miPasteLine;
 
     static {
         // This ensures that mySelectionMonitor will never be null; now it may or may not be replaced.
-//        mySelectionMonitor = new NoteSelection() { }; // It just uses the default (no-op) methods.
-        // Not needed; there IS no default selection handler, at this time.
+        mySelectionMonitor = new NoteSelection() { }; // Unless this is replaced it will just use the default (no-op) methods.
+        // LinkTargetSelectionPanel is the only real client of this....
 
         // There is a problem in displaying Cyrillic characters in the tooltips - whether we wrap the text
         // in html or not, the JVM uses an HTML character set to display the tooltip and it does not show
@@ -727,7 +727,7 @@ public class NoteComponent extends JPanel {
         public void mouseClicked(MouseEvent e) {
             MemoryBank.event();
             if (!this.hasFocus()) {
-                // The rmb click does not get focus.
+                // The rmb click does not change focus, so we help it out.
                 requestFocusInWindow();
             }
 
