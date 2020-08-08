@@ -162,12 +162,12 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         addButtonActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 // Since the NoteComponent selection monitor is a static setting, we need to
-                // preserve it before changing it here, so we can set it back when done.
-                // Currently this is null in most cases anyway.
-//                NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
-//
+                // preserve it before changing it here, so we can set it back when done
+                // (but currently the only other monitor in use is the default, no-op handler).
+                NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
+
                 LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(editedNoteData);
-//                NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
+                NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
 
                 // Show the choices of groups / notes to which to make this link.
                 // The dialog that is shown will have its own OK/CANCEL, and an OK there will return us to here
@@ -179,8 +179,8 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                         JOptionPane.OK_CANCEL_OPTION, // Option type
                         JOptionPane.PLAIN_MESSAGE);    // Message type
 
-                // Restore the original (if any) Note selection monitor.
-//                NoteComponent.mySelectionMonitor = originalSelectionMonitor;
+                // Restore the original Note selection monitor.
+                NoteComponent.mySelectionMonitor = originalSelectionMonitor;
 
                 if (choice == JOptionPane.OK_OPTION) { // From link addition, not this editor panel
 
@@ -193,6 +193,8 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 //                    deleteCheckedLinks = false;
 //                    editedNoteData = getEditedLinkedNote();  // This will update all pre-existing link types
 //                    deleteCheckedLinks = true;
+   // But - added this comment and left the commented-out original code, in case a problem leads back to here.
+   // If it doesn't, this comment section may be removed after the next commit.
 
                     if(linkTargetSelectionPanel.selectedTargetGroup == null) return; // No Group selection - just go back.
                     GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroup.getGroupProperties();

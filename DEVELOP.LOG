@@ -3,7 +3,12 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 
+
 NEXT:
+    After the 8/7 checkin/pub - A break, to work on printer ink and residency paperwork.
+
+    A test may be making a 2019 directory with a december daynote, at the top level - stop that.
+
     Need to fix 'myNoteGroup' in GroupInfo - get it set properly, possibly when making Properties.
         This will be needed/used to persist the reverse link.
 
@@ -45,14 +50,11 @@ NEXT:
         but it does work...
 
       When a user wants to link to a Day Note that is too far away (months, years) -
-        Could give a different alter button behavior, or larger scale buttons, OR
+        Could give a different alter button behavior, or additional larger scale buttons, OR
         Track the Viewed date and let Year and Month changes control the Day.
 
 
 New:
-
-
-
 
 
 

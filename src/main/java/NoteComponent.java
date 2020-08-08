@@ -53,21 +53,7 @@ public class NoteComponent extends JPanel {
     static {
         // This ensures that mySelectionMonitor will never be null; now it may or may not be replaced.
         mySelectionMonitor = new NoteSelection() { }; // Unless this is replaced it will just use the default (no-op) methods.
-        // LinkTargetSelectionPanel is the only real client of this....
-
-        // There is a problem in displaying Cyrillic characters in the tooltips - whether we wrap the text
-        // in html or not, the JVM uses an HTML character set to display the tooltip and it does not show
-        // these characters by default.  For example you will see a Russian f - ' Ф' as a block character,
-        // unless you use the specific HTML code for it:  "&#1060; (AND wrap your text in <html>)."
-        // Using the UIManager to change the font, while it does have an effect it does not fix the
-        // Cyrillic issue, and I haven't found a way to change the encoding as we already do on data files.
-        //UIManager.put("ToolTip.font", Font.decode("Dialog-bold-14"));
-        //UIManager.put("ToolTip.font", new FontUIResource("SansSerif", Font.BOLD, 18));
-        // So for now - Russian characters are just NOT supported, in tooltips.  The html code as shown
-        // above would work, but you would need a pre-processor for every string passing through this
-        // code and that seems a bit much; not going to do it, at least not yet, until that solution
-        // somehow becomes more desirable than doing nothing AND justifies the work needed to make it happen.
-        // Meanwhile, may be doing periodic research forays, looking for the right answer.
+        // LinkTargetSelectionPanel is the only real client of this; LinkagesEditorPanel is where it is reassigned.
 
         //-----------------------------------
         // Create the borders.
