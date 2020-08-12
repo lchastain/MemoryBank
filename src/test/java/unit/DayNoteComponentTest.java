@@ -17,12 +17,7 @@ class DayNoteComponentTest {
     void setUp() {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
-        dayNoteGroup = new DayNoteGroup() {
-            @Override
-            public String getGroupFilename() {
-                return "2019\\D1220_20191220163347.json";
-            }
-        };
+        dayNoteGroup = new DayNoteGroup();
         dayNoteComponent = new DayNoteComponent(dayNoteGroup, 0);
         dayNoteComponent.initialize();
     }

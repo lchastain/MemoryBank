@@ -5,10 +5,6 @@ Not comprehensive.
 
 
 NEXT:
-    After the 8/7 checkin/pub - A break, to work on printer ink and residency paperwork.
-
-    A test may be making a 2019 directory with a december daynote, at the top level - stop that.
-
     Need to fix 'myNoteGroup' in GroupInfo - get it set properly, possibly when making Properties.
         This will be needed/used to persist the reverse link.
 
@@ -57,9 +53,17 @@ NEXT:
 New:
 
 
-
-
 =====================================================================================================
+
+
+8/12/2020 0705 - Getting back into it.  Printer ink (3 cartridges so far) is replaced, residency paperwork is
+    reviewed and groomed, and some additional copies made.  As ready as I will be, for a meeting with our
+    contact sometime after the 17th (thinking about the 18th, at this point).  But unless something else
+    breaks thru either then or before, we will have to plan on leaving Russia before 9/15.
+  0824 Fixed:  A test is making a 2019 directory with a december daynote, at the top level - stop that.
+    It was the DayNoteComponentTest, an overridden 'get group filename' in the test setup.  Removed the override.
+
+
 8/07/2020 1704
     Ran full tests - fixed issues, checked coverage  (90% classes, 69% lines)
     Fixed: When a Day Note item is selected but then the day changes, the LinkTargetSelection panel header does not
