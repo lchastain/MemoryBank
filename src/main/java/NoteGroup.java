@@ -393,9 +393,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
                 groupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
             } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
                 myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+                myProperties.myNoteGroup = this;
             }
         } else { // 2 (or more, but more would mean that there has been yet another structure change)
             myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+            myProperties.myNoteGroup = this;
             groupDataVector = AppUtil.mapper.convertValue(theGroup[1], myGroupDataType);
         }
         BaseData.loading = false; // Restore normal lastModDate updating.
@@ -736,6 +738,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         } // end if note
 
         setGroupChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
+        // Note that the flag is reset regardless of the result of the save.  This is intentional.
+
         //AppUtil.localDebug(false);
     } // end saveGroup
 

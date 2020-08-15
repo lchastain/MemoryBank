@@ -790,23 +790,23 @@ public class NoteComponent extends JPanel {
             if (theNoteComponent == null) return;
 
             JMenuItem jm = (JMenuItem) e.getSource();
-            NoteData nd = theNoteComponent.getNoteData(); // Not used in every case, below.
+            NoteData noteData = theNoteComponent.getNoteData(); // Not used in every case, below.
             String theMenuItemText = jm.getText();
             switch (theMenuItemText) {
                 case "Cut Line":
-                    MemoryBank.clipboardNote = nd.copy();  // isolate source data
+                    MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     theNoteComponent.clear();
                     break;
                 case "Copy Line":
-                    MemoryBank.clipboardNote = nd.copy();  // isolate source data
+                    MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     break;
                 case "Edit Linkages":
                     //GroupProperties groupProperties = (GroupProperties) nd.myNoteGroup.getGroupProperties();
                     GroupProperties groupProperties = theNoteComponent.myNoteGroup.getGroupProperties();
-                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, nd);
+                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
 
-                    // The act of editing the linkages, whether a change is made or not, will set groupChanged to true
-                    // after it is done.  Then the menu items will offer a save or cancel, or the shutdown hook will save.
+                    // The act of editing the linkages, whether a change is made or not, will set
+                    // groupChanged to true after it is done.
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
                             linkagesEditorPanel,
@@ -815,14 +815,18 @@ public class NoteComponent extends JPanel {
                             JOptionPane.PLAIN_MESSAGE);    // Message type
 
                     if (choice == JOptionPane.OK_OPTION) {
-                        NoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
+                        // Replace the original linkTargets with the linkTargets from the edited note.
+                        noteData.linkTargets = linkagesEditorPanel.getEditedLinkages();
 
-                        // Take the linkTargets from the edited note.
-                        nd.linkTargets = updatedLinkNoteData.linkTargets;
+                        // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
+                        // are about to create from it/them will have proper corresponding forward link(s).
+                        theNoteComponent.myNoteGroup.saveNoteGroup(); // (no checking of the result, at this time).
+
+                        linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 
                         // These lines may be useful during dev - can disable eventually.
                         System.out.println("Serializing the new link:");
-                        System.out.println(AppUtil.toJsonString(updatedLinkNoteData));
+                        System.out.println(AppUtil.toJsonString(noteData));
                     }
 
                     break;

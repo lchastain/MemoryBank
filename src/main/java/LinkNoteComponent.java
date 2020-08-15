@@ -16,7 +16,7 @@ import java.awt.event.MouseEvent;
 public class LinkNoteComponent extends NoteComponent {
     static final long serialVersionUID = 1L;
     NoteComponentManager myManager;
-    private LinkedEntityData myLinkedEntityData;
+    LinkedEntityData myLinkedEntityData;
     JComboBox<String> linkTypeDropdown;
     JCheckBox deleteCheckBox;
     JLabel linkTitleLabel;
@@ -61,6 +61,7 @@ public class LinkNoteComponent extends NoteComponent {
         linkTypeDropdown.setModel(new DefaultComboBoxModel(LinkedEntityData.LinkType.values()));
         linkTypeDropdown.setSelectedItem(linkedEntityData.linkType);
         linkTypeDropdown.setFocusable(false);
+        linkTypeDropdown.setEnabled(linkedEntityData.retypeMe);
         westPanel.add(linkTypeDropdown);
 
         // The 'delete me' checkbox
@@ -113,6 +114,7 @@ public class LinkNoteComponent extends NoteComponent {
     } // end clear
 
 
+    // Update the data with info from the UI controls, then return the updated data.
     public LinkedEntityData getLinkTarget() {
         myLinkedEntityData.linkType = (LinkedEntityData.LinkType) linkTypeDropdown.getSelectedItem();
         myLinkedEntityData.deleteMe = deleteCheckBox.isSelected();
@@ -128,9 +130,9 @@ public class LinkNoteComponent extends NoteComponent {
     @Override
     protected void resetComponent() {
         linkTypeDropdown.setSelectedItem(myLinkedEntityData.linkType);
+        linkTypeDropdown.setEnabled(myLinkedEntityData.retypeMe);
         deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
         linkTitleLabel.setText(myLinkedEntityData.linkTitle);
-//        linkTitleLabel.setText(makeTitleString());
 
         super.resetComponent(); // the note text
         noteTextField.getDocument().removeDocumentListener(noteTextField);

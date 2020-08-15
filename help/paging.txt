@@ -8,7 +8,7 @@ When a NoteGroup that supports paging AND group growth gets to an end-of-page bo
     No new note appears, but pages needed is recalculated, to add one.
     The view remains on the current page.
     Navigation up/down will wrap around and stay on same page.
-    If the pager control is used to go to the next page, that new page will be empty except for one
+    If the pager control is used to go to the next (new) page, that new page will be empty except for one
         user-editable line.
 
 

@@ -36,6 +36,7 @@ public class LinkEditorMain {
         if (new AtomicBoolean(createFakeData).get()) {
             for (int i = 0; i < 6; i++) {
                 GroupProperties groupProperties = new GroupProperties("Group " + i, GroupProperties.GroupType.getRandomType());
+                // TODO - may have a problem here since we don't have a 'real' group; need to set goupProperties.myNoteGroup.
                 LinkedEntityData linkedEntityData = new LinkedEntityData(groupProperties);
                 linkedEntityData.linkType = LinkedEntityData.LinkType.getRandomType();  // one of the valid choices
                 linkedEntityData.setLinkTargetGroupInfo(groupProperties);
@@ -51,7 +52,6 @@ public class LinkEditorMain {
         //---------------------------------------------------------------------------------------------------
         LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(new GroupProperties(), sourceNoteData);
 
-//        int choice = new TestUtil().showConfirmDialog(
         int choice = JOptionPane.showConfirmDialog(
                 null,
                 linkagesEditorPanel,
@@ -62,9 +62,9 @@ public class LinkEditorMain {
         // We don't actually want to handle the 'Ok' button, given that this
         // is just a test driver.  But we will show the result -
         if (choice == JOptionPane.OK_OPTION) {
-            NoteData updatedLinkNoteData = linkagesEditorPanel.getEditedLinkedNote();
+            sourceNoteData.linkTargets = linkagesEditorPanel.getEditedLinkages();
             System.out.println("\nEditing results: \n");
-            System.out.println(AppUtil.toJsonString(updatedLinkNoteData));
+            System.out.println(AppUtil.toJsonString(sourceNoteData));
         } else {
             System.out.println("Linkages editing was cancelled.");
         }

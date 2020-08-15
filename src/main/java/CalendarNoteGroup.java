@@ -99,6 +99,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
                     myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.NOTES);
             }
         }
+        myProperties.myNoteGroup = this;
         return myProperties;
     }
 

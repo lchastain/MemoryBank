@@ -27,9 +27,6 @@ public class GoalGroup extends NoteGroup implements DateSelection {
     private ThreeMonthColumn tmc;  // For Date selection
     private MilestoneComponent milestoneComponent;
 
-    // This is saved/loaded
-//    GoalGroupProperties myProperties; // Variables - flags and settings
-
     static {
         areaName = "Goals"; // Directory name under user data.
         areaPath = MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
@@ -52,6 +49,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         addNoteAllowed = !MemoryBank.readOnly; // Allows construction for selection-only dialogs
 
         myProperties = new GoalGroupProperties(groupName);
+        myProperties.myNoteGroup = this;
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
         tmc = new ThreeMonthColumn();

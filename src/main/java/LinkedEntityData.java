@@ -8,13 +8,18 @@ public class LinkedEntityData extends BaseData {
     // Unfortunately these two were stored in some notes, before the 'Info' classes
     // came into use.  So the ignore is needed for now but once they are all
     // gone, can replace that with a 'private transient' scoping.
-    @JsonIgnore GroupProperties targetGroupProperties; // Seen in older data...
-    @JsonIgnore NoteData targetNoteData; // Seen in older data...
+    @JsonIgnore GroupProperties targetGroupProperties; // Seen in older persisted data...
+    @JsonIgnore NoteData targetNoteData; // Seen in older persisted data...
     // When will they all BE gone, you ask?  Either as we port to a db, or as the
     // result of running a 'data fix', both of which are scheduled for: TBD.
+    //
+    // But there just are not that many currently existing links out there -
+    // possible was from late March until Aug 2020, with minimal/no creations.
+    // Suggest - just go for it, and manually fix any problems that arise.
 
-    transient boolean deleteMe;
-    transient boolean showMe;
+    transient boolean deleteMe;  // Only for keeping state of the checkbox while dialog is active.
+    transient boolean showMe;    // Do not show the link if its group is not active.
+    transient boolean retypeMe;  // Only 'new' link types will be changeable.
     transient String linkTitle;
     static Random random = new Random();
 
@@ -53,6 +58,7 @@ public class LinkedEntityData extends BaseData {
     private GroupInfo targetGroupInfo;
     private NoteInfo targetNoteInfo;
     LinkType linkType;     // Says what kind of connection this is.  Values defined above.
+    boolean reversed;
 
     // This constructor is used by Jackson when loading the class from a file, and
     // its usage internally here is followed by the additional needed declarations.
@@ -82,11 +88,13 @@ public class LinkedEntityData extends BaseData {
         targetNoteData = null;
     }
 
+    // This is the true, 'meaty' constructor.  The other public ones lead here.
     public LinkedEntityData(GroupInfo groupInfo, NoteInfo noteInfo) {
         this();
         targetGroupInfo = groupInfo;
         targetNoteInfo = noteInfo;
-        //makeLinkTitle();   // Can't be done for loaded data, so instead we do this from the LinkNoteComponent that needs it.
+        reversed = false;
+        retypeMe = true;
     }
 
     // The copy constructor (clone) - used by 'swap' code and reverse link creation.
@@ -104,6 +112,8 @@ public class LinkedEntityData extends BaseData {
         // These primitive types are the true copies
         linkType = theCopy.linkType;
         deleteMe = theCopy.deleteMe;
+        retypeMe = theCopy.retypeMe;
+        reversed = theCopy.reversed; // This will be overridden if not being called during a swap.
 
         makeLinkTitle();
     } // end constructor
@@ -146,6 +156,27 @@ public class LinkedEntityData extends BaseData {
         }
 
         linkTitle = theTitleString;
+    }
+
+    LinkType reverseLinkType(LinkType linkType) {
+        LinkType theReverseType;
+        switch(linkType) {
+            case DEPENDING_ON:
+                theReverseType = LinkType.DEPENDED_ON_BY;
+                break;
+            case DEPENDED_ON_BY:
+                theReverseType = LinkType.DEPENDING_ON;
+                break;
+            case AFTER:
+                theReverseType = LinkType.BEFORE;
+                break;
+            case BEFORE:
+                theReverseType = LinkType.AFTER;
+                break;
+            default:  // Related, During
+                theReverseType = linkType;
+        }
+        return theReverseType;
     }
 
     // Used by the test driver

@@ -8,6 +8,7 @@ public class GroupProperties extends GroupInfo {
 
     Vector<LinkedEntityData> linkTargets;
 
+    // This constructor is only used by Tests or by Jackson type conversion operations.
     GroupProperties() {
         this("No Name Yet", GroupType.UNKNOWN);
     }

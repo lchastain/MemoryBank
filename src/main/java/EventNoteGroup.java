@@ -69,6 +69,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         saveWithoutData = true;
         addNoteAllowed = !MemoryBank.readOnly;
         myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
+        myProperties.myNoteGroup = this;
 
         eventNoteComponent = null;
         tmc = new ThreeMonthColumn();

@@ -30,9 +30,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
     static String areaPath;
     static String filePrefix;
 
-    // This is saved/loaded
-//    public TodoGroupProperties myGroupProperties; // Variables - flags and settings
-
     static {
         areaName = "TodoLists"; // Directory name under user data.
         areaPath = basePath + areaName + File.separatorChar;
@@ -50,6 +47,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         log.debug("Constructing: " + groupName);
 
         myProperties = new TodoGroupProperties(groupName);
+        myProperties.myNoteGroup = this;
         addNoteAllowed = !MemoryBank.readOnly;
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 

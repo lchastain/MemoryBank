@@ -124,15 +124,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
 
         // It begins -
-        branch = new DefaultMutableTreeNode("Notes");
-        trunk.add(branch);
-        leaf = new DefaultMutableTreeNode("Day Notes", false);
-        branch.add(leaf);
-        leaf = new DefaultMutableTreeNode("Month Notes", false);
-        branch.add(leaf);
-        leaf = new DefaultMutableTreeNode("Year Notes", false);
-        branch.add(leaf);
-
         branch = new DefaultMutableTreeNode("Goals");
         trunk.add(branch);
         for (String s : appOpts.goalsList) {
@@ -153,6 +144,15 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             log.debug("  Adding List: " + s);
             branch.add(leaf);
         } // end for
+
+        branch = new DefaultMutableTreeNode("Notes");
+        trunk.add(branch);
+        leaf = new DefaultMutableTreeNode("Day Notes", false);
+        branch.add(leaf);
+        leaf = new DefaultMutableTreeNode("Month Notes", false);
+        branch.add(leaf);
+        leaf = new DefaultMutableTreeNode("Year Notes", false);
+        branch.add(leaf);
 
         branch = new DefaultMutableTreeNode("To Do Lists", true);
         trunk.add(branch);

@@ -5,20 +5,37 @@ Not comprehensive.
 
 
 NEXT:
-    Need to fix 'myNoteGroup' in GroupInfo - get it set properly, possibly when making Properties.
-        This will be needed/used to persist the reverse link.
 
-    Reverse Links - refactor as an exact copy of the forward link, then attach to the original target.
+Near term todo item linked to Ongoing line item, appeared to not make a reverse link.  Check it out.
+Links:
+    Todo Item --> Goal
+    Todo Item --> Goal & Milestone
+    Todo Item --> Event Group
+    Todo Item --> Event Group & Event
+    Todo Item --> Day Note Group
+    Todo Item --> Day Note Group & Day Note
+    Todo Item --> Month Note Group
+    Todo Item --> Month Note Group & Month Note
+    Todo Item --> Year Note Group
+    Todo Item --> Year Note Group & Year Note
+    Todo Item --> To Do List
+    Todo Item --> To Do List & To Do Item
+
+
+    Reverse Links -
         do the NoteData reverses first; worry about reverse links for NoteGroups later; we have no way to see them, yet.
-        Saving them - having only a GroupProperties, need to be able to get that group and save it.
-                use the 'myNoteGroup' data member; it
-                    solves this issue by having the myNoteGroup.saveGroup() method (no longer private).
-                    (also saving outside of a NoteGroup: Todo or Event 'move to day' - saved by AppUtil.  Look there.
+
         CalendarNoteGroups and EventNoteGroups do not save without data, which is ok
                 unless their properties now has a non-empty linkTargets (as a result of a reverse link)
+                verify that these do save - appears to be yes, for now - reverify after reaching stability.
+
         Need a different component visualization for a reverse link - possibly a background color
-        What if the source link is deleted?
-            handle then, or later?
+
+        If the forward link is deleted, also remove the reverse link, if it can be found.
+
+        When filtering links for display in the linkages editor -
+            color change for detected text change?   (yet another transient boolean?)
+
         More testing after all is stable - handle all 'altered' cases - groups renamed/removed, etc.
 
 
@@ -36,12 +53,6 @@ NEXT:
 
       Fix status messages for groups with readOnly notes when they are shown via the LinkTargetSelectionPanel
 
-      Need to address (code, and document in linking.txt) the Link management ops - after creation, handle note mods,
-        group name changes, copied/pasted note with links, group deletions, group show/no-show.
-
-      User makes mods to link sources or targets - what happens?
-        Could just let the users delete and recreate their links that go stale
-
       Initial implementation of the goal data is too much of a copy of TodoList - a MilestoneComponent is a TodoNoteComponent,
         but it does work...
 
@@ -53,8 +64,42 @@ NEXT:
 New:
 
 
-=====================================================================================================
 
+
+=====================================================================================================
+8/15/2020 1143
+    Link type - set once, then cannot be changed upon reload.  Did this with a new transient boolean - 'retypeMe',
+        set to true at construction but changed to false when filtering existing links.
+    Fixed the problem where <reverse links were being saved as soon as a new link was created, but the forward links
+        might not be saved at all, if the user does a 'cancel' on the link editor, or afterwards does an 'Undo All'>.
+        Did this by moving the reverse link creation to the place where ALL the editor dialog work is accepted, AND
+        went ahead and saved the link holder group at that time (this is new behavior, and obviates the user's
+        ability to undo so it's not great but we will live with it for now).  Then, cycle through all the editor links
+        (to check on and if needed, create reversals).  New method in addition to 'addReverseLink' is now
+        'addReverseLinks'; this is the one that does the cycling, then calls the original method one at a time.
+
+8/14/2020 1940 - As soon as the new reverse link (a true reverse) was 'fixed' and tested, a new problem came up - the
+    reverse links are being saved before the source link, and the source link might not get saved at all, if the
+    changes to the group are undone.  This has led to some new design decisions - upon clicking the OK to accept a
+    new link, the group with its new link will be saved at that moment, and THEN the reverse links will be created.
+    But what about the ability to UNDO, you ask?  This will have to be an acceptable situation for now, just like
+    when on a calendar note and the viewed date is altered; those groups are also saved and the user's ability to
+    undo is taken away.  It raises the priority for a better UNDO solution and I have ideas for that, but for now we
+    press on with the situation as described.  Right now - need to work on the mechanism for showing previously
+    created links with immutable link types, alongside new ones where the link type is still malleable.
+
+8/13/2020 0636 - The new plan is that I have to go back to having a reverse link be a full and true reverse of the
+    forward version.  This means that in order to have it 'know' it is a reverse link, a new boolean member is needed;
+    cannot just add another link type because that variable will already be in use, holding the reversed type of the
+    forward link.  The decision had already been taken that links cannot be changed after the first definition, but
+    the type had been left malleable and that was a problem for the immutable reverse link.  Now, the link type must
+    also remain unchangeable but now that forward link creation is delayed until the 'OK' button, the user will first
+    set a different type (if appropriate), so when the reverse link is subsequently created, it can properly reverse
+    the type as well.  This just leaves the possiblity that they got it wrong, in which case they can recall the
+    dialog and delete the link, then make it again.  And that leads to one other possible problem - we were not
+    going to try to keep the two links in sync after their initial creation, but what if one or the other is
+    subsequently deleted?  The decision here is that if a reverse link is deleted, do nothing else.  But if a forward
+    link is deleted, we will try to find the reverse link, and delete it if found.
 
 8/12/2020 0705 - Getting back into it.  Printer ink (3 cartridges so far) is replaced, residency paperwork is
     reviewed and groomed, and some additional copies made.  As ready as I will be, for a meeting with our
@@ -62,7 +107,13 @@ New:
     breaks thru either then or before, we will have to plan on leaving Russia before 9/15.
   0824 Fixed:  A test is making a 2019 directory with a december daynote, at the top level - stop that.
     It was the DayNoteComponentTest, an overridden 'get group filename' in the test setup.  Removed the override.
-
+  1130 - Ensured that all GroupProperties have a 'myNoteGroup'.  Now upon group load,
+        set the value in its properties at that time.  Then set it to 'this' upon group construction
+        as soon as the Properties themselves are made.
+  1140 - Now that I have preserved a 'reverse' link, I can see the flaw; there is no way to see what it is
+        reversed 'from'; it just looks like a link to itself, so it 'knows' it is a reverse link, but it
+        has no info to show the other end, and more than one reverse link would all appear to be the same.
+        Need a new plan...
 
 8/07/2020 1704
     Ran full tests - fixed issues, checked coverage  (90% classes, 69% lines)

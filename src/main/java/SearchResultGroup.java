@@ -33,6 +33,7 @@ public class SearchResultGroup extends NoteGroup {
         log.debug("Constructing: " + groupName);
 
         myProperties = new SearchResultGroupProperties(groupName);
+        myProperties.myNoteGroup = this; // May not be used, since this only applies to links.
         addNoteAllowed = false;
         setGroupFilename(areaPath + filePrefix + getName() + ".json");
 
