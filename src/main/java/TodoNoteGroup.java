@@ -46,8 +46,6 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         log.debug("Constructing: " + groupName);
 
-        myProperties = new TodoGroupProperties(groupName);
-        myProperties.myNoteGroup = this;
         addNoteAllowed = !MemoryBank.readOnly;
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
@@ -83,11 +81,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
         updateGroup(); // This is where the file gets loaded (if it exists)
 
-        // These lines needed to be added for when the list is new -
         if(myProperties == null) {
-            myProperties = new TodoGroupProperties();
-            myProperties.setSimpleName(groupName);
+            // This happens when there was no file to load - in the case of a new group.
+            myProperties = new TodoGroupProperties(groupName);
         }
+        myProperties.myNoteGroup = this;
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);

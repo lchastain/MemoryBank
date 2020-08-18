@@ -7,16 +7,22 @@ import java.util.Vector;
 
 public class LinkagesEditorPanel extends JPanel implements NoteComponentManager {
     static final long serialVersionUID = 1L;
+    static Notifier optionPane;
     JPanel groupNotesListPanel;
     int lastVisibleNoteIndex = -1;
     JScrollPane jsp;
     JScrollBar jsb;
+    JButton addLinkButton; // Declared here to give test access.
     ActionListener addButtonActionListener;
     NoteData sourceNoteData;
     NoteData editedNoteData; // Isolate the edits in case of a 'cancel'.
     GroupProperties sourceGroupProperties;
     GroupProperties editedGroupProperties;
     boolean deleteCheckedLinks;
+
+    static {
+        optionPane = new Notifier() { }; // Uses all default methods.
+    }
 
     // TODO  After a way is provided to edit linkages of groups, need to handle the case where the
     //  incoming NoteData might be null.  For now, that does not happen.
@@ -82,7 +88,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     public void addReverseLink(LinkedEntityData linkedEntityData) {
         NoteData otherEndNoteData = linkedEntityData.getTargetNoteData();
         GroupProperties otherEndGroupProperties = linkedEntityData.getTargetGroupProperties();
-        if(otherEndGroupProperties == null) return; // Don't see how this could have happened, but this handles it.
+        if (otherEndGroupProperties == null) return; // Don't see how this could have happened, but this handles it.
 
         // Create the reverse link
         //--------------------------
@@ -96,7 +102,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         reverseLinkedEntityData.reversed = true;
 
         // Attach the reversed link to the right place
-        if(otherEndNoteData != null) {
+        if (otherEndNoteData != null) {
             otherEndNoteData.linkTargets.add(reverseLinkedEntityData);
         } else {
             otherEndGroupProperties.linkTargets.add(reverseLinkedEntityData);
@@ -107,16 +113,16 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         // previously saveNoteGroup was only done from preClose - now for this usage it is no longer a private method
         // - verify this is GOOD.
         // And maybe consolidate the work from AppUtil, where a note can be moved or copied to Day, from Todo or Event.
-        if(groupToSave != null) groupToSave.saveNoteGroup();
+        if (groupToSave != null) groupToSave.saveNoteGroup();
     }
 
     // Cycle through the list of linkages to find the 'new' ones,
     //   and add a reverse link for each one.
     public void addReverseLinks(Vector<LinkedEntityData> linkages) {
-        for(LinkedEntityData linkedEntityData: linkages) {
+        for (LinkedEntityData linkedEntityData : linkages) {
             // We don't add reverse links if the forward link preexisted.  This also prevents
             // a reverse link being created for a link that is itself already a reverse link.
-            if(!linkedEntityData.retypeMe) continue;
+            if (!linkedEntityData.retypeMe) continue;
 
             addReverseLink(linkedEntityData);
         }
@@ -124,7 +130,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     }
 
 
-        // Not used, but needed for the complete NoteComponentManager implementation.
+    // Not used, but needed for the complete NoteComponentManager implementation.
     @Override
     public boolean editExtendedNoteComponent(NoteData tmpNoteData) {
         return true;
@@ -134,22 +140,22 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     // text where it may have changed, and to flag those links that should not be shown.
     // Call this prior to the first showing of the dialog.
     // Operations:
-    //   1.  Remove any old-style links that do not have targetGroupInfo
-    //   2.  Turn off the 'showMe' flag for targets that are not currently active.
-    //   3.  Remove any links that point to a non-existent target or have a non-existent source.
-// No longer trying to keep in sync; do not do this.
-    //   4.  Update the link type if needed, and all target info text - both properties and notes
-    //         It will be needed if this is a reverse link, and the original's type had changed.
+    //   1.  Remove any old-style links that do not have targetGroupInfo.
+    //   2.  Do not allow the Type of pre-existing links to be changed.
+    //   3.  Turn off the 'showMe' flag for targets where the group is found, but not currently active.
+    //   4.  Flag any links that point to a non-existent target (either group or note).
+    //   5.  Set flags for detected changes in target info - group renamed (if we can detect that), note text changed.
+    //          will probably require the (first) use of their IDs.
     void filterLinkages() {
         Vector<LinkedEntityData> linkTargets = new Vector<>(0, 1);
 
+        for (LinkedEntityData linkedEntityData : editedNoteData.linkTargets) {
+            if (linkedEntityData.getTargetGroupInfo() == null) continue;  // (1)
+            linkedEntityData.retypeMe = false; // (2)
 
-        for(LinkedEntityData linkedEntityData: editedNoteData.linkTargets) {
-            if(linkedEntityData.getTargetGroupInfo() == null) continue;  // (1)
-                linkedEntityData.retypeMe = false; // Cannot change the Type of pre-existing links.
-
-            // There will be more conditions on this, eventually....
-                linkTargets.add(linkedEntityData);
+            // TODO code in (3), (4), (5)
+            // for test purposes, may want a transient 'filterMe?' boolean, that will evade 3 & 4.
+            linkTargets.add(linkedEntityData);
         }
 
         // Working on the isolated copy of the source entity,
@@ -165,13 +171,13 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         boolean deleteIt;
 
         // This will fix any reordering, as well as drop out deletions.
-        for(int i=0; i<numLinks; i++) {
+        for (int i = 0; i < numLinks; i++) {
             LinkNoteComponent linkNoteComponent = (LinkNoteComponent) groupNotesListPanel.getComponent(i);
             deleteIt = deleteCheckedLinks && linkNoteComponent.deleteCheckBox.isSelected();
-            if(deleteIt) {
+            if (deleteIt) {
                 // It will be deleted simply by not including it in the results, but we also want to
                 // remove its reverse link, if this is a forward one.
-                if(!linkNoteComponent.myLinkedEntityData.reversed) { // If this is a forward link -
+                if (!linkNoteComponent.myLinkedEntityData.reversed) { // If this is a forward link -
                     System.out.println("NOT YET deleting a reverse link!!!");
                 }
             } else {
@@ -209,7 +215,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 // Show the choices of groups / notes to which to make this link.
                 // The dialog that is shown will have its own OK/CANCEL, and an OK there will return us to here
                 //   with a new choice having been defined.
-                int choice = JOptionPane.showConfirmDialog(
+                int choice = optionPane.showConfirmDialog(
                         null,
                         linkTargetSelectionPanel,
                         "New Link Selection",
@@ -223,20 +229,20 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                     // This event comes from selecting a new link; it is NOT the 'OK' for this panel.
                     // The 'OK' for this panel is handled where it was invoked.
 
-                    if(linkTargetSelectionPanel.selectedTargetGroup == null) return; // No Group selection - just go back.
+                    if (linkTargetSelectionPanel.selectedTargetGroup == null)
+                        return; // No Group selection - just go back.
 
                     // Get the Group and Note selections
                     GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroup.getGroupProperties();
                     NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
 
                     LinkedEntityData linkedEntityData;
-                    if(selectedNoteData == null) {
+                    if (selectedNoteData == null) {
                         linkedEntityData = new LinkedEntityData(selectedGroupProperties);
                     } else {
                         linkedEntityData = new LinkedEntityData(selectedGroupProperties, selectedNoteData);
                     }
                     editedNoteData.linkTargets.add(linkedEntityData);
-//                    addReverseLink(linkedEntityData);  Do this when the overall panel is OK'd.
                     rebuildDialog();
                 }
             }
@@ -268,19 +274,19 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         String theUserInstructions;
         String theSourceNoteText;
         String downsizedNote = editedNoteData.noteString;
-        if(downsizedNote.endsWith(".")) {
+        if (downsizedNote.endsWith(".")) {
             // Take off a final '.', if there is one.
-            downsizedNote = downsizedNote.substring(0, downsizedNote.length()-1);
+            downsizedNote = downsizedNote.substring(0, downsizedNote.length() - 1);
         }
-        if(downsizedNote.length() > 66) {
+        if (downsizedNote.length() > 66) {
             // The length cutoff number chosen here is somewhat arbitrary, depends on fonts, etc.  Sorry.
             downsizedNote = downsizedNote.substring(0, 62) + "...";
         }
         int linkCount = editedNoteData.linkTargets.size();
-        if(linkCount == 0) {
+        if (linkCount == 0) {
             theSourceNoteText = "There are no existing links for " + AppUtil.makeRed(downsizedNote);
             theSourceNoteText += ".  Click on 'Add New Link' to add one.";
-        } else if(linkCount == 1) {
+        } else if (linkCount == 1) {
             theUserInstructions = "Use the dropdown to change the link type, or put a check in the checkbox to mark it for deletion";
             userInstructionsLabel.setText(theUserInstructions);
             headerInfoPanel.add(userInstructionsLabel, BorderLayout.NORTH);
@@ -312,7 +318,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         add(jsp, BorderLayout.CENTER);
 
         JPanel southPanel = new JPanel(new DndLayout()); // This layout keeps the content left-justified.
-        JButton addLinkButton = new JButton("<html><u>Add New Link</u></html>");
+        addLinkButton = new JButton("<html><u>Add New Link</u></html>");
 
         addLinkButton.addActionListener(addButtonActionListener);
         addLinkButton.setFocusable(false);

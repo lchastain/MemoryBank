@@ -801,7 +801,6 @@ public class NoteComponent extends JPanel {
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     break;
                 case "Edit Linkages":
-                    //GroupProperties groupProperties = (GroupProperties) nd.myNoteGroup.getGroupProperties();
                     GroupProperties groupProperties = theNoteComponent.myNoteGroup.getGroupProperties();
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
 

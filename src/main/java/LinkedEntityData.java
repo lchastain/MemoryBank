@@ -179,13 +179,4 @@ public class LinkedEntityData extends BaseData {
         return theReverseType;
     }
 
-    // Used by the test driver
-    public void setLinkTargetGroupInfo(GroupInfo newGroupInfo) {
-        targetGroupInfo = newGroupInfo;
-    }
-
-    public void setLinkTargetNoteInfo(NoteInfo newNoteInfo) {
-        targetNoteInfo = newNoteInfo;
-    }
-
 }

@@ -36,15 +36,16 @@ public class LinkEditorMain {
         if (new AtomicBoolean(createFakeData).get()) {
             for (int i = 0; i < 6; i++) {
                 GroupProperties groupProperties = new GroupProperties("Group " + i, GroupProperties.GroupType.getRandomType());
-                // TODO - may have a problem here since we don't have a 'real' group; need to set goupProperties.myNoteGroup.
-                LinkedEntityData linkedEntityData = new LinkedEntityData(groupProperties);
-                linkedEntityData.linkType = LinkedEntityData.LinkType.getRandomType();  // one of the valid choices
-                linkedEntityData.setLinkTargetGroupInfo(groupProperties);
+                // Since we don't have a 'real' group, we don't have a value in groupProperties.myNoteGroup, but that's
+                // ok because the only usage of it is to save the reverse link, and we don't go that far in this test driver.
 
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);
                 targetNoteData.setExtendedNoteString("Extended note.  And more, later."); // Don't care right now about a Subject
-                linkedEntityData.setLinkTargetNoteInfo(targetNoteData);
+
+                LinkedEntityData linkedEntityData = new LinkedEntityData(groupProperties, targetNoteData);
+                linkedEntityData.linkType = LinkedEntityData.LinkType.getRandomType();  // one of the valid choices
+
                 sourceNoteData.linkTargets.add(linkedEntityData);
             }
         }

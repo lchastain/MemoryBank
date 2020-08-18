@@ -128,7 +128,8 @@ public abstract class FileGroup {
     //
     // A formatter for a String that is a filename specifier.  It strips
     //   away the File path, separators, prefix and ending, leaving only
-    //   the base (pretty) name of the file.
+    //   the base (pretty) name of the file.  It works left-to-right, as
+    //   the input shrinks (in case that's important for you to know).
     //-----------------------------------------------------------------
     String prettyName(String theLongName) {
         // Trim any leading/trailing whitespace.
@@ -149,13 +150,13 @@ public abstract class FileGroup {
             thePrettyName = theLongName.substring(k + 1);
         }
 
-        // Drop the JSON file extension
-        i = thePrettyName.lastIndexOf(".json");
-        if (i > 0) thePrettyName = thePrettyName.substring(0, i);
-
         // Cut off the leading group type (event_, todo_, search_, etc)
         i = thePrettyName.indexOf("_");
         if (i >= 0) thePrettyName = thePrettyName.substring(i + 1);
+
+        // Drop the JSON file extension
+        i = thePrettyName.lastIndexOf(".json");
+        if (i > 0) thePrettyName = thePrettyName.substring(0, i);
 
         return thePrettyName;
     } // end prettyName

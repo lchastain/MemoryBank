@@ -226,19 +226,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
     } // end constructor for AppTreePanel
 
-
-    @SuppressWarnings("rawtypes")  // For the Enumeration, below.
+    // Decide which type of Group we are adding, get a name for it, and put it into the app tree.
+    // The new group is not actually instantiated here; that happens when it is selected.
+    @SuppressWarnings("rawtypes")  // For the xlint warning about Enumeration, (much farther) below.
     private void addNewGroup() {
         String newName;
 
         // Initialize the following local variables, otherwise IJ complains.
-        String prompt = "no prompt";
-        String title = "no title";
-        TreePath groupParentPath = null;
-        FileGroupKeeper theFileGroupKeeper = null;
+        String prompt;
+        String title;
+        TreePath groupParentPath;
+        FileGroupKeeper theFileGroupKeeper;
 
         String theContext = appMenuBar.getCurrentContext();
-        String areaName = null;
+        String areaName;
         MemoryBank.debug("Adding new group in this context: " + theContext);
         switch (theContext) {
             case "Goal":
@@ -267,19 +268,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theFileGroupKeeper = theTodoListKeeper;
                 areaName = TodoNoteGroup.areaName;
                 break;
+            default:
+                return;
         }
 
         // Get user entry of a name for the new group.
         newName = JOptionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
         MemoryBank.debug("Name chosen for new group: " + newName);
-
         if (newName == null) return;      // No user entry; dialog was Cancelled.
 
-        // A user would not be entering a full path, or even a name with the filename prefix; they shouldn't know those.
-        // TODO - find or write a better way to groom the user input.
-//        newName = TreeLeaf.prettyName(newName); // Normalize the input
+        // Here is where we might have done some grooming of the input, to possibly deconflict user input from the
+        // prefixes and extensions used internally by the app.  But then, decided that (under 'normal' circumstances)
+        // they wouldn't know those anyway and so we should take them at their stated intent, that they really do
+        // want a group with a crappy name.  So - no call here to prettify it.
 
-        if (null == groupParentPath) return;
         String groupParentName = groupParentPath.getLastPathComponent().toString();
         DefaultMutableTreeNode groupParentNode = BranchHelperInterface.getNodeByName(theRootNode, groupParentName);
 
@@ -313,6 +315,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             groupParentNode.add(theNewGroupNode);
             DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
             theTreeModel.nodeStructureChanged(groupParentNode);
+
+            // Update tree state.  This is needed now and not only at app shutdown, because there are some functions
+            // (such as linking) that need for the appOpts to be up-to-date after a new group has been added.
+            updateTreeState(true);
         }
 
         // Try to get this Group from the NoteGroupKeeper (the 'Add New' request might just be a back-door

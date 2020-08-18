@@ -951,9 +951,9 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     public void updateGroup() {
         clearPage(); // Clears the data (not Components) from the interface.
 
-        // The reset is needed BEFORE loadGroup, in case we came here
+        // The page reset below is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition
-        //   that may be in effect during a 'refresh' which would
+        //   that may be in effect during a 'refresh' (group reload) which would
         //   cause the higher numbered page to be loaded with page
         //   one data.  So - we make sure we are on page one.
         theNotePager.reset(1);

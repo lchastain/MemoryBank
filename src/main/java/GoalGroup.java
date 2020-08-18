@@ -43,13 +43,10 @@ public class GoalGroup extends NoteGroup implements DateSelection {
 
     public GoalGroup(String groupName) {
         super(10);
-
         log.debug("Constructing: " + groupName);
 
         addNoteAllowed = !MemoryBank.readOnly; // Allows construction for selection-only dialogs
 
-        myProperties = new GoalGroupProperties(groupName);
-        myProperties.myNoteGroup = this;
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
         tmc = new ThreeMonthColumn();
@@ -64,6 +61,12 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         theBasePanel.add(pnl1, BorderLayout.EAST);
 
         updateGroup(); // This will load the properties (myProperties) and the groupDataVector
+
+        if(myProperties == null) {
+            // This happens when there was no file to load - in the case of a new group.
+            myProperties = new GoalGroupProperties(groupName);
+        }
+        myProperties.myNoteGroup = this;
 
         buildPanelContent(); // Content other than the groupDataVector
     }
@@ -120,7 +123,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         overallStatusPanel.add(overallStatus);
 
         headingRow3.add(currentStatusPanel, BorderLayout.WEST);
-        JLabel listHeader = new JLabel("Linked Notes");
+        JLabel listHeader = new JLabel("Milestones");
         listHeader.setHorizontalAlignment(JLabel.CENTER);
         listHeader.setFont(Font.decode("Serif-bold-14"));
         headingRow3.add(listHeader, BorderLayout.CENTER);

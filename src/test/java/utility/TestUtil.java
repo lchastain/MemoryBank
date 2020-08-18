@@ -18,11 +18,14 @@ class TestUtil implements Notifier, SubSystem {
         param1 = null;
     }
 
+    // A SubSystem method
     @Override
     public void exit(int status) {
         System.out.println("System.exit(" + status + ") was called!");
     }
 
+
+    // A Notifier method
     @Override
     public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType) {
         notifyCount++;

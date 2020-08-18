@@ -85,7 +85,29 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         add(pnl1, BorderLayout.EAST);
 
         optionPane = new Notifier() { }; // Uses all default methods.
-        refresh();
+
+        //------------------------------------------------------------------------------------
+        // Extracted from 'refresh()', to avoid the first unnecessary preClose().
+        updateGroup();
+
+        // Call 'ageEvents'
+        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
+            // removed.  We show that by saving the altered data and then reloading it.
+            preClose();    // Save the new states of 'aged' events.
+            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+            doSort();
+        } // end if
+
+        //------------------------------------------------------------------------------------
+
+
+
+        if(myProperties == null) {
+            // This happens when there was no file to load - in the case of a new group.
+            myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
+            myProperties.myNoteGroup = this;
+        }
+
     }// end constructor
 
 
@@ -395,12 +417,10 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
             // removed.  We show that by saving the altered data and then reloading it.
             preClose();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
+            doSort();  // This action could change the current selection  -
+            showComponent(null, false); // so unselect, if not already.
         } // end if
 
-        doSort();  // This action could change the current selection.
-
-        // So - unselect, if not already.
-        showComponent(null, false);
     } // end refresh
 
 

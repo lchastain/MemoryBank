@@ -414,7 +414,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 selectedTargetGroup = goalGroup;
-//                selectedTargetGroupProperties = goalGroup.getGroupProperties();
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(goalGroup.theBasePanel);
             } // end if
@@ -439,7 +438,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 selectedTargetGroup = eventNoteGroup;
-//                selectedTargetGroupProperties = eventNoteGroup.myProperties;
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } // end if
@@ -464,19 +462,11 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 selectedTargetGroup = todoNoteGroup;
-//                selectedTargetGroupProperties = todoNoteGroup.myProperties;
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(todoNoteGroup.theBasePanel);
             } // end if
         } // end if/else if
         //</editor-fold>
-
-// Need an alternative to this !!!!! - used in reverseLink creation
-
-//        if(selectedTargetGroupProperties != null) {
-//            selectedTargetGroupProperties.myNoteGroup = selectedTargetGroup;
-//        }
-
 
     } // end treeSelectionChanged
 

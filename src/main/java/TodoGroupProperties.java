@@ -35,6 +35,7 @@ public class TodoGroupProperties extends GroupProperties {
 
     public TodoGroupProperties(String groupName) { // Constructor with defaults
         super(groupName, GroupType.TODO_LIST);
+        setSimpleName(groupName);
 
         showPriority = true;
         maxPriority = 20;

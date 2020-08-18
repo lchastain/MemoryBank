@@ -3,10 +3,12 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 
-
 NEXT:
 
+New link on an event - doesn't stay; bring back dialog - empty.
+
 Near term todo item linked to Ongoing line item, appeared to not make a reverse link.  Check it out.
+
 Links:
     Todo Item --> Goal
     Todo Item --> Goal & Milestone
@@ -63,10 +65,20 @@ Links:
 
 New:
 
+    Fixed: A new Group goes ok to the app tree, but does not show up for LinkTargetSelections, in the current session.
+      Now at the end of adding a new group (in AppTreePanel), make a call to updateTreeState(true).
+    Added a new functional Test class - LinkagesEditorPanelTest.  Tests the two main panel constructors and most of
+      the editor panel functionality.  Will add to this as needed, if/when operational activities turn up problems
+      that testing could have avoided.
 
 
 
 =====================================================================================================
+
+8/16/2020 - Only a small bit of manual testing, and problems are turning up in random places.  Already fixed some
+    related to new group creations, where 'myNoteGroup.myProperties' could still get to be null.  This seems like a
+    very good time to add some automated tests related to links.  Working on that now...
+
 8/15/2020 1143
     Link type - set once, then cannot be changed upon reload.  Did this with a new transient boolean - 'retypeMe',
         set to true at construction but changed to false when filtering existing links.

@@ -15,6 +15,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@SuppressWarnings("BusyWait")
 public class AppTreePanelTest {
     private static AppTreePanel appTreePanel;
     private static JTree theTree;
@@ -176,18 +177,6 @@ public class AppTreePanelTest {
         // At current writing, the 'found' results is 139 and will probably climb higher,
         // over time so here we just check that some large number of records has been found.
         Assertions.assertTrue(appTreePanel.getTheNoteGroup().groupDataVector.size() > 100);
-    }
-
-    @Test
-    void testGetConsolidatedView() {
-        String theNodeText = "Consolidated View";
-        DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
-        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        DefaultMutableTreeNode dmtn = TestUtil.getTreeNodeForString(theRoot, theNodeText);
-        Assertions.assertNotNull(dmtn);
-        TreePath tp = AppUtil.getTreePath(dmtn);
-        Assertions.assertNotNull(tp);
-        theTree.setSelectionPath(tp);
     }
 
     // VERIFY that this is still needed - the functional test also covers this code.

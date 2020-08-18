@@ -3,11 +3,10 @@ import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Vector;
 
 // One important setting in IntelliJ:
 // File / Settings / Editor / File Encodings - set all to UTF-8.
@@ -35,7 +34,6 @@ public class MemoryBank {
     static JFrame logFrame;
     static Notifier optionPane;
     static SubSystem system;
-    static Vector groupNames;
     static boolean readOnly;
 
     static {
@@ -316,6 +314,7 @@ public class MemoryBank {
         splash.setVisible(true);
         logApplicationShowing = false;
         new Thread(new Runnable() {
+            @SuppressWarnings("BusyWait")
             public void run() {
                 try {
                     while (!logApplicationShowing) {

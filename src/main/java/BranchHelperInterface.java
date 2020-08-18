@@ -40,7 +40,7 @@ public interface BranchHelperInterface {
     // Of course there could be solutions to that too, but how far down
     // that road do we want to go, for what added value?  Don't know
     // about the value so how far is 'not one step' (for now); this works.
-    // But now - what about moving this one to NoteGroup?  think about it.
+    // But now - what about moving this one to FileGroup?  think about it.
     //-------------------------------------------------------------------
     static String checkFilename(String theProposedName, String basePath) {
         ems.setLength(0);
