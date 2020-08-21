@@ -628,6 +628,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     // Saving is an operation that happens often, sometimes per user
     //   action and sometimes automatically.
     //   TODO - we should be able to tell the difference and act accordingly.
+    //      maybe with a param to this method...
     //   If errors are encountered, this method can trap and print
     //   them to the screen but it will not halt execution or
     //   attempt interaction with the user.  A status variable is
@@ -1022,7 +1023,9 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     } // end getGroupChanged
 
     // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
-    // list menu is initially set and then later called repeatedly for every 'setGroupChanged'
+    // list menu is initially set and then later called repeatedly for every 'setGroupChanged'.
+    // Although the boolean currently exactly matches the 'groupChanged' variable, taking it as an input
+    // parameter allows it to be based on other criteria (at some future point.  I know, yagni).
     protected void adjustMenuItems(boolean b) {
         if (myListMenu == null) return; // Too soon.  Come back later.
         MemoryBank.debug("NoteGroup.adjustMenuItems <" + b + ">");

@@ -58,7 +58,7 @@ public class EventNoteData extends IconNoteData {
 
     // The copy constructor (clone)
     public EventNoteData(EventNoteData endCopy) {
-        super();
+        super(endCopy);
         blnRetainNote = endCopy.blnRetainNote;
         durationUnits = endCopy.durationUnits;
         durationValue = endCopy.durationValue;

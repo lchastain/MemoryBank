@@ -28,7 +28,7 @@ public class MemoryBank {
     static NoteData clipboardNote;
     private static AppSplash splash;
     private static boolean logApplicationShowing;
-    private static int[] percs = {20, 25, 45, 50, 60, 90, 100};
+    private static final int[] percs = {20, 25, 45, 50, 60, 90, 100};
     private static int updateNum = 0;
     private static String appIconFileName;
     static JFrame logFrame;

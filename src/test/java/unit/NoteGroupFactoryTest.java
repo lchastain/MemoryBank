@@ -4,13 +4,13 @@ class NoteGroupFactoryTest {
 
     @Test
     void testGetGroup() {
-        NoteGroupFactory.getGroup("Search Result", "blarg");
+        NoteGroupFactory.loadGroup("Search Result", "blarg");
     }
 
     @Test
     void testGetOrMakeGroup() {
-        NoteGroupFactory.getOrMakeGroup("Upcoming Event", "blarg");
-        NoteGroupFactory.getOrMakeGroup("To Do List", "blarg");
-        NoteGroupFactory.getOrMakeGroup("Search Result", "blarg");
+        NoteGroupFactory.loadOrMakeGroup("Upcoming Event", "blarg");
+        NoteGroupFactory.loadOrMakeGroup("To Do List", "blarg");
+        NoteGroupFactory.loadOrMakeGroup("Search Result", "blarg");
     }
 }

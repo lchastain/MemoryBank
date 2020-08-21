@@ -100,8 +100,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         //------------------------------------------------------------------------------------
 
-
-
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
@@ -404,8 +402,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     //----------------------------------------------------------------------
     // Method Name: refresh
     //
-    // Called during in response to a click on the 'Save' menu item.
-    // TODO - During construction the first preClose is not needed.
+    // Called in response to a click on the 'Save' menu item.
     //----------------------------------------------------------------------
     @Override
     public void refresh() {

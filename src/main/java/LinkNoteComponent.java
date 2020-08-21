@@ -32,7 +32,7 @@ public class LinkNoteComponent extends NoteComponent {
 
         // Make a good NoteData that we can show, from the link sent in to the constructor.
         NoteInfo noteInfo = myLinkedEntityData.getTargetNoteInfo();
-        if(noteInfo == null) {
+        if (noteInfo == null) {
             noteInfo = new NoteInfo();
             noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getSimpleName();
             // Here we COULD set an extended note, which would color the link text blue
@@ -81,14 +81,23 @@ public class LinkNoteComponent extends NoteComponent {
                 return new Dimension(180, super.getPreferredSize().height);
             }
         };
-        // Looked for better places to make this call -
-        // but this component is the only one who needs the linkTitle, so why not here?
-        // It's a transient, so doing it at linkedEntityData construction is a no-go because
-        //   that one is also loaded from file, so it wouldn't get populated at that time,
-        //   and the other members needed during the method would not yet be present.
-        if(myLinkedEntityData.linkTitle == null) myLinkedEntityData.makeLinkTitle();
+        // I did look for better places to make this call, but this component is the
+        //   only one who needs the linkTitle, so why not here?  The linkTitle String
+        //   is a transient, so making it at linkedEntityData construction does not work
+        //   because the base constructor is used for loading the other data from file
+        //   and although that other data is needed to make the title, it is not available
+        //   to be used for that purpose at that point in the construction.  Other
+        //   constructors could work for new links vs the persisted ones, but then the
+        //   solution would be piecemeal, in at least two places, whereas making the call
+        //   from this one location works for both persisted and new linkedEntityData.
+        if (myLinkedEntityData.linkTitle == null) myLinkedEntityData.makeLinkTitle();
+        // TODO - now that I've articulated such a verbose excuse - it seems like this
+        // class is the best place to do this, and MOVE the variable to here, take it out
+        // of the persisted class.  Do that, then clear out all the words here.
 
         linkTitleLabel.setText(myLinkedEntityData.linkTitle);
+        linkTitleLabel.setBackground(Color.ORANGE);
+        linkTitleLabel.setOpaque(myLinkedEntityData.reversed);
         linkTitleLabel.addMouseListener(mouseAdapter);
         westPanel.add(linkTitleLabel);
         add(westPanel, BorderLayout.WEST);
@@ -108,6 +117,7 @@ public class LinkNoteComponent extends NoteComponent {
         myLinkedEntityData.deleteMe = false;
         deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
         linkTitleLabel.setText("");
+        linkTitleLabel.setOpaque(false);
         myNoteData.clear();
 
         super.clear(); // This also sets the component 'initialized' to false.
@@ -129,12 +139,14 @@ public class LinkNoteComponent extends NoteComponent {
     //----------------------------------------------------------
     @Override
     protected void resetComponent() {
+        super.resetComponent(); // the note text
         linkTypeDropdown.setSelectedItem(myLinkedEntityData.linkType);
         linkTypeDropdown.setEnabled(myLinkedEntityData.retypeMe);
         deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
         linkTitleLabel.setText(myLinkedEntityData.linkTitle);
+        //System.out.println("Title: " + myLinkedEntityData.linkTitle + "   reversed: " + myLinkedEntityData.reversed);
+        linkTitleLabel.setOpaque(myLinkedEntityData.reversed); // Color shows, or not.
 
-        super.resetComponent(); // the note text
         noteTextField.getDocument().removeDocumentListener(noteTextField);
     } // end resetComponent
 

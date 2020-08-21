@@ -38,11 +38,11 @@ class DayNoteGroupTest {
 
     @Test
     void testGetNoteComponent() {
-        // Currently all DayNoteGroups have 40 components.
-        // But using so many is quite uncommon, so we
-        // expect that the 30th one will not be visible,
+        // Currently all DayNoteGroups have PAGE_SIZE components.
+        // But using all of them is quite uncommon, so we
+        // expect that the last one will not be visible,
         // regardless of the day setting.
-        DayNoteComponent dnc = dng.getNoteComponent(30);
+        DayNoteComponent dnc = dng.getNoteComponent(NoteGroup.PAGE_SIZE-1); // zero-indexed
         Assertions.assertNotNull(dnc);
         Assertions.assertFalse(dnc.initialized);
     }

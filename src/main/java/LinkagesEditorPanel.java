@@ -120,8 +120,10 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     //   and add a reverse link for each one.
     public void addReverseLinks(Vector<LinkedEntityData> linkages) {
         for (LinkedEntityData linkedEntityData : linkages) {
-            // We don't add reverse links if the forward link preexisted.  This also prevents
-            // a reverse link being created for a link that is itself already a reverse link.
+            // We don't add reverse links if the forward link preexisted, and we determine that based
+            // on whether or not we are allowed to change its type.  And since no reverse
+            // link is allowed to be re-type'd, this also prevents a reverse link from being
+            // created for a link that is itself already a reverse link.
             if (!linkedEntityData.retypeMe) continue;
 
             addReverseLink(linkedEntityData);

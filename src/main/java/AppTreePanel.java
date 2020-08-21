@@ -39,14 +39,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
     static AppMenuBar appMenuBar;
 
-    private static Logger log = LoggerFactory.getLogger(AppTreePanel.class);
+    private static final Logger log = LoggerFactory.getLogger(AppTreePanel.class);
 
     Notifier optionPane;
     //-------------------------------------------------------------------
 
     private JTree theTree;
     private DefaultTreeModel treeModel;
-    private JScrollPane rightPane;
+    private final JScrollPane rightPane;
 
     // Paths to expandable 'parent' nodes
     private TreePath viewsPath;
@@ -69,8 +69,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     private FileGroupKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
     private FileGroupKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
     SearchPanel spTheSearchPanel;
-    private JPanel aboutPanel;
-    private JSplitPane splitPane;
+    private final JPanel aboutPanel;
+    private final JSplitPane splitPane;
 
     private LocalDate selectedDate;  // The selected date
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
@@ -97,7 +97,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         super(new GridLayout(1, 0));
         appMenuBar = new AppMenuBar();
         aFrame.setJMenuBar(appMenuBar);
-        theInstance = this; // This works because we will always only have one.
+        theInstance = this; // This works because we will always only have one AppTreePanel in this app.
         this.appOpts = appOpts;
 
         //<editor-fold desc="Make the 'Working...' dialog">
@@ -327,7 +327,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         FileGroup theGroup = theFileGroupKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             MemoryBank.debug("Getting a new group from the factory.");
-            theGroup = NoteGroupFactory.getOrMakeGroup(theContext, newName);
+            theGroup = NoteGroupFactory.loadOrMakeGroup(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
             theFileGroupKeeper.add(theGroup);
             theGroup.setGroupChanged(true); // Save this (may be empty) group.
@@ -744,6 +744,28 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theBigGroup.doSort();
         return theBigGroup;
     } // end getConsolidatedView
+
+
+    // The client to this method is the LinkTargetSelectionPanel.
+    // Since SearchResults cannot be linked, it does not care about them
+    // and of course CalendarNoteGroups are not held by keepers so they
+    // are also not addressed.
+    // If the requested group is not in its keeper, a null is returned.
+    NoteGroup getNoteGroupFromKeeper(GroupInfo.GroupType theType, String theName) {
+        NoteGroup noteGroup = null;
+        switch (theType) {
+            case GOALS:
+                noteGroup = (GoalGroup) theGoalListKeeper.get(theName);
+                break;
+            case EVENTS:
+                noteGroup = (EventNoteGroup) theEventListKeeper.get(theName);
+                break;
+            case TODO_LIST:
+                noteGroup = (TodoNoteGroup) theTodoListKeeper.get(theName);
+                break;
+        }
+        return noteGroup;
+    }
 
     // Used by Test
     NoteGroup getTheNoteGroup() {
@@ -1472,7 +1494,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it if it exists or make a new one if it does not exist.
             if (goalGroup == null) {
-                goalGroup = (GoalGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                goalGroup = (GoalGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
 
                 if (goalGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
@@ -1520,7 +1542,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it, but only if a file for it already exists.
             if (eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                eventNoteGroup = (EventNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
                 if (eventNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theEventListKeeper.add(eventNoteGroup);
@@ -1567,7 +1589,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it, but only if a file for it already exists.
             if (todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
                 if (todoNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theTodoListKeeper.add(todoNoteGroup);
@@ -1614,7 +1636,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise construct it, but only if a file for it already exists.
             if (searchResultGroup == null) {
-                searchResultGroup = (SearchResultGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+                searchResultGroup = (SearchResultGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
                 if (searchResultGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theSearchResultsKeeper.add(searchResultGroup);

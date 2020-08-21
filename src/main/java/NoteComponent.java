@@ -796,6 +796,7 @@ public class NoteComponent extends JPanel {
                 case "Cut Line":
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     theNoteComponent.clear();
+                    theNoteComponent.setNoteChanged();
                     break;
                 case "Copy Line":
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
@@ -821,6 +822,7 @@ public class NoteComponent extends JPanel {
                         // are about to create from it/them will have proper corresponding forward link(s).
                         theNoteComponent.myNoteGroup.saveNoteGroup(); // (no checking of the result, at this time).
 
+//                        theNoteComponent.setNoteChanged(); // Inconsequential, since adding a reverse will save the group.
                         linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 
                         // These lines may be useful during dev - can disable eventually.
@@ -828,6 +830,17 @@ public class NoteComponent extends JPanel {
                         System.out.println(AppUtil.toJsonString(noteData));
                     }
 
+                    // If this NoteComponent's group has a keeper and was also viewed via the linkTargetSelectionPanel
+                    // during the link view/edit operation then it was pulled out of the AppTreePanel in order to be
+                    // shown and now the viewing pane of the main app will be empty but it will still appear to hold
+                    // the group.  You can see this by resizing the app; it will repaint as empty.
+                    // So the fix is to clear the tree selection and then reselect the current group.
+                    // This happens just from showing the group; the ultimate selection of a link (or not) does not
+                    // matter.  Not an issue for CalendarNoteGroups since they have no keeper, but no harm in doing
+                    // this for all linkable groups even in the less common case where it isn't needed.
+                    int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
+                    AppTreePanel.theInstance.getTree().clearSelection();
+                    AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
                     break;
                 case "Paste Line":
                     theNoteComponent.initialize();
@@ -841,15 +854,16 @@ public class NoteComponent extends JPanel {
                         // Otherwise we can only take the elements of the base class.
                         theNoteComponent.setNoteData(new NoteData(MemoryBank.clipboardNote));
                     }
+                    theNoteComponent.setNoteChanged();
                     break;
                 case "Clear Line":
                     theNoteComponent.clear();
+                    theNoteComponent.setNoteChanged();
                     break;
                 default:
                     System.out.println(theMenuItemText);
                     break;
             }
-            theNoteComponent.setNoteChanged();
         } // end actionPerformed
     } // end class PopHandler
 

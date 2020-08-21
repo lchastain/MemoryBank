@@ -60,10 +60,13 @@ public class LinkedEntityData extends BaseData {
     LinkType linkType;     // Says what kind of connection this is.  Values defined above.
     boolean reversed;
 
-    // This constructor is used by Jackson when loading the class from a file, and
-    // its usage internally here is followed by the additional needed declarations.
-    // Otherwise this constructor should not be used directly because we do not want
-    // to allow the targetGroupInfo to ever be null.
+    // This default constructor is used by Jackson when loading the predefined class from a
+    //      file, and in that case no further grooming of the data members occurs -
+    //      (even though we might want to).
+    // The other constructors here do use this one, but they continue on to fully define the data
+    //      entity when making a new one.
+    // Otherwise, this constructor should not be called and so it is scoped as 'private'.
+    //      This ensures that the targetGroupInfo will never be null.
     private LinkedEntityData() {
         super();
         linkType = LinkedEntityData.LinkType.RELATED;
@@ -88,7 +91,7 @@ public class LinkedEntityData extends BaseData {
         targetNoteData = null;
     }
 
-    // This is the true, 'meaty' constructor.  The other public ones lead here.
+    // This is the true, 'meaty' constructor, used to make a new data entity vs a copy or loaded from file.
     public LinkedEntityData(GroupInfo groupInfo, NoteInfo noteInfo) {
         this();
         targetGroupInfo = groupInfo;
@@ -101,7 +104,8 @@ public class LinkedEntityData extends BaseData {
     public LinkedEntityData(LinkedEntityData theCopy) {
         this();
 
-        // For these two we really do want the references to point to the same/original entity.
+        // For these two we really do want the references to point to the same/original entities;
+        //   we don't need to make new entities by calling thier copy constructors.
         targetGroupProperties = theCopy.targetGroupProperties;
         targetNoteData = theCopy.targetNoteData;
 
@@ -115,7 +119,7 @@ public class LinkedEntityData extends BaseData {
         retypeMe = theCopy.retypeMe;
         reversed = theCopy.reversed; // This will be overridden if not being called during a swap.
 
-        makeLinkTitle();
+        makeLinkTitle(); // Needed for swap operation, TODO - check the result when used for reverse links.
     } // end constructor
 
 

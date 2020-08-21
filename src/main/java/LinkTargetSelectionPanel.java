@@ -40,14 +40,17 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     NoteGroup selectedTargetGroup;
     CalendarNoteGroup calendarNoteGroup;
     NoteData selectedNoteData;
+    NoteData sourceEntity;  // This type will need to change, once we have an interface for both Groups and NoteData
+                    // LinkSource ?   LinkHolder ?
 
     public LinkTargetSelectionPanel(NoteData theFromEntity) {
         super(new BorderLayout());
         chosenCategory = "";
         appOpts = MemoryBank.appOpts;
+        sourceEntity = theFromEntity;
 
         // Set up for selection reporting -
-        baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(theFromEntity.noteString);
+        baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(sourceEntity.noteString);
         baseTargetSelectionString += " &nbsp; TO: &nbsp; ";
 
         createTree();  // Create the tree.
@@ -211,7 +214,16 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     // This is called by NoteComponent; implementation of the NoteSelection interface.
     @Override
     public void noteSelected(NoteData noteData) {
-        selectedNoteData = noteData;
+        if(noteData.instanceId.toString().equals(sourceEntity.instanceId.toString())) {
+            String ems = "You cannot link an entity to itself!";
+            JOptionPane.showMessageDialog(this,
+                    ems, "Error", JOptionPane.ERROR_MESSAGE);
+            theTree.clearSelection();
+            selectedTargetGroup = null;
+            selectedNoteData = null;
+        } else {
+            selectedNoteData = noteData;
+        }
         resetTargetSelectionLabel();
     }
 
@@ -399,7 +411,11 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             // Static flags - must be set before the group is instantiated, and reset afterwards.
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
-            GoalGroup goalGroup = (GoalGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+            GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
+            GoalGroup goalGroup = (GoalGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
+            if(goalGroup == null) {
+                goalGroup = (GoalGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+            }
             NoteComponent.isEditable = true;
             MemoryBank.readOnly = false;
 
@@ -423,7 +439,11 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             // Static flags - must be set before the group is instantiated, and reset afterwards.
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
-            EventNoteGroup eventNoteGroup = (EventNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+            GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
+            EventNoteGroup eventNoteGroup = (EventNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
+            if(eventNoteGroup == null) {
+                eventNoteGroup = (EventNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+            }
             NoteComponent.isEditable = true;
             MemoryBank.readOnly = false;
 
@@ -447,7 +467,11 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             // Static flags - must be set before the group is instantiated, and reset afterwards.
             MemoryBank.readOnly = true;
             NoteComponent.isEditable = false;
-            TodoNoteGroup todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.getGroup(parentNodeName, theNodeString);
+            GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
+            TodoNoteGroup todoNoteGroup = (TodoNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
+            if(todoNoteGroup == null) {
+                todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+            }
             NoteComponent.isEditable = true;
             MemoryBank.readOnly = false;
 

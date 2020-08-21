@@ -3,13 +3,21 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 
+
+There may be a problem with adding multiple links to Calendar note types; seems like some components could
+    be getting reused, causing a garbled editor panel until the app is restarted and the data all comes in
+    separately.
+
 NEXT:
+    When multiple links are added in the same session, the most recent one has the effect of resetting all the
+    previous link types to 'related'.  This is because rebuildPanel is called each time, but the linkType of
+    the new ones has never been set.     may need to set them earlier...
 
-New link on an event - doesn't stay; bring back dialog - empty.
-
-Near term todo item linked to Ongoing line item, appeared to not make a reverse link.  Check it out.
 
 Links:
+    Do these 12 manually.  If problems, fix and determine if additional test code work is needed.
+        Check: Make the link, recall/verify it, restart and recall/verify.  Verify also each reverse.
+            group reversals currently can only be verified by reviewing the file data.
     Todo Item --> Goal
     Todo Item --> Goal & Milestone
     Todo Item --> Event Group
@@ -25,13 +33,11 @@ Links:
 
 
     Reverse Links -
-        do the NoteData reverses first; worry about reverse links for NoteGroups later; we have no way to see them, yet.
+        Call up the editor for NoteGroups and deal with null NoteData at that time.
 
         CalendarNoteGroups and EventNoteGroups do not save without data, which is ok
                 unless their properties now has a non-empty linkTargets (as a result of a reverse link)
                 verify that these do save - appears to be yes, for now - reverify after reaching stability.
-
-        Need a different component visualization for a reverse link - possibly a background color
 
         If the forward link is deleted, also remove the reverse link, if it can be found.
 
@@ -65,15 +71,49 @@ Links:
 
 New:
 
+=====================================================================================================
+
+8/21/2020 0634 - Much consideration given to dropping keepers (see 'keepers' file in help folder) but the
+  pros of keeping them seem to far outweigh the problems seen here, and the problems seen here are not
+  problems with the keepers, but with the design of the solution that didn't take them into consideration
+  in the first place.  The proposed fix of adding a 'setEditable' method to a group is therefore not a 'patch';
+  it is what we should have had for some time now, ever since the idea to have a Group be editable or not
+  editable was first introduced.
+
+8/20/2020 1140 -
+  Need to disallow a link to itself.  Besides the obvious logical reason for not wanting this, there are
+    Exceptions thrown because the reverse link is also to itself, and that causes Vector concurrency issues.
+    Added a test to compare IDs, disallow with an error dialog if they match.
+  Showing a group from the keeper as a selection target, removes it from the AppTreePanel tree rightPane.
+    Fixed this by adding a group reselect block to the context menu handler if the op was link editing.
+    This applies to all groups that can call up the editor because there is no way of knowing whether or
+    not the same group was 'viewed' in the link selection panel (although that wouldn't matter for a
+    CalendarNoteGroup, but the applying the same fix to them does no harm, so allowing it for now).
+  1652 - Now yet more fallout from using 'kept' groups - since we don't construct them, they are still
+    editable when showing in the targetSelectionPanel.  Now considering - get rid of keepers, or continue
+    patching up holes caused by using them?  If we patch this one, thinking of having a method that will
+    sweep through the panel and shut everything down.  But it would need to be restored when linking is done.
+
+8/19/2020 0849
+  Found a problem that reverse links to groups with keepers, where that group had been viewed, were not being created.
+    The issue was that the linker was using a new group and not the one in the keeper.  To fix, had to add a method to
+    AppTreePanel to allow retrieval of groups from the keepers.  Using that method (try keeper first), problem fixed,
+    and this solved a different issue where the newest (unsaved) notes were not selectable link targets.  Now they are.
+  Fixed:  The 'save' that occurs at link OK does not adjust the menu items.  This was because of the setNoteChanged()
+    call that was coming regardless of which context menu item was selected.  There are a couple of them (this one
+    included) that should not say that the note was changed afterwards (since in this case part of the action is to
+    save the group).
+  1551 - Fixed:  New link on an event seems ok but bring back dialog - empty.  The problem was in the EventNoteData
+    copy constructor - it called super() with no param.
+
+
+8/18/2020 0815
     Fixed: A new Group goes ok to the app tree, but does not show up for LinkTargetSelections, in the current session.
       Now at the end of adding a new group (in AppTreePanel), make a call to updateTreeState(true).
     Added a new functional Test class - LinkagesEditorPanelTest.  Tests the two main panel constructors and most of
       the editor panel functionality.  Will add to this as needed, if/when operational activities turn up problems
-      that testing could have avoided.
-
-
-
-=====================================================================================================
+      that testing could have avoided.  Committed, at this point.
+    Gave a different component visualization for a reverse link - background color orange.
 
 8/16/2020 - Only a small bit of manual testing, and problems are turning up in random places.  Already fixed some
     related to new group creations, where 'myNoteGroup.myProperties' could still get to be null.  This seems like a

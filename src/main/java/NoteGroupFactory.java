@@ -8,7 +8,7 @@ class NoteGroupFactory {
     // This method will return the requested NoteGroup only if a file for
     // it exists; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static NoteGroup getGroup(String groupName, String filename) {
+    static NoteGroup loadGroup(String groupName, String filename) {
         if (groupName.startsWith("Goal")) {
             areaName = GoalGroup.areaName;
             if (exists(filename)) {
@@ -38,8 +38,8 @@ class NoteGroupFactory {
     }
 
     // Use this method if you want to get the group whether it has a data file or not.
-    static NoteGroup getOrMakeGroup(String theContext, String filename) {
-        NoteGroup theGroup = getGroup(theContext, filename);
+    static NoteGroup loadOrMakeGroup(String theContext, String filename) {
+        NoteGroup theGroup = loadGroup(theContext, filename);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.
