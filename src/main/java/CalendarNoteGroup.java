@@ -29,7 +29,6 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     CalendarNoteGroup(String defaultSubject) {
         super();
         super.setDefaultSubject(defaultSubject);
-        addNoteAllowed = !MemoryBank.readOnly;
 
         myProperties = null; // We get a different Properties with every choice.
         theChoice = LocalDate.now();

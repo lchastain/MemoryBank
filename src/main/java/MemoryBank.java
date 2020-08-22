@@ -34,7 +34,6 @@ public class MemoryBank {
     static JFrame logFrame;
     static Notifier optionPane;
     static SubSystem system;
-    static boolean readOnly;
 
     static {
         // These can be 'defined' in the startup command.  Ex:
@@ -56,7 +55,6 @@ public class MemoryBank {
         setProgramDataLocation();
 
         appOpts = new AppOptions(); // Start with default values.
-        readOnly = false;
 
         // Set the Look and Feel
         try {

@@ -34,7 +34,7 @@ public class SearchResultGroup extends NoteGroup {
 
         myProperties = new SearchResultGroupProperties(groupName);
         myProperties.myNoteGroup = this; // May not be used, since this only applies to links.
-        addNoteAllowed = false;
+        editable = false;
         setGroupFilename(areaPath + filePrefix + getName() + ".json");
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
@@ -172,6 +172,7 @@ public class SearchResultGroup extends NoteGroup {
     @Override
     protected JComponent makeNewNote(int i) {
         SearchResultComponent src = new SearchResultComponent(this, i);
+        src.setEditable(false);
         src.setVisible(false);
         return src;
     } // end makeNewNote
@@ -281,6 +282,7 @@ public class SearchResultGroup extends NoteGroup {
 
 
     public void shiftDown(int index) {
+//        if(!editable) return;  // Seems like a user SHOULD be able to sort their results.
         if (index >= lastVisibleNoteIndex) return;
         System.out.println("SRG Shifting note down");
         SearchResultComponent src1, src2;
@@ -293,6 +295,7 @@ public class SearchResultGroup extends NoteGroup {
 
 
     public void shiftUp(int index) {
+//        if(!editable) return;
         if (index == 0) return;
         System.out.println("SRG Shifting note up");
         SearchResultComponent src1, src2;

@@ -67,7 +67,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;
-        addNoteAllowed = !MemoryBank.readOnly;
         myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
         myProperties.myNoteGroup = this;
 

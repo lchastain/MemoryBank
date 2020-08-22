@@ -376,8 +376,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "Note";
 
             // Static flags - must be set before the group is instantiated.
-            MemoryBank.readOnly = true;
-            NoteComponent.isEditable = false;
+//            MemoryBank.readOnly = true;
+//            NoteComponent.isEditable = false;
 
             switch (theNodeString) {
                 case "Day Notes":
@@ -391,10 +391,11 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                     break;
             }
             // Reset the static flags
-            NoteComponent.isEditable = true;
-            MemoryBank.readOnly = false;
+//            NoteComponent.isEditable = true;
+//            MemoryBank.readOnly = false;
 
             if (calendarNoteGroup != null) {
+                calendarNoteGroup.setEditable(false);
                 calendarNoteGroup.setAlteredDateListener(this);
                 selectedTargetGroup = calendarNoteGroup;
                 resetTargetSelectionLabel();
@@ -409,15 +410,15 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "Goal";
 
             // Static flags - must be set before the group is instantiated, and reset afterwards.
-            MemoryBank.readOnly = true;
-            NoteComponent.isEditable = false;
+//            MemoryBank.readOnly = true;
+//            NoteComponent.isEditable = false;
             GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
             GoalGroup goalGroup = (GoalGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
                 goalGroup = (GoalGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
-            NoteComponent.isEditable = true;
-            MemoryBank.readOnly = false;
+//            NoteComponent.isEditable = true;
+//            MemoryBank.readOnly = false;
 
             if (goalGroup == null) {
                 // We just tried to retrieve it or to load it, so if it is STILL null then we
@@ -430,6 +431,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 selectedTargetGroup = goalGroup;
+                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(goalGroup.theBasePanel);
             } // end if
@@ -437,15 +439,15 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "Upcoming Event";
 
             // Static flags - must be set before the group is instantiated, and reset afterwards.
-            MemoryBank.readOnly = true;
-            NoteComponent.isEditable = false;
+//            MemoryBank.readOnly = true;
+//            NoteComponent.isEditable = false;
             GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
             EventNoteGroup eventNoteGroup = (EventNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
                 eventNoteGroup = (EventNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
-            NoteComponent.isEditable = true;
-            MemoryBank.readOnly = false;
+//            NoteComponent.isEditable = true;
+//            MemoryBank.readOnly = false;
 
             if (eventNoteGroup == null) {
                 // We just tried to retrieve it or to load it, so if it is STILL null then we
@@ -458,6 +460,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 selectedTargetGroup = eventNoteGroup;
+                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } // end if
@@ -465,15 +468,15 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "To Do List";
 
             // Static flags - must be set before the group is instantiated, and reset afterwards.
-            MemoryBank.readOnly = true;
-            NoteComponent.isEditable = false;
+//            MemoryBank.readOnly = true;
+//            NoteComponent.isEditable = false;
             GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
             TodoNoteGroup todoNoteGroup = (TodoNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
                 todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
-            NoteComponent.isEditable = true;
-            MemoryBank.readOnly = false;
+//            NoteComponent.isEditable = true;
+//            MemoryBank.readOnly = false;
 
             if (todoNoteGroup == null) {
                 // We just tried to retrieve it or to load it, so if it is STILL null
@@ -486,6 +489,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 rightPane.setViewportView(jp);
             } else {
                 selectedTargetGroup = todoNoteGroup;
+                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(todoNoteGroup.theBasePanel);
             } // end if

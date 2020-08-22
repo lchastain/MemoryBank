@@ -163,7 +163,7 @@ public abstract class IconNoteComponent extends NoteComponent {
 
         NoteIcon() {
             super();
-            if(isEditable) {
+            if(editable) {
                 addMouseListener(this);
             }
             setBorder(highBorder);

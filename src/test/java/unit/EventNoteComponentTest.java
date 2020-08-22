@@ -1,4 +1,3 @@
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,15 +7,11 @@ class EventNoteComponentTest {
 
     @BeforeEach
     void setUp() {
-        NoteComponent.isEditable = false;
         myEventNoteGroup = new EventNoteGroup("testEventGroup");
+        myEventNoteGroup.setEditable(false);
         theEventNoteComponent = new EventNoteComponent(myEventNoteGroup, 0);
     }
 
-    @AfterEach
-    void tearDown() {
-        NoteComponent.isEditable = true;
-    }
 
     @Test
     void testMakeDataObject() {
@@ -31,7 +26,7 @@ class EventNoteComponentTest {
     @Test
     void testResetNoteStatusMessage() {
         theEventNoteComponent.resetNoteStatusMessage(NoteComponent.NEEDS_TEXT);
-        NoteComponent.isEditable = true;
+        theEventNoteComponent.setEditable(true);
         theEventNoteComponent = new EventNoteComponent(myEventNoteGroup, 1);
         theEventNoteComponent.resetNoteStatusMessage(NoteComponent.NEEDS_TEXT);
         theEventNoteComponent.resetNoteStatusMessage(NoteComponent.HAS_BASE_TEXT);

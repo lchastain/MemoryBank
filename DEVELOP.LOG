@@ -4,14 +4,14 @@ Not comprehensive.
 
 
 
-There may be a problem with adding multiple links to Calendar note types; seems like some components could
-    be getting reused, causing a garbled editor panel until the app is restarted and the data all comes in
-    separately.
-
 NEXT:
     When multiple links are added in the same session, the most recent one has the effect of resetting all the
     previous link types to 'related'.  This is because rebuildPanel is called each time, but the linkType of
     the new ones has never been set.     may need to set them earlier...
+
+There may be a problem with adding multiple links to Calendar note types; seems like some components could
+    be getting reused, causing a garbled editor panel until the app is restarted and the data all comes in
+    separately.
 
 
 Links:
@@ -73,12 +73,31 @@ New:
 
 =====================================================================================================
 
+8/22/2020 0851 -
+  The problem:  NoteGroups pulled from keepers are editable in the LinkTargetSelectionPanel; they shouldn't be, and those that are
+  constructed for use in that panel are not editable.  The proposed solution of adding a 'setEditable()' method to NoteGroups -
+  is highlighting perhaps another design flaw - that NoteGroups are a collection of Swing components and the data that is in
+  them, and maybe they should be two separate things - a NoteGroupPanel class that extends from JPanel, and a NoteGroupData
+  class that ties together the GroupProperties and GroupDataVector, extending from a FileGroup.
+    MAYBE - but the initial solution is going to be just the addition of the new method, looking for how/where to insert it
+        and get it working.  If this major refactor is needed for that or would greatly help then it might also go forward
+        at that time.
+  One reason this came up:  Data changes do not always come from user action in an interface; sometimes the user edits an onscreen
+    note but other times a reverse link might be added.  In the case of under-the-hood data alterations, it makes no sense to have
+    to scrape the visible interface (unloadInterface) to collect the data back into a persistable Object.  So previously the only
+    path to save was via the NoteGroup.preClose(), which did that.  Now, methods can call NoteGroup.saveNoteGroup() directly, and
+    the lines between the two concepts become more clear cut and more justifying of a formal separation.
+  Resolution:  Did add the setEditable() to NoteGroup and NoteComponent, and changed the static nature to an instance.
+    We are about to spend our first night in the cottage, so development over the weekend is off.
+    But otherwise - ready to work on the issues around adding multiple links in the same session, and fixing the
+    linkTitles of CalendarNoteGroups when there are multiple ones in the UI.  Then can go back to (manual) testing.
+
 8/21/2020 0634 - Much consideration given to dropping keepers (see 'keepers' file in help folder) but the
   pros of keeping them seem to far outweigh the problems seen here, and the problems seen here are not
   problems with the keepers, but with the design of the solution that didn't take them into consideration
   in the first place.  The proposed fix of adding a 'setEditable' method to a group is therefore not a 'patch';
   it is what we should have had for some time now, ever since the idea to have a Group be editable or not
-  editable was first introduced.
+  editable was first introduced.  Committed at this point, prior to starting on the new approach.
 
 8/20/2020 1140 -
   Need to disallow a link to itself.  Besides the obvious logical reason for not wanting this, there are

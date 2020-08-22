@@ -13,7 +13,7 @@ import java.awt.event.*;
 
 public class NoteComponent extends JPanel {
     private static final long serialVersionUID = 1L;
-    static boolean isEditable = true;
+    boolean editable = true;
 
     // The Members
     NoteData myNoteData;
@@ -102,7 +102,7 @@ public class NoteComponent extends JPanel {
         makeDataObject(); // Child classes override this method and set their own data types.
 
         noteTextField = new NoteTextField();
-        if(!isEditable) {
+        if(!editable) {
             noteTextField.setEditable(false);
         }
 
@@ -356,6 +356,10 @@ public class NoteComponent extends JPanel {
         noteTextField.requestFocusInWindow();
     } // end NoteComponent setActive
 
+    void setEditable(boolean b) {
+        editable = b;
+        noteTextField.setEditable(editable);
+    }
 
     public void setNoteChanged() {
         myManager.setGroupChanged(true);

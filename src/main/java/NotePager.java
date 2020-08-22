@@ -133,7 +133,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
         else if ((intGroupSize % intPageSize) == 0) { // The data comes out to an even number of pages, exactly.
             intMaxPages = (intGroupSize / intPageSize);
-            if (myNoteGroup.addNoteAllowed) {
+            if (myNoteGroup.editable) {
                 intMaxPages = (intGroupSize / intPageSize) + 1; // Add a page for 'growth'.
             }
         } else intMaxPages = (intGroupSize / intPageSize) + 1;  // A partial last page.

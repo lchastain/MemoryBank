@@ -716,9 +716,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // So we don't actually use it.
             if (theBigGroup == null) {
                 // Instead, we instantiate a new (empty) EventNoteGroup, that will be used to show scheduled events.
-                NoteComponent.isEditable = false; // This is a non-editable group.
+//                NoteComponent.isEditable = false; // This is a non-editable group.
                 theBigGroup = new EventNoteGroup("Scheduled Events");
-                NoteComponent.isEditable = true; // Put it back to the default value.
+                theBigGroup.setEditable(false);
+//                NoteComponent.isEditable = true; // Put it back to the default value.
                 continue;
             }
             // Then we can look at merging any possible child nodes into the CV group.
@@ -739,7 +740,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         }
         if (theUniqueSet == null) return null;
         groupDataVector = new Vector<>(theUniqueSet);
-        theBigGroup.addNoteAllowed = false;
+        theBigGroup.setEditable(false);
         theBigGroup.showGroupData(groupDataVector);
         theBigGroup.doSort();
         return theBigGroup;
@@ -1501,6 +1502,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theGoalListKeeper.add(goalGroup);
                 }
             } else {
+                if(!goalGroup.editable) goalGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1548,6 +1550,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theEventListKeeper.add(eventNoteGroup);
                 }
             } else {
+                if(!eventNoteGroup.editable) eventNoteGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1595,6 +1598,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theTodoListKeeper.add(todoNoteGroup);
                 }
             } else {
+                if(!todoNoteGroup.editable) todoNoteGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 

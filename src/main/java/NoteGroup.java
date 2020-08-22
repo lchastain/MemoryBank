@@ -23,7 +23,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     GroupProperties myProperties;
     TypeReference myGroupDataType;
 
-    boolean addNoteAllowed;
+    boolean editable;
     boolean saveWithoutData;
     int lastVisibleNoteIndex = 0;
     int pageSize;
@@ -84,7 +84,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             } // end getPreferredSize
         };
         pageSize = intPageSize;
-        addNoteAllowed = true;
+        editable = true;
         saveWithoutData = false;
         intHighestNoteComponentIndex = pageSize - 1;
 
@@ -347,6 +347,18 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     } // end getGroupProperties
 
 
+    // This method does not care about what data might be contained in the NoteComponents, or what
+    // page you might be on.  It simply enables or disables every NoteComponent in the group.
+    void setEditable(boolean b) {
+        editable = b;
+        lastVisibleNoteIndex = -1;
+        NoteComponent tempNoteComponent;
+        for (int panelIndex = 0; panelIndex < pageSize; panelIndex++) {
+            tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
+            tempNoteComponent.setEditable(editable);
+        }
+    }
+
     //----------------------------------------------------------------
     // Method Name: setGroupChanged
     //
@@ -530,7 +542,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             }
         } // end for
 
-        if (addNoteAllowed) activateNextNote(lastVisibleNoteIndex);
+        if (editable) activateNextNote(lastVisibleNoteIndex);
         MemoryBank.debug("lastVisibleNoteIndex is " + lastVisibleNoteIndex);
 
         // Each of the 'setNoteData' calls above would have set this to true, but this method may
@@ -772,6 +784,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //   the overload that they are doing now (change the parameter to
     //   a NoteComponent but leave the cast to child class).
     public void shiftDown(int index) {
+//        if(!editable) return;
         // Prevent the next-to-last note from shifting
         //   down, if it is on the last page (because the note below,
         //   that it would swap with, is not initialized).
@@ -800,6 +813,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
 
     public void shiftUp(int index) {
+//        if(!editable) return;
         // Prevent the first note on the page from shifting up.
         if (index == 0) {
             if (theNotePager.getCurrentPage() == 1) return;

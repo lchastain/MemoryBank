@@ -45,8 +45,6 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         super(10);
         log.debug("Constructing: " + groupName);
 
-        addNoteAllowed = !MemoryBank.readOnly; // Allows construction for selection-only dialogs
-
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
 
         tmc = new ThreeMonthColumn();

@@ -391,7 +391,7 @@ public class TodoNoteComponent extends NoteComponent {
             super("  ");
 
             setFont(Font.decode("Monospaced-bold-12"));
-            if(isEditable) addMouseListener(this);
+            if(editable) addMouseListener(this);
             disableEvents(AWTEvent.FOCUS_EVENT_MASK + AWTEvent.COMPONENT_EVENT_MASK
                     + AWTEvent.ACTION_EVENT_MASK + AWTEvent.MOUSE_MOTION_EVENT_MASK
                     + AWTEvent.ITEM_EVENT_MASK);
@@ -538,7 +538,7 @@ public class TodoNoteComponent extends NoteComponent {
 
         public StatusButton() {
             super();
-            if(isEditable) addMouseListener(this);
+            if(editable) addMouseListener(this);
 
             setOpaque(true);
             showStatusIcon();
