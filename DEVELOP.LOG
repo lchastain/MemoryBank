@@ -75,6 +75,8 @@ New:
     Age events was preventing a load of one event group - made a change to AppUtil.addNote, to allow that DayNoteGroups
       now have properties.
     Commit point.  Still testing.  Not seeing reverse links to Event Groups.
+  1557 - found that group properties myGroup was not being set well for older Event data files.  Gave it the same
+    resolution that TodoNoteGroups have.  CalendarNoteGroups are slightly different, and need a method call to access.
 
 8/22/2020 0851 -
   The problem:  NoteGroups pulled from keepers are editable in the LinkTargetSelectionPanel; they shouldn't be, and those that are

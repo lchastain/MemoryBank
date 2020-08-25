@@ -64,7 +64,7 @@ class EventAgingTest {
         File theLastFile = new File(filename4);
         Object[] theData = FileGroup.loadFileData(theLastFile);
         Assertions.assertNotNull(theData);
-        Assertions.assertEquals(1, ((ArrayList) theData[0]).size());
+        Assertions.assertEquals(1, ((ArrayList) theData[theData.length-1]).size());
 
         // More refreshing.  If the event had not been aged, data files will grow.
         eventNoteGroup.refresh();
@@ -73,7 +73,7 @@ class EventAgingTest {
         // Reload the data file and verify that it did not grow.
         theData = FileGroup.loadFileData(theLastFile);
         Assertions.assertNotNull(theData);
-        Assertions.assertEquals(1, ((ArrayList) theData[0]).size());
+        Assertions.assertEquals(1, ((ArrayList) theData[theData.length-1]).size());
     }
 
 }

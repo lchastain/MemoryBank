@@ -68,7 +68,6 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;
         myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
-        myProperties.myNoteGroup = this;
 
         eventNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -88,6 +87,13 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //------------------------------------------------------------------------------------
         // Extracted from 'refresh()', to avoid the first unnecessary preClose().
         updateGroup();
+
+        if(myProperties == null) {
+            // This happens when there was no file to load - in the case of a new group.
+            myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
+        }
+        myProperties.myNoteGroup = this;
+
 
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or

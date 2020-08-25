@@ -54,6 +54,8 @@ class LinkagesEditorPanelTest {
     }
 
 
+    // This test is for coverage only; it exercises the two panel constructors as well as the manual sorting
+    //    functionality, and then the other methods that are called from those.  No assertions needed.
     @Test
     void testLinkagesEditorPanel() throws InterruptedException {
         // Make a new Todo note and tell it that it belongs to the todoNoteGroup.
@@ -74,7 +76,7 @@ class LinkagesEditorPanelTest {
         todoNoteData.linkTargets.add(led1);
         todoNoteData.linkTargets.add(led2);
 
-        // Invoke the editor panel for the new source Note -
+        // Construct the editor panel for the new source Note -
         linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.myProperties, todoNoteData);
         linkagesEditorPanel.editExtendedNoteComponent(todoNoteData);
 
@@ -121,8 +123,36 @@ class LinkagesEditorPanelTest {
     } // end test
 
 
-//    @Test
-//    void testAddReverseLinks() {
-//    }
+    @Test
+    void testAddReverseLinks() {
+        // Make a new Todo note and tell it that it belongs to the todoNoteGroup.
+        TodoNoteData todoNoteData = new TodoNoteData();
+        todoNoteData.noteString = "Links from a TodoNote.";
+        todoNoteData.myNoteGroup = todoNoteGroup; // Not actually true, but this works for our purposes.
+
+        // Construct the editor panel for the new source Note -
+        linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.myProperties, todoNoteData);
+
+        // Add two (valid) links to the panel.  This will ensure that the loop for adding a reverse link will run twice.
+        NoteData noteData1 = new NoteData();
+        noteData1.noteString = "milestone note.";
+        NoteData noteData2 = new DayNoteData();
+        noteData2.noteString = "day note";
+        LinkedEntityData led1 = new LinkedEntityData(goalGroup.myProperties, noteData1);
+        led1.linkType = LinkedEntityData.LinkType.DEPENDING_ON;
+        LinkedEntityData led2 = new LinkedEntityData(dayNoteGroup.getGroupProperties(), noteData2);
+        led2.linkType = LinkedEntityData.LinkType.AFTER;
+
+        // Add the two links to the panel's link holder -
+        linkagesEditorPanel.editedNoteData.linkTargets.add(led1);
+        linkagesEditorPanel.editedNoteData.linkTargets.add(led2);
+
+        // T-crossing, for coverage.
+        linkagesEditorPanel.editExtendedNoteComponent(todoNoteData);
+        linkagesEditorPanel.activateNextNote(0);
+
+        // Here it is -
+        linkagesEditorPanel.addReverseLinks(linkagesEditorPanel.editedNoteData.linkTargets);
+    }
 
 }

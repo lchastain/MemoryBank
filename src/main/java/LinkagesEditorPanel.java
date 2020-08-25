@@ -113,6 +113,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         // previously saveNoteGroup was only done from preClose - now for this usage it is no longer a private method
         // - verify this is GOOD.
         // And maybe consolidate the work from AppUtil, where a note can be moved or copied to Day, from Todo or Event.
+        //   or not - this relates to either properties or pre-existing notes, not new notes.
         if (groupToSave != null) groupToSave.saveNoteGroup();
     }
 
@@ -156,7 +157,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
             linkedEntityData.retypeMe = false; // (2)
 
             // TODO code in (3), (4), (5)
-            // for test purposes, may want a transient 'filterMe?' boolean, that will evade 3 & 4.
             linkTargets.add(linkedEntityData);
         }
 
