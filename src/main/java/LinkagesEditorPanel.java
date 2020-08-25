@@ -165,31 +165,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         editedNoteData.linkTargets = linkTargets;
     }
 
-    // Cycle through the interface and reconstruct the linkages
-    // for the result.
-    public Vector<LinkedEntityData> getEditedLinkages() {
-        int numLinks = groupNotesListPanel.getComponentCount();
-        editedNoteData.linkTargets.clear();
-        boolean deleteIt;
-
-        // This will fix any reordering, as well as drop out deletions.
-        for (int i = 0; i < numLinks; i++) {
-            LinkNoteComponent linkNoteComponent = (LinkNoteComponent) groupNotesListPanel.getComponent(i);
-            deleteIt = deleteCheckedLinks && linkNoteComponent.deleteCheckBox.isSelected();
-            if (deleteIt) {
-                // It will be deleted simply by not including it in the results, but we also want to
-                // remove its reverse link, if this is a forward one.
-                if (!linkNoteComponent.myLinkedEntityData.reversed) { // If this is a forward link -
-                    System.out.println("NOT YET deleting a reverse link!!!");
-                }
-            } else {
-                editedNoteData.linkTargets.add(linkNoteComponent.getLinkTarget());
-            }
-
-        }
-        return editedNoteData.linkTargets;
-    }
-
     @Override
     public int getLastVisibleNoteIndex() {
         return lastVisibleNoteIndex;
@@ -230,6 +205,13 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 if (choice == JOptionPane.OK_OPTION) {
                     // This event comes from selecting a new link; it is NOT the 'OK' for this panel.
                     // The 'OK' for this panel is handled where it was invoked.
+
+                    // First - capture any link type or ordering changes in the existing list.
+                    deleteCheckedLinks = false;
+                    // This will update all pre-existing link types; they could have changed between
+                    // link additions, when this dialog is used to add more than just one.
+                    updateLinkagesFromEditor();
+                    deleteCheckedLinks = true;
 
                     if (linkTargetSelectionPanel.selectedTargetGroup == null)
                         return; // No Group selection - just go back.
@@ -364,6 +346,33 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         nc2.setActive();
     } // end shiftUp
 
+
+    // Cycle through the interface and rebuild the linkages.
+    void updateLinkagesFromEditor() {
+        int numLinks = groupNotesListPanel.getComponentCount();
+        editedNoteData.linkTargets.clear();
+        boolean deleteIt;
+
+        // This will fix any reordering, update the link type (if needed) of 'new' links, and drop out deletions.
+        for (int i = 0; i < numLinks; i++) {
+            LinkNoteComponent linkNoteComponent = (LinkNoteComponent) groupNotesListPanel.getComponent(i);
+            deleteIt = deleteCheckedLinks && linkNoteComponent.deleteCheckBox.isSelected();
+            if (deleteIt) {
+                // It will be deleted simply by not including it in the results, but we also want to
+                // remove its reverse link, if this is a forward one.
+                if (!linkNoteComponent.myLinkedEntityData.reversed) { // If this is a forward link -
+                    System.out.println("NOT YET deleting a reverse link!!!");
+                    // But we only need to do that if this is a pre-existing link, not needed for a 'new' one.
+                }
+            } else {
+                // This will set the link type according to the combobox value.
+                // (it also sets 'deleteMe' to false, if needed, but thanks to the other part of this
+                //   conditional branch, that only matters when doing a 'swap').
+                editedNoteData.linkTargets.add(linkNoteComponent.getLinkTarget());
+            }
+
+        }
+    }
 
 }
 

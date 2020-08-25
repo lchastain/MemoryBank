@@ -63,7 +63,8 @@ public class LinkEditorMain {
         // We don't actually want to handle the 'Ok' button, given that this
         // is just a test driver.  But we will show the result -
         if (choice == JOptionPane.OK_OPTION) {
-            sourceNoteData.linkTargets = linkagesEditorPanel.getEditedLinkages();
+            linkagesEditorPanel.updateLinkagesFromEditor();
+            sourceNoteData.linkTargets = linkagesEditorPanel.editedNoteData.linkTargets;
             System.out.println("\nEditing results: \n");
             System.out.println(AppUtil.toJsonString(sourceNoteData));
         } else {

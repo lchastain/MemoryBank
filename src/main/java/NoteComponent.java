@@ -820,7 +820,8 @@ public class NoteComponent extends JPanel {
 
                     if (choice == JOptionPane.OK_OPTION) {
                         // Replace the original linkTargets with the linkTargets from the edited note.
-                        noteData.linkTargets = linkagesEditorPanel.getEditedLinkages();
+                        linkagesEditorPanel.updateLinkagesFromEditor();
+                        noteData.linkTargets = linkagesEditorPanel.editedNoteData.linkTargets;
 
                         // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
                         // are about to create from it/them will have proper corresponding forward link(s).

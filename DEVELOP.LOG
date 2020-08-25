@@ -5,14 +5,6 @@ Not comprehensive.
 
 
 NEXT:
-    When multiple links are added in the same session, the most recent one has the effect of resetting all the
-    previous link types to 'related'.  This is because rebuildPanel is called each time, but the linkType of
-    the new ones has never been set.     may need to set them earlier...
-
-There may be a problem with adding multiple links to Calendar note types; seems like some components could
-    be getting reused, causing a garbled editor panel until the app is restarted and the data all comes in
-    separately.
-
 
 Links:
     Do these 12 manually.  If problems, fix and determine if additional test code work is needed.
@@ -71,7 +63,18 @@ Links:
 
 New:
 
+
 =====================================================================================================
+
+8/25/2020 0657
+    When multiple links are added in the same session, the most recent one has the effect of resetting all the
+      previous link types to 'related'.  This is because rebuildPanel is called each time, but the linkType of
+      the new ones has never been set.  This worked before; it broke when I removed the call to update the links prior
+      to accepting new ones.  So, restored the call to update the links but with a new method name, no longer need to
+      use a return value.
+    Age events was preventing a load of one event group - made a change to AppUtil.addNote, to allow that DayNoteGroups
+      now have properties.
+    Commit point.  Still testing.  Not seeing reverse links to Event Groups.
 
 8/22/2020 0851 -
   The problem:  NoteGroups pulled from keepers are editable in the LinkTargetSelectionPanel; they shouldn't be, and those that are
@@ -88,7 +91,8 @@ New:
     path to save was via the NoteGroup.preClose(), which did that.  Now, methods can call NoteGroup.saveNoteGroup() directly, and
     the lines between the two concepts become more clear cut and more justifying of a formal separation.
   Resolution:  Did add the setEditable() to NoteGroup and NoteComponent, and changed the static nature to an instance.
-    We are about to spend our first night in the cottage, so development over the weekend is off.
+    There will be no major classes refactoring at this time.
+    We are about to spend our first night in the cottage, so further development over the weekend is off.
     But otherwise - ready to work on the issues around adding multiple links in the same session, and fixing the
     linkTitles of CalendarNoteGroups when there are multiple ones in the UI.  Then can go back to (manual) testing.
 

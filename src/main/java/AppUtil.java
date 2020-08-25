@@ -537,14 +537,14 @@ public class AppUtil {
         // No pre-existing data file is ok in this case; we'll just make one.
         if (theGroup == null) {
             ArrayList al = new ArrayList(); // reason for suppressing the 'rawtypes' warning.
-            theGroup = new Object[1]; // Only a DayNoteGroup gets notes added this way; no properties.
-            theGroup[0] = al;
+            theGroup = new Object[2]; // Only a DayNoteGroup gets notes added this way.
+            theGroup[1] = al; // This is the data; Group Properties get made automatically, elsewhere.
         }
 
         // Now here is the cool part - we don't actually need to get the loaded data into a Vector
         // of a specific type (even though we know that the elements are all DayNoteData); we can
         // just add the note to the array of LinkedHashMap.
-        ((ArrayList) theGroup[0]).add(nd); // reason for suppressing the 'unchecked' warning.
+        ((ArrayList) theGroup[theGroup.length-1]).add(nd); // reason for suppressing the 'unchecked' warning.
 
         int notesWritten = FileGroup.saveFileData(theFilename, theGroup);
         return notesWritten >= 1;
