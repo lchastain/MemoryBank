@@ -51,7 +51,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         tmc.setSubscriber(this);
 
         // We can still have goal data without having (yet) defined milestones.
-        saveWithoutData = true;
+//        saveWithoutData = true;
 
         // Wrapped tmc in a FlowLayout panel, to prevent stretching.
         JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));

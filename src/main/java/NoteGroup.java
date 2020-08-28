@@ -24,7 +24,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     TypeReference myGroupDataType;
 
     boolean editable;
-    boolean saveWithoutData;
+//    boolean saveWithoutData;
     int lastVisibleNoteIndex = 0;
     int pageSize;
     private String groupFilename;
@@ -66,10 +66,12 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
     NoteGroup(int intPageSize) {
         super();
-        myGroupDataType = new TypeReference<Vector<NoteData>>() { };
+        myGroupDataType = new TypeReference<Vector<NoteData>>() {
+        };
 
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
+
             //--------------------------------------------------------------------
             // Method Name: getPreferredSize
             //
@@ -85,12 +87,13 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         };
         pageSize = intPageSize;
         editable = true;
-        saveWithoutData = false;
+//        saveWithoutData = false;
         intHighestNoteComponentIndex = pageSize - 1;
 
         groupDataVector = new Vector<>();
         jsp = new JScrollPane() {
             private static final long serialVersionUID = 1L;
+
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(super.getPreferredSize().width, 400);
@@ -140,7 +143,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         theBasePanel.add(lblStatusMessage, BorderLayout.SOUTH);
 
         // A variant of JOptionPane, for testing.
-        optionPane = new Notifier() { }; // Uses all default methods.
+        optionPane = new Notifier() {
+        }; // Uses all default methods.
 
         // Cannot do the updateGroup() here because child classes
         //   first need to establish their Filenames in their own
@@ -161,7 +165,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         if ((noteIndex >= 0) && (noteIndex < lastVisibleNoteIndex)) return;  // already showing.
 
         // noteIndex is -1 when we have come here from loadInterface, where the displayed page is empty.
-        if(noteIndex >= 0) {
+        if (noteIndex >= 0) {
             // Get the component for the indicated noteIndex (the note we're 'coming from').
             NoteComponent thisNote = (NoteComponent) groupNotesListPanel.getComponent(noteIndex);
 
@@ -188,7 +192,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
                     // from initialize() after a note has been added into the last available slot on the current page.
                     // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
                     // see that the total page count should be increased (by one).
-                    if(groupChanged) unloadInterface(tmpPage);
+                    if (groupChanged) unloadInterface(tmpPage);
 
                     theNotePager.reset(tmpPage);
                 } // end if
@@ -421,11 +425,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
     // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
     // Exception that needed to be caught.
-    void setGroupData(Object[] theGroup)  {
+    void setGroupData(Object[] theGroup) {
         int theLength = theGroup.length;
         // This method should not be called if 'theGroup' is null.  Otherwise it
         // will be an object array but the array could still be empty, somehow.
-        if(theLength == 0) return;
+        if (theLength == 0) return;
 
         // Now the length can either be 1 or 2.  If 2 then it will be a group properties and
         // the group data vector, but this is a relatively new structure where previously there
@@ -436,13 +440,13 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         // going with it for now.  One possible future 'data fix' (other than writing a DataFix program)
         // could come when/if the app is ever ported into a database.
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        if(theLength == 1) {
+        if (theLength == 1) {
             // There are two cases where there might only be one element in the object array:
             // 1.  Old, legacy data that was originally saved without GroupProperties.
             // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
             String theClass = theGroup[0].getClass().getName();
             System.out.println("The NoteData class type is: " + theClass);
-            if(theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
+            if (theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
                 groupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
             } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
                 myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
@@ -549,7 +553,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
             if (dataIndex <= maxDataIndex) { // Put vector data into the interface.
                 MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
-                tempNoteComponent.setNoteData((NoteData)groupDataVector.elementAt(dataIndex)); // sets initialized to true
+                tempNoteComponent.setNoteData((NoteData) groupDataVector.elementAt(dataIndex)); // sets initialized to true
                 tempNoteComponent.setVisible(true);
                 lastVisibleNoteIndex = panelIndex;
                 dataIndex++;
@@ -758,25 +762,21 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             theGroup[0] = groupProperties;
             theGroup[1] = trimmedList;
         } else {
+            // Don't think this should ever happen, now.  But leaving it here for a while...
             theGroup = new Object[1];
             theGroup[0] = trimmedList;
         } // end if there is a properties object
 
-        if (saveWithoutData) {
-            // We save a file, with data or not.
+        // If there is data to preserve, do so now.
+        if ((groupProperties != null) || (trimmedList.size() > 0)) {
+            // If we always have properties, then this condition should just go away (but keep the 'save').
             notesWritten = FileGroup.saveFileData(groupFilename, theGroup);
-        } else {
-            // If there is data to preserve, do so now.
-            if ((groupProperties != null) || (trimmedList.size() > 0)) {
-                notesWritten = FileGroup.saveFileData(groupFilename, theGroup);
-            } // end if
+        } // end if
 
-            // We didn't try to write a file if there was no data, but there are cases where
-            // a file for this data might already be out there, that shouldn't be -
-            // for example, if a file was previously created for writing but then the writes
-            // failed, and we're here again at a later time.
-            if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
-        }
+        // There are cases where a file for this data might already be out there, that shouldn't be -
+        // for example, if a file was previously created for writing but then the writes
+        // failed, and we're here again at a later time.
+        if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
 
         if (notesWritten == trimmedList.size()) {
             intSaveGroupStatus = SUCCEEDED + notesWritten;
@@ -981,7 +981,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             if (dataIndex <= maxDataIndex) {
                 groupDataVector.setElementAt(tempNoteData, dataIndex);
             } else {  // New, user-entered data is in the interface.  Get it.
-                if(tempNoteComponent.initialized) {  // This could be false on the last note on the page.
+                if (tempNoteComponent.initialized) {  // This could be false on the last note on the page.
                     System.out.println("NoteGroup.unloadInterface: Adding new element!");
                     groupDataVector.addElement(tempNoteData);
                 }
@@ -1063,7 +1063,6 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             } // end if
         } // end compare
     } // end class NoteStringComparator
-
 
 
     boolean getGroupChanged() {

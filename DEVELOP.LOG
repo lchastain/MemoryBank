@@ -7,30 +7,9 @@ NEXT:
 
 
 Links:
-    Do these 12 manually.  If problems, fix and determine if additional test code work is needed.
-        Check: Make the link, recall/verify it, restart and recall/verify.  Verify also each reverse.
-            group reversals currently can only be verified by reviewing the file data.
-    Todo Item --> Goal
-    Todo Item --> Goal & Milestone
-    Todo Item --> Event Group
-    Todo Item --> Event Group & Event
-    Todo Item --> Day Note Group
-    Todo Item --> Day Note Group & Day Note
-    Todo Item --> Month Note Group
-    Todo Item --> Month Note Group & Month Note
-    Todo Item --> Year Note Group
-    Todo Item --> Year Note Group & Year Note
-    Todo Item --> To Do List
-    Todo Item --> To Do List & To Do Item
 
 
     Reverse Links -
-        Call up the editor for NoteGroups and deal with null NoteData at that time.
-
-        CalendarNoteGroups and EventNoteGroups do not save without data, which is ok
-                unless their properties now has a non-empty linkTargets (as a result of a reverse link)
-                verify that these do save - appears to be yes, for now - reverify after reaching stability.
-
         If the forward link is deleted, also remove the reverse link, if it can be found.
 
         When filtering links for display in the linkages editor -
@@ -77,6 +56,21 @@ New:
     already coded to display the data correctly; just needed to give it correct data.
   All known link and reverse link problems appear to be cleared up, and the new feature of Group linking is in place
     and functioning - will commit now before resuming testing.
+  0753 Completed manual testing - all seems ok but one non-reproducible glitch of the reverse link to the To Do list
+        was missing.  Individually, the two tests ran ok.  Possibly a keeper issue; will BOLO but otherwise moving on.
+    Did these 12 - Made the link, recall/verify it, restart and recall/verify.  Verified also each reverse.
+    Todo Item --> Goal
+    Todo Item --> Goal & Milestone
+    Todo Item --> Event Group
+    Todo Item --> Event Group & Event
+    Todo Item --> Day Note Group
+    Todo Item --> Day Note Group & Day Note
+    Todo Item --> Month Note Group
+    Todo Item --> Month Note Group & Month Note
+    Todo Item --> Year Note Group
+    Todo Item --> Year Note Group & Year Note
+    Todo Item --> To Do List
+    Todo Item --> To Do List & To Do Item
 
 8/27/2020 0856
   Began the work of allowing NoteGroups to have their own links.  Added menu options to call up dialog, now working
