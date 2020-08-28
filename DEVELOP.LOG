@@ -3,8 +3,8 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 
-
 NEXT:
+
 
 Links:
     Do these 12 manually.  If problems, fix and determine if additional test code work is needed.
@@ -41,7 +41,7 @@ Links:
 
     Issues:
 
-      The 'saveWithoutData' flag is now obsolete; every group can have properties.  But do not save/create a file if
+      The 'saveWithoutData' flag is now obsolete; every group has properties.  But do not save/create a file if
       there are both no notes and no linkages in the group's properties and it's not a TodoList or SearchResult.
       Ok, this logic has too many exceptions; needs work....
 
@@ -63,8 +63,28 @@ Links:
 
 New:
 
-
 =====================================================================================================
+
+8/28/2020 0603
+  Fixed the problem below by adding group-level checks, but it was needed in two places due to the way that a
+    CalendarNoteGroup can change its group id if the date changes.  Note-level same id checking is no longer valid
+    or needed, since it cannot get past the group id check.  But the group check at point of group selection for
+    other group types is better if it can be done there, because it leaves the target selection panel up and
+    prevents the user from selecting their source note, so less confusing.  That they can select the source note
+    on CNGs - oh well, this is still the best way thru the overall forest.
+  Fixed the reverse group-group link display, by fixing the data when the reverse link is created, by splitting
+    the new link creation into two branches - one with a source note and one without.  The LinkNoteComponent was
+    already coded to display the data correctly; just needed to give it correct data.
+  All known link and reverse link problems appear to be cleared up, and the new feature of Group linking is in place
+    and functioning - will commit now before resuming testing.
+
+8/27/2020 0856
+  Began the work of allowing NoteGroups to have their own links.  Added menu options to call up dialog, now working
+    through all related problems.
+  The problem of allowing a link to have itself as a target - is just as problematic if it links to its own group or
+    any other note in its group, due to the failure during the attempt to save reverse links.  When this happens, none
+    of the 'new' work is saved at all.  Pre-existing links on the note appear to remain intact, at least, but this
+    still needs to be user-warned and disallowed.
 
 8/25/2020 0657
     When multiple links are added in the same session, the most recent one has the effect of resetting all the

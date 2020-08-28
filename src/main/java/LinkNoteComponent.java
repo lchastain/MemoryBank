@@ -35,11 +35,11 @@ public class LinkNoteComponent extends NoteComponent {
         if (noteInfo == null) {
             noteInfo = new NoteInfo();
             noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getSimpleName();
-            // Here we COULD set an extended note, which would color the link text blue
-            //   and turn the extended text into a tooltip, but - decided against it, at this time.
+            noteInfo.myNoteGroup = myLinkedEntityData.getTargetGroupInfo().myNoteGroup;
+            // Here we COULD set an extended note, but decided against it, at this time.
             //noteInfo.extendedNoteString = "All notes in this group";
         }
-        myNoteData = new NoteData(noteInfo);
+        myNoteData = new NoteData(noteInfo); // This isolates our 'component' NoteData from the source entity.
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override

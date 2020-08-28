@@ -784,6 +784,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("Close")) closeGroup();
         else if (what.startsWith("Clear ")) theNoteGroup.clearGroup();
         else if (what.equals("Contents")) showHelp();
+        else if (what.equals("Group Linkages...")) theNoteGroup.groupLinkages();
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Delete")) deleteGroup();
         else if (what.equals("Search...")) doSearch();

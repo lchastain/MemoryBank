@@ -143,16 +143,16 @@ class LinkagesEditorPanelTest {
         LinkedEntityData led2 = new LinkedEntityData(dayNoteGroup.getGroupProperties(), noteData2);
         led2.linkType = LinkedEntityData.LinkType.AFTER;
 
-        // Add the two links to the panel's link holder -
-        linkagesEditorPanel.editedNoteData.linkTargets.add(led1);
-        linkagesEditorPanel.editedNoteData.linkTargets.add(led2);
+        // Add the two links to the panel -
+        linkagesEditorPanel.linkTargets.add(led1);
+        linkagesEditorPanel.linkTargets.add(led2);
 
         // T-crossing, for coverage.
         linkagesEditorPanel.editExtendedNoteComponent(todoNoteData);
         linkagesEditorPanel.activateNextNote(0);
 
         // Here it is -
-        linkagesEditorPanel.addReverseLinks(linkagesEditorPanel.editedNoteData.linkTargets);
+        linkagesEditorPanel.addReverseLinks(linkagesEditorPanel.linkTargets);
     }
 
 }

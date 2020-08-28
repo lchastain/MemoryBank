@@ -37,17 +37,18 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     JTextArea infoPanelTextArea;
     String chosenCategory;
     String theNodeString;
-    NoteGroup selectedTargetGroup;
     CalendarNoteGroup calendarNoteGroup;
+    NoteGroup selectedTargetGroup;
     NoteData selectedNoteData;
-    NoteData sourceEntity;  // This type will need to change, once we have an interface for both Groups and NoteData
-                    // LinkSource ?   LinkHolder ?
+    NoteData sourceEntity; // This type works when source is either a NoteData or a NoteGroup.
+    GroupProperties sourceGroupProperties;
 
     public LinkTargetSelectionPanel(NoteData theFromEntity) {
         super(new BorderLayout());
         chosenCategory = "";
         appOpts = MemoryBank.appOpts;
         sourceEntity = theFromEntity;
+        sourceGroupProperties = sourceEntity.myNoteGroup.getGroupProperties();
 
         // Set up for selection reporting -
         baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(sourceEntity.noteString);
@@ -214,16 +215,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     // This is called by NoteComponent; implementation of the NoteSelection interface.
     @Override
     public void noteSelected(NoteData noteData) {
-        if(noteData.instanceId.toString().equals(sourceEntity.instanceId.toString())) {
-            String ems = "You cannot link an entity to itself!";
-            JOptionPane.showMessageDialog(this,
-                    ems, "Error", JOptionPane.ERROR_MESSAGE);
-            theTree.clearSelection();
-            selectedTargetGroup = null;
-            selectedNoteData = null;
-        } else {
-            selectedNoteData = noteData;
-        }
+        selectedNoteData = noteData;
         resetTargetSelectionLabel();
     }
 
@@ -375,10 +367,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (parentNodeName.equals("Notes")) { // Selection of a Note type
             chosenCategory = "Note";
 
-            // Static flags - must be set before the group is instantiated.
-//            MemoryBank.readOnly = true;
-//            NoteComponent.isEditable = false;
-
             switch (theNodeString) {
                 case "Day Notes":
                     calendarNoteGroup = new DayNoteGroup();
@@ -390,9 +378,6 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                     calendarNoteGroup = new YearNoteGroup();
                     break;
             }
-            // Reset the static flags
-//            NoteComponent.isEditable = true;
-//            MemoryBank.readOnly = false;
 
             if (calendarNoteGroup != null) {
                 calendarNoteGroup.setEditable(false);
@@ -409,47 +394,42 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
             chosenCategory = "Goal";
 
-            // Static flags - must be set before the group is instantiated, and reset afterwards.
-//            MemoryBank.readOnly = true;
-//            NoteComponent.isEditable = false;
             GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
             GoalGroup goalGroup = (GoalGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
                 goalGroup = (GoalGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
-//            NoteComponent.isEditable = true;
-//            MemoryBank.readOnly = false;
 
-            if (goalGroup == null) {
+            if (goalGroup != null) {
+                selectedTargetGroup = goalGroup;
+                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
+                resetTargetSelectionLabel();
+                rightPane.setViewportView(goalGroup.theBasePanel);
+            } else {
                 // We just tried to retrieve it or to load it, so if it is STILL null then we
                 //   take it to mean that the file is effectively not there.
                 // So show a 'not found' message.  But do not try to fix the problem from here;
                 //   let the BranchEditors do that (hopefully behind the scenes); just leave it
                 //   alone for now and let the user try something else.
-                jp = new JPanel(new GridBagLayout()); // This centers the missingDataLabel; otherwise it left-justifies.
+                jp = new JPanel(new GridBagLayout()); // GridBagLayout centers its content.
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
-            } else {
-                selectedTargetGroup = goalGroup;
-                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
-                resetTargetSelectionLabel();
-                rightPane.setViewportView(goalGroup.theBasePanel);
             } // end if
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
             chosenCategory = "Upcoming Event";
 
-            // Static flags - must be set before the group is instantiated, and reset afterwards.
-//            MemoryBank.readOnly = true;
-//            NoteComponent.isEditable = false;
             GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
             EventNoteGroup eventNoteGroup = (EventNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
                 eventNoteGroup = (EventNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
-//            NoteComponent.isEditable = true;
-//            MemoryBank.readOnly = false;
 
-            if (eventNoteGroup == null) {
+            if (eventNoteGroup != null) {
+                selectedTargetGroup = eventNoteGroup;
+                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
+                resetTargetSelectionLabel();
+                rightPane.setViewportView(eventNoteGroup.theBasePanel);
+            } else {
                 // We just tried to retrieve it or to load it, so if it is STILL null then we
                 //   take it to mean that the file is effectively not there.
                 // So show a 'not found' message.  But do not try to fix the problem from here;
@@ -458,27 +438,22 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp = new JPanel(new GridBagLayout()); // This centers the missingDataLabel; otherwise it left-justifies.
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
-            } else {
-                selectedTargetGroup = eventNoteGroup;
-                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
-                resetTargetSelectionLabel();
-                rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } // end if
         } else if (parentNodeName.equals("To Do Lists")) { // Selection of a To Do List
             chosenCategory = "To Do List";
 
-            // Static flags - must be set before the group is instantiated, and reset afterwards.
-//            MemoryBank.readOnly = true;
-//            NoteComponent.isEditable = false;
             GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
             TodoNoteGroup todoNoteGroup = (TodoNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
                 todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
-//            NoteComponent.isEditable = true;
-//            MemoryBank.readOnly = false;
 
-            if (todoNoteGroup == null) {
+            if (todoNoteGroup != null) {
+                selectedTargetGroup = todoNoteGroup;
+                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
+                resetTargetSelectionLabel();
+                rightPane.setViewportView(todoNoteGroup.theBasePanel);
+            } else {
                 // We just tried to retrieve it or to load it, so if it is STILL null
                 //   then we take it to mean that the file is effectively not there.
                 // So show a 'not found' message.  But do not try to remove or close a file,
@@ -487,14 +462,23 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                 jp = new JPanel(new GridBagLayout());
                 jp.add(missingDataLabel);
                 rightPane.setViewportView(jp);
-            } else {
-                selectedTargetGroup = todoNoteGroup;
-                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
-                resetTargetSelectionLabel();
-                rightPane.setViewportView(todoNoteGroup.theBasePanel);
             } // end if
         } // end if/else if
         //</editor-fold>
+
+        if(selectedTargetGroup != null && selectedTargetGroup != calendarNoteGroup) {
+            // Check for same-group linking, and disallow.  But for CalendarNoteGroups this is not necessarily
+            // the same as their selection; we will have to catch that one after this panel closes.
+            // Although - we could trap a CLOSING event, and check/prevent it then.  more work; not sure
+            //   how to do that when it is a JOptionPane.
+            if(selectedTargetGroup.myProperties.instanceId.toString().equals(sourceGroupProperties.instanceId.toString())) {
+                String ems = "You cannot make a link to the same group!";
+                JOptionPane.showMessageDialog(this,
+                        ems, "Error", JOptionPane.ERROR_MESSAGE);
+                theTree.clearSelection();
+                selectedTargetGroup = null;
+            }
+        }
 
     } // end treeSelectionChanged
 

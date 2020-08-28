@@ -20,7 +20,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     JPanel theBasePanel;
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
-    GroupProperties myProperties;
+    protected GroupProperties myProperties;
     TypeReference myGroupDataType;
 
     boolean editable;
@@ -321,9 +321,50 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         return lastVisibleNoteIndex;
     }
 
-    // The (simple) name of the group (as seen as a node in the tree (except for CalendarNoteGroup types)
+    // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
     String getName() {
         return getGroupProperties().getSimpleName();
+    }
+
+    // View and Edit the linkages associated with this Group.
+    void groupLinkages() {
+        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(getGroupProperties());
+        // In the above call, need to get properties via the accessor, because they could be null for CalendarNoteGroups.
+
+        int choice = JOptionPane.showConfirmDialog(
+                this.theBasePanel,
+                linkagesEditorPanel,
+                "Linkages Editor",
+                JOptionPane.OK_CANCEL_OPTION, // Option type
+                JOptionPane.PLAIN_MESSAGE);    // Message type
+
+        if (choice == JOptionPane.OK_OPTION) {
+            // Replace the original linkTargets with the linkTargets from the edited note.
+            linkagesEditorPanel.updateLinkagesFromEditor();
+            myProperties.linkTargets = linkagesEditorPanel.linkTargets;
+
+            // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
+            // are about to create from it/them will have proper corresponding forward link(s).
+            saveNoteGroup(); // (no checking of the result, at this time).
+
+            linkagesEditorPanel.addReverseLinks(myProperties.linkTargets);
+
+            // These lines may be useful during dev - can disable eventually.
+            System.out.println("Serializing the new group properties:");
+            System.out.println(AppUtil.toJsonString(myProperties));
+        }
+
+        // If this NoteComponent's group has a keeper and was also viewed via the linkTargetSelectionPanel
+        // during the link view/edit operation then it was pulled out of the AppTreePanel in order to be
+        // shown and now the viewing pane of the main app will be empty but it will still appear to hold
+        // the group.  You can see this by resizing the app; it will repaint as empty.
+        // So the fix is to clear the tree selection and then reselect the current group.
+        // This happens just from showing the group; the ultimate selection of a link (or not) does not
+        // matter.  Not an issue for CalendarNoteGroups since they have no keeper, but no harm in doing
+        // this for all linkable groups even in the less common case where it isn't needed.
+        int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
+        AppTreePanel.theInstance.getTree().clearSelection();
+        AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
     }
 
     //--------------------------------------------------------
@@ -422,12 +463,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         loadInterface(1);
     }
 
-    //----------------------------------------------------------------
-    // Method Name: loadGroup
-    //
     // The data file will be reloaded whenever this method is called.
-    //----------------------------------------------------------------
-
     // This method is needed to separate the load of the data
     //   from the various components that act upon it.
     //   Internally it comes in as an ArrayList of one or
@@ -437,8 +473,6 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //   by most children) that loads the data into a Vector
     //   of Notes and the requesting group's properties, if any.
     //--------------------------------------------------------------------
-
-
     private void loadNoteGroup() {
         groupDataVector.clear(); // Clear before loading
         lastVisibleNoteIndex = 0;
@@ -481,7 +515,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
-    } // end loadGroup
+    } // end loadNoteGroup
 
 
     //-------------------------------------------------------------------

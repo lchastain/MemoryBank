@@ -64,7 +64,7 @@ public class LinkEditorMain {
         // is just a test driver.  But we will show the result -
         if (choice == JOptionPane.OK_OPTION) {
             linkagesEditorPanel.updateLinkagesFromEditor();
-            sourceNoteData.linkTargets = linkagesEditorPanel.editedNoteData.linkTargets;
+            sourceNoteData.linkTargets = linkagesEditorPanel.editorNoteData.linkTargets;
             System.out.println("\nEditing results: \n");
             System.out.println(AppUtil.toJsonString(sourceNoteData));
         } else {

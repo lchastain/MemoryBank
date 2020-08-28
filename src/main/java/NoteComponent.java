@@ -78,7 +78,7 @@ public class NoteComponent extends JPanel {
         miCutLine.addActionListener(popHandler);
         miCopyLine = popup.add("Copy Line");
         miCopyLine.addActionListener(popHandler);
-        miLinkLine = popup.add("Edit Linkages");
+        miLinkLine = popup.add("Note Linkages...");
         miLinkLine.addActionListener(popHandler);
         miPasteLine = popup.add("Paste Line");
         miPasteLine.addActionListener(popHandler);
@@ -805,12 +805,10 @@ public class NoteComponent extends JPanel {
                 case "Copy Line":
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     break;
-                case "Edit Linkages":
+                case "Note Linkages...":
                     GroupProperties groupProperties = theNoteComponent.myNoteGroup.getGroupProperties();
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
 
-                    // The act of editing the linkages, whether a change is made or not, will set
-                    // groupChanged to true after it is done.
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
                             linkagesEditorPanel,
@@ -819,15 +817,15 @@ public class NoteComponent extends JPanel {
                             JOptionPane.PLAIN_MESSAGE);    // Message type
 
                     if (choice == JOptionPane.OK_OPTION) {
-                        // Replace the original linkTargets with the linkTargets from the edited note.
-                        linkagesEditorPanel.updateLinkagesFromEditor();
-                        noteData.linkTargets = linkagesEditorPanel.editedNoteData.linkTargets;
+                        // Replace the original linkTargets with the linkTargets from the editor.
+                        linkagesEditorPanel.updateLinkagesFromEditor(); // Accept new links, deletions, reordering.
+                        noteData.linkTargets = linkagesEditorPanel.linkTargets;
 
                         // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
                         // are about to create from it/them will have proper corresponding forward link(s).
+                        // This means that we do not need to set 'groupChanged' - it should be false after the save.
                         theNoteComponent.myNoteGroup.saveNoteGroup(); // (no checking of the result, at this time).
 
-//                        theNoteComponent.setNoteChanged(); // Inconsequential, since adding a reverse will save the group.
                         linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 
                         // These lines may be useful during dev - can disable eventually.
