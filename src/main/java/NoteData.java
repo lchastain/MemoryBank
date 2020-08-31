@@ -1,7 +1,5 @@
-import java.util.Vector;
-
 class NoteData extends NoteInfo {
-    Vector<LinkedEntityData> linkTargets;
+    LinkTargets linkTargets;
 
     NoteData() {
         super();
@@ -14,10 +12,9 @@ class NoteData extends NoteInfo {
     // the original note (for pasting from one type
     // of NoteData child to a different type).  Secondary usage is to provide
     // a true object copy and not just a reference, for editing and undoing.
-    @SuppressWarnings("unchecked")
     NoteData(NoteData ndCopy) {
         super(ndCopy);
-        this.linkTargets = (Vector<LinkedEntityData>) ndCopy.linkTargets.clone();
+        this.linkTargets = (LinkTargets) ndCopy.linkTargets.clone();
     }// end of the copy constructor
 
     NoteData(NoteInfo noteInfo) {
@@ -27,7 +24,7 @@ class NoteData extends NoteInfo {
 
     void clear() {
         super.clear();
-        linkTargets = new Vector<>(0, 1);
+        linkTargets = new LinkTargets();
     } // end clear
 
     // A copy constructor cannot be called from a reference;

@@ -66,7 +66,6 @@ public class LinkedEntityData extends BaseData {
     // The other constructors here do use this one, but they continue on to fully define the data
     //      entity when making a new one.
     // Otherwise, this constructor should not be called and so it is scoped as 'private'.
-    //      This ensures that the targetGroupInfo will never be null.
     private LinkedEntityData() {
         super();
         linkType = LinkedEntityData.LinkType.RELATED;
@@ -74,8 +73,8 @@ public class LinkedEntityData extends BaseData {
     }
 
     // Here we make a LinkedEntityData from full-blown GroupProperties and NoteData and that's good because we
-    //   snag their references, but for serialization of links we don't need or want all the extra baggage that they
-    //   have, so for construction of this class we reduce them to their base classes via the use of their
+    //   snag their references, but for serialization of this link we don't want to also pick up their linkages,
+    //   so for construction of this class we reduce them to their base classes via the use of their
     //   base class copy constructors.  This way, the data stored is smaller, and most importantly, loads back in
     //   without complaint.  Note that the base class copy constructors do an implicit cast of their parameters
     //   and this works seamlessly since the parameters are children of those base classes.

@@ -2,12 +2,7 @@
 Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
-
 NEXT:
-
-
-Links:
-
 
     Reverse Links -
         If the forward link is deleted, also remove the reverse link, if it can be found.
@@ -19,12 +14,6 @@ Links:
 
 
     Issues:
-
-      The 'saveWithoutData' flag is now obsolete; every group has properties.  But do not save/create a file if
-      there are both no notes and no linkages in the group's properties and it's not a TodoList or SearchResult.
-      Ok, this logic has too many exceptions; needs work....
-
-      Verify that a swap will pull along the linkTargets (and not leave any behind)
 
       The TMC gets shoved down, in both the Event and the Goal groups - rethink the UI.
 
@@ -38,11 +27,21 @@ Links:
       When a user wants to link to a Day Note that is too far away (months, years) -
         Could give a different alter button behavior, or additional larger scale buttons, OR
         Track the Viewed date and let Year and Month changes control the Day.
+      See also the app development todo list -
 
 
 New:
 
 =====================================================================================================
+
+8/31/2020 0744 - For some time now there has been a clash of NoteGroup panel operations vs data operations.  Some time
+  back, I somewhat separated the two by having NoteGroup encapsulate a JPanel rather than extend it.  But that still
+  left the group data highly connected to the panel, and this is causing a problem now when we want to load and save
+  group data directly, without involving a panel at all.  We want to do that because of linkages - adding and removing.
+  And there is an older need for Events and Todo Lists, to move a note to a day, that was coded to load in the full
+  panel-based notegroups in order to do that.  For those usages this was considered ok because the occasions were
+  rare, but linkages are going to change that, so I'm considering an alteration to the NoteGroup hierarchy - split
+  the data from the panel, completely.  This could get messy....
 
 8/28/2020 0603
   Fixed the problem below by adding group-level checks, but it was needed in two places due to the way that a
@@ -58,7 +57,7 @@ New:
     and functioning - will commit now before resuming testing.
   0753 Completed manual testing - all seems ok but one non-reproducible glitch of the reverse link to the To Do list
         was missing.  Individually, the two tests ran ok.  Possibly a keeper issue; will BOLO but otherwise moving on.
-    Did these 12 - Made the link, recall/verify it, restart and recall/verify.  Verified also each reverse.
+    Did these 12 tests - Made the link, recall/verify, restart and recall/verify.  Verified also each reverse.
     Todo Item --> Goal
     Todo Item --> Goal & Milestone
     Todo Item --> Event Group
@@ -71,6 +70,9 @@ New:
     Todo Item --> Year Note Group & Year Note
     Todo Item --> To Do List
     Todo Item --> To Do List & To Do Item
+  0815 - Removed the 'save without data' conditional logic; if 'save' has been called then it was either done
+    explicitly or because there was a change to the data or properties, and of course it should be saved; no need to
+    give it a stronger push.
 
 8/27/2020 0856
   Began the work of allowing NoteGroups to have their own links.  Added menu options to call up dialog, now working

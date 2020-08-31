@@ -2,11 +2,9 @@
 // In addition to the ID and LastModDate that it gets from BaseData, it holds
 //   a simple group name (String) and the type of group (enum).
 
-import java.util.Vector;
-
 public class GroupProperties extends GroupInfo {
 
-    Vector<LinkedEntityData> linkTargets;
+    LinkTargets linkTargets;
 
     // This constructor is only used by Tests or by Jackson type conversion operations.
     GroupProperties() {
@@ -15,13 +13,12 @@ public class GroupProperties extends GroupInfo {
 
     GroupProperties(String theName, GroupType theType) {
         super(theName, theType);
-        linkTargets = new Vector<>(0, 1);
+        linkTargets = new LinkTargets();
     }
 
-    @SuppressWarnings("unchecked")
     GroupProperties(GroupProperties theCopy) {
         super(theCopy);
-        this.linkTargets = (Vector<LinkedEntityData>) theCopy.linkTargets.clone();
+        linkTargets = (LinkTargets) theCopy.linkTargets.clone();
     } // end of the copy constructor
 
 
