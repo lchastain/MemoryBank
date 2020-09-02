@@ -37,8 +37,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     JTextArea infoPanelTextArea;
     String chosenCategory;
     String theNodeString;
-    CalendarNoteGroup calendarNoteGroup;
-    NoteGroup selectedTargetGroup;
+    CalendarNoteGroupPanel calendarNoteGroup;
+    NoteGroupPanel selectedTargetGroup;
     NoteData selectedNoteData;
     NoteData sourceEntity; // This type works when source is either a NoteData or a NoteGroup.
     GroupProperties sourceGroupProperties;
@@ -48,7 +48,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         chosenCategory = "";
         appOpts = MemoryBank.appOpts;
         sourceEntity = theFromEntity;
-        sourceGroupProperties = sourceEntity.myNoteGroup.getGroupProperties();
+        sourceGroupProperties = sourceEntity.myNoteGroupPanel.getGroupProperties();
 
         // Set up for selection reporting -
         baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(sourceEntity.noteString);
@@ -367,16 +367,20 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (parentNodeName.equals("Notes")) { // Selection of a Note type
             chosenCategory = "Note";
 
-            switch (theNodeString) {
-                case "Day Notes":
-                    calendarNoteGroup = new DayNoteGroup();
-                    break;
-                case "Month Notes":
-                    calendarNoteGroup = new MonthNoteGroup();
-                    break;
-                case "Year Notes":
-                    calendarNoteGroup = new YearNoteGroup();
-                    break;
+            calendarNoteGroup = (CalendarNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(theNodeString);
+
+            if(calendarNoteGroup == null) {
+                switch (theNodeString) {
+                    case "Day Notes":
+                        calendarNoteGroup = new DayNoteGroupPanel();
+                        break;
+                    case "Month Notes":
+                        calendarNoteGroup = new MonthNoteGroupPanel();
+                        break;
+                    case "Year Notes":
+                        calendarNoteGroup = new YearNoteGroupPanel();
+                        break;
+                }
             }
 
             if (calendarNoteGroup != null) {
@@ -395,9 +399,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "Goal";
 
             GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
-            GoalGroup goalGroup = (GoalGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
+            GoalGroupPanel goalGroup = (GoalGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
-                goalGroup = (GoalGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                goalGroup = (GoalGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
 
             if (goalGroup != null) {
@@ -419,9 +423,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "Upcoming Event";
 
             GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
-            EventNoteGroup eventNoteGroup = (EventNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
+            EventNoteGroupPanel eventNoteGroup = (EventNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
 
             if (eventNoteGroup != null) {
@@ -443,9 +447,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             chosenCategory = "To Do List";
 
             GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
-            TodoNoteGroup todoNoteGroup = (TodoNoteGroup) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
+            TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroup) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             }
 
             if (todoNoteGroup != null) {
@@ -469,8 +473,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         if(selectedTargetGroup != null && selectedTargetGroup != calendarNoteGroup) {
             // Check for same-group linking, and disallow.  But for CalendarNoteGroups this is not necessarily
             // the same as their selection; we will have to catch that one after this panel closes.
-            // Although - we could trap a CLOSING event, and check/prevent it then.  more work; not sure
-            //   how to do that when it is a JOptionPane.
+            // Although - we could trap a CLOSING event, and check/prevent it then.  but that's more work; not
+            //   sure how to do that when it is a JOptionPane; not gonna doit.
             if(selectedTargetGroup.myProperties.instanceId.toString().equals(sourceGroupProperties.instanceId.toString())) {
                 String ems = "You cannot make a link to the same group!";
                 JOptionPane.showMessageDialog(this,
