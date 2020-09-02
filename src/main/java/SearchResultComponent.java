@@ -16,9 +16,9 @@ public class SearchResultComponent extends NoteComponent {
     private SearchResultData mySearchResultData;
     private FoundInButton fibTheFoundInButton;
     private LastModLabel lastModLabel;
-    private SearchResultGroup myNoteGroup; // status msgs & change notification
+    private SearchResultGroupPanel myNoteGroup; // status msgs & change notification
 
-    SearchResultComponent(SearchResultGroup ng, int i) {
+    SearchResultComponent(SearchResultGroupPanel ng, int i) {
         super(ng, i);
         setLayout(new DndLayout());
 

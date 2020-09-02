@@ -12,8 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
-public class TodoNoteGroup extends NoteGroup implements DateSelection {
-    private static final Logger log = LoggerFactory.getLogger(TodoNoteGroup.class);
+public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection {
+    private static final Logger log = LoggerFactory.getLogger(TodoNoteGroupPanel.class);
     private static final int PAGE_SIZE = 20;
 
     // Values used in sorting.
@@ -37,11 +37,11 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         MemoryBank.trace();
     } // end static
 
-    public TodoNoteGroup(String fname) {
+    public TodoNoteGroupPanel(String fname) {
         this(fname, PAGE_SIZE);
     }
 
-    public TodoNoteGroup(String groupName, int pageSize) {
+    public TodoNoteGroupPanel(String groupName, int pageSize) {
         super(pageSize);
 
         log.debug("Constructing: " + groupName);
@@ -84,7 +84,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new TodoGroupProperties(groupName);
         }
-        myProperties.myNoteGroup = this;
+        myProperties.myNoteGroupPanel = this;
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
@@ -214,7 +214,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         if (mergeFile == null) return;
 
         // Load the file to merge in -
-        Object[] theGroup = FileGroup.loadFileData(mergeFile);
+        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
 
         BaseData.loading = true; // We don't want to affect the lastModDates!
@@ -258,9 +258,9 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
 
 
     @Override
-    void preClose() {
+    void preClosePanel() {
         saveProperties();
-        super.preClose();
+        super.preClosePanel();
     }
 
 
@@ -409,7 +409,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         //   has asked and don't tell them that they are an idiot.  But no
         //   other actions on the filesystem or the tree will be taken.
         if (newName.equals(oldName)) {
-            preClose();
+            preClosePanel();
             return false;
         } // end if
 
@@ -463,7 +463,7 @@ public class TodoNoteGroup extends NoteGroup implements DateSelection {
         // this 'new' file saves without issue, but the side effect is that the original
         // file will remain.  Still thinking on whether or not that is the desired outcome.
         AppUtil.localArchive(true);
-        preClose();
+        preClosePanel();
         AppUtil.localArchive(false);
 
         return true;

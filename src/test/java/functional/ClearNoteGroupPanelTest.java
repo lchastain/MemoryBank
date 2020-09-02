@@ -9,7 +9,7 @@ import java.util.Vector;
 
 // For SCR0038
 
-class ClearNoteGroupTest {
+class ClearNoteGroupPanelTest {
     @BeforeAll
     static void setDataLocation() {
         MemoryBank.setUserDataHome("test.user@lcware.net");
@@ -18,7 +18,7 @@ class ClearNoteGroupTest {
     @Test
     // Test that clearing an empty Group will not cause errors and that the group remains empty.
     void testClearEmptyNoteGroup() {
-        MonthNoteGroup mng = new MonthNoteGroup();
+        MonthNoteGroupPanel mng = new MonthNoteGroupPanel();
 
         // First, make sure we have an empty group -
         LocalDate theDate = LocalDate.of(1985,6,6);
@@ -37,7 +37,7 @@ class ClearNoteGroupTest {
     @Test
     void testClearUnsavedNoteGroup() {
         // Initializations
-        MonthNoteGroup mng = new MonthNoteGroup();
+        MonthNoteGroupPanel mng = new MonthNoteGroupPanel();
         Vector<NoteData> theInfo;
         NoteData nd = new NoteData();
         String s1 = "Month clearing test line one";
@@ -84,7 +84,7 @@ class ClearNoteGroupTest {
         String strGroupFilename; // this can change; reacquire as needed.
 
         // Initializations
-        MonthNoteGroup mng = new MonthNoteGroup();
+        MonthNoteGroupPanel mng = new MonthNoteGroupPanel();
         NoteData nd = new NoteData();
         String s1 = "Month clearing test line one";
         String s2 = "Month clearing test line two";
@@ -119,7 +119,7 @@ class ClearNoteGroupTest {
         Assertions.assertEquals(mnc3.getNoteData().noteString, s3);
 
         // Now save the group
-        mng.preClose();
+        mng.preClosePanel();
 
         // Verify that there is now a file for it
         strGroupFilename = mng.getGroupFilename();
@@ -132,7 +132,7 @@ class ClearNoteGroupTest {
 // This changed with the addition of Properties onto Notes - now the Properties causes a save, even without data.
 //  This test can get along without the check for a missing file; all else still valid.
 //        // And 'save' it again -
-//        mng.preClose(); // With an empty group, a save == a delete.
+//        mng.preClosePanel(); // With an empty group, a save == a delete.
 //
 //        // And verify that there is no longer a file for it
 //        Assertions.assertFalse(new File(strGroupFilename).exists());

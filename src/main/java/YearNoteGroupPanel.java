@@ -10,10 +10,10 @@ import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
+public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private JLabel yearTitle;
+    private final JLabel yearTitle;
 
     static {
         MemoryBank.trace();
@@ -21,7 +21,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
 
     //=============================================================
 
-    YearNoteGroup() {
+    YearNoteGroupPanel() {
         super("Year Note");
 
         // Create the window title
@@ -60,7 +60,7 @@ public class YearNoteGroup extends CalendarNoteGroup implements MouseListener {
     // This is called from AppTreePanel.
     public void setDate(LocalDate theNewChoice) {
 
-        // If the new day puts us in the same year as the current one - return.
+        // If the new day puts us in the same year as the current one - just return.
         if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
 
         super.setDate(theNewChoice);

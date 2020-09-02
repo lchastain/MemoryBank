@@ -11,7 +11,7 @@ public class TodoNoteGroupMain {
 
         JFrame testFrame = new JFrame("TodoNoteGroup Driver");
 
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Geo Wun's List");
+        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Geo Wun's List");
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {

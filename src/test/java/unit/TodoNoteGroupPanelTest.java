@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 
-class TodoNoteGroupTest {
-    private static TodoNoteGroup todoNoteGroup;
+class TodoNoteGroupPanelTest {
+    private static TodoNoteGroupPanel todoNoteGroup;
     private static TestUtil testUtil;
 
     @BeforeAll
@@ -26,9 +26,9 @@ class TodoNoteGroupTest {
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
         FileUtils.copyDirectory(testResource, testData);
 
-        todoNoteGroup = new TodoNoteGroup("Get New Job");
+        todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
         testUtil = new TestUtil();
-        NoteGroup.optionPane = testUtil;
+        NoteGroupPanel.optionPane = testUtil;
     }
 
     @Test
@@ -120,10 +120,10 @@ class TodoNoteGroupTest {
     @Test
     void testSorting() {
         // Just the coverage -
-        todoNoteGroup.sortPriority(TodoNoteGroup.ASCENDING);
-        todoNoteGroup.sortText(TodoNoteGroup.DESCENDING);
-        todoNoteGroup.sortPriority(TodoNoteGroup.ASCENDING);
-        todoNoteGroup.sortText(TodoNoteGroup.DESCENDING);
+        todoNoteGroup.sortPriority(NoteGroupPanel.ASCENDING);
+        todoNoteGroup.sortText(NoteGroupPanel.DESCENDING);
+        todoNoteGroup.sortPriority(NoteGroupPanel.ASCENDING);
+        todoNoteGroup.sortText(NoteGroupPanel.DESCENDING);
     }
 
 }

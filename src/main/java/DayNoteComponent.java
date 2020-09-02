@@ -42,7 +42,7 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end static section
 
 
-    DayNoteComponent(NoteGroup ng, int i) {
+    DayNoteComponent(NoteGroupPanel ng, int i) {
         super(ng, i);
         index = i;
 

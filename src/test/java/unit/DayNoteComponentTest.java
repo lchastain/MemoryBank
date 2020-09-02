@@ -10,14 +10,14 @@ import java.io.File;
 
 class DayNoteComponentTest {
     private DayNoteComponent dayNoteComponent;
-    DayNoteGroup dayNoteGroup;
+    DayNoteGroupPanel dayNoteGroup;
     Notifier theNotifier;
 
     @BeforeEach
     void setUp() {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
-        dayNoteGroup = new DayNoteGroup();
+        dayNoteGroup = new DayNoteGroupPanel();
         dayNoteComponent = new DayNoteComponent(dayNoteGroup, 0);
         dayNoteComponent.initialize();
     }

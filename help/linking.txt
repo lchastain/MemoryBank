@@ -3,7 +3,7 @@ Entities such as Notes and Groups can be linked to other Notes and Groups, to sh
   Currently (Aug 2020) the editor dialog presents the only 'view' of the linkages.
 
 The dialog is invoked for a NoteData via its context menu 'Edit Linkages' menu item.
-  CURRENTLY there is no way to call up the editor for a NoteGroup, but the intent is that there will be an option
+  CURRENTLY there is no way to call up the editor for a NoteGroupPanel, but the intent is that there will be an option
     for groups (Goals, Events, Calendar Notes, Todo Lists) on the main menu bar.
 
 <STARTING to reconsider this, at least at the 'Group' level >
@@ -19,7 +19,7 @@ When a link is created, a LinkedEntityData holds the relationship.  The data is 
   same time, a 'reverse' link is created and kept with the target entity, so that a target can 'know' what other
   entities have been linked to it.
 
-LinkedEntityData - A single instance of a link to another NoteGroup or NoteData.
+LinkedEntityData - A single instance of a link to another NoteGroupPanel or NoteData.
   A LinkedEntityData extends BaseData and also has these members:
      targetGroupProperties - (transient) the full properties of the target group
      targetNoteData - (transient) the full target NoteData, or null if the target is the full group
@@ -28,7 +28,7 @@ LinkedEntityData - A single instance of a link to another NoteGroup or NoteData.
      linkType - the type of relationship that the source has with the target.
           See the class definition for the list of enumerated values.
      reversed - a boolean to indicate if this is a reverse link (true) or a forward link (false, default)
-  A Vector of LinkedEntityData (named linkTargets) is a class member of both NoteData and NoteGroup.
+  A Vector of LinkedEntityData (named linkTargets) is a class member of both NoteData and NoteGroupPanel.
   When source info is needed during link operations, it will come from the entity that contains the
      linkTargets vector.
 
@@ -114,7 +114,7 @@ discuss deletions and the connection to reverse -
     The linkages Vector is updated to reflect the result of the change.  This will be done from
     a view containing the source or if one end of the link is a Goal then a removal could be done from there.
     If the current view was the Goal then the removal will be seen there immediately.  Otherwise there is not
-    (currently) any visual indication in a NoteGroup that a link has changed.
+    (currently) any visual indication in a NoteGroupPanel that a link has changed.
 
 3.  After a linked Note has been changed in a group with an 'Undo' menu, and then 'Undo' is selected:
     If it had been removed then the Note will come back but the link will not.  This is acceptable because it

@@ -35,7 +35,7 @@ class AddTodoListTest {
     void testAddNewTodoList() {
         // Construct a TodoNoteGroup for a list that is known to NOT exist.
         String strGroupFilename = "Assemble The Avengers";
-        TodoNoteGroup tng = new TodoNoteGroup(strGroupFilename);
+        TodoNoteGroupPanel tng = new TodoNoteGroupPanel(strGroupFilename);
         Assertions.assertNotNull(tng);
 
         // Initializations
@@ -80,7 +80,7 @@ class AddTodoListTest {
         Assertions.assertEquals(tnc3.getNoteData().noteString, s3);
 
         // Now save the group
-        tng.preClose();
+        tng.preClosePanel();
 
         // Verify that there is now a file for it
         Assertions.assertTrue(theFile.exists());

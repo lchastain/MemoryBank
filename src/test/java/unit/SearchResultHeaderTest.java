@@ -44,7 +44,7 @@ class SearchResultHeaderTest {
     // complex other mouse listener methods.
     @Test
     void testHeaderButtonMouseEvents() throws InterruptedException {
-        SearchResultGroup searchResultGroup = new SearchResultGroup("20191029073938");
+        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20191029073938");
         SearchResultHeader searchResultHeader = searchResultGroup.listHeader;
         JFrame testFrame = new JFrame("Sort by Search Text Driver");
         testFrame.addWindowListener(new WindowAdapter() {

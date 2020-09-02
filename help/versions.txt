@@ -93,13 +93,13 @@ Ver.    Notes
         On YearView, removed the YearBox control and improved change mechanisms. (SCR0018)
         Increased Test coverage - now 100% classes, 75% lines (SCR0107, plus many no-SCR changes)
         Load and unload interface changes related to paging
-        Menu item enablement tied to NoteGroup changes, moved save to app end (SCR0108)
+        Menu item enablement tied to NoteGroupPanel changes, moved save to app end (SCR0108)
         Last version prior to starting Tree revisions to add support for Goals
 
         <date - current work, not archived>
         Restored an ID to NoteData
         Goals became a branch, vs leaf/placeholder
-        Inserted new FileGroup class as an ancestor of NoteGroup, made 'Panel' a data member vs a 'this'
+        Inserted new FileGroup class as an ancestor of NoteGroupPanel, made 'Panel' a data member vs a 'this'
         Reworked the groupFilename settings for consistency and access, now located in FileGroup.
         Implemented linkages from NoteData to NoteGroups or other NoteData
 

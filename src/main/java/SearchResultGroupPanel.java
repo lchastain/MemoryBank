@@ -7,8 +7,8 @@ import java.awt.*;
 import java.io.File;
 import java.util.Vector;
 
-public class SearchResultGroup extends NoteGroup {
-    private static final Logger log = LoggerFactory.getLogger(SearchResultGroup.class);
+public class SearchResultGroupPanel extends NoteGroupPanel {
+    private static final Logger log = LoggerFactory.getLogger(SearchResultGroupPanel.class);
     private JLabel resultsPageOf;
     SearchResultHeader listHeader;
 
@@ -26,22 +26,22 @@ public class SearchResultGroup extends NoteGroup {
     }
 
     // groupName is a simple single word text as seen in the app tree.
-    SearchResultGroup(String groupName) {
+    SearchResultGroupPanel(String groupName) {
         super();
         // super(10);  // test, for paging
 
         log.debug("Constructing: " + groupName);
 
         myProperties = new SearchResultGroupProperties(groupName);
-        myProperties.myNoteGroup = this; // May not be used, since this only applies to links.
+        myProperties.myNoteGroupPanel = this; // May not be used, since this only applies to links.
         editable = false;
         setGroupFilename(areaPath + filePrefix + getName() + ".json");
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
-        // Older data files have no group name; the one we constructed the Properties from -
+
+        // Older data files have properties with no group name; the properties we constructed above
         //   gets overwritten with whatever came out of the file, including "".
-        myProperties.setSimpleName(groupName);
-//        checkColumnOrder();
+        myProperties.setGroupName(groupName); // Normally not needed, but this one is, until all searches can be redone.  TODO
 
         listHeader = new SearchResultHeader(this);
         setGroupHeader(listHeader);
@@ -178,9 +178,9 @@ public class SearchResultGroup extends NoteGroup {
     } // end makeNewNote
 
     @Override
-    protected void preClose() {
+    protected void preClosePanel() {
         saveProperties();
-        super.preClose();
+        super.preClosePanel();
     }
 
     // Disabled this 9/03/2019 so that it does not pull down code coverage for tests.

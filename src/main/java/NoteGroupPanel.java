@@ -10,7 +10,11 @@ import java.util.Vector;
 
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class NoteGroup extends FileGroup implements NoteComponentManager {
+public abstract class NoteGroupPanel extends NoteGroupFile implements NoteComponentManager {
+    // Directions for Sort operations
+    static final int ASCENDING = 0;
+    static final int DESCENDING = 1;
+
     //=============================================================
     // Members that child classes may access directly
     //=============================================================
@@ -24,15 +28,12 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     TypeReference myGroupDataType;
 
     boolean editable;
-//    boolean saveWithoutData;
+    transient boolean groupChanged;  // Flag used to determine if saving data might be necessary.
     int lastVisibleNoteIndex = 0;
     int pageSize;
     private String groupFilename;
 
-    // Child classes that check this variable should test for a
-    //   value >= SUCCEEDED; if true, the count of records written
-    //   may be obtained by: (intSaveGroupStatus - SUCCEEDED)
-    int intSaveGroupStatus = INITIAL;
+    boolean saveIsOngoing;
 
     // Container for graphical members - limited to pageSize
     protected JPanel groupNotesListPanel;
@@ -60,14 +61,15 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
     // A NoteGroup instance is just the encapsulation of the central container panel and
     // the methods that work on it.  It does not have a Header / Title or any other panels.
-    NoteGroup() {
+    NoteGroupPanel() {
         this(PAGE_SIZE);
     } // end constructor 1
 
-    NoteGroup(int intPageSize) {
+    NoteGroupPanel(int intPageSize) {
         super();
         myGroupDataType = new TypeReference<Vector<NoteData>>() {
         };
+        saveIsOngoing = false;
 
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
@@ -327,7 +329,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
     // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
     String getName() {
-        return getGroupProperties().getSimpleName();
+        return getGroupProperties().getGroupName();
     }
 
     // View and Edit the linkages associated with this Group.
@@ -415,7 +417,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //----------------------------------------------------------------
     @Override
     public void setGroupChanged(boolean b) {
-        super.setGroupChanged(b);
+        groupChanged = b;
         adjustMenuItems(b);
     } // end setGroupChanged
 
@@ -450,11 +452,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
                 groupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
             } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
                 myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
-                myProperties.myNoteGroup = this;
+                myProperties.myNoteGroupPanel = this;
             }
         } else { // 2 (or more, but more would mean that there has been yet another structure change)
             myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
-            myProperties.myNoteGroup = this;
+            myProperties.myNoteGroupPanel = this;
             groupDataVector = AppUtil.mapper.convertValue(theGroup[1], myGroupDataType);
         }
         BaseData.loading = false; // Restore normal lastModDate updating.
@@ -496,7 +498,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         } else {
             MemoryBank.debug("NoteGroup file name is: " + groupFilename);
         }
-        Object[] theGroup = FileGroup.loadFileData(groupFilename);
+        Object[] theGroup = NoteGroupFile.loadFileData(groupFilename);
         if (theGroup != null) {
             int notesLoaded = ((List) theGroup[theGroup.length - 1]).size();
             MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
@@ -630,11 +632,11 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     } // end pageTo
 
     //----------------------------------------------------------------------
-    // Method Name: preClose
+    // Method Name: preClosePanel
     //
     // This should be called prior to closing.
     //----------------------------------------------------------------------
-    void preClose() {
+    void preClosePanel() {
         if (null != extendedNoteComponent && null != defaultSubject) {
             extendedNoteComponent.saveSubjects();
         }
@@ -642,7 +644,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             unloadInterface(theNotePager.getCurrentPage());
             saveNoteGroup();
         }
-    } // end preClose
+    } // end preClosePanel
 
 
     // Called by child groups that need sorting but don't have access to unloadInterface
@@ -688,7 +690,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //--------------------------------------------------------------
     void saveNoteGroup() {
         //AppUtil.localDebug(true);
-        intSaveGroupStatus = ONGOING;
+        saveIsOngoing = true;
         File f;
 
         // At this point, we may or may not have previously loaded a file
@@ -707,7 +709,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
                 f = new File(groupFilename);
                 if (!deleteFile(f)) {
                     MemoryBank.debug("  Failed to delete; returning");
-                    intSaveGroupStatus = DELETEOLDFILEFAILED;
+//                    intSaveGroupStatus = DELETEOLDFILEFAILED;
+                    saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
                     return;
                 }
             } // end if archive or delete
@@ -725,7 +728,8 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             // If the file already exists -
             if (f.isDirectory()) {
                 System.out.println("Error - directory in place of file: " + groupFilename);
-                intSaveGroupStatus = DIRECTORYINMYPLACE;
+//                intSaveGroupStatus = DIRECTORYINMYPLACE;
+                saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
                 return;
             } // end if directory
         } else {
@@ -737,14 +741,16 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
                 // Create the directory path down to the level you need.
                 if (!f.mkdirs()) {
                     System.out.println("Error - unable to create the directory path: " + strThePath);
-                    intSaveGroupStatus = CANNOTMAKEAPATH;
+//                    intSaveGroupStatus = CANNOTMAKEAPATH;
+                    saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
                     return;
                 } // end if directory creation failed
             } else {
                 // It does exist; make sure it is a directory and nothing else
                 if (!f.isDirectory()) {
                     System.out.println("Error - file in place of directory : " + strThePath);
-                    intSaveGroupStatus = FILEINMYDIRPATH;
+//                    intSaveGroupStatus = FILEINMYDIRPATH;
+                    saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
                     return;
                 } // end if not a directory
             } // end if/else the path exists
@@ -753,7 +759,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
         // The logic below will allow for a file with properties but no
         // notes.  This might be a todo list with no items yet, or a
         // search that found no notes, etc.
-        int notesWritten = 0;
+        int notesWritten;
         Object[] theGroup;  // A new 'wrapper' for the Properties + List
         Vector<NoteData> trimmedList = getCondensedInfo();
         Object groupProperties = getGroupProperties();
@@ -767,25 +773,18 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
             theGroup[0] = trimmedList;
         } // end if there is a properties object
 
-        // If there is data to preserve, do so now.
-        if ((groupProperties != null) || (trimmedList.size() > 0)) {
             // If we always have properties, then this condition should just go away (but keep the 'save').
-            notesWritten = FileGroup.saveFileData(groupFilename, theGroup);
-        } // end if
+            notesWritten = NoteGroupFile.saveFileData(groupFilename, theGroup);
 
         // There are cases where a file for this data might already be out there, that shouldn't be -
         // for example, if a file was previously created for writing but then the writes
         // failed, and we're here again at a later time.
         if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
 
-        if (notesWritten == trimmedList.size()) {
-            intSaveGroupStatus = SUCCEEDED + notesWritten;
-        } else {
-            intSaveGroupStatus = OTHERFAILURE;
-        } // end if note
-
+        saveIsOngoing = false;
         setGroupChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
-        // Note that the flag is reset regardless of the result of the save.  This is intentional.
+        // Note that the flag is reset regardless of the result of the save.  This is intentional, but
+        // not going to say why (because I don't remember, atm).
 
         //AppUtil.localDebug(false);
     } // end saveGroup
@@ -995,7 +994,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
     //
     // Repaints the display by clearing the data, then reload.
     // Called by various actions.  To preserve changes,
-    //   the calling context should first call 'preClose'.
+    //   the calling context should first call 'preClosePanel'.
     //----------------------------------------------------
     public void updateGroup() {
         clearPage(); // Clears the data (not Components) from the interface.
@@ -1018,7 +1017,7 @@ public abstract class NoteGroup extends FileGroup implements NoteComponentManage
 
 
     protected void refresh() {
-        preClose();     // Save any in-progress changes
+        preClosePanel();     // Save any in-progress changes
         updateGroup();  // Reload the interface - this removes 'gaps'.
     }
 

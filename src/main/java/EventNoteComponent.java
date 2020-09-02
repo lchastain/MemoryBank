@@ -4,12 +4,12 @@
 
 public class EventNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
-    private EventNoteGroup myNoteGroup;
+    private EventNoteGroupPanel myNoteGroup;
 
     // The Member
     private EventNoteData myEventNoteData;
 
-    EventNoteComponent(EventNoteGroup eng, int i) {
+    EventNoteComponent(EventNoteGroupPanel eng, int i) {
         super(eng, i);
         myNoteGroup = eng;
         MemoryBank.trace();

@@ -15,7 +15,7 @@ public class TodoNoteComponent extends NoteComponent {
     private PriorityButton pbThePriorityButton;
     private StatusButton sbTheStatusButton;
 
-    private TodoNoteGroup myNoteGroup;
+    private TodoNoteGroupPanel myNoteGroup;
     private static JMenuItem miClearPriority;
     private static JMenuItem miMoveToToday;
     private static JMenuItem miMoveToSelectedDate;
@@ -72,7 +72,7 @@ public class TodoNoteComponent extends NoteComponent {
     } // end static section
 
 
-    TodoNoteComponent(TodoNoteGroup ng, int i) {
+    TodoNoteComponent(TodoNoteGroupPanel ng, int i) {
         super(ng, i);
         removeAll();   // We will redo the base layout.
         setLayout(new DndLayout());
@@ -148,7 +148,7 @@ public class TodoNoteComponent extends NoteComponent {
 
     @Override
     NoteData getNoteData() {
-        myTodoNoteData.myNoteGroup = myNoteGroup;
+        myTodoNoteData.myNoteGroupPanel = myNoteGroup;
         return myTodoNoteData;
     } // end getNoteData
 
@@ -220,7 +220,7 @@ public class TodoNoteComponent extends NoteComponent {
             // switches to DayNotes, the current date choice will be (re-)loaded,
             // whether or not that was the day to which we just added a note.
             // But for the data - AppUtil.addNote is what added it to the file.
-            DayNoteGroup.blnNoteAdded = true;
+            DayNoteGroupPanel.blnNoteAdded = true;
             clear();  // This creates a 'gap'.
         } else {
             MemoryBank.debug("Move failed");

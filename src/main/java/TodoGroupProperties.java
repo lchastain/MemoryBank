@@ -35,7 +35,6 @@ public class TodoGroupProperties extends GroupProperties {
 
     public TodoGroupProperties(String groupName) { // Constructor with defaults
         super(groupName, GroupType.TODO_LIST);
-        setSimpleName(groupName);
 
         showPriority = true;
         maxPriority = 20;
@@ -49,13 +48,13 @@ public class TodoGroupProperties extends GroupProperties {
         pDeadline = false;
         pCutoff = 99;
         lineSpace = 1;
-        whenNoKey = TodoNoteGroup.BOTTOM;
+        whenNoKey = TodoNoteGroupPanel.BOTTOM;
 
         column1Label = "Priority";
         column2Label = "To Do Text";
         column3Label = "Status";
         column4Label = "Deadline";
-        columnOrder = TodoNoteGroup.INORDER;
+        columnOrder = TodoNoteGroupPanel.INORDER;
     } // end constructor
 
 } // end TodoListProperties

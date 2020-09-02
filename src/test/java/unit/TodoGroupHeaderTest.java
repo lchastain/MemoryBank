@@ -49,7 +49,7 @@ class TodoGroupHeaderTest {
     // complex other mouse listener methods.
     @Test
     void testHeaderButtonMouseEvents() throws InterruptedException {
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Get New Job");
+        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
         TodoGroupHeader todoGroupHeader = todoNoteGroup.listHeader;
         JFrame testFrame = new JFrame("Sort by Todo Text Driver");
         testFrame.addWindowListener(new WindowAdapter() {

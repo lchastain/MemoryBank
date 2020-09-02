@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileGroupKeeperTest {
-    TodoNoteGroup theNoteGroup1;
-    TodoNoteGroup theNoteGroup2;
-    FileGroupKeeper fileGroupKeeper;
+class NoteGroupPanelKeeperTest {
+    TodoNoteGroupPanel theNoteGroup1;
+    TodoNoteGroupPanel theNoteGroup2;
+    NoteGroupPanelKeeper noteGroupPanelKeeper;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -33,36 +33,36 @@ class FileGroupKeeperTest {
     @BeforeEach
     void setUp() {
         // These steps also take care of coverage for the 'add' method.
-        fileGroupKeeper = new FileGroupKeeper();
-        theNoteGroup1 = new TodoNoteGroup("Get New Job");
-        fileGroupKeeper.add(theNoteGroup1);
-        theNoteGroup2 = new TodoNoteGroup("New Car Shopping");
-        fileGroupKeeper.add(theNoteGroup2);
+        noteGroupPanelKeeper = new NoteGroupPanelKeeper();
+        theNoteGroup1 = new TodoNoteGroupPanel("Get New Job");
+        noteGroupPanelKeeper.add(theNoteGroup1);
+        theNoteGroup2 = new TodoNoteGroupPanel("New Car Shopping");
+        noteGroupPanelKeeper.add(theNoteGroup2);
     }
 
     @Test
     void testGet() {
         // This one can be found.
-        NoteGroup theNoteGroup = (NoteGroup) fileGroupKeeper.get("Get New Job");
-        Assertions.assertNotNull(theNoteGroup);
-        assertEquals(theNoteGroup, theNoteGroup1);
+        NoteGroupPanel theNoteGroupPanel = noteGroupPanelKeeper.get("Get New Job");
+        Assertions.assertNotNull(theNoteGroupPanel);
+        assertEquals(theNoteGroupPanel, theNoteGroup1);
 
         // This one will not be found.
-        theNoteGroup = (NoteGroup) fileGroupKeeper.get("Get Lost");
-        Assertions.assertNull(theNoteGroup);
+        theNoteGroupPanel = noteGroupPanelKeeper.get("Get Lost");
+        Assertions.assertNull(theNoteGroupPanel);
     }
 
     @Test
     void testRemove() {
         // This verifies our starting point, plus shows that 'add' worked correctly.
-        assertEquals(2, fileGroupKeeper.size());
+        assertEquals(2, noteGroupPanelKeeper.size());
 
         // This one can be found.
-        fileGroupKeeper.remove("New Car Shopping");
-        assertEquals(1, fileGroupKeeper.size());
+        noteGroupPanelKeeper.remove("New Car Shopping");
+        assertEquals(1, noteGroupPanelKeeper.size());
 
         // This one will not be found.
-        fileGroupKeeper.remove("Get Lost");
-        assertEquals(1, fileGroupKeeper.size());
+        noteGroupPanelKeeper.remove("Get Lost");
+        assertEquals(1, noteGroupPanelKeeper.size());
     }
 }

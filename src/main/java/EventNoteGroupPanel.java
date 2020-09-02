@@ -17,8 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
-public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelection {
-    private static Logger log = LoggerFactory.getLogger(EventNoteGroup.class);
+public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, DateSelection {
+    private static Logger log = LoggerFactory.getLogger(EventNoteGroupPanel.class);
 
     // Notes on the implemented interfaces:
     //---------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     } // end static section
 
 
-    EventNoteGroup(String groupName) {
+    EventNoteGroupPanel(String groupName) {
         super();
 
         MemoryBank.debug("Constructing: " + groupName);
@@ -85,20 +85,20 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         optionPane = new Notifier() { }; // Uses all default methods.
 
         //------------------------------------------------------------------------------------
-        // Extracted from 'refresh()', to avoid the first unnecessary preClose().
+        // Extracted from 'refresh()', to avoid the first unnecessary preClosePanel().
         updateGroup();
 
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
         }
-        myProperties.myNoteGroup = this;
+        myProperties.myNoteGroupPanel = this;
 
 
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
             // removed.  We show that by saving the altered data and then reloading it.
-            preClose();    // Save the new states of 'aged' events.
+            preClosePanel();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
             doSort();
         } // end if
@@ -108,7 +108,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
-            myProperties.myNoteGroup = this;
+            myProperties.myNoteGroupPanel = this;
         }
 
     }// end constructor
@@ -162,7 +162,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
                     //   and complain to the user with an error dialog that
                     //   they must review and dismiss.
                     if (success) {
-                        DayNoteGroup.blnNoteAdded = true;
+                        DayNoteGroupPanel.blnNoteAdded = true;
                         MemoryBank.debug("  Retention of Event data succeeded");
                     } else {
                         MemoryBank.debug("  Retention of Event data failed");
@@ -291,7 +291,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     // Sorting is done ascending only, with unsortables
     //   collected at the 'bottom' of the list.  Note that
     //   preSort() is not needed; this method is only called
-    //   from refresh(), where a preClose() is done, which
+    //   from refresh(), where a preClosePanel() is done, which
     //   calls the saveGroup(), which calls unloadInterface(),
     //   which is what happens during a preSort().
     //---------------------------------------------------------
@@ -387,7 +387,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         if (mergeFile == null) return;
 
         // Load the file to merge in -
-        Object[] theGroup = FileGroup.loadFileData(mergeFile);
+        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
 
         BaseData.loading = true; // We don't want to affect the lastModDates!
@@ -411,13 +411,13 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
     //----------------------------------------------------------------------
     @Override
     public void refresh() {
-        preClose();     // Save changes
+        preClosePanel();     // Save changes
         updateGroup();
 
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
             // removed.  We show that by saving the altered data and then reloading it.
-            preClose();    // Save the new states of 'aged' events.
+            preClosePanel();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
             doSort();  // This action could change the current selection  -
             showComponent(null, false); // so unselect, if not already.
@@ -461,7 +461,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         //   has asked and don't tell them that they are an idiot.  But no
         //   other actions on the filesystem or the tree will be taken.
         if (newName.equals(oldName)) {
-            preClose();
+            preClosePanel();
             return false;
         } // end if
 
@@ -509,7 +509,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         // this 'new' file saves without issue, but the side effect is that the original
         // file will remain.  Still thinking on whether or not that is the desired outcome.
         AppUtil.localArchive(true);
-        preClose();
+        preClosePanel();
         AppUtil.localArchive(false);
 
         return true;
@@ -526,7 +526,7 @@ public class EventNoteGroup extends NoteGroup implements IconKeeper, DateSelecti
         eventNoteDefaults.defaultIconFileName = li.getDescription();
         eventNoteDefaults.save();
         setGroupChanged(true);
-        preClose();
+        preClosePanel();
         updateGroup();
     }// end setDefaultIcon
 

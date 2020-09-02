@@ -8,7 +8,7 @@ import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class DayNoteGroup extends CalendarNoteGroup
+public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
 
     private static AppIcon defaultIcon;
@@ -42,7 +42,7 @@ public class DayNoteGroup extends CalendarNoteGroup
     } // end of the static section
 
 
-    DayNoteGroup() {
+    DayNoteGroupPanel() {
         super("Day Note");
 
         // Create the panel title
@@ -173,9 +173,9 @@ public class DayNoteGroup extends CalendarNoteGroup
     //</editor-fold>
 
     @Override
-    protected void preClose() {
+    protected void preClosePanel() {
         dayNoteDefaults.save();
-        super.preClose();
+        super.preClosePanel();
     }
 
 
@@ -205,7 +205,7 @@ public class DayNoteGroup extends CalendarNoteGroup
         defaultIcon = li;
         dayNoteDefaults.defaultIconFileName = li.getDescription();
         setGroupChanged(true);
-        preClose();
+        preClosePanel();
         updateGroup();
     } // end setDefaultIcon
 
@@ -235,7 +235,7 @@ public class DayNoteGroup extends CalendarNoteGroup
 //            // There are two cases where there might only be one element in the object array:
 //            // 1.  Old, legacy data that was originally saved without GroupProperties.
 //            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
-//            String theClass = theGroup[0].getClass().getSimpleName();
+//            String theClass = theGroup[0].getClass().getGroupName();
 //            System.out.println("The DayNoteData class type is: " + theClass);
 //            if(theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
 //                groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });

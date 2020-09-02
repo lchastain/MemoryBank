@@ -20,7 +20,7 @@ import java.io.IOException;
 
 
 class NotePagerTest {
-    TodoNoteGroup todoNoteGroup;
+    TodoNoteGroupPanel todoNoteGroup;
 
     @BeforeAll
     static void meFirst() throws IOException {
@@ -38,13 +38,13 @@ class NotePagerTest {
         // Retrieve fresh test data from test resources.
         // We don't want a full set of data for these tests; just two Todo lists.
         String fileName = "todo_Long List.json";
-        File newname = new File(TodoNoteGroup.areaPath + fileName);
-        File testFile = FileUtils.toFile(TodoNoteGroup.class.getResource("NotePagerTest" + File.separatorChar + fileName));
+        File newname = new File(TodoNoteGroupPanel.areaPath + fileName);
+        File testFile = FileUtils.toFile(TodoNoteGroupPanel.class.getResource("NotePagerTest" + File.separatorChar + fileName));
         FileUtils.copyFile(testFile, newname);
 
         fileName = "todo_PageRollover.json";
-        newname = new File(TodoNoteGroup.areaPath + fileName);
-        testFile = FileUtils.toFile(TodoNoteGroup.class.getResource("NotePagerTest" + File.separatorChar + fileName));
+        newname = new File(TodoNoteGroupPanel.areaPath + fileName);
+        testFile = FileUtils.toFile(TodoNoteGroupPanel.class.getResource("NotePagerTest" + File.separatorChar + fileName));
         FileUtils.copyFile(testFile, newname);
     }
 
@@ -59,7 +59,7 @@ class NotePagerTest {
     // This test is only for coverage; not a lot else going on there; no further verification needed.
     @Test
     void testMouseMoves() {
-        todoNoteGroup = new TodoNoteGroup("Long List", 10);
+        todoNoteGroup = new TodoNoteGroupPanel("Long List", 10);
         NotePager notePager = todoNoteGroup.theNotePager;
         LabelButton leftAb = (LabelButton) notePager.getComponent(0);
         LabelButton middle = (LabelButton) notePager.getComponent(1);
@@ -80,7 +80,7 @@ class NotePagerTest {
 
     @Test
     void testMouseActions() {
-        todoNoteGroup = new TodoNoteGroup("Long List", 10);
+        todoNoteGroup = new TodoNoteGroupPanel("Long List", 10);
         NotePager notePager = todoNoteGroup.theNotePager;
         LabelButton leftAb = (LabelButton) notePager.getComponent(0);
         LabelButton middle = (LabelButton) notePager.getComponent(1);
@@ -104,7 +104,7 @@ class NotePagerTest {
 
     @Test
     void testGetHighestPage() {
-        todoNoteGroup = new TodoNoteGroup("Long List", 10);
+        todoNoteGroup = new TodoNoteGroupPanel("Long List", 10);
         int numPages = todoNoteGroup.theNotePager.getHighestPage();
         Assertions.assertEquals(3, numPages);
     }

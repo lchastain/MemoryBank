@@ -1,7 +1,7 @@
 import java.util.Vector;
 
 /*
- Basically a wrapper for a vector of FileGroups.  The idea is
+ Basically a wrapper for a vector of NoteGroupPanels.  The idea is
  that since loading of a list can sometimes take long enough for the user to
  notice/care, we could just load them once, and when not currently
  selected, keep them out of sight but in memory and ready to quickly redisplay.
@@ -14,19 +14,19 @@ import java.util.Vector;
  should consider whether or not to use it.
  */
 
-public class FileGroupKeeper {
-    private Vector<FileGroup> theNoteGroups;
+public class NoteGroupPanelKeeper {
+    private final Vector<NoteGroupPanel> theNoteGroups;
 
-    FileGroupKeeper() {
+    NoteGroupPanelKeeper() {
         theNoteGroups = new Vector<>();
     }
 
-    public void add(FileGroup tng) { theNoteGroups.add(tng); }
+    public void add(NoteGroupPanel tng) { theNoteGroups.add(tng); }
 
-    public FileGroup get(String aListName) {
+    public NoteGroupPanel get(String aListName) {
         // Search the Vector for the list.
-        for (FileGroup noteGroup : theNoteGroups) {
-            String tngName = noteGroup.prettyName();
+        for (NoteGroupPanel noteGroup : theNoteGroups) {
+            String tngName = noteGroup.getGroupProperties().getGroupName();
             if (aListName.equals(tngName)) {
                 return noteGroup;
             } // end if
@@ -37,10 +37,10 @@ public class FileGroupKeeper {
     // Scan the vector looking for the indicated group and if found, remove.
     //----------------------------------------------------------------
     public void remove(String aListName) {
-        FileGroup theGroup = null; // Keep a temporary reference
+        NoteGroupPanel theGroup = null; // Keep a temporary reference
 
         // Search the Vector for the group.
-        for (FileGroup noteGroup : theNoteGroups) {
+        for (NoteGroupPanel noteGroup : theNoteGroups) {
             String tngName = noteGroup.prettyName();
             if (aListName.equals(tngName)) {
                 theGroup = noteGroup;
@@ -60,8 +60,8 @@ public class FileGroupKeeper {
     } // end remove
 
     void saveAll() {
-        for(FileGroup aNoteGroup: theNoteGroups) {
-            aNoteGroup.preClose();
+        for(NoteGroupPanel aNoteGroup: theNoteGroups) {
+            aNoteGroup.preClosePanel();
         }
     }
 
@@ -69,4 +69,4 @@ public class FileGroupKeeper {
         return theNoteGroups.size();
     }
 
-} // end class NoteGroupKeeper
+} // end class NoteGroupPanelKeeper

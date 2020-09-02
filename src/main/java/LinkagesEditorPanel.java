@@ -37,9 +37,9 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         linkTargets = (LinkTargets) sourceGroupProperties.linkTargets.clone();
 
         editorNoteData = new NoteData();
-        editorNoteData.noteString = "Group: " + sourceGroupProperties.getSimpleName();
+        editorNoteData.noteString = "Group: " + sourceGroupProperties.getGroupName();
         // editorNoteData.linkTargets = linkTargets; // we want to keep these separate; no need to attach.
-        editorNoteData.myNoteGroup = sourceGroupProperties.myNoteGroup;
+        editorNoteData.myNoteGroupPanel = sourceGroupProperties.myNoteGroupPanel;
 
         filterLinkages(); // Here is where we pre-groom the linkTargets list.
         rebuildDialog();
@@ -59,7 +59,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         editorNoteData = new NoteData();
         editorNoteData.noteString = sourceNoteData.noteString;
         // editorNoteData.linkTargets = linkTargets; // we want to keep these separate; no need to attach.
-        editorNoteData.myNoteGroup = sourceGroupProperties.myNoteGroup;
+        editorNoteData.myNoteGroupPanel = sourceGroupProperties.myNoteGroupPanel;
 
         filterLinkages(); // Here is where we pre-groom the linkages list.
         rebuildDialog();
@@ -123,8 +123,8 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         }
 
         // Persist the new reverse link.
-        NoteGroup groupToSave = otherEndGroupProperties.getGroup();
-        // previously saveNoteGroup was only done from preClose - now for this usage it is no longer a private method
+        NoteGroupPanel groupToSave = otherEndGroupProperties.getGroup();
+        // previously saveNoteGroup was only done from preClosePanel - now for this usage it is no longer a private method
         // - verify this is GOOD.
         // And maybe consolidate the work from AppUtil, where a note can be moved or copied to Day, from Todo or Event.
         //   or not - this relates to either properties or pre-existing notes, not new notes.

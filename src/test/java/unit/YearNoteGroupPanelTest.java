@@ -1,17 +1,16 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-class MonthNoteGroupTest {
-    private MonthNoteGroup mng;
+class YearNoteGroupPanelTest {
+    private YearNoteGroupPanel yng;
 
     @BeforeEach
     void setUp() {
-        mng = new MonthNoteGroup();
+        yng = new YearNoteGroupPanel();
     }
 
     @AfterEach
     void tearDown() {
     }
-
 
 }

@@ -26,7 +26,7 @@ class ReuseNoteTest {
 
     @Test
     void testReuseDayNote() {
-        DayNoteGroup dayNoteGroup = new DayNoteGroup();
+        DayNoteGroupPanel dayNoteGroup = new DayNoteGroupPanel();
 
         // Set the day to one where the note content can be used for this test.
         // (we know there are 10 notes for this user on 8 June 2010).
@@ -60,13 +60,13 @@ class ReuseNoteTest {
         assert dayNoteData.getIconFileString() == null;  // null means the default icon will be used.
 
         // Not needed, unless you run only this test and then want to examine the result.
-        dayNoteGroup.preClose();
+        dayNoteGroup.preClosePanel();
 
     }
 
     @Test
     void testReuseTodoNote() {
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Ten Things To Do");
+        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Ten Things To Do");
         TodoNoteComponent todoNoteComponent = todoNoteGroup.getNoteComponent(2);
         Assertions.assertEquals("Thing Three", todoNoteComponent.getNoteData().noteString);
 
@@ -85,7 +85,7 @@ class ReuseNoteTest {
         Assertions.assertEquals(highest, 10);
 
         // Not needed, unless you run only this test and then want to examine the result.
-        todoNoteGroup.preClose();
+        todoNoteGroup.preClosePanel();
     }
 
     // Note 10/21/2019 1410 - The fix for SCR0065 was needed/done in common code, so having a 'reuse' test

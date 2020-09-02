@@ -8,8 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 
-class EventNoteGroupTest {
-    private static EventNoteGroup eventNoteGroup;
+class EventNoteGroupPanelTest {
+    private static EventNoteGroupPanel eventNoteGroup;
     static TestUtil testUtil;
 
     @BeforeAll
@@ -28,7 +28,7 @@ class EventNoteGroupTest {
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
         FileUtils.copyDirectory(testResource, testData);
 
-        eventNoteGroup = new EventNoteGroup("holidays");
+        eventNoteGroup = new EventNoteGroupPanel("holidays");
         testUtil = new TestUtil();
         eventNoteGroup.setNotifier(testUtil);
     }

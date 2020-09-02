@@ -164,7 +164,7 @@ public class TimeChooser extends JPanel implements ActionListener {
 
         int theHours = theNewTime.getHour();
         String theHoursString = String.valueOf(theHours);
-        if(DayNoteGroup.dayNoteDefaults.military) {
+        if(DayNoteGroupPanel.dayNoteDefaults.military) {
             if(theHours < 10) theHoursString = "0" + theHoursString;
             if(theHours == 0) theHoursString = "00";
         } else {
@@ -306,6 +306,7 @@ public class TimeChooser extends JPanel implements ActionListener {
                 recalc();
 
                 try {
+                    //noinspection BusyWait
                     sleep(delay);  // milliseconds
                 } catch (InterruptedException ignored) {
                 }

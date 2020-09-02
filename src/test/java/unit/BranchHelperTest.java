@@ -39,7 +39,7 @@ class BranchHelperTest {
 
     @BeforeEach
     void setUp() {
-        FileGroupKeeper theSearchResultsKeeper = new FileGroupKeeper();
+        NoteGroupPanelKeeper theSearchResultsKeeper = new NoteGroupPanelKeeper();
         DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
         searches = new DefaultMutableTreeNode("Search Results");
         trunk.add(searches);
@@ -49,7 +49,7 @@ class BranchHelperTest {
         DefaultTreeModel treeModel = new DefaultTreeModel(trunk);
         JTree tree = new JTree(treeModel);
 
-        searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, SearchResultGroup.areaName);
+        searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, SearchResultGroupPanel.areaName);
         searchBranchHelper.setNotifier(new TestUtil());
     }
 

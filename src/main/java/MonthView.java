@@ -150,7 +150,7 @@ public class MonthView extends JLayeredPane {
         int index = 0;
         String iconFileString;
 
-        Object[] theDayGroup = FileGroup.loadFileData(theFilename);
+        Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
         BaseData.loading = true; // We don't want to affect the lastModDates!
 
         // relatively new 'adjustment', to adapt to addition of properties to data files
@@ -167,7 +167,7 @@ public class MonthView extends JLayeredPane {
             if (tempDayData.getShowIconOnMonthBoolean()) {
                 iconFileString = tempDayData.getIconFileString();
                 if (iconFileString == null) { // Then show the default icon
-                    iconFileString = DayNoteGroup.dayNoteDefaults.defaultIconFileName;
+                    iconFileString = DayNoteGroupPanel.dayNoteDefaults.defaultIconFileName;
                 } // end if
 
                 if (iconFileString.equals("")) {

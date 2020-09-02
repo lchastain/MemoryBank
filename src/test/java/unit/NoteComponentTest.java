@@ -9,7 +9,7 @@ import java.io.IOException;
 
 class NoteComponentTest {
     NoteComponent theNoteComponent;
-    private static TodoNoteGroup todoNoteGroup;
+    private static TodoNoteGroupPanel todoNoteGroup;
     private static TestUtil testUtil;
 
     @BeforeAll
@@ -26,9 +26,9 @@ class NoteComponentTest {
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
         FileUtils.copyDirectory(testResource, testData);
 
-        todoNoteGroup = new TodoNoteGroup("Get New Job");
+        todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
         testUtil = new TestUtil();
-        NoteGroup.optionPane = testUtil;
+        NoteGroupPanel.optionPane = testUtil;
     }
 
     @BeforeEach
@@ -59,7 +59,7 @@ class NoteComponentTest {
 
     @Test
     void testResetNoteStatusMessage() {
-        MonthNoteGroup monthNoteGroup = new MonthNoteGroup();
+        MonthNoteGroupPanel monthNoteGroup = new MonthNoteGroupPanel();
         NoteComponent noteComponent = monthNoteGroup.getNoteComponent(0);
         noteComponent.resetNoteStatusMessage(NoteComponent.NEEDS_TEXT);
         noteComponent.resetNoteStatusMessage(NoteComponent.HAS_BASE_TEXT);

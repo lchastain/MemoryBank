@@ -16,8 +16,8 @@ import java.util.Vector;
 // properties and linked notes are what are persisted to the data file.
 
 
-public class GoalGroup extends NoteGroup implements DateSelection {
-    private static Logger log = LoggerFactory.getLogger(GoalGroup.class);
+public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
+    private static Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
     static String areaName;
     static String areaPath;
     static String filePrefix;
@@ -41,7 +41,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
 
     } // end static
 
-    public GoalGroup(String groupName) {
+    public GoalGroupPanel(String groupName) {
         super(10);
         log.debug("Constructing: " + groupName);
 
@@ -64,7 +64,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new GoalGroupProperties(groupName);
         }
-        myProperties.myNoteGroup = this;
+        myProperties.myNoteGroupPanel = this;
 
         buildPanelContent(); // Content other than the groupDataVector
     }
@@ -80,7 +80,7 @@ public class GoalGroup extends NoteGroup implements DateSelection {
         // The First Header Row -   Title
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
-        JLabel goalNameLabel = new JLabel(myProperties.getSimpleName());
+        JLabel goalNameLabel = new JLabel(myProperties.getGroupName());
         String longTitle = ((GoalGroupProperties) myProperties).longTitle;
         if (null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
         goalNameLabel.setHorizontalAlignment(JLabel.CENTER);

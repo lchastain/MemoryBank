@@ -16,14 +16,14 @@ import java.util.Vector;
 public class TodoGroupHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
 
-    private TodoNoteGroup parent;
+    private TodoNoteGroupPanel parent;
     HeaderButton hb1;  // Priority
     HeaderButton hb2;  // To Do Text
     HeaderButton hb3;  // Status
     HeaderButton hb4;  // Deadline   // No longer used.
     DndLayout headerLayout;
 
-    TodoGroupHeader(TodoNoteGroup p) {
+    TodoGroupHeader(TodoNoteGroupPanel p) {
         super();
         parent = p;
         headerLayout = new DndLayout();

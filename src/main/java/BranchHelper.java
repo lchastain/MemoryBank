@@ -18,7 +18,7 @@ public class BranchHelper implements BranchHelperInterface {
     private static Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
     private JTree theTree;  // The original tree, not the one from the editor.
-    private FileGroupKeeper theFileGroupKeeper;
+    private NoteGroupPanelKeeper theNoteGroupPanelKeeper;
     private DefaultTreeModel theTreeModel;
     private DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
@@ -33,24 +33,24 @@ public class BranchHelper implements BranchHelperInterface {
     private static final String AREA_TODO = "To Do Lists";
     private static final String AREA_SEARCH = "Search Results";
 
-    BranchHelper(JTree jt, FileGroupKeeper fileGroupKeeper, String areaName) {
+    BranchHelper(JTree jt, NoteGroupPanelKeeper noteGroupPanelKeeper, String areaName) {
         theTree = jt;
-        theFileGroupKeeper = fileGroupKeeper;
+        theNoteGroupPanelKeeper = noteGroupPanelKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         theArea = areaName;
 
         // This Helper is for one of these Branches -
-        if (GoalGroup.areaName.equals(theArea)) {
+        if (GoalGroupPanel.areaName.equals(theArea)) {
             theAreaNodeName = AREA_GOAL;
             thePrefix = "goal_";
-        } else if (EventNoteGroup.areaName.equals(theArea)) {
+        } else if (EventNoteGroupPanel.areaName.equals(theArea)) {
             theAreaNodeName = AREA_EVENT;
             thePrefix = "event_";
-        } else if (TodoNoteGroup.areaName.equals(theArea)) {
+        } else if (TodoNoteGroupPanel.areaName.equals(theArea)) {
             theAreaNodeName = AREA_TODO;
             thePrefix = "todo_";
-        } else if(SearchResultGroup.areaName.equals(theArea)) {
+        } else if(SearchResultGroupPanel.areaName.equals(theArea)) {
             theAreaNodeName = AREA_SEARCH;
             thePrefix = "search_";
         }
@@ -89,7 +89,7 @@ public class BranchHelper implements BranchHelperInterface {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        File aFile = new File(FileGroup.getFullFilename(theArea, theName));
+        File aFile = new File(NoteGroupFile.getFullFilename(theArea, theName));
         String theComplaint = BranchHelperInterface.checkFilename(theName, aFile.getParent());
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
@@ -146,15 +146,15 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = FileGroup.getFullFilename(theArea, nodeChange.nodeName);
-                String newNamedFile = FileGroup.getFullFilename(theArea, nodeChange.renamedTo);
+                String oldNamedFile = NoteGroupFile.getFullFilename(theArea, nodeChange.nodeName);
+                String newNamedFile = NoteGroupFile.getFullFilename(theArea, nodeChange.renamedTo);
                 File f = new File(oldNamedFile);
 
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
                     } // end if
-                    theFileGroupKeeper.remove(nodeChange.nodeName);
+                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -174,13 +174,13 @@ public class BranchHelper implements BranchHelperInterface {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  FileGroup.getFullFilename(theArea, nodeChange.nodeName);
+                String deleteFile =  NoteGroupFile.getFullFilename(theArea, nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
                         throw new Exception("Unable to delete " + nodeChange.nodeName);
                     } // end if
-                    theFileGroupKeeper.remove(nodeChange.nodeName);
+                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch

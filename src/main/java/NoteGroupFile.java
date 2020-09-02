@@ -5,25 +5,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public abstract class FileGroup {
+class NoteGroupFile extends NoteGroupData {
     static String basePath;
 
-    // Status report codes for Load / Save
-    static final int INITIAL = 500;
-    static final int ONGOING = 501;
-    static final int DELETEOLDFILEFAILED = 502;
-    static final int DIRECTORYINMYPLACE = 503;
-    static final int CANNOTMAKEAPATH = 504;
-    static final int FILEINMYDIRPATH = 505;
-    static final int OTHERFAILURE = 506;
-    static final int SUCCEEDED = 600;
-
-    // Directions for Sort operations
-    static final int ASCENDING = 0;
-    static final int DESCENDING = 1;
-
     private String groupFilename; // Access with getGroupFilename() & setGroupFilename()
-    transient boolean groupChanged;  // Flag used to determine if saving data might be necessary.
 
     static {
         // We give this string a trailing separatorChar because we really
@@ -33,10 +18,6 @@ public abstract class FileGroup {
         basePath = MemoryBank.userDataHome + File.separatorChar;
     }
 
-    // Used by the Jackson code during data load / conversion.
-    FileGroup() {
-        super();
-    }
 
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there
@@ -47,9 +28,9 @@ public abstract class FileGroup {
         // With this sandwiched condition, the user is only notified of a problem if the file still exists.
         if (f.exists() && !f.delete() && f.exists()) {
             (new Exception("File removal exception!")).printStackTrace();
-            NoteGroup.ems = "Error - unable to remove: " + f.getName();
-            NoteGroup.optionPane.showMessageDialog(null,
-                    NoteGroup.ems, "Error", JOptionPane.ERROR_MESSAGE);
+            NoteGroupPanel.ems = "Error - unable to remove: " + f.getName();
+            NoteGroupPanel.optionPane.showMessageDialog(null,
+                    NoteGroupPanel.ems, "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } else {
             return true;
@@ -60,16 +41,16 @@ public abstract class FileGroup {
         String prefix = "";
         switch (areaName) {
             case "Goals":
-                prefix = GoalGroup.filePrefix;
+                prefix = GoalGroupPanel.filePrefix;
                 break;
             case "UpcomingEvents":
-                prefix = EventNoteGroup.filePrefix;
+                prefix = EventNoteGroupPanel.filePrefix;
                 break;
             case "TodoLists":
-                prefix = TodoNoteGroup.filePrefix;
+                prefix = TodoNoteGroupPanel.filePrefix;
                 break;
             case "SearchResults":
-                prefix = SearchResultGroup.filePrefix;
+                prefix = SearchResultGroupPanel.filePrefix;
                 break;
         }
         return basePath + areaName + File.separatorChar + prefix + prettyName + ".json";
@@ -77,14 +58,9 @@ public abstract class FileGroup {
 
     public String getGroupFilename() {
         return groupFilename;
-    }// end getGroupFilename
+    }
 
-    // ---------------------------------------------------------------------------------
-    // Method Name: loadFileData
-    //
-    // This is a static data loader that helps separate the loading of the data
-    //   from the various components and methods that act upon it.
-    // ---------------------------------------------------------------------------------
+
     static Object[] loadFileData(String theFilename) {
         // theFilename string needs to be the full path to the file.
         return loadFileData(new File(theFilename));
@@ -102,9 +78,6 @@ public abstract class FileGroup {
         }// end try/catch
         return theGroup;
     }
-
-    // Called by the shutdown hook to prompt implementations to save their data before they go away.
-    abstract void preClose();
 
     //-----------------------------------------------------------------
     // Method Name:  prettyName
@@ -161,12 +134,7 @@ public abstract class FileGroup {
         return thePrettyName;
     } // end prettyName
 
-    // ---------------------------------------------------------------------------------
-    // Method Name: saveNoteGroupData
-    //
-    // This static method is needed to separate the writing of the data to a file,
-    // from the various components and methods that display and modify it.
-    // ---------------------------------------------------------------------------------
+
     static int saveFileData(String theFilename, Object[] theGroup) {
         int notesWritten = 0;
         BufferedWriter bw = null;
@@ -201,19 +169,6 @@ public abstract class FileGroup {
 
         return notesWritten;
     }
-
-    //----------------------------------------------------------------
-    // Method Name: setGroupChanged
-    //
-    // Called by all contexts that make a change to the data, each
-    //   time a change is made.  Child classes can override if they
-    //   need to intercept a state change, but in that case they
-    //   should still call this super method so that group saving
-    //   is done when needed.
-    //----------------------------------------------------------------
-    void setGroupChanged(boolean b) {
-        groupChanged = b;
-    } // end setGroupChanged
 
     void setGroupFilename(String newName) {
         groupFilename = newName;

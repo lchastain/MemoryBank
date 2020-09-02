@@ -16,14 +16,14 @@ import java.util.Vector;
 public class SearchResultHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
 
-    private final SearchResultGroup parent;
+    private final SearchResultGroupPanel parent;
     HeaderButton hb1;  // Found In
     HeaderButton hb2;  // Note Text
     HeaderButton hb3;  // Last Mod
     HeaderButton hb4;  // Deadline   // No longer used.
     DndLayout headerLayout;
 
-    public SearchResultHeader(SearchResultGroup p) {
+    public SearchResultHeader(SearchResultGroupPanel p) {
         super();
         parent = p;
         headerLayout = new DndLayout();

@@ -18,13 +18,13 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     private int intMaxPages;
     private int currentPageNumber;
     private int intPageFrom;
-    private NoteGroup myNoteGroup;
+    private NoteGroupPanel myNoteGroupPanel;
     private LabelButton lbCurrentPage;
     private JTextField jtfThePageNum;
 
-    NotePager(NoteGroup ng) {
+    NotePager(NoteGroupPanel ng) {
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        myNoteGroup = ng;
+        myNoteGroupPanel = ng;
 
         // Make a path to the images for the Alter Buttons
         char c = java.io.File.separatorChar;
@@ -85,7 +85,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     }
 
     // This method was previously called from saveGroup, as a way to get the page number to use with unloadInterface.
-    // Now, saveGroup does not do an unload; it happens one step earlier, in preClose, and saving the data is NOT done
+    // Now, saveGroup does not do an unload; it happens one step earlier, in preClosePanel, and saving the data is NOT done
     // during a page event.  This better supports an 'undo', and it is part of breaking apart the paging event into
     // two operations (pageAway, pageTo) vs a single one (gotoPage).  Having two operations is more in line with other
     // awt/swing events like focusLost, focusGained.  Querying the current page number should NOT be done during the
@@ -126,14 +126,14 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     public void reset(int i) {
         currentPageNumber = i;
         intPageFrom = i;
-        intPageSize = myNoteGroup.pageSize;
-        intGroupSize = myNoteGroup.groupDataVector.size();
+        intPageSize = myNoteGroupPanel.pageSize;
+        intGroupSize = myNoteGroupPanel.groupDataVector.size();
 
         // Calculate the maximum number of pages.
         if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
         else if ((intGroupSize % intPageSize) == 0) { // The data comes out to an even number of pages, exactly.
             intMaxPages = (intGroupSize / intPageSize);
-            if (myNoteGroup.editable) {
+            if (myNoteGroupPanel.editable) {
                 intMaxPages = (intGroupSize / intPageSize) + 1; // Add a page for 'growth'.
             }
         } else intMaxPages = (intGroupSize / intPageSize) + 1;  // A partial last page.
@@ -148,8 +148,8 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
 
         setMiddleMessage();
 
-        MemoryBank.dbg("NotePager.reset Page " + i + "\t Size: " + myNoteGroup.pageSize);
-        MemoryBank.debug("\t Group size: " + myNoteGroup.groupDataVector.size());
+        MemoryBank.dbg("NotePager.reset Page " + i + "\t Size: " + myNoteGroupPanel.pageSize);
+        MemoryBank.debug("\t Group size: " + myNoteGroupPanel.groupDataVector.size());
     } // end reset
 
 
@@ -182,12 +182,12 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
                 // This should not be a back-door to a 'refresh' operation.
                 MemoryBank.debug("Explicit page nummber was set to current page!  Ignored.");
             } else if (theNewPage <= intMaxPages) {
-                myNoteGroup.pageAway(currentPageNumber);
+                myNoteGroupPanel.pageAway(currentPageNumber);
                 intPageFrom = currentPageNumber;
                 currentPageNumber = theNewPage;
-                myNoteGroup.pageTo(currentPageNumber);
+                myNoteGroupPanel.pageTo(currentPageNumber);
                 setMiddleMessage();
-                myNoteGroup.pageNumberChanged();
+                myNoteGroupPanel.pageNumberChanged();
                 intPageFrom = currentPageNumber;
             } // end if
         } // end if
@@ -239,11 +239,11 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
                 break;
         }
 
-        myNoteGroup.setStatusMessage(mouseMsg);
+        myNoteGroupPanel.setStatusMessage(mouseMsg);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
-        myNoteGroup.setStatusMessage("");
+        myNoteGroupPanel.setStatusMessage("");
     }
 
     public void mousePressed(MouseEvent e) {
@@ -260,30 +260,30 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             lbCurrentPage.setVisible(false);
         } else {
 //            AppTreePanel.theInstance.requestFocusInWindow();  // 1/4/2020 - this tripped up a test, so seeing if we can live without.
-            myNoteGroup.pageAway(currentPageNumber);
+            myNoteGroupPanel.pageAway(currentPageNumber);
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");
                 if (currentPageNumber > 1) {
                     currentPageNumber--;
-                    myNoteGroup.pageTo(currentPageNumber);
+                    myNoteGroupPanel.pageTo(currentPageNumber);
                 } else {
                     currentPageNumber = intMaxPages;
-                    myNoteGroup.pageTo(currentPageNumber);
+                    myNoteGroupPanel.pageTo(currentPageNumber);
                 } // end if
                 setMiddleMessage();
-                myNoteGroup.pageNumberChanged();
+                myNoteGroupPanel.pageNumberChanged();
             }
             if (s.equals("rightAb")) {
                 // System.out.println("Next page");
                 if (currentPageNumber < intMaxPages) {
                     currentPageNumber++;
-                    myNoteGroup.pageTo(currentPageNumber);
+                    myNoteGroupPanel.pageTo(currentPageNumber);
                 } else {
                     currentPageNumber = 1;
-                    myNoteGroup.pageTo(currentPageNumber);
+                    myNoteGroupPanel.pageTo(currentPageNumber);
                 } // end if
                 setMiddleMessage();
-                myNoteGroup.pageNumberChanged();
+                myNoteGroupPanel.pageNumberChanged();
             } // end if/else
         } // end if/else
 

@@ -3,8 +3,8 @@ import org.junit.jupiter.api.*;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 
-class DayNoteGroupTest {
-    private DayNoteGroup dng;
+class DayNoteGroupPanelTest {
+    private DayNoteGroupPanel dng;
 
     @BeforeAll
     static void ssetup() {
@@ -14,7 +14,7 @@ class DayNoteGroupTest {
     @BeforeEach
     void setUp() {
         MemoryBank.setUserDataHome("test.user@lcware.net");
-        dng = new DayNoteGroup();
+        dng = new DayNoteGroupPanel();
     }
 
     @AfterEach
@@ -42,7 +42,7 @@ class DayNoteGroupTest {
         // But using all of them is quite uncommon, so we
         // expect that the last one will not be visible,
         // regardless of the day setting.
-        DayNoteComponent dnc = dng.getNoteComponent(NoteGroup.PAGE_SIZE-1); // zero-indexed
+        DayNoteComponent dnc = dng.getNoteComponent(NoteGroupPanel.PAGE_SIZE-1); // zero-indexed
         Assertions.assertNotNull(dnc);
         Assertions.assertFalse(dnc.initialized);
     }

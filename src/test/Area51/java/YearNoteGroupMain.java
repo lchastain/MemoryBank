@@ -11,7 +11,7 @@ public class YearNoteGroupMain {
 
         JFrame testFrame = new JFrame("YearNoteGroup Driver");
 
-        YearNoteGroup yng = new YearNoteGroup();
+        YearNoteGroupPanel yng = new YearNoteGroupPanel();
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {

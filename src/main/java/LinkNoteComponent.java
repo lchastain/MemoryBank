@@ -34,8 +34,8 @@ public class LinkNoteComponent extends NoteComponent {
         NoteInfo noteInfo = myLinkedEntityData.getTargetNoteInfo();
         if (noteInfo == null) {
             noteInfo = new NoteInfo();
-            noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getSimpleName();
-            noteInfo.myNoteGroup = myLinkedEntityData.getTargetGroupInfo().myNoteGroup;
+            noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getGroupName();
+            noteInfo.myNoteGroupPanel = myLinkedEntityData.getTargetGroupInfo().myNoteGroupPanel;
             // Here we COULD set an extended note, but decided against it, at this time.
             //noteInfo.extendedNoteString = "All notes in this group";
         }

@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Vector;
 
-public abstract class CalendarNoteGroup extends NoteGroup {
+public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     static String areaName;
     static String areaPath;
 
@@ -26,7 +26,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         areaPath = basePath + areaName + File.separatorChar;
     }
 
-    CalendarNoteGroup(String defaultSubject) {
+    CalendarNoteGroupPanel(String defaultSubject) {
         super();
         super.setDefaultSubject(defaultSubject);
 
@@ -65,7 +65,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
     public String getGroupFilename() {
         String s;
 
-        if (intSaveGroupStatus == ONGOING) {
+        if (saveIsOngoing) {
             if (dateType == ChronoUnit.DAYS) s = AppUtil.makeFilename(theChoice, "D");
             else if (dateType == ChronoUnit.MONTHS) s = AppUtil.makeFilename(theChoice, "M");
             else s = AppUtil.makeFilename(theChoice, "Y");
@@ -86,19 +86,19 @@ public abstract class CalendarNoteGroup extends NoteGroup {
             // may contain linkages.  Otherwise it will be null and we can just make one right now.
             switch(dateType) {
                 case DAYS:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.DAY_NOTES);
+                    myProperties = new GroupProperties("Day Notes", GroupInfo.GroupType.DAY_NOTES);
                     break;
                 case MONTHS:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.MONTH_NOTES);
+                    myProperties = new GroupProperties("Month Notes", GroupInfo.GroupType.MONTH_NOTES);
                     break;
                 case YEARS:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.YEAR_NOTES);
+                    myProperties = new GroupProperties("Year Notes", GroupInfo.GroupType.YEAR_NOTES);
                     break;
                 default:
                     myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.NOTES);
             }
         }
-        myProperties.myNoteGroup = this;
+        myProperties.myNoteGroupPanel = this;
         return myProperties;
     }
 
@@ -121,7 +121,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
 
 
     public void setOneBack() {
-        preClose();
+        preClosePanel();
         myProperties = null; // There may be no file to load, so this is needed here.
         theChoice = theChoice.minus(1, dateType);
         if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
@@ -129,7 +129,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
 
 
     public void setOneForward() {
-        preClose();
+        preClosePanel();
         myProperties = null; // There may be no file to load, so this is needed here.
         theChoice = theChoice.plus(1, dateType);
         if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);

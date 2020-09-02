@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test;
 
-class NoteGroupFactoryTest {
+class NoteGroupPanelFactoryTest {
 
     @Test
     void testGetGroup() {

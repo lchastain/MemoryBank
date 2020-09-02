@@ -2,12 +2,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class EventNoteComponentTest {
-    EventNoteGroup myEventNoteGroup;
+    EventNoteGroupPanel myEventNoteGroup;
     EventNoteComponent theEventNoteComponent;
 
     @BeforeEach
     void setUp() {
-        myEventNoteGroup = new EventNoteGroup("testEventGroup");
+        myEventNoteGroup = new EventNoteGroupPanel("testEventGroup");
         myEventNoteGroup.setEditable(false);
         theEventNoteComponent = new EventNoteComponent(myEventNoteGroup, 0);
     }

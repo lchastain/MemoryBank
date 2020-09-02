@@ -1,6 +1,6 @@
 Notes Interfaces (Day Notes, Month Notes, Todo Lists, Events, etc)
 
-NoteGroup (base class):
+NoteGroupPanel (base class):
 
  1. Event: Double-click in a text area
     Handler: NoteComponent.java$NoteTextField.mouseClicked
@@ -42,21 +42,21 @@ NoteGroup (base class):
 
 To-do Lists:
 
- 1. Event: Right-click on text (see NoteGroup item 8)
+ 1. Event: Right-click on text (see NoteGroupPanel item 8)
     Handler: NoteComponent$NoteTextField.mouseClicked
     Expected Action: Calls overriding 'resetPopup' in TodoNoteComponent,
       to define and bring up a popup menu with more selections than the base.  
 
  2. Event: 'Move To Selected Date' selection on the Text popup menu
     Handler: TodoNoteComponent$PopHandler.actionPerformed
-    Expected Action: A call to moveIt which calls NoteGroup.addNote
+    Expected Action: A call to moveIt which calls NoteGroupPanel.addNote
 
 
 Upcoming Events:
  1. Event: Menubar - Select View/Refresh
     Handler: An anonymous actionlistener in the AppTreePanel constructor
     Expected Action: Fires off a new thread with a call to handleMenuBar(),
-      that in turn makes a call to EventNoteGroup.refresh().
+      that in turn makes a call to EventNoteGroupPanel.refresh().
 
  2. Event: Double-click in a text area
     Expected Action: Brings up the EventEditorPanel
@@ -66,7 +66,7 @@ Search Results:
  1. Event: Click on a column heading (for sorting)
     Handler: SearchResultHeader$HeaderButton.mouseClicked
     Expected Action: A call to doSorting() which in turn calls the correct
-      sort method in SearchResultGroup, via the HeaderButton 'parent'.
+      sort method in SearchResultGroupPanel, via the HeaderButton 'parent'.
     
 
 

@@ -8,48 +8,48 @@ class NoteGroupFactory {
     // This method will return the requested NoteGroup only if a file for
     // it exists; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static NoteGroup loadGroup(String groupName, String filename) {
+    static NoteGroupPanel loadGroup(String groupName, String filename) {
         if (groupName.startsWith("Goal")) {
-            areaName = GoalGroup.areaName;
+            areaName = GoalGroupPanel.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
-                return new GoalGroup(filename);
+                return new GoalGroupPanel(filename);
             } // end if there is a file
         } else if (groupName.startsWith("Upcoming Event")) {
-            areaName = EventNoteGroup.areaName;
+            areaName = EventNoteGroupPanel.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
-                return new EventNoteGroup(filename);
+                return new EventNoteGroupPanel(filename);
             } // end if there is a file
         } else if (groupName.startsWith("To Do List")) {
-            areaName = TodoNoteGroup.areaName;
+            areaName = TodoNoteGroupPanel.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
-                return new TodoNoteGroup(filename);
+                return new TodoNoteGroupPanel(filename);
             } // end if there is a file
         } else if (groupName.startsWith("Search Result")) {
-            areaName = SearchResultGroup.areaName;
+            areaName = SearchResultGroupPanel.areaName;
             if (exists(filename)) {
                 MemoryBank.debug("Loading " + filename + " from filesystem");
-                return new SearchResultGroup(filename);
+                return new SearchResultGroupPanel(filename);
             } // end if there is a file
         }
         return null;
     }
 
     // Use this method if you want to get the group whether it has a data file or not.
-    static NoteGroup loadOrMakeGroup(String theContext, String filename) {
-        NoteGroup theGroup = loadGroup(theContext, filename);
+    static NoteGroupPanel loadOrMakeGroup(String theContext, String filename) {
+        NoteGroupPanel theGroup = loadGroup(theContext, filename);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.
         // If we ever support some other way of getting here, that may need to change.
         if (theContext.startsWith("To Do List")) {
-            return new TodoNoteGroup(filename);
+            return new TodoNoteGroupPanel(filename);
         } else if (theContext.startsWith("Goal")) {
-            return new GoalGroup(filename);
+            return new GoalGroupPanel(filename);
         } else if (theContext.startsWith("Upcoming Event")) {
-            return new EventNoteGroup(filename);
+            return new EventNoteGroupPanel(filename);
         } else if (theContext.startsWith("Search Result")) {
             MemoryBank.debug("ERROR!  We do not make new Search Results with the Factory");
         }
@@ -69,7 +69,7 @@ class NoteGroupFactory {
             // so that further grooming is unnecessary.
             fullFilename = shortName;
         } else {
-            fullFilename = FileGroup.getFullFilename(areaName, shortName);
+            fullFilename = NoteGroupFile.getFullFilename(areaName, shortName);
         }
 
         return new File(fullFilename).exists();

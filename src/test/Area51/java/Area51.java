@@ -42,7 +42,7 @@ public class Area51 {
     private void try2() {
         // Make a new GoalGroup
         String groupName = "WorldPlan1";
-        GoalGroup goalGroup = new GoalGroup(groupName);
+        GoalGroupPanel goalGroup = new GoalGroupPanel(groupName);
         ((GoalGroupProperties) goalGroup.myProperties).longTitle = "Take Over The World";
         System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
 
@@ -61,7 +61,7 @@ public class Area51 {
     private void try3() {
         // Make a new EventNoteGroup
         String groupName = "holidays";
-        EventNoteGroup goalGroup = new EventNoteGroup(groupName);
+        EventNoteGroupPanel goalGroup = new EventNoteGroupPanel(groupName);
 
         // Make a new EventNoteData
         EventNoteData eventNoteData = new EventNoteData();
@@ -84,16 +84,10 @@ public class Area51 {
 
     // Developing linkages and testing serialization issues.
     private void try4() {
-        FileGroup fileGroup = new FileGroup() {
-            @Override
-            void preClose() {
-
-            }
-        };
 
         // Make a new GoalGroup
         String groupName = "WorldPlan1";
-        GoalGroup goalGroup = new GoalGroup(groupName);
+        GoalGroupPanel goalGroup = new GoalGroupPanel(groupName);
         ((GoalGroupProperties) goalGroup.myProperties).longTitle = "Take Over The World";
         System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
 

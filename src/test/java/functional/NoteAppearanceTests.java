@@ -51,7 +51,7 @@ public class NoteAppearanceTests {
     // The two Event groups in the test data have three and five notes, respectively.
     @Test
     void testEvents() {
-        EventNoteGroup eventNoteGroup = new EventNoteGroup("one");
+        EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("one");
 
         // Test condition 1:  NoteGroup loads the data, and the rest of the interface is 'empty' (not visible).
         //-------------------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public class NoteAppearanceTests {
     // The two Todo Lists in the test data have three and five notes, respectively.
     @Test
     void testTodoLists() {
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("one");
+        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("one");
 
         // Test condition 1:  NoteGroup loads a finite amount of data, and the rest of the interface is 'empty' (not visible).
         //-------------------------------------------------------------------------------------------------------------

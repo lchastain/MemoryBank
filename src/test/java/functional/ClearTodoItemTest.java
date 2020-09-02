@@ -40,7 +40,7 @@ class ClearTodoItemTest {
     @Test
     void testClearTodoItem() {
         // Construct a TodoNoteGroup for a list that is known to exist.
-        TodoNoteGroup tng = new TodoNoteGroup("Get New Job");
+        TodoNoteGroupPanel tng = new TodoNoteGroupPanel("Get New Job");
         Assertions.assertNotNull(tng);
 
         // Select the first item in the list

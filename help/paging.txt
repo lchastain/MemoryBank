@@ -1,8 +1,8 @@
 Paging is currently implemented for SearchResults and Todo Lists
 
-Default NoteGroup page size is 40 notes.  Child classes may override this; Todo Lists default page size is 20.
+Default NoteGroupPanel page size is 40 notes.  Child classes may override this; Todo Lists default page size is 20.
 
-When a NoteGroup that supports paging AND group growth gets to an end-of-page boundary:
+When a NoteGroupPanel that supports paging AND group growth gets to an end-of-page boundary:
     If this happened on page one then the pager control will appear, and stay visible as long as there are
         as many as PAGESIZE notes.
     No new note appears, but pages needed is recalculated, to add one.

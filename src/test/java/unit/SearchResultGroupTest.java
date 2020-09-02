@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 class SearchResultGroupTest {
-    private static SearchResultGroup searchResultGroup;
+    private static SearchResultGroupPanel searchResultGroup;
 
     @BeforeAll
     static void beforeAll() throws IOException {
@@ -34,7 +34,7 @@ class SearchResultGroupTest {
         // We have chosen a known search result, so the
         // tests below will know the limitation of indices and text content.
         String theNodeName = "20190927161325";
-        searchResultGroup = (SearchResultGroup) NoteGroupFactory.loadGroup("Search Result", theNodeName);
+        searchResultGroup = (SearchResultGroupPanel) NoteGroupFactory.loadGroup("Search Result", theNodeName);
         Thread.sleep(200); // Tests need some settling time.
     }
 
@@ -44,7 +44,7 @@ class SearchResultGroupTest {
     void testLoadLastModDate() {
         // The other tests here muck too much with the data; need a fresh results list.
         String theFileName = "20191029073938";  // Search text 'Office'
-        SearchResultGroup srg = (SearchResultGroup) NoteGroupFactory.loadGroup("Search Result", theFileName);
+        SearchResultGroupPanel srg = (SearchResultGroupPanel) NoteGroupFactory.loadGroup("Search Result", theFileName);
         Assertions.assertNotNull(srg);
 
         // Get the LMD of the third (index is zero-based) visible component in this group.
@@ -105,22 +105,22 @@ class SearchResultGroupTest {
     @Test
     void testSortLastMod() {
         // Just the coverage -
-        searchResultGroup.sortLastMod(SearchResultGroup.ASCENDING);
-        searchResultGroup.sortLastMod(SearchResultGroup.DESCENDING);
+        searchResultGroup.sortLastMod(NoteGroupPanel.ASCENDING);
+        searchResultGroup.sortLastMod(NoteGroupPanel.DESCENDING);
     }
 
     @Test
     void testSortText() {
         // Just the coverage -
-        searchResultGroup.sortText(SearchResultGroup.ASCENDING);
-        searchResultGroup.sortText(SearchResultGroup.DESCENDING);
+        searchResultGroup.sortText(NoteGroupPanel.ASCENDING);
+        searchResultGroup.sortText(NoteGroupPanel.DESCENDING);
     }
 
     @Test
     void testSaving() {
         // covers multiple methods
         searchResultGroup.setGroupChanged(true);
-        searchResultGroup.preClose();
+        searchResultGroup.preClosePanel();
     }
 
     @Test

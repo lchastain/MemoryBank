@@ -15,7 +15,7 @@ import java.time.LocalDate;
 // that was originally reported via SCR0001.
 
 class TodoItemFocusTest {
-    private static TodoNoteGroup todoNoteGroup;
+    private static TodoNoteGroupPanel todoNoteGroup;
     private static JFrame theFrame;
 
     @BeforeAll
@@ -36,7 +36,7 @@ class TodoItemFocusTest {
         // Load up this Test user's application options
         AppOptions.loadOpts();
 
-        todoNoteGroup = new TodoNoteGroup("Get New Job");
+        todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
         theFrame = new JFrame("ItemFocusTest");
         theFrame.setContentPane(todoNoteGroup.theBasePanel);
         theFrame.pack();

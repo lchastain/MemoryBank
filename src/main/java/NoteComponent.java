@@ -40,7 +40,7 @@ public class NoteComponent extends JPanel {
 
     // Internal Variables needed by more than one method -
     NoteComponentManager myManager;
-    protected NoteGroup myNoteGroup;
+    protected NoteGroupPanel myNoteGroupPanel;
     static NoteSelection mySelectionMonitor;
     protected boolean initialized = false;
     protected int index;
@@ -94,8 +94,8 @@ public class NoteComponent extends JPanel {
     NoteComponent(NoteComponentManager noteComponentManager, int i) {
         super(new BorderLayout(2, 0));
         myManager = noteComponentManager;  // A NoteGroup, or the LinkagesEditorPanel
-        if(myManager instanceof NoteGroup) {
-            myNoteGroup = (NoteGroup) myManager;
+        if(myManager instanceof NoteGroupPanel) {
+            myNoteGroupPanel = (NoteGroupPanel) myManager;
         }
         index = i;
 
@@ -176,7 +176,7 @@ public class NoteComponent extends JPanel {
     // Returns the data object that this component encapsulates and manages.
     //-----------------------------------------------------------------
     NoteData getNoteData() {
-        myNoteData.myNoteGroup = myNoteGroup;
+        myNoteData.myNoteGroupPanel = myNoteGroupPanel;
         return myNoteData;
     } // end getNoteData
 
@@ -806,8 +806,13 @@ public class NoteComponent extends JPanel {
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     break;
                 case "Note Linkages...":
-                    GroupProperties groupProperties = theNoteComponent.myNoteGroup.getGroupProperties();
+                    GroupProperties groupProperties = theNoteComponent.myNoteGroupPanel.getGroupProperties();
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
+
+                    // FYI - recent (unsaved) changes to groups that could be possible selections for a new link -
+                    //   will be seen for most target groups because those selections are pulled from 'keepers'.
+                    //   Only CalendarNoteGroup type groups are not.  For those, the user must save first; it is
+                    //   not an automatic.
 
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
@@ -824,7 +829,7 @@ public class NoteComponent extends JPanel {
                         // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
                         // are about to create from it/them will have proper corresponding forward link(s).
                         // This means that we do not need to set 'groupChanged' - it should be false after the save.
-                        theNoteComponent.myNoteGroup.saveNoteGroup(); // (no checking of the result, at this time).
+                        theNoteComponent.myNoteGroupPanel.saveNoteGroup(); // (no checking of the result, at this time).
 
                         linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 

@@ -16,18 +16,18 @@ One-stop reference for how to do certain tasks (mostly related to Test dev).
 2.  Get the TreePath to a node with a known name/text:  see the testCloseSearchResult test in the
     AppTreePanelTest class - it does that (in several steps and two external static methods).
 
-3.  Get any NoteGroup:  With the list name (essentially the file name, or close enough) known, the
+3.  Get any NoteGroupPanel:  With the list name (essentially the file name, or close enough) known, the
     group may simply be constructed directly; no need to instantiate the AppTreePanel to get the JTree;
     the tree is not needed if you only want to call group methods.  The constructor of the group loads
     the file into the group's components.
 
-4.  Set a line in a NoteGroup (new or existing) - get the corresponding NoteComponent and call its
+4.  Set a line in a NoteGroupPanel (new or existing) - get the corresponding NoteComponent and call its
     'setNoteData' method.  Call initialize() on it first, if needed.
 
-5.  Get a NoteComponent:  call getNoteComponent on the NoteGroup instance.  Parameter needed is the
+5.  Get a NoteComponent:  call getNoteComponent on the NoteGroupPanel instance.  Parameter needed is the
     zero-based index number into the group.
 
-6.  Load a DayNoteGroup with the notes from a specific day:
+6.  Load a DayNoteGroupPanel with the notes from a specific day:
     Normal construction of the group (no params), then call setChoice() with a given Date.
     Construct a Calendar using YEAR/MNONTH/DAY, then get that Date with getTime().   See ReuseNoteTest.testReuseDayNote()
 

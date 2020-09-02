@@ -1,11 +1,11 @@
-A Goal will be represented by a GoalGroup; one GoalGroup per Goal.
+A Goal will be represented by a GoalGroupPanel; one GoalGroupPanel per Goal.
 
 There can be multiple goals active in the app at any given time.
 Goals will be accessible under the expandable tree node 'Goals'
-GoalGroup data is described in the 'GoalGroup Data Design.txt' file
+GoalGroupPanel data is described in the 'GoalGroupPanel Data Design.txt' file
 
 The Panel  (groupNotesListPanel)
-    Inherited from NoteGroup (default Layout manager is BorderLayout)
+    Inherited from NoteGroupPanel (default Layout manager is BorderLayout)
 
 
 
@@ -55,7 +55,7 @@ Considered and rejected:
     (perhaps a research project, proposed goal/subject 'Research') - you cannot have two subjects.
 
 2.  Keeping a most-recent-first log of user-entered and edited notes on the goal -
-    The user would have entry/edit capability already, via linkages from the NoteGroup items.  Better to keep the
+    The user would have entry/edit capability already, via linkages from the NoteGroupPanel items.  Better to keep the
         links as shown in the goal as non user-editable.
     As for showing the list - sorting and filtering can be done on the linkages.  The user will still have the
         ability to manually sort them.

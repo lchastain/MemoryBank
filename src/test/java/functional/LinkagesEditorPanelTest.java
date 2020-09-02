@@ -13,23 +13,23 @@ class LinkagesEditorPanelTest {
     LinkagesEditorPanel linkagesEditorPanel;
 
     // One of each NoteGroup type (types that can link to, or be linked to)
-    DayNoteGroup dayNoteGroup;
-    MonthNoteGroup monthNoteGroup;
-    YearNoteGroup yearNoteGroup;
-    GoalGroup goalGroup;
-    EventNoteGroup eventNoteGroup;
-    TodoNoteGroup todoNoteGroup;
+    DayNoteGroupPanel dayNoteGroup;
+    MonthNoteGroupPanel monthNoteGroup;
+    YearNoteGroupPanel yearNoteGroup;
+    GoalGroupPanel goalGroup;
+    EventNoteGroupPanel eventNoteGroup;
+    TodoNoteGroupPanel todoNoteGroup;
     // For a link to any one of the other groups types, including its own type, there are 6 possibilities.
     // And then another 6 for linking to a note from each one, = 12 tests per each of 6 classes.
     TodoNoteData todoNoteData = new TodoNoteData();
 
     LinkagesEditorPanelTest() {
-        goalGroup = new GoalGroup("Take Over The World");
-        eventNoteGroup = new EventNoteGroup("Elections");
-        dayNoteGroup = new DayNoteGroup();
-        monthNoteGroup = new MonthNoteGroup();
-        yearNoteGroup = new YearNoteGroup();
-        todoNoteGroup = new TodoNoteGroup("This Week");
+        goalGroup = new GoalGroupPanel("Take Over The World");
+        eventNoteGroup = new EventNoteGroupPanel("Elections");
+        dayNoteGroup = new DayNoteGroupPanel();
+        monthNoteGroup = new MonthNoteGroupPanel();
+        yearNoteGroup = new YearNoteGroupPanel();
+        todoNoteGroup = new TodoNoteGroupPanel("This Week");
     }
 
     @BeforeAll
@@ -61,7 +61,7 @@ class LinkagesEditorPanelTest {
         // Make a new Todo note and tell it that it belongs to the todoNoteGroup.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";
-        todoNoteData.myNoteGroup = todoNoteGroup; // Not actually true, but this works for our purposes.
+        todoNoteData.myNoteGroupPanel = todoNoteGroup; // Not actually true, but this works for our purposes.
 
         // Add two (valid) links to the note.  This will exercise the 'filterLinkages'
         // method when the LinkagesEditorPanel is constructed.
@@ -128,7 +128,7 @@ class LinkagesEditorPanelTest {
         // Make a new Todo note and tell it that it belongs to the todoNoteGroup.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";
-        todoNoteData.myNoteGroup = todoNoteGroup; // Not actually true, but this works for our purposes.
+        todoNoteData.myNoteGroupPanel = todoNoteGroup; // Not actually true, but this works for our purposes.
 
         // Construct the editor panel for the new source Note -
         linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.myProperties, todoNoteData);

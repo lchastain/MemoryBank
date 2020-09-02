@@ -15,9 +15,9 @@ public class EventHeader extends JPanel implements MouseListener {
 
     // Custom Types
     private LabelButton btnShowHide;
-    private EventNoteGroup smTheHeaderContainer;
+    private EventNoteGroupPanel smTheHeaderContainer;
 
-    EventHeader(EventNoteGroup eventNoteGroup) {
+    EventHeader(EventNoteGroupPanel eventNoteGroup) {
         super(new BorderLayout());
         smTheHeaderContainer = eventNoteGroup;
         setBackground(Color.blue);

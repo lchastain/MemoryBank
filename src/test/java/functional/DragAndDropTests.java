@@ -63,7 +63,7 @@ public class DragAndDropTests {
 
     @Test
     void testDragLeft() throws InterruptedException {
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Get New Job");
+        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
         TodoGroupHeader todoGroupHeader = todoNoteGroup.listHeader;
         JFrame testFrame = new JFrame("Drag Left And Drop Driver");
         testFrame.addWindowListener(new WindowAdapter() {
@@ -119,7 +119,7 @@ public class DragAndDropTests {
 
     @Test
     void testDragRight() throws InterruptedException {
-        SearchResultGroup searchResultGroup = new SearchResultGroup("20191029073938");
+        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20191029073938");
         SearchResultHeader searchResultHeader = searchResultGroup.listHeader;
         JFrame testFrame = new JFrame("Drag Right And Drop Driver");
         testFrame.addWindowListener(new WindowAdapter() {

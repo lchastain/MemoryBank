@@ -10,7 +10,7 @@ import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
+public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
     private final JLabel monthTitle;
@@ -20,7 +20,7 @@ public class MonthNoteGroup extends CalendarNoteGroup implements MouseListener {
     } // end static
 
 
-    MonthNoteGroup() {
+    MonthNoteGroupPanel() {
         super("Month Note");
 
         // Create the window title

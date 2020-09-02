@@ -55,18 +55,18 @@ Month Notes - Make / Edit / Keep Month based notes
 Year Notes  - Make / Edit / Keep Year based notes
 
 Note-based interfaces:
-    Day Notes (DayNoteGroup)
-    Month Notes (MonthNoteGroup)
-    Year Notes (YearNoteGroup)
-    Todo Lists (TodoNoteGroup)
-    Upcoming Events (EventNoteGroup)
-    Search Results (SearchResultGroup)
+    Day Notes (DayNoteGroupPanel)
+    Month Notes (MonthNoteGroupPanel)
+    Year Notes (YearNoteGroupPanel)
+    Todo Lists (TodoNoteGroupPanel)
+    Upcoming Events (EventNoteGroupPanel)
+    Search Results (SearchResultGroupPanel)
 
 ToDo Lists  - Make / Edit / Manage multiple named Todo Lists
     A Todo list item may be moved to Today's DayNote (via its contex menu)
     A Todo list item may be assigned a related Date (via a selection on the Group's Three Month Column panel)
     A Todo list item may be moved to the DayNote of its related Date, if it has one  (via its contex menu)
-    A Todo list item may be copied or moved to any other NoteGroup type (via its contex menu)
+    A Todo list item may be copied or moved to any other NoteGroupPanel type (via its contex menu)
 
 ==================================================
 

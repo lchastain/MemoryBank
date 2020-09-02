@@ -11,7 +11,7 @@ public class GoalGroupMain {
 
         JFrame testFrame = new JFrame("Goal Panel Driver");
 
-        GoalGroup theGoalGroup = new GoalGroup("finances");
+        GoalGroupPanel theGoalGroup = new GoalGroupPanel("finances");
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {

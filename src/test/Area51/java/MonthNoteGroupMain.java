@@ -11,7 +11,7 @@ public class MonthNoteGroupMain {
 
         JFrame testFrame = new JFrame("MonthNoteGroup Driver");
 
-        MonthNoteGroup mng = new MonthNoteGroup();
+        MonthNoteGroupPanel mng = new MonthNoteGroupPanel();
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
