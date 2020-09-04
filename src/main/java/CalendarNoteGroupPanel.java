@@ -86,13 +86,13 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
             // may contain linkages.  Otherwise it will be null and we can just make one right now.
             switch(dateType) {
                 case DAYS:
-                    myProperties = new GroupProperties("Day Notes", GroupInfo.GroupType.DAY_NOTES);
+                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.DAY_NOTES);
                     break;
                 case MONTHS:
-                    myProperties = new GroupProperties("Month Notes", GroupInfo.GroupType.MONTH_NOTES);
+                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.MONTH_NOTES);
                     break;
                 case YEARS:
-                    myProperties = new GroupProperties("Year Notes", GroupInfo.GroupType.YEAR_NOTES);
+                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.YEAR_NOTES);
                     break;
                 default:
                     myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.NOTES);

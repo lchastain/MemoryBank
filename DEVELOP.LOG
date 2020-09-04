@@ -4,22 +4,8 @@ Not comprehensive.
 
 NEXT:
 
-    Problem with add new note to a day, month, or year, then do not save but switch to some other group and make a link
-        to that day - yes, the new note does not show as a selection but you can still link to either the overall group
-        or some other note in it.  But if you do that - the unsaved note is lost because the selected group is saved in
-        order to preserve the reverse link.  This is a good case for adding CalendarNoteKeepers.  Working on that...
-    I now see that there is an alternative path to the same problem - via the 'move to day' operation of Todo Notes and
-        aged Events.  It just wasn't coming up enough to see it.  The new CalendarNoteKeeper needs to solve both
-        problems, not just for linking.
-    And now one more realization - the AppTreePanel is already effectively the CalendarNoteKeeper, and is doing a
-        better job of it than I started to code in, so all that was really needed was an alternative signature to
-        AppTreePanel's getNoteGroupFromKeeper() method.  Did that.  It keeps three separate references vs one, but
-        that is an acceptable tradeoff given that there are only three and their names never change, unlike all the
-        other group types.
-
-So what is next? - need to ensure that the new group naming works for link titles (it doesn't, completely - needs work).
-and then can go back to looking for a way to use a GroupInfo to get a Group (and figure out if that means a Panel or
-a DataFile object), then use it when removing the reverse link when a forward link is deleted.  And  that removal will
+Go back to looking for a way to use a GroupInfo to get a Group (and figure out if that means a Panel or
+a DataFile object), then use it when removing the reverse link when a forward link is deleted.  And that removal will
 need one or more new methods in the data class.
 
 Add New Group is at least partially broken - needs review/rework.
@@ -30,11 +16,9 @@ go back to being private.  And we ARE looking for a more direct route, bez panel
 ? need a getDataFromPanel() method ?
 
 
-
-
-
     Reverse Links -
-        If the forward link is deleted, also remove the reverse link, if it can be found.
+        If the forward link is deleted, also remove the reverse link, if it can be found.  Then apply this same
+          approach to the 'move to day' operation, which could also wipe out new, unsaved DayNoteData notes.
 
         When filtering links for display in the linkages editor -
             color change for detected text change?   (yet another transient boolean?)
@@ -63,6 +47,26 @@ go back to being private.  And we ARE looking for a more direct route, bez panel
 New:
 
 =====================================================================================================
+
+
+9/02/2020 1606
+    Problem with add new note to a day, month, or year, then do not save but switch to some other group and make a link
+        to that day - yes, the new note does not show as a selection but you can still link to either the overall group
+        or some other note in it.  But if you do that - the unsaved note is lost because the selected group is saved in
+        order to preserve the reverse link.  This is a good case for adding CalendarNoteKeepers.  Working on that...
+    I now see that there is an alternative path to the same problem - via the 'move to day' operation of Todo Notes and
+        aged Events.  It just wasn't coming up enough to see it.  The new CalendarNoteKeeper needs to solve both
+        problems, not just for linking.
+    And now one more realization - the AppTreePanel itself is already effectively the CalendarNoteKeeper, and is doing a
+        better job of it than I started to code in, so all that was really needed was an alternative signature to
+        AppTreePanel's getNoteGroupFromKeeper() method.  Did that.  It keeps three separate references vs one, but
+        that is an acceptable tradeoff given that there are only three and their names never change, unlike all the
+        other group types.
+    Fixed this by giving the LinkTargetSelectionPanel a way to access the current versions of the three Calendar note
+        groups (although the 'move to day' variant of the problem still remains), and did a checkin that included the
+        majority of the hierarchy refactor/rename.  But along the way, have broken the link titles and the add new
+        group functionality.  Need to work on those first, then can move on to the auto-removal of reverse links when
+        a forward one is removed.
 
 9/01/2020 0914 - The new hierarchy is designed and implementation is underway:
     NoteGroup became NoteGroupPanel - all the interface work; initialize & display components, extract data from them.

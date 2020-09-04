@@ -83,7 +83,7 @@ public class GroupInfo extends BaseData {
     //  from this class and simplify this method.
     String getGroupName() {
         if(simpleName != null) {
-            groupName = simpleName; // this only works for non-calendar types.
+            groupName = simpleName;
             simpleName = null;
         }
         return groupName; }

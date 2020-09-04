@@ -20,7 +20,6 @@ public class LinkedEntityData extends BaseData {
     transient boolean deleteMe;  // Only for keeping state of the checkbox while dialog is active.
     transient boolean showMe;    // Do not show the link if its group is not active.
     transient boolean retypeMe;  // Only 'new' link types will be changeable.
-    transient String linkTitle;
     static Random random = new Random();
 
     // Each of these values needs to have an inverse that is also in the list.  This
@@ -117,8 +116,6 @@ public class LinkedEntityData extends BaseData {
         deleteMe = theCopy.deleteMe;
         retypeMe = theCopy.retypeMe;
         reversed = theCopy.reversed; // This will be overridden if not being called during a swap.
-
-        makeLinkTitle(); // Needed for swap operation, TODO - check the result when used for reverse links.
     } // end constructor
 
 
@@ -136,29 +133,6 @@ public class LinkedEntityData extends BaseData {
 
     public NoteInfo getTargetNoteInfo() {
         return targetNoteInfo;
-    }
-
-    void makeLinkTitle() {
-        String theTitleString;
-
-        String category = targetGroupInfo.getCategory();  // Note, Goal, Event, or To Do List
-        String groupType = targetGroupInfo.groupType.toString(); // Same as above except for Notes, which are more specific
-        String groupName = targetGroupInfo.getGroupName(); // User-provided at group creation, except for Notes, which are date-based.
-
-        if(targetNoteInfo == null) { // The link is to a full group
-            theTitleString = category;
-            if(!category.equals(groupType)) theTitleString += ": " + groupType;
-        } else { // The link is to a specific Note within a Group
-            if(groupType.equals("Day Note")) {
-                // Drop the leading spelled-out day name and comma-space
-                String shorterName = groupName.substring(groupName.indexOf(",") + 1);
-                theTitleString = groupType + ": " + shorterName;
-            } else {
-                theTitleString = groupType + ": " + groupName;
-            }
-        }
-
-        linkTitle = theTitleString;
     }
 
     LinkType reverseLinkType(LinkType linkType) {

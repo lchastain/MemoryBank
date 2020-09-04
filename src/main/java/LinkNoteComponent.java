@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 // Visually, a LinkNoteComponent is a horizontal line composed of:
 // A link type dropdown control
 // A 'delete' checkbox
-// A label (linkTypeLabel) giving the target type and group name
+// A label (linkTypeLabel) giving the target type and group name (LinkedEntityData.linkTitle)
 // A read-only text field that contains the target notestring, if one was chosen
 
 public class LinkNoteComponent extends NoteComponent {
@@ -19,6 +19,9 @@ public class LinkNoteComponent extends NoteComponent {
     LinkedEntityData myLinkedEntityData;
     JComboBox<String> linkTypeDropdown;
     JCheckBox deleteCheckBox;
+    GroupInfo targetGroupInfo;
+    NoteInfo noteInfo;   // The info for this component; not necessarily the info of the link target note.
+    String linkTitleString;
     JLabel linkTitleLabel;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -26,17 +29,25 @@ public class LinkNoteComponent extends NoteComponent {
         super(noteComponentManager, i);
         myManager = noteComponentManager;
         myLinkedEntityData = linkedEntityData;
+        targetGroupInfo = myLinkedEntityData.getTargetGroupInfo();
+        makeLinkTitle();
 
         removeAll();   // We will redo the base layout.
         setLayout(new BorderLayout());
 
-        // Make a good NoteData that we can show, from the link sent in to the constructor.
-        NoteInfo noteInfo = myLinkedEntityData.getTargetNoteInfo();
+        // Construct our component info from the link sent in to the constructor.
+        noteInfo = myLinkedEntityData.getTargetNoteInfo();
         if (noteInfo == null) {
+            // If none then we make our own, for usage only in the LinkagesEditorPanel, probably.
             noteInfo = new NoteInfo();
             noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getGroupName();
-            noteInfo.myNoteGroupPanel = myLinkedEntityData.getTargetGroupInfo().myNoteGroupPanel;
-            // Here we COULD set an extended note, but decided against it, at this time.
+//            noteInfo.myNoteGroupPanel = myLinkedEntityData.getTargetGroupInfo().myNoteGroupPanel;
+            // Rather than trying to keep this around, replace it with a 'get' method that is only called when needed.
+            // Its usage from within a link note component - I don't remember; maybe not needed at all, or else
+            // we'll be back here tracking down the problem.
+            // If we need this, maybe assign it to a yet-to-be defined LinkagesEditorPanel.theInstance member.
+
+            // Here we COULD set an extended note for a popup tooltip, but decided against it, at this time.
             //noteInfo.extendedNoteString = "All notes in this group";
         }
         myNoteData = new NoteData(noteInfo); // This isolates our 'component' NoteData from the source entity.
@@ -81,21 +92,8 @@ public class LinkNoteComponent extends NoteComponent {
                 return new Dimension(180, super.getPreferredSize().height);
             }
         };
-        // I did look for better places to make this call, but this component is the
-        //   only one who needs the linkTitle, so why not here?  The linkTitle String
-        //   is a transient, so making it at linkedEntityData construction does not work
-        //   because the base constructor is used for loading the other data from file
-        //   and although that other data is needed to make the title, it is not available
-        //   to be used for that purpose at that point in the construction.  Other
-        //   constructors could work for new links vs the persisted ones, but then the
-        //   solution would be piecemeal, in at least two places, whereas making the call
-        //   from this one location works for both persisted and new linkedEntityData.
-        if (myLinkedEntityData.linkTitle == null) myLinkedEntityData.makeLinkTitle();
-        // TODO - now that I've articulated such a verbose excuse - it seems like this
-        // class is the best place to do this, and MOVE the variable to here, take it out
-        // of the persisted class.  Do that, then clear out all the words here.
 
-        linkTitleLabel.setText(myLinkedEntityData.linkTitle);
+        linkTitleLabel.setText(linkTitleString);
         linkTitleLabel.setBackground(Color.ORANGE);
         linkTitleLabel.setOpaque(myLinkedEntityData.reversed);
         linkTitleLabel.addMouseListener(mouseAdapter);
@@ -131,6 +129,30 @@ public class LinkNoteComponent extends NoteComponent {
         return myLinkedEntityData;
     }
 
+    void makeLinkTitle() {
+        String theTitleString;
+
+        String category = targetGroupInfo.getCategory();  // Note, Goal, Event, or To Do List
+        String groupType = targetGroupInfo.groupType.toString(); // Same as above except for Notes, which are more specific
+        String groupName = targetGroupInfo.getGroupName(); // User-provided at group creation, except for Notes.
+
+        if(myLinkedEntityData.getTargetNoteInfo() == null) { // The link is to a full group
+            // Do not change this condition to look at the noteInfo of this class; we will not allow that one to stay null.
+            theTitleString = category;
+            if(!category.equals(groupType)) theTitleString += ": " + groupType;
+        } else { // The link is to a specific Note within a Group
+            if(groupType.equals("Day Note")) {
+                // Drop the leading spelled-out day name and comma-space
+                String shorterName = groupName.substring(groupName.indexOf(",") + 1);
+                theTitleString = groupType + ": " + shorterName;
+            } else {
+                theTitleString = groupType + ": " + groupName;
+            }
+        }
+
+        linkTitleString = theTitleString;
+    }
+
     //----------------------------------------------------------
     // Method Name: resetComponent
     //
@@ -143,7 +165,7 @@ public class LinkNoteComponent extends NoteComponent {
         linkTypeDropdown.setSelectedItem(myLinkedEntityData.linkType);
         linkTypeDropdown.setEnabled(myLinkedEntityData.retypeMe);
         deleteCheckBox.setSelected(myLinkedEntityData.deleteMe);
-        linkTitleLabel.setText(myLinkedEntityData.linkTitle);
+        linkTitleLabel.setText(linkTitleString);
         //System.out.println("Title: " + myLinkedEntityData.linkTitle + "   reversed: " + myLinkedEntityData.reversed);
         linkTitleLabel.setOpaque(myLinkedEntityData.reversed); // Color shows, or not.
 
@@ -184,13 +206,15 @@ public class LinkNoteComponent extends NoteComponent {
         if (data1 == null) theNoteComponent.clear();
         else {
             ((LinkNoteComponent) theNoteComponent).setLinkTarget(data1);
-            theNoteComponent.setNoteData(nd2);
+            ((LinkNoteComponent) theNoteComponent).makeLinkTitle();
+            theNoteComponent.setNoteData(nd2); // this calls resetComponent.
         }
 
         if (data2 == null) this.clear();
         else {
             this.setLinkTarget(data2);
-            this.setNoteData(nd1);
+            this.makeLinkTitle();
+            this.setNoteData(nd1); // this calls resetComponent.
         }
 
         myManager.setGroupChanged(true);
