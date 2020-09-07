@@ -3,7 +3,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
 
 public class LinkagesEditorPanel extends JPanel implements NoteComponentManager {
     static final long serialVersionUID = 1L;
@@ -37,7 +36,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         linkTargets = (LinkTargets) sourceGroupProperties.linkTargets.clone();
 
         editorNoteData = new NoteData();
-        editorNoteData.noteString = "Group: " + sourceGroupProperties.getGroupName();
+        editorNoteData.noteString = sourceGroupProperties.getCategory() + ": " + sourceGroupProperties.getGroupName();
         // editorNoteData.linkTargets = linkTargets; // we want to keep these separate; no need to attach.
         editorNoteData.myNoteGroupPanel = sourceGroupProperties.myNoteGroupPanel;
 
@@ -57,7 +56,8 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         linkTargets = (LinkTargets) sourceNoteData.linkTargets.clone();
 
         editorNoteData = new NoteData();
-        editorNoteData.noteString = sourceNoteData.noteString;
+        editorNoteData.noteString = sourceGroupProperties.getCategory() + ": " + sourceGroupProperties.getGroupName();
+        editorNoteData.noteString += " - " + sourceNoteData.noteString;
         // editorNoteData.linkTargets = linkTargets; // we want to keep these separate; no need to attach.
         editorNoteData.myNoteGroupPanel = sourceGroupProperties.myNoteGroupPanel;
 
@@ -96,15 +96,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         makeActionListener();
     } // end constructor
 
-    @Override
-    public void activateNextNote(int index) {
-        // Not used by this Panel; no new links allowed.
-        // At least, not allowed in real-time.  A new link will be
-        // added to the main list and then this panel could be
-        // redisplayed, showing it at that time.
-    }
-
-
     // Create a reverse link from our 'forward' one, then
     // attach it to the current target, and persist.
     private void addReverseLink(LinkedEntityData linkedEntityData) {
@@ -133,7 +124,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
     // Cycle through the list of linkages to find the 'new' ones,
     //   and add a reverse link for each one.
-    void addReverseLinks(Vector<LinkedEntityData> linkages) {
+    void addReverseLinks(LinkTargets linkages) {
         for (LinkedEntityData linkedEntityData : linkages) {
             // We don't add reverse links if the forward link preexisted, and we determine that based
             // on whether or not we are allowed to change its type.  And since no reverse
@@ -171,12 +162,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         return reverseLinkedEntityData;
     }
 
-
-    // Not used, but needed for the complete NoteComponentManager implementation.
-    @Override
-    public boolean editExtendedNoteComponent(NoteData tmpNoteData) {
-        return true;
-    }
 
     // This method works on the incoming linkages to remove bad/obsolete links, flag
     // text where it may have changed, and to hide those links that should not be shown.

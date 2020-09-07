@@ -137,12 +137,11 @@ public class LinkNoteComponent extends NoteComponent {
         String groupName = targetGroupInfo.getGroupName(); // User-provided at group creation, except for Notes.
 
         if(myLinkedEntityData.getTargetNoteInfo() == null) { // The link is to a full group
-            // Do not change this condition to look at the noteInfo of this class; we will not allow that one to stay null.
-            theTitleString = category;
-            if(!category.equals(groupType)) theTitleString += ": " + groupType;
+            // Do not change this condition to look at the noteInfo of THIS class; we will not allow that one to stay null.
+            theTitleString = groupType;
         } else { // The link is to a specific Note within a Group
             if(groupType.equals("Day Note")) {
-                // Drop the leading spelled-out day name and comma-space
+                // Drop the leading day name and comma-space
                 String shorterName = groupName.substring(groupName.indexOf(",") + 1);
                 theTitleString = groupType + ": " + shorterName;
             } else {

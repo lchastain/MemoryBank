@@ -40,7 +40,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         updateGroup(); // This is where the file gets loaded (in the parent class)
 
         // Older data files have properties with no group name; the properties we constructed above
-        //   gets overwritten with whatever came out of the file, including "".
+        //   gets overwritten with whatever came out of the file, including null (or """).
         myProperties.setGroupName(groupName); // Normally not needed, but this one is, until all searches can be redone.  TODO
 
         listHeader = new SearchResultHeader(this);

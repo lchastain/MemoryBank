@@ -91,8 +91,8 @@ public class GroupInfo extends BaseData {
     // With this member being set in the constructor, it looks like this method would never be needed,
     // but this class existed in various forms over time, and data was persisted without the group
     // name.  So when that data comes back in now to the current class definition, groupName could be
-    // missing from the file data, in which case this class could be reconstructed without it.  In that
-    // case, this method can be used to fix that.
+    // missing from the file data, in which case this class would be reconstructed without it and that
+    // is when this method can be used to fix that.
     void setGroupName(String theName) { groupName = theName; }
 
 }

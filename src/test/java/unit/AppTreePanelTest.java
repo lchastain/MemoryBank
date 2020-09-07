@@ -80,10 +80,10 @@ public class AppTreePanelTest {
     void testDeepClone() {
         theTree.setSelectionRow(theSelectionRow);
         TreePath treePath = theTree.getSelectionPath();
-        assert treePath != null;
+        Assertions.assertNotNull(treePath);
         DefaultMutableTreeNode original = (DefaultMutableTreeNode) treePath.getLastPathComponent();
         DefaultMutableTreeNode clone = AppTreePanel.deepClone(original);
-        assert clone.toString().equals(original.toString());
+        Assertions.assertEquals(original.toString(), clone.toString());
     }
 
     // For this test we will search for notes modified After a selected date because this checks off

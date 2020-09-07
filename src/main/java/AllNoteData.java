@@ -10,7 +10,7 @@ import java.io.File;
 // This class is used in data loading, where the data coming in could be any generation of NoteData but
 // if extraneous data members are not accounted for then the load and type conversions would fail.  So
 // the solution is to have this class, which encompasses all possible data members that might be in the
-// data.  It is not used except in data searches and LinkData storage and retrieval.
+// data.  It is not used except in data searches.
 
 public class AllNoteData extends NoteData {
     // In addition to the fields that we get from a standard NoteData, we also include the
