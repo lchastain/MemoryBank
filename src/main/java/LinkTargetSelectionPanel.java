@@ -40,18 +40,16 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     CalendarNoteGroupPanel calendarNoteGroup;
     NoteGroupPanel selectedTargetGroup;
     NoteData selectedNoteData;
-    NoteData sourceEntity; // This type works when source is either a NoteData or a NoteGroup.
     GroupProperties sourceGroupProperties;
 
-    public LinkTargetSelectionPanel(NoteData theFromEntity) {
+    public LinkTargetSelectionPanel(GroupProperties theFromGroup, String theFromEntityString) {
         super(new BorderLayout());
         chosenCategory = "";
         appOpts = MemoryBank.appOpts;
-        sourceEntity = theFromEntity;
-        sourceGroupProperties = sourceEntity.myNoteGroupPanel.getGroupProperties();
+        sourceGroupProperties = theFromGroup;
 
         // Set up for selection reporting -
-        baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(sourceEntity.noteString);
+        baseTargetSelectionString = "Linking:&nbsp; " + AppUtil.makeRed(theFromEntityString);
         baseTargetSelectionString += " &nbsp; TO: &nbsp; ";
 
         createTree();  // Create the tree.

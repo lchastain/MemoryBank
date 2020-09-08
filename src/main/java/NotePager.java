@@ -127,7 +127,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         currentPageNumber = i;
         intPageFrom = i;
         intPageSize = myNoteGroupPanel.pageSize;
-        intGroupSize = myNoteGroupPanel.groupDataVector.size();
+        intGroupSize = myNoteGroupPanel.panelNoteData.size();
 
         // Calculate the maximum number of pages.
         if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
@@ -149,7 +149,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         setMiddleMessage();
 
         MemoryBank.dbg("NotePager.reset Page " + i + "\t Size: " + myNoteGroupPanel.pageSize);
-        MemoryBank.debug("\t Group size: " + myNoteGroupPanel.groupDataVector.size());
+        MemoryBank.debug("\t Group size: " + myNoteGroupPanel.panelNoteData.size());
     } // end reset
 
 

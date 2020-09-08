@@ -4,7 +4,7 @@ import java.util.Vector;
 // Consists of two Objects, in an Object array:
 //      1.  Group Properties
 //      2.  Vector of NoteData
-public class NoteGroupData {
+class NoteGroupData {
     private final Object[] theData;
 
     public NoteGroupData() {

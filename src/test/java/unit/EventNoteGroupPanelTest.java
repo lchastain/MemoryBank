@@ -30,7 +30,7 @@ class EventNoteGroupPanelTest {
 
         eventNoteGroup = new EventNoteGroupPanel("holidays");
         testUtil = new TestUtil();
-        eventNoteGroup.setNotifier(testUtil);
+        EventNoteGroupPanel.optionPane = testUtil;
     }
 
     @AfterAll

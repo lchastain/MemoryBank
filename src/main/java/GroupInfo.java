@@ -4,9 +4,9 @@
 
 import java.util.Random;
 
-public class GroupInfo extends BaseData {
+class GroupInfo extends BaseData {
     static Random random = new Random();
-    transient NoteGroupPanel myNoteGroupPanel; // This is assigned during link target selection (only, for now?)
+    transient NoteGroupPanel myNoteGroupPanel;
 
     enum GroupType {
         NOTES("Note"),
@@ -72,9 +72,15 @@ public class GroupInfo extends BaseData {
     }
 
 
-    // Get the NoteGroup that this GroupInfo belongs to.
-//     It should have been set <somehow, that it probably wasn't>
-    NoteGroupPanel getGroup() {
+    // Get the NoteGroupPanel that was made from this GroupInfo (but there may not be one).
+    // This class (GroupInfo) is element 0 of the two-element NoteGroupData object array.
+    // NoteGroupPanel extends NoteGroupFile which extends NoteGroupData, so essentially we are asking for the
+    // grandchild, but that would set us up for an infinite recursion loop during serialization so we keep this
+    // reference in a transient member.  That way it does not get serialized, and can be filled in with the actual
+    // grandchild when that panel eventually comes into scope (usually during its construction).
+    // The usage of this method is by LinkagesEditorPanel, calling it in prep of saving reverse linkages into the
+    // group that would have been constructed by the LinkTargetSelectionPanel.
+    NoteGroupPanel getNoteGroupPanel() {
         return myNoteGroupPanel;
     }
 
@@ -89,8 +95,8 @@ public class GroupInfo extends BaseData {
         return groupName; }
 
     // With this member being set in the constructor, it looks like this method would never be needed,
-    // but this class existed in various forms over time, and data was persisted without the group
-    // name.  So when that data comes back in now to the current class definition, groupName could be
+    // but this class existed in various forms over time, and data was persisted before the group name
+    // was added to it.  So when that data comes back in now to the current class definition, groupName could be
     // missing from the file data, in which case this class would be reconstructed without it and that
     // is when this method can be used to fix that.
     void setGroupName(String theName) { groupName = theName; }

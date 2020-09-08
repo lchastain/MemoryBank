@@ -12,18 +12,18 @@ public class TodoNoteComponent extends NoteComponent {
 
     // The Members
     private TodoNoteData myTodoNoteData;
-    private PriorityButton pbThePriorityButton;
-    private StatusButton sbTheStatusButton;
+    private final PriorityButton pbThePriorityButton;
+    private final StatusButton sbTheStatusButton;
 
-    private TodoNoteGroupPanel myNoteGroup;
-    private static JMenuItem miClearPriority;
-    private static JMenuItem miMoveToToday;
-    private static JMenuItem miMoveToSelectedDate;
-    private static ImageIcon todo_done;
-    private static ImageIcon todo_inprog;
-    private static ImageIcon todo_wait;
-    private static ImageIcon todo_query;
-    private static ImageIcon todo_obe;
+//    private TodoNoteGroupPanel myNoteGroup;
+    private static final JMenuItem miClearPriority;
+    private static final JMenuItem miMoveToToday;
+    private static final JMenuItem miMoveToSelectedDate;
+    private static final ImageIcon todo_done;
+    private static final ImageIcon todo_inprog;
+    private static final ImageIcon todo_wait;
+    private static final ImageIcon todo_query;
+    private static final ImageIcon todo_obe;
 
     static {
         //-----------------------------------
@@ -78,7 +78,7 @@ public class TodoNoteComponent extends NoteComponent {
         setLayout(new DndLayout());
 
         index = i;
-        myNoteGroup = ng;
+//        myNoteGroup = ng;
 
         pbThePriorityButton = new PriorityButton();
         sbTheStatusButton = new StatusButton();
@@ -110,7 +110,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (sbTheStatusButton != null) sbTheStatusButton.clear();
 
         // Remove any selection from the Three Month Column.
-        myNoteGroup.getThreeMonthColumn().setChoice(null);
+        ((TodoNoteGroupPanel) myNoteGroupPanel).getThreeMonthColumn().setChoice(null);
 
         super.clear(); // This also sets the component 'initialized' to false.
         // And it leaves a 'gap' but we like that so no refresh here.
@@ -146,9 +146,9 @@ public class TodoNoteComponent extends NoteComponent {
     } // end getIconFilename
 
 
+    // Why is this override needed ???   It is, but why?
     @Override
     NoteData getNoteData() {
-        myTodoNoteData.myNoteGroupPanel = myNoteGroup;
         return myTodoNoteData;
     } // end getNoteData
 
@@ -168,7 +168,7 @@ public class TodoNoteComponent extends NoteComponent {
 
     @Override
     protected void noteActivated(boolean blnIAmOn) {
-        myNoteGroup.showComponent(this, blnIAmOn);
+        ((TodoNoteGroupPanel) myNoteGroupPanel).showComponent(this, blnIAmOn);
         super.noteActivated(blnIAmOn);
     }
 
@@ -188,7 +188,7 @@ public class TodoNoteComponent extends NoteComponent {
         // TodoNoteData items have a 'slot' for a Subject, but no UI to set one.  So
         // now as it goes over to a DayNote, the Subject will be the name of the list
         // from which this item is being removed.
-        myTodoNoteData.setSubjectString(myNoteGroup.prettyName());
+        myTodoNoteData.setSubjectString(myNoteGroupPanel.prettyName());
 
         // Get the Date to which we will move this item.
         LocalDate moveToDate;
@@ -285,7 +285,7 @@ public class TodoNoteComponent extends NoteComponent {
                 s = "Double-click here to see/edit";
                 s += " the additional details for this task.";
         } // end switch
-        myNoteGroup.setStatusMessage(s);
+        myNoteGroupPanel.setStatusMessage(s);
     } // end resetNoteStatusMessage
 
 
@@ -316,7 +316,7 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     public void resetVisibility() {
-        pbThePriorityButton.setVisible(((TodoGroupProperties) myNoteGroup.myProperties).showPriority);
+        pbThePriorityButton.setVisible(((TodoGroupProperties) myNoteGroupPanel.myProperties).showPriority);
     } // end resetVisibility
 
 
@@ -324,7 +324,7 @@ public class TodoNoteComponent extends NoteComponent {
     public void setNoteData(NoteData newNoteData) {
         if (newNoteData instanceof TodoNoteData) {  // same type, but cast is still needed
             setTodoNoteData((TodoNoteData) newNoteData);
-        } else { // Not 'my' type, but we can make it so.
+        } else { // Not 'my' type, but we can make it so (coming from a 'paste' operation).
             setTodoNoteData(new TodoNoteData(newNoteData));
         }
     } // end setNoteData
@@ -363,7 +363,7 @@ public class TodoNoteComponent extends NoteComponent {
         if (tnd2 == null) this.clear();
         else this.setTodoNoteData(tnd2);
 
-        myNoteGroup.setGroupChanged(true);
+        myNoteGroupPanel.setGroupChanged(true);
     } // end swap
 
     //---------------------------------------------------------
@@ -408,7 +408,7 @@ public class TodoNoteComponent extends NoteComponent {
         void setPriority(int value) {
             if (!initialized) return;
             if (value < 0) return;
-            if (value > myNoteGroup.getMaxPriority()) return;
+            if (value > ((TodoNoteGroupPanel) myNoteGroupPanel).getMaxPriority()) return;
             Priority = value;
             if (Priority == 0) setText("  ");
             else setText(String.valueOf(Priority));
@@ -474,14 +474,14 @@ public class TodoNoteComponent extends NoteComponent {
             } else {
                 s = "Right mouse click to decrease priority";
             } // end if
-            myNoteGroup.setStatusMessage(s);
+            myNoteGroupPanel.setStatusMessage(s);
         }
 
         public void mouseExited(MouseEvent e) {
             // System.out.println(e);
             rightClicked = false;
             leftClicked = false;
-            myNoteGroup.setStatusMessage(" ");
+            myNoteGroupPanel.setStatusMessage(" ");
         } // end mouseExited
 
         public void mousePressed(MouseEvent e) {
@@ -505,20 +505,20 @@ public class TodoNoteComponent extends NoteComponent {
             if (!initialized) {
                 String s;
                 s = "An item must have text before a priority can be set!";
-                myNoteGroup.setStatusMessage(s);
+                myNoteGroupPanel.setStatusMessage(s);
                 return;
             } // end if
 
             if (leftClicked) {
-                if (Priority < myNoteGroup.getMaxPriority()) Priority++;
+                if (Priority < ((TodoNoteGroupPanel) myNoteGroupPanel).getMaxPriority()) Priority++;
                 else Priority = 0;
                 leftClicked = false;
             } else {
                 if (Priority > 0) Priority--;
-                else Priority = myNoteGroup.getMaxPriority();
+                else Priority = ((TodoNoteGroupPanel) myNoteGroupPanel).getMaxPriority();
                 rightClicked = false;
             } // end if
-            myNoteGroup.setGroupChanged(true);
+            myNoteGroupPanel.setGroupChanged(true);
             if (Priority == 0) setText(" ");
             else setText(String.valueOf(Priority));
             myTodoNoteData.setPriority(Priority);
@@ -610,7 +610,7 @@ public class TodoNoteComponent extends NoteComponent {
             if (!initialized) {
                 String s;
                 s = "An item must have text before a status can be set!";
-                myNoteGroup.setStatusMessage(s);
+                myNoteGroupPanel.setStatusMessage(s);
                 return;
             } // end if
 
@@ -631,7 +631,7 @@ public class TodoNoteComponent extends NoteComponent {
             showStatusIcon();
 
             //showStatusMessage();
-            myNoteGroup.setStatusMessage(myTodoNoteData.getStatusString());
+            myNoteGroupPanel.setStatusMessage(myTodoNoteData.getStatusString());
         } // end mouseClicked
 
 
@@ -640,14 +640,14 @@ public class TodoNoteComponent extends NoteComponent {
 
             // System.out.println(e);
             if (!myTodoNoteData.hasText()) return;
-            myNoteGroup.setStatusMessage(myTodoNoteData.getStatusString());
+            myNoteGroupPanel.setStatusMessage(myTodoNoteData.getStatusString());
             theOriginalStatus = myTodoNoteData.getStatus();
         } // end mouseEntered
 
 
         public void mouseExited(MouseEvent e) {
             // System.out.println(e);
-            myNoteGroup.setStatusMessage(" ");
+            myNoteGroupPanel.setStatusMessage(" ");
 
             if (!initialized) return;
 
@@ -655,7 +655,7 @@ public class TodoNoteComponent extends NoteComponent {
             //  This allows several 'clicks' to occur but no required list save,
             //  as long as the user leaves the status where they found it.
             if (theOriginalStatus != myTodoNoteData.getStatus()) {
-                myNoteGroup.setGroupChanged(true);
+                myNoteGroupPanel.setGroupChanged(true);
             } // end if
         } // end mouseExited
 
@@ -696,7 +696,7 @@ public class TodoNoteComponent extends NoteComponent {
                     System.out.println(s);
                     break;
             }
-            tnc.myNoteGroup.setGroupChanged(true);
+            tnc.myNoteGroupPanel.setGroupChanged(true);
         } // end actionPerformed
     } // end class PopHandler
 

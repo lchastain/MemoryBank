@@ -276,7 +276,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     void setGroupData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
         myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
+        panelNoteData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 

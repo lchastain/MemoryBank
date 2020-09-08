@@ -5,6 +5,12 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+// (Eventually there may be a NoteGroupAccessor interface that NoteGroupFile will implement,
+//  and we can alternatively use NoteGroupDatabase that also implements it, in place of NGF).
+//  NoteGroupData --> NoteGroupFile --> NoteGroupPanel
+//  NoteGroupData --> NoteGroupAccessor --> NoteGroupPanel
+
+
 class NoteGroupFile extends NoteGroupData {
     static String basePath;
 
@@ -79,18 +85,8 @@ class NoteGroupFile extends NoteGroupData {
         return theGroup;
     }
 
-    //-----------------------------------------------------------------
-    // Method Name:  prettyName
-    //
-    // A formatter for the full filename specifier.  It strips away
-    //   the File path, separators, prefix and ending, leaving only
-    //   the base (pretty) name of the file.
-    // Note that this method name was chosen so as to not conflict
-    //   with the 'getName' method of the Component class.
-    // Usage is intended for data files of non-Calendar NoteGroups;
-    //   Calendar NoteGroups use a different 'name' and do not need
-    //   to prettify the path+name of their data file.
-    //-----------------------------------------------------------------
+    // A convenience method so that an instance can make a call to the static method
+    //   without having to provide the parameter.
     String prettyName() {
         return prettyName(groupFilename);
     } // end prettyName
@@ -103,8 +99,12 @@ class NoteGroupFile extends NoteGroupData {
     //   away the File path, separators, prefix and ending, leaving only
     //   the base (pretty) name of the file.  It works left-to-right, as
     //   the input shrinks (in case that's important for you to know).
+    // Usage is intended for data files of non-Calendar NoteGroups;
+    //   Calendar NoteGroups use a different 'name' and do not need
+    //   to prettify the path+name of their data file since it is not
+    //   intended to be shown to users.
     //-----------------------------------------------------------------
-    String prettyName(String theLongName) {
+    static String prettyName(String theLongName) {
         // Trim any leading/trailing whitespace.
         String thePrettyName = theLongName.trim();
 
@@ -135,7 +135,8 @@ class NoteGroupFile extends NoteGroupData {
     } // end prettyName
 
 
-    static int saveFileData(String theFilename, Object[] theGroup) {
+    // Write the Group data to a file.  Provide the full path and filename, including extension.
+    static int saveGroupData(String theFilename, Object[] theGroup) {
         int notesWritten = 0;
         BufferedWriter bw = null;
         Exception e = null;
@@ -146,24 +147,24 @@ class NoteGroupFile extends NoteGroupData {
             bw.write(AppUtil.toJsonString(theGroup));
             // Set the number of notes written, only AFTER the write.
             notesWritten = ((List) theGroup[theGroup.length - 1]).size();
-        } catch (Exception ioe) {
+        } catch (Exception ex) {
             // This is a catch-all for other problems that may arise, such as finding a subdirectory of the
             // same name in the directory where you want to put the file, or not having write permission.
-            e = ioe;
+            e = ex;
         } finally {
             if (e != null) {
                 // This one may have been ignorable; print the message and see.
-                System.out.println("Exception in AppUtil.saveNoteGroupData: \n  " + e.getMessage());
+                System.out.println("Exception in NoteGroupFile.saveGroupData: \n  " + e.getMessage());
             } // end if there was an exception
-            // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
             try {
                 if (bw != null) {
+                    // These flush/close lines may seem like overkill, but there is internet support for being so cautious.
                     bw.flush();
                     bw.close(); // Also closes the wrapped FileWriter
                 }
-            } catch (IOException ioe) {
-                // This one would be more serious - raise a 'louder' alarm.
-                ioe.printStackTrace(System.out);
+            } catch (Exception ex) { // This one would be more serious - raise a 'louder' alarm.
+                // Most likely would be an IOException, but we catch them all, to be sure.
+                ex.printStackTrace(System.out);
             } // end try/catch
         } // end try/catch
 

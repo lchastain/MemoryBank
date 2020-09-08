@@ -8,15 +8,17 @@ Go back to looking for a way to use a GroupInfo to get a Group (and figure out i
 a DataFile object), then use it when removing the reverse link when a forward link is deleted.  And that removal will
 need one or more new methods in the data class.
 
-The saveNoteGroup() called from NoteComponent and the LEP.addReverseLink - uses the Panel code.  Otherwise, it could
-go back to being private.  And we ARE looking for a more direct route, bez panels.
+The saveNoteGroup() called from NoteComponent and the LEP.addReverseLink - uses the Panel code to save a group.
+Otherwise, it could go back to being private.  And we ARE looking for a more direct route, bez panels.
+The panel saving process would then also use the new way, after it had scraped itself for changes.
 
-? need a getGroupDataFromPanel() method ?
+NoteGroupData ngd = <NoteGroupPanel instance>.getPanelData();
 
 
     Reverse Links -
-        If the forward link is deleted, also remove the reverse link, if it can be found.  Then apply this same
-          approach to the 'move to day' operation, which could also wipe out new, unsaved DayNoteData notes.
+        If the forward link is deleted, also remove the reverse link, if it can be found.  But if the reverse link is on
+            a Group with unsaved notes (or on a note within it) then it is possible to lose those unsaved notes.
+            Develop a solution that avoids this possibility.
 
         When filtering links for display in the linkages editor -
             color change for detected text change?   (yet another transient boolean?)
@@ -26,6 +28,14 @@ go back to being private.  And we ARE looking for a more direct route, bez panel
     Problems:
 
         Add New Group is at least partially broken - needs review/rework.
+
+        The MonthView shows some days with no notes as 'blue' - due to having a file for the day because there is
+            now a GroupProperties in the file.  If there is a Properties only, with valid linkages inside - do we
+            keep the color change, drop it, or use a different color?
+
+        The 'move to day' operation also wipes out new, unsaved DayNoteData notes.  The solution for reverse link
+            removal could work here as well.
+
 
     Issues:
 
@@ -48,6 +58,10 @@ New:
 
 =====================================================================================================
 
+9/08/2020 1726 - Lots of code hardening (consolidation, duplicate efforts removed) as relates to the new hierarchies.
+    Most significant is the ability of a Panel to collect its data (in progress and unsaved) and give it out upon
+    request.  This provides one of two needed paths to acquiring NoteGroup data prior to adding to it and re-persisting.
+    Check in point.
 
 9/03/2020 - Fixed the link titles; moved the makeLinkTitle() method to the LinkNoteComponent.  That they keep
     breaking shows that I still need better tests in this area.  May work on that, now.

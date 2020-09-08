@@ -58,10 +58,9 @@ class LinkagesEditorPanelTest {
     //    functionality, and then the other methods that are called from those.  No assertions needed.
     @Test
     void testLinkagesEditorPanel() throws InterruptedException {
-        // Make a new Todo note and tell it that it belongs to the todoNoteGroup.
+        // Make a new Todo note.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";
-        todoNoteData.myNoteGroupPanel = todoNoteGroup; // Not actually true, but this works for our purposes.
 
         // Add two (valid) links to the note.  This will exercise the 'filterLinkages'
         // method when the LinkagesEditorPanel is constructed.
@@ -125,10 +124,9 @@ class LinkagesEditorPanelTest {
 
     @Test
     void testAddReverseLinks() {
-        // Make a new Todo note and tell it that it belongs to the todoNoteGroup.
+        // Make a new Todo note.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";
-        todoNoteData.myNoteGroupPanel = todoNoteGroup; // Not actually true, but this works for our purposes.
 
         // Construct the editor panel for the new source Note -
         linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.myProperties, todoNoteData);

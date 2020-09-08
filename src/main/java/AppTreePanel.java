@@ -688,7 +688,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         NoteGroupData theGroup = new NoteGroupData(); // A 'wrapper' for the Properties + List
         theGroup.add(searchResultGroupProperties);
         theGroup.add(foundDataVector);
-        int notesWritten = NoteGroupFile.saveFileData(resultsFileName, theGroup.getTheData());
+        int notesWritten = NoteGroupFile.saveGroupData(resultsFileName, theGroup.getTheData());
         if (foundDataVector.size() != notesWritten) {
             System.out.println("Possible problem - wrote " + notesWritten + " results");
         } else {
@@ -1232,7 +1232,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // Given that a 'FoundIn' button has presumably been clicked, the implication
             // is that 'theNoteGroup' is populated with a SearchResultGroup, so we can use
             // that reference to access it's prettyName method (that it has due to NoteGroup implemening TreeLeaf).
-            String prettyName = theNoteGroupPanel.prettyName(fname);
+            String prettyName = NoteGroupFile.prettyName(fname);
 
             if (!(srd.getFileFoundIn()).exists()) {
                 String s;

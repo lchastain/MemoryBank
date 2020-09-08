@@ -263,7 +263,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     void setGroupData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
         myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
+        panelNoteData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
         // Need to define the link type for reversing a link, get a list of sources that is added to each time a link is made.
         // may be similar to SearchResultData / component.
         BaseData.loading = false; // Restore normal lastModDate updating.

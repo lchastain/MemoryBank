@@ -546,7 +546,7 @@ public class AppUtil {
         // just add the note to the array of LinkedHashMap.
         ((ArrayList) theGroup[theGroup.length-1]).add(nd); // reason for suppressing the 'unchecked' warning.
 
-        int notesWritten = NoteGroupFile.saveFileData(theFilename, theGroup);
+        int notesWritten = NoteGroupFile.saveGroupData(theFilename, theGroup);
         return notesWritten >= 1;
     } // end addNote
 

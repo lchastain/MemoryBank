@@ -164,19 +164,8 @@ Selecting a group then loads it for individual NoteData selection.
 
 
 
-
-
-
-
-Link Sorting - only done for Links where a Goal is on one end, done from the Goal panel.
-    (still working this design, but) - A manual sort, with the effects going directly back to the overall list
-    of links.  Other links will just keep their relative positions.  If one todo list item applies to more than
-    one goal - no problem; there will be two separate links in that case.   OR -
-    Keep a list of linked IDs, in the Goal properties, to use in sorting.  But that list would need more management.
-    Also need to decide - new Links come in to the list at the top, or bottom?
-    Could the LinkTargetSelectionPanel also allow a manual sort?  Beneficial, but could complicate matters especially if it is
-    used to move a link that connects to a Goal that has a different sort order.
-    All TBD.
+Link Sorting - links come in to their link holder in a first come, first-listed order.  The user has the
+    capability to manually reorder the displayed links, directly via the linkages editor.
 
 
 -------------------------------------------------------------------------------------------------------------------

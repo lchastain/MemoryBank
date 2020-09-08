@@ -18,7 +18,7 @@ import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
 public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, DateSelection {
-    private static Logger log = LoggerFactory.getLogger(EventNoteGroupPanel.class);
+    private static final Logger log = LoggerFactory.getLogger(EventNoteGroupPanel.class);
 
     // Notes on the implemented interfaces:
     //---------------------------------------------------------------------
@@ -34,7 +34,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     //------------------------------------------------------------------
     private static EventNoteDefaults eventNoteDefaults;
     private static AppIcon defaultIcon;
-    private static Notifier optionPane;
+    static Notifier optionPane;
 
     private ThreeMonthColumn tmc;
     private EventHeader theHeader;
@@ -133,7 +133,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         EventNoteData tempNoteData;
 
         // AppUtil.localDebug(true);
-        for (Object ndTmp : groupDataVector) {
+        for (Object ndTmp : panelNoteData) {
             blnDropThisEvent = false;
             tempNoteData = (EventNoteData) ndTmp;
 
@@ -300,7 +300,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         LocalDate d1, d2;
 
         boolean doSwap;
-        int items = groupDataVector.size();
+        int items = panelNoteData.size();
 
         AppUtil.localDebug(true);
 
@@ -308,19 +308,19 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         MemoryBank.debug("  ASCENDING start dates, Events without dates at BOTTOM");
 
         for (int i = 0; i < (items - 1); i++) {
-            ndNoteData1 = (EventNoteData) groupDataVector.elementAt(i);
+            ndNoteData1 = (EventNoteData) panelNoteData.elementAt(i);
             d1 = ndNoteData1.getStartDate();
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                ndNoteData2 = (EventNoteData) groupDataVector.elementAt(j);
+                ndNoteData2 = (EventNoteData) panelNoteData.elementAt(j);
                 d2 = ndNoteData2.getStartDate();
 
                 if ((d1 == null) || ((d2 != null) && d1.isAfter(d2))) doSwap = true;
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    groupDataVector.setElementAt(ndNoteData2, i);
-                    groupDataVector.setElementAt(ndNoteData1, j);
+                    panelNoteData.setElementAt(ndNoteData2, i);
+                    panelNoteData.setElementAt(ndNoteData1, j);
                     d1 = d2;
                     ndNoteData1 = ndNoteData2;
                 } // end if
@@ -395,12 +395,12 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         BaseData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(groupDataVector);
+        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(panelNoteData);
         theUniqueSet.addAll(mergeVector);
 
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-        groupDataVector = new Vector<>(theUniqueSet);
-        showGroupData(groupDataVector);
+        panelNoteData = new Vector<>(theUniqueSet);
+        showGroupData(panelNoteData);
         setGroupChanged(true);
     } // end merge
 
@@ -538,28 +538,12 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         if(theSize == 2) {
             myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
         }
-        groupDataVector = AppUtil.mapper.convertValue(theGroup[theSize - 1], new TypeReference<Vector<EventNoteData>>() {  });
+        panelNoteData = AppUtil.mapper.convertValue(theGroup[theSize - 1], new TypeReference<Vector<EventNoteData>>() {  });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
-    @Override
-    public void setGroupChanged(boolean b) {
-        if(getGroupChanged() == b) return; // No change
-        super.setGroupChanged(b);
-    } // end setGroupChanged
-
-    // Used by test methods
-    // BUT - later versions will just directly set it, no need for a test-only method.  Remove this when feasible.
-    public void setNotifier(Notifier newNotifier) {
-        optionPane = newNotifier;
-    }
-
-    //--------------------------------------------------------------
-    // Method Name: showComponent
-    //
     //  Several actions needed when a line has
     //    either gone active or inactive.
-    //--------------------------------------------------------------
     void showComponent(EventNoteComponent nc, boolean b) {
         if (b) {
             eventNoteComponent = nc;

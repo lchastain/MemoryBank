@@ -4,7 +4,7 @@ class NoteInfo extends BaseData {
     String noteString;
     String subjectString;
     String extendedNoteString;
-    transient NoteGroupPanel myNoteGroupPanel;
+    transient GroupInfo myGroupInfo;
 
     NoteInfo() {
         super();
@@ -28,7 +28,7 @@ class NoteInfo extends BaseData {
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
         this.zdtLastModString = ndCopy.zdtLastModString;
-        this.myNoteGroupPanel = ndCopy.myNoteGroupPanel;
+        this.myGroupInfo = ndCopy.myGroupInfo;
     }// end of the copy constructor
 
     void clear() {

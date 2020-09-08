@@ -176,7 +176,7 @@ public class AppTreePanelTest {
 
         // At current writing, the 'found' results is 139 and will probably climb higher,
         // over time so here we just check that some large number of records has been found.
-        Assertions.assertTrue(appTreePanel.getTheNoteGroup().groupDataVector.size() > 100);
+        Assertions.assertTrue(appTreePanel.getTheNoteGroup().panelNoteData.size() > 100);
     }
 
     // VERIFY that this is still needed - the functional test also covers this code.

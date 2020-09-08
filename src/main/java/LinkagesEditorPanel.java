@@ -14,7 +14,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     JButton addLinkButton; // Declared here to give test access.
     ActionListener addButtonActionListener;
     NoteData sourceNoteData;
-    NoteData editorNoteData; // Isolate the edits in case of a 'cancel'.
+    NoteData editorNoteData; // Isolate the link additions and deletions in case of a 'cancel'.
     GroupProperties sourceGroupProperties;
     boolean deleteCheckedLinks;
     LinkTargets linkTargets;
@@ -37,8 +37,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
         editorNoteData = new NoteData();
         editorNoteData.noteString = sourceGroupProperties.getCategory() + ": " + sourceGroupProperties.getGroupName();
-        // editorNoteData.linkTargets = linkTargets; // we want to keep these separate; no need to attach.
-        editorNoteData.myNoteGroupPanel = sourceGroupProperties.myNoteGroupPanel;
 
         filterLinkages(); // Here is where we pre-groom the linkTargets list.
         rebuildDialog();
@@ -58,8 +56,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         editorNoteData = new NoteData();
         editorNoteData.noteString = sourceGroupProperties.getCategory() + ": " + sourceGroupProperties.getGroupName();
         editorNoteData.noteString += " - " + sourceNoteData.noteString;
-        // editorNoteData.linkTargets = linkTargets; // we want to keep these separate; no need to attach.
-        editorNoteData.myNoteGroupPanel = sourceGroupProperties.myNoteGroupPanel;
 
         filterLinkages(); // Here is where we pre-groom the linkages list.
         rebuildDialog();
@@ -114,7 +110,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         }
 
         // Persist the new reverse link.
-        NoteGroupPanel groupToSave = otherEndGroupProperties.getGroup();
+        NoteGroupPanel groupToSave = otherEndGroupProperties.getNoteGroupPanel();
         // previously saveNoteGroup was only done from preClosePanel - now for this usage it is no longer a private method
         // - verify this is GOOD.
         // And maybe consolidate the work from AppUtil, where a note can be moved or copied to Day, from Todo or Event.
@@ -209,7 +205,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 // (but currently the only other monitor in use is the default, no-op handler).
                 NoteSelection originalSelectionMonitor = NoteComponent.mySelectionMonitor;
 
-                LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(editorNoteData);
+                LinkTargetSelectionPanel linkTargetSelectionPanel = new LinkTargetSelectionPanel(sourceGroupProperties, editorNoteData.noteString);
                 NoteComponent.mySelectionMonitor = linkTargetSelectionPanel;
 
                 // Show the choices of groups / notes to which to make this link.
@@ -354,18 +350,17 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     // Given a pre-existing 'forward' link that is currently in the process of being removed by the user, remove
     // its corresponding reverse link from the target group/note, if possible.  As for automatically removing the
     // corresponding forward link when the user is removing a reverse link - we don't do that.  This is because this
-    // app is the only creator of reverse links, so this is just its way of cleaning up after itself.  The user, on
+    // panel is the only creator of reverse links, so this is just its way of cleaning up after itself.  The user, on
     // the other hand, must do their own housekeeping, so they can explicitly remove any link, regardless of its
     // directionality.
     private void removeReverseLink(LinkedEntityData linkedEntityData) {
         // The link will either be directly on a group, or on a note within a group.  Get the group.
         GroupInfo otherEndGroupInfo = linkedEntityData.getTargetGroupInfo();
 
-// Until new hierarchy can support a 'getGroup' -
+        // If we got a null for the group info, no point in going on -
+        if(otherEndGroupInfo == null) return;
 
-//        // If we got a null for the group info, no point in going on -
-//        if(otherEndGroupInfo == null) return;
-//
+// Until new hierarchy can support a 'getGroup' -
 //        NoteGroup groupToSave = getGroup(otherEndGroupInfo);   // need this method, somewhere.
 //        if (groupToSave == null) return; // Could happen if the group has been removed or just can't be found.
 //
