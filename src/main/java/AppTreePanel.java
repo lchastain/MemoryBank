@@ -750,8 +750,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     } // end getConsolidatedView
 
 
-    // The client to this method is the LinkTargetSelectionPanel.
-    // Since SearchResults cannot be linked, it does not care about them.
+    // Get the requested Panel from the appropriate keeper.
+    // Usage of this method relates to linking.  Since SearchResults cannot be linked,
+    //      they are not addressed.
     // If the requested group is not in its keeper, a null is returned.
     NoteGroupPanel getNoteGroupFromKeeper(GroupInfo.GroupType theType, String theName) {
         NoteGroupPanel noteGroupPanel = null;
@@ -765,23 +766,39 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             case TODO_LIST:
                 noteGroupPanel = theTodoListKeeper.get(theName);
                 break;
-        }
-        return noteGroupPanel;
-    }
-
-    // The client to this method is the LinkTargetSelectionPanel.
-    // In this case, the AppTreePanel is itself the keeper of CalendarNoteGroupPanels.
-    NoteGroupPanel getNoteGroupFromKeeper(String theName) {
-        NoteGroupPanel noteGroupPanel = null;
-        switch (theName) {
-            case "Day Notes":
-                noteGroupPanel = theAppDays;
+            case NOTES:
+                switch (theName) {
+                    case "Day Notes":
+                        noteGroupPanel = theAppDays;
+                        break;
+                    case "Month Notes":
+                        noteGroupPanel = theAppMonths;
+                        break;
+                    case "Year Notes":
+                        noteGroupPanel = theAppYears;
+                        break;
+                }
                 break;
-            case "Month Notes":
-                noteGroupPanel = theAppMonths;
+            case DAY_NOTES:
+                if(theAppDays != null) {
+                    String theTitle = theAppDays.getTitle();
+                    // if theAppDays is set to the named group then we use it.
+                    if (theTitle.equals(theName)) noteGroupPanel = theAppDays;
+                }
                 break;
-            case "Year Notes":
-                noteGroupPanel = theAppYears;
+            case MONTH_NOTES:
+                if(theAppMonths != null) {
+                    String theTitle = theAppMonths.getTitle();
+                    // if theAppMonths is set to the named group then we use it.
+                    if (theTitle.equals(theName)) noteGroupPanel = theAppMonths;
+                }
+                break;
+            case YEAR_NOTES:
+                if(theAppYears != null) {
+                    String theTitle = theAppYears.getTitle();
+                    // if theAppYears is set to the named group then we use it.
+                    if (theTitle.equals(theName)) noteGroupPanel = theAppYears;
+                }
                 break;
         }
         return noteGroupPanel;
@@ -1522,7 +1539,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theGoalsKeeper.add(goalGroup);
                 }
             } else {
-                if(!goalGroup.editable) goalGroup.setEditable(true);
+                if (!goalGroup.editable) goalGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1570,7 +1587,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theEventListKeeper.add(eventNoteGroup);
                 }
             } else {
-                if(!eventNoteGroup.editable) eventNoteGroup.setEditable(true);
+                if (!eventNoteGroup.editable) eventNoteGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1618,7 +1635,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theTodoListKeeper.add(todoNoteGroup);
                 }
             } else {
-                if(!todoNoteGroup.editable) todoNoteGroup.setEditable(true);
+                if (!todoNoteGroup.editable) todoNoteGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1743,7 +1760,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theAppDays.setAlteredDateListener(this);
                 theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
-                if(!theAppDays.editable) theAppDays.setEditable(true);
+                if (!theAppDays.editable) theAppDays.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1762,7 +1779,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theAppMonths.setAlteredDateListener(this);
                 theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
-                if(!theAppMonths.editable) theAppMonths.setEditable(true);
+                if (!theAppMonths.editable) theAppMonths.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1775,7 +1792,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theAppYears.setAlteredDateListener(this);
                 theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
-                if(!theAppYears.editable) theAppYears.setEditable(true);
+                if (!theAppYears.editable) theAppYears.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 

@@ -82,8 +82,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     @Override
     GroupProperties getGroupProperties() {
         if(myProperties == null) {
-            // If we loaded our properties from a file then we need to use that one because it
-            // may contain linkages.  Otherwise it will be null and we can just make one right now.
+            // If we loaded our properties member from a file then we need to use that one because it may
+            // already contain linkages.  Otherwise it will be null and we can just make one right now.
             switch(dateType) {
                 case DAYS:
                     myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.DAY_NOTES);

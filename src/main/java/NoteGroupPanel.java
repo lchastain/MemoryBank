@@ -59,7 +59,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
     //-------------------------------------------------------------
 
-    // A NoteGroup instance is just the encapsulation of the central container panel and
+    // A NoteGroupPanel instance is just the encapsulation of the central container panel and
     // the methods that work on it.  It does not have a Header / Title or any other panels.
     NoteGroupPanel() {
         this(PAGE_SIZE);
@@ -67,8 +67,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
     NoteGroupPanel(int intPageSize) {
         super();
-        myGroupDataType = new TypeReference<Vector<NoteData>>() {
-        };
+        myGroupDataType = new TypeReference<Vector<NoteData>>() { };
         saveIsOngoing = false;
 
         theBasePanel = new JPanel(new BorderLayout()) {
@@ -649,7 +648,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         }
         if (groupChanged) {
             unloadInterface(theNotePager.getCurrentPage());
-            saveNoteGroup();
+            saveNoteGroup(); // No examination of the result, at this time.
         }
     } // end preClosePanel
 
@@ -695,7 +694,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     //   results should check it and handle the values according to
     //   those situations.
     //--------------------------------------------------------------
-    void saveNoteGroup() {
+    private void saveNoteGroup() {
         //AppUtil.localDebug(true);
         saveIsOngoing = true;
         File f;

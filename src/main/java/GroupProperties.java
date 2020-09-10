@@ -22,10 +22,10 @@ public class GroupProperties extends GroupInfo {
     } // end of the copy constructor
 
 
-    // A copy constructor cannot be called from a reference;
+    // A specific type copy constructor cannot be called from a reference;
     //   this method can be.  Child classes will override it so that a calling
     //   context does not need to know what generation of GroupProperties it is
-    //   really getting, just that it will look like a GroupProperties.
+    //   really getting, just that it will behave like a new GroupProperties.
     protected GroupProperties copy() {
         return new GroupProperties(this);
     }

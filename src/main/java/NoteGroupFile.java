@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 // (Eventually there may be a NoteGroupAccessor interface that NoteGroupFile will implement,
-//  and we can alternatively use NoteGroupDatabase that also implements it, in place of NGF).
+//  and we could alternatively use NoteGroupDatabase that also implements it).
 //  NoteGroupData --> NoteGroupFile --> NoteGroupPanel
 //  NoteGroupData --> NoteGroupAccessor --> NoteGroupPanel
 

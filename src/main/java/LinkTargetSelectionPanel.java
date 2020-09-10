@@ -364,8 +364,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             showInfoPanel(theNodeString);
         } else if (parentNodeName.equals("Notes")) { // Selection of a Note type
             chosenCategory = "Note";
+            GroupInfo.GroupType groupType = GroupInfo.GroupType.NOTES;
 
-            calendarNoteGroup = (CalendarNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(theNodeString);
+            calendarNoteGroup = (CalendarNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
 
             if(calendarNoteGroup == null) {
                 switch (theNodeString) {

@@ -97,7 +97,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     private void addReverseLink(LinkedEntityData linkedEntityData) {
         NoteData otherEndNoteData = linkedEntityData.getTargetNoteData();
         GroupProperties otherEndGroupProperties = linkedEntityData.getTargetGroupProperties();
-        if (otherEndGroupProperties == null) return; // Don't see how this could have happened, but this handles it.
+        assert otherEndGroupProperties != null; // Don't see how it could be null, so if it is - complain loudly.
 
         // Create the reverse link
         LinkedEntityData reverseLinkedEntityData = createReverseLink(linkedEntityData);
@@ -111,11 +111,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
         // Persist the new reverse link.
         NoteGroupPanel groupToSave = otherEndGroupProperties.getNoteGroupPanel();
-        // previously saveNoteGroup was only done from preClosePanel - now for this usage it is no longer a private method
-        // - verify this is GOOD.
-        // And maybe consolidate the work from AppUtil, where a note can be moved or copied to Day, from Todo or Event.
-        //   or not - this relates to either properties or pre-existing notes, not new notes.
-        if (groupToSave != null) groupToSave.saveNoteGroup();
+        if (groupToSave != null) groupToSave.preClosePanel();
     }
 
     // Cycle through the list of linkages to find the 'new' ones,
@@ -350,19 +346,21 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     // Given a pre-existing 'forward' link that is currently in the process of being removed by the user, remove
     // its corresponding reverse link from the target group/note, if possible.  As for automatically removing the
     // corresponding forward link when the user is removing a reverse link - we don't do that.  This is because this
-    // panel is the only creator of reverse links, so this is just its way of cleaning up after itself.  The user, on
-    // the other hand, must do their own housekeeping, so they can explicitly remove any link, regardless of its
-    // directionality.
+    // panel is the only creator of reverse links, so this is just its way of cleaning up after itself.  And the user
+    // also has the option to explicitly remove any link they choose, regardless of its directionality.
     private void removeReverseLink(LinkedEntityData linkedEntityData) {
-        // The link will either be directly on a group, or on a note within a group.  Get the group.
+        // The link will either be directly on a group, or on a note within a group.  Get the info for that group.
         GroupInfo otherEndGroupInfo = linkedEntityData.getTargetGroupInfo();
+        assert otherEndGroupInfo != null; // Don't see how it could be null, so if it is - complain loudly.
 
-        // If we got a null for the group info, no point in going on -
-        if(otherEndGroupInfo == null) return;
+        // The other end group panel may already be in active memory - if so, get it.
+        NoteGroupPanel groupToSave = otherEndGroupInfo.getNoteGroupPanel();
 
-// Until new hierarchy can support a 'getGroup' -
-//        NoteGroup groupToSave = getGroup(otherEndGroupInfo);   // need this method, somewhere.
-//        if (groupToSave == null) return; // Could happen if the group has been removed or just can't be found.
+        if(groupToSave == null) {
+            // The other group was not retrieved from active memory, so now try to retrieve it from storage.
+        }
+
+        if (groupToSave == null) return; // Happens when the group just couldn't be found.
 //
 //        // Remove the link from its 'holder'.
 //        NoteInfo otherEndNoteInfo = linkedEntityData.getTargetNoteInfo();

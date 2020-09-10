@@ -4,15 +4,14 @@ Not comprehensive.
 
 NEXT:
 
-Go back to looking for a way to use a GroupInfo to get a Group (and figure out if that means a Panel or
-a DataFile object), then use it when removing the reverse link when a forward link is deleted.  And that removal will
-need one or more new methods in the data class.
+Use the GroupInfo to get the group data when removing the reverse link when a forward link is deleted.
+   NoteGroupData ngd = <GroupInfo instance>.getNoteGroupPanel().getPanelData();
+That removal will need one or more new methods in the data class.
+If the group comes from a keeper .... is it necessary to update it in the keeper, or just to remove it from the keeper?
 
 The saveNoteGroup() called from NoteComponent and the LEP.addReverseLink - uses the Panel code to save a group.
 Otherwise, it could go back to being private.  And we ARE looking for a more direct route, bez panels.
 The panel saving process would then also use the new way, after it had scraped itself for changes.
-
-NoteGroupData ngd = <NoteGroupPanel instance>.getPanelData();
 
 
     Reverse Links -
@@ -31,7 +30,8 @@ NoteGroupData ngd = <NoteGroupPanel instance>.getPanelData();
 
         The MonthView shows some days with no notes as 'blue' - due to having a file for the day because there is
             now a GroupProperties in the file.  If there is a Properties only, with valid linkages inside - do we
-            keep the color change, drop it, or use a different color?
+            keep the color change, have no color change, or use a different color?
+        Same situation but there are no linkages - need to delete / not save the file.
 
         The 'move to day' operation also wipes out new, unsaved DayNoteData notes.  The solution for reverse link
             removal could work here as well.
@@ -41,7 +41,11 @@ NoteGroupData ngd = <NoteGroupPanel instance>.getPanelData();
 
       The TMC gets shoved down, in both the Event and the Goal groups - rethink the UI.
 
-      When editing links, the source note should be highlighted.  Compare with EventNoteComponent
+      When editing links, the source note should be highlighted.  Compare with EventNoteComponent and editing
+        the extended note of TodoNotes and CalendarNotes
+
+      Reverse link additions pass through to groups in keepers.  Is this also true for removals, when the
+        removal was due to the removal of the forward link in some other group?  Think so, but verify.
 
       Fix status messages for groups with readOnly notes when they are shown via the LinkTargetSelectionPanel
 
@@ -58,10 +62,10 @@ New:
 
 =====================================================================================================
 
-9/08/2020 1726 - Lots of code hardening (consolidation, duplicate efforts removed) as relates to the new hierarchies.
+9/08/2020 1726 - Lots of code hardening (renaming, duplicate efforts removed) as relates to the new hierarchies.
     Most significant is the ability of a Panel to collect its data (in progress and unsaved) and give it out upon
     request.  This provides one of two needed paths to acquiring NoteGroup data prior to adding to it and re-persisting.
-    Check in point.
+    Check-in point.
 
 9/03/2020 - Fixed the link titles; moved the makeLinkTitle() method to the LinkNoteComponent.  That they keep
     breaking shows that I still need better tests in this area.  May work on that, now.

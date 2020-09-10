@@ -4,6 +4,12 @@
 
 import java.util.Random;
 
+// This class is encapsulated into the properties of a NoteGroupPanel and when a NoteGroupPanel is constructed,
+// the reference to that panel is stored in the transient member 'myNoteGroupPanel'.  However this class can also
+// be constructed separately, either directly or reconstructed from serialized data, in which case myNoteGroupPanel
+// is initially null but in all valid use cases an associated panel will exist or will have existed at one time.
+// See more on this in the comments to the getNoteGroupPanel method.
+
 class GroupInfo extends BaseData {
     static Random random = new Random();
     transient NoteGroupPanel myNoteGroupPanel;
@@ -72,16 +78,31 @@ class GroupInfo extends BaseData {
     }
 
 
-    // Get the NoteGroupPanel that was made from this GroupInfo (but there may not be one).
-    // This class (GroupInfo) is element 0 of the two-element NoteGroupData object array.
-    // NoteGroupPanel extends NoteGroupFile which extends NoteGroupData, so essentially we are asking for the
-    // grandchild, but that would set us up for an infinite recursion loop during serialization so we keep this
-    // reference in a transient member.  That way it does not get serialized, and can be filled in with the actual
-    // grandchild when that panel eventually comes into scope (usually during its construction).
-    // The usage of this method is by LinkagesEditorPanel, calling it in prep of saving reverse linkages into the
-    // group that would have been constructed by the LinkTargetSelectionPanel.
+    // Get the NoteGroupPanel that was made from this GroupInfo (but there may not be one in current memory).
+    // NoteGroupPanel extends NoteGroupFile which extends NoteGroupData, of which this class is one part, so
+    // essentially we are asking for a grandchild, but adding a grandchild to our class definition would have set
+    // us up for an infinite recursion loop during serialization, so we keep this reference in a transient member.
+    // That way it does not ever get serialized, but the downside is that when the data is deserialized into an
+    // instance of this class, that instance will not have a value for 'myNoteGroupPanel'.  So in that case we can
+    // populate the member with the grandchild (if it has come into scope) when this method is called.
+    //
+    // This method is used by the LinkagesEditorPanel, to get the in-memory reference to a previously constructed
+    // panel so that it can be used to save or remove a reverse link in that target group panel.  If the panel is
+    // not in current memory, a null is returned and the calling context can search for the panel in
+    // persisted data, if needed.
     NoteGroupPanel getNoteGroupPanel() {
-        return myNoteGroupPanel;
+        NoteGroupPanel thePanel;
+
+        // This particular instance may have been created by a NoteGroupPanel constructor.
+        // In that case the 'answer' is already known.
+        if(myNoteGroupPanel != null) thePanel = myNoteGroupPanel;
+        else { // But otherwise we need to ask around -
+            // The only other available access to in-memory panels is via the AppTreePanel instance.
+            thePanel = AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, groupName);
+
+        }
+
+        return thePanel;
     }
 
     // The condition in the method is needed during a transitional member name change (simpleName --> groupName).

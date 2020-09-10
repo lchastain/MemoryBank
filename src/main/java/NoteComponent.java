@@ -828,7 +828,7 @@ public class NoteComponent extends JPanel {
                         // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
                         // are about to create from it/them will have proper corresponding forward link(s).
                         // This means that we do not need to set 'groupChanged' - it should be false after the save.
-                        theNoteComponent.myNoteGroupPanel.saveNoteGroup(); // (no checking of the result, at this time).
+                        theNoteComponent.myNoteGroupPanel.preClosePanel();
 
                         linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 
@@ -837,14 +837,15 @@ public class NoteComponent extends JPanel {
                         System.out.println(AppUtil.toJsonString(noteData));
                     }
 
-                    // If this NoteComponent's group has a keeper and was also viewed via the linkTargetSelectionPanel
+                    // If this NoteComponent's group was also viewed via the linkTargetSelectionPanel
                     // during the link view/edit operation then it was pulled out of the AppTreePanel in order to be
                     // shown and now the viewing pane of the main app will be empty but it will still appear to hold
                     // the group.  You can see this by resizing the app; it will repaint as empty.
                     // So the fix is to clear the tree selection and then reselect the current group.
-                    // This happens just from showing the group; the ultimate selection of a link (or not) does not
-                    // matter.  Not an issue for CalendarNoteGroups since they have no keeper, but no harm in doing
-                    // this for all linkable groups even in the less common case where it isn't needed.
+                    // This will have happened just from showing the group; the ultimate selection of a link (or not) does not
+                    // matter.  Initially this was a problem for all types of NoteGroupPanel but now that the non-calendar
+                    // link sources are not allowed to even look at their own group, it only applies to CalendarNoteGroups.
+                    // However, not trying to make a distinction at this point; doing it for all group types does not hurt anything.
                     int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
                     AppTreePanel.theInstance.getTree().clearSelection();
                     AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
