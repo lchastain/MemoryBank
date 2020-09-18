@@ -32,7 +32,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
         myProperties = null; // We get a different Properties with every choice.
         theChoice = LocalDate.now();
-        setGroupFilename(getGroupFilename());
+//        setGroupFilename(getGroupFilename());  not needed?  happens via the call to updateGroup, below.
 
         switch (defaultSubject) {
             case "Day Note":
@@ -57,15 +57,14 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     }
 
 
-    //------------------------------------------------------
-    // Method Name: getGroupFilename
-    //
-    //------------------------------------------------------
+    // This method is needed for CalendarNoteGroup types because of their timestamped filenames.
     @Override
-    public String getGroupFilename() {
+    protected String getGroupFilename() {
         String s;
 
         if (saveIsOngoing) {
+            // In this case we need a new filename; need to make one because (due to timestamping) it
+            // almost certainly does not already exist.
             if (dateType == ChronoUnit.DAYS) s = AppUtil.makeFilename(theChoice, "D");
             else if (dateType == ChronoUnit.MONTHS) s = AppUtil.makeFilename(theChoice, "M");
             else s = AppUtil.makeFilename(theChoice, "Y");

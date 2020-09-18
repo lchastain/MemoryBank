@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class DayNoteDefaults {
-    private static String defaultFileName = "DayNoteDefaults.json";
+    private static final String defaultFileName = "DayNoteDefaults.json";
 
     String defaultIconFileName;
     boolean military;   // 12 or 24 hour time display
@@ -49,7 +49,7 @@ public class DayNoteDefaults {
 
     public boolean save() {
         String fileName = MemoryBank.userDataHome + File.separatorChar + defaultFileName;
-        MemoryBank.debug("Saving DayNoteDefaults in " + fileName);
+        //MemoryBank.debug("Saving DayNoteDefaults in " + fileName);
 
         try (FileWriter writer = new FileWriter(fileName);
              BufferedWriter bw = new BufferedWriter(writer)) {

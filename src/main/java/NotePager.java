@@ -17,7 +17,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     private int intGroupSize;
     private int intMaxPages;
     private int currentPageNumber;
-    private int intPageFrom;
     private NoteGroupPanel myNoteGroupPanel;
     private LabelButton lbCurrentPage;
     private JTextField jtfThePageNum;
@@ -84,18 +83,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         return intMaxPages;
     }
 
-    // This method was previously called from saveGroup, as a way to get the page number to use with unloadInterface.
-    // Now, saveGroup does not do an unload; it happens one step earlier, in preClosePanel, and saving the data is NOT done
-    // during a page event.  This better supports an 'undo', and it is part of breaking apart the paging event into
-    // two operations (pageAway, pageTo) vs a single one (gotoPage).  Having two operations is more in line with other
-    // awt/swing events like focusLost, focusGained.  Querying the current page number should NOT be done during the
-    // paging events themselves, and neither should saving the group.  These are now separate activities.
-    // This method and note may be removed after the current paging problems are solved, test(s) in place, and there
-    // has been at least one git commit of this note.  Then, the var itself can also probably go away.
-    int getPageFrom() {
-        return intPageFrom;
-    }
-
     public String getSummary() {
         String s;
         int theFirst;
@@ -118,14 +105,13 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     //-------------------------------------------------------------------------
     // Method Name: reset
     //
-    // This method is used set the current page number and to
+    // This method is used to set the current page number and to
     //   calculate the maximum number of pages.  It is called
     //   by NoteGroup.updateGroup() where it sets the current
     //   page to 1, both before and after a group load.
     //-------------------------------------------------------------------------
     public void reset(int i) {
         currentPageNumber = i;
-        intPageFrom = i;
         intPageSize = myNoteGroupPanel.pageSize;
         intGroupSize = myNoteGroupPanel.panelNoteData.size();
 
@@ -182,13 +168,11 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
                 // This should not be a back-door to a 'refresh' operation.
                 MemoryBank.debug("Explicit page nummber was set to current page!  Ignored.");
             } else if (theNewPage <= intMaxPages) {
-                myNoteGroupPanel.pageAway(currentPageNumber);
-                intPageFrom = currentPageNumber;
+                myNoteGroupPanel.pageFrom(currentPageNumber);
                 currentPageNumber = theNewPage;
                 myNoteGroupPanel.pageTo(currentPageNumber);
                 setMiddleMessage();
                 myNoteGroupPanel.pageNumberChanged();
-                intPageFrom = currentPageNumber;
             } // end if
         } // end if
 
@@ -260,7 +244,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             lbCurrentPage.setVisible(false);
         } else {
 //            AppTreePanel.theInstance.requestFocusInWindow();  // 1/4/2020 - this tripped up a test, so seeing if we can live without.
-            myNoteGroupPanel.pageAway(currentPageNumber);
+            myNoteGroupPanel.pageFrom(currentPageNumber);
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");
                 if (currentPageNumber > 1) {
@@ -291,7 +275,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         //   when handling a paging event, but this value is
         //   already initialized in 'reset' and so only needs to
         //   be updated after a page change.
-        intPageFrom = currentPageNumber;
 
         //AppUtil.localDebug(false);
     } // end mousePressed

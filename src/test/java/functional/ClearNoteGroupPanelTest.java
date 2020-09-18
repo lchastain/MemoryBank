@@ -27,7 +27,7 @@ class ClearNoteGroupPanelTest {
         Assertions.assertEquals(0, theInfo.size());
         // Ok, that was the setup; now run the test.
 
-        mng.clearGroup();
+        mng.clearAllNotes();
         Assertions.assertEquals(theDate, mng.getChoice());
         theInfo = mng.getCondensedInfo();
         Assertions.assertEquals(0, theInfo.size());
@@ -66,7 +66,7 @@ class ClearNoteGroupPanelTest {
         Assertions.assertEquals(mnc3.getNoteData().noteString, s3);
 
         // Now clear it -
-        mng.clearGroup();
+        mng.clearAllNotes();
         // But be aware that each component may still have a data member.
 
         // And then verify that it's data is 'gone' from the group -
@@ -126,7 +126,7 @@ class ClearNoteGroupPanelTest {
         Assertions.assertTrue(new File(strGroupFilename).exists());
 
         // Now clear the group -
-        mng.clearGroup();  // Clears the interface and the Vector for it.
+        mng.clearAllNotes();  // Clears the interface and the Vector for it.
         // But be aware that each component may still have a data member.
 
 // This changed with the addition of Properties onto Notes - now the Properties causes a save, even without data.

@@ -210,45 +210,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     } // end setDefaultIcon
 
 
-    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of <my custom class>),
-    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
-    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
-    // to JSON string, then parsed the string back in to a DayNoteData and added it to a new Vector.  But that was
-    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
-    // Exception that needed to be caught.
-//    void setGroupData(Object[] theGroup)  {
-//        int theLength = theGroup.length;
-//        // This method should not be called if 'theGroup' is null.  Otherwise it
-//        // will be an object array but the array could still be empty, somehow.
-//        if(theLength == 0) return;
-//
-//        // Now the length can either be 1 or 2.  If 2 then it will be a group properties and
-//        // the group data vector, but this is a relatively new structure where previously there
-//        // were no properties for this class, so there are several years-worth of data files
-//        // already out there, where the only element is the group data, and rather than attempting
-//        // to fix old data, the decision is to examine the content first, then load the correct type.
-//        // As a developer I know this is not the best solution but it does work and I'm lazy, so I'm
-//        // going with it for now.  One possible future 'data fix' (other than writing a DataFix program)
-//        // could come when/if the app is ever ported into a database.
-//        BaseData.loading = true; // We don't want to affect the lastModDates!
-//        if(theLength == 1) {
-//            // There are two cases where there might only be one element in the object array:
-//            // 1.  Old, legacy data that was originally saved without GroupProperties.
-//            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
-//            String theClass = theGroup[0].getClass().getGroupName();
-//            System.out.println("The DayNoteData class type is: " + theClass);
-//            if(theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
-//                groupDataVector = AppUtil.mapper.convertValue(theGroup[0], new TypeReference<Vector<DayNoteData>>() { });
-//            } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
-//                myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
-//            }
-//        } else { // 2 (or more, but more would mean that there has been yet another structure change)
-//            myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
-//            groupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<DayNoteData>>() { });
-//        }
-//        BaseData.loading = false; // Restore normal lastModDate updating.
-//    }
-
     public void shiftDown(int index) {
         if (index >= (lastVisibleNoteIndex - 1)) return;
         MemoryBank.debug("Day Shifting note down");
@@ -287,18 +248,14 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         setGroupChanged(true);
     } // end toggleMilitary
 
-    //--------------------------------------------------------------
-    // Method Name: updateHeader
-    //
-    // This one line is broken out as a separate method to simplify
-    //   the coding from the calling contexts above, and also to
-    //   help them be more readable.
-    //--------------------------------------------------------------
+
+    // This one-liner is broken out as a separate method to simplify the coding
+    //   from the calling contexts, and also to help them be more readable.
     private void updateHeader() {
-        // Generate new title from current choice.
+        // Generate a new title from the current day choice.
         dayTitle.setText(getChoiceString());
     } // end updateHeader
 
-} // end class DayNoteGroup
+} // end class DayNoteGroupPanel
 
 

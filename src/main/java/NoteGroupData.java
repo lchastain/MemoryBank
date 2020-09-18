@@ -28,6 +28,27 @@ class NoteGroupData {
         return theData;
     }
 
+
+    public int getNoteCount() {
+        Vector theNotes = (Vector) theData[1];
+        return theNotes.size();
+    }
+
+    boolean isEmpty() {
+        if(theData[0] != null) {
+            GroupProperties groupProperties = (GroupProperties) theData[0];
+            if (groupProperties.linkTargets.size() > 0) return false;
+        }
+
+        if(theData[1] != null) {
+            Vector theNotes = (Vector) theData[1];
+            return theNotes.size() <= 0;
+        }
+
+        return true;
+    }
+
+
     public static void main(String[] args) {
         NoteGroupData noteGroupData = new NoteGroupData();
         System.out.println(AppUtil.toJsonString(noteGroupData));

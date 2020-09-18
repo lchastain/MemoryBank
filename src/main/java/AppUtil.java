@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 // This class provides static utility methods that are needed by more than one client-class in the main app.
 // It makes more sense to collect them into one utility class, than to try to decide which user class
@@ -526,6 +527,7 @@ public class AppUtil {
     // from a list but each one in the list could go to a different day).
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static boolean addNote(String theFilename, NoteData nd) {
+        NoteGroupData noteGroupData = null;
         Object[] theGroup;
 
         // Note that a full file read and write IS needed; we cannot simply do an 'append' because
@@ -533,21 +535,36 @@ public class AppUtil {
         // However, a database based methodology would not have that same restriction.
         // (note to self, for future upgrade).
         theGroup = NoteGroupFile.loadFileData(theFilename);
+        // ^^^ HERE we needed instead to get any in-memory panel's data, and assign it to noteGroupData.
+
+        // TODO SOMETHING RONG!!! HERE.  GroupProperties not being addressed.  Do not need to make a new NoteGroupData; it comes with NoteGroupFIle.
 
         // No pre-existing data file is ok in this case; we'll just make one.
         if (theGroup == null) {
-            ArrayList al = new ArrayList(); // reason for suppressing the 'rawtypes' warning.
-            theGroup = new Object[2]; // Only a DayNoteGroup gets notes added this way.
-            theGroup[1] = al; // This is the data; Group Properties get made automatically, elsewhere.
+            noteGroupData = new NoteGroupData();
+//            ArrayList al = new ArrayList(); // reason for suppressing the 'rawtypes' warning.
+            Vector<NoteData> noteDataVector = new Vector<>(1,1);
+            noteGroupData.add(noteDataVector); // This is the data; Group Properties get made automatically, elsewhere.
+            // TODO verify that ^^^ by moving todo data to a day that has not been viewed in the current session, AND has no pre-existing file.
         }
+
+        NoteGroupFile noteGroupFile = new NoteGroupFile();
+        noteGroupFile.setGroupFilename(theFilename);
+
 
         // Now here is the cool part - we don't actually need to get the loaded data into a Vector
         // of a specific type (even though we know that the elements are all DayNoteData); we can
         // just add the note to the array of LinkedHashMap.
-        ((ArrayList) theGroup[theGroup.length-1]).add(nd); // reason for suppressing the 'unchecked' warning.
+        assert noteGroupData != null;
+        theGroup = noteGroupData.getTheData();
+        ((Vector) theGroup[theGroup.length-1]).add(nd); // reason for suppressing the 'unchecked' warning.
+        noteGroupFile.add((GroupProperties) theGroup[0]);
+        noteGroupFile.add((Vector) theGroup[1]);
 
-        int notesWritten = NoteGroupFile.saveGroupData(theFilename, theGroup);
-        return notesWritten >= 1;
+//        int notesWritten = NoteGroupFile.saveGroupData(theFilename, theGroup);
+        noteGroupFile.saveNoteGroupData();
+//        return notesWritten >= 1;    TODO
+        return true;
     } // end addNote
 
     // This is my own conversion, to numbers that matched these

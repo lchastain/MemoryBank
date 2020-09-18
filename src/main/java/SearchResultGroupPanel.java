@@ -25,10 +25,9 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         filePrefix = "search_";
     }
 
-    // groupName is a simple single word text as seen in the app tree.
     SearchResultGroupPanel(String groupName) {
-        super();
-        // super(10);  // test, for paging
+        // groupName is a simple single word text as seen in the app tree.
+        super();    // super(10);  // test, for paging
 
         log.debug("Constructing: " + groupName);
 

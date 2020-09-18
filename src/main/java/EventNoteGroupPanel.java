@@ -66,7 +66,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         MemoryBank.debug("Constructing: " + groupName);
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
-//        saveWithoutData = true;
+        saveWithoutData = true;
         myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
 
         eventNoteComponent = null;

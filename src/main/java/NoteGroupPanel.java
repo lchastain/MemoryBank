@@ -2,11 +2,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
+
+//  Current:  NoteGroupData --> NoteGroupFile --> NoteGroupPanel
+//  Planned:  NoteGroupData --> NoteGroupDataAccessorImpl --> NoteGroupPanel
+//  NoteGroupFile is currently the only implementor of NoteGroupDataAccessor.
+//    But we will want to eventually have a new class (NoteGroupDatabase ?) that uses
+//    a Database rather than the filesystem, to provide the data storage capabilities.
 
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -24,16 +29,12 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     JPanel theBasePanel;
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
-    protected GroupProperties myProperties; // All children access this directly.
     TypeReference myGroupDataType;
 
     boolean editable;
     transient boolean groupChanged;  // Flag used to determine if saving data might be necessary.
     int lastVisibleNoteIndex = 0;
     int pageSize;
-    private String groupFilename;
-
-    boolean saveIsOngoing;
 
     // Container for graphical members - limited to pageSize
     protected JPanel groupNotesListPanel;
@@ -68,7 +69,6 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     NoteGroupPanel(int intPageSize) {
         super();
         myGroupDataType = new TypeReference<Vector<NoteData>>() { };
-        saveIsOngoing = false;
 
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
@@ -88,7 +88,6 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         };
         pageSize = intPageSize;
         editable = true;
-//        saveWithoutData = false;
         intHighestNoteComponentIndex = pageSize - 1;
 
         panelNoteData = new Vector<>();
@@ -192,7 +191,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
                     // Capture changes from the current page.  This will be needed if this method is being called
                     // from initialize() after a note has been added into the last available slot on the current page.
                     // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
-                    // see that the total page count should be increased (by one).
+                    // see that the total page count should be increased by one.
                     if (groupChanged) unloadInterface(tmpPage);
 
                     theNotePager.reset(tmpPage);
@@ -203,32 +202,36 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     } // end activateNextNote
 
 
+    // This is a convenience method to allow a NoteGroupPanel to act like a JPanel.
+    // The signature and name matches the JPanel method, and this method is just a
+    // pass-thru to our encapsulated JPanel so that it works even though this class
+    // does not extend that one.
     void add(JComponent component, Object object) {
         theBasePanel.add(component, object);
     }
 
     //----------------------------------------------------------------
-    // Method Name: clearGroup
+    // Method Name: clearAllNotes
     //
-    // Clear all data (which may span more than one page) and the interface.
+    // Clear all notes (which may span more than one page) and the interface.
+    // This still leaves the GroupProperties.
     //----------------------------------------------------------------
-    void clearGroup() {
+    void clearAllNotes() {
         theBasePanel.transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
         panelNoteData.clear();
         showGroupData(panelNoteData);
         setGroupChanged(true);
         theNotePager.reset(1);
-    } // end clearGroup
+    } // end clearAllNotes
 
 
     //----------------------------------------------------------------
     // Method Name: clearPage
     //
-    // Clear data from all Notes that are showing in the interface.
-    // This resets any components that are displayed with info,
-    //  as well as their underlying data objects.  It does not
-    //  remove components or the data object itself; just clears them.
+    // Clear data from all NoteComponents that are showing in the interface,
+    //  as well as their encapsulated NoteData instances.  It does not
+    //  remove components from the panel; just clears them.
     //----------------------------------------------------------------
     private void clearPage() {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
@@ -321,20 +324,15 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     // Called by contexts that need the complete and latest
     // group data (usually prior to persisting it, without
     // affecting other NoteGroupPanel attributes such as the menus).
-    NoteGroupData getPanelData() {
-        NoteGroupData noteGroupData = new NoteGroupData();
-        noteGroupData.add(getGroupProperties());
+//    NoteGroupData getPanelData() {
+    void getPanelData() {
+        add(getGroupProperties());
         if(groupChanged) {
             unloadInterface(theNotePager.getCurrentPage());
         }
-        noteGroupData.add(panelNoteData);
-        return noteGroupData;
+        add(getCondensedInfo());
+//        return noteGroupData;
     }
-
-
-    GroupProperties getGroupProperties() {
-        return myProperties;
-    } // end getGroupProperties
 
 
     int getHighestNoteComponentIndex() {
@@ -369,7 +367,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
             // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
             // are about to create from it/them will have proper corresponding forward link(s).
-            saveNoteGroup(); // (no checking of the result, at this time).
+            preClosePanel();
 
             linkagesEditorPanel.addReverseLinks(myProperties.linkTargets);
 
@@ -500,19 +498,19 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         //   group may be highly variable, and this method may be getting
         //   called after each filename change, even though the panel
         //   components that hold and show the file data remain in place.
-        groupFilename = getGroupFilename();
+        setGroupFilename(getGroupFilename());
 
         if (groupFilename.isEmpty()) {
             MemoryBank.debug("No filename is set for: " + this.getClass().getName());
         } else {
             MemoryBank.debug("NoteGroup file name is: " + groupFilename);
-        }
-        Object[] theGroup = NoteGroupFile.loadFileData(groupFilename);
-        if (theGroup != null) {
-            int notesLoaded = ((List) theGroup[theGroup.length - 1]).size();
-            MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
-            //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-            setGroupData(theGroup);
+            Object[] theGroup = NoteGroupFile.loadFileData(groupFilename);
+            if (theGroup != null) {
+                int notesLoaded = ((List) theGroup[theGroup.length - 1]).size();
+                MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
+                //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+                setGroupData(theGroup);
+            }
         }
 
         Exception e = null;
@@ -629,10 +627,10 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
 
     // Called by the pager control
-    void pageAway(int pageFrom) {
+    void pageFrom(int pageFrom) {
         MemoryBank.debug("Paging away from Page: " + pageFrom);
         unloadInterface(pageFrom);
-    } // end pageTo
+    } // end pageFrom
 
     // Called by the pager control
     void pageTo(int pageTo) {
@@ -641,34 +639,35 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     } // end pageTo
 
 
-    // This should be called prior to closing.
+    // This should be called prior to closing, but there are a few other cases.
     void preClosePanel() {
         if (null != extendedNoteComponent && null != defaultSubject) {
             extendedNoteComponent.saveSubjects();
         }
-        if (groupChanged) {
-            unloadInterface(theNotePager.getCurrentPage());
-            saveNoteGroup(); // No examination of the result, at this time.
-        }
+        getPanelData(); // update the data, condense.
+        saveNoteGroupData();
+
+        setGroupChanged(false); // The 'save' preserved all changes to this point, so we reset the flag.
+        // Note that the flag is reset regardless of the result of the save.  This is intentional because
+        // it will disable the menu item and prevent a second+ attempt to save whether it is still needed
+        // or not; if still needed then the first attempt failed in some way and trying again is unlikely to
+        // do any good, so at least disable the menu item so that the user cannot keep trying and they see
+        // that there is nothing more that they can do.  It might give them a false sense of success - but
+        // I can live with that.
+
     } // end preClosePanel
 
 
-    // Called by child groups that need sorting but don't have direct access to unloadInterface
-    // (TodoNoteGroup  sortPriority, sortText (has more options than NoteGroup.sortNoteString))
-    void preSort() {
-        // Preserve current interface changes before sorting.
-        unloadInterface(theNotePager.getCurrentPage());
-    } // end preSort
-
-
+    // Use this method to remove 'gaps' in the panel data.
     Vector<NoteData> getCondensedInfo() {
         Vector<NoteData> trimmedList = new Vector<>();
 
         // Xfer the 'good' data over to a new, temporary Vector.
         for (Object object : panelNoteData) {
 
-            // This can happen with an 'empty' NoteGroup.
-            if (object == null) continue;
+            // Don't think it CAN happen anymore.  Remove after a cycle of no problems.  17 Sep 2020
+//            // This can happen with an 'empty' NoteGroup.
+//            if (object == null) continue;
 
             // Don't retain this note if there is no significant primary text.
             NoteData tempNoteData = (NoteData) object;
@@ -679,124 +678,6 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         }
         return trimmedList;
     }
-
-    //--------------------------------------------------------------
-    // Method Name: saveNoteGroup
-    //
-    // Saving is an operation that happens often, sometimes per user
-    //   action and sometimes automatically.
-    //   TODO - we should be able to tell the difference and act accordingly.
-    //      maybe with a param to this method...
-    //   If errors are encountered, this method can trap and print
-    //   them to the screen but it will not halt execution or
-    //   attempt interaction with the user.  A status variable is
-    //   set at various points; child classes that 'care' about the
-    //   results should check it and handle the values according to
-    //   those situations.
-    //--------------------------------------------------------------
-    private void saveNoteGroup() {
-        //AppUtil.localDebug(true);
-        saveIsOngoing = true;
-        File f;
-
-        // At this point, we may or may not have previously loaded a file
-        //   successfully.  If we have, we will have a non-empty Filename
-        //   and our first step will be to move that file out of the way
-        //   before this new save operation can proceed.
-        if (!groupFilename.trim().equals("")) {
-            // Deleting or archiving first is necessary in case
-            //   the change was to delete the information.
-            MemoryBank.debug("NoteGroup.saveGroup: old filename = " + groupFilename);
-            if (MemoryBank.archive) {
-                MemoryBank.debug("  Archiving: " + shortName());
-                // Note: need to fully implement archiving but for now, what happens
-                // is what does not happen - we simply do not delete the old version.
-            } else {
-                f = new File(groupFilename);
-                if (!deleteFile(f)) {
-                    MemoryBank.debug("  Failed to delete; returning");
-//                    intSaveGroupStatus = DELETEOLDFILEFAILED;
-                    saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
-                    return;
-                }
-            } // end if archive or delete
-        } // end if
-
-        // The name of the file to save to may not always be the same as
-        //   the one we previously loaded (or attempted to load), primarily due to timestamping
-        //   differences.  So, we let the child NoteGroup set the name of the file to save to.
-        groupFilename = getGroupFilename();
-        MemoryBank.debug("  Saving NoteGroup data in " + shortName());
-
-        // Verify that the path is a valid one.
-        f = new File(groupFilename);
-        if (f.exists()) {
-            // If the file already exists -
-            if (f.isDirectory()) {
-                System.out.println("Error - directory in place of file: " + groupFilename);
-//                intSaveGroupStatus = DIRECTORYINMYPLACE;
-                saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
-                return;
-            } // end if directory
-        } else {
-            // The file does not already exist; check the path to it.
-            String strThePath;
-            strThePath = groupFilename.substring(0, groupFilename.lastIndexOf(File.separatorChar));
-            f = new File(strThePath);
-            if (!f.exists()) { // The directory path does not exist
-                // Create the directory path down to the level you need.
-                if (!f.mkdirs()) {
-                    System.out.println("Error - unable to create the directory path: " + strThePath);
-//                    intSaveGroupStatus = CANNOTMAKEAPATH;
-                    saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
-                    return;
-                } // end if directory creation failed
-            } else {
-                // It does exist; make sure it is a directory and nothing else
-                if (!f.isDirectory()) {
-                    System.out.println("Error - file in place of directory : " + strThePath);
-//                    intSaveGroupStatus = FILEINMYDIRPATH;
-                    saveIsOngoing = false;  // ?? these checks sould be happening in NoteGroupFile.
-                    return;
-                } // end if not a directory
-            } // end if/else the path exists
-        } // end if exists
-
-        // The logic below will allow for a file with properties but no
-        // notes.  This might be a todo list with no items yet, or a
-        // search that found no notes, etc.
-        int notesWritten;
-        Object[] theGroup;  // A new 'wrapper' for the Properties + List
-        Vector<NoteData> trimmedList = getCondensedInfo();
-        Object groupProperties = getGroupProperties();
-        if (groupProperties != null) {
-            theGroup = new Object[2];
-            theGroup[0] = groupProperties;
-            theGroup[1] = trimmedList;
-        } else {
-            // Don't think this should ever happen, now.  But leaving it here for a while...
-            theGroup = new Object[1];
-            theGroup[0] = trimmedList;
-        } // end if there is a properties object
-
-            // If we always have properties, then this condition should just go away (but keep the 'save').
-            notesWritten = NoteGroupFile.saveGroupData(groupFilename, theGroup);
-
-        // There are cases where a file for this data might already be out there, that shouldn't be -
-        // for example, if a file was previously created for writing but then the writes
-        // failed, and we're here again at a later time.
-        if ((notesWritten == 0) && (groupProperties == null)) deleteFile(new File(groupFilename));
-
-        saveIsOngoing = false;
-        setGroupChanged(false); // A 'save' preserves all changes to this point, so we reset the flag.
-        // Note that the flag is reset regardless of the result of the save.  This is intentional because
-        // it will disable the menu item and prevent a second+ attempt to save (whether it is still needed
-        // or not; if still needed then the first attempt probably failed and trying again isn't going to
-        // do any good, so at least disable the menu item so that the user sees there is nothing more that
-        // they can do.  It might give them a false sense of success - but I can live with that).
-
-        //AppUtil.localDebug(false);
-    } // end saveGroup
 
 
     void setGroupHeader(Container c) {
@@ -912,16 +793,6 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 //  } // end shiftUp
 
 
-    // Returns a short (no path) version of the groupFilename
-    // but stops short of 'prettifying' it.
-    private String shortName() {
-        String s = getGroupFilename();
-        int ix = s.lastIndexOf(File.separatorChar);
-        if (ix != -1) s = s.substring(ix + 1);
-        return s;
-    } // end shortName
-
-
     void sortLastMod(int direction) {
 
         // Preserve current interface changes before sorting.
@@ -1021,6 +892,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     } // end updateGroup
 
 
+    // Called by AppTreePanel in response to user selection of the menu item to save the group.
     protected void refresh() {
         preClosePanel();     // Save any in-progress changes
         updateGroup();  // Reload the interface - this removes 'gaps'.

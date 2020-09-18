@@ -685,17 +685,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
 
         // Make a new data file to hold the searchResultData list
-        NoteGroupData theGroup = new NoteGroupData(); // A 'wrapper' for the Properties + List
-        theGroup.add(searchResultGroupProperties);
-        theGroup.add(foundDataVector);
-        int notesWritten = NoteGroupFile.saveGroupData(resultsFileName, theGroup.getTheData());
-        if (foundDataVector.size() != notesWritten) {
-            System.out.println("Possible problem - wrote " + notesWritten + " results");
-        } else {
-            System.out.println("Wrote " + notesWritten + " results to " + resultsFileName);
-        }
+        NoteGroupFile searchResultsDataFile = new NoteGroupFile();
+        searchResultsDataFile.setGroupFilename(resultsFileName);
+        searchResultsDataFile.add(searchResultGroupProperties);
+        searchResultsDataFile.add(foundDataVector);
+//        int notesWritten = NoteGroupFile.saveGroupData(resultsFileName, theGroup.getTheData());
+        searchResultsDataFile.saveNoteGroupData();
 
-        // Make a new tree node for these results and select it
+//        if (foundDataVector.size() != notesWritten) {
+//            System.out.println("Possible problem - wrote " + notesWritten + " results");
+//        } else {
+//            System.out.println("Wrote " + notesWritten + " results to " + resultsFileName);
+//        }
+
+        // Make a new tree node for these results.
         addSearchResult(resultsName);
 
         searching = false;
@@ -818,7 +821,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("About")) showAbout();
         else if (what.equals("Add New...")) addNewGroup();
         else if (what.equals("Close")) closeGroup();
-        else if (what.startsWith("Clear ")) theNoteGroupPanel.clearGroup();
+        else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Group Linkages...")) theNoteGroupPanel.groupLinkages();
         else if (what.equals("Show Scheduled Events")) showEvents();
