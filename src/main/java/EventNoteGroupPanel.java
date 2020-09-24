@@ -145,24 +145,17 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
                 if (tempNoteData.getRetainNote()) {
                     // We save this version of the event.
                     DayNoteData dnd = new DayNoteData(tempNoteData);
-                    String theFilename;
-                    LocalDateTime ansr = tempNoteData.getEventStartDateTime();
-
-                    theFilename = AppUtil.findFilename(ansr.toLocalDate(), "D");
-                    if (theFilename.equals("")) {
-                        theFilename = AppUtil.makeFilename(ansr.toLocalDate(), "D");
-                    } // end if
-                    boolean success = AppUtil.addNote(theFilename, dnd);
+                    LocalDateTime eventStartDateTime = tempNoteData.getEventStartDateTime();
+                    boolean success = addDayNote(eventStartDateTime.toLocalDate(), dnd);
 
                     // Although we test the result for success or fail, this
-                    //   action could be one of potentially hundreds, and one
-                    //   of the times it will occur is at load time while the
+                    //   aging event is one of potentially several, and one
+                    //   of the times it could occur is at app startup while the
                     //   'always on top' splash screen is displayed.  It is
                     //   definitely NOT a good time to stop at each problem
                     //   and complain to the user with an error dialog that
                     //   they must review and dismiss.
                     if (success) {
-                        DayNoteGroupPanel.blnNoteAdded = true;
                         MemoryBank.debug("  Retention of Event data succeeded");
                     } else {
                         MemoryBank.debug("  Retention of Event data failed");
@@ -204,7 +197,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
     private File chooseMergeFile() {
         File dataDir = new File(areaPath);
-        String myName = getName(); // two usages below; this way the method is only called once.
+        String myName = getGroupName(); // two usages below; this way the method is only called once.
 
         // Get the complete list of Upcoming Event filenames, except this one.
         String[] theFileList = dataDir.list(
@@ -455,7 +448,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         }
 
         // Get the current list name -
-        String oldName = getName();
+        String oldName = getGroupName();
 
         // If the new name equals the old name, just do the save as the user
         //   has asked and don't tell them that they are an idiot.  But no

@@ -34,7 +34,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         myProperties = new SearchResultGroupProperties(groupName);
         myProperties.myNoteGroupPanel = this; // May not be used, since this only applies to links.
         editable = false;
-        setGroupFilename(areaPath + filePrefix + getName() + ".json");
+        setGroupFilename(areaPath + filePrefix + getGroupName() + ".json");
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
 
@@ -65,7 +65,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         resultsTitle.setHorizontalAlignment(JLabel.CENTER);
         resultsTitle.setForeground(Color.white);
         resultsTitle.setFont(Font.decode("Serif-bold-20"));
-        resultsTitle.setText(getName());
+        resultsTitle.setText(getGroupName());
 
         // Set the pager's background to the same color as this row,
         //   since other items on this row make it slightly 'higher'

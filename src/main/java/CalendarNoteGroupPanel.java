@@ -65,14 +65,14 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         if (saveIsOngoing) {
             // In this case we need a new filename; need to make one because (due to timestamping) it
             // almost certainly does not already exist.
-            if (dateType == ChronoUnit.DAYS) s = AppUtil.makeFilename(theChoice, "D");
-            else if (dateType == ChronoUnit.MONTHS) s = AppUtil.makeFilename(theChoice, "M");
-            else s = AppUtil.makeFilename(theChoice, "Y");
+            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.makeFullFilename(theChoice, "D");
+            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.makeFullFilename(theChoice, "M");
+            else s = NoteGroupFile.makeFullFilename(theChoice, "Y");
             return s;
         } else {  // Results of a findFilename may be "".
-            if (dateType == ChronoUnit.DAYS) s = AppUtil.findFilename(theChoice, "D");
-            else if (dateType == ChronoUnit.MONTHS) s = AppUtil.findFilename(theChoice, "M");
-            else s = AppUtil.findFilename(theChoice, "Y");
+            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.findFilename(theChoice, "D");
+            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.findFilename(theChoice, "M");
+            else s = NoteGroupFile.findFilename(theChoice, "Y");
             return s;
         } // end if saving else not saving
     } // end getGroupFilename
@@ -102,6 +102,11 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     }
 
     String getTitle() {
+        //return NoteGroupDataAccessor.getGroupNameForDay(getChoice());
+        // The above line would work, but routing the op through the interface static method somewhat obfuscates the
+        // code.  Better to just have a bit of duplication with an extra formatter defined in this class (dtf), for
+        // overall readability.
+
         return dtf.format(getChoice());
     }
 

@@ -204,23 +204,11 @@ public class TodoNoteComponent extends NoteComponent {
         // Convert the item to a DayNoteData, using the TodoNoteData-flavored constructor.
         DayNoteData dnd = new DayNoteData(myTodoNoteData);
 
-        // Make the filename for the correct Day file, then add this note.
-        String theFilename;
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
-        theFilename = AppUtil.findFilename(theTodoDate, "D");
-        if (theFilename.equals("")) {
-            theFilename = AppUtil.makeFilename(theTodoDate, "D");
-        } // end if
-        success = AppUtil.addNote(theFilename, dnd);
+        success = myNoteGroupPanel.addDayNote(theTodoDate, dnd);
 
         if (success) {
             MemoryBank.debug("Move succeeded");
-            // We don't know if this day is already showing, or not.
-            // So the 'note added' flag is set, so if/when the tree view
-            // switches to DayNotes, the current date choice will be (re-)loaded,
-            // whether or not that was the day to which we just added a note.
-            // But for the data - AppUtil.addNote is what added it to the file.
-            DayNoteGroupPanel.blnNoteAdded = true;
             clear();  // This creates a 'gap'.
         } else {
             MemoryBank.debug("Move failed");

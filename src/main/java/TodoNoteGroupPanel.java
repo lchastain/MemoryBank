@@ -114,7 +114,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
     private File chooseMergeFile() {
         File dataDir = new File(areaPath);
-        String myName = getName(); // two usages below; this way the method is only called once.
+        String myName = getGroupName(); // two usages below; this way the method is only called once.
 
         // Get the complete list of Todo List filenames, except this one.
         String[] theFileList = dataDir.list(
@@ -403,7 +403,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         }
 
         // Get the current list name -
-        String oldName = getName();
+        String oldName = getGroupName();
 
         // If the new name equals the old name, just do the save as the user
         //   has asked and don't tell them that they are an idiot.  But no

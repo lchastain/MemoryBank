@@ -69,7 +69,7 @@ class NoteGroupFactory {
             // so that further grooming is unnecessary.
             fullFilename = shortName;
         } else {
-            fullFilename = NoteGroupFile.getFullFilename(areaName, shortName);
+            fullFilename = NoteGroupFile.makeFullFilename(areaName, shortName);
         }
 
         return new File(fullFilename).exists();

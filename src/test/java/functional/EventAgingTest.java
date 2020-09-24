@@ -51,13 +51,13 @@ class EventAgingTest {
         LocalDate ld2 = LocalDate.of(2018, 11, 10);
         LocalDate ld3 = LocalDate.of(2018, 12, 8);
         LocalDate ld4 = LocalDate.of(2019, 1, 12);
-        String filename1 = AppUtil.findFilename(ld1, "D");
+        String filename1 = NoteGroupFile.findFilename(ld1, "D");
         Assertions.assertFalse(filename1.isEmpty());
-        String filename2 = AppUtil.findFilename(ld2, "D");
+        String filename2 = NoteGroupFile.findFilename(ld2, "D");
         Assertions.assertFalse(filename2.isEmpty());
-        String filename3 = AppUtil.findFilename(ld3, "D");
+        String filename3 = NoteGroupFile.findFilename(ld3, "D");
         Assertions.assertFalse(filename3.isEmpty());
-        String filename4 = AppUtil.findFilename(ld4, "D");
+        String filename4 = NoteGroupFile.findFilename(ld4, "D");
         Assertions.assertFalse(filename4.isEmpty());
 
         // Read the last file, verify one note inside

@@ -14,7 +14,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     private static AppIcon defaultIcon;
     private final JLabel dayTitle;  // the JLabel is final; its text is not.
     static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
-    static boolean blnNoteAdded; // Set by other NoteGroups (Event, Todo)
 
     static {
         // Because the parent NoteGroup class is where all NoteComponents get
@@ -37,7 +36,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
             AppIcon.scaleIcon(defaultIcon);
         } // end if/else
 
-        blnNoteAdded = false;
         MemoryBank.trace();
     } // end of the static section
 
@@ -179,16 +177,12 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     }
 
 
-    // This is called from AppTreePanel.
+    // This is called from AppTreePanel prior to display of this panel, needed when
+    // the date choice has changed via controls in some other panel.
     public void setDate(LocalDate theNewChoice) {
-        if (blnNoteAdded) {
-            // This ensures that we will reload the day, even
-            //   if it is already currently loaded.
-            blnNoteAdded = false; // reset the flag
-        } else {
-            // If the new day is the same as the current one - return.
-            if (dtf.format(theChoice).equals(dtf.format(theNewChoice))) return;
-        } // end if
+        // If the new day is the same as the current one - return.
+        if (getTitle().equals(dtf.format(theNewChoice))) return;
+//        if (dtf.format(theChoice).equals(dtf.format(theNewChoice))) return;
 
         super.setDate(theNewChoice); // setDate is in CalendarNoteGroup.
         updateHeader();

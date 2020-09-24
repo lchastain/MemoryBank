@@ -223,7 +223,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         String targetNoteString = "";
 
         if (selectedTargetGroup != null) {
-            groupName = selectedTargetGroup.getName();
+            groupName = selectedTargetGroup.getGroupName();
 
             if (selectedNoteData != null) {
                 targetNoteString = AppUtil.makeRed(selectedNoteData.noteString);

@@ -344,7 +344,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     }
 
     // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
-    String getName() {
+    String getGroupName() {
         return getGroupProperties().getGroupName();
     }
 

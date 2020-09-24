@@ -1,8 +1,13 @@
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Vector;
 
 
 class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
@@ -13,7 +18,10 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
 
     private String failureReason; // Various file access failure reasons, or null.
 
-    protected String groupFilename; // Access with getGroupFilename() & setGroupFilename()
+    // This is the FULL filename, with storage specifier & path, prefix and extension.
+    // Access it with getGroupFilename() & setGroupFilename().
+    protected String groupFilename;
+
 
     static {
         // We give this string a trailing separatorChar because we really
@@ -26,16 +34,98 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
     NoteGroupFile() {
         super();
         saveIsOngoing = false;
+        failureReason = null;
         saveWithoutData = false;
     }
 
+
+    NoteGroupFile(GroupProperties groupProperties) {
+        this();
+        add(groupProperties);
+    }
+
+
+    @Override
+    // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
+    @SuppressWarnings("rawtypes")
+    public boolean addDayNote(LocalDate theDay, DayNoteData theNote) {
+        NoteGroupFile noteGroupFile;
+
+        // Get the group name for the input date.
+        String dayGroupName = NoteGroupDataAccessor.getGroupNameForDay(theDay);
+
+        // Now get the DayNoteGroupPanel from the application tree
+        NoteGroupPanel dayNoteGroupPanel;
+        dayNoteGroupPanel = AppTreePanel.theInstance.theAppDays;
+
+        if(dayNoteGroupPanel != null) { // Ok it's not null -
+            // so now we have to ask - does it currently display the group that we want to add to?
+            // It might be 'pointing' to some other day.
+            String theDaysName = dayNoteGroupPanel.getGroupName();
+            if (theDaysName.equals(dayGroupName)) { //
+                // If it does point to the same day then it might have unsaved changes.
+                if(dayNoteGroupPanel.groupChanged) {
+                    // If there are unsaved changes then we save the file now and null out the
+                    // pointer to it so that the panel gets reloaded if re-selected later
+                    // in the tree.  Now we can add to the closed file, in the next steps.
+                    dayNoteGroupPanel.preClosePanel();
+                    AppTreePanel.theInstance.theAppDays = null;
+                }
+            }
+        }
+
+        // Now we have to try to load the data directly from file.
+        String theFilename = NoteGroupFile.findFilename(theDay, "D");
+        if (theFilename.equals("")) {
+            theFilename = NoteGroupFile.makeFullFilename(theDay, "D");
+        } // end if
+        Object[] theGroup; // The complete data set for  the group to which we will add theNote.
+        theGroup = loadFileData(theFilename);
+
+        // Make a new NoteGroupFile -
+        if(theGroup != null) { // Data was loaded from a file -
+            // May need to handle 'short' groups here ....   TODO  or do it when loading, for ALL files.
+
+            // Convert theGroup[0] to a GroupProperties
+            GroupProperties groupProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+
+            // Convert theGroup[1] to a Vector of NoteData, and add the new note to it.
+            TypeReference theType = new TypeReference<Vector<DayNoteData>>() { };
+            Vector<NoteData> noteDataVector = AppUtil.mapper.convertValue(theGroup[1], theType);
+            noteDataVector.add(theNote);
+
+            // Make a new NoteGroupFile
+            noteGroupFile = new NoteGroupFile(groupProperties);
+            noteGroupFile.setGroupFilename(theFilename);
+            noteGroupFile.add(noteDataVector);
+        } else { // Othwerwise, we were not able to load the data (there might have been an error but more likely
+            // there was simply no pre-existing data for the Day).  So we just make our own data and NoteGroupFile -
+            GroupProperties groupProperties = new GroupProperties(dayGroupName, GroupInfo.GroupType.DAY_NOTES);
+            Vector<NoteData> noteDataVector = new Vector<>(1,1);
+            noteDataVector.add(theNote);
+
+            noteGroupFile = new NoteGroupFile(groupProperties);
+            noteGroupFile.setGroupFilename(theFilename);
+            noteGroupFile.add(noteDataVector);
+        }
+
+        // Note that this is an instance method but we aren't saving its own data; instead saving the data for a new
+        // NoteGroupFile that was created by this method.  So this method could have been static but that would
+        // disqualify this method from being defined in the interface because the interface needs it to be non-static
+        // since each implementor will have a different methodology and data store in which to add a note.
+        //    yes, it could have been done differently .... better.   The calling contexts could have instantiated
+        //    the NoteGroupFile that already held the data that they needed and then called an addNote method on it
+        //    from there.  Might redo this...
+        noteGroupFile.saveNoteGroupData();
+        return true;
+    } // end addDayNote
 
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there
         // in the first place.  So - we verify that the file is really there and only if it is
         // do we try to delete it.  Then we check for existence again because the deletion can
         // occasionally return a false negative (because of gc/timing issues?).
-        // But File.delete() does not ever return a false positive (that I've seen).
+        // But File.exists() does not ever return a false positive (that I've seen).
         // With this sandwiched condition, the user is only notified of a problem if the file still exists.
         if (f.exists() && !f.delete() && f.exists()) {
             (new Exception("File removal exception!")).printStackTrace();
@@ -48,33 +138,137 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         } // end if
     } // end deleteFile
 
-    static String getFullFilename(String areaName, String prettyName) {
-        String prefix = "";
-        switch (areaName) {
-            case "Goals":
-                prefix = GoalGroupPanel.filePrefix;
-                break;
-            case "UpcomingEvents":
-                prefix = EventNoteGroupPanel.filePrefix;
-                break;
-            case "TodoLists":
-                prefix = TodoNoteGroupPanel.filePrefix;
-                break;
-            case "SearchResults":
-                prefix = SearchResultGroupPanel.filePrefix;
-                break;
+
+    // -----------------------------------------------------------------
+    // Method Name: findFilename
+    //
+    // Given a LocalDate and a type of note to look for ("D", "M", or "Y", this method
+    // will return the appropriate filename if a file exists for the indicated timeframe.
+    // If no file exists, the return string is empty ("").
+    // -----------------------------------------------------------------
+    static String findFilename(LocalDate theDate, String dateType) {
+        String[] foundFiles = null;
+        String lookfor = dateType;
+        String fileName = CalendarNoteGroupPanel.areaPath;
+        fileName += String.valueOf(theDate.getYear());
+
+        // System.out.println("Looking in " + fileName);
+        File f = new File(fileName);
+        if (f.exists()) {  // If the Year of the Date is an existing directory -
+            if (f.isDirectory()) {
+
+                if (!dateType.equals("Y")) { // ..and if we're not looking for a YearNote -
+                    lookfor += getTimePartString(theDate.atTime(0, 0), ChronoUnit.MONTHS, '0');
+
+                    if (!dateType.equals("M")) {  // ..and if we are looking for a DayNote -
+                        lookfor += getTimePartString(theDate.atTime(0, 0), ChronoUnit.DAYS, '0');
+                    } // end if not a Month note
+                } // end if not a Year note
+                lookfor += "_";
+
+                // System.out.println("Looking for " + lookfor);
+                foundFiles = f.list(new AppUtil.logFileFilter(lookfor));
+            } // end if directory
+        } // end if exists
+
+        // Reset this local variable, and reuse.
+        fileName = "";
+
+        // A 'null' foundFiles only happens if directory is not there;
+        // a valid condition that needs no further action.  Similarly,
+        // the directory might exist but be empty; also allowed.
+        if ((foundFiles != null) && (foundFiles.length > 0)) {
+            // Previously we tried to handle the case of more than one file found for the same
+            // name prefix, but the JOptionPane error dialog cannot be shown here because if
+            // this occurs at startup then we'd never get past the splash screen.  So - we just
+            // take the last one.  But having a pile-up of older files, if it happens, could
+            // become a big problem.  So far this HAS happened but on a one or two file basis,
+            // never hundreds, and it was due to glitches during development, where a debug
+            // session was killed.  So - taking the last one will suffice for now, until the
+            // app is converted to storing its data in a database vs the filesystem and then
+            // the problem goes away.
+            // Also - you don't have to use a timestamp in the filename, bozo.  The individual
+            // data elements do each have their LMDs, and each 'prefix' is unique to the
+            // containing 'year' directory, so what is the value-added, anyway?
+            // Think about it...
+            fileName = CalendarNoteGroupPanel.areaPath;
+            fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
+            fileName += File.separatorChar;
+            fileName += foundFiles[foundFiles.length - 1];
         }
-        return basePath + areaName + File.separatorChar + prefix + prettyName + ".json";
-    }
+        return fileName;
+    } // end findFilename
 
-    // Child classes can override, if needed.  Currenly only CalendarNoteGroups need to,
-    // since their filenames have a timestamp that changes with every save.  That timestamping
-    // is the foundation of being able to archive earlier files, but the feature did not ever
-    // get fully developed.
-    protected String getGroupFilename() {
-        return groupFilename;
-    }
+    // Returns a String containing the requested portion of the input LocalDateTime.
+    // Years are expected to be 4 digits long, all other units are two digits.
+    // For hours, the full range (0-23) is returned; no adjustment to a 12-hour clock.
+    private static String getTimePartString(LocalDateTime localDateTime, ChronoUnit cu, Character padding) {
 
+        switch (cu) {
+            case YEARS:
+                StringBuilder theYears = new StringBuilder(String.valueOf(localDateTime.getYear()));
+                if (padding != null) {
+                    while (theYears.length() < 4) {
+                        theYears.insert(0, padding);
+                    }
+                }
+                return theYears.toString();
+            case MONTHS:
+                String theMonths = String.valueOf(localDateTime.getMonthValue());
+                if (padding != null) {
+                    if (theMonths.length() < 2) theMonths = padding + theMonths;
+                }
+                return theMonths;
+            case DAYS:
+                String theDays = String.valueOf(localDateTime.getDayOfMonth());
+                if (padding != null) {
+                    if (theDays.length() < 2) theDays = padding + theDays;
+                }
+                return theDays;
+            case HOURS:
+                String theHours = String.valueOf(localDateTime.getHour());
+                if (padding != null) {
+                    if (theHours.length() < 2) theHours = padding + theHours;
+                }
+                return theHours;
+            case MINUTES:
+                String theMinutes = String.valueOf(localDateTime.getMinute());
+                if (padding != null) {
+                    if (theMinutes.length() < 2) theMinutes = padding + theMinutes;
+                }
+                return theMinutes;
+            case SECONDS:
+                String theSeconds = String.valueOf(localDateTime.getSecond());
+                if (padding != null) {
+                    if (theSeconds.length() < 2) theSeconds = padding + theSeconds;
+                }
+                return theSeconds;
+            default:
+                throw new IllegalStateException("Unexpected value: " + cu);
+        }
+    } // end getTimePartString
+
+    //--------------------------------------------------------
+    // Method Name: getTimestamp
+    //
+    // Returns a string of numbers representing a Date
+    //   and time in the format:  yyyyMMddHHmmSS
+    // Used in unique filename creation.
+    //--------------------------------------------------------
+    static String getTimestamp() {
+        StringBuilder theStamp;
+
+        LocalDateTime ldt = LocalDateTime.now();
+
+        theStamp = new StringBuilder(getTimePartString(ldt, ChronoUnit.YEARS, null));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.MONTHS, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.DAYS, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.HOURS, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.MINUTES, '0'));
+        theStamp.append(getTimePartString(ldt, ChronoUnit.SECONDS, '0'));
+
+        return theStamp.toString();
+    } // end getTimestamp
 
     static Object[] loadFileData(String theFilename) {
         // theFilename string needs to be the full path to the file.
@@ -92,6 +286,57 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
             ex.printStackTrace();
         }// end try/catch
         return theGroup;
+    }
+
+    // -----------------------------------------------------------------
+    // Method Name: makeFullFilename
+    //
+    // This method develops a variable filename that depends on the requested
+    // noteType (one of Year, Month, or Date, specified by Y, M, or D).
+    // Examples:  Y_timestamp, M03_timestamp, D0704_timestamp.
+    // The numeric Year for these files is known by a parent directory.
+    // Used in saving of Calendar-based data files.
+    // It is kept here (for now?) as opposed to the CalendarNoteGroup
+    // because of the additional calls to two static methods also here.
+    // BUT - there is no reason that those two could not also move
+    // over there, since this method (and findFilename) is their only 'client'.
+    // -----------------------------------------------------------------
+    static String makeFullFilename(LocalDate localDate, String noteType) {
+        StringBuilder filename = new StringBuilder(CalendarNoteGroupPanel.areaPath);
+        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
+        filename.append(File.separatorChar);
+        filename.append(noteType);
+
+        if (!noteType.equals("Y")) {
+            filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.MONTHS, '0'));
+
+            if (!noteType.equals("M")) {
+                filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.DAYS, '0'));
+            } // end if not a Month note
+        } // end if not a Year note
+
+        filename.append("_").append(getTimestamp()).append(".json");
+        return filename.toString();
+    }
+
+
+    static String makeFullFilename(String areaName, String groupName) {
+        String prefix = "";
+        switch (areaName) {
+            case "Goals":
+                prefix = GoalGroupPanel.filePrefix;
+                break;
+            case "UpcomingEvents":
+                prefix = EventNoteGroupPanel.filePrefix;
+                break;
+            case "TodoLists":
+                prefix = TodoNoteGroupPanel.filePrefix;
+                break;
+            case "SearchResults":
+                prefix = SearchResultGroupPanel.filePrefix;
+                break;
+        }
+        return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
 
     // A convenience method so that an instance can make a call to the static method
@@ -152,10 +397,11 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
     //   3.  Get the full path and filename
     //   4.  Verify the path
     //   5.  Write the data to a new file
-    @Override // The file-flavored implementation of the NoteGroupDataAccessor interface method
+    @Override // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
     public AccessResult saveNoteGroupData() {
         //AppUtil.localDebug(true);
         saveIsOngoing = true;
+        failureReason = null;
         File f;
 
         // Now here is an important consideration - in this class we have a member that holds the associated filename,
@@ -163,14 +409,14 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         // Possibly.  In some cases the data from a file that has been loaded will be saved into a file with a
         // different name.  This can happen when filenames contain timestamps (possily for archiving) and also in
         // support of a 'saveAs' operation.  In any case, we treat the separate groupFilename as the one that was
-        // loaded, and as for the one to save to, we ask the implementing child class what name to use.
-
+        // loaded, and as for the one to save to, we ask the implementing child class what name to use, and don't
+        // actually get into the data to see what file it thinks it should go to.  This seems wrong somehow...
 
         // Step 1 - Move the old file (if any) out of the way.
         // If we have a value in groupFilename at this point then it should mean that a file for it has been
         // successfully loaded in the current session, and that is the one that should be removed.
         // In this case we can trust the 'legality' of the name and path; we just need to verify that the file exists
-        // and if so, delete it so that it does not conflict when we save the updated info.
+        // and if so, delete it so that it does not conflict when we save a new file with the updated info.
         if (!groupFilename.isEmpty()) {
             MemoryBank.debug("NoteGroupFile.saveNoteGroupData: old filename = " + groupFilename);
             if (MemoryBank.archive) { // Archive the file
@@ -253,6 +499,27 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
     } // end saveNoteGroupData
 
 
+    // Provides a way for a calling context to retrieve the most recent result.
+    // If there was not a failure then this value will be null.
+    String getFailureReason() {
+        return failureReason;
+    }
+
+
+    // Child classes can override, if needed.  Currenly only CalendarNoteGroups need to,
+    // since their filenames have a timestamp that changes with every save.  That timestamping
+    // is the foundation of being able to archive earlier files, but the feature did not ever
+    // get fully developed.
+    protected String getGroupFilename() {
+        return groupFilename;
+    }
+
+
+    GroupProperties getGroupProperties() {
+        return myProperties;
+    } // end getGroupProperties
+
+
     // All child classes of NoteGroupFile have direct access to groupFilename, and as such
     // do not need to go through this method in order to change it.  However, I send them
     // all through here so that we never have to wonder where/how it got changed.  Now if
@@ -266,10 +533,6 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         else newGroupName = newName.trim();
         groupFilename = newGroupName;
     }
-
-    GroupProperties getGroupProperties() {
-        return myProperties;
-    } // end getGroupProperties
 
 
     // Returns the filename-only component of the group file name.
@@ -300,7 +563,6 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
             if (e != null) {
                 // This one may have been ignorable; print the message and see.
                 System.out.println("Exception in NoteGroupFile.writeDataToFile: \n  " + e.getMessage());
-                failureReason = e.getMessage();
             } // end if there was an exception
             try {
                 if (bw != null) {
@@ -310,6 +572,7 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
                 }
             } catch (Exception ex) { // This one would be more serious - raise a 'louder' alarm.
                 // Most likely would be an IOException, but we catch them all, to be sure.
+                failureReason = ex.getMessage();
                 ex.printStackTrace(System.out);
             } // end try/catch
         } // end try/catch

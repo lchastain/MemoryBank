@@ -1,4 +1,5 @@
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public interface NoteGroupDataAccessor {
     enum AccessResult {
@@ -7,8 +8,15 @@ public interface NoteGroupDataAccessor {
         FAILURE
     }
 
+    boolean addDayNote(LocalDate theDay, DayNoteData theNote);
 
-    // Saving is an operation that happens often, sometimes per user
+
+    static String getGroupNameForDay(LocalDate theDate) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
+        return dtf.format(theDate);
+    }
+
+        // Saving is an operation that happens often, sometimes per user
     //   action and sometimes automatically.
     //   TODO - we should be able to tell the difference and act accordingly.
     //

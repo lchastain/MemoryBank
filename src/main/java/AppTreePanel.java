@@ -303,7 +303,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         if (theNewGroupNode == null) {  // Not already a node on the tree
             theNewGroupNode = new DefaultMutableTreeNode(newName, false);
             // Ensure that the new name meets our file-naming requirements.
-            File aFile = new File(NoteGroupFile.getFullFilename(areaName, newName));
+            File aFile = new File(NoteGroupFile.makeFullFilename(areaName, newName));
             String theComplaint = BranchHelperInterface.checkFilename(newName, aFile.getParent());
             if (!theComplaint.isEmpty()) {
                 optionPane.showMessageDialog(theTree, theComplaint,
@@ -679,7 +679,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         scanDataDir(f, 0); // Indirectly fills the foundDataVector
 
         // Make a unique name for the results
-        String resultsName = AppUtil.getTimestamp();
+        String resultsName = NoteGroupFile.getTimestamp();
         String resultsPath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
         String resultsFileName = resultsPath + "search_" + resultsName + ".json";
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
@@ -730,7 +730,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             }
             // Then we can look at merging any possible child nodes into the CV group.
             theNodeName = eventNode.toString();
-            String theFilename = NoteGroupFile.getFullFilename(EventNoteGroupPanel.areaName, theNodeName);
+            String theFilename = NoteGroupFile.makeFullFilename(EventNoteGroupPanel.areaName, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = NoteGroupFile.loadFileData(theFilename);
             BaseData.loading = true; // We don't want to affect the lastModDates!
@@ -962,7 +962,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
 
     private void saveGroupAs() {
-        String oldName = theNoteGroupPanel.getName();
+        String oldName = theNoteGroupPanel.getGroupName();
         boolean success = false;
         NoteGroupPanelKeeper theNoteGroupPanelKeeper = null;
         TreePath groupParentPath = null;
@@ -983,7 +983,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         if (null == groupParentPath) return; // Should not happen in normal operation.
 
         if (success) {
-            String newName = theNoteGroupPanel.getName();
+            String newName = theNoteGroupPanel.getGroupName();
 
             // When the tree selection changes, any open NoteGroup is automatically saved,
             // and the tree selection will change automatically when we do the rename of

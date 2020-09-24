@@ -141,7 +141,7 @@ public class MonthView extends JLayeredPane {
     private Image[] getIconArray(int year, int month, int day) {
         LocalDate ld = LocalDate.of(year, month, day);
 
-        String theFilename = AppUtil.findFilename(ld, "D");
+        String theFilename = NoteGroupFile.findFilename(ld, "D");
         if (!new File(theFilename).exists()) return null;
 
         MemoryBank.debug("Loading: " + theFilename);

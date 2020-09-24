@@ -9,12 +9,9 @@ import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 // This class provides static utility methods that are needed by more than one client-class in the main app.
 // It makes more sense to collect them into one utility class, than to try to decide which user class
@@ -66,66 +63,6 @@ public class AppUtil {
 
         return hasDataArray;
     } // end findDataDays
-
-    // -----------------------------------------------------------------
-    // Method Name: findFilename
-    //
-    // Given a LocalDate and a type of note to look for ("D", "M", or "Y", this method
-    // will return the appropriate filename if a file exists for the indicated timeframe.
-    // If no file exists, the return string is empty ("").
-    // -----------------------------------------------------------------
-    static String findFilename(LocalDate theDate, String dateType) {
-        String[] foundFiles = null;
-        String lookfor = dateType;
-        String fileName = CalendarNoteGroupPanel.areaPath;
-        fileName += String.valueOf(theDate.getYear());
-
-        // System.out.println("Looking in " + fileName);
-        File f = new File(fileName);
-        if (f.exists()) {  // If the Year of the Date is an existing directory -
-            if (f.isDirectory()) {
-
-                if (!dateType.equals("Y")) { // ..and if we're not looking for a YearNote -
-                    lookfor += getTimePartString(theDate.atTime(0, 0), ChronoUnit.MONTHS, '0');
-
-                    if (!dateType.equals("M")) {  // ..and if we are looking for a DayNote -
-                        lookfor += getTimePartString(theDate.atTime(0, 0), ChronoUnit.DAYS, '0');
-                    } // end if not a Month note
-                } // end if not a Year note
-                lookfor += "_";
-
-                // System.out.println("Looking for " + lookfor);
-                foundFiles = f.list(new logFileFilter(lookfor));
-            } // end if directory
-        } // end if exists
-
-        // Reset this local variable, and reuse.
-        fileName = "";
-
-        // A 'null' foundFiles only happens if directory is not there;
-        // a valid condition that needs no further action.  Similarly,
-        // the directory might exist but be empty; also allowed.
-        if ((foundFiles != null) && (foundFiles.length > 0)) {
-            // Previously we tried to handle the case of more than one file found for the same
-            // name prefix, but the JOptionPane error dialog cannot be shown here because if
-            // this occurs at startup then we'd never get past the splash screen.  So - we just
-            // take the last one.  But having a pile-up of older files, if it happens, could
-            // become a big problem.  So far this HAS happened but on a one or two file basis,
-            // never hundreds, and it was due to glitches during development, where a debug
-            // session was killed.  So - taking the last one will suffice for now, until the
-            // app is converted to storing its data in a database vs the filesystem and then
-            // the problem goes away.
-            // Also - you don't have to use a timestamp in the filename, bozo.  The individual
-            // data elements do each have their LMDs, and each 'prefix' is unique to the
-            // containing 'year' directory, so what is the value-added, anyway?
-            // Think about it...
-            fileName = CalendarNoteGroupPanel.areaPath;
-            fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
-            fileName += File.separatorChar;
-            fileName += foundFiles[foundFiles.length - 1];
-        }
-        return fileName;
-    } // end findFilename
 
     // -----------------------------------------------------------
     // Method Name: getDateFromFilename
@@ -257,77 +194,6 @@ public class AppUtil {
         return theMenuItem;
     }
 
-    // Returns a String containing the requested portion of the input LocalDateTime.
-    // Years are expected to be 4 digits long, all other units are two digits.
-    // For hours, the full range (0-23) is returned; no adjustment to a 12-hour clock.
-    private static String getTimePartString(LocalDateTime localDateTime, ChronoUnit cu, Character padding) {
-
-        switch (cu) {
-            case YEARS:
-                StringBuilder theYears = new StringBuilder(String.valueOf(localDateTime.getYear()));
-                if (padding != null) {
-                    while (theYears.length() < 4) {
-                        theYears.insert(0, padding);
-                    }
-                }
-                return theYears.toString();
-            case MONTHS:
-                String theMonths = String.valueOf(localDateTime.getMonthValue());
-                if (padding != null) {
-                    if (theMonths.length() < 2) theMonths = padding + theMonths;
-                }
-                return theMonths;
-            case DAYS:
-                String theDays = String.valueOf(localDateTime.getDayOfMonth());
-                if (padding != null) {
-                    if (theDays.length() < 2) theDays = padding + theDays;
-                }
-                return theDays;
-            case HOURS:
-                String theHours = String.valueOf(localDateTime.getHour());
-                if (padding != null) {
-                    if (theHours.length() < 2) theHours = padding + theHours;
-                }
-                return theHours;
-            case MINUTES:
-                String theMinutes = String.valueOf(localDateTime.getMinute());
-                if (padding != null) {
-                    if (theMinutes.length() < 2) theMinutes = padding + theMinutes;
-                }
-                return theMinutes;
-            case SECONDS:
-                String theSeconds = String.valueOf(localDateTime.getSecond());
-                if (padding != null) {
-                    if (theSeconds.length() < 2) theSeconds = padding + theSeconds;
-                }
-                return theSeconds;
-            default:
-                throw new IllegalStateException("Unexpected value: " + cu);
-        }
-    } // end getTimePartString
-
-    //--------------------------------------------------------
-    // Method Name: getTimestamp
-    //
-    // Returns a string of numbers representing a Date
-    //   and time in the format:  yyyyMMddHHmmSS
-    // Used in unique filename creation.
-    //--------------------------------------------------------
-    static String getTimestamp() {
-        StringBuilder theStamp;
-
-        LocalDateTime ldt = LocalDateTime.now();
-
-        theStamp = new StringBuilder(getTimePartString(ldt, ChronoUnit.YEARS, null));
-        theStamp.append(getTimePartString(ldt, ChronoUnit.MONTHS, '0'));
-        theStamp.append(getTimePartString(ldt, ChronoUnit.DAYS, '0'));
-        theStamp.append(getTimePartString(ldt, ChronoUnit.HOURS, '0'));
-        theStamp.append(getTimePartString(ldt, ChronoUnit.MINUTES, '0'));
-        theStamp.append(getTimePartString(ldt, ChronoUnit.SECONDS, '0'));
-
-        return theStamp.toString();
-    } // end getTimestamp
-
     // -------------------------------------------------------
     // Method Name: localArchive
     //
@@ -399,37 +265,6 @@ public class AppUtil {
             blnGlobalDebug = null;
         } // end if
     } // end localDebug
-
-    // -----------------------------------------------------------------
-    // Method Name: makeFilename
-    //
-    // This method develops a variable filename that depends on the requested
-    // noteType (one of Year, Month, or Date, specified by Y, M, or D).
-    // Examples:  Y_timestamp, M03_timestamp, D0704_timestamp.
-    // The numeric Year for these files is known by a parent directory.
-    // Used in saving of Calendar-based data files.
-    // It is kept here (for now?) as opposed to the CalendarNoteGroup
-    // because of the additional calls to two static methods also here.
-    // BUT - there is no reason that those two could not also move
-    // over there, since this method (and findFilename) is their only 'client'.
-    // -----------------------------------------------------------------
-    static String makeFilename(LocalDate localDate, String noteType) {
-        StringBuilder filename = new StringBuilder(CalendarNoteGroupPanel.areaPath);
-        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
-        filename.append(File.separatorChar);
-        filename.append(noteType);
-
-        if (!noteType.equals("Y")) {
-            filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.MONTHS, '0'));
-
-            if (!noteType.equals("M")) {
-                filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.DAYS, '0'));
-            } // end if not a Month note
-        } // end if not a Year note
-
-        filename.append("_").append(getTimestamp()).append(".json");
-        return filename.toString();
-    }
 
     // Wrap the text in html, used for JLabel text with style adjustments.
     static String makeHtml(String theString) {
@@ -509,63 +344,6 @@ public class AppUtil {
         return theJson;
     }
 
-
-    //---------------------------------------------------------------
-    // Method Name: addNote
-    //
-    // Add a note to a DayNoteGroup.
-    // Note that this is a static method, meaning that it can be called
-    // from any other context without first instantiating a DayNoteGroup,
-    // and that the file being added to may or may not already exist.
-    // The call to saveData() is needed every time because even if
-    // the calling context is an ongoing method processing several
-    // notes, it will still call this method one note at a time and we don't
-    // maintain a 'state' somewhere or buffer up the notes to be saved.
-    //
-    // Two known calling contexts add a note to a Day: TodoNoteComponent
-    // (only does one at a time anyway) and EventNoteGroup (which works
-    // from a list but each one in the list could go to a different day).
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public static boolean addNote(String theFilename, NoteData nd) {
-        NoteGroupData noteGroupData = null;
-        Object[] theGroup;
-
-        // Note that a full file read and write IS needed; we cannot simply do an 'append' because
-        // the new note needs to be inserted into an encapsulated ArrayList.
-        // However, a database based methodology would not have that same restriction.
-        // (note to self, for future upgrade).
-        theGroup = NoteGroupFile.loadFileData(theFilename);
-        // ^^^ HERE we needed instead to get any in-memory panel's data, and assign it to noteGroupData.
-
-        // TODO SOMETHING RONG!!! HERE.  GroupProperties not being addressed.  Do not need to make a new NoteGroupData; it comes with NoteGroupFIle.
-
-        // No pre-existing data file is ok in this case; we'll just make one.
-        if (theGroup == null) {
-            noteGroupData = new NoteGroupData();
-//            ArrayList al = new ArrayList(); // reason for suppressing the 'rawtypes' warning.
-            Vector<NoteData> noteDataVector = new Vector<>(1,1);
-            noteGroupData.add(noteDataVector); // This is the data; Group Properties get made automatically, elsewhere.
-            // TODO verify that ^^^ by moving todo data to a day that has not been viewed in the current session, AND has no pre-existing file.
-        }
-
-        NoteGroupFile noteGroupFile = new NoteGroupFile();
-        noteGroupFile.setGroupFilename(theFilename);
-
-
-        // Now here is the cool part - we don't actually need to get the loaded data into a Vector
-        // of a specific type (even though we know that the elements are all DayNoteData); we can
-        // just add the note to the array of LinkedHashMap.
-        assert noteGroupData != null;
-        theGroup = noteGroupData.getTheData();
-        ((Vector) theGroup[theGroup.length-1]).add(nd); // reason for suppressing the 'unchecked' warning.
-        noteGroupFile.add((GroupProperties) theGroup[0]);
-        noteGroupFile.add((Vector) theGroup[1]);
-
-//        int notesWritten = NoteGroupFile.saveGroupData(theFilename, theGroup);
-        noteGroupFile.saveNoteGroupData();
-//        return notesWritten >= 1;    TODO
-        return true;
-    } // end addNote
 
     // This is my own conversion, to numbers that matched these
     // that were being returned by Calendar queries, now deprecated.

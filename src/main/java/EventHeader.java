@@ -24,7 +24,7 @@ public class EventHeader extends JPanel implements MouseListener {
 
         // Create the window title
         // Swing Types
-        JLabel lblTheTitle = new JLabel(eventNoteGroup.getName());
+        JLabel lblTheTitle = new JLabel(eventNoteGroup.getGroupName());
         lblTheTitle.setHorizontalAlignment(JLabel.CENTER);
         lblTheTitle.setForeground(Color.white);
         lblTheTitle.setFont(Font.decode("Serif-bold-20"));

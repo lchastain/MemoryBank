@@ -4,6 +4,7 @@ import java.util.Vector;
 // Consists of two Objects, in an Object array:
 //      1.  Group Properties
 //      2.  Vector of NoteData
+
 class NoteGroupData {
     private final Object[] theData;
 
@@ -16,8 +17,8 @@ class NoteGroupData {
         theData = incomingData;  // by reference; be careful with reachbacks.
     }
 
-    public void add(GroupInfo groupInfo) {
-        theData[0] = groupInfo;
+    public void add(GroupProperties groupProperties) {
+        theData[0] = groupProperties;
     }
 
     public void add(Vector<NoteData> incomingNotes) {
@@ -29,11 +30,14 @@ class NoteGroupData {
     }
 
 
+    @SuppressWarnings("rawtypes")
     public int getNoteCount() {
         Vector theNotes = (Vector) theData[1];
         return theNotes.size();
     }
 
+
+    @SuppressWarnings("rawtypes")
     boolean isEmpty() {
         if(theData[0] != null) {
             GroupProperties groupProperties = (GroupProperties) theData[0];

@@ -4,14 +4,12 @@ Not comprehensive.
 
 NEXT:
 
-Fix the Add Note code in App Util - possibly move it.  (to DayNotes?)
+
+Windows Search via FileExplorer not working for 'simpleName'.  Instead can navigate to highest desired leval and use:
+C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName * | grep -v null
 
 saveWithoutData - for empty search results, new todo lists - verify these are ok; no such variable seen for these uses.
 
-
-Finish the new, streamlined SAVE methodology - verify working for all use cases and that it will support
-the use of the new Interface and future planned uses.  Need a fine-tooth here, fully commented.
-In the process, believe that group file naming can be simplified and consolidated. (short name, pretty name, get name, etc)
 
 Use the GroupInfo to get the group data when removing the reverse link when a forward link is deleted.
    NoteGroupData ngd = <GroupInfo instance>.getNoteGroupPanel().getPanelData();
@@ -79,6 +77,16 @@ but also verify that the gap goes away upon reselection - why would it, if it is
 New:
 
 =====================================================================================================
+
+9/24/2020 0330
+  Moved addNote to NoteGroupFile.addDayNote.  Moved filename string methods into NoteGroupFile, mostly from AppUtil.
+  Added GroupProperties to NoteGroupFile constructor, to fix breakage that was happening via addNote after Calendar
+      types got properties.
+  Fixed the problem where the 'move note to day' operation would wipe out the other notes on that day, IF that day
+      was showing in the panel and had unsaved changes.
+  Removed blnNoteAdded from DayNoteGroupPanel; now addNoteToDay nulls out the Day panel, causing a reload if selected.
+  Add Note to day now working as desired, and this paves the way to get back to automatic removal of reverse links.
+  Check-in point.
 
 9/18/2020 1428 - The timestamps are also in support of archiving, so don't want to drop them yet.  Evaporated the SCR.
   Meanwhile, we have seen an announcement that visa holders no longer have to leave after x months; they may remain

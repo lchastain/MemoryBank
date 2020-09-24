@@ -407,8 +407,8 @@ public class ThreeMonthColumn extends JPanel {
             } // end if
 
             if (twimc != null) {
-                assert theChoice != null;
-                twimc.dateSelected(theChoice);
+//                assert theChoice != null;     THIS has not been working; needed the VM option, to enable.  Now - it complains.  So instead -
+                if(theChoice != null) twimc.dateSelected(theChoice);
             }
 
         } // end mousePressed

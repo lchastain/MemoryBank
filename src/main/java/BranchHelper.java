@@ -89,7 +89,7 @@ public class BranchHelper implements BranchHelperInterface {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        File aFile = new File(NoteGroupFile.getFullFilename(theArea, theName));
+        File aFile = new File(NoteGroupFile.makeFullFilename(theArea, theName));
         String theComplaint = BranchHelperInterface.checkFilename(theName, aFile.getParent());
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
@@ -146,8 +146,8 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = NoteGroupFile.getFullFilename(theArea, nodeChange.nodeName);
-                String newNamedFile = NoteGroupFile.getFullFilename(theArea, nodeChange.renamedTo);
+                String oldNamedFile = NoteGroupFile.makeFullFilename(theArea, nodeChange.nodeName);
+                String newNamedFile = NoteGroupFile.makeFullFilename(theArea, nodeChange.renamedTo);
                 File f = new File(oldNamedFile);
 
                 try {
@@ -174,7 +174,7 @@ public class BranchHelper implements BranchHelperInterface {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  NoteGroupFile.getFullFilename(theArea, nodeChange.nodeName);
+                String deleteFile =  NoteGroupFile.makeFullFilename(theArea, nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.

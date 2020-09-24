@@ -11,6 +11,7 @@ public class GroupProperties extends GroupInfo {
         this("No Name Yet", GroupType.UNKNOWN);
     }
 
+
     GroupProperties(String theName, GroupType theType) {
         super(theName, theType);
         linkTargets = new LinkTargets();
