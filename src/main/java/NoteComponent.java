@@ -344,9 +344,6 @@ public class NoteComponent extends JPanel {
             miLinkLine.setEnabled(true);
             miPasteLine.setEnabled(false);
             miClearLine.setEnabled(true);
-        } else {
-            // Find out how this happens, or confirm that it does not.
-            throw new AssertionError();  // Added 8/30/2019 - remove, after this has not occurred for some time.
         }
     } // end resetPopup
 

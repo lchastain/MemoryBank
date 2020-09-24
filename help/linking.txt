@@ -2,9 +2,11 @@ Entities such as Notes and Groups can be linked to other Notes and Groups, to sh
   between them.  The 'LinkagesEditorPanel' is the dialog where linkages are created, manually sorted, or removed.
   Currently (Aug 2020) the editor dialog presents the only 'view' of the linkages.
 
-The dialog is invoked for a NoteData via its context menu 'Edit Linkages' menu item.
-  CURRENTLY there is no way to call up the editor for a NoteGroupPanel, but the intent is that there will be an option
-    for groups (Goals, Events, Calendar Notes, Todo Lists) on the main menu bar.
+The dialog is invoked for a NoteData via its context menu 'Note Linkages' menu item.
+The dialog is invoked for a NoteGroup via the 'Group Linkages' item on the main menu bar.
+
+There are 'categories' of links, matching their selection groups in the application tree.
+  Possible categories: Todo List, Goal, Event, Day Note, Month Note, Year Note.
 
 <STARTING to reconsider this, at least at the 'Group' level >
 SearchResultData will not be linked to any other note or group, because that would make it
@@ -172,3 +174,20 @@ Link Sorting - links come in to their link holder in a first come, first-listed 
 
 A new group CAN be linked to, even before it is saved, but a new note cannot be 'seen' for linking until after the
 group is saved.
+
+
+=============================================================================================================
+Testing:
+
+1.  Verify that a link cannot be made from a Group to the same Group.  Operationally, this
+    restriction also prevents the Group from being linked to a note within itself.
+2.  Verify that a link cannot be made from a Note to the Group that contains it.  Operationally, this
+    restriction also prevents the Note from being linked to itself or another note in the same Group;
+    just being in a group is what implicitly links a Note to the Group and every other note in that group.
+3.  Create a link from a Note to another note in the same category.
+4.  Create a link from a Group to another group in the same category.
+
+Basics:
+    Verify that a new link appears in the LinkagesEditorPanel (LEP) and that the user is able to change the
+    link type via the combobox dropdown control.
+

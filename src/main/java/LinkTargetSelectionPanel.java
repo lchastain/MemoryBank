@@ -380,6 +380,10 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                         calendarNoteGroup = new YearNoteGroupPanel();
                         break;
                 }
+            } else {
+                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
+                // to remove those, before presenting the Group for link target selections.
+                calendarNoteGroup.refresh();
             }
 
             if (calendarNoteGroup != null) {
@@ -401,6 +405,10 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GoalGroupPanel goalGroup = (GoalGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
                 goalGroup = (GoalGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+            } else {
+                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
+                // to remove those, before presenting the Group for link target selections.
+                goalGroup.refresh();
             }
 
             if (goalGroup != null) {
@@ -425,6 +433,10 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             EventNoteGroupPanel eventNoteGroup = (EventNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
                 eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+            } else {
+                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
+                // to remove those, before presenting the Group for link target selections.
+                eventNoteGroup.refresh();
             }
 
             if (eventNoteGroup != null) {
@@ -449,6 +461,10 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
                 todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+            } else {
+                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
+                // to remove those, before presenting the Group for link target selections.
+                todoNoteGroup.refresh();
             }
 
             if (todoNoteGroup != null) {

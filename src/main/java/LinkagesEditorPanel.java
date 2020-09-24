@@ -97,7 +97,9 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     private void addReverseLink(LinkedEntityData linkedEntityData) {
         NoteData otherEndNoteData = linkedEntityData.getTargetNoteData();
         GroupProperties otherEndGroupProperties = linkedEntityData.getTargetGroupProperties();
-        assert otherEndGroupProperties != null; // Don't see how it could be null, so if it is - complain loudly.
+        // The group at the other end HAD to be in scope in order to be selected as the link target so
+        // I don't see how it could be null at this point.  But if it is - complain loudly.
+        assert otherEndGroupProperties != null;
 
         // Create the reverse link
         LinkedEntityData reverseLinkedEntityData = createReverseLink(linkedEntityData);
@@ -109,10 +111,13 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
             otherEndGroupProperties.linkTargets.add(reverseLinkedEntityData);
         }
 
-        // Persist the new reverse link.
+        // Use the Panel hierarchy to persist the Group with the new reverse link.
+        // Note that if the other end Group had been in a keeper when it was selected as the target
+        // of a link, it was persisted and its display refreshed before the selection was made.
         NoteGroupPanel groupToSave = otherEndGroupProperties.getNoteGroupPanel();
-        if (groupToSave != null) groupToSave.preClosePanel();
-    }
+        if (groupToSave != null) groupToSave.preClosePanel(); // This saves the updated Group.
+    } // and addReverseLink
+
 
     // Cycle through the list of linkages to find the 'new' ones,
     //   and add a reverse link for each one.

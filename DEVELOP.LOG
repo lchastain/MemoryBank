@@ -3,7 +3,9 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 NEXT:
+Thin out the notes below, resolve where possible, before getting back to auto-removal of reverse links.
 
+Check on Search results saving - the 3rd of 3 clients to the saveNoteGroupData; other 2 have been reworked.
 
 Windows Search via FileExplorer not working for 'simpleName'.  Instead can navigate to highest desired leval and use:
 C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName * | grep -v null
@@ -14,16 +16,11 @@ saveWithoutData - for empty search results, new todo lists - verify these are ok
 Use the GroupInfo to get the group data when removing the reverse link when a forward link is deleted.
    NoteGroupData ngd = <GroupInfo instance>.getNoteGroupPanel().getPanelData();
 That removal will need one or more new methods in the data class.
+
 If the group comes from a keeper .... is it necessary to update it in the keeper, or just to remove it from the keeper?
+    So far - we do update it in the keeper, by doing the preClose.  Then when we add a link, it goes directly to the
+    group or note where it is needed, and this group is saved again, so - no need to remove from keeper.
 
-The saveNoteGroup() called from NoteComponent and the LEP.addReverseLink - uses the Panel code to save a group.
-Otherwise, it could go back to being private.  And we ARE looking for a more direct route, bez panels.
-The panel saving process would then also use the new way, after it had scraped itself for changes.
-
-Look at gap removal after a group is linked, because getCondensedInfo is called at getPanelInfo, and the
-reselection of the node should update the group even though it was left with a gap in the keeper.
-If so then update the comment about not needing reselection but no harm done; it would need it.
-but also verify that the gap goes away upon reselection - why would it, if it is already in the keeper?
 
     Reverse Links -
         If the forward link is deleted, also remove the reverse link, if it can be found.  But if the reverse link is on
@@ -76,10 +73,22 @@ but also verify that the gap goes away upon reselection - why would it, if it is
 
 New:
 
+  Now saving any NoteGroup that is being considered as a link target, before the target is accepted.  This preserves any
+    unsaved changes and removes gaps in the display if needed.  Upon re-viewing the target group in the main app,
+    the view will be in sync with the one that was shown for target selection.  This is unfortunately a back-door
+    way to save any/all currently open NoteGroups, but this is preferable to losing unsaved changes that had been
+    lingering in 'keepers'.
+  Fixed a logic flaw in the new 'setEditable' code - now, just going back to do another loadInterface, if needed.  This
+    cures the issue where the last (empty) note on the page was missing when going from non-editable in target
+    selection back to an editable Panel that is still in the keeper.
+
+
 =====================================================================================================
 
 9/24/2020 0330
   Moved addNote to NoteGroupFile.addDayNote.  Moved filename string methods into NoteGroupFile, mostly from AppUtil.
+  Saving of Panel data now done only via their preClose(), but now that saving of File data has moved to NoteGroupFile,
+    it is not appropriate to make that one private, as considered briefly in the ongoing notes.  Dropping that.
   Added GroupProperties to NoteGroupFile constructor, to fix breakage that was happening via addNote after Calendar
       types got properties.
   Fixed the problem where the 'move note to day' operation would wipe out the other notes on that day, IF that day

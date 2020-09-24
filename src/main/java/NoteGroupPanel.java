@@ -321,6 +321,27 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     } // end editExtendedNoteComponent
 
 
+    int getHighestNoteComponentIndex() {
+        return intHighestNoteComponentIndex;
+    }
+
+    public int getLastVisibleNoteIndex() {
+        return lastVisibleNoteIndex;
+    }
+
+    // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
+    String getGroupName() {
+        return getGroupProperties().getGroupName();
+    }
+
+
+    // Returns a NoteComponent that can be used to manipulate
+    // component state as well as set/get underlying data.
+    public NoteComponent getNoteComponent(int i) {
+        return (NoteComponent) groupNotesListPanel.getComponent(i);
+    } // end getNoteComponent
+
+
     // Called by contexts that need the complete and latest
     // group data (usually prior to persisting it, without
     // affecting other NoteGroupPanel attributes such as the menus).
@@ -334,19 +355,6 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 //        return noteGroupData;
     }
 
-
-    int getHighestNoteComponentIndex() {
-        return intHighestNoteComponentIndex;
-    }
-
-    public int getLastVisibleNoteIndex() {
-        return lastVisibleNoteIndex;
-    }
-
-    // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
-    String getGroupName() {
-        return getGroupProperties().getGroupName();
-    }
 
     // View and Edit the linkages associated with this Group.
     void groupLinkages() {
@@ -381,34 +389,19 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         // shown and now the viewing pane of the main app will be empty but it will still appear to hold
         // the group.  You can see this by resizing the app; it will repaint as empty.
         // So the fix is to clear the tree selection and then reselect the current group.
-        // This happens just from showing the group; the ultimate selection of a link (or not) does not
-        // matter.  Not an issue for CalendarNoteGroups since they have no keeper, but no harm in doing
-        // this for all linkable groups even in the less common case where it isn't needed.
+        // This happens just from showing the group for target selection; the ultimate selection of a link
+        // (or not) does not matter.
         int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
         AppTreePanel.theInstance.getTree().clearSelection();
         AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
     }
 
-    //--------------------------------------------------------
-    // Method Name: getNoteComponent
-    //
-    // Returns a NoteComponent that can be used to manipulate
-    // component state as well as set/get underlying data.
-    //--------------------------------------------------------
-    public NoteComponent getNoteComponent(int i) {
-        return (NoteComponent) groupNotesListPanel.getComponent(i);
-    } // end getNoteComponent
-
-
     // This method does not care about what data might be contained in the NoteComponents, or what
-    // page you might be on.  It simply enables or disables every NoteComponent in the group.
+    // page you might be on.  It simply enables or disables every NoteComponent in the Panel.
     void setEditable(boolean b) {
-        editable = b;
-        lastVisibleNoteIndex = -1;
-        NoteComponent tempNoteComponent;
-        for (int panelIndex = 0; panelIndex < pageSize; panelIndex++) {
-            tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
-            tempNoteComponent.setEditable(editable);
+        if(editable != b) {
+            editable = b;
+            loadInterface(theNotePager.getCurrentPage());
         }
     }
 
@@ -559,6 +552,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
             //   later will be the child class method that is an override of the one
             //   in NoteComponent.  That behavior is critical to this operation.
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
+            tempNoteComponent.setEditable(editable);
 
             if (dataIndex <= maxDataIndex) { // Put vector data into the interface.
                 MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
