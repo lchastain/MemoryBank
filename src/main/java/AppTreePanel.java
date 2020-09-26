@@ -330,11 +330,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             theGroup = NoteGroupFactory.loadOrMakeGroup(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
             theNoteGroupPanelKeeper.add(theGroup);
-
-            // In this case we don't need to set a save flag, IF we could just call save().
-            // need a non-static function call for that, that we would use here.
-//            theGroup.setGroupChanged(true); // Save this (may be empty) group.
-//            theGroup.preClosePanel();
+            // The new group will be saved by preClose().
         }
 
         // Expand the parent node (if needed) and select the group.
@@ -685,18 +681,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
 
         // Make a new data file to hold the searchResultData list
-        NoteGroupFile searchResultsDataFile = new NoteGroupFile();
+        NoteGroupFile searchResultsDataFile = new NoteGroupFile(searchResultGroupProperties);
         searchResultsDataFile.setGroupFilename(resultsFileName);
-        searchResultsDataFile.add(searchResultGroupProperties);
         searchResultsDataFile.add(foundDataVector);
-//        int notesWritten = NoteGroupFile.saveGroupData(resultsFileName, theGroup.getTheData());
+        // We allow the search to be saved without results; what was searched for, and when, is also important.
+        searchResultsDataFile.saveWithoutData = true;
         searchResultsDataFile.saveNoteGroupData();
-
-//        if (foundDataVector.size() != notesWritten) {
-//            System.out.println("Possible problem - wrote " + notesWritten + " results");
-//        } else {
-//            System.out.println("Wrote " + notesWritten + " results to " + resultsFileName);
-//        }
 
         // Make a new tree node for these results.
         addSearchResult(resultsName);
@@ -872,12 +862,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     } // end mergeGroup
 
 
-    //------------------------------------------------------------
-    // Method Name:  preClosePanel
     // Purpose:  Preserves any unsaved changes to all NoteGroups
     //   and updates the current state of the tree into the app options,
     //   in advance of saving the options during app shutdown.
-    //------------------------------------------------------------
     public void preClose() {
         if (theAppDays != null) theAppDays.preClosePanel();
         if (theAppMonths != null) theAppMonths.preClosePanel();
@@ -885,10 +872,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theGoalsKeeper.saveAll();
         theEventListKeeper.saveAll();
         theTodoListKeeper.saveAll();
-        theSearchResultsKeeper.saveAll();
+        // theSearchResultsKeeper.saveAll();  Do not do this one; never needed.
 
         updateTreeState(true); // Capture expansion states into appOpts
-    } // end preClosePanel
+    } // end preClose
 
 
     // Call this method to do a 'programmatic' rename of a node

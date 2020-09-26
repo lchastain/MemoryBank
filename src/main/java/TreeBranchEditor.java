@@ -70,10 +70,6 @@ public class TreeBranchEditor extends JPanel
     // need that info you will have to interpolate it, given the original and final tree along
     // with the changeList.
 
-    public TreeBranchEditor(TreeNode tn, BranchHelperInterface branchHelperInterface) {
-        this(null, tn, branchHelperInterface);
-    }
-
     public TreeBranchEditor(String theTitle, TreeNode tn, BranchHelperInterface branchHelperInterface) {
         super(new BorderLayout());
         origBranch = (DefaultMutableTreeNode) tn;

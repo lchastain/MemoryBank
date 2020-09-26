@@ -26,21 +26,24 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     }
 
     SearchResultGroupPanel(String groupName) {
-        // groupName is a simple single word text as seen in the app tree.
         super();    // super(10);  // test, for paging
 
+        // groupName is a simple single word text as seen in the app tree.
         log.debug("Constructing: " + groupName);
 
         myProperties = new SearchResultGroupProperties(groupName);
-        myProperties.myNoteGroupPanel = this; // May not be used, since this only applies to links.
+        myProperties.myNoteGroupPanel = this; // May not be needed, since it is only used by links.
         editable = false;
         setGroupFilename(areaPath + filePrefix + getGroupName() + ".json");
 
+        // Unlike with a Todo List, we do not set 'saveWithoutData' here because this type of Group cannot
+        // be altered by the user.  Instead the flag is set only when the file is first created.
+
         updateGroup(); // This is where the file gets loaded (in the parent class)
 
-        // Older data files have properties with no group name; the properties we constructed above
-        //   gets overwritten with whatever came out of the file, including null (or """).
-        myProperties.setGroupName(groupName); // Normally not needed, but this one is, until all searches can be redone.  TODO
+        // This is intended to 'fix' renamed groups, where the filename is now correct but the group info
+        // inside the file was never updated, so it deserializes with the older name.
+        myProperties.setGroupName(groupName);
 
         listHeader = new SearchResultHeader(this);
         setGroupHeader(listHeader);
@@ -178,8 +181,8 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
     @Override
     protected void preClosePanel() {
-        saveProperties();
-        super.preClosePanel();
+        // The search result file is saved once only, when the search is first conducted.
+        // After that - it should be left alone except for loading and displaying.
     }
 
     // Disabled this 9/03/2019 so that it does not pull down code coverage for tests.

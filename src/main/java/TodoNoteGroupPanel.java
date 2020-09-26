@@ -51,6 +51,9 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
 
+        // Allow an empty list to be started without tasks.  Removal would then be user-directed, only.
+        saveWithoutData = true;
+
         // Create the window title
         JLabel lblListTitle = new JLabel();
         lblListTitle.setHorizontalAlignment(JLabel.CENTER);
@@ -83,6 +86,10 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new TodoGroupProperties(groupName);
+        } else {
+            // This is intended to 'fix' renamed groups, where the filename is correct but the group info
+            // inside the file was never updated, so it deserializes with the older name.
+            myProperties.setGroupName(groupName);
         }
         myProperties.myNoteGroupPanel = this;
 
@@ -456,15 +463,16 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         setGroupFilename(areaPath + filePrefix + newName + ".json");
         setGroupChanged(true);
 
-        // Since this is effectively a new file, before we save we need to ensure that
-        // the app will not fail in an attempt to remove the nonexistent 'old' file with
-        // this new name.
-        // So this setting will route us around the remove-before-save logic so that
-        // this 'new' file saves without issue, but the side effect is that the original
-        // file will remain.  Still thinking on whether or not that is the desired outcome.
-        AppUtil.localArchive(true);
+//        // Since this is effectively a new file, before we save we need to ensure that
+//        // the app will not fail in an attempt to remove the nonexistent 'old' file with
+//        // this new name.
+//        // So this setting will route us around the remove-before-save logic so that
+//        // this 'new' file saves without issue, but the side effect is that the original
+//        // file will remain.  Still thinking on whether or not that is the desired outcome.
+//        AppUtil.localArchive(true);
+  // 26 Sep 2020 - New code for old-file-removal, now does not care if it doesn't currently exist, so extra steps here not needed.
         preClosePanel();
-        AppUtil.localArchive(false);
+//        AppUtil.localArchive(false);
 
         return true;
     } // end saveAs

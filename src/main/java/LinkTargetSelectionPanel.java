@@ -381,8 +381,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
                         break;
                 }
             } else {
-                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
-                // to remove those, before presenting the Group for link target selections.
+                // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
+                // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
+                // panel before presenting the Group for link target selections.
                 calendarNoteGroup.refresh();
             }
 
@@ -406,8 +407,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             if(goalGroup == null) {
                 goalGroup = (GoalGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             } else {
-                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
-                // to remove those, before presenting the Group for link target selections.
+                // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
+                // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
+                // panel before presenting the Group for link target selections.
                 goalGroup.refresh();
             }
 
@@ -434,8 +436,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             if(eventNoteGroup == null) {
                 eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             } else {
-                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
-                // to remove those, before presenting the Group for link target selections.
+                // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
+                // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
+                // panel before presenting the Group for link target selections.
                 eventNoteGroup.refresh();
             }
 
@@ -462,8 +465,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             if(todoNoteGroup == null) {
                 todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
             } else {
-                // Since the Group came from a keeper, it might have 'gaps' in the list of Notes.  We need
-                // to remove those, before presenting the Group for link target selections.
+                // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
+                // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
+                // panel before presenting the Group for link target selections.
                 todoNoteGroup.refresh();
             }
 

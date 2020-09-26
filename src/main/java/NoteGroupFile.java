@@ -65,12 +65,14 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
             if (theDaysName.equals(dayGroupName)) { //
                 // If it does point to the same day then it might have unsaved changes.
                 if(dayNoteGroupPanel.groupChanged) {
-                    // If there are unsaved changes then we save the file now and null out the
-                    // pointer to it so that the panel gets reloaded if re-selected later
-                    // in the tree.  Now we can add to the closed file, in the next steps.
+                    // If there are unsaved changes then we save the file now,
+                    // so that we can add to the closed file, in the next steps.
                     dayNoteGroupPanel.preClosePanel();
-                    AppTreePanel.theInstance.theAppDays = null;
                 }
+                AppTreePanel.theInstance.theAppDays = null;
+                // This was so that it gets reloaded if re-selected later in the tree.
+                // Doing it this way was better than how reverse links handle their display update, because a
+                // refresh now still would not handle the new note that we are about to add to the data file.
             }
         }
 

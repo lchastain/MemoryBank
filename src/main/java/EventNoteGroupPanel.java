@@ -91,9 +91,12 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
+        } else {
+            // This is intended to 'fix' renamed groups, where the filename is correct but the group info
+            // inside the file was never updated, so it deserializes with the older name.
+            myProperties.setGroupName(groupName);
         }
         myProperties.myNoteGroupPanel = this;
-
 
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
@@ -102,14 +105,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
             doSort();
         } // end if
-
-        //------------------------------------------------------------------------------------
-
-        if(myProperties == null) {
-            // This happens when there was no file to load - in the case of a new group.
-            myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
-            myProperties.myNoteGroupPanel = this;
-        }
 
     }// end constructor
 

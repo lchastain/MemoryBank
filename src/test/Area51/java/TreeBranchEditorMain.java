@@ -74,7 +74,7 @@ public class TreeBranchEditorMain {
         dmtn.add(new DefaultMutableTreeNode("that"));
         dmtn.add(new DefaultMutableTreeNode("these"));
         dmtn.add(new DefaultMutableTreeNode("when"));
-        TreeBranchEditor tbe = new TreeBranchEditor(dmtn, new EditorHelper());
+        TreeBranchEditor tbe = new TreeBranchEditor(null, dmtn, new EditorHelper());
 
         // Make the frame and add ourselves to it.
         JFrame testFrame = new JFrame("TreeBranchEditorExample Test");

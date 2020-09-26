@@ -154,6 +154,8 @@ public class BranchHelper implements BranchHelperInterface {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
                     } // end if
+
+                    // Remove the Panel from its keeper; now that it has a new name, this one would not be found anyway.
                     theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());

@@ -63,6 +63,10 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
             myProperties = new GoalGroupProperties(groupName);
+        } else {
+            // This is intended to 'fix' renamed groups, where the filename is correct but the group info
+            // inside the file was never updated, so it deserializes with the older name.
+            myProperties.setGroupName(groupName);
         }
         myProperties.myNoteGroupPanel = this;
 

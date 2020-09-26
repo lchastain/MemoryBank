@@ -16,7 +16,7 @@ class TreeBranchEditorTest {
         dmtn.add(new DefaultMutableTreeNode("that"));
         dmtn.add(new DefaultMutableTreeNode("these"));
         dmtn.add(new DefaultMutableTreeNode("when"));
-        treeBranchEditor = new TreeBranchEditor(dmtn, new EditorHelper());
+        treeBranchEditor = new TreeBranchEditor(null, dmtn, new EditorHelper());
     }
 
     @Test
