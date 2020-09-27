@@ -3,39 +3,12 @@ Development notes for MemoryBank - record of issues and accomplishments.
 Not comprehensive.
 
 NEXT:
-
 Thin out the notes below, resolve where possible, before getting back to auto-removal of reverse links.
 
 Windows Search via FileExplorer not working for 'simpleName'.  Instead can navigate to highest desired leval and use:
 C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName * | grep -v null
 
-
-Use the GroupInfo to get the group data when removing the reverse link when a forward link is deleted.
-   NoteGroupData ngd = <GroupInfo instance>.getNoteGroupPanel().getPanelData();
-That removal will need one or more new methods in the data class.
-
-
-    Reverse Links -
-        If the forward link is deleted, also remove the reverse link, if it can be found.  But if the reverse link is on
-            a Group with unsaved notes (or on a note within it) then it is possible to lose those unsaved notes.
-            Develop a solution that avoids this possibility.
-
-        When filtering links for display in the linkages editor -
-            color change for detected text change?   (yet another transient boolean?)
-
-        More testing after all is stable - handle all 'altered' cases - groups renamed/removed, etc.
-
     Problems:
-
-        Add New Group is at least partially broken - needs review/rework.
-
-        Rename a Panel/Group - needs to update the properties and ensure that it comes out of the keeper.
-
-        The MonthView shows some days with no notes as 'blue' - due to having a file for the day because there is
-            now a GroupProperties in the file.  If there is a Properties only, with valid linkages inside - do we
-            keep the color change, have no color change, or use a different color?
-        Same situation but when there are no linkages - need to delete / not save the file.
-
 
     Issues:
 
@@ -60,12 +33,15 @@ That removal will need one or more new methods in the data class.
         Track the Viewed date and let Year and Month changes control the Day.
       See also the app development todo list -
 
-
 New:
 
-
-
 =====================================================================================================
+9/27/2020 1028
+  The MonthView shows some days with no notes as 'blue' - due to having a file for the day because there is
+    now a GroupProperties in the file.  But if there are no notes - do we
+    keep the color change, have no color change, or use a different color?
+    Fixed this - linkages only with not notes - should not get a color change.  Refactored the method in AppUtil.
+
 9/26/2020 1106
   Now that group properties hold the group name, renaming falls short because it only deals with the filename
     and not the data inside the file.  This has caused issues when reloading the file and the group name gets
@@ -80,7 +56,7 @@ New:
     properties have links.  Since we want to preserve empty SearchResults and TodoLists, they both need to have this
     flag set (again).  But for SearchResults, turned off saving of the NoteGroup in all cases except for initial
     file creation.
-  Check in.
+  Checked in and pub'd.
 
 9/24/2020 0330
   Moved addNote to NoteGroupFile.addDayNote.  Moved filename string methods into NoteGroupFile, mostly from AppUtil.

@@ -58,7 +58,22 @@ public class AppUtil {
             day = Integer.parseInt(foundFile.substring(3, 5));
             // System.out.println(" " + foundFiles[i]);
             // System.out.println("\tMonth: " + month + "\tDay: " + day);
-            hasDataArray[month - 1][day - 1] = true;
+            Object[] theGroup = NoteGroupFile.loadFileData(FileName + File.separatorChar + foundFile);
+
+            // Look into the file to see if it has significant content.
+            boolean itHasData = false;
+            if(theGroup.length == 1) {
+                // It is not possible to have a length of one for DayNoteData, where the content is GroupProperties.
+                // When only linkages are present in DayNoteData, the file still contains a two-element array
+                // although the second element may be null.  So this is just older (pre linkages) data, and in
+                // that case it is significant since we didn't ever save 'empty\ days.
+                itHasData = true;  // and DayNoteData does not get saved, if no notes.
+            } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
+                // significant for purposes of this method; only the length of the second element (the ArrayList).
+                ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
+                if(arrayList.size() > 0) itHasData = true;
+            }
+            if(itHasData) hasDataArray[month - 1][day - 1] = true;
         } // end for i
 
         return hasDataArray;
