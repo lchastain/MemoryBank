@@ -684,10 +684,12 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
     @Override
     public void setStatusMessage(String s) {
-        lblStatusMessage.setText("  " + s);
-        lblStatusMessage.invalidate();
-        theBasePanel.validate();
-    } // end setMessage
+        if(editable) {
+            lblStatusMessage.setText("  " + s);
+            lblStatusMessage.invalidate();
+            theBasePanel.validate();
+        }
+    } // end setStatusMessage
 
 
     // The shift methods here can be made to work for ANY NoteGroup.

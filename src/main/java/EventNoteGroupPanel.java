@@ -229,47 +229,47 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         return new File(areaPath + "event_" + theChoice + ".json");
     } // end chooseMergeFile
 
-    //-------------------------------------------------------------
-    // Method Name:  dateSelected
-    //
+
     // Interface to the Three Month Calendar; called by the tmc.
-    //-------------------------------------------------------------
+    @Override // Implementation of the DateSelection interface
     public void dateSelected(LocalDate selectedDate) {
-        if (eventNoteComponent == null) {
-            String s;
-            s = "You must select an Event before a Start date can be set!";
-            setStatusMessage(s);
-            tmc.setChoice(null);
-            return;
-        } // end if
+        if(editable) {
+            if (eventNoteComponent == null) {
+                String s;
+                s = "You must select an Event before a Start date can be set!";
+                setStatusMessage(s);
+                tmc.setChoice(null);
+                return;
+            } // end if
 
-        // Ignore TMC selections for non-editable events.
-        if(!eventNoteComponent.noteTextField.isEditable()) {
-            tmc.setChoice(null);
-            return;
+            // Ignore TMC selections for non-editable events.
+            if (!eventNoteComponent.noteTextField.isEditable()) {
+                tmc.setChoice(null);
+                return;
+            }
+
+            EventNoteData end = (EventNoteData) (eventNoteComponent.getNoteData());
+
+            // A TMC setting will only affect the Start Date.  Before we
+            //   do that, we NULL out the End Date.  Why?  Because...
+            // It is possible for a new start date setting to be rejected
+            //   because it conflicts with an existing end date.  In
+            //   those cases where it would NOT conflict, however, there
+            //   may have been a duration that is now going to calculate
+            //   as (possibly much) longer.  So, either way, when a
+            //   start date is set from the TMC, the best approach is to
+            //   simply throw away any pre-existing end date.  (We already
+            //   do that with recurrence when a start date is changed).
+            end.setEndDate(null);
+            end.setStartDate(selectedDate);
+
+            // OR - grab the initial duration first, then null the end,
+            //   then set the start, then set that duration ?
+
+            // System.out.println(d);
+            eventNoteComponent.setEventNoteData(end);
+            theHeader.setEventSummary(end.getSummary());
         }
-
-        EventNoteData end = (EventNoteData) (eventNoteComponent.getNoteData());
-
-        // A TMC setting will only affect the Start Date.  Before we
-        //   do that, we NULL out the End Date.  Why?  Because...
-        // It is possible for a new start date setting to be rejected
-        //   because it conflicts with an existing end date.  In
-        //   those cases where it would NOT conflict, however, there
-        //   may have been a duration that is now going to calculate
-        //   as (possibly much) longer.  So, either way, when a
-        //   start date is set from the TMC, the best approach is to
-        //   simply throw away any pre-existing end date.  (We already
-        //   do that with recurrence when a start date is changed).
-        end.setEndDate(null);
-        end.setStartDate(selectedDate);
-
-        // OR - grab the initial duration first, then null the end,
-        //   then set the start, then set that duration ?
-
-        // System.out.println(d);
-        eventNoteComponent.setEventNoteData(end);
-        theHeader.setEventSummary(end.getSummary());
     } // end dateSelected
 
 

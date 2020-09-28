@@ -158,25 +158,25 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         return new File(areaPath + "todo_" + theChoice + ".json");
     } // end chooseMergeFile
 
-    //-------------------------------------------------------------
-    // Method Name:  dateSelected
-    //
+
     // Interface to the Three Month Calendar; called by the tmc.
-    //-------------------------------------------------------------
+    @Override // Implementation of the DateSelection interface
     public void dateSelected(LocalDate ld) {
-        MemoryBank.debug("Date selected on TMC = " + ld);
+        if(editable) {
+            MemoryBank.debug("Date selected on TMC = " + ld);
 
-        if (tNoteComponent == null) {
-            String s;
-            s = "You must select an item before a date can be linked!";
-            setStatusMessage(s);
-            tmc.setChoice(null);
-            return;
-        } // end if
+            if (tNoteComponent == null) {
+                String s;
+                s = "You must select an item before a date can be linked!";
+                setStatusMessage(s);
+                tmc.setChoice(null);
+                return;
+            } // end if
 
-        TodoNoteData tnd = (TodoNoteData) (tNoteComponent.getNoteData());
-        tnd.setTodoDate(ld);
-        tNoteComponent.setTodoNoteData(tnd);
+            TodoNoteData tnd = (TodoNoteData) (tNoteComponent.getNoteData());
+            tnd.setTodoDate(ld);
+            tNoteComponent.setTodoNoteData(tnd);
+        }
     } // end dateSelected
 
 

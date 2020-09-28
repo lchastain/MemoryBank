@@ -556,12 +556,9 @@ public class NoteComponent extends JPanel {
         //---------------------------------------------------------
         // Method Name: actionPerformed
         //
-        // Although there are several child classes, only this base
-        //   class is handling events on the JTextField.  This
-        //   method will be called directly as the event handler
-        //   when the field has the
-        //   focus and the user presses 'Enter', and indirectly
-        //   when they mouse double-click on the field.
+        // Although there are several child classes, only this base class is handling events on the JTextField.
+        //   This method will be called directly as the event handler when the field has the focus and the user
+        //   presses 'Enter', and indirectly when they mouse double-click on the field.
         //---------------------------------------------------------
         public void actionPerformed(ActionEvent ae) {
             MemoryBank.event();
@@ -735,9 +732,6 @@ public class NoteComponent extends JPanel {
                 //  focusLost method of the note that currently has it,
                 //  but is about to lose it as a result of this request.
 
-                // Do not allow the popup menu on the last visible note.
-//                if (!initialized) return;   // 8/30/2019 Commented this line to now allow popup for 'Paste', with all other options disabled.  Remove when feature complete.
-
                 // Ignore double right mouse clicks.
                 if (e.getClickCount() == 2) return;
 
@@ -805,6 +799,9 @@ public class NoteComponent extends JPanel {
                     GroupProperties groupProperties = theNoteComponent.myNoteGroupPanel.getGroupProperties();
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
 
+                    // Highlight this note to show it is the one being modified.
+                    theNoteComponent.setBorder(redBorder);
+
                     // FYI - recent (unsaved) changes to groups that could be possible selections for a new link -
                     //   will be seen for most target groups because those selections are pulled from 'keepers'.
                     //   Only CalendarNoteGroup type groups are not.  For those, the user must save first; it is
@@ -833,6 +830,9 @@ public class NoteComponent extends JPanel {
                         System.out.println("Serializing the new link:");
                         System.out.println(AppUtil.toJsonString(noteData));
                     }
+
+                    // Remove the 'modification in progress' highlight
+                    theNoteComponent.setBorder(null);
 
                     // If this NoteComponent's group was also viewed via the linkTargetSelectionPanel
                     // during the link view/edit operation then it was pulled out of the AppTreePanel in order to be
