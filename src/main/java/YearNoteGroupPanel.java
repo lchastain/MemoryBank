@@ -1,5 +1,5 @@
 /*  User interface to manage notes associated with a Year.
-    This class extends from NoteGroup and uses the inherited
+    This class extends from NoteGroupPanel and uses the inherited
     NoteComponent; there is no need for a YearNoteComponent.
  */
 

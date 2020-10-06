@@ -5,10 +5,26 @@ import java.io.File;
 class NoteGroupFactory {
     private static String areaName;
 
-    // This method will return the requested NoteGroup only if a file for
-    // it exists; otherwise it returns null.  It is a better alternative
+    // At some point you need to alter this methodology to adapt to usage of the
+    // NoteGroupDataAccessor interface.  loadGroup should not only apply to FILEs.
+
+    // This method will return the requested accessor only if a NoteGroup was previously
+    // constructed and persisted, and currently exists; otherwise it returns null.
+    // For now, we only have the NoteGroupFile class as a usable NoteGroupDataAccessor,
+    // so there is no 'switch' logic; we will just go ahead and return a NoteGroupFile, if one exists
+    // for the indicated group.
+    static NoteGroupDataAccessor loadNoteGroup(GroupInfo groupInfo) {
+        NoteGroupFile noteGroupFile = new NoteGroupFile();
+        noteGroupFile.loadNoteGroupData(groupInfo);
+        if(noteGroupFile.isEmpty()) return null;
+        return noteGroupFile;
+    }
+
+
+    // This method will return the requested NoteGroup only if it was previously
+    // constructed and persisted; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static NoteGroupPanel loadGroup(String groupName, String filename) {
+    static NoteGroupPanel loadNoteGroup(String groupName, String filename) {
         if (groupName.startsWith("Goal")) {
             areaName = GoalGroupPanel.areaName;
             if (exists(filename)) {
@@ -37,9 +53,11 @@ class NoteGroupFactory {
         return null;
     }
 
-    // Use this method if you want to get the group whether it has a data file or not.
+
+
+    // Use this method if you want to get the group whether it has persisted data or not.
     static NoteGroupPanel loadOrMakeGroup(String theContext, String filename) {
-        NoteGroupPanel theGroup = loadGroup(theContext, filename);
+        NoteGroupPanel theGroup = loadNoteGroup(theContext, filename);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.

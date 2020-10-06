@@ -1,39 +1,37 @@
 12345678901234567890123456789012345678901234567890123456789012345678901234567890    80
-Development notes for MemoryBank - record of issues and accomplishments.
-Not comprehensive.
+Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
-NEXT:
-Thin out the notes below, resolve where possible, before getting back to auto-removal of reverse links.
+NEXT:  Auto-removal of reverse links.  Implement, and -
+      Reverse link additions pass through to groups in keepers.  Is this also true for removals, when the
+        removal was due to the removal of the forward link in some other group?  No.  not yet...
+
+populate transients, OR getAccessor for the Info?  May not need to worry about the transients, just get a ref to the
+ group, regardless.  Seems like 'populate' might need to utilize 'get' anyway.
+   YES, it does.  so merge Populate into the 'get'.
+
 
 Windows Search via FileExplorer not working for 'simpleName'.  Instead can navigate to highest desired level and use:
 C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName * | grep -v null
 
     Problems:
 
-  Cut from one todo list and paste to another, with SOME other ops shortly afterwards, then go back to find
-    the pasted-to list is empty - both the new and old notes gone!  Pasted to may have been a Goal, not a TDL.
-    Cannot reproduce but this has come up more than once, in Prod.
-
-
+      Cut from one todo list and paste to another, with SOME other ops shortly afterwards, then go back to find
+        the pasted-to list is empty - both the new and old notes gone!  Pasted to may have been a Goal, not a TDL.
+        Cannot reproduce but this has come up more than once.  It may happen at app shutdown/restart.
 
     Issues:
 
-      The TMC gets shoved down, in both the Event and the Goal groups - rethink the UI.
+New:
 
-      Reverse link additions pass through to groups in keepers.  Is this also true for removals, when the
-        removal was due to the removal of the forward link in some other group?  Think so, but verify.
+  Now that we have a NoteGroupPanel, renamed NoteGroupData to simply NoteGroup.  A NoteGroup IS its data.
+  Converted the GroupProperties and NoteData of linked data, to transients.  Only needed to hand-fix three data files.
+    Found those files via command-line by:  grep -r targetGroupProperties * | grep -v null
+    This was needed because Windows Search via FileExplorer not working, and IJ only look in project files.
+  Added methods to allow a NoteGroup construction without a Panel (or File), and then to use the GroupInfo to load
+    a File to make a NoteGroupFile.  In support of the auto reverse link removal.
 
-
-      Initial implementation of the goal data is too much of a copy of TodoList - a MilestoneComponent is a TodoNoteComponent,
-        but it does work...
-
-      When a user wants to link to a Day Note that is too far away (months, years) -
-        Could give a different alter button behavior, or additional larger scale buttons, OR
-        Track the Viewed date and let Year and Month changes control the Day.
-      See also the app development todo list -
-
-         New:
-
+=====================================================================================================
+28 Sep 2020
   Resolved this issue:  May need to separate groupChanged into propertiesChanged and notesChanged - more granular
     handling of whether or not to save the group.  This came up because of linking but since then, link ops have
     needed to save the group immediately, not just set a flag.  So this issue has evaporated, not needed.
@@ -41,11 +39,8 @@ C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName 
   Resolved this issue:  Fix status messages for groups with readOnly notes when they are shown via the
     LinkTargetSelectionPanel.  Not only the status messages, but when the TMC was present, date selections were
     being handled.  Added the 'editable' constraint in NoteComponent, Events, and ToDo lists.
+  Check-in point.
 
-
-
-
-=====================================================================================================
 9/27/2020 1028
   The MonthView shows some days with no notes as 'blue' - due to having a file for the day because there is
     now a GroupProperties in the file.  But if there are no notes - do we

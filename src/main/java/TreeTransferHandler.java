@@ -23,8 +23,8 @@
 // current work over in IntelliJ?  Yes, it was.  Stopped the debug session and Outlook
 // freed up.  None of the other 5 or so internet suggestions for curing Outlook worked,
 // including the popular Esc solution, or resetting folders, restarting Outlook.  The
-// cause was HERE.  So does Outlook use Java?  or can the JVM (or IntelliJ) interfere
-// with Windows operations?  Suspect the latter.
+// cause was here, in this code.  So does Outlook use Java?  or can the JVM (or IntelliJ)
+// interfere with Windows operations?  Suspect the latter.
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,9 +43,9 @@ public class TreeTransferHandler extends TransferHandler {
     static final long serialVersionUID = 1L;
 
     private DataFlavor nodesFlavor;
-    private DataFlavor[] flavors = new DataFlavor[1];
+    private final DataFlavor[] flavors = new DataFlavor[1];
     private DefaultMutableTreeNode[] nodesToRemove;
-    private boolean makeParents;
+    private final boolean makeParents;
 
     TreeTransferHandler(boolean makeParents) {
         this.makeParents = makeParents;

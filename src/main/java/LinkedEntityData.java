@@ -1,21 +1,10 @@
 // This class is for describing the target of a connection to another entity.
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Random;
 
 public class LinkedEntityData extends BaseData {
-    // Unfortunately these two were stored in some notes, before the 'Info' classes
-    // came into use.  So the ignore is needed for now but once they are all
-    // gone, can replace that with a 'private transient' scoping.
-    @JsonIgnore GroupProperties targetGroupProperties; // Seen in older persisted data...
-    @JsonIgnore NoteData targetNoteData; // Seen in older persisted data...
-    // When will they all BE gone, you ask?  Either as we port to a db, or as the
-    // result of running a 'data fix', both of which are scheduled for: TBD.
-    //
-    // But there just are not that many currently existing links out there -
-    // possible was from late March until Aug 2020, with minimal/no creations.
-    // Suggest - just go for it, and manually fix any problems that arise.
+    private transient GroupProperties targetGroupProperties;
+    private transient NoteData targetNoteData;
 
     transient boolean deleteMe;  // Only for keeping state of the checkbox while dialog is active.
     transient boolean showMe;    // Do not show the link if its group is not active.

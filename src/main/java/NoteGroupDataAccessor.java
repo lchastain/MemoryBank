@@ -16,12 +16,15 @@ public interface NoteGroupDataAccessor {
         return dtf.format(theDate);
     }
 
-        // Saving is an operation that happens often, sometimes per user
+    void loadNoteGroupData(GroupInfo groupInfo);
+
+
+    // Saving is an operation that happens often, sometimes per user
     //   action and sometimes automatically.
     //   TODO - we should be able to tell the difference and act accordingly.
     //
     //      maybe with another param to this method.  not all operations
-    //      come directly here; there is also the preClose code, and
+    //      come directly here; there is also the preClose code for Panels, and
     //      that one also could be auto or user directed.
     //
     //   (Obviously, some of this commenting belongs in the implementation code and not the interface declaration;

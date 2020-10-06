@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Vector;
 
 
-class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
+class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     static String basePath;
     protected GroupProperties myProperties; // All children can access this directly, but CNGPs use a getter.
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
@@ -77,7 +77,7 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         }
 
         // Now we have to try to load the data directly from file.
-        String theFilename = NoteGroupFile.findFilename(theDay, "D");
+        String theFilename = NoteGroupFile.foundFilename(theDay, "D");
         if (theFilename.equals("")) {
             theFilename = NoteGroupFile.makeFullFilename(theDay, "D");
         } // end if
@@ -141,14 +141,60 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
     } // end deleteFile
 
 
-    // -----------------------------------------------------------------
-    // Method Name: findFilename
-    //
+    // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
+    // where the data for the group is persisted.  If no file exists, the return string is empty ("").
+    static String foundFilename(GroupInfo groupInfo) {
+        String theFilename = "";
+        String foundName = "";
+        String areaPath;
+        String filePrefix;
+        LocalDate theChoice;
+        switch (groupInfo.groupType) {
+            case YEAR_NOTES:
+                theChoice = LocalDate.parse(groupInfo.getGroupName());
+                theFilename = foundFilename(theChoice, "Y");
+                break;
+            case MONTH_NOTES:
+                theChoice = LocalDate.parse(groupInfo.getGroupName());
+                theFilename = foundFilename(theChoice, "M");
+                break;
+            case DAY_NOTES:
+                theChoice = LocalDate.parse(groupInfo.getGroupName());
+                theFilename = foundFilename(theChoice, "D");
+                break;
+            case TODO_LIST:
+                areaPath = TodoNoteGroupPanel.areaPath;
+                filePrefix = TodoNoteGroupPanel.filePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case SEARCH_RESULTS:
+                areaPath = SearchResultGroupPanel.areaPath;
+                filePrefix = SearchResultGroupPanel.filePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case EVENTS:
+                areaPath = EventNoteGroupPanel.areaPath;
+                filePrefix = EventNoteGroupPanel.filePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case GOALS:
+                areaPath = GoalGroupPanel.areaPath;
+                filePrefix = GoalGroupPanel.filePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+        }
+        if(!theFilename.isEmpty() && new File(theFilename).exists()) {
+            foundName = theFilename;
+        }
+
+        return foundName;
+    }
+
+
     // Given a LocalDate and a type of note to look for ("D", "M", or "Y", this method
     // will return the appropriate filename if a file exists for the indicated timeframe.
     // If no file exists, the return string is empty ("").
-    // -----------------------------------------------------------------
-    static String findFilename(LocalDate theDate, String dateType) {
+    static String foundFilename(LocalDate theDate, String dateType) {
         String[] foundFiles = null;
         String lookfor = dateType;
         String fileName = CalendarNoteGroupPanel.areaPath;
@@ -201,6 +247,7 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         return fileName;
     } // end findFilename
 
+
     // Returns a String containing the requested portion of the input LocalDateTime.
     // Years are expected to be 4 digits long, all other units are two digits.
     // For hours, the full range (0-23) is returned; no adjustment to a 12-hour clock.
@@ -250,13 +297,10 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         }
     } // end getTimePartString
 
-    //--------------------------------------------------------
-    // Method Name: getTimestamp
-    //
+
     // Returns a string of numbers representing a Date
     //   and time in the format:  yyyyMMddHHmmSS
     // Used in unique filename creation.
-    //--------------------------------------------------------
     static String getTimestamp() {
         StringBuilder theStamp;
 
@@ -277,6 +321,7 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         return loadFileData(new File(theFilename));
     }
 
+
     static Object[] loadFileData(File theFile) {
         Object[] theGroup = null;
         try {
@@ -288,6 +333,17 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
             ex.printStackTrace();
         }// end try/catch
         return theGroup;
+    }
+
+    @Override // The NoteGroupDataAccessor method implementation.
+    public void loadNoteGroupData(GroupInfo groupInfo) {
+        // Get the Filename for the GroupInfo.
+        String theFilename = foundFilename(groupInfo);
+        setGroupFilename(theFilename);
+        if(theFilename.isEmpty()) return; // No filename == no data.
+
+        Object[] theData = loadFileData(theFilename);
+        setTheData(theData);
     }
 
     // -----------------------------------------------------------------
@@ -409,9 +465,9 @@ class NoteGroupFile extends NoteGroupData implements NoteGroupDataAccessor {
         // Now here is an important consideration - in this class we have a member that holds the associated filename,
         // (groupFilename) but we could also just extract it from the inner data.  So is there a difference?
         // Possibly.  In some cases the data from a file that has been loaded will be saved into a file with a
-        // different name.  This can happen when filenames contain timestamps (possily for archiving) and also in
-        // support of a 'saveAs' operation.  In any case, we treat the separate groupFilename as the one that was
-        // loaded, and as for the one to save to, we ask the implementing child class what name to use, and don't
+        // different name.  This can happen when filenames are constructed from timestamps (possily for archiving) and
+        // also in support of a 'saveAs' operation.  In any case, we treat the separate groupFilename as the one that
+        // was loaded, and as for the one to save to, we ask the implementing child class what name to use, and don't
         // actually get into the data to see what file it thinks it should go to.  This seems wrong somehow...
 
         // Step 1 - Move the old file (if any) out of the way.

@@ -1,20 +1,15 @@
 import java.util.Vector;
 
-// Data for a NoteGroup.
 // Consists of two Objects, in an Object array:
 //      1.  Group Properties
 //      2.  Vector of NoteData
 
-class NoteGroupData {
-    private final Object[] theData;
+class NoteGroup {
+    private Object[] theData;
 
-    public NoteGroupData() {
+    public NoteGroup() {
         super();
         theData = new Object[2];
-    }
-
-    public NoteGroupData(Object[] incomingData) {
-        theData = incomingData;  // by reference; be careful with reachbacks.
     }
 
     public void add(GroupProperties groupProperties) {
@@ -53,9 +48,13 @@ class NoteGroupData {
     }
 
 
+    void setTheData(Object[] theData) {
+        this.theData = theData;
+    }
+
     public static void main(String[] args) {
-        NoteGroupData noteGroupData = new NoteGroupData();
-        System.out.println(AppUtil.toJsonString(noteGroupData));
+        NoteGroup noteGroup = new NoteGroup();
+        System.out.println(AppUtil.toJsonString(noteGroup));
 
     }
 

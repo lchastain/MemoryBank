@@ -70,9 +70,9 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
             else s = NoteGroupFile.makeFullFilename(theChoice, "Y");
             return s;
         } else {  // Results of a findFilename may be "".
-            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.findFilename(theChoice, "D");
-            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.findFilename(theChoice, "M");
-            else s = NoteGroupFile.findFilename(theChoice, "Y");
+            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.foundFilename(theChoice, "D");
+            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.foundFilename(theChoice, "M");
+            else s = NoteGroupFile.foundFilename(theChoice, "Y");
             return s;
         } // end if saving else not saving
     } // end getGroupFilename

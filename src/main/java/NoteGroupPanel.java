@@ -7,11 +7,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
-//  Current:  NoteGroupData --> NoteGroupFile --> NoteGroupPanel
-//  Planned:  NoteGroupData --> NoteGroupDataAccessorImpl --> NoteGroupPanel
+//  Current:  NoteGroup --> NoteGroupFile --> NoteGroupPanel
+//  Planned:  NoteGroup --> NoteGroupDataAccessorImpl --> NoteGroupPanel
 //  NoteGroupFile is currently the only implementor of NoteGroupDataAccessor.
 //    But we will want to eventually have a new class (NoteGroupDatabase ?) that uses
 //    a Database rather than the filesystem, to provide the data storage capabilities.
+// Maybe NoteGroupPanel should encapsulate a NoteGroupAccessor, vs extend from an implementor.
 
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -345,7 +346,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     // Called by contexts that need the complete and latest
     // group data (usually prior to persisting it, without
     // affecting other NoteGroupPanel attributes such as the menus).
-//    NoteGroupData getPanelData() {
+//    NoteGroup getPanelData() {
     void getPanelData() {
         add(getGroupProperties());
         if(groupChanged) {
@@ -446,6 +447,9 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
             // There are two cases where there might only be one element in the object array:
             // 1.  Old, legacy data that was originally saved without GroupProperties.
             // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
+            // TODO -
+            //     But is it really only one length?  Groups should save with two now, regardless.
+            //     the second element can be null, but there are still two of them
             String theClass = theGroup[0].getClass().getName();
             System.out.println("The NoteData class type is: " + theClass);
             if (theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
@@ -514,7 +518,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         } // end try/catch
 
         if (e != null) {
-            ems = "NoteGroup loadGroup: Error in loading " + groupFilename + " !\n";
+            ems = "NoteGroupPanel loadGroup: Error in loading " + groupFilename + " !\n";
             ems = ems + e.toString();
             ems = ems + "\nData file load operation aborted.";
             System.out.println("ems = " + ems);
@@ -542,7 +546,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         // Set the indexes into the data vector -
         int maxDataIndex = panelNoteData.size() - 1;
         int dataIndex = (intPageNum - 1) * pageSize;
-        MemoryBank.debug("NoteGroup.loadInterface starting at vector data index " + dataIndex);
+        MemoryBank.debug("NoteGroupPanel.loadInterface starting at vector data index " + dataIndex);
 
         lastVisibleNoteIndex = -1;
         NoteComponent tempNoteComponent;
@@ -830,7 +834,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         // Set the indexes into the data vector -
         int startIndex = (currentPage - 1) * pageSize;
         int endIndex = startIndex + lastVisibleNoteIndex;  // last visible may or may not be initialized.
-        MemoryBank.debug("NoteGroup.unloadInterface into vector index " + startIndex + " to " + endIndex);
+        MemoryBank.debug("NoteGroupPanel.unloadInterface into vector index " + startIndex + " to " + endIndex);
 
         // When unloading the currently displayed interface, we need to know where the groupDataVector ends and new
         // data begins.  groupDataVector size-1 will almost always be less than endIndex
@@ -853,7 +857,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
                 panelNoteData.setElementAt(tempNoteData, dataIndex);
             } else {  // New, user-entered data is in the interface.  Get it.
                 if (tempNoteComponent.initialized) {  // This could be false on the last note on the page.
-                    System.out.println("NoteGroup.unloadInterface: Adding new element!");
+                    System.out.println("NoteGroupPanel.unloadInterface: Adding new element!");
                     panelNoteData.addElement(tempNoteData);
                 }
             } // end if
@@ -943,7 +947,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     // parameter allows it to be based on other criteria (at some future point.  I know, yagni).
     protected void adjustMenuItems(boolean b) {
         if (myListMenu == null) return; // Too soon.  Come back later.
-        MemoryBank.debug("NoteGroup.adjustMenuItems <" + b + ">");
+        MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
 
         // And now we adjust the Menu -
         JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
@@ -962,4 +966,4 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     }
 
 
-} // end class NoteGroup
+} // end class NoteGroupPanel

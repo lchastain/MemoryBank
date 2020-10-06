@@ -1522,7 +1522,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it if it exists or make a new one if it does not exist.
             if (goalGroup == null) {
-                goalGroup = (GoalGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                goalGroup = (GoalGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
 
                 if (goalGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
@@ -1571,7 +1571,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it, but only if a file for it already exists.
             if (eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
                 if (eventNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theEventListKeeper.add(eventNoteGroup);
@@ -1619,7 +1619,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it, but only if a file for it already exists.
             if (todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
                 if (todoNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theTodoListKeeper.add(todoNoteGroup);
@@ -1667,7 +1667,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise construct it, but only if a file for it already exists.
             if (searchResultGroup == null) {
-                searchResultGroup = (SearchResultGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                searchResultGroup = (SearchResultGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
                 if (searchResultGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theSearchResultsKeeper.add(searchResultGroup);

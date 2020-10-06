@@ -405,7 +405,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
             GoalGroupPanel goalGroup = (GoalGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
-                goalGroup = (GoalGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                goalGroup = (GoalGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
             } else {
                 // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
                 // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
@@ -434,7 +434,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
             EventNoteGroupPanel eventNoteGroup = (EventNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
             } else {
                 // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
                 // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
@@ -463,7 +463,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
             TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadGroup(parentNodeName, theNodeString);
+                todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
             } else {
                 // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
                 // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
