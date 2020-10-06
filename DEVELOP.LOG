@@ -5,11 +5,6 @@ NEXT:  Auto-removal of reverse links.  Implement, and -
       Reverse link additions pass through to groups in keepers.  Is this also true for removals, when the
         removal was due to the removal of the forward link in some other group?  No.  not yet...
 
-populate transients, OR getAccessor for the Info?  May not need to worry about the transients, just get a ref to the
- group, regardless.  Seems like 'populate' might need to utilize 'get' anyway.
-   YES, it does.  so merge Populate into the 'get'.
-
-
 Windows Search via FileExplorer not working for 'simpleName'.  Instead can navigate to highest desired level and use:
 C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName * | grep -v null
 
@@ -22,15 +17,18 @@ C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName 
     Issues:
 
 New:
+    When Day notes changes date, Month Notes not saved
 
+=====================================================================================================
+5 Oct 2020
   Now that we have a NoteGroupPanel, renamed NoteGroupData to simply NoteGroup.  A NoteGroup IS its data.
   Converted the GroupProperties and NoteData of linked data, to transients.  Only needed to hand-fix three data files.
     Found those files via command-line by:  grep -r targetGroupProperties * | grep -v null
     This was needed because Windows Search via FileExplorer not working, and IJ only look in project files.
   Added methods to allow a NoteGroup construction without a Panel (or File), and then to use the GroupInfo to load
     a File to make a NoteGroupFile.  In support of the auto reverse link removal.
+  Lots of commenting and comment fixing.  Check in point.
 
-=====================================================================================================
 28 Sep 2020
   Resolved this issue:  May need to separate groupChanged into propertiesChanged and notesChanged - more granular
     handling of whether or not to save the group.  This came up because of linking but since then, link ops have

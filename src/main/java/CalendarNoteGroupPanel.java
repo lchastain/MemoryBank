@@ -119,6 +119,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     //   needed, because it causes a reload of the group.
     //--------------------------------------------------------------
     public void setDate(LocalDate theNewChoice) {
+        if(groupChanged) preClosePanel();
         theChoice = theNewChoice;
         updateGroup();
     } // end setDate

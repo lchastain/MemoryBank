@@ -1435,7 +1435,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // This app is similar in that some of the tests for it will run and then
         // end so quickly that some of the threads here have not finished their
         // processing.  The above line helps with that; otherwise we see null
-        // exceptions on the 'node = ' line below, AFTER the test has passed.
+        // exceptions on the 'node = ' line directly below, AFTER the test has passed.
 
         // Obtain a reference to the new selection.
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
