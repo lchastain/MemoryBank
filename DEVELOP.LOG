@@ -10,16 +10,15 @@ C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName 
 
     Problems:
 
-      Cut from one todo list and paste to another, with SOME other ops shortly afterwards, then go back to find
-        the pasted-to list is empty - both the new and old notes gone!  Pasted to may have been a Goal, not a TDL.
-        Cannot reproduce but this has come up more than once.  It may happen at app shutdown/restart.
-
     Issues:
 
 New:
-    When Day notes changes date, Month Notes not saved
+
 
 =====================================================================================================
+
+6 Oct 2020 0823 - Fixed: When Day notes changes date, Month Notes not saved.  Check-in and pub'd.
+
 5 Oct 2020
   Now that we have a NoteGroupPanel, renamed NoteGroupData to simply NoteGroup.  A NoteGroup IS its data.
   Converted the GroupProperties and NoteData of linked data, to transients.  Only needed to hand-fix three data files.

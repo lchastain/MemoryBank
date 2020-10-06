@@ -29,6 +29,7 @@ public class AppUtil {
 
 
     // Put this in a 'view' base class....
+    @SuppressWarnings("rawtypes")
     static boolean[][] findDataDays(int year) {
         boolean[][] hasDataArray = new boolean[12][31];
         // Will need to normalize the month integers from 0-11 to 1-12
