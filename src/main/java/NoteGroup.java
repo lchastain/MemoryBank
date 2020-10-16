@@ -7,6 +7,7 @@ import java.util.Vector;
 //      2.  Vector of NoteData
 // Children of this class have specialized GroupProperties and NoteData.
 
+@SuppressWarnings("rawtypes")
 class NoteGroup {
     NoteGroupDataAccessor dataAccessor; // Provides the way to persist and retrieve the Group data
 
