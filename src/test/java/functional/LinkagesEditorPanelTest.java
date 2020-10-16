@@ -8,20 +8,27 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 
 class LinkagesEditorPanelTest {
     LinkagesEditorPanel linkagesEditorPanel;
 
     // One of each NoteGroup type (types that can link to, or be linked to)
+    GoalGroupPanel goalGroup;
+    EventNoteGroupPanel eventNoteGroup;
     DayNoteGroupPanel dayNoteGroup;
     MonthNoteGroupPanel monthNoteGroup;
     YearNoteGroupPanel yearNoteGroup;
-    GoalGroupPanel goalGroup;
-    EventNoteGroupPanel eventNoteGroup;
     TodoNoteGroupPanel todoNoteGroup;
     // For a link to any one of the other groups types, including its own type, there are 6 possibilities.
     // And then another 6 for linking to a note from each one, = 12 tests per each of 6 classes.
-    TodoNoteData todoNoteData = new TodoNoteData();
+
+    // Additional setup for reverse links
+    Vector<NoteData> goalVector = new Vector<>(0, 1);
+    TodoNoteData noteData1;  // Actually this is a goal data
+    Vector<NoteData> dayVector = new Vector<>(0, 1);
+    NoteData noteData2;
+
 
     LinkagesEditorPanelTest() {
         goalGroup = new GoalGroupPanel("Take Over The World");
@@ -29,7 +36,27 @@ class LinkagesEditorPanelTest {
         dayNoteGroup = new DayNoteGroupPanel();
         monthNoteGroup = new MonthNoteGroupPanel();
         yearNoteGroup = new YearNoteGroupPanel();
-        todoNoteGroup = new TodoNoteGroupPanel("This Week");
+        todoNoteGroup = new TodoNoteGroupPanel("Preparations");
+
+        noteData1 = new TodoNoteData();
+        noteData1.noteString = "milestone note.";
+        goalVector.add(noteData1);
+        goalGroup.add(goalVector);
+        goalGroup.saveNoteGroupData();
+        // The differences here between Goal and Day group saving - is to go two different paths -
+        // Goal saves here and now via the Accessor method and DayNoteGroup uses the panel methods to allow
+        //    the refresh() to call preClose() and save at that time.
+//        goalGroup.setGroupChanged(true);
+//        goalGroup.setPanelData(goalGroup.getTheData());
+//        goalGroup.loadInterface(1);
+
+        noteData2 = new DayNoteData();
+        noteData2.noteString = "day note";
+        dayVector.add(noteData2);
+        dayNoteGroup.add(dayVector);
+        dayNoteGroup.setGroupChanged(true);
+        dayNoteGroup.setPanelData(dayNoteGroup.getTheData());
+        dayNoteGroup.loadInterface(1);
     }
 
     @BeforeAll
@@ -51,6 +78,42 @@ class LinkagesEditorPanelTest {
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+
+    }
+
+
+    @Test
+    void testAddReverseLinks() {
+        // The var is not used, but running the constructor creates for us the instance that we need.
+        AppTreePanel appTreePanel = new AppTreePanel(new JFrame("LinkagesEditorPanel Test"), MemoryBank.appOpts);
+
+        // And these two tweaks are needed so that the method under test can find a place to save the new reverse link.
+        AppTreePanel.theInstance.theGoalsKeeper.add(goalGroup);
+        AppTreePanel.theInstance.theAppDays = dayNoteGroup;
+
+        // Make a new Todo note.
+        TodoNoteData todoNoteData = new TodoNoteData();
+        todoNoteData.noteString = "Links from a TodoNote.";
+
+        // Construct the editor panel for the new source Note -
+        linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.getGroupProperties(), todoNoteData);
+
+        // Add two (valid) links to the panel.  This will ensure that the loop for adding a reverse link will run twice.
+        LinkedEntityData led1 = new LinkedEntityData(goalGroup.getGroupProperties(), noteData1);
+        led1.linkType = LinkedEntityData.LinkType.DEPENDING_ON;
+        LinkedEntityData led2 = new LinkedEntityData(dayNoteGroup.getGroupProperties(), noteData2);
+        led2.linkType = LinkedEntityData.LinkType.AFTER;
+
+        // Add the two links to the panel -
+        linkagesEditorPanel.linkTargets.add(led1);
+        linkagesEditorPanel.linkTargets.add(led2);
+
+        // T-crossing, for coverage.
+        linkagesEditorPanel.editExtendedNoteComponent(todoNoteData);
+        linkagesEditorPanel.activateNextNote(0);
+
+        // Here it is -
+        linkagesEditorPanel.addReverseLinks(linkagesEditorPanel.linkTargets);
     }
 
 
@@ -121,36 +184,5 @@ class LinkagesEditorPanelTest {
 
     } // end test
 
-
-    @Test
-    void testAddReverseLinks() {
-        // Make a new Todo note.
-        TodoNoteData todoNoteData = new TodoNoteData();
-        todoNoteData.noteString = "Links from a TodoNote.";
-
-        // Construct the editor panel for the new source Note -
-        linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.myProperties, todoNoteData);
-
-        // Add two (valid) links to the panel.  This will ensure that the loop for adding a reverse link will run twice.
-        NoteData noteData1 = new NoteData();
-        noteData1.noteString = "milestone note.";
-        NoteData noteData2 = new DayNoteData();
-        noteData2.noteString = "day note";
-        LinkedEntityData led1 = new LinkedEntityData(goalGroup.myProperties, noteData1);
-        led1.linkType = LinkedEntityData.LinkType.DEPENDING_ON;
-        LinkedEntityData led2 = new LinkedEntityData(dayNoteGroup.getGroupProperties(), noteData2);
-        led2.linkType = LinkedEntityData.LinkType.AFTER;
-
-        // Add the two links to the panel -
-        linkagesEditorPanel.linkTargets.add(led1);
-        linkagesEditorPanel.linkTargets.add(led2);
-
-        // T-crossing, for coverage.
-        linkagesEditorPanel.editExtendedNoteComponent(todoNoteData);
-        linkagesEditorPanel.activateNextNote(0);
-
-        // Here it is -
-        linkagesEditorPanel.addReverseLinks(linkagesEditorPanel.linkTargets);
-    }
 
 }

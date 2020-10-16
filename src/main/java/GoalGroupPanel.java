@@ -17,14 +17,14 @@ import java.util.Vector;
 
 
 public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
-    private static Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
+    private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
     static String areaName;
     static String areaPath;
     static String filePrefix;
     static String userInfo;
     static String defaultPlanText;
 
-    private ThreeMonthColumn tmc;  // For Date selection
+    private final ThreeMonthColumn tmc;  // For Date selection
     private MilestoneComponent milestoneComponent;
 
     static {
@@ -62,13 +62,13 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
-            myProperties = new GoalGroupProperties(groupName);
+            setGroupProperties(new GoalGroupProperties(groupName));
         } else {
-            // This is intended to 'fix' renamed groups, where the filename is correct but the group info
-            // inside the file was never updated, so it deserializes with the older name.
+            // This is intended to 'fix' a renamed group, where the filename is correct but the group info
+            // inside the file was never updated, so properties deserialize with the older name.
             myProperties.setGroupName(groupName);
         }
-        myProperties.myNoteGroupPanel = this;
+        myNoteGroupPanel = this;
 
         buildPanelContent(); // Content other than the groupDataVector
     }
@@ -158,6 +158,18 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         tnd.setTodoDate(ld);
         milestoneComponent.setTodoNoteData(tnd);
     } // end dateSelected
+
+
+    @Override
+    public GroupProperties getGroupProperties() {
+        // The preference is to recreate the properties each time from loaded data.
+        Object[] theData = getTheData();
+        if(theData[0] != null) { // Properties may have been set before having any data, but if there is data -
+            setGroupProperties(AppUtil.mapper.convertValue(theData[0], new TypeReference<GoalGroupProperties>() {}));
+        }
+
+        return myProperties;
+    }
 
 
     //--------------------------------------------------------
@@ -264,10 +276,10 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
     @Override
         // This method is called when loading the Goal from a file
-    void setGroupData(Object[] theGroup) {
+    void setPanelData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        myProperties = AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class);
-        panelNoteData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
+        setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class));
+        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
         // Need to define the link type for reversing a link, get a list of sources that is added to each time a link is made.
         // may be similar to SearchResultData / component.
         BaseData.loading = false; // Restore normal lastModDate updating.

@@ -42,6 +42,7 @@ class ToggleAboutTest {
     // if selected again and it is already showing, it will go
     // back to the previous tree selection.
     @Test
+//    @Disabled
     void testShowAboutToggle() {
         JTree theTree = appTreePanel.getTree();
         int[] theRows;

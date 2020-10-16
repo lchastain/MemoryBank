@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//@Disabled("Looking for a rogue 'working' dialog")
 class NoteGroupPanelKeeperTest {
     TodoNoteGroupPanel theNoteGroup1;
     TodoNoteGroupPanel theNoteGroup2;

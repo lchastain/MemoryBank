@@ -85,13 +85,13 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
-            myProperties = new TodoGroupProperties(groupName);
+            setGroupProperties(new TodoGroupProperties(groupName));
         } else {
-            // This is intended to 'fix' renamed groups, where the filename is correct but the group info
-            // inside the file was never updated, so it deserializes with the older name.
+            // This is intended to 'fix' a renamed group, where the filename is correct but the group info
+            // inside the file was never updated, so properties deserialize with the older name.
             myProperties.setGroupName(groupName);
         }
-        myProperties.myNoteGroupPanel = this;
+        myNoteGroupPanel = this;
 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
@@ -179,6 +179,16 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         }
     } // end dateSelected
 
+    @Override
+    public GroupProperties getGroupProperties() {
+        // The preference is to recreate the properties each time from loaded data.
+        Object[] theData = getTheData();
+        if(theData[0] != null) { // Properties may have been set before having any data, but if there is data -
+            setGroupProperties(AppUtil.mapper.convertValue(theData[0], new TypeReference<TodoGroupProperties>() {}));
+        }
+
+        return myProperties;
+    }
 
     int getMaxPriority() {
         return ((TodoGroupProperties) myProperties).maxPriority;
@@ -229,12 +239,12 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         BaseData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(panelNoteData);
+        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(noteGroupDataVector);
         theUniqueSet.addAll(mergeVector);
 
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-        panelNoteData = new Vector<>(theUniqueSet);
-        showGroupData(panelNoteData);
+        noteGroupDataVector = new Vector<>(theUniqueSet);
+        showGroupData(noteGroupDataVector);
         setGroupChanged(true);
     } // end merge
 
@@ -487,10 +497,10 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
 
     @Override
-    void setGroupData(Object[] theGroup) {
+    void setPanelData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        myProperties = AppUtil.mapper.convertValue(theGroup[0], TodoGroupProperties.class);
-        panelNoteData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
+        setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], TodoGroupProperties.class));
+        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 
@@ -512,7 +522,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         if (doit == JOptionPane.CANCEL_OPTION) return;
 
         // Get the values back out of the Option Panel
-        myProperties = todoOpts.getValues();
+        setGroupProperties(todoOpts.getValues());
         setGroupChanged(true);
 
         // Was there a reset-worthy change?
@@ -553,7 +563,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         TodoNoteData todoData1, todoData2;
         int pri1, pri2;
         boolean doSwap;
-        int items = panelNoteData.size();
+        int items = noteGroupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -570,13 +580,13 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) panelNoteData.elementAt(i);
+            todoData1 = (TodoNoteData) noteGroupDataVector.elementAt(i);
             if (todoData1 == null) pri1 = 0;
             else pri1 = todoData1.getPriority();
             if (pri1 == 0) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                todoData2 = (TodoNoteData) panelNoteData.elementAt(j);
+                todoData2 = (TodoNoteData) noteGroupDataVector.elementAt(j);
                 if (todoData2 == null) pri2 = 0;
                 else pri2 = todoData2.getPriority();
                 if (pri2 == 0) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
@@ -601,8 +611,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    panelNoteData.setElementAt(todoData2, i);
-                    panelNoteData.setElementAt(todoData1, j);
+                    noteGroupDataVector.setElementAt(todoData2, i);
+                    noteGroupDataVector.setElementAt(todoData1, j);
                     pri1 = pri2;
                     todoData1 = todoData2;
                 } // end if
@@ -621,7 +631,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         TodoNoteData todoData1, todoData2;
         String str1, str2;
         boolean doSwap;
-        int items = panelNoteData.size();
+        int items = noteGroupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -638,13 +648,13 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) panelNoteData.elementAt(i);
+            todoData1 = (TodoNoteData) noteGroupDataVector.elementAt(i);
             if (todoData1 == null) str1 = "";
             else str1 = todoData1.getNoteString().trim();
             if (str1.equals("")) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                todoData2 = (TodoNoteData) panelNoteData.elementAt(j);
+                todoData2 = (TodoNoteData) noteGroupDataVector.elementAt(j);
                 if (todoData2 == null) str2 = "";
                 else str2 = todoData2.getNoteString().trim();
                 if (str2.equals("")) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
@@ -669,8 +679,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving data element " + i + " below " + j);
-                    panelNoteData.setElementAt(todoData2, i);
-                    panelNoteData.setElementAt(todoData1, j);
+                    noteGroupDataVector.setElementAt(todoData2, i);
+                    noteGroupDataVector.setElementAt(todoData1, j);
                     str1 = str2;
                     todoData1 = todoData2;
                 } // end if

@@ -30,7 +30,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         super();
         super.setDefaultSubject(defaultSubject);
 
-        myProperties = null; // We get a different Properties with every choice.
+        setGroupProperties(null); // We get a different Properties with every choice.
         theChoice = LocalDate.now();
 //        setGroupFilename(getGroupFilename());  not needed?  happens via the call to updateGroup, below.
 
@@ -48,6 +48,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         }
 
         updateGroup(); // Load the data and properties, if there are any.
+        myNoteGroupPanel = this;
     } // end constructor
 
 
@@ -78,26 +79,25 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     } // end getGroupFilename
 
     // A CalendarNoteGroup has a different GroupProperties for every choice.
-    @Override
-    GroupProperties getGroupProperties() {
+    @Override // Implementation of the NoteGroupDataAccessor interface method
+    public GroupProperties getGroupProperties() {
         if(myProperties == null) {
             // If we loaded our properties member from a file then we need to use that one because it may
             // already contain linkages.  Otherwise it will be null and we can just make one right now.
             switch(dateType) {
                 case DAYS:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.DAY_NOTES);
+                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.DAY_NOTES));
                     break;
                 case MONTHS:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.MONTH_NOTES);
+                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.MONTH_NOTES));
                     break;
                 case YEARS:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.YEAR_NOTES);
+                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.YEAR_NOTES));
                     break;
                 default:
-                    myProperties = new GroupProperties(getTitle(), GroupInfo.GroupType.NOTES);
+                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.NOTES));
             }
         }
-        myProperties.myNoteGroupPanel = this;
         return myProperties;
     }
 
@@ -119,7 +119,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     //   needed, because it causes a reload of the group.
     //--------------------------------------------------------------
     public void setDate(LocalDate theNewChoice) {
-        if(groupChanged) preClosePanel();
+        preClosePanel();
         theChoice = theNewChoice;
         updateGroup();
     } // end setDate
@@ -127,7 +127,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
     public void setOneBack() {
         preClosePanel();
-        myProperties = null; // There may be no file to load, so this is needed here.
+        setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.minus(1, dateType);
         if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
     } // end setOneBack
@@ -135,7 +135,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
     public void setOneForward() {
         preClosePanel();
-        myProperties = null; // There may be no file to load, so this is needed here.
+        setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.plus(1, dateType);
         if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
     } // end setOneForward

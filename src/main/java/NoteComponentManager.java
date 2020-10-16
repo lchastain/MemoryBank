@@ -1,5 +1,5 @@
 // All methods here are 'default' so that any class (ie, Test classes) can claim
-// implementation while doing none of the actual work.  Of course this only works
+// implementation while doing none of the actual work.  Of course that only works
 // for them if they don't really need the intended results.
 
 public interface NoteComponentManager {

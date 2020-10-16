@@ -3,9 +3,6 @@
 import java.util.Random;
 
 public class LinkedEntityData extends BaseData {
-    private transient GroupProperties targetGroupProperties;
-    private transient NoteData targetNoteData;
-
     transient boolean deleteMe;  // Only for keeping state of the checkbox while dialog is active.
     transient boolean showMe;    // Do not show the link if its group is not active.
     transient boolean retypeMe;  // Only 'new' link types will be changeable.
@@ -60,22 +57,17 @@ public class LinkedEntityData extends BaseData {
         showMe = true;
     }
 
-    // Here we make a LinkedEntityData from full-blown GroupProperties and NoteData and that's good because we
-    //   snag their references, but for serialization of this link we don't want to also pick up their linkages,
-    //   so for construction of this class we reduce them to their base classes via the use of their
+    // Here we make a LinkedEntityData from full-blown GroupProperties and NoteData but we don't want to also pick up
+    //   their linkages, so for construction of this class we reduce them to their base classes via the use of their
     //   base class copy constructors.  This way, the data stored is smaller, and most importantly, loads back in
     //   without complaint.  Note that the base class copy constructors do an implicit cast of their parameters
     //   and this works seamlessly since the parameters are children of those base classes.
     public LinkedEntityData(GroupProperties groupProperties, NoteData noteData) {
         this(new GroupInfo(groupProperties), new NoteInfo(noteData));
-        targetGroupProperties = groupProperties;
-        targetNoteData = noteData;
     }
 
     public LinkedEntityData(GroupProperties groupProperties) {
         this(new GroupInfo(groupProperties), null);
-        targetGroupProperties = groupProperties;
-        targetNoteData = null;
     }
 
     // This is the true, 'meaty' constructor, used to make a new data entity vs a copy or loaded from file.
@@ -90,11 +82,6 @@ public class LinkedEntityData extends BaseData {
     // The copy constructor (clone) - used by 'swap' code and reverse link creation.
     public LinkedEntityData(LinkedEntityData theCopy) {
         this();
-
-        // For these two we really do want the references to point to the same/original entities;
-        //   we don't need to make new entities by calling thier copy constructors.
-        targetGroupProperties = theCopy.targetGroupProperties;
-        targetNoteData = theCopy.targetNoteData;
 
         // These two are only used in displays; not modified, so references are ok to be reused.
         targetGroupInfo = theCopy.targetGroupInfo;
@@ -112,13 +99,6 @@ public class LinkedEntityData extends BaseData {
         return targetGroupInfo;
     }
 
-    GroupProperties getTargetGroupProperties() {
-        return targetGroupProperties;
-    }
-
-    NoteData getTargetNoteData() {
-        return targetNoteData;
-    }
 
     public NoteInfo getTargetNoteInfo() {
         return targetNoteInfo;

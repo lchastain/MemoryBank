@@ -120,7 +120,13 @@ public class Area51 {
         //a51.try1();
         //a51.try2();
         //a51.try3();
-        a51.try5();
+        //a51.try5();
+        GroupInfo groupInfo = new GroupInfo("Tuesday, October 20, 2020", GroupInfo.GroupType.DAY_NOTES);
+        System.out.println(CalendarNoteGroup.getDateFromGroupName(groupInfo).toString());
+        groupInfo = new GroupInfo("September 2020", GroupInfo.GroupType.MONTH_NOTES);
+        System.out.println(CalendarNoteGroup.getDateFromGroupName(groupInfo).toString());
+        groupInfo = new GroupInfo("2018", GroupInfo.GroupType.YEAR_NOTES);
+        System.out.println(CalendarNoteGroup.getDateFromGroupName(groupInfo).toString());
 
     }
 

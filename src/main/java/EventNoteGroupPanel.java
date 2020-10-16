@@ -32,12 +32,12 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     //   assign it from the static section of this class.  The defaultIcon
     //   filename comes from the eventNoteDefaults.
     //------------------------------------------------------------------
-    private static EventNoteDefaults eventNoteDefaults;
+    private static final EventNoteDefaults eventNoteDefaults;
     private static AppIcon defaultIcon;
     static Notifier optionPane;
 
-    private ThreeMonthColumn tmc;
-    private EventHeader theHeader;
+    private final ThreeMonthColumn tmc;
+    private final EventHeader theHeader;
     private EventNoteComponent eventNoteComponent;
     static String areaName;
     static String areaPath;
@@ -67,7 +67,11 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         setGroupFilename(areaPath + filePrefix + groupName + ".json");
         saveWithoutData = true;
-        myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
+
+        // We need the Header to be able to access the groupName via the properties.
+        // And the header checks for the group name, So this 'early' setting IS needed.
+        // Otherwise 9 tests fail...
+        setGroupProperties(new GroupProperties(groupName, GroupInfo.GroupType.EVENTS));
 
         eventNoteComponent = null;
         tmc = new ThreeMonthColumn();
@@ -84,19 +88,17 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         optionPane = new Notifier() { }; // Uses all default methods.
 
-        //------------------------------------------------------------------------------------
-        // Extracted from 'refresh()', to avoid the first unnecessary preClosePanel().
-        updateGroup();
+        updateGroup(); // This is where the file gets loaded (if it exists)
 
         if(myProperties == null) {
             // This happens when there was no file to load - in the case of a new group.
-            myProperties = new GroupProperties(groupName, GroupInfo.GroupType.EVENTS);
+            setGroupProperties(new GroupProperties(groupName, GroupInfo.GroupType.EVENTS));
         } else {
-            // This is intended to 'fix' renamed groups, where the filename is correct but the group info
-            // inside the file was never updated, so it deserializes with the older name.
+            // This is intended to 'fix' a renamed group, where the filename is correct but the group info
+            // inside the file was never updated, so properties deserialize with the older name.
             myProperties.setGroupName(groupName);
         }
-        myProperties.myNoteGroupPanel = this;
+        myNoteGroupPanel = this;
 
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
@@ -128,7 +130,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         EventNoteData tempNoteData;
 
         // AppUtil.localDebug(true);
-        for (Object ndTmp : panelNoteData) {
+        for (Object ndTmp : noteGroupDataVector) {
             blnDropThisEvent = false;
             tempNoteData = (EventNoteData) ndTmp;
 
@@ -288,7 +290,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         LocalDate d1, d2;
 
         boolean doSwap;
-        int items = panelNoteData.size();
+        int items = noteGroupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -296,19 +298,19 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         MemoryBank.debug("  ASCENDING start dates, Events without dates at BOTTOM");
 
         for (int i = 0; i < (items - 1); i++) {
-            ndNoteData1 = (EventNoteData) panelNoteData.elementAt(i);
+            ndNoteData1 = (EventNoteData) noteGroupDataVector.elementAt(i);
             d1 = ndNoteData1.getStartDate();
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                ndNoteData2 = (EventNoteData) panelNoteData.elementAt(j);
+                ndNoteData2 = (EventNoteData) noteGroupDataVector.elementAt(j);
                 d2 = ndNoteData2.getStartDate();
 
                 if ((d1 == null) || ((d2 != null) && d1.isAfter(d2))) doSwap = true;
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    panelNoteData.setElementAt(ndNoteData2, i);
-                    panelNoteData.setElementAt(ndNoteData1, j);
+                    noteGroupDataVector.setElementAt(ndNoteData2, i);
+                    noteGroupDataVector.setElementAt(ndNoteData1, j);
                     d1 = d2;
                     ndNoteData1 = ndNoteData2;
                 } // end if
@@ -383,12 +385,12 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         BaseData.loading = false; // Restore normal lastModDate updating.
 
         // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(panelNoteData);
+        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(noteGroupDataVector);
         theUniqueSet.addAll(mergeVector);
 
         // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-        panelNoteData = new Vector<>(theUniqueSet);
-        showGroupData(panelNoteData);
+        noteGroupDataVector = new Vector<>(theUniqueSet);
+        showGroupData(noteGroupDataVector);
         setGroupChanged(true);
     } // end merge
 
@@ -520,13 +522,13 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
 
     @Override
-    void setGroupData(Object[] theGroup) {
+    void setPanelData(Object[] theGroup) {
         int theSize = theGroup.length;
         BaseData.loading = true; // We don't want to affect the lastModDates!
         if(theSize == 2) {
-            myProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+            setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
         }
-        panelNoteData = AppUtil.mapper.convertValue(theGroup[theSize - 1], new TypeReference<Vector<EventNoteData>>() {  });
+        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[theSize - 1], new TypeReference<Vector<EventNoteData>>() {  });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 

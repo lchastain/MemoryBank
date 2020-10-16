@@ -1,23 +1,121 @@
 12345678901234567890123456789012345678901234567890123456789012345678901234567890    80
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
-NEXT:  Auto-removal of reverse links.  Implement, and -
-      Reverse link additions pass through to groups in keepers.  Is this also true for removals, when the
-        removal was due to the removal of the forward link in some other group?  No.  not yet...
-
-Windows Search via FileExplorer not working for 'simpleName'.  Instead can navigate to highest desired level and use:
-C:\Users\Lee\workspace\Memory Bank\appData\lex@doughmain.net>grep -r simpleName * | grep -v null
+NEXT:  Implement Auto-removal of reverse links.
 
     Problems:
+        View of month notes goes back to the 'choice' date, after looking at linkages on some other month.  Should stay
+            on the View date.  Same with Year.
 
     Issues:
+      Reverse link additions and removals pass through to groups in keepers.  But a group needing a link removal might
+        not be in a panel in a keeper.  If it is, data change can go
+        all the way through to the file, yet the data held by the Panel in the keeper will not be updated.  If the panel
+        is recalled and added to, it would re-save and overwrite the added or removed link targets.
+        So the 'fix' for that is to call refresh() again to get the keeper panel back in sync with its data (file).
+        But by then we may not know whether the NoteGroup came from a keeper or directly from a File.  Check the
+        myNoteGroupPanel for that?  maybe.  Alternatively could just have the Factory make and return a panel vs just
+        a plain NoteGroupDataAccessor.  And then put it into a keeper?  No, that's going too far.  But if it always gives a
+        Panel, then it would support a 'refresh()' regardless of where it came from.  But why refresh() if you're just
+        going to throw it away?  So making it into a Panel is really what is going too far.  This takes us back to
+        checking its myNoteGroupPanel and if not null, casting to a Panel so that it can be refreshed.  If that would
+        work...
+
+      It looks like, if you use the Jackson mapper to convert json, you get a new instance, and any change you make to
+        it is not seen back in the source data (duh).
 
 New:
+
+  Reasons for continuing with the full rearchitecting:
+  1.  Need the ability to get a full typed NoteData from a Group.  The 'getNoteData(NoteInfo)' can be defined in
+        the class children to provide the translation type for the noteGroupDataVector so that
+        it can be cycled through, to search for the ID.
+      But is it needed?  Seems like the latest rev of getLinkTargets is better, now.
+      And the same cycle mechanism could be used (cycle thru Object, cast to base NoteData so the ID can be compared,
+        but then return the full Object and let the calling context cast it to the class that is expected) right now,
+        without any hierarchy change needed, IF we need a 'getNoteData'.
+  2.  Get NoteGroup data and methods separate of Panels.  This would be needed if the app ever goes more towards a
+        client-server setup, such as would be the case in the Web version.  And I do want to take it there, eventually.
 
 
 =====================================================================================================
 
-6 Oct 2020 0823 - Fixed: When Day notes changes date, Month Notes not saved.  Check-in and pub'd.
+16 Oct 2020
+  Recent discoveries of problems with reverse links - not all of them came from recent changes; some problems were
+    there before and just not yet tested.  Now, have manually tested more than 24 different link paths from a Todo
+    Note, and fixed a few problems found along the way as well as rehabilitating tests.  For the fix where a non-kept
+    group needs to be loaded, made inroads into the rearch task by adding a static method to a new CalendarNoteGroup
+    class.  There will be more, but this is a good stopping point at which to commit - all reverse links are believed
+    to be getting created properly (and none of them are being auto-removed, yet).
+  But there is an issue with Month and Year notes, resetting the view in the main app after viewing a link.
+    Fixed.  It was the setting of the AlteredDateListener in the LinkTargetSelectionPanel, taking the listener away
+    from CalendarNoteGroups that were only getting it set at construction.  Now they get it (re-)set on node selection.
+  Check-in and pub point.  (After fixing the cut/paste - caused problems that testing caught for me!).
+
+15 Oct 2020
+  Testing the various getGroupProperties and the acquisition of LinkTargets, and the saving of the groups with
+    forward or reverse links via their NoteGroupDataAccessors - the few small hierarchy changes did break
+    several logical paths, but now working on tracking it all down and refactoring to fix.  Tests would be nice..
+  Moved myNoteGroupPanel transient out of GroupInfo and into NoteGroup.
+  Refactored all settings of Properties to use the setter in NoteGroup (or the overridden one in the Panel child).
+  Removed transient GroupProperties and NoteData from links; these were making separate instances anyway.
+  Changed NoteGroupFactory to ONLY deal with Panels; now does not return a NoteGroupFile as a NoteGroupDataAccessor.
+    This was to ensure that the resulting reference would properly translate the GroupProperties and vector data
+    into the correct types, via the overridden methods that are only in the Panel children.
+  AND the above comment shows that I'm getting wrapped around the axle yet again.  The whole idea here was that I did
+    NOT want to have to make a Panel, in order to properly manipulate Group data.  This is why a full re-arch IS needed,
+    and my previous objection about having too many classes - you just have to accept it; we need to have a new level,
+    where each note data type has its own group class, and we need to somehow deal with File accesses - either leave
+    it in the chain, or encapsulate a NoteGroupDataAccessor.  Prefer the latter, but either way this takes us back to
+    having a lot more work to do.  Not sure at this point whether or not there will be some intermediate stopping point
+    where I can get back to having a working solution to at least create and persist the reverse links; had that,
+    before trying so hard to automatically remove them.  Oh well - you got something better to do?   ... thought so.
+
+10 Oct 2020 - Started the re-arch work and also wanted to go directly to the added benefit; being able to extract a
+  single note from a NoteGroup.  How to do that presented a big problem since the usage of 'AllNoteData' in searching
+  was a simple 'read' operation but the intended use now would be to obtain a discretely defined reference to one of
+  the primary data types.  Getting a note like that from an untyped Vector - did not immediately see how and it became
+  a bit of a sticking point.  Stopped for a day but then when looking at the calling context for it (removing a reverse
+  link), I saw that all that was really needed was the LinkTargets, not the actual Note.  It seems that by using the
+  'AllNoteData' trick, we can skip the intermediate level of NoteData and go directly to the LinkTargets, that ALL
+  data types have.  So the method was renamed from getNoteData to getLinkTargets, and implemented in NoteGroup, as
+  well as moving the getGroupProperties implementation from NoteGroupFile to NoteGroup.  But since NoteGroupFile is
+  a child of NoteGroup, it still qualifies as a NoteGroupDataAccessor, without having to remove the two methods from
+  the interface definition.  So - it seems there was another alternative after all; a full re-arch is not needed at
+  this time, but I'm sure we will want to pull NoteGroupFile out of the line at some point.  To do that, the current
+  usages of NoteGroupFile (by Panels) would have to move from being inherited to being an encapsulated
+  NoteGroupDataAccessor.  Not sure how long before that will be needed...
+
+8 Oct 2020 -
+  Considering yet another hierarchical shift - moving two of the NoteGroupDataAccessor methods into NoteGroup,
+    (getGroupProperties, getNoteData) and having the Panels extend NoteGroup directly.  Then a NoteGroup could
+    encapsulate a NoteGroupDataAccessor to be used for I/O operations, and that accessor would of course be the
+    NoteGroupFile (for now).
+  Pro:  No need to have a Panel in order to get a note of a specific data flavor from a group.
+        Instead would need to provide a GroupInfo and a NoteInfo (components of a Link)
+        This would provide a mechanism currently needed by the auto reverse link removal feature, and
+        <might> get more usage in future features such as Goal evaluations.
+  Con:  Been here before in a slightly different perspective - this would be the 3rd+ time around the axle.  Each time
+        we re-architect, the pre-existing data gets put at risk and we seem to still have the same issues and needs
+        after it settles back down.  Will this time be any better?  the last?
+
+  The 'pro' describes a need and how to solve it; the 'con' offers no alternative solution; this is not a case of
+  rearchitecting for the sake of it; there is a real problem needing to be solved, and only the 'pro' does that,
+  whereas the 'con' is a change-fearer.  All the previous changes have been incremental but incomplete steps in
+  this same direction; just because we haven't gotten there yet - doesn't mean we should stop now.  I acknowledge the
+  frustration of seeming to refactor the same code in the same way, but each time there were some benefits even though
+  not entirely straightening out all the object hierarchies.  The fear of corrupting pre-existing data is valid,
+  but I accept the risk of choosing to proceed since there is no other choice but to abandon the feature.  (Abandoning
+  the feature IS a valid option but that would close off not only the one planned new feature but also the future growth
+  that can come from the new 'getNoteData' method, and I do believe that this will open a pathway to a more robust,
+  full-featured app).  Proceeding with the changes...
+
+7 Oct 2020 - Worked on comments for getNoteGroupDataAccessor and the call to it from the LinkagesEditorPanel.  Then
+  back to reverse link removal, which led to a need for a 'getNoteData' method that currently has no easy path to
+  implementation.  Thinking...
+
+6 Oct 2020 0823 - Fixed: When Day notes changes date, Month Notes not saved.  Check-in and pub'd.  At the Calendar
+  level, in the setDate method, added a conditional preClose.
 
 5 Oct 2020
   Now that we have a NoteGroupPanel, renamed NoteGroupData to simply NoteGroup.  A NoteGroup IS its data.

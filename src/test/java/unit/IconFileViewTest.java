@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import javax.swing.*;
 import java.io.File;
 
+//@Disabled("Explicitly Disabled")
 class IconFileViewTest {
     private IconFileView ifv;
 
@@ -15,11 +16,12 @@ class IconFileViewTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         ifv = null;
     }
 
     @Test
+//    @Disabled
     void testGetName() {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
@@ -30,6 +32,7 @@ class IconFileViewTest {
     }
 
     @Test
+//    @Disabled
     void testIsTraversable() {
         // The provided File does not matter; we want a null in every case.
         Boolean b = ifv.isTraversable(new File("nofile"));
@@ -37,6 +40,7 @@ class IconFileViewTest {
     }
 
     @Test
+//    @Disabled
     void testGetDescription() {
         // The provided File does not matter; we want a null in every case.
         String s = ifv.getDescription(new File("nofile"));
@@ -44,6 +48,7 @@ class IconFileViewTest {
     }
 
     @Test
+//    @Disabled
     void testGetTypeDescription() {
         // The provided File does not matter; we want a null in every case.
         String s = ifv.getTypeDescription(new File("nofile"));
@@ -51,6 +56,7 @@ class IconFileViewTest {
     }
 
     @Test
+//    @Disabled
     void testGetIcon() {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));

@@ -132,8 +132,7 @@ public class LinkNoteComponent extends NoteComponent {
     void makeLinkTitle() {
         String theTitleString;
 
-        String category = targetGroupInfo.getCategory();  // Note, Goal, Event, or To Do List
-        String groupType = targetGroupInfo.groupType.toString(); // Same as above except for Notes, which are more specific
+        String groupType = targetGroupInfo.groupType.toString();
         String groupName = targetGroupInfo.getGroupName(); // User-provided at group creation, except for Notes.
 
         if(myLinkedEntityData.getTargetNoteInfo() == null) { // The link is to a full group

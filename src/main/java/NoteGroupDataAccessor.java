@@ -8,13 +8,16 @@ public interface NoteGroupDataAccessor {
         FAILURE
     }
 
-    boolean addDayNote(LocalDate theDay, DayNoteData theNote);
-
-
     static String getGroupNameForDay(LocalDate theDate) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         return dtf.format(theDate);
     }
+
+    boolean addDayNote(LocalDate theDay, DayNoteData theNote);
+
+    GroupProperties getGroupProperties();
+
+    LinkTargets getLinkTargets(NoteInfo noteInfo);
 
     void loadNoteGroupData(GroupInfo groupInfo);
 

@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ class EventAgingTest {
         // This one missing directory gives us a high confidence that there are none.
 
         // the aging (constructor calls refresh, which calls ageEvents)
+        new AppTreePanel(new JFrame("Event Aging Test"), MemoryBank.appOpts);
         EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("holidays");
         Assertions.assertTrue(theFolder.exists()); // this verifies SCR0029
 

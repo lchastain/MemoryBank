@@ -31,8 +31,8 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         // groupName is a simple single word text as seen in the app tree.
         log.debug("Constructing: " + groupName);
 
-        myProperties = new SearchResultGroupProperties(groupName);
-        myProperties.myNoteGroupPanel = this; // May not be needed, since it is only used by links.
+        setGroupProperties(new SearchResultGroupProperties(groupName));
+        myNoteGroupPanel = this; // May not be needed, since it is only used by links.
         editable = false;
         setGroupFilename(areaPath + filePrefix + getGroupName() + ".json");
 
@@ -41,8 +41,8 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         updateGroup(); // This is where the file gets loaded (in the parent class)
 
-        // This is intended to 'fix' renamed groups, where the filename is now correct but the group info
-        // inside the file was never updated, so it deserializes with the older name.
+        // This is intended to 'fix' a renamed group, where the filename is correct but the group info
+        // inside the file was never updated, so properties deserialize with the older name.
         myProperties.setGroupName(groupName);
 
         listHeader = new SearchResultHeader(this);
@@ -126,6 +126,19 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
             tempNote.resetColumnOrder(((SearchResultGroupProperties) myProperties).columnOrder);
         } // end for
     } // end checkColumnOrder
+
+
+    @Override
+    public GroupProperties getGroupProperties() {
+        // The preference is to recreate the properties each time from loaded data.
+        Object[] theData = getTheData();
+        if(theData[0] != null) { // Properties may have been set before having any data, but if there is data -
+            setGroupProperties(AppUtil.mapper.convertValue(theData[0], new TypeReference<SearchResultGroupProperties>() {}));
+        }
+
+        return myProperties;
+    }
+
 
     //--------------------------------------------------------
     // Method Name: getNoteComponent
@@ -275,10 +288,10 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
 
     @Override
-    void setGroupData(Object[] theGroup) {
+    void setPanelData(Object[] theGroup) {
         BaseData.loading = true; // We don't want to affect the lastModDates!
-        myProperties = AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class);
-        panelNoteData = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
+        setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class));
+        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
         BaseData.loading = false; // Restore normal lastModDate updating.
     }
 

@@ -1,12 +1,8 @@
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+//@Disabled("Looking for a rogue 'working' dialog")
 class ThreeMonthColumnTest {
     ThreeMonthColumn tmc;
 

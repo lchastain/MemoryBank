@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -15,17 +16,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // This test is to verify that the state of the expandable / collapsible
 // nodes of the tree can be restored.  SCR0054.
 
-
+//@Disabled
 class PreserveExpansionStatesTest {
     private AppTreePanel atp;
     private JTree theTree;
-    private String viewsNodeName = "Views";
-    private String notesNodeName = "Notes";
-    private String todolistsNodeName = "To Do Lists";
-    private String searchesNodeName = "Search Results";
+    private final String viewsNodeName = "Views";
+    private final String notesNodeName = "Notes";
+    private final String todolistsNodeName = "To Do Lists";
+    private final String searchesNodeName = "Search Results";
 
     @BeforeAll
     static void setup() throws IOException {
+        System.out.println("PreserveExpansionStatesTest Test");
+
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
 
@@ -51,6 +54,14 @@ class PreserveExpansionStatesTest {
         // that changes that atp made to its own appOpts would be reflected back into
         // the appOpts in MemoryBank.  The atp instances had to be separated on a per-
         // test basis.
+    }
+
+    @AfterEach
+    // Because there are two instances of atp - this is needed when running this class as part of a larger suite.
+    // Otherwise, the 'working' dialog gets intermittently zombified and when that happens in the running of a
+    // full suite, the todoItemFocusTest will fail.
+    void notWorking() throws InterruptedException {
+        Thread.sleep(500);
     }
 
     @Test

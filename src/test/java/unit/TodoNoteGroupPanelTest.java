@@ -87,7 +87,7 @@ class TodoNoteGroupPanelTest {
         Assertions.assertEquals(1, testUtil.getNotifyCount());
 
         // Restore the original properties.
-        todoNoteGroup.myProperties = originalTodoGroupProperties;
+        todoNoteGroup.setGroupProperties(originalTodoGroupProperties);
     }
 
     @Test

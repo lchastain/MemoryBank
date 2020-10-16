@@ -230,7 +230,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
 //                    break;
             }
 
-            parent.groupChanged = true;
+            parent.setGroupChanged(true);
             AppTreePanel.showWorkingDialog(false);
         } // end doSorting
 

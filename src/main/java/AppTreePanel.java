@@ -64,10 +64,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     MonthView theMonthView;
     YearView theYearView;
     private Vector<NoteData> foundDataVector;  // Search results
-    private NoteGroupPanelKeeper theGoalsKeeper;          // keeper of all loaded Goals.
-    private NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
-    private NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
-    private NoteGroupPanelKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
+    NoteGroupPanelKeeper theGoalsKeeper;          // keeper of all loaded Goals.
+    NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
+    NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
+    NoteGroupPanelKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
     SearchPanel spTheSearchPanel;
     private final JPanel aboutPanel;
     private final JSplitPane splitPane;
@@ -327,7 +327,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         NoteGroupPanel theGroup = theNoteGroupPanelKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             MemoryBank.debug("Getting a new group from the factory.");
-            theGroup = NoteGroupFactory.loadOrMakeGroup(theContext, newName);
+            theGroup = GroupPanelFactory.loadOrMakeGroup(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
             theNoteGroupPanelKeeper.add(theGroup);
             // The new group will be saved by preClose().
@@ -1405,6 +1405,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     //-----------------------------------------------------------
     static void showWorkingDialog(boolean showIt) {
         if (showIt) {
+//            new Exception("Test tracing").printStackTrace();  // Helpful in finding which tests left this up.
+
             // Create a new thread and setVisible within the thread.
             new Thread(new Runnable() {
                 public void run() {
@@ -1416,7 +1418,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 public void run() {
                     // Give the 'visible' time to complete, before going invisible.
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(200);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -1522,7 +1524,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it if it exists or make a new one if it does not exist.
             if (goalGroup == null) {
-                goalGroup = (GoalGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
+                goalGroup = (GoalGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
 
                 if (goalGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
@@ -1571,7 +1573,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it, but only if a file for it already exists.
             if (eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
+                eventNoteGroup = (EventNoteGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
                 if (eventNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theEventListKeeper.add(eventNoteGroup);
@@ -1619,7 +1621,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise load it, but only if a file for it already exists.
             if (todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
+                todoNoteGroup = (TodoNoteGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
                 if (todoNoteGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theTodoListKeeper.add(todoNoteGroup);
@@ -1667,7 +1669,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             // Otherwise construct it, but only if a file for it already exists.
             if (searchResultGroup == null) {
-                searchResultGroup = (SearchResultGroupPanel) NoteGroupFactory.loadNoteGroup(parentNodeName, theNodeString);
+                searchResultGroup = (SearchResultGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
                 if (searchResultGroup != null) {
                     log.debug("Loaded " + theNodeString + " from filesystem");
                     theSearchResultsKeeper.add(searchResultGroup);
@@ -1747,13 +1749,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } else if (theNodeString.equals("Day Notes")) {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroupPanel();
-                theAppDays.setAlteredDateListener(this);
                 theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
                 if (!theAppDays.editable) theAppDays.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
+            theAppDays.setAlteredDateListener(this); // needed for both new and pre-existing.
             theNoteGroupPanel = theAppDays;
             theAppDays.setDate(selectedDate);
             setViewedDate(selectedDate, ChronoUnit.DAYS);
@@ -1766,26 +1768,26 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
-                theAppMonths.setAlteredDateListener(this);
                 theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
                 if (!theAppMonths.editable) theAppMonths.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
+            theAppMonths.setAlteredDateListener(this); // needed for both new and pre-existing.
             theNoteGroupPanel = theAppMonths;
             theAppMonths.setDate(viewedDate);
             rightPane.setViewportView(theAppMonths.theBasePanel);
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroupPanel();
-                theAppYears.setAlteredDateListener(this);
                 theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
                 if (!theAppYears.editable) theAppYears.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
+            theAppYears.setAlteredDateListener(this); // needed for both new and pre-existing.
             theNoteGroupPanel = theAppYears;
             theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
             viewedDateGranularity = ChronoUnit.YEARS;

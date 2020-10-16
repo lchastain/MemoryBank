@@ -114,7 +114,7 @@ public class DragAndDropTests {
 //        while(testFrame.isVisible()) {
 //            Thread.sleep(1000);
 //        }
-
+        testFrame.setVisible(false); // Needed, when this is not the only test running.
     } // end testDragLeft
 
     @Test
@@ -171,6 +171,8 @@ public class DragAndDropTests {
 //        while(testFrame.isVisible()) {
 //            Thread.sleep(1000);
 //        }
+
+        testFrame.setVisible(false); // Needed, when this is not the only test running.
     } // end testDragRight
 
 }

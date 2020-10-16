@@ -12,7 +12,6 @@ import java.util.Vector;
 
 class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     static String basePath;
-    protected GroupProperties myProperties; // All children can access this directly, but CNGPs use a getter.
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
     boolean saveIsOngoing;
 
@@ -41,7 +40,7 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
 
     NoteGroupFile(GroupProperties groupProperties) {
         this();
-        add(groupProperties);
+        setGroupProperties(groupProperties);
     }
 
 
@@ -49,6 +48,7 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
     @SuppressWarnings("rawtypes")
     public boolean addDayNote(LocalDate theDay, DayNoteData theNote) {
+        Object[] theGroup = null; // The complete data set for the group to which we will add theNote.
         NoteGroupFile noteGroupFile;
 
         // Get the group name for the input date.
@@ -76,18 +76,19 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
             }
         }
 
-        // Now we have to try to load the data directly from file.
+        // Determine the filename.  We cannot just go directly to making one, because pre-existing files will
+        //   have a previously set filename that was built with timestamps earlier than any we would make here.
+        //   So look for pre-existing and take that one if it exists, otherwise make one.
         String theFilename = NoteGroupFile.foundFilename(theDay, "D");
         if (theFilename.equals("")) {
             theFilename = NoteGroupFile.makeFullFilename(theDay, "D");
+        } else {
+            // Now we have to try to load the data directly from file.
+            theGroup = loadFileData(theFilename);
         } // end if
-        Object[] theGroup; // The complete data set for  the group to which we will add theNote.
-        theGroup = loadFileData(theFilename);
 
         // Make a new NoteGroupFile -
         if(theGroup != null) { // Data was loaded from a file -
-            // May need to handle 'short' groups here ....   TODO  or do it when loading, for ALL files.
-
             // Convert theGroup[0] to a GroupProperties
             GroupProperties groupProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
 
@@ -150,17 +151,20 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
         String filePrefix;
         LocalDate theChoice;
         switch (groupInfo.groupType) {
-            case YEAR_NOTES:
-                theChoice = LocalDate.parse(groupInfo.getGroupName());
-                theFilename = foundFilename(theChoice, "Y");
-                break;
-            case MONTH_NOTES:
-                theChoice = LocalDate.parse(groupInfo.getGroupName());
-                theFilename = foundFilename(theChoice, "M");
-                break;
             case DAY_NOTES:
+                // Only a 'day' CalendarNoteGroup group name will parse properly.
+                // The other two - need some pre-processing.
                 theChoice = LocalDate.parse(groupInfo.getGroupName());
                 theFilename = foundFilename(theChoice, "D");
+                break;
+            case MONTH_NOTES: // Example group name:  October 2020
+                theChoice = LocalDate.parse("15 " + groupInfo.getGroupName());
+                theFilename = foundFilename(theChoice, "M");
+                break;
+            case YEAR_NOTES: // Example group name:  2020
+                theChoice = LocalDate.now();
+                int theYear = Integer.parseInt(groupInfo.getGroupName());
+                theFilename = foundFilename(theChoice.withYear(theYear), "Y");
                 break;
             case TODO_LIST:
                 areaPath = TodoNoteGroupPanel.areaPath;
@@ -234,11 +238,10 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
             // never hundreds, and it was due to glitches during development, where a debug
             // session was killed.  So - taking the last one will suffice for now, until the
             // app is converted to storing its data in a database vs the filesystem and then
-            // the problem goes away.
-            // Also - you don't have to use a timestamp in the filename, bozo.  The individual
-            // data elements do each have their LMDs, and each 'prefix' is unique to the
-            // containing 'year' directory, so what is the value-added, anyway?
-            // Think about it...
+            // the problem goes away.  Currently the timestamp portion of the filename does not
+            // assist in group identification anyway; it is a placeholder for archiving, and that
+            // feature is still a long long way from realization (this note 10 Oct 2020, idea to
+            // do archiving - came about sometime in 1998, I believe).
             fileName = CalendarNoteGroupPanel.areaPath;
             fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
             fileName += File.separatorChar;
@@ -336,10 +339,11 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     }
 
     @Override // The NoteGroupDataAccessor method implementation.
+    // NOT BEING CALLED ...  ??  and that leads to an unused 'foundFilename(GroupInfo)' -
     public void loadNoteGroupData(GroupInfo groupInfo) {
         // Get the Filename for the GroupInfo.
         String theFilename = foundFilename(groupInfo);
-        setGroupFilename(theFilename);
+        setGroupFilename(theFilename); // Yes, even if empty.  We don't want to leave an old one in place.
         if(theFilename.isEmpty()) return; // No filename == no data.
 
         Object[] theData = loadFileData(theFilename);
@@ -571,11 +575,6 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     protected String getGroupFilename() {
         return groupFilename;
     }
-
-
-    GroupProperties getGroupProperties() {
-        return myProperties;
-    } // end getGroupProperties
 
 
     // All child classes of NoteGroupFile have direct access to groupFilename, and as such

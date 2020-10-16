@@ -1,8 +1,5 @@
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +11,7 @@ import java.time.LocalDate;
 // date for it is selected on the Three Month Column.  That was the problem
 // that was originally reported via SCR0001.
 
-class TodoItemFocusTest {
+public class TodoItemFocusTest {
     private static TodoNoteGroupPanel todoNoteGroup;
     private static JFrame theFrame;
 
@@ -50,6 +47,7 @@ class TodoItemFocusTest {
         theFrame.setVisible(false);
     }
 
+//    @Disabled
     @Test
     void testItemFocus() {
         // Getting initial states
@@ -64,8 +62,13 @@ class TodoItemFocusTest {
             e.printStackTrace();
         }
 
+//        // Some earlier test occasionally leaves this up and when that happens it still shows by the time we get to
+//        // this test, when running the full test suite.  And the fact that it is showing is not just an
+//        // annoyance; it steals focus and causes this test to fail.  So this will work, until the rogue is found.
+//        AppTreePanel.showWorkingDialog(false);
+
         // Put the focus on a note -
-        // Note that selecting this one will have an effect on the TMC, placing it's
+        // Note that selecting this one will have an effect on the TMC, placing its
         // previously selected month in the center.
         todoNoteComponent4.setActive();
 

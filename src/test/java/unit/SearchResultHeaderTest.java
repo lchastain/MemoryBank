@@ -16,6 +16,7 @@ class SearchResultHeaderTest {
 
     @BeforeAll
     static void meFirst() throws IOException {
+        System.out.println("SearchResultHeaderTest Test");
         MemoryBank.debug = true;
 
         // Set the location for our user data (the directory will be created, if not already there)
@@ -43,6 +44,7 @@ class SearchResultHeaderTest {
     // the sort would be done in reverse order.  While here we also cover the less
     // complex other mouse listener methods.
     @Test
+//    @Disabled
     void testHeaderButtonMouseEvents() throws InterruptedException {
         SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20191029073938");
         SearchResultHeader searchResultHeader = searchResultGroup.listHeader;

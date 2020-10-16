@@ -803,9 +803,9 @@ public class NoteComponent extends JPanel {
                     theNoteComponent.setBorder(redBorder);
 
                     // FYI - recent (unsaved) changes to groups that could be possible selections for a new link -
-                    //   will be seen for most target groups because those selections are pulled from 'keepers'.
-                    //   Only CalendarNoteGroup type groups are not.  For those, the user must save first; it is
-                    //   not an automatic.
+                    //   will still be seen because those groups are refreshed prior to display for selections.
+                    //   ie, a 'save' is performed by the LinkTargetSelectionPanel at that time, so there ARE no
+                    //   unsaved changes.
 
                     int choice = JOptionPane.showConfirmDialog(
                             theNoteComponent,
@@ -821,7 +821,7 @@ public class NoteComponent extends JPanel {
 
                         // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
                         // are about to create from it/them will have proper corresponding forward link(s).
-                        // This means that we do not need to set 'groupChanged' - it should be false after the save.
+                        theNoteComponent.setNoteChanged();
                         theNoteComponent.myNoteGroupPanel.preClosePanel();
 
                         linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
