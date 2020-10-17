@@ -36,7 +36,7 @@ public interface NoteGroupDataAccessor {
     //  Currently -
     //   If errors are encountered, this method can trap and print
     //   them to the screen but it will not halt execution or
-    //   attempt interaction with the user.  A status variable is
+    //   attempt interaction with the user.  Status is
     //   set at various points; calling contexts that 'care' about the
     //   results should check it and handle the values according to
     //   those situations.

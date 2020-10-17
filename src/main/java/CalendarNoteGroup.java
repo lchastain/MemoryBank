@@ -1,7 +1,7 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-// This is the first class of the re-architecting; baby steps - first, needed static methods.
+// This is the first class of the re-architecting; baby steps - first, needed methods can be static.
 
 public class CalendarNoteGroup extends NoteGroup {
     static LocalDate getDateFromGroupName(GroupInfo groupInfo) {

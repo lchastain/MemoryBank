@@ -73,7 +73,7 @@ class GroupInfo extends BaseData {
     // Called from LinkagesEditorPanel when adding or removing a reverse link.
     NoteGroupDataAccessor getNoteGroupDataAccessor() {
         // Get the group's panel from a keeper, if it is there -
-        NoteGroupPanel thePanel = AppTreePanel.theInstance.getNoteGroupFromKeeper(groupType, groupName);
+        NoteGroupPanel thePanel = AppTreePanel.theInstance.getPanelFromKeeper(groupType, groupName);
         if(thePanel != null) {
             thePanel.refresh(); // Preserve any unsaved changes.
             // No need to remove from keeper after this; any link target changes that we make next will pass through

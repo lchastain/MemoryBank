@@ -9,10 +9,11 @@ import java.util.Vector;
 
 @SuppressWarnings("rawtypes")
 class NoteGroup {
-    NoteGroupDataAccessor dataAccessor; // Provides the way to persist and retrieve the Group data
+    NoteGroupDataAccessor dataAccessor; // Provides a way to persist and retrieve the Group data
 
-    // Container for the (complete collection of) Group data objects.
-    // It may hold more than the PAGE_SIZE number of visible notes.
+    // This holds the complete collection of group notes.
+    // The Notes will either be of class NoteData or one of its children; each child
+    //   of this class will set for itself the type of note held here.
     Vector noteGroupDataVector;
 
     private Object[] theData;

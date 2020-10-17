@@ -2,27 +2,16 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 NEXT:  Implement Auto-removal of reverse links.
+  OR - work on encapsulating the NoteGroupDataAccessor.
 
     Problems:
-        View of month notes goes back to the 'choice' date, after looking at linkages on some other month.  Should stay
-            on the View date.  Same with Year.
 
     Issues:
-      Reverse link additions and removals pass through to groups in keepers.  But a group needing a link removal might
-        not be in a panel in a keeper.  If it is, data change can go
-        all the way through to the file, yet the data held by the Panel in the keeper will not be updated.  If the panel
-        is recalled and added to, it would re-save and overwrite the added or removed link targets.
-        So the 'fix' for that is to call refresh() again to get the keeper panel back in sync with its data (file).
-        But by then we may not know whether the NoteGroup came from a keeper or directly from a File.  Check the
-        myNoteGroupPanel for that?  maybe.  Alternatively could just have the Factory make and return a panel vs just
-        a plain NoteGroupDataAccessor.  And then put it into a keeper?  No, that's going too far.  But if it always gives a
-        Panel, then it would support a 'refresh()' regardless of where it came from.  But why refresh() if you're just
-        going to throw it away?  So making it into a Panel is really what is going too far.  This takes us back to
-        checking its myNoteGroupPanel and if not null, casting to a Panel so that it can be refreshed.  If that would
-        work...
+        So making it into a Panel is really what is going too far.  This takes us back to
+        checking its myNoteGroupPanel and if not null, casting to a Panel so that it can be refreshed.
 
-      It looks like, if you use the Jackson mapper to convert json, you get a new instance, and any change you make to
-        it is not seen back in the source data (duh).
+      It looks like, if you use the Jackson mapper to convert an already-loaded json Object into GroupProperties
+      (or NoteData), you still get a new instance, and any change you make to it is not seen back in the source data (duh).
 
 New:
 
@@ -33,7 +22,7 @@ New:
       But is it needed?  Seems like the latest rev of getLinkTargets is better, now.
       And the same cycle mechanism could be used (cycle thru Object, cast to base NoteData so the ID can be compared,
         but then return the full Object and let the calling context cast it to the class that is expected) right now,
-        without any hierarchy change needed, IF we need a 'getNoteData'.
+        without any hierarchy change needed, IF we even need a 'getNoteData'.
   2.  Get NoteGroup data and methods separate of Panels.  This would be needed if the app ever goes more towards a
         client-server setup, such as would be the case in the Web version.  And I do want to take it there, eventually.
 
@@ -50,7 +39,7 @@ New:
   But there is an issue with Month and Year notes, resetting the view in the main app after viewing a link.
     Fixed.  It was the setting of the AlteredDateListener in the LinkTargetSelectionPanel, taking the listener away
     from CalendarNoteGroups that were only getting it set at construction.  Now they get it (re-)set on node selection.
-  Check-in and pub point.  (After fixing the cut/paste - caused problems that testing caught for me!).
+  Check-in and pub point.  (After fixing the cut/paste-caused problems in new code that testing caught for me!).
 
 15 Oct 2020
   Testing the various getGroupProperties and the acquisition of LinkTargets, and the saving of the groups with

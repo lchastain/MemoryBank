@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
+// Provides an editable view of the Notes in the noteGroupDataVector.
+
 //  Current:  NoteGroup --> NoteGroupFile --> NoteGroupPanel
 //  Planned:  NoteGroup --> NoteGroupDataAccessorImpl --> NoteGroupPanel
 //  NoteGroupFile is currently the only implementor of NoteGroupDataAccessor.
@@ -17,6 +19,8 @@ import java.util.Vector;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class NoteGroupPanel extends NoteGroupFile implements NoteComponentManager, NoteGroupDataAccessor {
+    static final int PAGE_SIZE = 40; // Establishes a default; see the pageSize member for actual size.
+
     // Directions for Sort operations
     static final int ASCENDING = 0;
     static final int DESCENDING = 1;
@@ -43,24 +47,20 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     NotePager theNotePager;
 
     // Private members
-    //-------------------------------------------------------------
     private String defaultSubject;
-    static final int PAGE_SIZE = 40;
-
     private final int intHighestNoteComponentIndex;
-
     private final JScrollPane jsp;
+    private final JLabel lblStatusMessage; // The Information/Status panel of the frame.
 
-    // The Information/Status panel of the frame.
-    private final JLabel lblStatusMessage;
 
-    //-------------------------------------------------------------
-
-    // A NoteGroupPanel instance is just the encapsulation of the central container panel and
-    // the methods that work on it.  It does not have a Header / Title or any other panels.
+    // A NoteGroupPanel is just the encapsulation of the central container panel and the methods that work on it,
+    //   plus a bottom 'status' area for operational assistance messages to the user.
+    // As an abstract it cannot be instantiated.  The child classes have titles and other panels, and can set a
+    //   header on the central panel.
     NoteGroupPanel() {
         this(PAGE_SIZE);
     } // end constructor 1
+
 
     NoteGroupPanel(int intPageSize) {
         super();

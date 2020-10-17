@@ -9,8 +9,8 @@ class NoteGroupPanelFactoryTest {
 
     @Test
     void testGetOrMakeGroup() {
-        GroupPanelFactory.loadOrMakeGroup("Upcoming Event", "blarg");
-        GroupPanelFactory.loadOrMakeGroup("To Do List", "blarg");
-        GroupPanelFactory.loadOrMakeGroup("Search Result", "blarg");
+        GroupPanelFactory.loadOrMakePanel("Upcoming Event", "blarg");
+        GroupPanelFactory.loadOrMakePanel("To Do List", "blarg");
+        GroupPanelFactory.loadOrMakePanel("Search Result", "blarg");
     }
 }

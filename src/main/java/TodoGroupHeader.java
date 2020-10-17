@@ -16,7 +16,7 @@ import java.util.Vector;
 public class TodoGroupHeader extends Container implements ClingSource {
     private static final long serialVersionUID = 1L;
 
-    private TodoNoteGroupPanel parent;
+    private final TodoNoteGroupPanel parent;
     HeaderButton hb1;  // Priority
     HeaderButton hb2;  // To Do Text
     HeaderButton hb3;  // Status

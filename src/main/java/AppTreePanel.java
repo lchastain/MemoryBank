@@ -327,7 +327,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         NoteGroupPanel theGroup = theNoteGroupPanelKeeper.get(newName);
         if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
             MemoryBank.debug("Getting a new group from the factory.");
-            theGroup = GroupPanelFactory.loadOrMakeGroup(theContext, newName);
+            theGroup = GroupPanelFactory.loadOrMakePanel(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
             theNoteGroupPanelKeeper.add(theGroup);
             // The new group will be saved by preClose().
@@ -747,7 +747,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     // Usage of this method relates to linking.  Since SearchResults cannot be linked,
     //      they are not addressed.
     // If the requested group is not in its keeper, a null is returned.
-    NoteGroupPanel getNoteGroupFromKeeper(GroupInfo.GroupType theType, String theName) {
+    NoteGroupPanel getPanelFromKeeper(GroupInfo.GroupType theType, String theName) {
         NoteGroupPanel noteGroupPanel = null;
         switch (theType) {
             case GOALS:

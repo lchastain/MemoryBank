@@ -77,8 +77,8 @@ class GroupPanelFactory {
 
 
 
-    // Use this method if you want to get the group whether it has persisted data or not.
-    static NoteGroupPanel loadOrMakeGroup(String theContext, String nodeName) {
+    // Use this method if you want to get the panel whether it has persisted data or not.
+    static NoteGroupPanel loadOrMakePanel(String theContext, String nodeName) {
         NoteGroupPanel theGroup = loadNoteGroup(theContext, nodeName);
         if (theGroup != null) return theGroup;
 
@@ -96,22 +96,8 @@ class GroupPanelFactory {
         return null; // This line is only reached for unsupported group types.
     }
 
-    private static boolean exists(String areaName, String shortName) {
-        String fullFilename;
-
-        int i = shortName.lastIndexOf(File.separatorChar);
-        int j = shortName.lastIndexOf('/');
-        int k = Math.max(i, j);
-
-        if (k >= 0) { // if it has the File separator character
-            // Then we assume (rightly or not) that the calling context has sent in
-            // a path+filename, and that it is the correct full-blown File specifier
-            // so that further grooming is unnecessary.
-            fullFilename = shortName;
-        } else {
-            fullFilename = NoteGroupFile.makeFullFilename(areaName, shortName);
-        }
-
+    private static boolean exists(String areaName, String nodeString) {
+        String fullFilename = NoteGroupFile.makeFullFilename(areaName, nodeString);
         return new File(fullFilename).exists();
     }
 
