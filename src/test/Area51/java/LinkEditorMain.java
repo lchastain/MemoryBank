@@ -43,7 +43,7 @@ public class LinkEditorMain {
                 targetNoteData.setNoteString("Note string " + i);
                 targetNoteData.setExtendedNoteString("Extended note.  And more, later."); // Don't care right now about a Subject
 
-                LinkedEntityData linkedEntityData = new LinkedEntityData(groupProperties, targetNoteData);
+                LinkedEntityData linkedEntityData = new LinkedEntityData(new GroupInfo(groupProperties), new NoteInfo(targetNoteData));
                 linkedEntityData.linkType = LinkedEntityData.LinkType.getRandomType();  // one of the valid choices
 
                 sourceNoteData.linkTargets.add(linkedEntityData);

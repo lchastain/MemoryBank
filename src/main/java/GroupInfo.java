@@ -78,7 +78,6 @@ class GroupInfo extends BaseData {
             thePanel.refresh(); // Preserve any unsaved changes.
             // No need to remove from keeper after this; any link target changes that we make next will pass through
             // and still take effect there.
-            // but this is another point to VERIFY - TODO
             return thePanel;
         }
 

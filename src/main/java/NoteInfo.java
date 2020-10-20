@@ -30,7 +30,6 @@ class NoteInfo extends BaseData {
     }// end of the copy constructor
 
     void clear() {
-        // We don't clear this NoteData's notegroup (myNoteGroup).
         noteString = "";
 
         // initialize subject to null to indicate that a group-specified default subject should be used.

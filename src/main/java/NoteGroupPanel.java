@@ -36,7 +36,6 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     JMenu myListMenu; // Child classes each have their own menu
 
     boolean editable;
-    transient boolean groupChanged;  // Flag used to determine if saving data might be necessary.
     int lastVisibleNoteIndex = 0;
     int pageSize;
 
@@ -354,7 +353,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
     // View and Edit the linkages associated with this Group.
     void groupLinkages() {
-        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(getGroupProperties());
+        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(getGroupProperties(), null);
         // In the above call, need to get properties via the accessor, because they could be null for CalendarNoteGroups.
 
         int choice = JOptionPane.showConfirmDialog(
@@ -375,11 +374,11 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
             setGroupChanged(true);
             preClosePanel();
 
-            linkagesEditorPanel.addReverseLinks(myProperties.linkTargets);
+            addReverseLinks(myProperties.linkTargets);
 
-            // These lines may be useful during dev - can disable eventually.
-            System.out.println("Serializing the new group properties:");
-            System.out.println(AppUtil.toJsonString(myProperties));
+            // These lines can be useful during development.
+            //System.out.println("Serializing the new group properties:");
+            //System.out.println(AppUtil.toJsonString(myProperties));
         }
 
         // If this NoteComponent's group has a keeper and was also viewed via the linkTargetSelectionPanel
@@ -406,16 +405,13 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     //----------------------------------------------------------------
     // Method Name: setGroupChanged
     //
-    // Called by all contexts that make a change to the data, each
-    //   time a change is made.  Child classes can override if they
-    //   need to intercept a data change, but in that case they
-    //   should still call this super method so that group saving
-    //   is done when needed and menu items are managed correctly.
+    // Called by all contexts that make a change to the data, each time a change is made.
+    //   Child classes can override if they need to intercept a data change, but in that case
+    //   they should still call THIS super method so that menu items are managed correctly.
     //----------------------------------------------------------------
-    @Override // An interface implementation, not a true override.
+    @Override // A NoteGroupManager interface implementation AND a true override of the NoteGroup method.
     public void setGroupChanged(boolean b) {
-        if(groupChanged == b) return;
-        groupChanged = b;
+        super.setGroupChanged(b); // We overrode it, but now calling it anyway.
         adjustMenuItems(b);
     } // end setGroupChanged
 

@@ -781,7 +781,7 @@ public class NoteComponent extends JPanel {
     // or several of them if this class were not also static.
     private static class PopHandler implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (theNoteComponent == null) return;
+            if (theNoteComponent == null) return; // Since this is a static method, we cannot use 'this'.
 
             JMenuItem jm = (JMenuItem) e.getSource();
             NoteData noteData = theNoteComponent.getNoteData(); // Not used in every case, below.
@@ -824,11 +824,16 @@ public class NoteComponent extends JPanel {
                         theNoteComponent.setNoteChanged();
                         theNoteComponent.myNoteGroupPanel.preClosePanel();
 
-                        linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
+                        // Set the NoteData group.  Do NOT use noteData.getMyNoteGroup() as the value to set;
+                        // it is still null, at this point.  Need to work on that...
+                        // maybe have it set automatically, somewhere, and then no need to call a 'set', here.
+                        noteData.setMyNoteGroup(theNoteComponent.myNoteGroupPanel);
+                        noteData.addReverseLinks(noteData.linkTargets);
+//                        linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 
-                        // These lines may be useful during dev - can disable eventually.
-                        System.out.println("Serializing the new link:");
-                        System.out.println(AppUtil.toJsonString(noteData));
+                        // These lines can be useful during development.
+                        //System.out.println("Serializing the new link:");
+                        //System.out.println(AppUtil.toJsonString(noteData));
                     }
 
                     // Remove the 'modification in progress' highlight

@@ -1,33 +1,64 @@
 12345678901234567890123456789012345678901234567890123456789012345678901234567890    80
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
-NEXT:  Implement Auto-removal of reverse links.
-  OR - work on encapsulating the NoteGroupDataAccessor.
+NEXT:  Big picture: Implement Auto-removal of reverse links.
+    Immediate:  Change the implementation of GroupInfo.getNoteGroupDataAccessor in removeReverseLinks so that the
+        result is that the group can be re-persisted without constructing a Panel.
+        This may mean we will need to work on encapsulating the NoteGroupDataAccessor, or other rearchitecting tasks.
 
-    Problems:
-
-    Issues:
-        So making it into a Panel is really what is going too far.  This takes us back to
-        checking its myNoteGroupPanel and if not null, casting to a Panel so that it can be refreshed.
-
-      It looks like, if you use the Jackson mapper to convert an already-loaded json Object into GroupProperties
-      (or NoteData), you still get a new instance, and any change you make to it is not seen back in the source data (duh).
 
 New:
 
+
+=====================================================================================================
+20 Oct 2020
+    Moved the reverse link creation from the editor panel to Notes and Groups via a new Interface with default methods.
+    Removed the constructor for LinkedEntityData that took in Properties and Notes; now those are Info types.
+    Now have 3 tests in this area - one for the LinkagesEditorPanel, one for reverse Note links, and one for reverse
+      group links.
+    This was all done in support of stabilizing the existing functionalities before continuing to try to get data to
+      be separate of Panels and Files.
+
+19 Oct 2020
+    Idea to move addReverseLinks from one location in the editor panel, to two places; callable via either the link-
+        holding Group or Note.  Possibly as an Interface (LinkHolder?) with a default method.
+      Why?  It is in line with the effort to keep Panels separate of data, and currently in order to add reverse links
+        you need to have an instance of the editor, that was constructed with the linkholder in question.  This
+        became apparent while trying to develop the full test for reverse links, and it is during this test dev work
+        that it is appropriate to make this move.
+
+18 Oct 2020
+    Tried adding an addNote() to NoteGroup, to get it into the Vector without giving it a type - and that works!  This
+      will change things...  (for one thing, it could greatly ease test setups).
+    Consolidated constructors for the LinkagesEditorPanel, so that a null may be sent as the note to link, and only one
+      main constructor is needed for the panel.  This simplified code and increased coverage of code by tests.
+    Moved groupChanged from NoteGroupPanel to NoteGroup.  Added a setGroupChanged() method to NoteGroup, left the one
+      in the Panel but now it calls the new one in the base, as well as still adjusting menu items.
+
+17 Oct 2020
+  With the current 'real' goal being to implement auto-removal of reverse links, there is still the competing and
+    disruptive effort of wanting to fix the architecture.  But upon trying to prioritize the 'real' work, I find that
+    the first stop along the way is to acquire a Group from its GroupInfo that came from a link.  This SHOULD NOT
+    involve constructing a Panel in order to accomplish, yet it does, given the current implementation in GroupInfo of
+    getNoteGroupDataAccessor.  So if this bothers me so much that I cannnot set it aside, then we have to work on the
+    rearchitecting anyway.  So that is how it is, at least partially, to the point where the method will give me a
+    reference that can be used to save a NoteGroup without involving a Panel.  No telling how much of the rearch will
+    be needed in order to accomplish that; will let you know.  Here is some of the thought process that led up to
+    this point:
   Reasons for continuing with the full rearchitecting:
   1.  Need the ability to get a full typed NoteData from a Group.  The 'getNoteData(NoteInfo)' can be defined in
         the class children to provide the translation type for the noteGroupDataVector so that
         it can be cycled through, to search for the ID.
-      But is it needed?  Seems like the latest rev of getLinkTargets is better, now.
-      And the same cycle mechanism could be used (cycle thru Object, cast to base NoteData so the ID can be compared,
-        but then return the full Object and let the calling context cast it to the class that is expected) right now,
-        without any hierarchy change needed, IF we even need a 'getNoteData'.
+      But is it needed?  Seems like the latest rev of getLinkTargets is better, now (cycle thru the untyped data Vector
+        as Objects, cast to base NoteData so the ID can be compared and then return its linkTargets).
+      THAT IS CORRECT - not currently needed.  And if we do at some point need the full specific type NoteData then the
+      same cycle mechanism could be used to return the full Object and let the calling context cast it to the class that
+      is expected.  We can do that right now, without any hierarchy change needed.
+        Reason #1 rejected.
   2.  Get NoteGroup data and methods separate of Panels.  This would be needed if the app ever goes more towards a
-        client-server setup, such as would be the case in the Web version.  And I do want to take it there, eventually.
-
-
-=====================================================================================================
+        client-server setup, such as would be the case in the Web version.  But that is an eventual; right now -
+        the methods to load and save data NEED to provide a way to do that without having to create a Panel, and
+        they don't.
 
 16 Oct 2020
   Recent discoveries of problems with reverse links - not all of them came from recent changes; some problems were
@@ -59,6 +90,14 @@ New:
     having a lot more work to do.  Not sure at this point whether or not there will be some intermediate stopping point
     where I can get back to having a working solution to at least create and persist the reverse links; had that,
     before trying so hard to automatically remove them.  Oh well - you got something better to do?   ... thought so.
+
+Moved this note down here from the above ongoing issues above the log notes.
+This was 'discovered' sometime in Early October; could have been before or after (up to the 15th) this placement.
+    It looks like, if you use the Jackson mapper to convert an already-loaded json Object into GroupProperties
+    (or NoteData), you still get a new instance, and any change you make to it is not seen back in the source data.
+  I had been counting on a pass-thru, which would have worked had I just had a proper handle and one a recreated one.
+  This is what led to further changes in the data makeup of a base NoteGroup, and more embedding of the Object array
+    and eventually the decision to rearchitect again.
 
 10 Oct 2020 - Started the re-arch work and also wanted to go directly to the added benefit; being able to extract a
   single note from a NoteGroup.  How to do that presented a big problem since the usage of 'AllNoteData' in searching

@@ -931,7 +931,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     // Call this method after changes have been made to the tree, to
     //   cause a repaint.  The first line below does that all by itself,
     //   but it also results in a tree with all nodes collapsed.  So the
-    //   rest of this medhod is needed to re-expand any nodes that
+    //   rest of this method is needed to re-expand any nodes that
     //   should have stayed that way.
     //------------------------------------------------------------------
     private void resetTreeState() {

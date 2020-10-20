@@ -1,5 +1,9 @@
-class NoteData extends NoteInfo {
+class NoteData extends NoteInfo implements LinkHolder {
     LinkTargets linkTargets;
+
+    // This member is used in linking.  Not always present; needs to be set by a higher context.
+    private transient NoteGroup myNoteGroup;
+
 
     NoteData() {
         super();
@@ -22,6 +26,7 @@ class NoteData extends NoteInfo {
         // This usage comes from LinkNoteComponent.  We leave the linkTargets null.
     }
 
+
     void clear() {
         super.clear();
         linkTargets = new LinkTargets();
@@ -34,5 +39,56 @@ class NoteData extends NoteInfo {
     protected NoteData copy() {
         return new NoteData(this);
     }
+
+
+    // Make a 'reverse' link from a 'forward' one where this
+    // entity WAS the source; now it will be the target.
+    // The calling context will attach the result to the correct LinkHolder.
+    public LinkedEntityData createReverseLink(LinkedEntityData linkedEntityData) {
+        LinkedEntityData reverseLinkedEntityData;
+
+        // Get the group that this NoteData belongs to.
+        NoteGroup myNoteGroup = getMyNoteGroup();
+
+        // All linked notes belong to a group, so we do not expect this transient member to be null.
+        // But it is up to the calling context to have previously set the value, so it does need to be verified:
+        assert myNoteGroup != null;
+
+        // Now from the group we can get its properties -
+        GroupProperties groupProperties = myNoteGroup.getGroupProperties();
+
+        // Another not-null verification
+        assert groupProperties != null;
+
+        // But we don't actually want the full Properties; just the info from them, so -
+        GroupInfo groupInfo = new GroupInfo(groupProperties);
+
+        // And now we can start making the reverse link.
+        // Initially it will look just like a standard 'forward' link.
+        reverseLinkedEntityData = new LinkedEntityData(groupInfo, new NoteInfo(this));
+
+        // But now - give it the same ID as the forward one.  This will help with any
+        // subsequent operations where the two will need to be 'in sync'.
+        reverseLinkedEntityData.instanceId = linkedEntityData.instanceId;
+
+        // Then give it a type that is the reverse of the forward link's type -
+        reverseLinkedEntityData.linkType = linkedEntityData.reverseLinkType(linkedEntityData.linkType);
+
+        // and then raise the 'reversed' flag.
+        reverseLinkedEntityData.reversed = true;
+
+        return reverseLinkedEntityData;
+    }
+
+
+    NoteGroup getMyNoteGroup() {
+        return myNoteGroup;
+    }
+
+
+    void setMyNoteGroup(NoteGroup myNoteGroup) {
+        this.myNoteGroup = myNoteGroup;
+    }
+
 
 } // end class NoteData

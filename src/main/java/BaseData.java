@@ -13,19 +13,20 @@ public class BaseData {
         }
     }
 
-    @Override
-    public boolean equals(Object theOtherOne) {
-        if (getClass() != theOtherOne.getClass()) return false;
-        return instanceId.toString().equals(((BaseData) theOtherOne).instanceId.toString());
-    }
+//    @Override
+//    public boolean equals(Object theOtherOne) {
+//        // Breakpoint until we find who calls / needs this - IJ gives >1000 results
+//        if (getClass() != theOtherOne.getClass()) return false;
+//        return instanceId.toString().equals(((BaseData) theOtherOne).instanceId.toString());
+//    }
 
-    // This is used during uniqueness checking.  This method effectively disables
-    // the 'hashcode' part of the check, so that the only remaining uniqueness criteria
-    // is the result of the .equals() method.
-    @Override
-    public int hashCode() {
-        return 1;
-    }
+//    // This is used during uniqueness checking.  This method effectively disables
+//    // the 'hashcode' part of the check, so that the only remaining uniqueness criteria
+//    // is the result of the .equals() method.
+//    @Override
+//    public int hashCode() {
+//        return 1;
+//    }
 
 
 }
