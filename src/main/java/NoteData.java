@@ -77,6 +77,10 @@ class NoteData extends NoteInfo implements LinkHolder {
         // and then raise the 'reversed' flag.
         reverseLinkedEntityData.reversed = true;
 
+        // It might appear that the type of this 'new' link could changed, but the editor panel will stop that when
+        // it is displayed because this reversed link will already be in the list of links to be shown, whereas
+        // links that are truly 'new' will have only been created by the panel while it is active.
+        // Point being - there is no need to set 'reverseLinkedEntityData.retypeMe' to false.
         return reverseLinkedEntityData;
     }
 

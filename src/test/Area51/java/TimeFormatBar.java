@@ -265,31 +265,31 @@ public class TimeFormatBar extends Container implements ClingSource {
         if (order.equals("0")) return s.toString();
         int numcols = order.length();
         for (int i = 0; i < numcols; i++) {
-            if (order.substring(i, i + 1).equals("1")) {
+            if (order.charAt(i) == '1') {
                 s.append("!").append(fb1.getFormat());
                 if (hb1.separatorString.length() != 0)
                     s.append("'").append(hb1.getSeparator()).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("2")) {
+            if (order.charAt(i) == '2') {
                 s.append("!").append(fb2.getFormat());
                 if (hb2.separatorString.length() != 0)
                     s.append("'").append(hb2.getSeparator()).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("3")) {
+            if (order.charAt(i) == '3') {
                 s.append("!").append(fb3.getFormat());
                 if (hb3.separatorString.length() != 0)
                     s.append("'").append(hb3.getSeparator()).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("4")) {
+            if (order.charAt(i) == '4') {
                 s.append("!").append(fb4.getFormat());
                 if (hb4.separatorString.length() != 0)
                     s.append("'").append(hb4.getSeparator()).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("5")) {
+            if (order.charAt(i) == '5') {
                 s.append("!").append(fb5.getFormat());
                 if (hb5.separatorString.length() != 0)
                     s.append("'").append(hb5.getSeparator()).append("'");

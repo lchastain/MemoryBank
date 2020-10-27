@@ -278,36 +278,36 @@ public class DateFormatBar extends Container implements ClingSource {
         if (order.equals("0")) return s.toString();
         int numcols = order.length();
         for (int i = 0; i < numcols; i++) {
-            if (order.substring(i, i + 1).equals("1")) {
+            if (order.charAt(i) == '1') {
                 s.append("|").append(fb1.getFormat());
                 if (hb1.separatorString.length() != 0)
                     s.append("'").append(hb1.separatorString).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("3")) {
+            if (order.charAt(i) == '3') {
                 s.append("|").append(fb3.getFormat());
                 if (hb3.separatorString.length() != 0)
                     s.append("'").append(hb3.separatorString).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("4")) {
+            if (order.charAt(i) == '4') {
                 s.append("|").append(fb4.getFormat());
                 if (hb4.separatorString.length() != 0)
                     s.append("'").append(hb4.separatorString).append("'");
             } // end if
 
             // Time is a special (embedded) case.
-            if (order.substring(i, i + 1).equals("5")) {
+            if (order.charAt(i) == '5') {
                 s.append("|").append(tfp.getFormat());
             } // end if
 
-            if (order.substring(i, i + 1).equals("6")) {
+            if (order.charAt(i) == '6') {
                 s.append("|").append(fb6.getFormat());
                 if (hb6.separatorString.length() != 0)
                     s.append("'").append(hb6.separatorString).append("'");
             } // end if
 
-            if (order.substring(i, i + 1).equals("7")) {
+            if (order.charAt(i) == '7') {
                 s.append("|").append(fb7.getFormat());
                 if (hb7.separatorString.length() != 0)
                     s.append("'").append(hb7.separatorString).append("'");

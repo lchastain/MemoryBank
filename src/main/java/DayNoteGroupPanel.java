@@ -6,13 +6,12 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
 
     private static AppIcon defaultIcon;
-    private final JLabel dayTitle;  // the JLabel is final; its text is not.
+    private JLabel dayTitle;  // the JLabel is final; its text is not.
     static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
 
     static {
@@ -41,15 +40,16 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
 
     DayNoteGroupPanel() {
-        super("Day Note");
+        super(GroupInfo.GroupType.DAY_NOTES);
+        buildMyPanel();
+    } // end constructor
 
+    private void buildMyPanel() {
         // Create the panel title
         dayTitle = new JLabel();
         dayTitle.setHorizontalAlignment(JLabel.CENTER);
         dayTitle.setForeground(Color.white);
         dayTitle.setFont(Font.decode("Serif-bold-20"));
-
-        dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
 
         LabelButton timeFormatButton = new LabelButton("24");
         timeFormatButton.addMouseListener(this);
@@ -82,7 +82,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
         updateHeader();
         MemoryBank.trace();
-    } // end constructor
+    }
 
     private String getChoiceString() {
         return dtf.format(theChoice);

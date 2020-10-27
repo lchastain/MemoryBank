@@ -33,7 +33,7 @@ class NoteGroupPanelKeeperTest {
 
     @BeforeEach
     void setUp() {
-        // These steps also take care of coverage for the 'add' method.
+        // These steps also take care of coverage for the 'setNotes' method.
         noteGroupPanelKeeper = new NoteGroupPanelKeeper();
         theNoteGroup1 = new TodoNoteGroupPanel("Get New Job");
         noteGroupPanelKeeper.add(theNoteGroup1);
@@ -55,7 +55,7 @@ class NoteGroupPanelKeeperTest {
 
     @Test
     void testRemove() {
-        // This verifies our starting point, plus shows that 'add' worked correctly.
+        // This verifies our starting point, plus shows that 'setNotes' worked correctly.
         assertEquals(2, noteGroupPanelKeeper.size());
 
         // This one can be found.

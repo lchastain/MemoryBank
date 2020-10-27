@@ -4,9 +4,9 @@ public interface LinkHolder {
         GroupInfo otherEndGroupInfo = linkedEntityData.getTargetGroupInfo();
         NoteInfo otherEndNoteInfo = linkedEntityData.getTargetNoteInfo();
 
-        // Use the target GroupInfo to get a reference to the group's data accessor
-        // For now, this will be a Panel.  more on that to come....
-        NoteGroupDataAccessor groupToSave = otherEndGroupInfo.getNoteGroupDataAccessor();
+        // Use the target GroupInfo to get a reference to the group.
+        // For now, this will be a Panel, but as a NoteGroup child this still works.  more on that to come....
+        NoteGroup groupToSave = otherEndGroupInfo.getNoteGroup();
 
         // We need to be sure that the link points to a valid group.
         assert groupToSave != null;
@@ -21,8 +21,8 @@ public interface LinkHolder {
             groupToSave.getGroupProperties().linkTargets.add(reverseLinkedEntityData);
         }
 
-        // Use the data accessor method to persist the Group with the new reverse link.
-        groupToSave.saveNoteGroupData(); // This saves the updated Group.
+        // Use the reference to persist the Group with the new reverse link.
+        groupToSave.saveNoteGroup(); // This saves the updated Group.
     }
 
 
@@ -37,7 +37,7 @@ public interface LinkHolder {
     default void  addReverseLinks(LinkTargets linkages) {
         for (LinkedEntityData linkedEntityData : linkages) {
             // Since we are looking through ALL links to see if we need to handle new ones, we will also see the
-            // ones (if any) that were already there.   In those cases we don't want to add a reverse link for them
+            // ones (if any) that were already there.   In those cases we don't want to setNotes a reverse link for them
             // because that already happened when they first appeared, and we don't want them to pile up; only one
             // reverse link per forward link is allowed.  We can know that a forward link pre-existed based
             // on whether or not we are allowed to change its type, because only new links are allowed to be

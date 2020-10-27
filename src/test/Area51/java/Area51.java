@@ -43,15 +43,15 @@ public class Area51 {
         // Make a new GoalGroup
         String groupName = "WorldPlan1";
         GoalGroupPanel goalGroup = new GoalGroupPanel(groupName);
-        ((GoalGroupProperties) goalGroup.myProperties).longTitle = "Take Over The World";
-        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
+        ((GoalGroupProperties) goalGroup.myNoteGroup.myProperties).longTitle = "Take Over The World";
+        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myNoteGroup.myProperties));
 
         // Make a todo list item and a link to the Goal.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Notify the media";
 
 //        LinkTargetData linkage = new LinkTargetData(goalGroup.myProperties.instanceId, null);
-//        todoNoteData.linkTargets.add(linkage);
+//        todoNoteData.linkTargets.setNotes(linkage);
 
         System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
     }
@@ -77,7 +77,7 @@ public class Area51 {
         // its linkTargets to avoid infinite recursion) from the original EventNoteData.
         NoteData targetNoteData = new NoteData(eventNoteData);
 //        LinkTargetData linkage = new LinkTargetData(UUID.randomUUID(), targetNoteData);
-//        todoNoteData.linkTargets.add(linkage);
+//        todoNoteData.linkTargets.setNotes(linkage);
 
         System.out.println("The TodoNoteData with link to an Event and its note, to JSON is: " + AppUtil.toJsonString(todoNoteData));
     }
@@ -88,15 +88,15 @@ public class Area51 {
         // Make a new GoalGroup
         String groupName = "WorldPlan1";
         GoalGroupPanel goalGroup = new GoalGroupPanel(groupName);
-        ((GoalGroupProperties) goalGroup.myProperties).longTitle = "Take Over The World";
-        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myProperties));
+        ((GoalGroupProperties) goalGroup.myNoteGroup.myProperties).longTitle = "Take Over The World";
+        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myNoteGroup.myProperties));
 
         // Make a todo list item and a link to the Goal.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Notify the media";
 
 //        LinkTargetData linkage = new LinkTargetData(goalGroup.myProperties.instanceId, null);
-//        todoNoteData.linkTargets.add(linkage);
+//        todoNoteData.linkTargets.setNotes(linkage);
 
         System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
     }
@@ -110,7 +110,7 @@ public class Area51 {
                 Component rowTwo = Box.createHorizontalGlue();
 
                 f.add(rowOne, BorderLayout.NORTH);
-//                f.add(rowTwo, BorderLayout.SOUTH);
+//                f.setNotes(rowTwo, BorderLayout.SOUTH);
                 f.setSize(300, 200);
                 f.setVisible(true);
     }

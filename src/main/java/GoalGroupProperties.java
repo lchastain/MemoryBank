@@ -43,7 +43,7 @@ public class GoalGroupProperties extends GroupProperties {
     // At some point - consider an 'analyze' button.  A bit of low-level AI to examine the available data and make
     // suggestions.
     //  Add a goal
-    //      add a plan
+    //      setNotes a plan
     //          make a todo list
     //              link a todo item to the goal
     //  and then it gets hard....

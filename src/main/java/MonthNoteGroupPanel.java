@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private final JLabel monthTitle;
+    private JLabel monthTitle;
 
     static {
         MemoryBank.trace();
@@ -21,8 +21,11 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
 
 
     MonthNoteGroupPanel() {
-        super("Month Note");
+        super(GroupInfo.GroupType.MONTH_NOTES);
+        buildMyPanel();
+    } // end constructor
 
+    private void buildMyPanel() {
         // Create the window title
         monthTitle = new JLabel();
         monthTitle.setHorizontalAlignment(JLabel.CENTER);

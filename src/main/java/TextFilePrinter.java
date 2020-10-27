@@ -116,7 +116,7 @@ class TextFilePrinter extends Dialog implements
         p.add(ps);
         p.add(printBtn);
         p.add(closeBtn);
-        // getContentPane().add(p, BorderLayout.NORTH);
+        // getContentPane().setNotes(p, BorderLayout.NORTH);
         add(p, BorderLayout.NORTH);
 
         pack();
@@ -144,7 +144,7 @@ class TextFilePrinter extends Dialog implements
         //   depending on screen resolution.  However, if a vertical
         //   scrollbar does appear, it will decrease the viewable
         //   width and create the need for the horizontal sb.
-        //   So, to counteract that event, we add to our
+        //   So, to counteract that event, we setNotes to our
         //   width setting by the amount of the width of the
         //   vertical sb.
 
@@ -256,10 +256,8 @@ class TextFilePrinter extends Dialog implements
     } // end fontChanged
 
     public void pageChanged() {
-        if (currentPage == 1) prevBtn.setEnabled(false);
-        else prevBtn.setEnabled(true);
-        if (currentPage == Pages) nextBtn.setEnabled(false);
-        else nextBtn.setEnabled(true);
+        prevBtn.setEnabled(currentPage != 1);
+        nextBtn.setEnabled(currentPage != Pages);
     } // end pageChanged
 
     public void setOptions(boolean b1, boolean b2, boolean b3) {

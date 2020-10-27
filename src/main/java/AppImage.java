@@ -1,5 +1,5 @@
 /*
- This custom component provides an easy way to add a scaled graphic to
+ This custom component provides an easy way to setNotes a scaled graphic to
  a container without the overhead of the standard swing classes that
  are commonly used to display images.
 

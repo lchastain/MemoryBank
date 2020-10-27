@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,29 +7,18 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.time.LocalDate;
-import java.util.Vector;
-
-// A GoalGroup (like any other NoteGroup) is not itself saved (serialized).  Its
-// properties and linked notes are what are persisted to the data file.
 
 
 public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
-    static String areaName;
-    static String areaPath;
-    static String filePrefix;
     static String userInfo;
     static String defaultPlanText;
 
-    private final ThreeMonthColumn tmc;  // For Date selection
+    private ThreeMonthColumn tmc;  // For Date selection
     private MilestoneComponent milestoneComponent;
 
     static {
-        areaName = "Goals"; // Directory name under user data.
-        areaPath = MemoryBank.userDataHome + File.separatorChar + areaName + File.separatorChar;
-        filePrefix = "goal_";
         MemoryBank.trace();
 
         userInfo = "Enter the major (remaining) steps for achieving this goal.  These are the milestones ";
@@ -43,38 +31,25 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
     public GoalGroupPanel(String groupName) {
         super(10);
-        log.debug("Constructing: " + groupName);
 
-        setGroupFilename(areaPath + filePrefix + groupName + ".json");
-
-        tmc = new ThreeMonthColumn();
-        tmc.setSubscriber(this);
-
-        // We can still have goal data without having (yet) defined milestones.
-        saveWithoutData = true;
-
-        // Wrapped tmc in a FlowLayout panel, to prevent stretching.
-        JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        pnl1.add(tmc);
-        theBasePanel.add(pnl1, BorderLayout.EAST);
-
-        updateGroup(); // This will load the properties (myProperties) and the groupDataVector
-
-        if(myProperties == null) {
-            // This happens when there was no file to load - in the case of a new group.
-            setGroupProperties(new GoalGroupProperties(groupName));
-        } else {
-            // This is intended to 'fix' a renamed group, where the filename is correct but the group info
-            // inside the file was never updated, so properties deserialize with the older name.
-            myProperties.setGroupName(groupName);
-        }
-        myNoteGroupPanel = this;
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.GOALS);
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
+        myNoteGroup.myNoteGroupPanel = this;
+        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
 
         buildPanelContent(); // Content other than the groupDataVector
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
+        tmc = new ThreeMonthColumn();
+        tmc.setSubscriber(this);
+
+        // Wrapped tmc in a FlowLayout panel, to prevent stretching.
+        JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pnl1.add(tmc);
+        theBasePanel.add(pnl1, BorderLayout.EAST);
+
 
         // The multi-row Header for the GoalGroup -
         //-----------------------------------------------------
@@ -84,8 +59,8 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         // The First Header Row -   Title
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
-        JLabel goalNameLabel = new JLabel(myProperties.getGroupName());
-        String longTitle = ((GoalGroupProperties) myProperties).longTitle;
+        JLabel goalNameLabel = new JLabel(myNoteGroup.myProperties.getGroupName());
+        String longTitle = ((GoalGroupProperties) myNoteGroup.myProperties).longTitle;
         if (null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
         goalNameLabel.setHorizontalAlignment(JLabel.CENTER);
         goalNameLabel.setBackground(Color.blue);
@@ -97,7 +72,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         // The Second Header Row -  Goal Plan
         //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
-        String thePlanString = ((GoalGroupProperties) myProperties).goalPlan;
+        String thePlanString = ((GoalGroupProperties) myNoteGroup.myProperties).goalPlan;
         if (thePlanString == null) thePlanString = defaultPlanText;
         headingRow2.add(makePlanTextArea(thePlanString), BorderLayout.CENTER);
 
@@ -138,11 +113,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     }
 
 
-    //-------------------------------------------------------------
-    // Method Name:  dateSelected
-    //
     // Interface to the Three Month Calendar; called by the tmc.
-    //-------------------------------------------------------------
     public void dateSelected(LocalDate ld) {
         MemoryBank.debug("Date selected on TMC = " + ld);
 
@@ -159,17 +130,6 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         milestoneComponent.setTodoNoteData(tnd);
     } // end dateSelected
 
-
-    @Override
-    public GroupProperties getGroupProperties() {
-        // The preference is to recreate the properties each time from loaded data.
-        Object[] theData = getTheData();
-        if(theData[0] != null) { // Properties may have been set before having any data, but if there is data -
-            setGroupProperties(AppUtil.mapper.convertValue(theData[0], new TypeReference<GoalGroupProperties>() {}));
-        }
-
-        return myProperties;
-    }
 
 
     //--------------------------------------------------------
@@ -252,12 +212,8 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         return goalPlanTextArea;
     }
 
-    //--------------------------------------------------------------
-    // Method Name: showComponent
-    //
     //  Several actions needed when a line has
     //    either gone active or inactive.
-    //--------------------------------------------------------------
     void showComponent(MilestoneComponent nc, boolean showit) {
         if (showit) {
             milestoneComponent = nc;
@@ -272,17 +228,5 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
             tmc.setChoice(null);
         } // end if
     } // end showComponent
-
-
-    @Override
-        // This method is called when loading the Goal from a file
-    void setPanelData(Object[] theGroup) {
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GoalGroupProperties.class));
-        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() { });
-        // Need to define the link type for reversing a link, get a list of sources that is added to each time a link is made.
-        // may be similar to SearchResultData / component.
-        BaseData.loading = false; // Restore normal lastModDate updating.
-    }
 
 }

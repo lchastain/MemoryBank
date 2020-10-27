@@ -8,7 +8,8 @@ public class BaseData {
 
     BaseData() {
         instanceId = UUID.randomUUID();
-        if(!loading) {
+        if(!loading) {  // This mechanism may NOT be needed after all.
+            // Yes, jackson runs this constructor, but THEN it overlays zdtLastModString with the value that it parsed out.
             zdtLastModString = ZonedDateTime.now().toString();
         }
     }

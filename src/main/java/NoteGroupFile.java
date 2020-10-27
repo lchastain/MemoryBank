@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
@@ -7,121 +6,162 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Vector;
 
 
-class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
+class NoteGroupFile implements NoteGroupDataAccessor {
     static String basePath;
+    static String calendarNoteGroupAreaPath;
+    static String eventGroupAreaPath;
+    static String goalGroupAreaPath;
+    static String searchResultGroupAreaPath;
+    static String todoListGroupAreaPath;
+
+    static String eventGroupFilePrefix;
+    static String goalGroupFilePrefix;
+    static String searchResultFilePrefix;
+    static String todoListFilePrefix;
+
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
-    boolean saveIsOngoing;
+    boolean saveIsOngoing; // A 'state' flag used by getGroupFilename (for now; other uses are possible).
+    GroupInfo groupInfo;
 
     private String failureReason; // Various file access failure reasons, or null.
 
     // This is the FULL filename, with storage specifier & path, prefix and extension.
     // Access it with getGroupFilename() & setGroupFilename().
-    protected String groupFilename;
+    private String groupFilename;
 
 
     static {
-        // We give this string a trailing separatorChar because we really
-        // do want a 'base' path as opposed to a complete path.  The common usage
-        // is to build on it to make a final path to a lower level, but occasionally
-        // it does get used by itself, and the trailing separatorChar causes no problems.
         basePath = MemoryBank.userDataHome + File.separatorChar;
+
+        calendarNoteGroupAreaPath = basePath + NoteGroup.calendarNoteGroupArea + File.separatorChar;
+        eventGroupAreaPath = basePath + NoteGroup.eventGroupArea + File.separatorChar;
+        goalGroupAreaPath = basePath + NoteGroup.goalGroupArea + File.separatorChar;
+        searchResultGroupAreaPath = basePath + NoteGroup.searchResultGroupArea + File.separatorChar;
+        todoListGroupAreaPath = basePath + NoteGroup.todoListGroupArea + File.separatorChar;
+
+        eventGroupFilePrefix = "event_";
+        goalGroupFilePrefix = "goal_";
+        searchResultFilePrefix = "search_";
+        todoListFilePrefix = "todo_";
     }
 
-    NoteGroupFile() {
-        super();
+//    NoteGroupFile() {
+//        super();
+//        saveIsOngoing = false;
+//        failureReason = null;
+//        saveWithoutData = false;
+//    }
+
+
+    NoteGroupFile(GroupInfo groupInfo) {
+        this.groupInfo = groupInfo;
+
+// No need to have a filename hanging around until we actually use it.
+// First real need is to capture it once a file is loaded.
+        // Try to find an existing file first.  If found, use that filename.
+        // Otherwise - make one.
+//        String theFilename = foundFilename(groupInfo);
+//        if(theFilename.isEmpty()) {
+//            theFilename = makeFullFilename();
+//        }
+//        setGroupFilename(theFilename);
+        setGroupFilename(null); // This sets it to an empty string.
+
         saveIsOngoing = false;
         failureReason = null;
-        saveWithoutData = false;
+
+        // Only the Calendar-type groups do not need to be saved when they have no data.
+        // The others - saving them creates a placeholder for a new group where notes will
+        //   be added subsequently, and/or they have extended properties that should be
+        //   preserved even though there are no notes to go along with them, such as the
+        //   search panel settings of a SearchResultGroup.
+        saveWithoutData = groupInfo.groupType == GroupInfo.GroupType.TODO_LIST; // Initialize the flag.
+        if(groupInfo.groupType == GroupInfo.GroupType.GOALS) saveWithoutData = true;
+        if(groupInfo.groupType == GroupInfo.GroupType.SEARCH_RESULTS) saveWithoutData = true;
+        if(groupInfo.groupType == GroupInfo.GroupType.EVENTS) saveWithoutData = true;
     }
 
 
-    NoteGroupFile(GroupProperties groupProperties) {
-        this();
-        setGroupProperties(groupProperties);
-    }
-
-
-    @Override
-    // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
-    @SuppressWarnings("rawtypes")
-    public boolean addDayNote(LocalDate theDay, DayNoteData theNote) {
-        Object[] theGroup = null; // The complete data set for the group to which we will add theNote.
-        NoteGroupFile noteGroupFile;
-
-        // Get the group name for the input date.
-        String dayGroupName = NoteGroupDataAccessor.getGroupNameForDay(theDay);
-
-        // Now get the DayNoteGroupPanel from the application tree
-        NoteGroupPanel dayNoteGroupPanel;
-        dayNoteGroupPanel = AppTreePanel.theInstance.theAppDays;
-
-        if(dayNoteGroupPanel != null) { // Ok it's not null -
-            // so now we have to ask - does it currently display the group that we want to add to?
-            // It might be 'pointing' to some other day.
-            String theDaysName = dayNoteGroupPanel.getGroupName();
-            if (theDaysName.equals(dayGroupName)) { //
-                // If it does point to the same day then it might have unsaved changes.
-                if(dayNoteGroupPanel.groupChanged) {
-                    // If there are unsaved changes then we save the file now,
-                    // so that we can add to the closed file, in the next steps.
-                    dayNoteGroupPanel.preClosePanel();
-                }
-                AppTreePanel.theInstance.theAppDays = null;
-                // This was so that it gets reloaded if re-selected later in the tree.
-                // Doing it this way was better than how reverse links handle their display update, because a
-                // refresh now still would not handle the new note that we are about to add to the data file.
-            }
-        }
-
-        // Determine the filename.  We cannot just go directly to making one, because pre-existing files will
-        //   have a previously set filename that was built with timestamps earlier than any we would make here.
-        //   So look for pre-existing and take that one if it exists, otherwise make one.
-        String theFilename = NoteGroupFile.foundFilename(theDay, "D");
-        if (theFilename.equals("")) {
-            theFilename = NoteGroupFile.makeFullFilename(theDay, "D");
-        } else {
-            // Now we have to try to load the data directly from file.
-            theGroup = loadFileData(theFilename);
-        } // end if
-
-        // Make a new NoteGroupFile -
-        if(theGroup != null) { // Data was loaded from a file -
-            // Convert theGroup[0] to a GroupProperties
-            GroupProperties groupProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
-
-            // Convert theGroup[1] to a Vector of NoteData, and add the new note to it.
-            TypeReference theType = new TypeReference<Vector<DayNoteData>>() { };
-            Vector<NoteData> noteDataVector = AppUtil.mapper.convertValue(theGroup[1], theType);
-            noteDataVector.add(theNote);
-
-            // Make a new NoteGroupFile
-            noteGroupFile = new NoteGroupFile(groupProperties);
-            noteGroupFile.setGroupFilename(theFilename);
-            noteGroupFile.add(noteDataVector);
-        } else { // Othwerwise, we were not able to load the data (there might have been an error but more likely
-            // there was simply no pre-existing data for the Day).  So we just make our own data and NoteGroupFile -
-            GroupProperties groupProperties = new GroupProperties(dayGroupName, GroupInfo.GroupType.DAY_NOTES);
-            Vector<NoteData> noteDataVector = new Vector<>(1,1);
-            noteDataVector.add(theNote);
-
-            noteGroupFile = new NoteGroupFile(groupProperties);
-            noteGroupFile.setGroupFilename(theFilename);
-            noteGroupFile.add(noteDataVector);
-        }
-
-        // Note that this is an instance method but we aren't saving its own data; instead saving the data for a new
-        // NoteGroupFile that was created by this method.  So this method could have been static but that would
-        // disqualify this method from being defined in the interface because the interface needs it to be non-static
-        // since each implementor will have a different methodology and data store in which to add a note.
-        //    yes, it could have been done differently .... better.   The calling contexts could have instantiated
-        //    the NoteGroupFile that already held the data that they needed and then called an addNote method on it
-        //    from there.  Might redo this...
-        noteGroupFile.saveNoteGroupData();
-        return true;
-    } // end addDayNote
+//    @Override
+//    // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
+//    @SuppressWarnings("rawtypes")
+//    public boolean addDayNote(LocalDate theDay, DayNoteData theNote) {
+//        Object[] theGroup = null; // The complete data set for the group to which we will setNotes theNote.
+//        NoteGroupFile noteGroupFile;
+//
+//        // Get the group name for the input date.
+//        String dayGroupName = NoteGroupDataAccessor.getGroupNameForDay(theDay);
+//
+//        // Now get the DayNoteGroupPanel from the application tree
+//        NoteGroupPanel dayNoteGroupPanel;
+//        dayNoteGroupPanel = AppTreePanel.theInstance.theAppDays;
+//
+//        if(dayNoteGroupPanel != null) { // Ok it's not null -
+//            // so now we have to ask - does it currently display the group that we want to setNotes to?
+//            // It might be 'pointing' to some other day.
+//            String theDaysName = dayNoteGroupPanel.getGroupName();
+//            if (theDaysName.equals(dayGroupName)) { //
+//                // If it does point to the same day then it might have unsaved changes.
+//                if(dayNoteGroupPanel.groupChanged) {
+//                    // If there are unsaved changes then we save the file now,
+//                    // so that we can setNotes to the closed file, in the next steps.
+//                    dayNoteGroupPanel.preClosePanel();
+//                }
+//                AppTreePanel.theInstance.theAppDays = null;
+//                // This was so that it gets reloaded if re-selected later in the tree.
+//                // Doing it this way was better than how reverse links handle their display update, because a
+//                // refresh now still would not handle the new note that we are about to setNotes to the data file.
+//            }
+//        }
+//
+//        // Determine the filename.  We cannot just go directly to making one, because pre-existing files will
+//        //   have a previously set filename that was built with timestamps earlier than any we would make here.
+//        //   So look for pre-existing and take that one if it exists, otherwise make one.
+//        String theFilename = NoteGroupFile.foundFilename(theDay, "D");
+//        if (theFilename.equals("")) {
+//            theFilename = NoteGroupFile.makeFullFilename(theDay, "D");
+//        } else {
+//            // Now we have to try to load the data directly from file.
+//            theGroup = loadFileData(theFilename);
+//        } // end if
+//
+//        // Make a new NoteGroupFile -
+//        if(theGroup != null) { // Data was loaded from a file -
+//            // Convert theGroup[0] to a GroupProperties
+//            GroupProperties groupProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
+//
+//            // Convert theGroup[1] to a Vector of NoteData, and setNotes the new note to it.
+//            TypeReference theType = new TypeReference<Vector<DayNoteData>>() { };
+//            Vector<NoteData> noteDataVector = AppUtil.mapper.convertValue(theGroup[1], theType);
+//            noteDataVector.add(theNote);
+//
+//            // Make a new NoteGroupFile
+//            noteGroupFile = new NoteGroupFile(groupProperties);
+//            noteGroupFile.setGroupFilename(theFilename);
+//            noteGroupFile.setNotes(noteDataVector);
+//        } else { // Othwerwise, we were not able to load the data (there might have been an error but more likely
+//            // there was simply no pre-existing data for the Day).  So we just make our own data and NoteGroupFile -
+//            GroupProperties groupProperties = new GroupProperties(dayGroupName, GroupInfo.GroupType.DAY_NOTES);
+//            Vector<NoteData> noteDataVector = new Vector<>(1,1);
+//            noteDataVector.add(theNote);
+//
+//            noteGroupFile = new NoteGroupFile(groupProperties);
+//            noteGroupFile.setGroupFilename(theFilename);
+//            noteGroupFile.setNotes(noteDataVector);
+//        }
+//
+//        // Note that this is an instance method but we aren't saving its own data; instead saving the data for a new
+//        // NoteGroupFile that was created by this method.  So this method could have been static but that would
+//        // disqualify this method from being defined in the interface because the interface needs it to be non-static
+//        // since each implementor will have a different methodology and data store in which to setNotes a note.
+//        //    yes, it could have been done differently .... better.   The calling contexts could have instantiated
+//        //    the NoteGroupFile that already held the data that they needed and then called an addNote method on it
+//        //    from there.  Might redo this...
+//        noteGroupFile.saveNoteGroupData();
+//        return true;
+//    } // end addDayNote
 
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there
@@ -141,8 +181,11 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
         } // end if
     } // end deleteFile
 
+    String foundFilename() {
+        return foundFilename(groupInfo);
+    }
 
-    // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
+        // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
     // where the data for the group is persisted.  If no file exists, the return string is empty ("").
     static String foundFilename(GroupInfo groupInfo) {
         String theFilename = "";
@@ -152,38 +195,35 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
         LocalDate theChoice;
         switch (groupInfo.groupType) {
             case DAY_NOTES:
-                // Only a 'day' CalendarNoteGroup group name will parse properly.
-                // The other two - need some pre-processing.
-                theChoice = LocalDate.parse(groupInfo.getGroupName());
+                theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "D");
                 break;
             case MONTH_NOTES: // Example group name:  October 2020
-                theChoice = LocalDate.parse("15 " + groupInfo.getGroupName());
+                theChoice =  CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "M");
                 break;
             case YEAR_NOTES: // Example group name:  2020
-                theChoice = LocalDate.now();
-                int theYear = Integer.parseInt(groupInfo.getGroupName());
-                theFilename = foundFilename(theChoice.withYear(theYear), "Y");
+                theChoice =  CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                theFilename = foundFilename(theChoice, "Y");
                 break;
             case TODO_LIST:
-                areaPath = TodoNoteGroupPanel.areaPath;
-                filePrefix = TodoNoteGroupPanel.filePrefix;
+                areaPath = todoListGroupAreaPath;
+                filePrefix = todoListFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case SEARCH_RESULTS:
-                areaPath = SearchResultGroupPanel.areaPath;
-                filePrefix = SearchResultGroupPanel.filePrefix;
+                areaPath = searchResultGroupAreaPath;
+                filePrefix = searchResultFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case EVENTS:
-                areaPath = EventNoteGroupPanel.areaPath;
-                filePrefix = EventNoteGroupPanel.filePrefix;
+                areaPath = eventGroupAreaPath;
+                filePrefix = eventGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case GOALS:
-                areaPath = GoalGroupPanel.areaPath;
-                filePrefix = GoalGroupPanel.filePrefix;
+                areaPath = goalGroupAreaPath;
+                filePrefix = goalGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
         }
@@ -201,8 +241,11 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     static String foundFilename(LocalDate theDate, String dateType) {
         String[] foundFiles = null;
         String lookfor = dateType;
-        String fileName = CalendarNoteGroupPanel.areaPath;
+        String fileName = calendarNoteGroupAreaPath;
         fileName += String.valueOf(theDate.getYear());
+//        StringBuilder fileName = new StringBuilder(CalendarNoteGroupPanel.areaPath); // May want to use a StringBuilder here, instead.
+//        fileName.append(String.valueOf(theDate.getYear()));
+
 
         // System.out.println("Looking in " + fileName);
         File f = new File(fileName);
@@ -221,7 +264,7 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
                 // System.out.println("Looking for " + lookfor);
                 foundFiles = f.list(new AppUtil.logFileFilter(lookfor));
             } // end if directory
-        } // end if exists
+        } // end if the directory for the year exists
 
         // Reset this local variable, and reuse.
         fileName = "";
@@ -242,10 +285,10 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
             // assist in group identification anyway; it is a placeholder for archiving, and that
             // feature is still a long long way from realization (this note 10 Oct 2020, idea to
             // do archiving - came about sometime in 1998, I believe).
-            fileName = CalendarNoteGroupPanel.areaPath;
+            fileName = calendarNoteGroupAreaPath;
             fileName += String.valueOf(theDate.getYear()); // There may be a problem here if we look at other-than-four-digit years
             fileName += File.separatorChar;
-            fileName += foundFiles[foundFiles.length - 1];
+            fileName += foundFiles[foundFiles.length - 1]; // Without archiving there should only be one.  Take the 'last' one.
         }
         return fileName;
     } // end findFilename
@@ -338,16 +381,35 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
         return theGroup;
     }
 
-    @Override // The NoteGroupDataAccessor method implementation.
-    // NOT BEING CALLED ...  ??  and that leads to an unused 'foundFilename(GroupInfo)' -
-    public void loadNoteGroupData(GroupInfo groupInfo) {
-        // Get the Filename for the GroupInfo.
-        String theFilename = foundFilename(groupInfo);
-        setGroupFilename(theFilename); // Yes, even if empty.  We don't want to leave an old one in place.
-        if(theFilename.isEmpty()) return; // No filename == no data.
 
-        Object[] theData = loadFileData(theFilename);
-        setTheData(theData);
+    @Override // The NoteGroupDataAccessor method implementation.
+    public Object[] loadNoteGroupData(GroupInfo groupInfo) {
+   // This comment belongs in a calling context, where the referenced content is changed.
+        // Get the Filename for the GroupInfo.  Refresh it
+        //   just prior to loading the group rather than earlier, because the Panel content may
+        //   have changed so that the file to load now is not the same as it was at group construction;
+        //   for CalendarNoteGroups the filename for the group depends on the base date shown in the panel.
+        String theFilename = foundFilename(groupInfo);
+        // If no such file was found then the 'theFilename' string will be empty ("").
+
+        // We need to retain the filename for this group, even if no file was found.
+        // This will be needed during the save operation, to let us know if a pre-existing
+        // file should be removed before we save.
+        setGroupFilename(theFilename);
+
+        if (theFilename.isEmpty()) {
+            MemoryBank.debug("No file was found for: " + groupInfo.getGroupName());
+            // If we didn't find a file then we can return a null right now.  Of course we could have skipped
+            // this line and just used the 'file not found' logic of the load method, but this saves the extra
+            // processing to handle the expected load failure as well as avoiding two unneeded method calls.
+            return null; // No filename == no data.
+        }
+
+        MemoryBank.debug("File for " + groupInfo.getGroupName() + " is: " + theFilename);
+        //   From the file, the raw data comes in as a JSON string that can be parsed as an
+        //   array of one or two Objects that identify themselves as either a LinkedHashMap
+        //   or an ArrayList (although I never said that they should be).
+        return loadFileData(theFilename);
     }
 
     // -----------------------------------------------------------------
@@ -364,8 +426,9 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     // over there, since this method (and findFilename) is their only 'client'.
     // -----------------------------------------------------------------
     static String makeFullFilename(LocalDate localDate, String noteType) {
-        StringBuilder filename = new StringBuilder(CalendarNoteGroupPanel.areaPath);
-        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
+        StringBuilder filename = new StringBuilder(calendarNoteGroupAreaPath);
+//        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
+        filename.append(localDate.getYear());
         filename.append(File.separatorChar);
         filename.append(noteType);
 
@@ -381,21 +444,67 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
         return filename.toString();
     }
 
+    // This should work but it could be cleaner, without the reachout for the CNG types.
+    String makeFullFilename() {
+        String areaName = "NoArea";    // If these turn up in the data, it's a problem.
+        String prefix = "NoPrefix";    // But at least we'll know where to look.
+        String groupName = "NoGroup";
+        LocalDate theDate;
+
+        switch(groupInfo.groupType) {
+            case DAY_NOTES:
+                //areaName = "Years";
+                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                return makeFullFilename(theDate, "D");
+            case MONTH_NOTES:
+                //areaName = "Years";
+                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                return makeFullFilename(theDate, "M");
+            case YEAR_NOTES:
+                //areaName = "Years";
+                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                return makeFullFilename(theDate, "Y");
+            case GOALS:
+                areaName = "Goals";
+                prefix = goalGroupFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
+            case EVENTS:
+                areaName = "UpcomingEvents";
+                prefix = eventGroupFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
+            case TODO_LIST:
+                areaName = "TodoLists";
+                prefix = todoListFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
+            case SEARCH_RESULTS:
+                areaName = "SearchResults";
+                prefix = searchResultFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
+            default:
+                // The other types do not have associated File data.
+        }
+        return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
+    }
+
 
     static String makeFullFilename(String areaName, String groupName) {
         String prefix = "";
         switch (areaName) {
             case "Goals":
-                prefix = GoalGroupPanel.filePrefix;
+                prefix = goalGroupFilePrefix;
                 break;
             case "UpcomingEvents":
-                prefix = EventNoteGroupPanel.filePrefix;
+                prefix = eventGroupFilePrefix;
                 break;
             case "TodoLists":
-                prefix = TodoNoteGroupPanel.filePrefix;
+                prefix = todoListFilePrefix;
                 break;
             case "SearchResults":
-                prefix = SearchResultGroupPanel.filePrefix;
+                prefix = searchResultFilePrefix;
                 break;
         }
         return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
@@ -408,9 +517,6 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     } // end prettyName
 
 
-    //-----------------------------------------------------------------
-    // Method Name:  prettyName
-    //
     // A formatter for a String that is a filename specifier.  It strips
     //   away the File path, separators, prefix and ending, leaving only
     //   the base (pretty) name of the file.  It works left-to-right, as
@@ -419,7 +525,6 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     //   Calendar NoteGroups use a different 'name' and do not need
     //   to prettify the path+name of their data file since it is not
     //   intended to be shown to users.
-    //-----------------------------------------------------------------
     static String prettyName(String theLongName) {
         // Trim any leading/trailing whitespace.
         String thePrettyName = theLongName.trim();
@@ -460,7 +565,7 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     //   4.  Verify the path
     //   5.  Write the data to a new file
     @Override // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
-    public AccessResult saveNoteGroupData() {
+    public void saveNoteGroupData(Object[] theData) {
         //AppUtil.localDebug(true);
         saveIsOngoing = true;
         failureReason = null;
@@ -494,22 +599,22 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
                         failureReason = "Failed to delete " + groupFilename;
                         System.out.println("Error - " + failureReason);
                         saveIsOngoing = false;
-                        return AccessResult.FAILURE;
+                        return;
                     }
                 }
             } // end if archive or delete
         } // end if
 
         // Step 2 - Bail out early if there is no reason to create a file for this data.
-        if(isEmpty() && !saveWithoutData) {
+        if(theData == null && !saveWithoutData) {
             saveIsOngoing = false;
-            return AccessResult.UNNECESSARY;
+            return;
         }
 
         // Step 3 - Get the full path and filename
-        // Here we let the child NoteGroup tell us the name of the file to save to; it may be different
-        // than the one we aready have (and theoretically not the same as the one in the data either).
-        setGroupFilename(getGroupFilename()); // use it directly but set it with data from a (possibly overridden) getter.
+        // Here we use the GroupInfo we were constructed with to determine the name of the file to save to; it may be
+        // different than the one we aready have (and theoretically not a match to the GroupInfo in the data either).
+        setGroupFilename(getGroupFilename()); // Set it according to the getter.
         MemoryBank.debug("  Saving NoteGroup data in " + shortName());
 
         // Step 4 - Verify the path
@@ -529,7 +634,7 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
             }
             System.out.println("Error - " + failureReason);
             saveIsOngoing = false;
-            return AccessResult.FAILURE;
+            return;
         } else { // The file does not already exist; create the path to it, if needed.
             String strThePath;
             strThePath = groupFilename.substring(0, groupFilename.lastIndexOf(File.separatorChar));
@@ -539,25 +644,23 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
                     failureReason = "Unable to create this directory path: " + strThePath;
                     System.out.println("Error - " + failureReason);
                     saveIsOngoing = false;
-                    return AccessResult.FAILURE;
+                    return;
                 } // end if directory creation failed
             } else { // The directory path does exist; make sure that it IS a directory.
                 if (!f.isDirectory()) {
                     failureReason = strThePath + " is not a directory!";
                     System.out.println("Error - " + failureReason);
                     saveIsOngoing = false;
-                    return AccessResult.FAILURE;
+                    return;
                 } // end if not a directory
             } // end if/else the path exists
         } // end if/else the file exists
 
         // Step 5 - Write the data to a new file
-        Object[] theGroup = getTheData();
-        writeDataToFile(groupFilename, theGroup);
+        writeDataToFile(groupFilename, theData);
 
         //AppUtil.localDebug(false);
         saveIsOngoing = false;
-        return AccessResult.SUCCESS;
     } // end saveNoteGroupData
 
 
@@ -568,22 +671,31 @@ class NoteGroupFile extends NoteGroup implements NoteGroupDataAccessor {
     }
 
 
-    // Child classes can override, if needed.  Currenly only CalendarNoteGroups need to,
-    // since their filenames have a timestamp that changes with every save.  That timestamping
-    // is the foundation of being able to archive earlier files, but the feature did not ever
-    // get fully developed.
-    protected String getGroupFilename() {
-        return groupFilename;
+    // This method is used to obtain a filename for data that needs to be saved.  We cannot accept "" for an answer.
+    private String getGroupFilename() {
+        String s = groupInfo.groupType.toString();
+        if(s.endsWith("Note")) {  // This will cover the Calendar Note type groups.
+            // Their filenames ends in a timestamp that changes with every save.  That timestamping
+            // is the foundation of being able to archive earlier files, but the feature did not ever
+            // get fully developed.  This handling variant for it remains here for now.
+            if (saveIsOngoing) {  // For right now (25 Oct 2020), it always will be since that is the only usage.
+                // In this case we need a new filename; need to make one because (due to timestamping)
+                // it should not already exist.
+                return makeFullFilename();
+            } // end if save ongoing
+        } // end if CalendarNoteGroup
+
+        String foundName = foundFilename(); // Results of a search may be "".
+        if(!foundName.isEmpty()) {
+            return foundName;
+        } else {
+            return makeFullFilename();
+        }
     }
 
 
-    // All child classes of NoteGroupFile have direct access to groupFilename, and as such
-    // do not need to go through this method in order to change it.  However, I send them
-    // all through here so that we never have to wonder where/how it got changed.  Now if
-    // it goes off the rails, a simple debug session with a breakpoint here will show us
-    // where the problem is.  This has happened enough times before now that there is no
-    // question as to whether or not it is needed.  It definitely is needed.
-    // And we take the opportunity to 'trim' it, while we're at it.
+    // Intercept a null setting to convert it to empty string.
+    // And otherwise we take the opportunity to 'trim' it.
     void setGroupFilename(String newName) {
         String newGroupName;
         if(newName == null) newGroupName = "";

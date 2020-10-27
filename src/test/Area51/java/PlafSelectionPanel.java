@@ -56,9 +56,9 @@ public class PlafSelectionPanel extends JPanel implements ActionListener {
     // Thursday, 1 August 2019
     // This method and the PlafSelectionPanel are being deprecated for use by the MemoryBank app.
     // But the concept is still too cool to just throw away so the deactivated code stays here, for now.
-    //   removed from the AppMenuBar, View menu:    menuView.add(new JMenuItem("Set Look and Feel..."));
-    //   removed from the AppMenuBar, Event menu:   menuViewEvent.add(new JMenuItem("Set Look and Feel..."));
-    //   removed from the AppMenuBar, View Date menu:    menuViewDate.add(new JMenuItem("Set Look and Feel..."));
+    //   removed from the AppMenuBar, View menu:    menuView.setNotes(new JMenuItem("Set Look and Feel..."));
+    //   removed from the AppMenuBar, Event menu:   menuViewEvent.setNotes(new JMenuItem("Set Look and Feel..."));
+    //   removed from the AppMenuBar, View Date menu:    menuViewDate.setNotes(new JMenuItem("Set Look and Feel..."));
     //   removed from AppTreePanel, the HandleMenuBar method:
     //      else if (what.equals("Set Look and Feel...")) showPlafDialog(); Content of that method is now in main().
 
@@ -116,7 +116,7 @@ public class PlafSelectionPanel extends JPanel implements ActionListener {
 //            }
 //        });
 //
-//        testFrame.getContentPane().add(theRecurrencePanel, "Center");
+//        testFrame.getContentPane().setNotes(theRecurrencePanel, "Center");
 //        testFrame.pack();
 //        testFrame.setSize(new Dimension(340, 450));
 //        testFrame.setVisible(true);

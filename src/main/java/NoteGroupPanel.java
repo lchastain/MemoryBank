@@ -1,25 +1,14 @@
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import javax.swing.*;
 import java.awt.*;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Vector;
 
-// Provides an editable view of the Notes in the noteGroupDataVector.
-
-//  Current:  NoteGroup --> NoteGroupFile --> NoteGroupPanel
-//  Planned:  NoteGroup --> NoteGroupDataAccessorImpl --> NoteGroupPanel
-//  NoteGroupFile is currently the only implementor of NoteGroupDataAccessor.
-//    But we will want to eventually have a new class (NoteGroupDatabase ?) that uses
-//    a Database rather than the filesystem, to provide the data storage capabilities.
-// Maybe NoteGroupPanel should encapsulate a NoteGroupAccessor, vs extend from an implementor.
-
+// Provides an editable view of the Notes in the noteGroupDataVector of a NoteGroup.
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class NoteGroupPanel extends NoteGroupFile implements NoteComponentManager, NoteGroupDataAccessor {
-    static final int PAGE_SIZE = 40; // Establishes a default; see the pageSize member for actual size.
+public abstract class NoteGroupPanel implements NoteComponentManager {
+    static final int PAGE_SIZE = 40; // A default; see the pageSize member for actual size.
 
     // Directions for Sort operations
     static final int ASCENDING = 0;
@@ -30,8 +19,8 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     //=============================================================
     static Notifier optionPane;
     static String ems;     // Error Message String
-
-    JPanel theBasePanel;
+    NoteGroup myNoteGroup; // Group onto which this Panel provides a window.
+    JPanel theBasePanel;   // We could 'absorb' this member, if this class would extend a JPanel.
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
 
@@ -47,9 +36,9 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
     // Private members
     private String defaultSubject;
-    private final int intHighestNoteComponentIndex;
-    private final JScrollPane jsp;
-    private final JLabel lblStatusMessage; // The Information/Status panel of the frame.
+    private int intHighestNoteComponentIndex;
+    private JScrollPane jsp;
+    private JLabel lblStatusMessage; // The Information/Status panel of the frame.
 
 
     // A NoteGroupPanel is just the encapsulation of the central container panel and the methods that work on it,
@@ -62,30 +51,82 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
 
     NoteGroupPanel(int intPageSize) {
-        super();
-        myGroupDataType = new TypeReference<Vector<NoteData>>() { };
+        pageSize = intPageSize;
+        buildNotesPanel();
+    } // end constructor 2
 
+
+    // This method will set the next note visible, unless:
+    //   the requested index is already visible   OR
+    //   there are no more hidden notes to show, in which case it will
+    //   create a new page.
+    // It is called either from NoteComponent.initialize() or loadPage().
+    public void activateNextNote(int noteIndex) {
+        if ((noteIndex >= 0) && (noteIndex < lastVisibleNoteIndex)) return;  // already showing.
+
+        // noteIndex is -1 when we have come here from loadPage, where the displayed page is empty.
+        if (noteIndex >= 0) {
+            // Get the component for the indicated noteIndex (the note we're 'coming from').
+            NoteComponent thisNote = (NoteComponent) groupNotesListPanel.getComponent(noteIndex);
+
+            // If the note we're coming from has not been initialized, we shouldn't activate the next one.
+            // How could this happen, you ask?  Well, it happens when a note has been added to a
+            // page that we've paged away from and now we've come back to that page and
+            // the loadPage method is trying to correctly set the lastVisibleNoteIndex.
+            // It considers the last note on the page (our new but uninitialized one) and then assumes
+            // (incorrectly, in this case) that it needs to go one better.
+            if (!thisNote.initialized) return;
+        }
+
+        if (lastVisibleNoteIndex < intHighestNoteComponentIndex) {
+            lastVisibleNoteIndex++;
+            NoteComponent nc;
+            nc = (NoteComponent) groupNotesListPanel.getComponent(lastVisibleNoteIndex);
+            nc.setVisible(true);
+        } else {
+            // Implement a page rollover.
+            int tmpPage = theNotePager.getCurrentPage();
+            if (tmpPage > 0) { // This should not be done before the first pager reset.
+                if (tmpPage == theNotePager.getHighestPage()) {
+                    // Capture changes from the current page.  This will be needed if this method is being called
+                    // from initialize() after a note has been added into the last available slot on the current page.
+                    // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
+                    // see that the total page count should be increased by one.
+                    if (myNoteGroup.groupChanged) unloadInterface(tmpPage);
+
+                    theNotePager.reset(tmpPage);
+                } // end if
+            } // end if
+
+        } // end if
+    } // end activateNextNote
+
+
+    // This is a convenience method to allow a NoteGroupPanel to act like a JPanel.
+    // The signature and name matches the JPanel method, and this method is just a
+    // pass-thru to our encapsulated JPanel so that it works even though this class
+    // does not extend that one.
+    void add(JComponent component, Object object) {
+        theBasePanel.add(component, object);
+    }
+
+
+    void buildNotesPanel() {
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
 
-            //--------------------------------------------------------------------
-            // Method Name: getPreferredSize
-            //
             // This preference is necessary to set a limit of a maximum height value.
-            //   After we add content to the scrollable area of this panel, if the
+            //   After we setNotes content to the scrollable area of this panel, if the
             //   height of that content exceeds the limit that we set here then
             //   the vertical scrollbar will kick in.
-            //--------------------------------------------------------------------
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(super.getPreferredSize().width, 400);
             } // end getPreferredSize
         };
-        pageSize = intPageSize;
         editable = true;
         intHighestNoteComponentIndex = pageSize - 1;
 
-        noteGroupDataVector = new Vector<>();
         jsp = new JScrollPane() {
             private static final long serialVersionUID = 1L;
 
@@ -140,94 +181,24 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         // A variant of JOptionPane, for testing.
         optionPane = new Notifier() {
         }; // Uses all default methods.
-
-        // Cannot do the updateGroup() here because child classes
-        //   first need to establish their Filenames in their own
-        //   constructors.
-    } // end constructor 2
-
-
-    //----------------------------------------------------------------------
-    // Method Name: activateNextNote
-    //
-    // This method will set the next note visible, unless:
-    //   the requested index is already visible   OR
-    //   there are no more hidden notes to show, in which case it will
-    //   create a new page.
-    // It is called either from NoteComponent.initialize() or loadInterface().
-    //----------------------------------------------------------------------
-    public void activateNextNote(int noteIndex) {
-        if ((noteIndex >= 0) && (noteIndex < lastVisibleNoteIndex)) return;  // already showing.
-
-        // noteIndex is -1 when we have come here from loadInterface, where the displayed page is empty.
-        if (noteIndex >= 0) {
-            // Get the component for the indicated noteIndex (the note we're 'coming from').
-            NoteComponent thisNote = (NoteComponent) groupNotesListPanel.getComponent(noteIndex);
-
-            // If the note we're coming from has not been initialized, we shouldn't activate the next one.
-            // How could this happen, you ask?  Well, it happens when a note has been added to a
-            // page that we've paged away from and now we've come back to that page and
-            // the loadInterface method is trying to correctly set the lastVisibleNoteIndex.
-            // It considers the last note on the page (our new but uninitialized one) and then assumes
-            // (incorrectly, in this case) that it needs to go one better.
-            if (!thisNote.initialized) return;
-        }
-
-        if (lastVisibleNoteIndex < intHighestNoteComponentIndex) {
-            lastVisibleNoteIndex++;
-            NoteComponent nc;
-            nc = (NoteComponent) groupNotesListPanel.getComponent(lastVisibleNoteIndex);
-            nc.setVisible(true);
-        } else {
-            // Implement a page rollover.
-            int tmpPage = theNotePager.getCurrentPage();
-            if (tmpPage > 0) { // This should not be done before the first pager reset.
-                if (tmpPage == theNotePager.getHighestPage()) {
-                    // Capture changes from the current page.  This will be needed if this method is being called
-                    // from initialize() after a note has been added into the last available slot on the current page.
-                    // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
-                    // see that the total page count should be increased by one.
-                    if (groupChanged) unloadInterface(tmpPage);
-
-                    theNotePager.reset(tmpPage);
-                } // end if
-            } // end if
-
-        } // end if
-    } // end activateNextNote
-
-
-    // This is a convenience method to allow a NoteGroupPanel to act like a JPanel.
-    // The signature and name matches the JPanel method, and this method is just a
-    // pass-thru to our encapsulated JPanel so that it works even though this class
-    // does not extend that one.
-    void add(JComponent component, Object object) {
-        theBasePanel.add(component, object);
     }
 
-    //----------------------------------------------------------------
-    // Method Name: clearAllNotes
-    //
+
     // Clear all notes (which may span more than one page) and the interface.
     // This still leaves the GroupProperties.
-    //----------------------------------------------------------------
     void clearAllNotes() {
         theBasePanel.transferFocusUpCycle(); // Otherwise can get unwanted focus events.
         clearPage();
-        noteGroupDataVector.clear();
-        showGroupData(noteGroupDataVector);
+        myNoteGroup.noteGroupDataVector.clear();
+        showGroupData(myNoteGroup.noteGroupDataVector);
         setGroupChanged(true);
         theNotePager.reset(1);
     } // end clearAllNotes
 
 
-    //----------------------------------------------------------------
-    // Method Name: clearPage
-    //
     // Clear data from all NoteComponents that are showing in the interface,
     //  as well as their encapsulated NoteData instances.  It does not
-    //  remove components from the panel; just clears them.
-    //----------------------------------------------------------------
+    //  remove components from the panel; just makes them look new.
     private void clearPage() {
         if (intHighestNoteComponentIndex < 0) return; // an 'empty' group
 
@@ -247,14 +218,9 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     } // end clearPage
 
 
-    //---------------------------------------------------------------
-    // Method Name: editExtendedNoteComponent
-    //
     // Provides an interface for the modification of data elements of
     //   the extended note component, and returns true if there
     //   was a change; false otherwise.
-    //
-    //---------------------------------------------------------------
     public boolean editExtendedNoteComponent(NoteData noteData) {
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
@@ -326,7 +292,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
     // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
     String getGroupName() {
-        return getGroupProperties().getGroupName();
+        return myNoteGroup.getGroupProperties().getGroupName();
     }
 
 
@@ -337,23 +303,25 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     } // end getNoteComponent
 
 
-    // Called by contexts that need the complete and latest
-    // group data (usually prior to persisting it, without
-    // affecting other NoteGroupPanel attributes such as the menus).
-//    NoteGroup getPanelData() {
-    void getPanelData() {
-        setGroupProperties(getGroupProperties());
-        if(groupChanged) {
-            unloadInterface(theNotePager.getCurrentPage());
-        }
-        add(getCondensedInfo());
-//        return noteGroupData;
+    // Called by preClosePanel only if the group has changed, prior to
+    // persisting the group data.  It updates group content without
+    // affecting NoteGroupPanel attributes such as the menus.
+    protected void getPanelData() {
+        // This can be needed by CalendarNoteGroups where the date has been altered.  Otherwise it's a no-op.
+// that line is now in the CalendarNoteGroup override of this method.
+// Leaving the comments here for now because we are not 100% sure that it really is not otherwise needed.
+        // maybe needed for link target changes?
+// can remove after all tests pass.
+//        myNoteGroup.setGroupProperties(myNoteGroup.getGroupProperties());
+
+        unloadInterface(theNotePager.getCurrentPage());
+        myNoteGroup.setNotes(getCondensedInfo());
     }
 
 
     // View and Edit the linkages associated with this Group.
     void groupLinkages() {
-        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(getGroupProperties(), null);
+        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(myNoteGroup.getGroupProperties(), null);
         // In the above call, need to get properties via the accessor, because they could be null for CalendarNoteGroups.
 
         int choice = JOptionPane.showConfirmDialog(
@@ -366,7 +334,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         if (choice == JOptionPane.OK_OPTION) {
             // Replace the original linkTargets with the linkTargets from the edited note.
             linkagesEditorPanel.updateLinkagesFromEditor();
-            myProperties.linkTargets = linkagesEditorPanel.linkTargets;
+            myNoteGroup.getGroupProperties().linkTargets = linkagesEditorPanel.linkTargets;
 
             // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
             // are about to create from it/them will have proper corresponding forward link(s).
@@ -374,7 +342,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
             setGroupChanged(true);
             preClosePanel();
 
-            addReverseLinks(myProperties.linkTargets);
+            myNoteGroup.addReverseLinks(myNoteGroup.getGroupProperties().linkTargets);
 
             // These lines can be useful during development.
             //System.out.println("Serializing the new group properties:");
@@ -398,153 +366,108 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     void setEditable(boolean b) {
         if(editable != b) {
             editable = b;
-            loadInterface(theNotePager.getCurrentPage());
+            loadPage(theNotePager.getCurrentPage());
         }
     }
 
-    //----------------------------------------------------------------
-    // Method Name: setGroupChanged
-    //
     // Called by all contexts that make a change to the data, each time a change is made.
     //   Child classes can override if they need to intercept a data change, but in that case
     //   they should still call THIS super method so that menu items are managed correctly.
-    //----------------------------------------------------------------
-    @Override // A NoteGroupManager interface implementation AND a true override of the NoteGroup method.
+    @Override // A NoteComponentManager interface implementation
     public void setGroupChanged(boolean b) {
-        super.setGroupChanged(b); // We overrode it, but now calling it anyway.
+        myNoteGroup.setGroupChanged(b); // Calling the 'real' one, in the NoteGroup.
         adjustMenuItems(b);
     } // end setGroupChanged
 
-    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of NoteData),
-    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
-    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
-    // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
-    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
-    // Exception that needed to be caught.
-    void setPanelData(Object[] theGroup) {
-        int theLength = theGroup.length;
-        // This method should not be called if 'theGroup' is null.  Otherwise it
-        // will be an object array but the array could still be empty, somehow.
-        if (theLength == 0) return;
-
-        // Now the length can either be 1 or 2.  If 2 then it will be a group properties and
-        // the group data vector, but this is a relatively new structure where previously there
-        // were no properties for this class, so there are several years-worth of data files
-        // already out there, where the only element is the group data, and rather than attempting
-        // to fix old data, the decision is to examine the content first, then load the correct type.
-        // As a developer I know this is not the best solution but it does work and I'm lazy, so I'm
-        // going with it for now.  One possible future 'data fix' (other than writing a DataFix program)
-        // could come when/if the app is ever ported into a database.
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        if (theLength == 1) {
-            // There are two cases where there might only be one element in the object array:
-            // 1.  Old, legacy data that was originally saved without GroupProperties.
-            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
-            // TODO -
-            //     But is it really only one length?  Groups should save with two now, regardless.
-            //     the second element can be null, but there are still two of them.
-            //  No - that is only true for the second case, not for the older stuff.  Still only one, there.  And we need
-            //    to verify that it is ALWAYS true for the second case.
-            String theClass = theGroup[0].getClass().getName();
-            System.out.println("The NoteData class type is: " + theClass);
-            if (theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
-                noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
-            } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
-                setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
-            }
-        } else { // 2 (or more, but more would mean that there has been yet another structure change)
-            setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
-            noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], myGroupDataType);
-        }
-        BaseData.loading = false; // Restore normal lastModDate updating.
-    }
+// MOVE the comments to the right place (NoteGroup?) and fix/remove the one remaining calling context
+    // which is currently in the ReverseLinkagesTest.
+//    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of NoteData),
+//    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
+//    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
+//    // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
+//    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
+//    // Exception that needed to be caught.
+//    void setPanelData(@NotNull Object[] theGroup) {
+//        int theLength = theGroup.length;
+//        if (theLength == 0) return; // theGroup is not null but the array could still be empty, somehow.
+//
+//        // Now the length can either be 1 or 2.  If 2 then it will be a group properties and
+//        // the group data vector, but this is a relatively new structure where previously there
+//        // were no properties for this class, so there are several years-worth of data files
+//        // already out there, where the only element is the group data, and rather than attempting
+//        // to fix old data, the decision is to examine the content first, then load the correct type.
+//        // As a developer I know this is not the best solution but it does work and I'm lazy, so I'm
+//        // going with it for now.  One possible future 'data fix' (other than writing a DataFix program)
+//        // could come when/if the app is ever ported into a database.
+//        BaseData.loading = true; // We don't want to affect the lastModDates!
+//        if (theLength == 1) {
+//            // There are two cases where there might only be one element in the object array:
+//            // 1.  Old, legacy data that was originally saved without GroupProperties.
+//            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
+//            // TODO -
+//            //     But is it really only one length?  Groups should save with two now, regardless.
+//            //     the second element can be null, but there are still two of them.
+//            //  No - that is only true for the second case, not for the older stuff.  Still only one, there.  And we need
+//            //    to verify that it is ALWAYS true for the second case.
+//            String theClass = theGroup[0].getClass().getName();
+//            System.out.println("The NoteData class type is: " + theClass);
+//            if (theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
+//                noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
+//            } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
+//                setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
+//            }
+//        } else { // 2 (or more, but more would mean that there has been yet another structure change)
+//            setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
+//            noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], myGroupDataType);
+//        }
+//        BaseData.loading = false; // Restore normal lastModDate updating.
+//    }
 
 
     // Provides a way to set the displayed data, vs loading it from a file.
     void showGroupData(Vector<NoteData> newGroupData) {
-        noteGroupDataVector = newGroupData;
-        loadInterface(1);
+        myNoteGroup.noteGroupDataVector = newGroupData;
+        loadPage(1);
     }
 
-    // The data file will be reloaded whenever this method is called.
-    // This method is needed to separate the load of the data
-    //   from the various components that act upon it.
-    //   Internally it comes in as an ArrayList of one or
-    //   two Objects that identify themselves as LinkedHashMaps
-    //   (although I never said that they should be).  Before
-    //   we leave here, though, we call setGroupData (overridden
-    //   by most children) that loads the data into a Vector
-    //   of Notes and the requesting group's properties, if any.
-    //--------------------------------------------------------------------
-    private void loadNoteGroup() {
-        noteGroupDataVector.clear(); // Clear before loading
+    // The base group data will be reloaded whenever this method is called.
+    void loadNotesPanel() {
         lastVisibleNoteIndex = 0;
 
-        // This is needed to make way for properties coming in from the data store -
-        // or to clear them out entirely, if the data is not there.
-        setGroupProperties(null);
-
-        // This string is set now, just prior to loading the group
-        //   rather than earlier, because in some child classes the
-        //   group will have changed so that the file to load is not the
-        //   same as it was at group construction; the filename for the
-        //   group may be highly variable, and this method may be getting
-        //   called after each filename change, even though the panel
-        //   components that hold and show the file data remain in place.
-        setGroupFilename(getGroupFilename());
-
-        if (groupFilename.isEmpty()) {
-            MemoryBank.debug("No filename is set for: " + this.getClass().getName());
-        } else {
-            MemoryBank.debug("NoteGroup file name is: " + groupFilename);
-            Object[] theGroup = NoteGroupFile.loadFileData(groupFilename);
-            if (theGroup != null) {
-                int notesLoaded = ((List) theGroup[theGroup.length - 1]).size();
-                MemoryBank.debug("Data file found; loaded " + notesLoaded + " items.");
-                //System.out.println("NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-                setPanelData(theGroup); // This sets the noteGroupDataVector
-//                setTheData(theGroup);   // The basic NoteGroup two-element Object array
-// Not needed now that getTheData() takes from noteGroupDataVector.
-            }
-        }
-
         Exception e = null;
-        try {
-            loadInterface(1); // Always load page 1
-        } catch (ClassCastException cce) {
+        try { // Shouldn't only be for page 1 - see if there can be a better call-sequence.
+            loadPage(1); // Always load page 1
+        } catch (Exception cce) {
+            // The most likely/common exception will be a ClassCastException, but it gets no
+            // different handling so we only need the one catch-all 'catch'.
             e = cce;
         } // end try/catch
 
         if (e != null) {
-            ems = "NoteGroupPanel loadGroup: Error in loading " + groupFilename + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\nData file load operation aborted.";
+            ems = "NoteGroupPanel loadGroup: Error in loading the interface for " + getGroupName() + " !\n";
+            ems = ems + e.toString();  // or should this be e.getMessage() ?
+            ems = ems + "\nLoad Notes Panel operation aborted.";
             System.out.println("ems = " + ems);
             optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
         } // end if
-    } // end loadNoteGroup
+    } // end loadNotesPanel
 
-
-    //-------------------------------------------------------------------
-    // Method Name: loadInterface
-    //
     // This method transfers the data vector items to the onscreen
     //   components.  A 'page' specifier is used to determine which
     //   portion of the vector to display, if there are more notes
     //   than will fit on one page.  Child classes are responsible for
     //   displaying the pager control and sending page numbers higher
-    //   than one.  If they do not, then only
+    //   than one when indicated.  If they do not, then only
     //   the first page of data will be available.
-    //-------------------------------------------------------------------
-    void loadInterface(int intPageNum) {
+    void loadPage(int intPageNum) {
         //AppUtil.localDebug(true);
-        boolean currentChangedState = groupChanged; // Preserve this value now, restore it after.
+        boolean currentChangedState = myNoteGroup.groupChanged; // Preserve this value now, restore it after.
 
         // Set the indexes into the data vector -
-        int maxDataIndex = noteGroupDataVector.size() - 1;
+        int maxDataIndex = myNoteGroup.noteGroupDataVector.size() - 1;
         int dataIndex = (intPageNum - 1) * pageSize;
-        MemoryBank.debug("NoteGroupPanel.loadInterface starting at vector data index " + dataIndex);
+        MemoryBank.debug("NoteGroupPanel.loadPage starting at vector data index " + dataIndex);
 
         lastVisibleNoteIndex = -1;
         NoteComponent tempNoteComponent;
@@ -558,7 +481,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
             if (dataIndex <= maxDataIndex) { // Put vector data into the interface.
                 MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
-                tempNoteComponent.setNoteData((NoteData) noteGroupDataVector.elementAt(dataIndex)); // sets initialized to true
+                tempNoteComponent.setNoteData((NoteData) myNoteGroup.noteGroupDataVector.elementAt(dataIndex)); // sets initialized to true
                 tempNoteComponent.setVisible(true);
                 lastVisibleNoteIndex = panelIndex;
                 dataIndex++;
@@ -594,7 +517,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         setGroupChanged(currentChangedState);
 
         //AppUtil.localDebug(false);
-    } // end loadInterface
+    } // end loadPage
 
 
     //-------------------------------------------------------------------
@@ -631,7 +554,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     // Called by the pager control
     void pageTo(int pageTo) {
         MemoryBank.debug("Paging To Page: " + pageTo);
-        loadInterface(pageTo);
+        loadPage(pageTo);
     } // end pageTo
 
 
@@ -641,9 +564,11 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
             extendedNoteComponent.saveSubjects();
         }
 
-        if(groupChanged) { // New condition, needed now so that older data here does not overwrite newer data that went directly to file, outside of Panels.
+        // Without this condition, the existing unchanged data might get written out to the data store
+        //   and that might overwrite changes that had been made and already persisted outside of a Panel.
+        if(myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
-            saveNoteGroupData();
+            myNoteGroup.saveNoteGroup();
 
             setGroupChanged(false); // The 'save' preserved all panel changes to this point, so we reset the flag.
             // Note that the flag is reset regardless of the result of the save.  This is intentional because
@@ -664,11 +589,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         Vector<NoteData> trimmedList = new Vector<>();
 
         // Xfer the 'good' data over to a new, temporary Vector.
-        for (Object object : noteGroupDataVector) {
-
-            // Don't think it CAN happen anymore.  Remove after a cycle of no problems.  17 Sep 2020
-//            // This can happen with an 'empty' NoteGroup.
-//            if (object == null) continue;
+        for (Object object : myNoteGroup.noteGroupDataVector) {
 
             // Don't retain this note if there is no significant primary text.
             NoteData tempNoteData = (NoteData) object;
@@ -685,6 +606,8 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         jsp.setColumnHeaderView(c);
     } // end setGroupHeader
 
+    // The CalendarNoteGroupPanels have a default subject; other Panels do not.  In
+    // the other cases this method is not called, so defaultSubject remains null.
     void setDefaultSubject(String defaultSubject) {
         this.defaultSubject = defaultSubject;
     }
@@ -803,10 +726,10 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
         // Do the sort
         LastModComparator lmc = new LastModComparator(direction);
-        noteGroupDataVector.sort(lmc);
+        myNoteGroup.noteGroupDataVector.sort(lmc);
 
         // Display the same page, now with possibly different contents.
-        loadInterface(theNotePager.getCurrentPage());
+        loadPage(theNotePager.getCurrentPage());
     } // end sortLastMod
 
 
@@ -817,10 +740,10 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
 
         // Do the sort
         NoteStringComparator nsc = new NoteStringComparator(direction);
-        noteGroupDataVector.sort(nsc);
+        myNoteGroup.noteGroupDataVector.sort(nsc);
 
         // Display the same page, now with possibly different contents.
-        loadInterface(theNotePager.getCurrentPage());
+        loadPage(theNotePager.getCurrentPage());
     } // end sortNoteString
 
 
@@ -843,7 +766,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         // data begins.  groupDataVector size-1 will almost always be less than endIndex
         // (because on a less-than-full page, the last visible note hasn't been typed into yet, for one thing).
         // The maxDataIndex will tell us whether a note should be replaced or just added to the end of groupDataVector.
-        int maxDataIndex = noteGroupDataVector.size() - 1;
+        int maxDataIndex = myNoteGroup.noteGroupDataVector.size() - 1;
 
         NoteComponent tempNoteComponent;
         NoteData tempNoteData;
@@ -857,11 +780,11 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex++);
             tempNoteData = tempNoteComponent.getNoteData();
             if (dataIndex <= maxDataIndex) {
-                noteGroupDataVector.setElementAt(tempNoteData, dataIndex);
+                myNoteGroup.noteGroupDataVector.setElementAt(tempNoteData, dataIndex);
             } else {  // New, user-entered data is in the interface.  Get it.
                 if (tempNoteComponent.initialized) {  // This could be false on the last note on the page.
                     System.out.println("NoteGroupPanel.unloadInterface: Adding new element!");
-                    noteGroupDataVector.addElement(tempNoteData);
+                    myNoteGroup.noteGroupDataVector.addElement(tempNoteData);
                 }
             } // end if
         } // end for i
@@ -885,8 +808,9 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
         //   one data.  So - we make sure we are on page one.
         theNotePager.reset(1);
 
-        loadNoteGroup();      // Loads the data array and interface.
-        myNoteGroupPanel = this; // The 'load' cleared this value; needs a reset.
+        myNoteGroup.loadNoteGroup(); // Now we have 'new' data.
+        loadNotesPanel();      // Loads the data array and interface.
+        myNoteGroup.myNoteGroupPanel = this; // The 'load' cleared this value; needs a reset.
         setGroupChanged(false);
 
         // Also needed AFTER loadGroup, not to set the page number but to set the
@@ -966,7 +890,7 @@ public abstract class NoteGroupPanel extends NoteGroupFile implements NoteCompon
     void setListMenu(JMenu listMenu) {
         MemoryBank.debug("TreeLeaf.setListMenu: " + listMenu.getText());
         myListMenu = listMenu;
-        adjustMenuItems(groupChanged); // set enabled state for 'undo' and 'save'.
+        adjustMenuItems(myNoteGroup.groupChanged); // set enabled state for 'undo' and 'save'.
     }
 
 

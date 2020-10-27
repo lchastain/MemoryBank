@@ -1,59 +1,30 @@
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.Vector;
 
 public class SearchResultGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(SearchResultGroupPanel.class);
     private JLabel resultsPageOf;
     SearchResultHeader listHeader;
 
-    static String areaName;
-    static String areaPath;
-    static String filePrefix;
-
-    // This is saved/loaded
-//    public SearchResultGroupProperties myProperties; // Variables - flags and settings
-
-    static {
-        areaName = "SearchResults";  // Directory name under user data.
-        areaPath = basePath + areaName + File.separatorChar;
-        filePrefix = "search_";
-    }
-
     SearchResultGroupPanel(String groupName) {
         super();    // super(10);  // test, for paging
 
-        // groupName is a simple single word text as seen in the app tree.
-        log.debug("Constructing: " + groupName);
-
-        setGroupProperties(new SearchResultGroupProperties(groupName));
-        myNoteGroupPanel = this; // May not be needed, since it is only used by links.
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.SEARCH_RESULTS);
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
+        myNoteGroup.myNoteGroupPanel = this;
+        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
         editable = false;
-        setGroupFilename(areaPath + filePrefix + getGroupName() + ".json");
 
-        // Unlike with a Todo List, we do not set 'saveWithoutData' here because this type of Group cannot
-        // be altered by the user.  Instead the flag is set only when the file is first created.
-
-        updateGroup(); // This is where the file gets loaded (in the parent class)
-
-        // This is intended to 'fix' a renamed group, where the filename is correct but the group info
-        // inside the file was never updated, so properties deserialize with the older name.
-        myProperties.setGroupName(groupName);
-
-        listHeader = new SearchResultHeader(this);
-        setGroupHeader(listHeader);
+        theNotePager.reset(1);
         buildPanelContent();
     } // end constructor
 
-    void buildPanelContent() {
-        // Header for the group of SearchResultComponents
 
-        // Now the 2-row Header for the SearchResultGroup -
+    private void buildPanelContent() {
+        // The 2-row Header for the SearchResultGroup -
         //-----------------------------------------------------
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
@@ -97,13 +68,16 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         searchSummary.setHorizontalAlignment(JLabel.CENTER);
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
-        searchSummary.setText(SearchPanel.getSummary(((SearchResultGroupProperties) myProperties).searchPanelSettings));
+        searchSummary.setText(SearchPanel.getSummary(((SearchResultGroupProperties) myNoteGroup.myProperties).searchPanelSettings));
         headingRow2.add(searchSummary, "Center");
         //----------------------------------------------------------
 
         heading.add(headingRow1);
         heading.add(headingRow2);
         add(heading, BorderLayout.NORTH);
+
+        listHeader = new SearchResultHeader(this);
+        setGroupHeader(listHeader);
     }
 
     //-------------------------------------------------------------------
@@ -123,21 +97,9 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
             tempNote = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-            tempNote.resetColumnOrder(((SearchResultGroupProperties) myProperties).columnOrder);
+            tempNote.resetColumnOrder(((SearchResultGroupProperties) myNoteGroup.myProperties).columnOrder);
         } // end for
     } // end checkColumnOrder
-
-
-    @Override
-    public GroupProperties getGroupProperties() {
-        // The preference is to recreate the properties each time from loaded data.
-        Object[] theData = getTheData();
-        if(theData[0] != null) { // Properties may have been set before having any data, but if there is data -
-            setGroupProperties(AppUtil.mapper.convertValue(theData[0], new TypeReference<SearchResultGroupProperties>() {}));
-        }
-
-        return myProperties;
-    }
 
 
     //--------------------------------------------------------
@@ -280,20 +242,11 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
     private void saveProperties() {
         // Update the header text of the columns.
-        ((SearchResultGroupProperties) myProperties).column1Label = listHeader.getColumnHeader(1);
-        ((SearchResultGroupProperties) myProperties).column2Label = listHeader.getColumnHeader(2);
-        ((SearchResultGroupProperties) myProperties).column3Label = listHeader.getColumnHeader(3);
-        ((SearchResultGroupProperties) myProperties).columnOrder = listHeader.getColumnOrder();
+        ((SearchResultGroupProperties) myNoteGroup.myProperties).column1Label = listHeader.getColumnHeader(1);
+        ((SearchResultGroupProperties) myNoteGroup.myProperties).column2Label = listHeader.getColumnHeader(2);
+        ((SearchResultGroupProperties) myNoteGroup.myProperties).column3Label = listHeader.getColumnHeader(3);
+        ((SearchResultGroupProperties) myNoteGroup.myProperties).columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
-
-
-    @Override
-    void setPanelData(Object[] theGroup) {
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], SearchResultGroupProperties.class));
-        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<SearchResultData>>() { });
-        BaseData.loading = false; // Restore normal lastModDate updating.
-    }
 
 
     public void shiftDown(int index) {

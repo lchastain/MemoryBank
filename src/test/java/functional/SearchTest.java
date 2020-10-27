@@ -243,7 +243,7 @@ public class SearchTest {
 
         // At current writing, the 'found' results is 139 and will probably climb higher,
         // over time so here we just check that some large number of records has been found.
-        Assertions.assertTrue(appTreePanel.getTheNoteGroup().noteGroupDataVector.size() > 100);
+        Assertions.assertTrue(appTreePanel.getTheNoteGroup().myNoteGroup.noteGroupDataVector.size() > 100);
     }
 
 }

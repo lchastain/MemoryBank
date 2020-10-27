@@ -26,7 +26,7 @@ public class NoteGroupPanelKeeper {
     public NoteGroupPanel get(String aListName) {
         // Search the Vector for the list.
         for (NoteGroupPanel noteGroup : theNoteGroups) {
-            String tngName = noteGroup.getGroupProperties().getGroupName();
+            String tngName = noteGroup.myNoteGroup.getGroupProperties().getGroupName();
             if (aListName.equals(tngName)) {
                 return noteGroup;
             } // end if
@@ -41,7 +41,8 @@ public class NoteGroupPanelKeeper {
 
         // Search the Vector for the group.
         for (NoteGroupPanel noteGroup : theNoteGroups) {
-            String tngName = noteGroup.prettyName();
+//            String tngName = noteGroup.prettyName();
+            String tngName = noteGroup.myNoteGroup.getGroupProperties().getGroupName();
             if (aListName.equals(tngName)) {
                 theGroup = noteGroup;
                 // Note: cannot remove from within this loop;

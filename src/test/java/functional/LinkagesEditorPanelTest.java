@@ -9,14 +9,14 @@ import java.awt.event.WindowEvent;
 class LinkagesEditorPanelTest {
     LinkagesEditorPanel linkagesEditorPanel;
 
-    GoalGroupPanel goalGroup;
-    DayNoteGroupPanel dayNoteGroup;
-    TodoNoteGroupPanel todoNoteGroup;
+    GoalGroupPanel goalGroupPanel;
+    DayNoteGroupPanel dayNoteGroupPanel;
+    TodoNoteGroupPanel todoNoteGroupPanel;
 
     LinkagesEditorPanelTest() {
-        goalGroup = new GoalGroupPanel("Take Over The World");
-        dayNoteGroup = new DayNoteGroupPanel();
-        todoNoteGroup = new TodoNoteGroupPanel("Preparations");
+        goalGroupPanel = new GoalGroupPanel("Take Over The World");
+        dayNoteGroupPanel = new DayNoteGroupPanel();
+        todoNoteGroupPanel = new TodoNoteGroupPanel("Preparations");
     }
 
     @BeforeAll
@@ -40,11 +40,11 @@ class LinkagesEditorPanelTest {
         noteData1.noteString = "milestone note.";
         NoteData noteData2 = new DayNoteData();
         noteData2.noteString = "day note";
-        GroupInfo goalGroupInfo = new GroupInfo(goalGroup.myProperties);
+        GroupInfo goalGroupInfo = new GroupInfo(goalGroupPanel.myNoteGroup.myProperties);
         NoteInfo goalNoteInfo = new NoteInfo(noteData1);
         LinkedEntityData led1 = new LinkedEntityData(goalGroupInfo, goalNoteInfo);
         led1.linkType = LinkedEntityData.LinkType.DEPENDING_ON;
-        GroupInfo dayNoteGroupInfo = new GroupInfo(dayNoteGroup.getGroupProperties());
+        GroupInfo dayNoteGroupInfo = new GroupInfo(dayNoteGroupPanel.myNoteGroup.getGroupProperties());
         NoteInfo dayNoteInfo = new NoteInfo(noteData2);
         LinkedEntityData led2 = new LinkedEntityData(dayNoteGroupInfo, dayNoteInfo);
         led2.linkType = LinkedEntityData.LinkType.AFTER;
@@ -52,7 +52,7 @@ class LinkagesEditorPanelTest {
         todoNoteData.linkTargets.add(led2);
 
         // Construct the editor panel for the new source Note -
-        linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroup.myProperties, todoNoteData);
+        linkagesEditorPanel = new LinkagesEditorPanel(todoNoteGroupPanel.myNoteGroup.myProperties, todoNoteData);
         linkagesEditorPanel.editExtendedNoteComponent(todoNoteData);
 
         JFrame testFrame = new JFrame("Link Editing Driver");

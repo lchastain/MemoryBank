@@ -27,7 +27,7 @@ public class SearchResultHeader extends Container implements ClingSource {
         super();
         parent = p;
         headerLayout = new DndLayout();
-        headerLayout.setMoveable(true); // Must be BEFORE add.
+        headerLayout.setMoveable(true); // Must be BEFORE setNotes.
         headerLayout.setClingSource(this);
         setLayout(headerLayout);
 
@@ -38,21 +38,21 @@ public class SearchResultHeader extends Container implements ClingSource {
         hb4 = new HeaderButton("Deadline");
 
         // Whatever was stored...
-        hb1.setText(((SearchResultGroupProperties) parent.myProperties).column1Label);
-        hb2.setText(((SearchResultGroupProperties) parent.myProperties).column2Label);
-        hb3.setText(((SearchResultGroupProperties) parent.myProperties).column3Label);
+        hb1.setText(((SearchResultGroupProperties) parent.myNoteGroup.myProperties).column1Label);
+        hb2.setText(((SearchResultGroupProperties) parent.myNoteGroup.myProperties).column2Label);
+        hb3.setText(((SearchResultGroupProperties) parent.myNoteGroup.myProperties).column3Label);
 
         add(hb1, "First");
         add(hb2, "Stretch");
         add(hb3, "Third");
 
         // Re-order, if necessary
-        String pos = String.valueOf(((SearchResultGroupProperties) parent.myProperties).columnOrder);
+        String pos = String.valueOf(((SearchResultGroupProperties) parent.myNoteGroup.myProperties).columnOrder);
         // System.out.println("In SearchResultHeader, columnOrder = " + pos);
         add(hb1, pos.indexOf("1"));
         add(hb2, pos.indexOf("2"));
         add(hb3, pos.indexOf("3"));
-        // add(hb4, pos.indexOf("4"));
+        // setNotes(hb4, pos.indexOf("4"));
 
     } // end constructor
 
@@ -70,9 +70,9 @@ public class SearchResultHeader extends Container implements ClingSource {
 
         // System.out.println("SearchResultHeader.doLayout");
 
-        int origColumnOrder = ((SearchResultGroupProperties) parent.myProperties).columnOrder;
+        int origColumnOrder = ((SearchResultGroupProperties) parent.myNoteGroup.myProperties).columnOrder;
         if (getColumnOrder() != origColumnOrder) {
-            ((SearchResultGroupProperties) parent.myProperties).columnOrder = getColumnOrder();
+            ((SearchResultGroupProperties) parent.myNoteGroup.myProperties).columnOrder = getColumnOrder();
             parent.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }

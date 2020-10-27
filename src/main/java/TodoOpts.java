@@ -136,8 +136,7 @@ public class TodoOpts extends JTabbedPane {
         } // end constructor
 
         public void stateChanged(ChangeEvent ce) {
-            if (cb1.isSelected()) fp.setVisible(true);
-            else fp.setVisible(false);
+            fp.setVisible(cb1.isSelected());
         } // end stateChanged
     } // end PriorityPanel
 
@@ -181,7 +180,7 @@ public class TodoOpts extends JTabbedPane {
             p1.add(cb3);
             p1.add(cb4);
             p1.add(cb5);
-            // p1.add(cb6);
+            // p1.setNotes(cb6);
             p1.add(cb7);
             add(p1, gbc);
             gbc.gridy++;

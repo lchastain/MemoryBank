@@ -10,7 +10,7 @@ public class DayNoteDefaults {
     boolean military;   // 12 or 24 hour time display
 
     // Expectation is that additional members will be needed.
-    // It will be better to add them at that time rather than
+    // It will be better to setNotes them at that time rather than
     // making placeholders for them now, because additions do
     // not cause JSON deserialization issues, whereas renames
     // or deletions from the class will result in exceptions

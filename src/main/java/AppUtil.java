@@ -37,7 +37,7 @@ public class AppUtil {
 
         // System.out.println("Searching for data in the year: " + year);
 //        String FileName = CalendarNoteGroup.basePath() + year;
-        String FileName = CalendarNoteGroupPanel.areaPath + year;
+        String FileName = NoteGroupFile.calendarNoteGroupAreaPath + year;
         MemoryBank.debug("Looking in " + FileName);
 
         String[] foundFiles = null;

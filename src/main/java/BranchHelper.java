@@ -41,16 +41,16 @@ public class BranchHelper implements BranchHelperInterface {
         theArea = areaName;
 
         // This Helper is for one of these Branches -
-        if (GoalGroupPanel.areaName.equals(theArea)) {
+        if (NoteGroup.goalGroupArea.equals(theArea)) {
             theAreaNodeName = AREA_GOAL;
             thePrefix = "goal_";
-        } else if (EventNoteGroupPanel.areaName.equals(theArea)) {
+        } else if (NoteGroup.eventGroupArea.equals(theArea)) {
             theAreaNodeName = AREA_EVENT;
             thePrefix = "event_";
-        } else if (TodoNoteGroupPanel.areaName.equals(theArea)) {
+        } else if (NoteGroup.todoListGroupArea.equals(theArea)) {
             theAreaNodeName = AREA_TODO;
             thePrefix = "todo_";
-        } else if(SearchResultGroupPanel.areaName.equals(theArea)) {
+        } else if(NoteGroup.searchResultGroupArea.equals(theArea)) {
             theAreaNodeName = AREA_SEARCH;
             thePrefix = "search_";
         }

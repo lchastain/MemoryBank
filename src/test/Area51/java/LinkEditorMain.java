@@ -81,7 +81,7 @@ public class LinkEditorMain {
 //            }
 //        });
 //
-//        testFrame.getContentPane().add(linkagesEditorPanel, "Center");
+//        testFrame.getContentPane().setNotes(linkagesEditorPanel, "Center");
 //        testFrame.pack();
 //        testFrame.setSize(new Dimension(860, 510));
 //        testFrame.setVisible(true);

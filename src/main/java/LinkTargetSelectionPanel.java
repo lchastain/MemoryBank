@@ -17,9 +17,9 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-// This panel has a BorderLayout, where the NORTH component provides info about the source of the link
-// and the CENTER component is a JSplitPane with highly variable content.  The left side of the split
-// has a JTree with selectable nodes (in a JScrollPane) and the right side is used to show the effects
+// This panel has a BorderLayout with only the NORTH and CENTER having content.  The NORTH component provides info
+// about the source of the link and the CENTER component is a JSplitPane with highly variable content.  The left side
+// of the split has a JTree with selectable nodes (in a JScrollPane) and the right side is used to show the effects
 // of the selections.  Panel/layout nesting is done where needed in order to achieve the desired visual
 // effects, but at the cost of clarity, at times.  Comments are there to help with that.
 
@@ -38,7 +38,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     String chosenCategory;
     String theNodeString;
     CalendarNoteGroupPanel calendarNoteGroup;
-    NoteGroupPanel selectedTargetGroup;
+    NoteGroupPanel selectedTargetGroupPanel;
     NoteData selectedNoteData;
     GroupProperties sourceGroupProperties;
 
@@ -56,7 +56,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         theTree.addTreeSelectionListener(this); // Listen for when the selection changes.
         theTree.setFocusable(false);  // Do not let focus escape from the right side; close off other avenues.
 
-        // Create the scroll pane and add the tree to it.
+        // Create the scroll pane and setNotes the tree to it.
         // This will be the left side of the JSplitPane.
         JScrollPane treeView = new JScrollPane(theTree);
         treeView.setFocusable(false);
@@ -73,7 +73,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         splitPane.setLeftComponent(treeView);
         splitPane.setRightComponent(rightPane);
 
-        // Declare a selection result label and add it to the top of the base panel.
+        // Declare a selection result label and setNotes it to the top of the base panel.
         targetSelectionLabel = new JLabel();
         targetSelectionLabel.setFont(Font.decode("Dialog-bold-12"));
         add(targetSelectionLabel, BorderLayout.NORTH);
@@ -85,7 +85,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         infoPanelTitleLabel.setOpaque(true);
         infoPanelTitleLabel.setFont(Font.decode("Serif-bold-20"));
 
-        // Declare the info panel and its text area, add the title label and text area
+        // Declare the info panel and its text area, setNotes the title label and text area
         theInfoPanel = new JPanel(new BorderLayout());
         infoPanelTextArea = new JTextArea();
         infoPanelTextArea.setFont(Font.decode("Serif-bold-14"));
@@ -222,8 +222,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         String groupName = "";
         String targetNoteString = "";
 
-        if (selectedTargetGroup != null) {
-            groupName = selectedTargetGroup.getGroupName();
+        if (selectedTargetGroupPanel != null) {
+            groupName = selectedTargetGroupPanel.getGroupName();
 
             if (selectedNoteData != null) {
                 targetNoteString = AppUtil.makeRed(selectedNoteData.noteString);
@@ -348,7 +348,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
         // Clear the selection report - needed when the user has changed from a 'good'
         // selection to one that is somehow missing.
-        selectedTargetGroup = null;
+        selectedTargetGroupPanel = null;
         selectedNoteData = null;
         resetTargetSelectionLabel();
 
@@ -390,7 +390,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             if (calendarNoteGroup != null) {
                 calendarNoteGroup.setEditable(false);
                 calendarNoteGroup.setAlteredDateListener(this); // AppTreePanel will take it back, if needed.
-                selectedTargetGroup = calendarNoteGroup;
+                selectedTargetGroupPanel = calendarNoteGroup;
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(calendarNoteGroup.theBasePanel);
             } else {
@@ -405,7 +405,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
             GoalGroupPanel goalGroup = (GoalGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
-                goalGroup = (GoalGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
+                goalGroup = (GoalGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
             } else {
                 // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
                 // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
@@ -414,8 +414,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             }
 
             if (goalGroup != null) {
-                selectedTargetGroup = goalGroup;
-                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
+                selectedTargetGroupPanel = goalGroup;
+                if(selectedTargetGroupPanel.editable) selectedTargetGroupPanel.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(goalGroup.theBasePanel);
             } else {
@@ -434,7 +434,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
             EventNoteGroupPanel eventNoteGroup = (EventNoteGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
+                eventNoteGroup = (EventNoteGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
             } else {
                 // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
                 // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
@@ -443,8 +443,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             }
 
             if (eventNoteGroup != null) {
-                selectedTargetGroup = eventNoteGroup;
-                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
+                selectedTargetGroupPanel = eventNoteGroup;
+                if(selectedTargetGroupPanel.editable) selectedTargetGroupPanel.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } else {
@@ -463,7 +463,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
             TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroupPanel) GroupPanelFactory.loadNoteGroup(parentNodeName, theNodeString);
+                todoNoteGroup = (TodoNoteGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
             } else {
                 // Since the Group came from a keeper, it might have unsaved changes that could include gaps in the
                 // display.  But an empty note (a gap) is not an allowed selection, so we need to refresh the
@@ -472,8 +472,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             }
 
             if (todoNoteGroup != null) {
-                selectedTargetGroup = todoNoteGroup;
-                if(selectedTargetGroup.editable) selectedTargetGroup.setEditable(false);
+                selectedTargetGroupPanel = todoNoteGroup;
+                if(selectedTargetGroupPanel.editable) selectedTargetGroupPanel.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(todoNoteGroup.theBasePanel);
             } else {
@@ -489,17 +489,17 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } // end if/else if
         //</editor-fold>
 
-        if(selectedTargetGroup != null && selectedTargetGroup != calendarNoteGroup) {
+        if(selectedTargetGroupPanel != null && selectedTargetGroupPanel != calendarNoteGroup) {
             // Check for same-group linking, and disallow.  But for CalendarNoteGroups this is not necessarily
             // the same as their selection; we will have to catch that one after this panel closes.
             // Although - we could trap a CLOSING event, and check/prevent it then.  but that's more work; not
             //   sure how to do that when it is a JOptionPane; not gonna doit.
-            if(selectedTargetGroup.myProperties.instanceId.toString().equals(sourceGroupProperties.instanceId.toString())) {
+            if(selectedTargetGroupPanel.myNoteGroup.myProperties.instanceId.toString().equals(sourceGroupProperties.instanceId.toString())) {
                 String ems = "You cannot make a link to the same group!";
                 JOptionPane.showMessageDialog(this,
                         ems, "Error", JOptionPane.ERROR_MESSAGE);
                 theTree.clearSelection();
-                selectedTargetGroup = null;
+                selectedTargetGroupPanel = null;
             }
         }
 

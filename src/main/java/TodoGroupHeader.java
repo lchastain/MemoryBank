@@ -27,7 +27,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         super();
         parent = p;
         headerLayout = new DndLayout();
-        headerLayout.setMoveable(true); // Must be BEFORE add.
+        headerLayout.setMoveable(true); // Must be BEFORE setNotes.
         headerLayout.setClingSource(this);
         setLayout(headerLayout);
 
@@ -38,25 +38,25 @@ public class TodoGroupHeader extends Container implements ClingSource {
         hb4 = new HeaderButton("Deadline");
 
         // Whatever was stored...
-        hb1.setText(((TodoGroupProperties) parent.myProperties).column1Label);
-        hb2.setText(((TodoGroupProperties) parent.myProperties).column2Label);
-        hb3.setText(((TodoGroupProperties) parent.myProperties).column3Label);
-        hb4.setText(((TodoGroupProperties) parent.myProperties).column4Label);
+        hb1.setText(((TodoGroupProperties) parent.myNoteGroup.myProperties).column1Label);
+        hb2.setText(((TodoGroupProperties) parent.myNoteGroup.myProperties).column2Label);
+        hb3.setText(((TodoGroupProperties) parent.myNoteGroup.myProperties).column3Label);
+        hb4.setText(((TodoGroupProperties) parent.myNoteGroup.myProperties).column4Label);
 
         add(hb1, "First");
         add(hb2, "Stretch");
         add(hb3, "Third");
-        // add(hb4, "Fourth");
+        // setNotes(hb4, "Fourth");
 
         // Re-order the columns, if necessary
-        String pos = String.valueOf(((TodoGroupProperties) parent.myProperties).columnOrder);
+        String pos = String.valueOf(((TodoGroupProperties) parent.myNoteGroup.myProperties).columnOrder);
         // System.out.println("In TodoGroupHeader, columnOrder = " + pos);
         add(hb1, pos.indexOf("1"));
         add(hb2, pos.indexOf("2"));
         add(hb3, pos.indexOf("3"));
-        // add(hb4, pos.indexOf("4"));
+        // setNotes(hb4, pos.indexOf("4"));
 
-        hb1.setVisible(((TodoGroupProperties) parent.myProperties).showPriority);
+        hb1.setVisible(((TodoGroupProperties) parent.myNoteGroup.myProperties).showPriority);
     } // end constructor
 
 
@@ -72,11 +72,14 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
         if (headerLayout.Dragging) return;
 
-        int origColumnOrder = ((TodoGroupProperties) parent.myProperties).columnOrder;
+        int origColumnOrder = ((TodoGroupProperties) parent.myNoteGroup.myProperties).columnOrder;
         if (getColumnOrder() != origColumnOrder) {
-            ((TodoGroupProperties) parent.myProperties).columnOrder = getColumnOrder();
+            ((TodoGroupProperties) parent.myNoteGroup.myProperties).columnOrder = getColumnOrder();
 //            parent.setGroupChanged(true);
-            parent.groupChanged = true;
+            // the above was commented out on 8 sep 2020, in favor of a direct assignment.  Why?
+//            parent.groupChanged = true;
+            // now (26 oct 2020) need to adjust for new hierarchy, changed the direct back to a method call.  problem with that?
+            parent.myNoteGroup.setGroupChanged(true);
             // System.out.println("\n\nSet Group changed flag!");
         }
     } // end doLayout
@@ -190,7 +193,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
 
     void resetVisibility() {
-        hb1.setVisible(((TodoGroupProperties) parent.myProperties).showPriority);
+        hb1.setVisible(((TodoGroupProperties) parent.myNoteGroup.myProperties).showPriority);
     } // end resetVisibility
 
 

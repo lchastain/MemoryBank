@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private final JLabel yearTitle;
+    private JLabel yearTitle;
 
     static {
         MemoryBank.trace();
@@ -22,7 +22,11 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     //=============================================================
 
     YearNoteGroupPanel() {
-        super("Year Note");
+        super(GroupInfo.GroupType.YEAR_NOTES);
+        buildMyPanel();
+    } // end constructor
+
+    private void buildMyPanel() {
 
         // Create the window title
         yearTitle = new JLabel();

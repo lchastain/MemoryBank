@@ -305,7 +305,7 @@ public class NoteComponent extends JPanel {
                 s = "Click here to enter text for this note.";
                 break;
             case HAS_BASE_TEXT:
-                s = "Press 'Enter' to add a subject or an extended note.";
+                s = "Press 'Enter' to setNotes a subject or an extended note.";
                 break;
             case HAS_EXT_TEXT:
                 // This gives away the 'hidden' text, if
@@ -319,7 +319,7 @@ public class NoteComponent extends JPanel {
 
     // This method is called each time before displaying the popup menu.
     //   Child classes may override it if they have additional selections,
-    //   but they can still call this one first, to add the base items.
+    //   but they can still call this one first, to setNotes the base items.
     void resetPopup() {
         popup.removeAll();
         popup.add(miCutLine);   // the default state is 'enabled'.
@@ -739,7 +739,7 @@ public class NoteComponent extends JPanel {
                 // mechanism that allows the handler to be static.
                 theNoteComponent = NoteComponent.this;
 
-                // Child classes will override resetPopup to enable/disable, add/remove
+                // Child classes will override resetPopup to enable/disable, setNotes/remove
                 //   menu items, based on the data content of the active NoteComponent.
                 resetPopup();
 
@@ -796,7 +796,7 @@ public class NoteComponent extends JPanel {
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     break;
                 case "Note Linkages...":
-                    GroupProperties groupProperties = theNoteComponent.myNoteGroupPanel.getGroupProperties();
+                    GroupProperties groupProperties = theNoteComponent.myNoteGroupPanel.myNoteGroup.getGroupProperties();
                     LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
 
                     // Highlight this note to show it is the one being modified.
@@ -827,7 +827,7 @@ public class NoteComponent extends JPanel {
                         // Set the NoteData group.  Do NOT use noteData.getMyNoteGroup() as the value to set;
                         // it is still null, at this point.  Need to work on that...
                         // maybe have it set automatically, somewhere, and then no need to call a 'set', here.
-                        noteData.setMyNoteGroup(theNoteComponent.myNoteGroupPanel);
+                        noteData.setMyNoteGroup(theNoteComponent.myNoteGroupPanel.myNoteGroup);
                         noteData.addReverseLinks(noteData.linkTargets);
 //                        linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
 

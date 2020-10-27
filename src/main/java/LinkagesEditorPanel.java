@@ -77,92 +77,6 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         makeActionListener();
     } // end constructor
 
-    // Create a reverse link from this 'forward' one, then attach it to the current target, and persist.
-    // This method is called in the same event sequence in which the forward link was just created, so we are
-    // confident that the info for the indicated target group or group+note is available.
-//    private void addReverseLink(LinkedEntityData linkedEntityData) {
-//        GroupInfo otherEndGroupInfo = linkedEntityData.getTargetGroupInfo();
-//        NoteInfo otherEndNoteInfo = linkedEntityData.getTargetNoteInfo();
-//
-//        // If somehow our above-noted confidence was misplaced - complain loudly.
-//        assert otherEndGroupInfo != null;
-//
-//        // Use the target GroupInfo to get a reference to the group's data accessor
-//        NoteGroupDataAccessor groupToSave = otherEndGroupInfo.getNoteGroupDataAccessor();
-//        // The Group to save will not be null - because in order for the target to have been selected, its Group
-//        // will have first been displayed in a Panel, during this very same session.
-//
-//        // But again, if somehow our above-noted confidence is misplaced - complain loudly.
-//        assert groupToSave != null;
-//        // And not to worry - if this group is active in the app and had some unsaved changes, those changes
-//        // will have been preserved by the LinkTargetSelectionPanel's call to refresh() prior to presenting the group
-//        // as the potential link target.
-//
-//        // Create the reverse link
-//        LinkedEntityData reverseLinkedEntityData = createReverseLink(linkedEntityData);
-//
-//        // Attach the reversed link to the right place, and re-persist the Group.
-//        if (otherEndNoteInfo != null) {
-//            groupToSave.getLinkTargets(otherEndNoteInfo).add(reverseLinkedEntityData);
-//        } else {
-//            groupToSave.getGroupProperties().linkTargets.add(reverseLinkedEntityData);
-//        }
-//
-//        // Use the data accessor method to persist the Group with the new reverse link.
-//        groupToSave.saveNoteGroupData(); // This saves the updated Group.
-//    } // and addReverseLink
-
-
-    // Cycle through the list of linkages to find the 'new' ones, and add a reverse link for each one.
-    // Note that we send in the links to reverse, vs just pulling them from our displayed panel.  So if we do not
-    //   depend on the editor content - couldn't this be made into a static method?
-    //   Maybe.  But that would require addReverseLink() to go static, and then that would need createReverseLink()
-    //   to go static, and that would be a problem in that it references the source entity class member(s), etc.
-    //   For now - leaving it alone.
-//    void addReverseLinks(LinkTargets linkages) {
-//        for (LinkedEntityData linkedEntityData : linkages) {
-//            // Since we are looking through ALL links to see if we need to handle new ones, we will also see the
-//            // ones (if any) that were already there.   In those cases we don't want to add a reverse link for them
-//            // because that already happened when they first appeared, and we don't want them to pile up; only one
-//            // reverse link per forward link is allowed.  We can know that a forward link pre-existed based
-//            // on whether or not we are allowed to change its type, because only new links are allowed to be
-//            // re-'typed'.  And since no reverse link is allowed to be re-typed, the same logic prevents a reverse
-//            // link from being created for a link that is itself already a reverse link, regardless of whether or
-//            // not it is new.
-//            if (!linkedEntityData.retypeMe) continue;
-//
-//            addReverseLink(linkedEntityData);
-//        }
-//    }
-
-    // Make a 'reverse' link from a 'forward' one.
-    // Our source entity will now be the target.
-    // (I thought I had a second usage for this method, while auto-deleting reverse links; now - not so sure about that).
-//    LinkedEntityData createReverseLink(LinkedEntityData linkedEntityData) {
-//        // First, just a standard 'forward' link, where our source entity is now the target.
-//        LinkedEntityData reverseLinkedEntityData;
-//        if(sourceNoteData != null) {
-//            reverseLinkedEntityData = new LinkedEntityData(sourceGroupProperties, sourceNoteData);
-////            reverseLinkedEntityData = new LinkedEntityData(sourceGroupInfo, sourceNoteInfo);
-//// If we could do the above instead of the one above that, then the extra constructor for LinkedEntityData could go away
-//// because the remaining one would allow a null in place of sourceNoteInfo, whereas if it is a null NoteData, it does not.
-//        } else {
-//            reverseLinkedEntityData = new LinkedEntityData(sourceGroupProperties);
-//        }
-//
-//        // But now - give it the same ID as the forward one.  This will help with any
-//        // subsequent operations where the two will need to be 'in sync'.
-//        reverseLinkedEntityData.instanceId = linkedEntityData.instanceId;
-//
-//        // Then give it a type that is the reverse of the forward link's type -
-//        reverseLinkedEntityData.linkType = linkedEntityData.reverseLinkType(linkedEntityData.linkType);
-//
-//        // and then raise the 'reversed' flag.
-//        reverseLinkedEntityData.reversed = true;
-//
-//        return reverseLinkedEntityData;
-//    }
-
 
     // This method works on the incoming linkages to remove bad/obsolete links, flag
     // text where it may have changed, and to hide those links that should not be shown.
@@ -232,12 +146,12 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                     // The 'OK' for this panel is handled where it was invoked.
 
                     // If no Group selection then just go back. (but not sure how this could happen) -
-                    if (linkTargetSelectionPanel.selectedTargetGroup == null) return;
+                    if (linkTargetSelectionPanel.selectedTargetGroupPanel == null) return;
 
                     // Disallow a same-group link targetselection.  The LinkTargetSelectionPanel will have
                     // already stopped this for notes within CalendarNoteGroups and all other group types,
                     // but not for a CalendarNoteGroup-only selection.
-                    String groupId = linkTargetSelectionPanel.selectedTargetGroup.getGroupProperties().instanceId.toString();
+                    String groupId = linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.getGroupProperties().instanceId.toString();
                     if(groupId.equals(sourceGroupProperties.instanceId.toString())) {
                         String ems = "You cannot make a link to the same group!";
                         JOptionPane.showMessageDialog(addLinkButton,
@@ -248,13 +162,13 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                     // First - capture any link type or ordering changes in the existing list.
                     deleteCheckedLinks = false;
                     // This will update all pre-existing link types; they could have changed between
-                    // link additions, when this dialog is used to add more than just one.
+                    // link additions, when this dialog is used to setNotes more than just one.
                     updateLinkagesFromEditor();
                     deleteCheckedLinks = true;
 
                     // Get the Group and Note selections
-                    GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroup.getGroupProperties();
-                    GroupInfo selectedGroupInfo = new GroupInfo(selectedGroupProperties);
+//                    GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroup.myNoteGroup.getGroupProperties();
+                    GroupInfo selectedGroupInfo = new GroupInfo(linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.myGroupInfo);
                     NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
 
                     LinkedEntityData linkedEntityData;
@@ -304,7 +218,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         int linkCount = linkTargets.size();
         if (linkCount == 0) {
             theSourceNoteText = "There are no existing links for " + AppUtil.makeRed(downsizedNote);
-            theSourceNoteText += ".  Click on 'Add New Link' to add one.";
+            theSourceNoteText += ".  Click on 'Add New Link' to setNotes one.";
         } else if (linkCount == 1) {
             theUserInstructions = "Use the dropdown to change the link type, or put a check in the checkbox to mark it for deletion";
             userInstructionsLabel.setText(theUserInstructions);
@@ -389,7 +303,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         //  of the GroupInfo class itself.
 
         // Use the target GroupInfo to get a reference to the group's data accessor
-        NoteGroupDataAccessor groupToSave = otherEndGroupInfo.getNoteGroupDataAccessor();
+        NoteGroup groupToSave = otherEndGroupInfo.getNoteGroup();
         if(groupToSave == null) return; // if that didn't work then we're done here; removal not possible.
 
         // Remove the link from its 'holder'.
@@ -407,7 +321,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         // but may not, if you make an 'equals' method for LinkedEntityData ??
 
         // re-persist the group, now without the one removed link.
-        if(removedLink) groupToSave.saveNoteGroupData();
+        if(removedLink) groupToSave.saveNoteGroup();
 
         // If it came from a keeper, refresh.
     }
@@ -455,6 +369,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 // want to remove its reverse link, if this is a forward one.
                 LinkedEntityData linkedEntityData = linkNoteComponent.myLinkedEntityData;
                 if (!linkedEntityData.reversed && !linkedEntityData.retypeMe) { // If this is a pre-existing forward link -
+                    System.out.println("Not yet calling removeReverseLink"); // but this printout silences a warning.
 //                    removeReverseLink(linkedEntityData);
                 }
             } else {

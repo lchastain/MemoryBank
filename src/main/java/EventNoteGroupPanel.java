@@ -2,19 +2,12 @@
 
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
 public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, DateSelection {
@@ -39,14 +32,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     private final ThreeMonthColumn tmc;
     private final EventHeader theHeader;
     private EventNoteComponent eventNoteComponent;
-    static String areaName;
-    static String areaPath;
-    static String filePrefix;
 
     static {
-        areaName = "UpcomingEvents"; // Directory name under user data.
-        areaPath = basePath + areaName + File.separatorChar;
-        filePrefix = "event_";
         eventNoteDefaults = EventNoteDefaults.load();
 
         if (eventNoteDefaults.defaultIconFileName.equals("")) {
@@ -63,22 +50,16 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     EventNoteGroupPanel(String groupName) {
         super();
 
-        MemoryBank.debug("Constructing: " + groupName);
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.EVENTS);
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
+        myNoteGroup.myNoteGroupPanel = this;
+        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
 
-        setGroupFilename(areaPath + filePrefix + groupName + ".json");
-        saveWithoutData = true;
-
-        // We need the Header to be able to access the groupName via the properties.
-        // And the header checks for the group name, So this 'early' setting IS needed.
-        // Otherwise 9 tests fail...
-        setGroupProperties(new GroupProperties(groupName, GroupInfo.GroupType.EVENTS));
-
-        eventNoteComponent = null;
+//        eventNoteComponent = null;  // needed?
         tmc = new ThreeMonthColumn();
-        theHeader = new EventHeader(this);
-
         tmc.setSubscriber(this);
 
+        theHeader = new EventHeader(this);
         add(theHeader, BorderLayout.NORTH);
 
         // Wrapped tmc in a FlowLayout panel, to prevent stretching.
@@ -87,33 +68,19 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         add(pnl1, BorderLayout.EAST);
 
         optionPane = new Notifier() { }; // Uses all default methods.
-
-        updateGroup(); // This is where the file gets loaded (if it exists)
-
-        if(myProperties == null) {
-            // This happens when there was no file to load - in the case of a new group.
-            setGroupProperties(new GroupProperties(groupName, GroupInfo.GroupType.EVENTS));
-        } else {
-            // This is intended to 'fix' a renamed group, where the filename is correct but the group info
-            // inside the file was never updated, so properties deserialize with the older name.
-            myProperties.setGroupName(groupName);
-        }
-        myNoteGroupPanel = this;
+        theNotePager.reset(1);
 
         // Call 'ageEvents'
-        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
-            // removed.  We show that by saving the altered data and then reloading it.
-            preClosePanel();    // Save the new states of 'aged' events.
-            updateGroup(); // Reload the group (visually removes aged-off items, if any)
-            doSort();
-        } // end if
+//        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
+//            // removed.  We show that by saving the altered data and then reloading it.
+//            preClosePanel();    // Save the new states of 'aged' events.
+//            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+//            doSort();
+//        } // end if
 
     }// end constructor
 
 
-    // -------------------------------------------------------------------
-    // Method Name: ageEvents
-    //
     // This method examines each event and if its start is after the
     //   current date/time, will 'age' it according to its recurrence.
     //   If there is no recurrence or the final occurrence is exceeded,
@@ -121,115 +88,114 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // The return value will be true if one or more events were aged
     //   off.  If they were not aged at all, or only aged forward, the
     //   return value is false.
-    // -------------------------------------------------------------------
-    private boolean ageEvents() {
-        boolean blnDropThisEvent;
-        boolean blnAnEventWasAged = false;
-
-        String s;
-        EventNoteData tempNoteData;
-
-        // AppUtil.localDebug(true);
-        for (Object ndTmp : noteGroupDataVector) {
-            blnDropThisEvent = false;
-            tempNoteData = (EventNoteData) ndTmp;
-
-            s = tempNoteData.getNoteString();
-            MemoryBank.debug("Examining: " + s + " starting " + tempNoteData.getEventStartDateTime());
-
-            // 'Age' the event, if appropriate to do so.
-            while (tempNoteData.hasStarted()) {
-                if (tempNoteData.getRetainNote()) {
-                    // We save this version of the event.
-                    DayNoteData dnd = new DayNoteData(tempNoteData);
-                    LocalDateTime eventStartDateTime = tempNoteData.getEventStartDateTime();
-                    boolean success = addDayNote(eventStartDateTime.toLocalDate(), dnd);
-
-                    // Although we test the result for success or fail, this
-                    //   aging event is one of potentially several, and one
-                    //   of the times it could occur is at app startup while the
-                    //   'always on top' splash screen is displayed.  It is
-                    //   definitely NOT a good time to stop at each problem
-                    //   and complain to the user with an error dialog that
-                    //   they must review and dismiss.
-                    if (success) {
-                        MemoryBank.debug("  Retention of Event data succeeded");
-                    } else {
-                        MemoryBank.debug("  Retention of Event data failed");
-                    } // end if
-                } // end if retain note
-
-                // Now adjust forward in time -
-                if (tempNoteData.getRecurrenceString().trim().equals("")) { // No recurrence
-                    blnDropThisEvent = true;
-                    break; // get out of the while loop
-                } else {  // There is recurrence, but not necessarily indefinite
-                    if (!tempNoteData.goForward()) {
-                        // It might not have moved at all, or not enough to get past 'today'.
-                        MemoryBank.debug("  The Event has started but is still ongoing; cannot age it yet.");
-                        break; // get out of the while loop
-                    } else {  // a new Event Start was set by 'goForward'
-                        MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
-                        blnAnEventWasAged = true;
-                    } // end if
-                } // end if
-            } // end while the event Start date is in the past
-
-            if (blnDropThisEvent) {
-                MemoryBank.debug("  Aging off " + tempNoteData.getNoteString());
-                tempNoteData.clear();
-                blnAnEventWasAged = true;
-            } // end if
-
-        } // end for - for each Event
-
-        //  Just clearing DATA (above) does not set noteChanged (nor should it,
-        //    because that data may not even be loaded into a component).
-        //  So since we can't go that route to a groupChanged, just do it explicitly.
-        if (blnAnEventWasAged) setGroupChanged(true);
-        // AppUtil.localDebug(false);
-        return blnAnEventWasAged;
-    } // end ageEvents
-
-
-    private File chooseMergeFile() {
-        File dataDir = new File(areaPath);
-        String myName = getGroupName(); // two usages below; this way the method is only called once.
-
-        // Get the complete list of Upcoming Event filenames, except this one.
-        String[] theFileList = dataDir.list(
-                new FilenameFilter() {
-                    // Although this filter does not account for directories, it is
-                    // known that the basePath will not under normal program
-                    // operation contain directories.
-                    public boolean accept(File f, String s) {
-                        if (myName.equals(prettyName(s))) return false;
-                        return s.startsWith(filePrefix);
-                    }
-                }
-        );
-
-        // Reformat the list for presentation in the selection control.
-        // ie, drop the prefix and file extension.
-        ArrayList<String> eventListNames = new ArrayList<>();
-        if (theFileList != null) {
-            for (String aName : theFileList) {
-                eventListNames.add(prettyName(aName));
-            } // end for i
-        }
-        Object[] theNames = new String[eventListNames.size()];
-        theNames = eventListNames.toArray(theNames);
+//    private boolean ageEvents() {
+//        boolean blnDropThisEvent;
+//        boolean blnAnEventWasAged = false;
+//
+//        String s;
+//        EventNoteData tempNoteData;
+//
+//        // AppUtil.localDebug(true);
+//        for (Object ndTmp : myNoteGroup.noteGroupDataVector) {
+//            blnDropThisEvent = false;
+//            tempNoteData = (EventNoteData) ndTmp;
+//
+//            s = tempNoteData.getNoteString();
+//            MemoryBank.debug("Examining: " + s + " starting " + tempNoteData.getEventStartDateTime());
+//
+//            // 'Age' the event, if appropriate to do so.
+//            while (tempNoteData.hasStarted()) {
+//                if (tempNoteData.getRetainNote()) {
+//                    // We save this version of the event.
+//                    DayNoteData dnd = new DayNoteData(tempNoteData);
+//                    LocalDateTime eventStartDateTime = tempNoteData.getEventStartDateTime();
+//                    boolean success = addDayNote(eventStartDateTime.toLocalDate(), dnd);
+//
+//                    // Although we test the result for success or fail, this
+//                    //   aging event is one of potentially several, and one
+//                    //   of the times it could occur is at app startup while the
+//                    //   'always on top' splash screen is displayed.  It is
+//                    //   definitely NOT a good time to stop at each problem
+//                    //   and complain to the user with an error dialog that
+//                    //   they must review and dismiss.
+//                    if (success) {
+//                        MemoryBank.debug("  Retention of Event data succeeded");
+//                    } else {
+//                        MemoryBank.debug("  Retention of Event data failed");
+//                    } // end if
+//                } // end if retain note
+//
+//                // Now adjust forward in time -
+//                if (tempNoteData.getRecurrenceString().trim().equals("")) { // No recurrence
+//                    blnDropThisEvent = true;
+//                    break; // get out of the while loop
+//                } else {  // There is recurrence, but not necessarily indefinite
+//                    if (!tempNoteData.goForward()) {
+//                        // It might not have moved at all, or not enough to get past 'today'.
+//                        MemoryBank.debug("  The Event has started but is still ongoing; cannot age it yet.");
+//                        break; // get out of the while loop
+//                    } else {  // a new Event Start was set by 'goForward'
+//                        MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
+//                        blnAnEventWasAged = true;
+//                    } // end if
+//                } // end if
+//            } // end while the event Start date is in the past
+//
+//            if (blnDropThisEvent) {
+//                MemoryBank.debug("  Aging off " + tempNoteData.getNoteString());
+//                tempNoteData.clear();
+//                blnAnEventWasAged = true;
+//            } // end if
+//
+//        } // end for - for each Event
+//
+//        //  Just clearing DATA (above) does not set noteChanged (nor should it,
+//        //    because that data may not even be loaded into a component).
+//        //  So since we can't go that route to a groupChanged, just do it explicitly.
+//        if (blnAnEventWasAged) setGroupChanged(true);
+//        // AppUtil.localDebug(false);
+//        return blnAnEventWasAged;
+//    } // end ageEvents
 
 
-        String message = "Choose an Event group to merge with " + myName;
-        String title = "Merge Event Groups";
-        String theChoice = optionPane.showInputDialog(theBasePanel, message,
-                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
-
-        System.out.println("The choice is: " + theChoice);
-        if (theChoice == null) return null;
-        return new File(areaPath + "event_" + theChoice + ".json");
-    } // end chooseMergeFile
+//    private File chooseMergeFile() {
+//        File dataDir = new File(areaPath);
+//        String myName = getGroupName(); // two usages below; this way the method is only called once.
+//
+//        // Get the complete list of Upcoming Event filenames, except this one.
+//        String[] theFileList = dataDir.list(
+//                new FilenameFilter() {
+//                    // Although this filter does not account for directories, it is
+//                    // known that the basePath will not under normal program
+//                    // operation contain directories.
+//                    public boolean accept(File f, String s) {
+//                        if (myName.equals(prettyName(s))) return false;
+//                        return s.startsWith(filePrefix);
+//                    }
+//                }
+//        );
+//
+//        // Reformat the list for presentation in the selection control.
+//        // ie, drop the prefix and file extension.
+//        ArrayList<String> eventListNames = new ArrayList<>();
+//        if (theFileList != null) {
+//            for (String aName : theFileList) {
+//                eventListNames.add(prettyName(aName));
+//            } // end for i
+//        }
+//        Object[] theNames = new String[eventListNames.size()];
+//        theNames = eventListNames.toArray(theNames);
+//
+//
+//        String message = "Choose an Event group to merge with " + myName;
+//        String title = "Merge Event Groups";
+//        String theChoice = optionPane.showInputDialog(theBasePanel, message,
+//                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
+//
+//        System.out.println("The choice is: " + theChoice);
+//        if (theChoice == null) return null;
+//        return new File(areaPath + "event_" + theChoice + ".json");
+//    } // end chooseMergeFile
 
 
     // Interface to the Three Month Calendar; called by the tmc.
@@ -290,7 +256,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         LocalDate d1, d2;
 
         boolean doSwap;
-        int items = noteGroupDataVector.size();
+        int items = myNoteGroup.noteGroupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -298,26 +264,26 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         MemoryBank.debug("  ASCENDING start dates, Events without dates at BOTTOM");
 
         for (int i = 0; i < (items - 1); i++) {
-            ndNoteData1 = (EventNoteData) noteGroupDataVector.elementAt(i);
+            ndNoteData1 = (EventNoteData) myNoteGroup.noteGroupDataVector.elementAt(i);
             d1 = ndNoteData1.getStartDate();
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                ndNoteData2 = (EventNoteData) noteGroupDataVector.elementAt(j);
+                ndNoteData2 = (EventNoteData) myNoteGroup.noteGroupDataVector.elementAt(j);
                 d2 = ndNoteData2.getStartDate();
 
                 if ((d1 == null) || ((d2 != null) && d1.isAfter(d2))) doSwap = true;
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    noteGroupDataVector.setElementAt(ndNoteData2, i);
-                    noteGroupDataVector.setElementAt(ndNoteData1, j);
+                    myNoteGroup.noteGroupDataVector.setElementAt(ndNoteData2, i);
+                    myNoteGroup.noteGroupDataVector.setElementAt(ndNoteData1, j);
                     d1 = d2;
                     ndNoteData1 = ndNoteData2;
                 } // end if
             } // end for j
         } // end for i
 
-        loadInterface(theNotePager.getCurrentPage());
+        loadPage(theNotePager.getCurrentPage());
         AppUtil.localDebug(false);
     } // end doSort
 
@@ -371,28 +337,28 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end makeNewNote
 
 
-    @SuppressWarnings({"unchecked"})
-    public void merge() {
-        File mergeFile = chooseMergeFile();
-        if (mergeFile == null) return;
-
-        // Load the file to merge in -
-        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
-        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        Vector<EventNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[theGroup.length - 1], new TypeReference<Vector<EventNoteData>>() {  });
-        BaseData.loading = false; // Restore normal lastModDate updating.
-
-        // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(noteGroupDataVector);
-        theUniqueSet.addAll(mergeVector);
-
-        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-        noteGroupDataVector = new Vector<>(theUniqueSet);
-        showGroupData(noteGroupDataVector);
-        setGroupChanged(true);
-    } // end merge
+//    @SuppressWarnings({"unchecked"})
+//    public void merge() {
+//        File mergeFile = chooseMergeFile();
+//        if (mergeFile == null) return;
+//
+//        // Load the file to merge in -
+//        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
+//        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+//
+//        BaseData.loading = true; // We don't want to affect the lastModDates!
+//        Vector<EventNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[theGroup.length - 1], new TypeReference<Vector<EventNoteData>>() {  });
+//        BaseData.loading = false; // Restore normal lastModDate updating.
+//
+//        // Create a 'set', to contain only unique items from both lists.
+//        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(noteGroupDataVector);
+//        theUniqueSet.addAll(mergeVector);
+//
+//        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
+//        noteGroupDataVector = new Vector<>(theUniqueSet);
+//        showGroupData(noteGroupDataVector);
+//        setGroupChanged(true);
+//    } // end merge
 
     //----------------------------------------------------------------------
     // Method Name: refresh
@@ -405,13 +371,13 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         updateGroup();
 
         // Call 'ageEvents'
-        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
-            // removed.  We show that by saving the altered data and then reloading it.
-            preClosePanel();    // Save the new states of 'aged' events.
-            updateGroup(); // Reload the group (visually removes aged-off items, if any)
-            doSort();  // This action could change the current selection  -
-            showComponent(null, false); // so unselect, if not already.
-        } // end if
+//        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
+//            // removed.  We show that by saving the altered data and then reloading it.
+//            preClosePanel();    // Save the new states of 'aged' events.
+//            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+//            doSort();  // This action could change the current selection  -
+//            showComponent(null, false); // so unselect, if not already.
+//        } // end if
 
     } // end refresh
 
@@ -424,86 +390,86 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
     //-----------------------------------------------------------------
-    boolean saveAs() {
-        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
-
-        String thePrompt = "Please enter the new group name";
-        int q = JOptionPane.QUESTION_MESSAGE;
-        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
-
-        // The user cancelled; return with no complaint.
-        if (newName == null) return false;
-
-        newName = newName.trim(); // eliminate outer space.
-
-        // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
-        if (!theComplaint.isEmpty()) {
-            optionPane.showMessageDialog(theFrame, theComplaint,
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        // Get the current list name -
-        String oldName = getGroupName();
-
-        // If the new name equals the old name, just do the save as the user
-        //   has asked and don't tell them that they are an idiot.  But no
-        //   other actions on the filesystem or the tree will be taken.
-        if (newName.equals(oldName)) {
-            preClosePanel();
-            return false;
-        } // end if
-
-        // Check to see if the destination file name already exists.
-        // If so then complain and refuse to do the saveAs.
-
-        // Other applications might offer the option of overwriting
-        // the existing file.  This was considered and rejected
-        // because of the possibility of overwriting a file that
-        // is currently open.  We could check for that as well, but
-        // decided not to because - why should we go to heroic
-        // efforts to handle a user request where it seems like
-        // they may not understand what it is they are asking for?
-        // This is the same approach that was taken in the 'rename' handling.
-
-        // After we refuse the operation due to a preexisting destination
-        // file name the user has several recourses, depending on
-        // what it was they really wanted to do - they could delete
-        // the preexisting file or rename it, after which a second
-        // attempt at this operation would succeed, or they could
-        // realize that they had been having a senior moment and
-        // abandon the effort, or they could choose a different
-        // new name and try again.
-        //--------------------------------------------------------------
-        String newFilename = areaPath + filePrefix + newName + ".json";
-        if ((new File(newFilename)).exists()) {
-            ems = "A group named " + newName + " already exists!\n";
-            ems += "  operation cancelled.";
-            optionPane.showMessageDialog(theFrame, ems,
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        } // end if
-
-        // Now change the name and save.
-        //------------------------------------
-        log.debug("Saving " + oldName + " as " + newName);
-
-        setGroupFilename(areaPath + filePrefix + newName + ".json");
-        setGroupChanged(true);
-
-        // Since this is effectively a new file, before we save we need to ensure that
-        // the app will not fail in an attempt to remove the nonexistent 'old' file with
-        // this new name.
-        // So this setting will route us around the remove-before-save logic so that
-        // this 'new' file saves without issue, but the side effect is that the original
-        // file will remain.  Still thinking on whether or not that is the desired outcome.
-        AppUtil.localArchive(true);
-        preClosePanel();
-        AppUtil.localArchive(false);
-
-        return true;
-    } // end saveAs
+//    boolean saveAs() {
+//        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
+//
+//        String thePrompt = "Please enter the new group name";
+//        int q = JOptionPane.QUESTION_MESSAGE;
+//        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
+//
+//        // The user cancelled; return with no complaint.
+//        if (newName == null) return false;
+//
+//        newName = newName.trim(); // eliminate outer space.
+//
+//        // Test new name validity.
+//        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
+//        if (!theComplaint.isEmpty()) {
+//            optionPane.showMessageDialog(theFrame, theComplaint,
+//                    "Error", JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        }
+//
+//        // Get the current list name -
+//        String oldName = getGroupName();
+//
+//        // If the new name equals the old name, just do the save as the user
+//        //   has asked and don't tell them that they are an idiot.  But no
+//        //   other actions on the filesystem or the tree will be taken.
+//        if (newName.equals(oldName)) {
+//            preClosePanel();
+//            return false;
+//        } // end if
+//
+//        // Check to see if the destination file name already exists.
+//        // If so then complain and refuse to do the saveAs.
+//
+//        // Other applications might offer the option of overwriting
+//        // the existing file.  This was considered and rejected
+//        // because of the possibility of overwriting a file that
+//        // is currently open.  We could check for that as well, but
+//        // decided not to because - why should we go to heroic
+//        // efforts to handle a user request where it seems like
+//        // they may not understand what it is they are asking for?
+//        // This is the same approach that was taken in the 'rename' handling.
+//
+//        // After we refuse the operation due to a preexisting destination
+//        // file name the user has several recourses, depending on
+//        // what it was they really wanted to do - they could delete
+//        // the preexisting file or rename it, after which a second
+//        // attempt at this operation would succeed, or they could
+//        // realize that they had been having a senior moment and
+//        // abandon the effort, or they could choose a different
+//        // new name and try again.
+//        //--------------------------------------------------------------
+//        String newFilename = areaPath + filePrefix + newName + ".json";
+//        if ((new File(newFilename)).exists()) {
+//            ems = "A group named " + newName + " already exists!\n";
+//            ems += "  operation cancelled.";
+//            optionPane.showMessageDialog(theFrame, ems,
+//                    "Error", JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        } // end if
+//
+//        // Now change the name and save.
+//        //------------------------------------
+//        log.debug("Saving " + oldName + " as " + newName);
+//
+//        setGroupFilename(areaPath + filePrefix + newName + ".json");
+//        setGroupChanged(true);
+//
+//        // Since this is effectively a new file, before we save we need to ensure that
+//        // the app will not fail in an attempt to remove the nonexistent 'old' file with
+//        // this new name.
+//        // So this setting will route us around the remove-before-save logic so that
+//        // this 'new' file saves without issue, but the side effect is that the original
+//        // file will remain.  Still thinking on whether or not that is the desired outcome.
+//        AppUtil.localArchive(true);
+//        preClosePanel();
+//        AppUtil.localArchive(false);
+//
+//        return true;
+//    } // end saveAs
 
     // ----------------------------------------------------
     // Method Name: setDefaultIcon
@@ -520,17 +486,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         updateGroup();
     }// end setDefaultIcon
 
-
-    @Override
-    void setPanelData(Object[] theGroup) {
-        int theSize = theGroup.length;
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        if(theSize == 2) {
-            setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
-        }
-        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[theSize - 1], new TypeReference<Vector<EventNoteData>>() {  });
-        BaseData.loading = false; // Restore normal lastModDate updating.
-    }
 
     //  Several actions needed when a line has
     //    either gone active or inactive.

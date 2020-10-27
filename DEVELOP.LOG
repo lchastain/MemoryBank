@@ -6,11 +6,59 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
         This may mean we will need to work on encapsulating the NoteGroupDataAccessor, or other rearchitecting tasks.
 
+Jump from 'view' to a date, month, etc - not changing notes.
+
+Questions:
+    Unsure of variable children titles, notecomponent members, etc - all need checking to see if they load in correctly
+        and in time to be built and displayed by the components.
+
+Info:
+
+Broken, to fix later (and remember when restoring to also restore all calls/usages):
+    addDayNote, in NoteGroupFile - commented out.  disabled in the accessor.  Use the base addNote method?
+    doSearch, in AppTreePanel - commented out because it is too file-centric.  Needs rework.
+    TodoNoteGroupPanel - saveAs and merge, chooseMergeFile - disabled for now.
+    moveToDayNote, in TodoNoteComponent - commented out due to a call to addDayNote (and prettyName)
+    EventNoteGroupPanel - ageEvents, merge, chooseMergeFile, saveAs - disabled.
+    addNewGroup, in AppTreePanel, has one reachout about file name legality.  Do it differently.
+    deleteGroup, in AppTreePanel, has one reachout to get a filename and delete the file.  Do it differently.
+    getConsolidateView, in AppTreePanel, has one reachout to get a filename.  Do it differently.
+    the four branch helpers in AppTreePanel.treeSelectionChanged - no longer active.  BranchHelper needs different param.
+    moveToDayNote, in MilestoneComponent - commented out due to a call to addDayNote (and prettyName)
+    event sorting not working...  even in pub.
+
 
 New:
 
 
 =====================================================================================================
+27 Oct 2020
+    The GroupInfo.getNoteGroupDataAccessor - now makes and returns a NoteGroupFile, not a Panel.
+    GroupInfo now has a getNoteGroup() method.  It will either give you the NoteGroup from a 'kept' Panel, or
+        it will create and return a new NoteGroup, loading the file data if there is any.
+    Added all the needed new NoteGroup classes.  Nothing extends them; Panels do not extend, NoteGroupFile does not
+        extend either.  A NoteGroup has a myNoteGroupPanel and a dataAccessor, and a NoteGroupPanel has a myNoteGroup.
+        All seven Group types load correctly, and the three Calendar types also increment and decrement correctly.
+    There has been plenty of renamings as well, to properly align with the hierarchy changes.
+    Every file I have open right now - shows changes; need to declutter so there will be a check-in now even though
+        the rearch effort is far from over.  Definitely not yet ready to pub.
+    Next:  Jump from 'view' to a date, month, etc - not changing notes.  Probably need to change the group name when
+        changing the date, like it has already been done in setOne Forward/Backward.
+
+22 Oct 2020
+  After spending the last week nibbling around the edges of the rearchitect task, I have come upon the crux of it:
+    Cannot have a Panel to be extending a NoteGroup, if we really want the data to be separated of the Panel.  This is
+    because we want to have a base Panel that all panels extend, but now that we are having more than one NoteGroup
+    type, which one of those would the base panel extend?  Cannot have multiple inheritance, so Panels will need to
+    encapsulate their NoteGroup.
+  So now it all had to break.  First step was to convert NoteGroupPanel from extending NoteGroup, to encapsulating one.
+    And that breaks so much more...
+  Best thing to come of it so far is that the load has been reworked into two separate parts (3, if you count a separate
+    data accessor) - the load of the data in NoteGroup, and the call to that one from NoteGroupPanel.updateGroup.  With
+    overridden setters, the NoteGroup load in the base class also 'sets' the two main data objects, for ALL data types.
+    Now if I can ever get it rewired to connect back together correctly, it will be awesome.
+    Working on all of it; could be a few days...
+
 20 Oct 2020
     Moved the reverse link creation from the editor panel to Notes and Groups via a new Interface with default methods.
     Removed the constructor for LinkedEntityData that took in Properties and Notes; now those are Info types.
@@ -18,6 +66,7 @@ New:
       group links.
     This was all done in support of stabilizing the existing functionalities before continuing to try to get data to
       be separate of Panels and Files.
+    Check-in and pub point.
 
 19 Oct 2020
     Idea to move addReverseLinks from one location in the editor panel, to two places; callable via either the link-

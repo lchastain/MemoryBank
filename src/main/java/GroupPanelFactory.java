@@ -38,36 +38,36 @@ class GroupPanelFactory {
             calendarNoteGroupPanel.setDate(localDate);
             return calendarNoteGroupPanel;
         }
-        return loadNoteGroup(parentNodeString, groupInfo.getGroupName());
+        return loadNoteGroupPanel(parentNodeString, groupInfo.getGroupName());
     }
 
 
     // At some point you need to alter this methodology to adapt to usage of the
-    // NoteGroupDataAccessor interface.  loadNoteGroup should not only apply to FILEs.
+    // NoteGroupDataAccessor interface.  loadNoteGroupPanel should not only apply to FILEs.
     // But now, a Panel does implement the interface, so it somewhat qualifies.  Streamlining
     //   here is not entirely done but this will work for now.
     //
     // This method will return the requested Panel only if it was previously
     // constructed and persisted; otherwise it returns null.  It is a better alternative
     // to simply calling a constructor, which of course cannot return a null.
-    static NoteGroupPanel loadNoteGroup(String parentNodeString, String nodeString) {
+    static NoteGroupPanel loadNoteGroupPanel(String parentNodeString, String nodeString) {
         if (parentNodeString.startsWith("Goal")) {
-            if (exists(GoalGroupPanel.areaName, nodeString)) {
+            if (exists(NoteGroup.goalGroupArea, nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new GoalGroupPanel(nodeString);
             } // end if there is a file
         } else if (parentNodeString.startsWith("Upcoming Event")) {
-            if (exists(EventNoteGroupPanel.areaName, nodeString)) {
+            if (exists(NoteGroup.eventGroupArea, nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new EventNoteGroupPanel(nodeString);
             } // end if there is a file
         } else if (parentNodeString.startsWith("To Do List")) {
-            if (exists(TodoNoteGroupPanel.areaName, nodeString)) {
+            if (exists(NoteGroup.todoListGroupArea, nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new TodoNoteGroupPanel(nodeString);
             } // end if there is a file
         } else if (parentNodeString.startsWith("Search Result")) {
-            if (exists(SearchResultGroupPanel.areaName, nodeString)) {
+            if (exists(NoteGroup.searchResultGroupArea, nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new SearchResultGroupPanel(nodeString);
             } // end if there is a file
@@ -79,7 +79,7 @@ class GroupPanelFactory {
 
     // Use this method if you want to get the panel whether it has persisted data or not.
     static NoteGroupPanel loadOrMakePanel(String theContext, String nodeName) {
-        NoteGroupPanel theGroup = loadNoteGroup(theContext, nodeName);
+        NoteGroupPanel theGroup = loadNoteGroupPanel(theContext, nodeName);
         if (theGroup != null) return theGroup;
 
         // theContext is set by the AppMenuBar and is sent here by the menubar handler.

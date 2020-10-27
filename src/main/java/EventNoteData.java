@@ -471,7 +471,7 @@ public class EventNoteData extends IconNoteData {
         LocalDate futureDate = theStartDate;
         if (recurrenceString.startsWith("D")) {
             intTheInterval = Integer.parseInt(recurrenceString.substring(1, intUnderscore1));
-//            calTmp.add(Calendar.DATE, intTheInterval);
+//            calTmp.setNotes(Calendar.DATE, intTheInterval);
             futureDate = futureDate.plusDays(intTheInterval);
         } else if (recurrenceString.startsWith("W")) {
             strDescription = recurrenceString.substring(intUnderscore1 + 1, intUnderscore2);
@@ -480,14 +480,14 @@ public class EventNoteData extends IconNoteData {
             int intTmp;
             while (true) {
                 // If we are at the end of the week, jump the
-                //   interval before we add another day.
+                //   interval before we setNotes another day.
                 // ok, doing that, but why?  need better comment here.
                 intTmp = AppUtil.getDayOfWeekInt(futureDate);
                 if (intTmp == SATURDAY) {
                     if (intTheInterval > 1) futureDate = futureDate.plusDays(7 * (intTheInterval - 1));
                 } // end if
 
-//                calTmp.add(Calendar.DATE, 1); // Add one day.
+//                calTmp.setNotes(Calendar.DATE, 1); // Add one day.
                 futureDate = futureDate.plusDays(1);
 
                 // Now check to see if it 'counts'.
@@ -593,7 +593,7 @@ public class EventNoteData extends IconNoteData {
 
         // This calculation works for a simple numeric date and
         // does not consider the Monthly pattern.
-//        calTmp.add(Calendar.MONTH, months);
+//        calTmp.setNotes(Calendar.MONTH, months);
 //        dateTheEndDate = calTmp.getTime();
         futureDate = getStartDate().plusMonths(months);
 
@@ -609,7 +609,7 @@ public class EventNoteData extends IconNoteData {
                 // Now set the calendar to the first one in this month -
 //                calTmp.set(Calendar.DAY_OF_MONTH, 1);
                 LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
-//                while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+//                while (RecurrencePanel.isWeekday(calTmp)) calTmp.setNotes(Calendar.DATE, 1);
                 while (RecurrencePanel.isWeekday(tmpFutureDate)) futureDate = futureDate.plusDays(1);
 //                dateGood = calTmp.getTime();
                 ldGood = tmpFutureDate;
@@ -631,12 +631,12 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-//                    calTmp.add(Calendar.DATE, 1); // add a day
+//                    calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
 
                     // and keep going, if we need to,
                     // to get to the next weekend day.
-//                    while (RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+//                    while (RecurrencePanel.isWeekday(calTmp)) calTmp.setNotes(Calendar.DATE, 1);
                     while (RecurrencePanel.isWeekday(tmpFutureDate)) futureDate = futureDate.plusDays(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
@@ -659,7 +659,7 @@ public class EventNoteData extends IconNoteData {
 //                calTmp.set(Calendar.DAY_OF_MONTH, 1);
                 LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
 
-//                while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+//                while (!RecurrencePanel.isWeekday(calTmp)) calTmp.setNotes(Calendar.DATE, 1);
                 while (!RecurrencePanel.isWeekday(tmpFutureDate)) tmpFutureDate = tmpFutureDate.plusDays(1);
 //                dateGood = calTmp.getTime();
                 ldGood = tmpFutureDate;
@@ -681,13 +681,13 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-//                    calTmp.add(Calendar.DATE, 1); // add a day
+//                    calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
 
 
                     // and keep going, if we need to,
                     // to get to the next weekday.
-//                    while (!RecurrencePanel.isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+//                    while (!RecurrencePanel.isWeekday(calTmp)) calTmp.setNotes(Calendar.DATE, 1);
                     while (!RecurrencePanel.isWeekday(tmpFutureDate)) tmpFutureDate = tmpFutureDate.plusDays(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
@@ -710,7 +710,7 @@ public class EventNoteData extends IconNoteData {
                 while (true) {
 //                    dateGood = calTmp.getTime();
                     ldGood = tmpFutureDate;
-//                    calTmp.add(Calendar.DATE, 1); // add a day
+//                    calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
 
 //                    if (calTmp.get(Calendar.MONTH) != intMonth) {
@@ -729,7 +729,7 @@ public class EventNoteData extends IconNoteData {
 //                calTmp.set(Calendar.DAY_OF_MONTH, 1);
                 LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
 //                while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
-//                    calTmp.add(Calendar.DATE, 1);
+//                    calTmp.setNotes(Calendar.DATE, 1);
 //                } // end while
                 while (AppUtil.getDayOfWeekInt(tmpFutureDate) != intDayOfWeek) {
                     tmpFutureDate = tmpFutureDate.plusDays(1);
@@ -754,7 +754,7 @@ public class EventNoteData extends IconNoteData {
 
 //                    dateGood = calTmp.getTime();
                     ldGood = tmpFutureDate;
-//                    calTmp.add(Calendar.DATE, 7); // add a week
+//                    calTmp.setNotes(Calendar.DATE, 7); // setNotes a week
                     tmpFutureDate = tmpFutureDate.plusWeeks(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
@@ -1115,7 +1115,7 @@ public class EventNoteData extends IconNoteData {
                 break;
             case (START_TIME_KNOWN + END_DATE_KNOWN):  // We can set the remaining two values
                 // Less straightforward on how to proceed; here is the logic:
-                // Convert the duration to minutes and add it the start time so that we can have
+                // Convert the duration to minutes and setNotes it the start time so that we can have
                 // a known end time to go along with the known end date.  Then use the complete
                 // end minus the duration to get back to the correct start date.
                 theMinutes = durationToMinutes(durationValue, theUnits);

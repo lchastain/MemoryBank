@@ -13,13 +13,12 @@ public interface NoteGroupDataAccessor {
         return dtf.format(theDate);
     }
 
-    boolean addDayNote(LocalDate theDay, DayNoteData theNote);
+//    boolean addDayNote(LocalDate theDay, DayNoteData theNote);
 
-    GroupProperties getGroupProperties();
+//    GroupProperties getGroupProperties();
 
-    LinkTargets getLinkTargets(NoteInfo noteInfo);
-
-    void loadNoteGroupData(GroupInfo groupInfo);
+//    void loadNoteGroupData(GroupInfo groupInfo);
+    Object[] loadNoteGroupData(GroupInfo groupInfo);
 
 
     // Saving is an operation that happens often, sometimes per user
@@ -40,6 +39,6 @@ public interface NoteGroupDataAccessor {
     //   set at various points; calling contexts that 'care' about the
     //   results should check it and handle the values according to
     //   those situations.
-    AccessResult saveNoteGroupData();
+    void saveNoteGroupData(Object[] theData);
 
 }

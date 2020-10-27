@@ -33,13 +33,13 @@ class EventAgingTest {
     void testAgeOffStopAfter() throws Exception {
         // Retrieve fresh test data from test resources.
         // We don't want a full set of data for these tests; just the UpcomingEvents.
-        File newname = new File(EventNoteGroupPanel.areaPath + "event_holidays.json");
+        File newname = new File(NoteGroup.eventGroupArea + "event_holidays.json");
         String fileName = "EventAgingTest/Age4Times&End.json";
         File testFile = FileUtils.toFile(EventNoteGroupPanel.class.getResource(fileName));
         FileUtils.copyFile(testFile, newname);
 
         // the setup - After our BeforeAll there should be no Day data, at all.  Verify this, to some extent.
-        File theFolder = new File(CalendarNoteGroupPanel.areaPath + "2018");
+        File theFolder = new File(NoteGroupFile.calendarNoteGroupAreaPath + "2018");
         Assertions.assertFalse(theFolder.exists()); // if no directory then no files either.
         // This one missing directory gives us a high confidence that there are none.
 

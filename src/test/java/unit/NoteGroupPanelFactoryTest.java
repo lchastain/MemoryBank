@@ -4,7 +4,7 @@ class NoteGroupPanelFactoryTest {
 
     @Test
     void testGetGroup() {
-        GroupPanelFactory.loadNoteGroup("Search Result", "blarg");
+        GroupPanelFactory.loadNoteGroupPanel("Search Result", "blarg");
     }
 
     @Test

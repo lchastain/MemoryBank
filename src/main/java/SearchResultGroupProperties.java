@@ -27,6 +27,7 @@ public class SearchResultGroupProperties extends GroupProperties {
     }
 
     public SearchResultGroupProperties() {
+        super(); // This call would happen under the covers whether it is coded in or not.  So it's here for better readability.
         searchDateString = LocalDate.now().toString();
         column1Label = "Found in";
         column2Label = "Note Text";

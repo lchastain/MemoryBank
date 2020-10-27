@@ -160,7 +160,7 @@ public class RecurrencePanel extends JPanel implements
 
         // This calculation works for a simple numeric date and
         // does not consider the Monthly pattern.
-//        calTmp.add(Calendar.MONTH, months);
+//        calTmp.setNotes(Calendar.MONTH, months);
 //        dateTheEndDate = calTmp.getTime();
         dateTheEndDate = dateStart.plusMonths(months);
 
@@ -234,12 +234,12 @@ public class RecurrencePanel extends JPanel implements
                         break;
                 }
 
-//                calTmp.add(Calendar.DATE, 1); // add a day
+//                calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
                 dateTheEndDate = dateTheEndDate.plusDays(1);
 
                 // and keep going, if we need to,
                 // to get to the next weekend day.
-//                while (!isWeekday(calTmp)) calTmp.add(Calendar.DATE, 1);
+//                while (!isWeekday(calTmp)) calTmp.setNotes(Calendar.DATE, 1);
                 while (!isWeekday(dateTheEndDate)) dateTheEndDate = dateTheEndDate.plusDays(1);
 
                 // System.out.println(strWhichOne + " " + calTmp.getTime());
@@ -259,7 +259,7 @@ public class RecurrencePanel extends JPanel implements
             while (true) {
 //                dateGood = calTmp.getTime();
                 dateGood = dateTheEndDate;
-//                calTmp.add(Calendar.DATE, 1); // add a day
+//                calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
                 dateTheEndDate = dateTheEndDate.plusDays(1);
 
 //                if (calTmp.get(Calendar.MONTH) != intMonth) {
@@ -815,11 +815,8 @@ public class RecurrencePanel extends JPanel implements
 
         // System.out.println("Name = " + strItemName);
 
-        if (strItemName.equals("rbtnNone")) {
-            pnlEnd.setVisible(false);
-        } else {
-            pnlEnd.setVisible(true);
-        } // end if
+        // end if
+        pnlEnd.setVisible(!strItemName.equals("rbtnNone"));
 
         recalcEnd();
     } // end itemStateChanged
@@ -1011,7 +1008,7 @@ public class RecurrencePanel extends JPanel implements
                         if (chkboxSaturday.isSelected()) intTmp--;
 
                         // Jump the (rest of the) interval
-//                        if (intTmp > 0) calTmp.add(Calendar.DATE, 7 * (interval - 1));
+//                        if (intTmp > 0) calTmp.setNotes(Calendar.DATE, 7 * (interval - 1));
                         if (intTmp > 0) tmpDate = tmpDate.plusWeeks(interval - 1);
                         break;
                 } // end switch
@@ -1055,7 +1052,7 @@ public class RecurrencePanel extends JPanel implements
                         if (chkboxSaturday.isSelected()) intStopAfter++;
 
                         // Jump the (rest of the) interval
-//                        if (calTmp.getTime().before(dateStopBy)) calTmp.add(Calendar.DATE, 7 * (interval - 1));
+//                        if (calTmp.getTime().before(dateStopBy)) calTmp.setNotes(Calendar.DATE, 7 * (interval - 1));
                         if (tmpDate.isBefore(dateStopBy)) tmpDate = tmpDate.plusWeeks(interval - 1);
                         break;
                 } // end switch

@@ -1,15 +1,9 @@
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
 public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection {
@@ -23,36 +17,32 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     static final int INORDER = 123;
 
     TodoGroupHeader listHeader;
-    private final ThreeMonthColumn tmc;  // For Date selection
+    private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 
-    static String areaName;
-    static String areaPath;
-    static String filePrefix;
-
-    static {
-        areaName = "TodoLists"; // Directory name under user data.
-        areaPath = basePath + areaName + File.separatorChar;
-        filePrefix = "todo_";
-        MemoryBank.trace();
-    } // end static
-
-    public TodoNoteGroupPanel(String fname) {
-        this(fname, PAGE_SIZE);
+    public TodoNoteGroupPanel(String groupName) {
+        this(groupName, PAGE_SIZE);
     }
 
+
     public TodoNoteGroupPanel(String groupName, int pageSize) {
-        super(pageSize);
+        super(pageSize); // This builds the notes panel
 
-        log.debug("Constructing: " + groupName);
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.TODO_LIST);
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
+        myNoteGroup.myNoteGroupPanel = this;
+        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
 
-        setGroupFilename(areaPath + filePrefix + groupName + ".json");
+        buildMyPanel(groupName);
+        theNotePager.reset(1);
+    } // end constructor
+
+
+    private void buildMyPanel(String groupName) {
+        log.debug("Building components for a TodoGroupPanel named: " + groupName);
 
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
-
-        // Allow an empty list to be started without tasks.  Removal would then be user-directed, only.
-        saveWithoutData = true;
 
         // Create the window title
         JLabel lblListTitle = new JLabel();
@@ -72,7 +62,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         //   separator spacing is actually visually preferred.
         theNotePager.setBackground(heading.getBackground());
         heading.add(theNotePager, "East");
-        //----------------------------------------------------------
 
         theBasePanel.add(heading, BorderLayout.NORTH);
 
@@ -80,22 +69,9 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         pnl1.add(tmc);
         theBasePanel.add(pnl1, BorderLayout.EAST);
-
-        updateGroup(); // This is where the file gets loaded (if it exists)
-
-        if(myProperties == null) {
-            // This happens when there was no file to load - in the case of a new group.
-            setGroupProperties(new TodoGroupProperties(groupName));
-        } else {
-            // This is intended to 'fix' a renamed group, where the filename is correct but the group info
-            // inside the file was never updated, so properties deserialize with the older name.
-            myProperties.setGroupName(groupName);
-        }
-        myNoteGroupPanel = this;
-
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
-    } // end constructor
+    }
 
 
     //-------------------------------------------------------------------
@@ -115,48 +91,48 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
             tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-            tempNote.resetColumnOrder(((TodoGroupProperties) myProperties).columnOrder);
+            tempNote.resetColumnOrder(((TodoGroupProperties) myNoteGroup.myProperties).columnOrder);
         } // end for
     } // end checkColumnOrder
 
-    private File chooseMergeFile() {
-        File dataDir = new File(areaPath);
-        String myName = getGroupName(); // two usages below; this way the method is only called once.
-
-        // Get the complete list of Todo List filenames, except this one.
-        String[] theFileList = dataDir.list(
-                new FilenameFilter() {
-                    // Although this filter does not account for directories, it is
-                    // known that the dataDir will not under normal program
-                    // operation contain directories.
-                    public boolean accept(File f, String s) {
-                        if (myName.equals(prettyName(s))) return false;
-                        return s.startsWith("todo_");
-                    }
-                }
-        );
-
-        // Reformat the list for presentation in the selection control.
-        // ie, drop the prefix and file extension.
-        ArrayList<String> todoListNames = new ArrayList<>();
-        if (theFileList != null) {
-            for (String aName : theFileList) {
-                todoListNames.add(prettyName(aName));
-            } // end for i
-        }
-        Object[] theNames = new String[todoListNames.size()];
-        theNames = todoListNames.toArray(theNames);
-
-
-        String message = "Choose a list to merge with " + myName;
-        String title = "Merge TodoLists";
-        String theChoice = optionPane.showInputDialog(theBasePanel, message,
-                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
-
-        System.out.println("The choice is: " + theChoice);
-        if (theChoice == null) return null;
-        return new File(areaPath + "todo_" + theChoice + ".json");
-    } // end chooseMergeFile
+//    private File chooseMergeFile() {
+//        File dataDir = new File(areaPath);
+//        String myName = getGroupName(); // two usages below; this way the method is only called once.
+//
+//        // Get the complete list of Todo List filenames, except this one.
+//        String[] theFileList = dataDir.list(
+//                new FilenameFilter() {
+//                    // Although this filter does not account for directories, it is
+//                    // known that the dataDir will not under normal program
+//                    // operation contain directories.
+//                    public boolean accept(File f, String s) {
+//                        if (myName.equals(prettyName(s))) return false;
+//                        return s.startsWith("todo_");
+//                    }
+//                }
+//        );
+//
+//        // Reformat the list for presentation in the selection control.
+//        // ie, drop the prefix and file extension.
+//        ArrayList<String> todoListNames = new ArrayList<>();
+//        if (theFileList != null) {
+//            for (String aName : theFileList) {
+//                todoListNames.add(prettyName(aName));
+//            } // end for i
+//        }
+//        Object[] theNames = new String[todoListNames.size()];
+//        theNames = todoListNames.toArray(theNames);
+//
+//
+//        String message = "Choose a list to merge with " + myName;
+//        String title = "Merge TodoLists";
+//        String theChoice = optionPane.showInputDialog(theBasePanel, message,
+//                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
+//
+//        System.out.println("The choice is: " + theChoice);
+//        if (theChoice == null) return null;
+//        return new File(areaPath + "todo_" + theChoice + ".json");
+//    } // end chooseMergeFile
 
 
     // Interface to the Three Month Calendar; called by the tmc.
@@ -179,19 +155,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         }
     } // end dateSelected
 
-    @Override
-    public GroupProperties getGroupProperties() {
-        // The preference is to recreate the properties each time from loaded data.
-        Object[] theData = getTheData();
-        if(theData[0] != null) { // Properties may have been set before having any data, but if there is data -
-            setGroupProperties(AppUtil.mapper.convertValue(theData[0], new TypeReference<TodoGroupProperties>() {}));
-        }
-
-        return myProperties;
-    }
-
     int getMaxPriority() {
-        return ((TodoGroupProperties) myProperties).maxPriority;
+        return ((TodoGroupProperties) myNoteGroup.myProperties).maxPriority;
     } // end getMaxPriority
 
 
@@ -225,28 +190,28 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     } // end makeNewNote
 
 
-    @SuppressWarnings({"unchecked"})
-    public void merge() {
-        File mergeFile = chooseMergeFile();
-        if (mergeFile == null) return;
-
-        // Load the file to merge in -
-        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
-        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
-        BaseData.loading = false; // Restore normal lastModDate updating.
-
-        // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(noteGroupDataVector);
-        theUniqueSet.addAll(mergeVector);
-
-        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-        noteGroupDataVector = new Vector<>(theUniqueSet);
-        showGroupData(noteGroupDataVector);
-        setGroupChanged(true);
-    } // end merge
+//    @SuppressWarnings({"unchecked"})
+//    public void merge() {
+//        File mergeFile = chooseMergeFile();
+//        if (mergeFile == null) return;
+//
+//        // Load the file to merge in -
+//        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
+//        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+//
+//        BaseData.loading = true; // We don't want to affect the lastModDates!
+//        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
+//        BaseData.loading = false; // Restore normal lastModDate updating.
+//
+//        // Create a 'set', to contain only unique items from both lists.
+//        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(noteGroupDataVector);
+//        theUniqueSet.addAll(mergeVector);
+//
+//        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
+//        noteGroupDataVector = new Vector<>(theUniqueSet);
+//        showGroupData(noteGroupDataVector);
+//        setGroupChanged(true);
+//    } // end merge
 
     //------------------------------------------------------------------
     // Method Name: pageNumberChanged
@@ -391,127 +356,103 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 //    } // end printList
 
 
-    //-----------------------------------------------------------------
-    // Method Name:  saveAs
-    //
     // Called from the menu bar:
     // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
-    //-----------------------------------------------------------------
-    boolean saveAs() {
-        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
-
-        String thePrompt = "Please enter the new list name";
-        int q = JOptionPane.QUESTION_MESSAGE;
-        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
-
-        // The user cancelled; return with no complaint.
-        if (newName == null) return false;
-
-        newName = newName.trim(); // eliminate outer space.
-
-        // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
-        if (!theComplaint.isEmpty()) {
-            JOptionPane.showMessageDialog(theFrame, theComplaint,
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        // Get the current list name -
-        String oldName = getGroupName();
-
-        // If the new name equals the old name, just do the save as the user
-        //   has asked and don't tell them that they are an idiot.  But no
-        //   other actions on the filesystem or the tree will be taken.
-        if (newName.equals(oldName)) {
-            preClosePanel();
-            return false;
-        } // end if
-
-        // Check to see if the destination file name already exists.
-        // If so then complain and refuse to do the saveAs.
-
-        // Other applications might offer the option of overwriting
-        // the existing file.  This was considered and rejected
-        // because of the possibility of overwriting a file that
-        // is currently open.  We could check for that as well, but
-        // decided not to because - why should we go to heroic
-        // efforts to handle a user request where it seems like
-        // they may not understand what it is they are asking for?
-        // This is the same approach that was taken in the 'rename' handling.
-
-        // After we refuse the operation due to a preexisting destination
-        // file name the user has several recourses, depending on
-        // what it was they really wanted to do - they could delete
-        // the preexisting file or rename it, after which a second
-        // attempt at this operation would succeed, or they could
-        // realize that they had been having a senior moment and
-        // abandon the effort, or they could choose a different
-        // new name and try again.
-        //--------------------------------------------------------------
-        String newFilename = areaPath + "todo_" + newName + ".json";
-        if ((new File(newFilename)).exists()) {
-            ems = "A list named '" + newName + "' already exists!\n";
-            ems += "  operation cancelled.";
-            optionPane.showMessageDialog(theFrame, ems,
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        } // end if
-
-        // Now change the name and save.
-        //------------------------------------
-        log.debug("Saving " + oldName + " as " + newName);
-
-        // 'setName' sets the name of the group, which translates into an
-        // in-place change of the name of the list held by the TodoListKeeper.
-        // Unfortunately, that list will still have the old title, so it still needs
-        // to be removed from the keeper.  The calling context will take care of that.
-//        setName(newName);  // Put the new 'pretty' name in the component.
-// Not needed, since we save next and reload after that.
-        setGroupFilename(areaPath + filePrefix + newName + ".json");
-        setGroupChanged(true);
-
-//        // Since this is effectively a new file, before we save we need to ensure that
-//        // the app will not fail in an attempt to remove the nonexistent 'old' file with
-//        // this new name.
-//        // So this setting will route us around the remove-before-save logic so that
-//        // this 'new' file saves without issue, but the side effect is that the original
-//        // file will remain.  Still thinking on whether or not that is the desired outcome.
-//        AppUtil.localArchive(true);
-  // 26 Sep 2020 - New code for old-file-removal, now does not care if it doesn't currently exist, so extra steps here not needed.
-        preClosePanel();
-//        AppUtil.localArchive(false);
-
-        return true;
-    } // end saveAs
+//    boolean saveAs() {
+//        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
+//
+//        String thePrompt = "Please enter the new list name";
+//        int q = JOptionPane.QUESTION_MESSAGE;
+//        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
+//
+//        // The user cancelled; return with no complaint.
+//        if (newName == null) return false;
+//
+//        newName = newName.trim(); // eliminate outer space.
+//
+//        // Test new name validity.
+//        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
+//        if (!theComplaint.isEmpty()) {
+//            JOptionPane.showMessageDialog(theFrame, theComplaint,
+//                    "Error", JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        }
+//
+//        // Get the current list name -
+//        String oldName = getGroupName();
+//
+//        // If the new name equals the old name, just do the save as the user
+//        //   has asked and don't tell them that they are an idiot.  But no
+//        //   other actions on the filesystem or the tree will be taken.
+//        if (newName.equals(oldName)) {
+//            preClosePanel();
+//            return false;
+//        } // end if
+//
+//        // Check to see if the destination file name already exists.
+//        // If so then complain and refuse to do the saveAs.
+//
+//        // Other applications might offer the option of overwriting
+//        // the existing file.  This was considered and rejected
+//        // because of the possibility of overwriting a file that
+//        // is currently open.  We could check for that as well, but
+//        // decided not to because - why should we go to heroic
+//        // efforts to handle a user request where it seems like
+//        // they may not understand what it is they are asking for?
+//        // This is the same approach that was taken in the 'rename' handling.
+//
+//        // After we refuse the operation due to a preexisting destination
+//        // file name the user has several recourses, depending on
+//        // what it was they really wanted to do - they could delete
+//        // the preexisting file or rename it, after which a second
+//        // attempt at this operation would succeed, or they could
+//        // realize that they had been having a senior moment and
+//        // abandon the effort, or they could choose a different
+//        // new name and try again.
+//        //--------------------------------------------------------------
+//        String newFilename = areaPath + "todo_" + newName + ".json";
+//        if ((new File(newFilename)).exists()) {
+//            ems = "A list named '" + newName + "' already exists!\n";
+//            ems += "  operation cancelled.";
+//            optionPane.showMessageDialog(theFrame, ems,
+//                    "Error", JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        } // end if
+//
+//        // Now change the name and save.
+//        //------------------------------------
+//        log.debug("Saving " + oldName + " as " + newName);
+//
+//        // 'setName' sets the name of the group, which translates into an
+//        // in-place change of the name of the list held by the TodoListKeeper.
+//        // Unfortunately, that list will still have the old title, so it still needs
+//        // to be removed from the keeper.  The calling context will take care of that.
+//        setGroupFilename(areaPath + filePrefix + newName + ".json");
+//        setGroupChanged(true);
+//        preClosePanel();
+//
+//        return true;
+//    } // end saveAs
 
     private void saveProperties() {
         // Update the header text of the columns.
-        ((TodoGroupProperties) myProperties).column1Label = listHeader.getColumnHeader(1);
-        ((TodoGroupProperties) myProperties).column2Label = listHeader.getColumnHeader(2);
-        ((TodoGroupProperties) myProperties).column3Label = listHeader.getColumnHeader(3);
-        ((TodoGroupProperties) myProperties).columnOrder = listHeader.getColumnOrder();
+        ((TodoGroupProperties) myNoteGroup.myProperties).column1Label = listHeader.getColumnHeader(1);
+        ((TodoGroupProperties) myNoteGroup.myProperties).column2Label = listHeader.getColumnHeader(2);
+        ((TodoGroupProperties) myNoteGroup.myProperties).column3Label = listHeader.getColumnHeader(3);
+        ((TodoGroupProperties) myNoteGroup.myProperties).columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
 
-
-    @Override
-    void setPanelData(Object[] theGroup) {
-        BaseData.loading = true; // We don't want to affect the lastModDates!
-        setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], TodoGroupProperties.class));
-        noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
-        BaseData.loading = false; // Restore normal lastModDate updating.
-    }
 
     public void setOptions() {
         TodoNoteComponent tempNote;
 
         // Preserve original value
-        boolean blnOrigShowPriority = ((TodoGroupProperties) myProperties).showPriority;
+        boolean blnOrigShowPriority = ((TodoGroupProperties) myNoteGroup.myProperties).showPriority;
 
         // Construct the Option Panel (TodoOpts) using the current TodoListProperties
-        TodoOpts todoOpts = new TodoOpts(((TodoGroupProperties) myProperties));
+        TodoOpts todoOpts = new TodoOpts(((TodoGroupProperties) myNoteGroup.myProperties));
 
         // Show a dialog whereby the options can be changed
         int doit = optionPane.showConfirmDialog(
@@ -522,11 +463,11 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         if (doit == JOptionPane.CANCEL_OPTION) return;
 
         // Get the values back out of the Option Panel
-        setGroupProperties(todoOpts.getValues());
+        myNoteGroup.setGroupProperties(todoOpts.getValues());
         setGroupChanged(true);
 
         // Was there a reset-worthy change?
-        if (((TodoGroupProperties) myProperties).showPriority != blnOrigShowPriority) {
+        if (((TodoGroupProperties) myNoteGroup.myProperties).showPriority != blnOrigShowPriority) {
             System.out.println("Resetting the list and header");
             for (int i = 0; i < getHighestNoteComponentIndex(); i++) {
                 tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
@@ -563,7 +504,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         TodoNoteData todoData1, todoData2;
         int pri1, pri2;
         boolean doSwap;
-        int items = noteGroupDataVector.size();
+        int items = myNoteGroup.noteGroupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -574,25 +515,25 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         // Prettyprinting of sort conditions -
         if (direction == ASCENDING) MemoryBank.dbg("  ASCENDING \t");
         else MemoryBank.dbg("  DESCENDING \t");
-        if (((TodoGroupProperties) myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
-        else if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
-        else if (((TodoGroupProperties) myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
+        if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
+        else if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
+        else if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) noteGroupDataVector.elementAt(i);
+            todoData1 = (TodoNoteData) myNoteGroup.noteGroupDataVector.elementAt(i);
             if (todoData1 == null) pri1 = 0;
             else pri1 = todoData1.getPriority();
-            if (pri1 == 0) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
+            if (pri1 == 0) if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                todoData2 = (TodoNoteData) noteGroupDataVector.elementAt(j);
+                todoData2 = (TodoNoteData) myNoteGroup.noteGroupDataVector.elementAt(j);
                 if (todoData2 == null) pri2 = 0;
                 else pri2 = todoData2.getPriority();
-                if (pri2 == 0) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
+                if (pri2 == 0) if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) continue; // No key; skip.
 
                 if (direction == ASCENDING) {
-                    if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) {
+                    if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == BOTTOM) {
                         if (((pri1 > pri2) && (pri2 != 0)) || (pri1 == 0)) doSwap = true;
                     } else {
                         // TOP and STAY have same behavior for ASCENDING, unless a
@@ -600,7 +541,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
                         if (pri1 > pri2) doSwap = true;
                     } // end if TOP/BOTTOM
                 } else if (direction == DESCENDING) {
-                    if (((TodoGroupProperties) myProperties).whenNoKey == TOP) {
+                    if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == TOP) {
                         if (((pri1 < pri2) && (pri1 != 0)) || (pri2 == 0)) doSwap = true;
                     } else {
                         // BOTTOM and STAY have same behavior for DESCENDING, unless a
@@ -611,8 +552,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving Vector element " + i + " below " + j + "  (zero-based)");
-                    noteGroupDataVector.setElementAt(todoData2, i);
-                    noteGroupDataVector.setElementAt(todoData1, j);
+                    myNoteGroup.noteGroupDataVector.setElementAt(todoData2, i);
+                    myNoteGroup.noteGroupDataVector.setElementAt(todoData1, j);
                     pri1 = pri2;
                     todoData1 = todoData2;
                 } // end if
@@ -623,7 +564,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
         // Display the same page, now with possibly different contents.
         checkColumnOrder();
-        loadInterface(theNotePager.getCurrentPage());
+        loadPage(theNotePager.getCurrentPage());
     } // end sortPriority
 
 
@@ -631,7 +572,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         TodoNoteData todoData1, todoData2;
         String str1, str2;
         boolean doSwap;
-        int items = noteGroupDataVector.size();
+        int items = myNoteGroup.noteGroupDataVector.size();
 
         AppUtil.localDebug(true);
 
@@ -642,25 +583,25 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         // Prettyprinting of sort conditions -
         if (direction == ASCENDING) MemoryBank.dbg("  ASCENDING \t");
         else MemoryBank.dbg("  DESCENDING \t");
-        if (((TodoGroupProperties) myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
-        else if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
-        else if (((TodoGroupProperties) myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
+        if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
+        else if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
+        else if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
         MemoryBank.dbg("\n");
 
         for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) noteGroupDataVector.elementAt(i);
+            todoData1 = (TodoNoteData) myNoteGroup.noteGroupDataVector.elementAt(i);
             if (todoData1 == null) str1 = "";
             else str1 = todoData1.getNoteString().trim();
-            if (str1.equals("")) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
+            if (str1.equals("")) if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) continue; // No key; skip.
             for (int j = i + 1; j < items; j++) {
                 doSwap = false;
-                todoData2 = (TodoNoteData) noteGroupDataVector.elementAt(j);
+                todoData2 = (TodoNoteData) myNoteGroup.noteGroupDataVector.elementAt(j);
                 if (todoData2 == null) str2 = "";
                 else str2 = todoData2.getNoteString().trim();
-                if (str2.equals("")) if (((TodoGroupProperties) myProperties).whenNoKey == STAY) continue; // No key; skip.
+                if (str2.equals("")) if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) continue; // No key; skip.
 
                 if (direction == ASCENDING) {
-                    if (((TodoGroupProperties) myProperties).whenNoKey == BOTTOM) {
+                    if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == BOTTOM) {
                         if (((str1.compareTo(str2) > 0) && (!str2.equals(""))) || (str1.equals(""))) doSwap = true;
                     } else {
                         // TOP and STAY have same behavior for ASCENDING, unless a
@@ -668,7 +609,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
                         if (str1.compareTo(str2) > 0) doSwap = true;
                     } // end if TOP/BOTTOM
                 } else if (direction == DESCENDING) {
-                    if (((TodoGroupProperties) myProperties).whenNoKey == TOP) {
+                    if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == TOP) {
                         if (((str1.compareTo(str2) < 0) && (!str1.equals(""))) || (str2.equals(""))) doSwap = true;
                     } else {
                         // BOTTOM and STAY have same behavior for DESCENDING, unless a
@@ -679,8 +620,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
                 if (doSwap) {
                     MemoryBank.debug("  Moving data element " + i + " below " + j);
-                    noteGroupDataVector.setElementAt(todoData2, i);
-                    noteGroupDataVector.setElementAt(todoData1, j);
+                    myNoteGroup.noteGroupDataVector.setElementAt(todoData2, i);
+                    myNoteGroup.noteGroupDataVector.setElementAt(todoData1, j);
                     str1 = str2;
                     todoData1 = todoData2;
                 } // end if
@@ -691,8 +632,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
         // Display the same page, now with possibly different contents.
         checkColumnOrder();
-        loadInterface(theNotePager.getCurrentPage());
+        loadPage(theNotePager.getCurrentPage());
     } // end sortText
 } // end class TodoNoteGroup
-
-

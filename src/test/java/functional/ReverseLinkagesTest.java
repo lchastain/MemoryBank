@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,7 @@ import java.util.Vector;
 //   as well as the functional tests where those various group types are loaded, manipulated and persisted.
 
 class ReverseLinkagesTest {
+    static AppTreePanel appTreePanel;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -41,14 +43,22 @@ class ReverseLinkagesTest {
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+
+        // Just running the AppTreePanel constructor creates an instance that we can use via a static reference.
+        appTreePanel = new AppTreePanel(new JFrame("Reverse Linkages Test"), MemoryBank.appOpts);
+    }
+
+    @AfterAll
+    static void noMo() {
+        appTreePanel = null; // allow GC to get rid of this before other test threads see the instance.
     }
 
 
     @Test
     void testAddReverseLinksToTodoNote() {
-        // Create two different link-target groups.
-        GoalGroupPanel goalGroup = new GoalGroupPanel("Take Over The World");
-        DayNoteGroupPanel dayNoteGroup = new DayNoteGroupPanel(); // Unspecified date means that it will be today
+        // Create two different groups that will be used as link targets, below.
+        GoalGroupPanel goalGroupPanel = new GoalGroupPanel("Take Over The World");
+        DayNoteGroupPanel dayNoteGroupPanel = new DayNoteGroupPanel(); // Unspecified date means that it will be today
 
         // Put a note into the GoalGroup (and save it)
         Vector<NoteData> goalVector = new Vector<>(0, 1);
@@ -56,8 +66,8 @@ class ReverseLinkagesTest {
         milestoneData = new TodoNoteData();
         milestoneData.noteString = "milestone note.";
         goalVector.add(milestoneData);
-        goalGroup.add(goalVector);
-        goalGroup.saveNoteGroupData();
+        goalGroupPanel.myNoteGroup.setNotes(goalVector);
+        goalGroupPanel.myNoteGroup.saveNoteGroup();
 
         // The differences here between Goal saving (above) and Day group saving - is to go two different paths -
         // Goal saves here and now via the Accessor method, and for DayNoteGroup, during the test
@@ -67,38 +77,37 @@ class ReverseLinkagesTest {
         // Put a note into the DayNote Group (it gets saved later)
         NoteData dayNoteData = new DayNoteData();
         dayNoteData.noteString = "day note";
-        dayNoteGroup.addNote(dayNoteData);
-        dayNoteGroup.setPanelData(dayNoteGroup.getTheData());
-        dayNoteGroup.loadInterface(1);
-
-        // Just running the AppTreePanel constructor creates an instance that we can use via a static reference.
-        new AppTreePanel(new JFrame("Reverse Linkages Test"), MemoryBank.appOpts);
+        dayNoteGroupPanel.myNoteGroup.addNote(dayNoteData);
+//        dayNoteGroupPanel.setPanelData(dayNoteGroupPanel.getTheData());
+        dayNoteGroupPanel.myNoteGroup.setNotes(dayNoteGroupPanel.myNoteGroup.getTheData()[1]);
+        dayNoteGroupPanel.loadPage(1);
 
         // And these two lines are needed because these groups will not actually be found in 'real' data,
         //   so we inject them directly to the AppTreePanel, where it will appear that they have already
         //   been loaded.  Note that after this test runs, the groups WILL be in the (test) data.
-        AppTreePanel.theInstance.theGoalsKeeper.add(goalGroup);
-        AppTreePanel.theInstance.theAppDays = dayNoteGroup;
+        AppTreePanel.theInstance.theGoalsKeeper.add(goalGroupPanel);
+        AppTreePanel.theInstance.theAppDays = dayNoteGroupPanel;
 
-        // Make a new Todo note and add it to a (fake new) TodoNoteGroup.
+        // Make a new Todo note and setNotes it to a (fake new) TodoNoteGroup.
         // This note will be the source entity for the reverse links.
-        // For reverse link creation we need to add the note to a 'real' group, but that group does not
-        //   need to be persisted before (or after) we add the reverse link.  This is because this test
+        // For reverse link creation we need to setNotes the note to a 'real' group, but that group does not
+        //   need to be persisted before (or after) we setNotes the reverse link.  This is because this test
         //   is about links going to the targets; it doesn't need the source entity to be 'real' beyond
         //   the needs of the code under test.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";
-        NoteGroup todoNoteGroup = new TodoNoteGroupPanel("Nada");
-        todoNoteGroup.addNote(todoNoteData);
+//        NoteGroup todoNoteGroup = new TodoNoteGroupPanel("Nada");
+        NoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Nada");
+        todoNoteGroupPanel.myNoteGroup.addNote(todoNoteData);
 
         // Create two (valid) links.  We want the loop for adding a reverse link to run twice.
         // Remember that the owner/source of the links is not held in the link data itself, but
         //   is inferred from where the LinkedEntityData is held.
-        GroupInfo goalGroupInfo = new GroupInfo(goalGroup.getGroupProperties());
+        GroupInfo goalGroupInfo = new GroupInfo(goalGroupPanel.myNoteGroup.getGroupProperties());
         NoteInfo goalNoteInfo = new NoteInfo(milestoneData);
         LinkedEntityData led1 = new LinkedEntityData(goalGroupInfo, goalNoteInfo);
         led1.linkType = LinkedEntityData.LinkType.DEPENDING_ON;
-        GroupInfo dayNoteGroupInfo = new GroupInfo(dayNoteGroup.getGroupProperties());
+        GroupInfo dayNoteGroupInfo = new GroupInfo(dayNoteGroupPanel.myNoteGroup.getGroupProperties());
         NoteInfo dayNoteInfo = new NoteInfo(dayNoteData);
         LinkedEntityData led2 = new LinkedEntityData(dayNoteGroupInfo, dayNoteInfo);
         led2.linkType = LinkedEntityData.LinkType.AFTER;
@@ -117,21 +126,21 @@ class ReverseLinkagesTest {
     @Test
     void testAddReverseLinksToTodoNoteGroup() {
         // Create two different link-target groups.  These two ARE in the test data; no need to bother the AppTreePanel.
-        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Preparations");
-        EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("Reverse Links");
+        TodoNoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Preparations");
+        EventNoteGroupPanel eventNoteGroupPanel = new EventNoteGroupPanel("Reverse Links");
 
         // Make a NoteGroup that will be the source entity for the reverse links.
         // For this test the source could have also been a Note.  This way we have a bit more variety
         //   in the setups but as already stated, that probably doesn't matter in these test cases.
-        NoteGroup monthNoteGroup = new MonthNoteGroupPanel();
+        NoteGroupPanel monthNoteGroupPanel = new MonthNoteGroupPanel();
 
         // Create two (valid) links.  We want the loop for adding a reverse link to run twice.
         // Remember that the owner/source of the links is not held in the link data itself, but
         //   is inferred from where the LinkedEntityData is held.
-        GroupInfo eventGroupInfo = new GroupInfo(eventNoteGroup.getGroupProperties());
+        GroupInfo eventGroupInfo = new GroupInfo(eventNoteGroupPanel.myNoteGroup.getGroupProperties());
         LinkedEntityData led1 = new LinkedEntityData(eventGroupInfo, null);
         led1.linkType = LinkedEntityData.LinkType.DEPENDING_ON;
-        GroupInfo todoGroupInfo = new GroupInfo(todoNoteGroup.getGroupProperties());
+        GroupInfo todoGroupInfo = new GroupInfo(todoNoteGroupPanel.myNoteGroup.getGroupProperties());
         LinkedEntityData led2 = new LinkedEntityData(todoGroupInfo, null);
         led2.linkType = LinkedEntityData.LinkType.AFTER;
 
@@ -139,14 +148,14 @@ class ReverseLinkagesTest {
         LinkTargets linkTargets = new LinkTargets();
         linkTargets.add(led1);
         linkTargets.add(led2);
-        //monthNoteGroup.linkTargets = linkTargets; // This is for completeness; wasn't necessary for this test.
+        //monthNoteGroupPanel.linkTargets = linkTargets; // This is for completeness; wasn't necessary for this test.
 
         // Just running the AppTreePanel constructor creates an instance that is referenced later;
         //   this prevents a null exception.
         new AppTreePanel(new JFrame("Reverse Linkages Test"), MemoryBank.appOpts);
 
         // Here it is -
-        monthNoteGroup.addReverseLinks(linkTargets);
+        monthNoteGroupPanel.myNoteGroup.addReverseLinks(linkTargets);
     }
 
 }

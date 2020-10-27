@@ -90,7 +90,7 @@ public class SearchResultComponent extends NoteComponent {
         // System.out.println("SearchResultComponent resetColumnOrder to " + pos);
 
         //   Note that now we do not provide the 'name' and so we will
-        //   be going through the base layout class 'add' method.
+        //   be going through the base layout class 'setNotes' method.
         add(fibTheFoundInButton, pos.indexOf("1"));
         add(noteTextField, pos.indexOf("2"));
         add(lastModLabel, pos.indexOf("3"));
@@ -109,7 +109,7 @@ public class SearchResultComponent extends NoteComponent {
     protected void resetComponent() {
         super.resetComponent(); // the note text
 
-        // This happens during loadInterface, a lot.
+        // This happens during loadPage, a lot.
         // None of the non-visible notes on the page ever got a data object.
         if(mySearchResultData == null) {
             return;

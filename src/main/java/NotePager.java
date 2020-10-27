@@ -1,6 +1,6 @@
 /*  NotePager provides a control for altering the page number of the
  NoteGroup.  It is created by the base NoteGroup class but relies
- on the child NoteGroup to 'add' it to their container.  All NoteGroups
+ on the child NoteGroup to 'setNotes' it to their container.  All NoteGroups
  have a 'header' panel, so the preferred location is the upper right
  corner of the header.  If this control determines that there is only
  one page of data to display, it will set its own visibility to false.
@@ -17,13 +17,14 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     private int intGroupSize;
     private int intMaxPages;
     private int currentPageNumber;
-    private NoteGroupPanel myNoteGroupPanel;
-    private LabelButton lbCurrentPage;
-    private JTextField jtfThePageNum;
+    private final NoteGroupPanel myNoteGroupPanel;
+    private final LabelButton lbCurrentPage;
+    private final JTextField jtfThePageNum;
 
     NotePager(NoteGroupPanel ng) {
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
         myNoteGroupPanel = ng;
+        currentPageNumber = 1;
 
         // Make a path to the images for the Alter Buttons
         char c = java.io.File.separatorChar;
@@ -113,7 +114,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     public void reset(int i) {
         currentPageNumber = i;
         intPageSize = myNoteGroupPanel.pageSize;
-        intGroupSize = myNoteGroupPanel.noteGroupDataVector.size();
+        intGroupSize = myNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
 
         // Calculate the maximum number of pages.
         if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
@@ -124,7 +125,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             }
         } else intMaxPages = (intGroupSize / intPageSize) + 1;  // A partial last page.
 
-        if (intMaxPages == 1) {
+        if (intMaxPages < 2) {
             // No paging control is needed if there is only one page.
             setVisible(false);
             return;
@@ -135,7 +136,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         setMiddleMessage();
 
         MemoryBank.dbg("NotePager.reset Page " + i + "\t Size: " + myNoteGroupPanel.pageSize);
-        MemoryBank.debug("\t Group size: " + myNoteGroupPanel.noteGroupDataVector.size());
+        MemoryBank.debug("\t Group size: " + myNoteGroupPanel.myNoteGroup.noteGroupDataVector.size());
     } // end reset
 
 

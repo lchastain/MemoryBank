@@ -201,7 +201,7 @@ public class AppTreePanelTest {
             // Sleep, long enough for the help window to appear.
             // This is because it runs in a different thread and we can get to our
             // task killer before it ever comes up, and then it stays.
-            Thread.sleep(800);
+            Thread.sleep(500);
             // Kill the help window -
             Process process = Runtime.getRuntime().exec("taskkill /FI \"WindowTitle eq XML Notepad Help\" /T /F");
 

@@ -3,41 +3,60 @@
 
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Vector;
 
 public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
-    static String areaName;
-    static String areaPath;
-
-    LocalDate theChoice;  // Holds the 'current' date of the displayed Group.
-    DateTimeFormatter dtf;
+    LocalDate theChoice;   // Holds the date of the group that the Panel is currently displaying.
+    DateTimeFormatter dtf; // Child classes display the date in different formats.
 
     private AlteredDateListener alteredDateListener = null;
     private ChronoUnit dateType;
 
-    static {
-        areaName = "Years"; // Directory name under user data.
-        areaPath = basePath + areaName + File.separatorChar;
+
+    CalendarNoteGroupPanel(GroupInfo.GroupType groupType) {
+        super();  // This builds the notes panel
+
+        // Unlike other group types, we do not start off knowing our exact name.
+        // But we do know that it will be some format of 'today'.
+        switch(groupType) { // This Panel should not be constructed with any other types.
+            case YEAR_NOTES:
+                super.setDefaultSubject("Year Note");
+                dateType = ChronoUnit.YEARS;
+                dtf = DateTimeFormatter.ofPattern("yyyy");
+                break;
+            case MONTH_NOTES:
+                super.setDefaultSubject("Month Note");
+                dateType = ChronoUnit.MONTHS;
+                dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
+                break;
+            case DAY_NOTES:
+                super.setDefaultSubject("Day Note");
+                dateType = ChronoUnit.DAYS;
+                dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
+                break;
+        }
+        theChoice = LocalDate.now();
+        GroupInfo groupInfo = new GroupInfo(getTitle(), groupType);
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
+        myNoteGroup.myNoteGroupPanel = this;
+
+        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
     }
 
+    // original (mostly) -
     CalendarNoteGroupPanel(String defaultSubject) {
         super();
         super.setDefaultSubject(defaultSubject);
 
-        setGroupProperties(null); // We get a different Properties with every choice.
+        myNoteGroup.setGroupProperties(null); // We get a different Properties with every choice.
         theChoice = LocalDate.now();
 //        setGroupFilename(getGroupFilename());  not needed?  happens via the call to updateGroup, below.
 
         switch (defaultSubject) {
             case "Day Note":
                 dateType = ChronoUnit.DAYS;
-                myGroupDataType = new TypeReference<Vector<DayNoteData>>() { };
                 break;
             case "Month Note":
                 dateType = ChronoUnit.MONTHS;
@@ -48,76 +67,56 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         }
 
         updateGroup(); // Load the data and properties, if there are any.
-        myNoteGroupPanel = this;
+        myNoteGroup.myNoteGroupPanel = this;
     } // end constructor
 
 
-    // A NoteGroup does not have a 'choice'; a CalendarNoteGroup does.
+    // A NoteGroupPanel does not have a 'choice'; a CalendarNoteGroupPanel does.
     public LocalDate getChoice() {
         return theChoice;
     }
 
+// This logic has been ported to NoteGroupFile.  But unproven.  Keep this as a reference until proven.
+    // Check this just prior to loading the group rather than earlier, because the group content may
+    //   have changed so that the file to load now is not the same as it was at group construction;
+    //   the filename for the group depends on the base date shown in the panel.
+//    @Override
+//    protected String getGroupFilename() {
+//        String s;
+//
+//        if (saveIsOngoing) {
+//            // In this case we need a new filename; need to make one because (due to timestamping) it
+//            // almost certainly does not already exist.
+//            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.makeFullFilename(theChoice, "D");
+//            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.makeFullFilename(theChoice, "M");
+//            else s = NoteGroupFile.makeFullFilename(theChoice, "Y");
+//            return s;
+//        } else {  // Results of a findFilename may be "".
+//            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.foundFilename(theChoice, "D");
+//            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.foundFilename(theChoice, "M");
+//            else s = NoteGroupFile.foundFilename(theChoice, "Y");
+//            return s;
+//        } // end if saving else not saving
+//    } // end getGroupFilename
 
-    // This method is needed for CalendarNoteGroup types because of their timestamped filenames.
     @Override
-    protected String getGroupFilename() {
-        String s;
+    protected void getPanelData() {
+        // Needed when the date has been altered.  We don't know that it HAS been changed; this is just a catch-all.
+        myNoteGroup.setGroupProperties(myNoteGroup.getGroupProperties());
 
-        if (saveIsOngoing) {
-            // In this case we need a new filename; need to make one because (due to timestamping) it
-            // almost certainly does not already exist.
-            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.makeFullFilename(theChoice, "D");
-            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.makeFullFilename(theChoice, "M");
-            else s = NoteGroupFile.makeFullFilename(theChoice, "Y");
-            return s;
-        } else {  // Results of a findFilename may be "".
-            if (dateType == ChronoUnit.DAYS) s = NoteGroupFile.foundFilename(theChoice, "D");
-            else if (dateType == ChronoUnit.MONTHS) s = NoteGroupFile.foundFilename(theChoice, "M");
-            else s = NoteGroupFile.foundFilename(theChoice, "Y");
-            return s;
-        } // end if saving else not saving
-    } // end getGroupFilename
-
-    // A CalendarNoteGroup has a different GroupProperties for every choice.
-    @Override // Implementation of the NoteGroupDataAccessor interface method
-    public GroupProperties getGroupProperties() {
-        if(myProperties == null) {
-            // If we loaded our properties member from a file then we need to use that one because it may
-            // already contain linkages.  Otherwise it will be null and we can just make one right now.
-            switch(dateType) {
-                case DAYS:
-                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.DAY_NOTES));
-                    break;
-                case MONTHS:
-                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.MONTH_NOTES));
-                    break;
-                case YEARS:
-                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.YEAR_NOTES));
-                    break;
-                default:
-                    setGroupProperties(new GroupProperties(getTitle(), GroupInfo.GroupType.NOTES));
-            }
-        }
-        return myProperties;
+        super.getPanelData();
     }
 
+    // The title of CalendarNoteGroups is just the date that the panel is set to,
+    // formatted to the granularity of the Panel (day, month, year).
     String getTitle() {
-        //return NoteGroupDataAccessor.getGroupNameForDay(getChoice());
-        // The above line would work, but routing the op through the interface static method somewhat obfuscates the
-        // code.  Better to just have a bit of duplication with an extra formatter defined in this class (dtf), for
-        // overall readability.
-
         return dtf.format(getChoice());
     }
 
 
 
-    //--------------------------------------------------------------
-    // Method Name: setDate
-    //
     // A calling context should only make this call if it is
     //   needed, because it causes a reload of the group.
-    //--------------------------------------------------------------
     public void setDate(LocalDate theNewChoice) {
         preClosePanel();
         theChoice = theNewChoice;
@@ -126,17 +125,19 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
 
     public void setOneBack() {
-        preClosePanel();
-        setGroupProperties(null); // There may be no file to load, so this is needed here.
+        preClosePanel(); // Save the current one first, if needed.
+        myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.minus(1, dateType);
+        myNoteGroup.myGroupInfo.setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
     } // end setOneBack
 
 
     public void setOneForward() {
-        preClosePanel();
-        setGroupProperties(null); // There may be no file to load, so this is needed here.
+        preClosePanel(); // Save the current one first, if needed.
+        myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.plus(1, dateType);
+        myNoteGroup.myGroupInfo.setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
     } // end setOneForward
 

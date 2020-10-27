@@ -200,8 +200,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     startDate = null;
                  } else {  // A request to set it
                     // Initialize  a date-chooser
-                    if (startDate != null) yvDateChooser.setChoice(startDate);
-                    else yvDateChooser.setChoice(null);
+                    yvDateChooser.setChoice(startDate);
 
                     showDateDialog("Select a Start Date for the Event");
                     LocalDate newStartDate = yvDateChooser.getChoice();
@@ -229,8 +228,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
                     editedEventNoteData.setEndDate(null); // clear it.
                     endDate = null; // and clear the value we had previously captured.
                 } else {
-                    if (endDate != null) yvDateChooser.setChoice(endDate);
-                    else yvDateChooser.setChoice(null);
+                    yvDateChooser.setChoice(endDate);
 
                     showDateDialog("Select an End Date for the Event");
                     LocalDate newEndDate = yvDateChooser.getChoice();
@@ -670,7 +668,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         spaneNotes.validate();
     } // end reinitializeComponent
 
-    // Needed to add this after moving from a JDialog to a JOptionPane.
+    // Needed to setNotes this after moving from a JDialog to a JOptionPane.
     public Dimension getPreferredSize() {
         return new Dimension(getMinimumSize());
     }

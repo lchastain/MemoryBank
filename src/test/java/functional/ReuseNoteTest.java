@@ -26,15 +26,15 @@ class ReuseNoteTest {
 
     @Test
     void testReuseDayNote() {
-        DayNoteGroupPanel dayNoteGroup = new DayNoteGroupPanel();
+        DayNoteGroupPanel dayNoteGroupPanel = new DayNoteGroupPanel();
 
         // Set the day to one where the note content can be used for this test.
         // (we know there are 10 notes for this user on 8 June 2010).
-        dayNoteGroup.setDate(LocalDate.of(2019, 6, 8));
+        dayNoteGroupPanel.setDate(LocalDate.of(2019, 6, 8));
 
         // Get a component to clear, and clear it.
         // This note has a time, an extended note, and an icon
-        DayNoteComponent dayNoteComponent4 = dayNoteGroup.getNoteComponent(4);
+        DayNoteComponent dayNoteComponent4 = dayNoteGroupPanel.getNoteComponent(4);
         dayNoteComponent4.clear();
 
         // Now reuse that component
@@ -42,8 +42,8 @@ class ReuseNoteTest {
         dayNoteData.setNoteString("This is it!");
         dayNoteComponent4.setNoteData(dayNoteData);
 
-        // Verify that reusing the line did not add a new one (SCR0065)
-        int highest = dayNoteGroup.noteGroupDataVector.size();
+        // Verify that reusing the line did not setNotes a new one (SCR0065)
+        int highest = dayNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(highest, 10);
 
         // Note: during dev of this test a new problem (caused by the initial fix for SCR0065)
@@ -60,14 +60,14 @@ class ReuseNoteTest {
         assert dayNoteData.getIconFileString() == null;  // null means the default icon will be used.
 
         // Not needed, unless you run only this test and then want to examine the result.
-        dayNoteGroup.preClosePanel();
+        dayNoteGroupPanel.preClosePanel();
 
     }
 
     @Test
     void testReuseTodoNote() {
-        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Ten Things To Do");
-        TodoNoteComponent todoNoteComponent = todoNoteGroup.getNoteComponent(2);
+        TodoNoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Ten Things To Do");
+        TodoNoteComponent todoNoteComponent = todoNoteGroupPanel.getNoteComponent(2);
         Assertions.assertEquals("Thing Three", todoNoteComponent.getNoteData().noteString);
 
         // Clear the component
@@ -80,12 +80,12 @@ class ReuseNoteTest {
         todoNoteComponent.setNoteData(todoNoteData);
         Assertions.assertEquals("The third thang.", todoNoteComponent.getNoteData().getNoteString());
 
-        // Verify that reusing the line did not add a new one (SCR0065)
-        int highest = todoNoteGroup.noteGroupDataVector.size();
+        // Verify that reusing the line did not setNotes a new one (SCR0065)
+        int highest = todoNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(highest, 10);
 
         // Not needed, unless you run only this test and then want to examine the result.
-        todoNoteGroup.preClosePanel();
+        todoNoteGroupPanel.preClosePanel();
     }
 
     // Note 10/21/2019 1410 - The fix for SCR0065 was needed/done in common code, so having a 'reuse' test

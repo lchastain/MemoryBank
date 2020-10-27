@@ -216,7 +216,7 @@ public class TreeBranchEditor extends JPanel
         JPanel theChoicesPanel = new JPanel();
         theChoicesPanel.setLayout(new BoxLayout(theChoicesPanel, BoxLayout.Y_AXIS));
 
-        // To the right-side panel, add the selection choices.
+        // To the right-side panel, setNotes the selection choices.
         for (String theChoice : theChoices) {
             JCheckBox jcb = new JCheckBox(theChoice);
             if (leaves.contains(theChoice)) {
