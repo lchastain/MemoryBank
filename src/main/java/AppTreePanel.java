@@ -1154,9 +1154,6 @@ success = true;
         viewedDateGranularity = theGranularity;
     }
 
-    //--------------------------------------------------------------
-    // Method Name:  showAbout
-    //
     // This method will put the 'About' graphic into the right
     //   side of the display.  However, if invoked a second time
     //   without any other tree selection in between, it will
@@ -1168,7 +1165,6 @@ success = true;
     //   changes after the first 'About' without also making a new
     //   tree selection.  This happens because the tree state is
     //   reset whenever the About graphic is shown.  Acceptable.
-    //--------------------------------------------------------------
     void showAbout() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
                 theTree.getLastSelectedPathComponent();
@@ -1204,7 +1200,7 @@ success = true;
     } // end showAbout
 
 
-    // Called from YearView or MonthView, mouse dbl-click on date.
+    // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
     void showDay() {
         MemoryBank.debug("showDay called.");
         theTree.setSelectionPath(dayNotesPath);
@@ -1768,6 +1764,7 @@ System.out.println("Branch helpers temporarily disabled.");
             theAppDays.setAlteredDateListener(this); // needed for both new and pre-existing.
             theNoteGroupPanel = theAppDays;
             theAppDays.setDate(selectedDate);
+
             setViewedDate(selectedDate, ChronoUnit.DAYS);
             rightPane.setViewportView(theAppDays.theBasePanel);
         } else if (theNodeString.equals("Month Notes")) {

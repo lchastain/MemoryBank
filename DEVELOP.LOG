@@ -6,7 +6,8 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
         This may mean we will need to work on encapsulating the NoteGroupDataAccessor, or other rearchitecting tasks.
 
-Jump from 'view' to a date, month, etc - not changing notes.
+moveToDayNote - fix in several places and calling contexts.
+
 
 Questions:
     Unsure of variable children titles, notecomponent members, etc - all need checking to see if they load in correctly
@@ -27,8 +28,8 @@ Broken, to fix later (and remember when restoring to also restore all calls/usag
     moveToDayNote, in MilestoneComponent - commented out due to a call to addDayNote (and prettyName)
     event sorting not working...  even in pub.
 
-
 New:
+    Fixed: Jump from 'view' to a date, month, etc - not changing notes.
 
 
 =====================================================================================================

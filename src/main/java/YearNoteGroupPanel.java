@@ -7,19 +7,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private JLabel yearTitle;
-
     static {
         MemoryBank.trace();
     } // end static
 
-    //=============================================================
 
     YearNoteGroupPanel() {
         super(GroupInfo.GroupType.YEAR_NOTES);
@@ -27,13 +23,6 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     } // end constructor
 
     private void buildMyPanel() {
-
-        // Create the window title
-        yearTitle = new JLabel();
-        yearTitle.setHorizontalAlignment(JLabel.CENTER);
-        yearTitle.setForeground(Color.white);
-        yearTitle.setFont(Font.decode("Serif-bold-20"));
-
         dtf = DateTimeFormatter.ofPattern("yyyy");
 
         LabelButton prev = new LabelButton("-");
@@ -53,34 +42,12 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
         heading.add(p0, "West");
-        heading.add(yearTitle, "Center");
+        heading.add(panelTitleLabel, "Center");
 
         add(heading, BorderLayout.NORTH);
 
         updateHeader();
     } // end constructor
-
-
-    // This is called from AppTreePanel.
-    public void setDate(LocalDate theNewChoice) {
-
-        // If the new day puts us in the same year as the current one - just return.
-        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
-
-        super.setDate(theNewChoice);
-        updateHeader();
-    } // end setDate
-
-
-    //--------------------------------------------------------------
-    // Method Name: updateHeader
-    //
-    // This header contains only a formatted date string.
-    //--------------------------------------------------------------
-    private void updateHeader() {
-        // Generate new title from current choice.
-        yearTitle.setText(dtf.format(getChoice()));
-    } // end updateHeader
 
 
     //---------------------------------------------------------

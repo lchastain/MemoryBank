@@ -3,6 +3,8 @@
 
  */
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -13,6 +15,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
     private AlteredDateListener alteredDateListener = null;
     private ChronoUnit dateType;
+    JLabel panelTitleLabel;
 
 
     CalendarNoteGroupPanel(GroupInfo.GroupType groupType) {
@@ -36,39 +39,21 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
                 dateType = ChronoUnit.DAYS;
                 dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
                 break;
+//            default: // Should not ever happen, but need to cover all bases.
+//                dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         }
+        // Create the panel's title
+        panelTitleLabel = new JLabel();
+        panelTitleLabel.setHorizontalAlignment(JLabel.CENTER);
+        panelTitleLabel.setForeground(Color.white);
+        panelTitleLabel.setFont(Font.decode("Serif-bold-20"));
+
         theChoice = LocalDate.now();
         GroupInfo groupInfo = new GroupInfo(getTitle(), groupType);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
-
         loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
     }
-
-    // original (mostly) -
-    CalendarNoteGroupPanel(String defaultSubject) {
-        super();
-        super.setDefaultSubject(defaultSubject);
-
-        myNoteGroup.setGroupProperties(null); // We get a different Properties with every choice.
-        theChoice = LocalDate.now();
-//        setGroupFilename(getGroupFilename());  not needed?  happens via the call to updateGroup, below.
-
-        switch (defaultSubject) {
-            case "Day Note":
-                dateType = ChronoUnit.DAYS;
-                break;
-            case "Month Note":
-                dateType = ChronoUnit.MONTHS;
-                break;
-            case "Year Note":
-                dateType = ChronoUnit.YEARS;
-                break;
-        }
-
-        updateGroup(); // Load the data and properties, if there are any.
-        myNoteGroup.myNoteGroupPanel = this;
-    } // end constructor
 
 
     // A NoteGroupPanel does not have a 'choice'; a CalendarNoteGroupPanel does.
@@ -114,13 +99,23 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     }
 
 
+    void setAlteredDateListener(AlteredDateListener adl) {
+        alteredDateListener = adl;
+    }
+
 
     // A calling context should only make this call if it is
     //   needed, because it causes a reload of the group.
     public void setDate(LocalDate theNewChoice) {
+        // If the new date would result in no change then just return.
+        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
+
         preClosePanel();
         theChoice = theNewChoice;
+        myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo prior to data load
         updateGroup();
+
+        updateHeader();
     } // end setDate
 
 
@@ -142,8 +137,14 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     } // end setOneForward
 
 
-    void setAlteredDateListener(AlteredDateListener adl) {
-        alteredDateListener = adl;
-    }
+
+    // This one-liner is broken out as a separate method to simplify the coding
+    //   from the calling contexts, and also to help them be more readable.
+    void updateHeader() {
+        // Generate a new title from current choice.
+        panelTitleLabel.setText(dtf.format(getChoice()));
+    } // end updateHeader
+
+
 
 } // end class CalendarNoteGroup

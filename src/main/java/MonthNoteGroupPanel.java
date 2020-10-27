@@ -7,13 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
-
-    private JLabel monthTitle;
 
     static {
         MemoryBank.trace();
@@ -26,12 +23,6 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
     } // end constructor
 
     private void buildMyPanel() {
-        // Create the window title
-        monthTitle = new JLabel();
-        monthTitle.setHorizontalAlignment(JLabel.CENTER);
-        monthTitle.setForeground(Color.white);
-        monthTitle.setFont(Font.decode("Serif-bold-20"));
-
         dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         LabelButton prev = new LabelButton("-");
@@ -51,7 +42,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
         heading.add(p0, "West");
-        heading.add(monthTitle, "Center");
+        heading.add(panelTitleLabel, "Center");
 
         add(heading, BorderLayout.NORTH);
 
@@ -61,26 +52,15 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
 
 
     // This is called from AppTreePanel.
-    @Override
-    public void setDate(LocalDate theNewChoice) {
-
-        // If the new date puts us in the same month as the current one - return.
-        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
-
-        super.setDate(theNewChoice);
-        updateHeader();
-    } // end setDate
-
-
-    //--------------------------------------------------------------
-    // Method Name: updateHeader
-    //
-    // This header contains only a formatted date string.
-    //--------------------------------------------------------------
-    private void updateHeader() {
-        // Generate new title from current choice.
-        monthTitle.setText(dtf.format(getChoice()));
-    } // end updateHeader
+//    @Override
+//    public void setDate(LocalDate theNewChoice) {
+//
+//        // If the new date puts us in the same month as the current one - return.
+//        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
+//
+//        super.setDate(theNewChoice);
+//        updateHeader();
+//    } // end setDate
 
 
     //---------------------------------------------------------

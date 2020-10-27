@@ -5,13 +5,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.time.LocalDate;
 
 public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
 
     private static AppIcon defaultIcon;
-    private JLabel dayTitle;  // the JLabel is final; its text is not.
     static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
 
     static {
@@ -45,12 +43,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     } // end constructor
 
     private void buildMyPanel() {
-        // Create the panel title
-        dayTitle = new JLabel();
-        dayTitle.setHorizontalAlignment(JLabel.CENTER);
-        dayTitle.setForeground(Color.white);
-        dayTitle.setFont(Font.decode("Serif-bold-20"));
-
         LabelButton timeFormatButton = new LabelButton("24");
         timeFormatButton.addMouseListener(this);
         timeFormatButton.setPreferredSize(new Dimension(28, 28));
@@ -73,7 +65,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
         heading.add(p0, "West");
-        heading.add(dayTitle, "Center");
+        heading.add(panelTitleLabel, "Center");
 
         if (dayNoteDefaults.military) timeFormatButton.setText("12");
         heading.add(timeFormatButton, "East");  // spacer 56
@@ -179,14 +171,15 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
     // This is called from AppTreePanel prior to display of this panel, needed when
     // the date choice has changed via controls in some other panel.
-    public void setDate(LocalDate theNewChoice) {
-        // If the new day is the same as the current one - return.
-        if (getTitle().equals(dtf.format(theNewChoice))) return;
+//    @Override
+//    public void setDate(LocalDate theNewChoice) {
+//        // If the new day is the same as the current one - return.
+////        if (getTitle().equals(dtf.format(theNewChoice))) return;   // Don't know why this was (for a while) preferred over the one below.
 //        if (dtf.format(theChoice).equals(dtf.format(theNewChoice))) return;
-
-        super.setDate(theNewChoice); // setDate is in CalendarNoteGroup.
-        updateHeader();
-    } // end setDate
+//
+//        super.setDate(theNewChoice); // setDate is in CalendarNoteGroup.
+//        updateHeader();
+//    } // end setDate
 
 
     //----------------------------------------------------
@@ -241,14 +234,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         } // end for i
         setGroupChanged(true);
     } // end toggleMilitary
-
-
-    // This one-liner is broken out as a separate method to simplify the coding
-    //   from the calling contexts, and also to help them be more readable.
-    private void updateHeader() {
-        // Generate a new title from the current day choice.
-        dayTitle.setText(getChoiceString());
-    } // end updateHeader
 
 } // end class DayNoteGroupPanel
 
