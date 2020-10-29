@@ -83,6 +83,7 @@ class GroupInfo extends BaseData {
 
         if(thePanel != null) { // It worked!
             theNoteGroup = thePanel.myNoteGroup;
+            thePanel.preClosePanel(); // Ensures persisted data matches Panel data.
         } else { // There isn't a Panel for it, so we will just make a NoteGroup of the right type; Panel not needed.
             switch (groupType) {
                 case SEARCH_RESULTS:
@@ -106,7 +107,6 @@ class GroupInfo extends BaseData {
                     theNoteGroup = new NoteGroup(this);
             }
         }
-
         return theNoteGroup;
     }
 

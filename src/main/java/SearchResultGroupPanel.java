@@ -15,8 +15,8 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
-        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
         editable = false;
+        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
 
         theNotePager.reset(1);
         buildPanelContent();

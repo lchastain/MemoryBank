@@ -88,7 +88,6 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     protected void getPanelData() {
         // Needed when the date has been altered.  We don't know that it HAS been changed; this is just a catch-all.
         myNoteGroup.setGroupProperties(myNoteGroup.getGroupProperties());
-
         super.getPanelData();
     }
 
@@ -104,16 +103,26 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     }
 
 
-    // A calling context should only make this call if it is
-    //   needed, because it causes a reload of the group.
     public void setDate(LocalDate theNewChoice) {
-        // If the new date would result in no change then just return.
-        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
+        // If the new date is the same as the one that is currently showing then the inclination is to just return
+        // without taking any action.  However, that does not cover the case where the data for the date that is
+        // showing has been changed outside of the Panel, and needs to be reloaded.  So - inclination override.
+        //if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
 
+        // The proper approach for all accesses is to save a group before possibly altering it.  This doesn't mean
+        // that it always happens that way but if it doesn't then there could be data-loss type problems.  So for
+        // the hypothetical case where the data for this date has been externally changed, any changes we had in
+        // progress in this Panel will have already been saved before the external change, and so the call below
+        // will NOT result in the old data going back to overwrite the newer info because preClose will not make
+        // a call to save since by then the groupChanged flag will be false.  On the other hand, if there has been
+        // no other access to the group and there ARE unsaved changes in the Panel, then the call below will capture
+        // them.
         preClosePanel();
+
         theChoice = theNewChoice;
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo prior to data load
-        updateGroup();
+        updateGroup();  // Be aware that this clears the panel, which clears the source data.
+        // In most operational cases that works just fine; tests, however, might not be happy about it.
 
         updateHeader();
     } // end setDate

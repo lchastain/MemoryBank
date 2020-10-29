@@ -55,6 +55,16 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         buildNotesPanel();
     } // end constructor 2
 
+    // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).
+    // If you have a group that you got from a Panel, adding the note to it via the panel is needed so that it
+    // gets picked up when the group saves, since the Panel save operation updates the Vector from its content
+    // prior to saving the data.
+    void addNote(NoteData noteData) {
+        myNoteGroup.addNote(noteData); // This adds the note to the data Vector.
+        theNotePager.reset(1); // Recalculate the number of pages; the addition may have caused a page rollover.
+        loadPage(theNotePager.getHighestPage()); // Page to the end, to show the new note.
+    }
+
 
     // This method will set the next note visible, unless:
     //   the requested index is already visible   OR
@@ -92,7 +102,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
                     // from initialize() after a note has been added into the last available slot on the current page.
                     // The new note(s) will need to be added to the groupDataVector now, so that the pager reset can
                     // see that the total page count should be increased by one.
-                    if (myNoteGroup.groupChanged) unloadInterface(tmpPage);
+                    if (myNoteGroup.groupChanged) unloadNotesPanel(tmpPage);
 
                     theNotePager.reset(tmpPage);
                 } // end if
@@ -307,14 +317,15 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // persisting the group data.  It updates group content without
     // affecting NoteGroupPanel attributes such as the menus.
     protected void getPanelData() {
+
         // This can be needed by CalendarNoteGroups where the date has been altered.  Otherwise it's a no-op.
-// that line is now in the CalendarNoteGroup override of this method.
+// that line is now in the CalendarNoteGroupPanel override of this method.
 // Leaving the comments here for now because we are not 100% sure that it really is not otherwise needed.
         // maybe needed for link target changes?
 // can remove after all tests pass.
 //        myNoteGroup.setGroupProperties(myNoteGroup.getGroupProperties());
 
-        unloadInterface(theNotePager.getCurrentPage());
+        unloadNotesPanel(theNotePager.getCurrentPage());
         myNoteGroup.setNotes(getCondensedInfo());
     }
 
@@ -548,7 +559,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Called by the pager control
     void pageFrom(int pageFrom) {
         MemoryBank.debug("Paging away from Page: " + pageFrom);
-        unloadInterface(pageFrom);
+        unloadNotesPanel(pageFrom);
     } // end pageFrom
 
     // Called by the pager control
@@ -569,16 +580,16 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         if(myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
             myNoteGroup.saveNoteGroup();
-
-            setGroupChanged(false); // The 'save' preserved all panel changes to this point, so we reset the flag.
-            // Note that the flag is reset regardless of the result of the save.  This is intentional because
-            // it will disable the menu item and prevent a second+ attempt to save whether it is still needed
+            // Note that as a final step the save method in NoteGroup calls setGroupChanged(false), without even
+            // checking the result of the save.  A few reasons for that; primarily because it covers the 'happy'
+            // path, but also because the flag-setting method is overridden by the one here so that we can also disable
+            // the 'save' menu item.  This will prevent a second+ attempt to save whether it is still needed
             // or not; if still needed then the first attempt failed in some way and trying again is unlikely to
             // do any good, so at least disable the menu item so that the user cannot keep trying and they see
             // that there is nothing more that they can do.  The disabled menu item might give them a false sense
-            // of having had a successful save, but
-            // given that we are considering a hypothetical situation along a path where we already have an
-            // unanticipated error, that particular potential downside is entirely acceptable.
+            // of having had a successful save, but given that we are considering a hypothetical situation along a
+            // path where we already have an unanticipated error, that particular potential downside is entirely
+            // acceptable, at least until it begins cropping up repeatedly.
         }
 
     } // end preClosePanel
@@ -722,7 +733,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     void sortLastMod(int direction) {
 
         // Preserve current interface changes before sorting.
-        unloadInterface(theNotePager.getCurrentPage());
+        unloadNotesPanel(theNotePager.getCurrentPage());
 
         // Do the sort
         LastModComparator lmc = new LastModComparator(direction);
@@ -736,7 +747,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     void sortNoteString(int direction) {
 
         // Preserve current interface changes before sorting.
-        unloadInterface(theNotePager.getCurrentPage());
+        unloadNotesPanel(theNotePager.getCurrentPage());
 
         // Do the sort
         NoteStringComparator nsc = new NoteStringComparator(direction);
@@ -755,12 +766,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     //   we allow possible 'gaps' in data from cleared items.
     //   Gaps will be removed by the getCondensedInfo() method that is
     //   called during the 'save' process.
-    void unloadInterface(int currentPage) {
+    void unloadNotesPanel(int currentPage) {
 
         // Set the indexes into the data vector -
         int startIndex = (currentPage - 1) * pageSize;
         int endIndex = startIndex + lastVisibleNoteIndex;  // last visible may or may not be initialized.
-        MemoryBank.debug("NoteGroupPanel.unloadInterface into vector index " + startIndex + " to " + endIndex);
+        MemoryBank.debug("NoteGroupPanel.unloadNotesPanel into vector index " + startIndex + " to " + endIndex);
 
         // When unloading the currently displayed interface, we need to know where the groupDataVector ends and new
         // data begins.  groupDataVector size-1 will almost always be less than endIndex
@@ -783,12 +794,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
                 myNoteGroup.noteGroupDataVector.setElementAt(tempNoteData, dataIndex);
             } else {  // New, user-entered data is in the interface.  Get it.
                 if (tempNoteComponent.initialized) {  // This could be false on the last note on the page.
-                    System.out.println("NoteGroupPanel.unloadInterface: Adding new element!");
+                    System.out.println("NoteGroupPanel.unloadNotesPanel: Adding new element!");
                     myNoteGroup.noteGroupDataVector.addElement(tempNoteData);
                 }
             } // end if
         } // end for i
-    } // end unloadInterface
+    } // end unloadNotesPanel
 
 
     //----------------------------------------------------

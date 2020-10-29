@@ -35,11 +35,9 @@ class NoteGroup implements LinkHolder {
     protected GroupProperties myProperties; // All children can access this directly, but better to use a getter.
     protected GroupInfo myGroupInfo;
 
-// Fix this comment - no longer true.
-    // A NoteGroupPanel extends (possibly indirectly) from NoteGroup (this class), so this member adds a grandchild
-    // to our class definition, which other experts will call a poor design.  Sorry, my bad.  To somewhat atone, we
-    // keep this reference in a transient member.  Then we populate it with the grandchild if/when it comes into scope.
-    transient NoteGroupPanel myNoteGroupPanel;
+    // transient is only helpful if the instance is to be serialized, which it isn't.  So...  why leave it transient?
+//    transient NoteGroupPanel myNoteGroupPanel; // This might remain null; depends on usage of the NoteGroup.
+    NoteGroupPanel myNoteGroupPanel; // This might remain null; depends on usage of the NoteGroup.
 
 //    public NoteGroup() {
 //        super();
@@ -58,7 +56,22 @@ class NoteGroup implements LinkHolder {
 
         // Load the group data (using the accessor).
         loadNoteGroup();
-
+        // For all NoteGroup children, if we have a concrete data set then we will be able to deserialize our
+        //   properties from that data.  But when there IS no persisted data then the GroupProperties will remain
+        //   null after a data load, so the condition below takes care of that, right?
+        // Well no, not completely.  All NoteGroups get constructed with their group name, but the
+        //   CalendarNoteGroup (CNG) types get a new name every time the date changes, and yet when they are used
+        //   in Panels they only get constructed upon the first access of the data type.  The 'fix' below will only
+        //   happen during construction; it does not happen again when the group is loaded via the updateGroup method,
+        //   primarily because that would be a lot of unneeded effort when the group is not a CNG type because
+        //   any other group type needing 'update' will be known to have available persisted data, whereas the
+        //   CNGs may not.
+        // So what do we do for a CNG type group after it got updated and has no properties?  Nothing, until something
+        //   changes and it needs saving.  At that time, the CalendarNoteGroupPanel override of getPanelData will set
+        //   the GroupProperties correctly so that the data is not persisted with a null in that data member.
+        // Now you ask why am I talking about Panels in this class?  Mainly because Panels are the primary customer of
+        //   the NoteGroup constructor, and CNG type Panels are the ones trying to retrieve Groups that have no data.
+        //
         // Make the basic default properties, if none were loaded.
         if(myProperties == null) {
             myProperties = makeGroupProperties(); // This method might be overridden, in child classes of NoteGroup.
@@ -157,20 +170,22 @@ class NoteGroup implements LinkHolder {
     }
 
     void loadNoteGroup() {
-        // First, load the data (if any) for the group.  If not then theData remains null.
+        // First, load the raw data (if any) for the group.  If not then theData remains null.
         Object[] theData = dataAccessor.loadNoteGroupData(myGroupInfo);
 
-        // Now get any pre-existing info cleared out to make way for whatever came in (if anything) from the data store.
-        // This is important even when no new data came in, so there are no 'leftovers'.
+        // Now get any pre-existing data members cleared out to make way for whatever came in (if anything) from the
+        // data store.  This is important even when no new data came in, so there are no 'leftovers'.
         noteGroupDataVector.clear(); // Clear, for a zero-length, will be better than 'null'.
-        setGroupProperties(null); // If no persisted data came in then the calling context will set new properties.
+        setGroupProperties(null); // If no persisted data came in then the calling context can set new properties.
 
-        if(theData == null) {
-            // Reinitialize our internal members
-            myProperties = null;
-            noteGroupDataVector = new Vector<>(0, 1);
-            return;  // Nothing more to do.
-        }
+        if(theData == null) return;
+
+//        if(theData == null) {
+//            // Reinitialize our internal members
+//            myProperties = null;
+//            noteGroupDataVector = new Vector<>(0, 1);
+//            return;  // Nothing more to do.
+//        }
         // Not that uncommon; many CalendarNote groups will have no data to load.
         // There is also still the (theoretical) possibility that theData is not null but is an array of zero length,
         //   but operationally we have no such logical code path that would result in that situation, so not going
@@ -223,15 +238,16 @@ class NoteGroup implements LinkHolder {
 
     void saveNoteGroup() {
         if(isEmpty()) {
+            // This will remove the old data, if there is any.
             dataAccessor.saveNoteGroupData(null);
         } else {
             dataAccessor.saveNoteGroupData(getTheData());
         }
+        setGroupChanged(false); // The 'save' preserved all changes to this point, so we reset the flag.
     }
 
 
     public void setGroupChanged(boolean b) {
-        if(groupChanged == b) return;
         groupChanged = b;
     } // end setGroupChanged
 
@@ -242,7 +258,8 @@ class NoteGroup implements LinkHolder {
     }
 
     // This method is called with the raw data that is the GroupProperties.
-    // Child groups with properties that are children of GroupProperties should override.
+    // Child groups with properties that are children of GroupProperties should override
+    // so they can convert it to the correct child type.
     protected void setGroupProperties(Object propertiesObject) {
         myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
     }

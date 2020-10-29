@@ -248,7 +248,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     //   collected at the 'bottom' of the list.  Note that
     //   preSort() is not needed; this method is only called
     //   from refresh(), where a preClosePanel() is done, which
-    //   calls the saveGroup(), which calls unloadInterface(),
+    //   calls the saveGroup(), which calls unloadNotesPanel(),
     //   which is what happens during a preSort().
     //---------------------------------------------------------
     void doSort() {

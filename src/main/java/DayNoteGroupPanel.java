@@ -76,30 +76,18 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         MemoryBank.trace();
     }
 
-    private String getChoiceString() {
-        return dtf.format(theChoice);
-    } // end getChoiceString
-
 
     public AppIcon getDefaultIcon() {
         return defaultIcon;
     }
 
-    //--------------------------------------------------------
-    // Method Name: getNoteComponent
-    //
     // Returns a DayNoteComponent that can be used to manipulate
     // component state as well as set/get underlying data.
-    //--------------------------------------------------------
     public DayNoteComponent getNoteComponent(int i) {
         return (DayNoteComponent) groupNotesListPanel.getComponent(i);
     } // end getNoteComponent
 
 
-    //-------------------------------------------------------------------
-    // Method Name: makeNewNote
-    //
-    //-------------------------------------------------------------------
     @Override
     JComponent makeNewNote(int i) {
         DayNoteComponent dnc = new DayNoteComponent(this, i);

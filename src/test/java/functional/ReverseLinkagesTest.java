@@ -44,13 +44,13 @@ class ReverseLinkagesTest {
         // Load up this Test user's application options
         AppOptions.loadOpts();
 
-        // Just running the AppTreePanel constructor creates an instance that we can use via a static reference.
         appTreePanel = new AppTreePanel(new JFrame("Reverse Linkages Test"), MemoryBank.appOpts);
     }
 
     @AfterAll
-    static void noMo() {
+    static void tearDown() {
         appTreePanel = null; // allow GC to get rid of this before other test threads see the instance.
+        System.gc();
     }
 
 

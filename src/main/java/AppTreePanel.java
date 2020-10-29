@@ -1463,7 +1463,7 @@ success = true;
 
         // If there was a NoteGroup open prior to this tree selection change then update its data now.
         if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
-            theNoteGroupPanel.unloadInterface(theNoteGroupPanel.theNotePager.getCurrentPage());
+            theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
         } // end if
 
         // Get the string for the selected node.

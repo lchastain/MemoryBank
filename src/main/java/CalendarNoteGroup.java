@@ -1,12 +1,28 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-// This is the first class of the re-architecting; baby steps - first, needed methods can be static.
-
 public abstract class CalendarNoteGroup extends NoteGroup {
 
     CalendarNoteGroup(GroupInfo groupInfo) {
         super(groupInfo);
+    }
+
+    static String getGroupNameForDate(LocalDate theDate, GroupInfo.GroupType theType) {
+        String theName;
+        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        switch(theType) {
+            case YEAR_NOTES:
+                dtf = DateTimeFormatter.ofPattern("yyyy");
+                break;
+            case MONTH_NOTES:
+                dtf = DateTimeFormatter.ofPattern("d MMMM yyyy");
+                break;
+            case DAY_NOTES:
+                dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
+                break;
+        }
+        theName = dtf.format(theDate);
+        return theName;
     }
 
     static LocalDate getDateFromGroupName(GroupInfo groupInfo) {
@@ -54,6 +70,16 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         }
         return myProperties;
     }
+
+    // This is used by data-accessor contexts, prior to saving.  But tests may also use it.
+    @Override
+    public Object[] getTheData() {
+        Object[] theData = new Object[2];
+        theData[0] = getGroupProperties(); // This is the difference from the base method.
+        theData[1] = noteGroupDataVector;
+        return theData;
+    }
+
 
 
 }

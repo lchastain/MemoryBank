@@ -5,19 +5,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.time.LocalDate;
 
 public class TodoNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
 
     // The Members
-    private TodoNoteData myTodoNoteData;
-    private final PriorityButton pbThePriorityButton;
-    private final StatusButton sbTheStatusButton;
+    private TodoNoteData myTodoNoteData; // This one has an accessor
+    protected final PriorityButton pbThePriorityButton;
+    protected final StatusButton sbTheStatusButton;
 
-//    private TodoNoteGroupPanel myNoteGroup;
-    private static final JMenuItem miClearPriority;
-    private static final JMenuItem miMoveToToday;
-    private static final JMenuItem miMoveToSelectedDate;
+    protected static final JMenuItem miClearPriority;
+    protected static final JMenuItem miMoveToToday;
+    protected static final JMenuItem miMoveToSelectedDate;
+
     private static final ImageIcon todo_done;
     private static final ImageIcon todo_inprog;
     private static final ImageIcon todo_wait;
@@ -181,42 +182,37 @@ public class TodoNoteComponent extends NoteComponent {
     //   and it is not possible to leave a gap because the entire list gets reloaded.
     //   But here - we just leave a gap.
     //--------------------------------------------------------------------------
-//    private void moveToDayNote(boolean useDate) {
-//        boolean success;  // the result of this attempt.
-//
-//        // TodoNoteData items have a 'slot' for a Subject, but no UI to set one.  So
-//        // now as it goes over to a DayNote, the Subject will be the name of the list
-//        // from which this item is being removed.
-//        myTodoNoteData.setSubjectString(myNoteGroupPanel.prettyName());
-//
-//        // Get the Date to which we will move this item.
-//        LocalDate moveToDate;
-//        if (useDate) {
-//            moveToDate = myTodoNoteData.getTodoDate();
-//            MemoryBank.debug("Moving TodoNote to specified date: " + moveToDate.toString());
-//        } else {
-//            LocalDate today = LocalDate.now();
-//            MemoryBank.debug("Moving TodoNote to Today: " + today.toString());
-//            myTodoNoteData.setTodoDate(LocalDate.now());
-//        }
-//
-//        // Convert the item to a DayNoteData, using the TodoNoteData-flavored constructor.
-//        DayNoteData dnd = new DayNoteData(myTodoNoteData);
-//
-//        LocalDate theTodoDate = myTodoNoteData.getTodoDate();
-//        success = myNoteGroupPanel.addDayNote(theTodoDate, dnd);
-//
-//        if (success) {
-//            MemoryBank.debug("Move succeeded");
-//            clear();  // This creates a 'gap'.
-//        } else {
-//            MemoryBank.debug("Move failed");
-//            String s = "Cannot preserve this item.\n";
-//            s += "Review the error stream for more info.";
-//            JOptionPane.showMessageDialog(this, s,
-//                    "Error", JOptionPane.ERROR_MESSAGE);
-//        } // end if
-//    } // end moveToDayNote
+    private void moveToDayNote(boolean useSelectedDate) {
+        // TodoNoteData items have a 'slot' for a Subject, but no UI to set one.  So
+        // now as it goes over to a DayNote, the Subject will be the name of the list
+        // from which this item is being removed.
+        myTodoNoteData.setSubjectString(myNoteGroupPanel.myNoteGroup.myGroupInfo.getGroupName());
+
+        // Get the Date to which we will move this item - either one has been selected AND we want to use it,
+        //  or there is always 'today'.
+        LocalDate moveToDate;
+        if (useSelectedDate) {
+            moveToDate = myTodoNoteData.getTodoDate();
+            MemoryBank.debug("Moving TodoNote to specified date: " + moveToDate.toString());
+        } else {
+            LocalDate today = LocalDate.now();
+            MemoryBank.debug("Moving TodoNote to Today: " + today.toString());
+            myTodoNoteData.setTodoDate(LocalDate.now());
+        }
+
+        // Convert the item to a DayNoteData, using the TodoNoteData-flavored constructor.
+        DayNoteData dnd = new DayNoteData(myTodoNoteData);
+
+        // Use the date to get the right group, then add the note to it.
+        LocalDate theTodoDate = myTodoNoteData.getTodoDate();
+        String groupName = CalendarNoteGroup.getGroupNameForDate(theTodoDate, GroupInfo.GroupType.DAY_NOTES);
+        NoteGroup theGroup = new GroupInfo(groupName, GroupInfo.GroupType.DAY_NOTES).getNoteGroup();
+        theGroup.addNote(dnd);
+
+        // Save the updated group and clear our note line.
+        theGroup.saveNoteGroup();
+        clear();  // This creates a 'gap'.
+    } // end moveToDayNote
 
 
     //----------------------------------------------------------------
@@ -674,11 +670,11 @@ public class TodoNoteComponent extends NoteComponent {
                     tnc.pbThePriorityButton.clear();
                     break;
                 case "Move To Today":
-//                    tnc.moveToDayNote(false);
-//                    break;
+                    tnc.moveToDayNote(false);
+                    break;
                 case "Move To Selected Date":
-//                    tnc.moveToDayNote(true);
-//                    break;
+                    tnc.moveToDayNote(true);
+                    break;
                 default:  // A way of showing new menu items with no action (yet).
                     System.out.println(s);
                     break;

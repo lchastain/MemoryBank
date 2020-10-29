@@ -4,14 +4,17 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 NEXT:  Big picture: Implement Auto-removal of reverse links.
     Immediate:  Change the implementation of GroupInfo.getNoteGroupDataAccessor in removeReverseLinks so that the
         result is that the group can be re-persisted without constructing a Panel.
-        This may mean we will need to work on encapsulating the NoteGroupDataAccessor, or other rearchitecting tasks.
+      This required a rearchitecting of the app - repairs from that are underway.
 
 moveToDayNote - fix in several places and calling contexts.
+RESELECT app days if note added. - done, by nulling out appDays.
+  Move to date when date not loaded into panel, saves a no-properties group data.
+
+
 
 
 Questions:
-    Unsure of variable children titles, notecomponent members, etc - all need checking to see if they load in correctly
-        and in time to be built and displayed by the components.
+        EventNoteGroupPanel has a commented-out addDayNote - an inherited method from ?
 
 Info:
 
@@ -26,10 +29,15 @@ Broken, to fix later (and remember when restoring to also restore all calls/usag
     getConsolidateView, in AppTreePanel, has one reachout to get a filename.  Do it differently.
     the four branch helpers in AppTreePanel.treeSelectionChanged - no longer active.  BranchHelper needs different param.
     moveToDayNote, in MilestoneComponent - commented out due to a call to addDayNote (and prettyName)
-    event sorting not working...  even in pub.
+    event sorting not working...  even before, in pub.
 
 New:
-    Fixed: Jump from 'view' to a date, month, etc - not changing notes.
+    searchResultGroup - was editable; moved a constructor line to ahead of group load.
+    Better management of 'groupChanged', to handle external changes such as addNote (done external to panels).
+    Added an 'addNote' method to NoteGroupPanel, to sync with the one in NoteGroup.
+    Repaired the TodoNoteComponent moveToDayNote method, AND wrote a very robust test to cover 10 different scenarios.
+    Check-in point.
+
 
 
 =====================================================================================================
@@ -42,9 +50,11 @@ New:
         All seven Group types load correctly, and the three Calendar types also increment and decrement correctly.
     There has been plenty of renamings as well, to properly align with the hierarchy changes.
     Every file I have open right now - shows changes; need to declutter so there will be a check-in now even though
-        the rearch effort is far from over.  Definitely not yet ready to pub.
-    Next:  Jump from 'view' to a date, month, etc - not changing notes.  Probably need to change the group name when
-        changing the date, like it has already been done in setOne Forward/Backward.
+        the rearch effort is far from over.  Definitely not yet ready to pub.  Did that, then -
+    Fixed: Jump from Year or Month 'view' to a date - not changing notes.  Needed to change the group name when
+       changing the date, like it has already been done in setOne Forward/Backward.
+    Verified all groups saving correctly when edited via their panel.
+    Check-in again.
 
 22 Oct 2020
   After spending the last week nibbling around the edges of the rearchitect task, I have come upon the crux of it:

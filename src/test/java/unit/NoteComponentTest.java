@@ -10,7 +10,6 @@ import java.io.IOException;
 class NoteComponentTest {
     NoteComponent theNoteComponent;
     private static TodoNoteGroupPanel todoNoteGroup;
-    private static TestUtil testUtil;
 
     @BeforeAll
     static void beforeAll() throws IOException {
@@ -27,8 +26,7 @@ class NoteComponentTest {
         FileUtils.copyDirectory(testResource, testData);
 
         todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
-        testUtil = new TestUtil();
-        NoteGroupPanel.optionPane = testUtil;
+        NoteGroupPanel.optionPane = new TestUtil();
     }
 
     @BeforeEach
