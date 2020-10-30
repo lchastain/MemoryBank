@@ -132,6 +132,8 @@ class NoteGroup implements LinkHolder {
         return reverseLinkedEntityData;
     }
 
+    // We don't provide a getGroupInfo(); if you need that, use the GroupInfo copy constructor, with the
+    //    GroupProperties as the input param.
 
     // All higher contexts that need this info are encouraged to use this getter to retrieve 'myProperties'.
     // In some child classes the getter will be overridden, in order to set the value correctly first.  This

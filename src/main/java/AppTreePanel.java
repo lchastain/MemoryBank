@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 
@@ -616,133 +617,125 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         appMenuBar.manageMenus(appMenuBar.getCurrentContext());
     }// end deleteGroup
 
-//    private void doSearch() {
-//        searching = true;
-//        Frame theFrame = JOptionPane.getFrameForComponent(this);
-//
-//        // Now display the search dialog.
-//        String string1 = "Search Now";
-//        String string2 = "Cancel";
-//        Object[] options = {string1, string2};
-//        int choice = JOptionPane.showOptionDialog(theFrame,
-//                spTheSearchPanel,
-//                "Search - Please specify the conditions for your quest",
-//                JOptionPane.OK_CANCEL_OPTION,
-//                JOptionPane.PLAIN_MESSAGE,
-//                null,     //don't use a custom Icon
-//                options,  //the titles of buttons
-//                string1); //the title of the default button
-//
-//        if (choice != JOptionPane.OK_OPTION) {
-//            if (!spTheSearchPanel.doSearch) {
-//                searching = false;
-//                return;
-//            }
-//            spTheSearchPanel.doSearch = false; // Put this flag back to non-testing mode.
-//        }
-//
-//        if (!spTheSearchPanel.hasWhere()) {
-//            JOptionPane.showMessageDialog(this,
-//                    " No location to search was chosen!",
-//                    "Search conditions specification error",
-//                    JOptionPane.ERROR_MESSAGE);
-//            searching = false;
-//            return;
-//        } // end if no search location was specified.
-//
-//        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-//        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
-//
-//        // Make sure that the most recent changes, if any,
-//        //   will be included in the search.
-//        if (theNoteGroupPanel != null) {
-//            theNoteGroupPanel.preClosePanel();
-//        } // end if
-//
-//        // Now make a Vector that can collect the search results.
-//        foundDataVector = new Vector<>();
-//
-//        // We will display the results of the search, even if it finds nothing.
-//        SearchResultGroupProperties searchResultGroupProperties = new SearchResultGroupProperties();
-//        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
-//        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(spTheSearchPanel.getSettings()));
-//
-//        // Now scan the user's data area for data files - we do a recursive
-//        //   directory search and each file is examined as soon as it is
-//        //   found, provided that it passes the file-level filters.
-//        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
-//        File f = new File(MemoryBank.userDataHome);
-//        scanDataDir(f, 0); // Indirectly fills the foundDataVector
-//
-//        // Make a unique name for the results
-//        String resultsName = NoteGroupFile.getTimestamp();
-//        String resultsPath = MemoryBank.userDataHome + File.separatorChar + "SearchResults" + File.separatorChar;
-//        String resultsFileName = resultsPath + "search_" + resultsName + ".json";
-//        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
-//
-//        // Make a new data file to hold the searchResultData list
-//        NoteGroupFile searchResultsDataFile = new NoteGroupFile(searchResultGroupProperties);
-//        searchResultsDataFile.setGroupFilename(resultsFileName);
-//        searchResultsDataFile.setNotes(foundDataVector);
-//        // We allow the search to be saved without results because what was searched for, and when, is also important.
-//        searchResultsDataFile.saveNoteGroupData();
-//
-//        // Make a new tree node for these results.
-//        addSearchResult(resultsName);
-//
-//        searching = false;
-//        showWorkingDialog(false);
-//    } // end doSearch
+    private void doSearch() {
+        searching = true;
+        Frame theFrame = JOptionPane.getFrameForComponent(this);
 
+        // Now display the search dialog.
+        String string1 = "Search Now";
+        String string2 = "Cancel";
+        Object[] options = {string1, string2};
+        int choice = JOptionPane.showOptionDialog(theFrame,
+                spTheSearchPanel,
+                "Search - Please specify the conditions for your quest",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,     //don't use a custom Icon
+                options,  //the titles of buttons
+                string1); //the title of the default button
 
-    // Placeholder, until the one below is working again.  Easier than disabling all the calling contexts.
-    private EventNoteGroupPanel getConsolidatedView() {
-        return new EventNoteGroupPanel("Consolidated View");
-    }
+        if (choice != JOptionPane.OK_OPTION) {
+            if (!spTheSearchPanel.doSearch) {
+                searching = false;
+                return;
+            }
+            spTheSearchPanel.doSearch = false; // Put this flag back to non-testing mode.
+        }
+
+        if (!spTheSearchPanel.hasWhere()) {
+            JOptionPane.showMessageDialog(this,
+                    " No location to search was chosen!",
+                    "Search conditions specification error",
+                    JOptionPane.ERROR_MESSAGE);
+            searching = false;
+            return;
+        } // end if no search location was specified.
+
+        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
+        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
+
+        // Make sure that the most recent changes, if any,
+        //   will be included in the search.
+        if (theNoteGroupPanel != null) {
+            theNoteGroupPanel.preClosePanel();
+        } // end if
+
+        // Now make a Vector that can collect the search results.
+        foundDataVector = new Vector<>();
+
+        // We will display the results of the search, even if it finds nothing.
+        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(spTheSearchPanel.getSettings()));
+
+        // Now scan the user's data area for data files - we do a recursive
+        //   directory search and each file is examined as soon as it is
+        //   found, provided that it passes the file-level filters.
+        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
+        File f = new File(MemoryBank.userDataHome);
+        scanDataDir(f, 0); // Indirectly fills the foundDataVector
+
+        // Make a unique name for the results
+        String resultsName;
+        resultsName = NoteGroupFile.getTimestamp();
+        SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupInfo.GroupType.SEARCH_RESULTS));
+        SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
+        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
+        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
+
+        theResultsGroup.setNotes(foundDataVector);
+        // We allow the search to be saved without results because what was searched for, and when, is also important.
+        theResultsGroup.saveNoteGroup();
+
+        // Make a new tree node for these results.
+        addSearchResult(resultsName);
+
+        searching = false;
+        showWorkingDialog(false);
+    } // end doSearch
+
 
     // Make a Consolidated View group from all the currently selected Event Groups.
-//    @SuppressWarnings({"rawtypes"})
-//    private EventNoteGroupPanel getConsolidatedView() {
-//        // First, get all the nodes that are currently under Upcoming Events.
-//        DefaultMutableTreeNode eventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
-//        Enumeration e = eventsNode.breadthFirstEnumeration();
-//        String theNodeName;
-//        EventNoteGroupPanel theBigGroup = null;
-//        Vector<NoteData> groupDataVector;
-//        LinkedHashSet<NoteData> theUniqueSet = null;
-//        while (e.hasMoreElements()) { // A bit of unintentional mis-direction, here.
-//            // The first node that we get this way - is the expandable node itself - Upcoming Events.
-//            DefaultMutableTreeNode eventNode = (DefaultMutableTreeNode) e.nextElement();
-//            // So we don't actually use it.
-//            if (theBigGroup == null) {
-//                // Instead, we instantiate a new (empty) EventNoteGroup, that will be used to show scheduled events.
-//                theBigGroup = new EventNoteGroupPanel("Scheduled Events");
-//                theBigGroup.setEditable(false);
-//                continue;
-//            }
-//            // Then we can look at merging any possible child nodes into the CV group.
-//            theNodeName = eventNode.toString();
-//            String theFilename = NoteGroupFile.makeFullFilename(EventNoteGroupPanel.areaName, theNodeName);
-//            MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
-//            Object[] theData = NoteGroupFile.loadFileData(theFilename);
-//            BaseData.loading = true; // We don't want to affect the lastModDates!
-//            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
-//            });
-//            BaseData.loading = false; // Restore normal lastModDate updating.
-//
-//            if (theUniqueSet == null) {
-//                theUniqueSet = new LinkedHashSet<>(groupDataVector);
-//            } else {
-//                theUniqueSet.addAll(groupDataVector);
-//            }
-//        }
-//        if (theUniqueSet == null) return null;
-//        groupDataVector = new Vector<>(theUniqueSet);
-//        theBigGroup.setEditable(false);
-//        theBigGroup.showGroupData(groupDataVector);
-//        theBigGroup.doSort();
-//        return theBigGroup;
-//    } // end getConsolidatedView
+    @SuppressWarnings({"rawtypes"})
+    private EventNoteGroupPanel getConsolidatedView() {
+        // First, get all the nodes that are currently under Upcoming Events.
+        DefaultMutableTreeNode eventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
+        Enumeration e = eventsNode.breadthFirstEnumeration();
+        String theNodeName;
+        EventNoteGroupPanel theBigGroup = null;
+        Vector<NoteData> groupDataVector;
+        LinkedHashSet<NoteData> theUniqueSet = null;
+        while (e.hasMoreElements()) { // A bit of unintentional mis-direction, here.
+            // The first node that we get this way - is the expandable node itself - Upcoming Events.
+            DefaultMutableTreeNode eventNode = (DefaultMutableTreeNode) e.nextElement();
+            // So we don't actually use it.
+            if (theBigGroup == null) {
+                // Instead, we instantiate a new (empty) EventNoteGroup, that will be used to show scheduled events.
+                theBigGroup = new EventNoteGroupPanel("Scheduled Events");
+                theBigGroup.setEditable(false);
+                continue;
+            }
+            // Then we can look at merging any possible child nodes into the CV group.
+            theNodeName = eventNode.toString();
+            String theFilename = NoteGroupFile.makeFullFilename(NoteGroup.eventGroupArea, theNodeName);
+            MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
+            Object[] theData = NoteGroupFile.loadFileData(theFilename);
+            BaseData.loading = true; // We don't want to affect the lastModDates!
+            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
+            });
+            BaseData.loading = false; // Restore normal lastModDate updating.
+
+            if (theUniqueSet == null) {
+                theUniqueSet = new LinkedHashSet<>(groupDataVector);
+            } else {
+                theUniqueSet.addAll(groupDataVector);
+            }
+        }
+        if (theUniqueSet == null) return null;
+        groupDataVector = new Vector<>(theUniqueSet);
+        theBigGroup.setEditable(false);
+        theBigGroup.showGroupData(groupDataVector);
+        theBigGroup.doSort();
+        return theBigGroup;
+    } // end getConsolidatedView
 
 
     NoteGroupPanel getPanelFromKeeper(GroupInfo groupInfo) {
@@ -823,7 +816,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("Group Linkages...")) theNoteGroupPanel.groupLinkages();
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Delete")) deleteGroup();
-//        else if (what.equals("Search...")) doSearch();
+        else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroupPanel) theNoteGroupPanel).setOptions();
         else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();

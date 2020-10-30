@@ -11,18 +11,26 @@ Questions:
     Are instanceIds changing every time they get loaded?  See the condition/comment in BaseData.  This could benefit
         from a test, which would answer this question and it could be an easy 'fix', if needed.
 
-Info:
 
 Broken, to fix later (and remember when restoring to also restore all calls/usages):
-    doSearch, in AppTreePanel - commented out because it is too file-centric.  Needs rework.
     TodoNoteGroupPanel - saveAs and merge, chooseMergeFile - disabled for now.
     EventNoteGroupPanel - merge, chooseMergeFile, saveAs - disabled.
     addNewGroup, in AppTreePanel, has one reachout about file name legality.  Do it differently.
     deleteGroup, in AppTreePanel, has one reachout to get a filename and delete the file.  Do it differently.
-    getConsolidateView, in AppTreePanel, has one reachout to get a filename.  Do it differently.
     event sorting not working...  even before, in pub.
 
 New:
+    Repaired getConsolidateView, in AppTreePanel. Had one reachout to makeFullFilename using a static var that has
+        moved.  Several of these have been refactored over the last few days; simple one-line re-specify needed.
+    Fixed doSearch, in AppTreePanel - was commented out because it was too file-centric.  Needed rework to adjust to
+      the new way of making a NoteGroup with properties.  Discovered a possible issue in that you cannot just
+      create a new NoteGroup without an attempt to load data, even if you have everything you need, and when you do
+      try to load, you can lose properties or property settings because they get nulled out prior to the load attempt.
+      May want to add another constructor, to take in the two params of Properties and Notes.
+
+
+=====================================================================================================
+30 Oct 2020
     Repaired the EventNoteGroup.ageEvents (now using the new addNote method of NoteGroup), then repaired the
       EventAgingTest.  Removed addNote from NoteGroupFile and the NoteGroupDataAccessor interface.  The data
       accessor interface is now only a load and a save.
@@ -31,9 +39,6 @@ New:
     Had to restore the check for BaseData.loading.  Do not understand how this happens, but this is the fix.
     Check-in point.
 
-
-
-=====================================================================================================
 29 Oct 2020
     searchResultGroup - was editable; moved a constructor line to ahead of group load.
     Better management of 'groupChanged', to handle external changes such as addNote (done external to panels).

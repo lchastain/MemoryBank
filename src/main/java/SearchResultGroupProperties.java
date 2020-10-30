@@ -17,7 +17,7 @@ public class SearchResultGroupProperties extends GroupProperties {
     public int columnOrder;
 
     public SearchResultGroupProperties(String groupName) {
-        super(groupName, GroupType.TODO_LIST);
+        super(groupName, GroupType.SEARCH_RESULTS);
         searchDateString = LocalDate.now().toString();
         column1Label = "Found in";
         column2Label = "Note Text";
@@ -34,6 +34,7 @@ public class SearchResultGroupProperties extends GroupProperties {
         column3Label = "Last Modified";
         column4Label = "";  // placeholder
         columnOrder = 123;  // 1234
+        groupType = GroupType.SEARCH_RESULTS;
     } // end constructor
 
     void setSearchSettings(SearchPanelSettings s) {
