@@ -122,7 +122,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         theChoice = theNewChoice;
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo prior to data load
         updateGroup();  // Be aware that this clears the panel, which clears the source data.
-        // In most operational cases that works just fine; tests, however, might not be happy about it.
+        // In operational use cases that works just fine; tests, however, might not be happy about it.
 
         updateHeader();
     } // end setDate

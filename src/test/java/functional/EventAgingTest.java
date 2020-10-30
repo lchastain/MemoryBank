@@ -33,7 +33,7 @@ class EventAgingTest {
     void testAgeOffStopAfter() throws Exception {
         // Retrieve fresh test data from test resources.
         // We don't want a full set of data for these tests; just the UpcomingEvents.
-        File newname = new File(NoteGroup.eventGroupArea + "event_holidays.json");
+        File newname = new File(NoteGroupFile.eventGroupAreaPath + "event_holidays.json");
         String fileName = "EventAgingTest/Age4Times&End.json";
         File testFile = FileUtils.toFile(EventNoteGroupPanel.class.getResource(fileName));
         FileUtils.copyFile(testFile, newname);
@@ -43,7 +43,7 @@ class EventAgingTest {
         Assertions.assertFalse(theFolder.exists()); // if no directory then no files either.
         // This one missing directory gives us a high confidence that there are none.
 
-        // the aging (constructor calls refresh, which calls ageEvents)
+        // the aging (EventNoteGroupPanel constructor calls ageEvents)
         new AppTreePanel(new JFrame("Event Aging Test"), MemoryBank.appOpts);
         EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("holidays");
         Assertions.assertTrue(theFolder.exists()); // this verifies SCR0029

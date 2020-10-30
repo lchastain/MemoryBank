@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-
 class NoteGroupFile implements NoteGroupDataAccessor {
     static String basePath;
     static String calendarNoteGroupAreaPath;
@@ -83,85 +82,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         if(groupInfo.groupType == GroupInfo.GroupType.EVENTS) saveWithoutData = true;
     }
 
-
-//    @Override
-//    // This is the file-flavored implementation of the NoteGroupDataAccessor interface method
-//    @SuppressWarnings("rawtypes")
-//    public boolean addDayNote(LocalDate theDay, DayNoteData theNote) {
-//        Object[] theGroup = null; // The complete data set for the group to which we will setNotes theNote.
-//        NoteGroupFile noteGroupFile;
-//
-//        // Get the group name for the input date.
-//        String dayGroupName = NoteGroupDataAccessor.getGroupNameForDay(theDay);
-//
-//        // Now get the DayNoteGroupPanel from the application tree
-//        NoteGroupPanel dayNoteGroupPanel;
-//        dayNoteGroupPanel = AppTreePanel.theInstance.theAppDays;
-//
-//        if(dayNoteGroupPanel != null) { // Ok it's not null -
-//            // so now we have to ask - does it currently display the group that we want to setNotes to?
-//            // It might be 'pointing' to some other day.
-//            String theDaysName = dayNoteGroupPanel.getGroupName();
-//            if (theDaysName.equals(dayGroupName)) { //
-//                // If it does point to the same day then it might have unsaved changes.
-//                if(dayNoteGroupPanel.groupChanged) {
-//                    // If there are unsaved changes then we save the file now,
-//                    // so that we can setNotes to the closed file, in the next steps.
-//                    dayNoteGroupPanel.preClosePanel();
-//                }
-//                AppTreePanel.theInstance.theAppDays = null;
-//                // This was so that it gets reloaded if re-selected later in the tree.
-//                // Doing it this way was better than how reverse links handle their display update, because a
-//                // refresh now still would not handle the new note that we are about to setNotes to the data file.
-//            }
-//        }
-//
-//        // Determine the filename.  We cannot just go directly to making one, because pre-existing files will
-//        //   have a previously set filename that was built with timestamps earlier than any we would make here.
-//        //   So look for pre-existing and take that one if it exists, otherwise make one.
-//        String theFilename = NoteGroupFile.foundFilename(theDay, "D");
-//        if (theFilename.equals("")) {
-//            theFilename = NoteGroupFile.makeFullFilename(theDay, "D");
-//        } else {
-//            // Now we have to try to load the data directly from file.
-//            theGroup = loadFileData(theFilename);
-//        } // end if
-//
-//        // Make a new NoteGroupFile -
-//        if(theGroup != null) { // Data was loaded from a file -
-//            // Convert theGroup[0] to a GroupProperties
-//            GroupProperties groupProperties = AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class);
-//
-//            // Convert theGroup[1] to a Vector of NoteData, and setNotes the new note to it.
-//            TypeReference theType = new TypeReference<Vector<DayNoteData>>() { };
-//            Vector<NoteData> noteDataVector = AppUtil.mapper.convertValue(theGroup[1], theType);
-//            noteDataVector.add(theNote);
-//
-//            // Make a new NoteGroupFile
-//            noteGroupFile = new NoteGroupFile(groupProperties);
-//            noteGroupFile.setGroupFilename(theFilename);
-//            noteGroupFile.setNotes(noteDataVector);
-//        } else { // Othwerwise, we were not able to load the data (there might have been an error but more likely
-//            // there was simply no pre-existing data for the Day).  So we just make our own data and NoteGroupFile -
-//            GroupProperties groupProperties = new GroupProperties(dayGroupName, GroupInfo.GroupType.DAY_NOTES);
-//            Vector<NoteData> noteDataVector = new Vector<>(1,1);
-//            noteDataVector.add(theNote);
-//
-//            noteGroupFile = new NoteGroupFile(groupProperties);
-//            noteGroupFile.setGroupFilename(theFilename);
-//            noteGroupFile.setNotes(noteDataVector);
-//        }
-//
-//        // Note that this is an instance method but we aren't saving its own data; instead saving the data for a new
-//        // NoteGroupFile that was created by this method.  So this method could have been static but that would
-//        // disqualify this method from being defined in the interface because the interface needs it to be non-static
-//        // since each implementor will have a different methodology and data store in which to setNotes a note.
-//        //    yes, it could have been done differently .... better.   The calling contexts could have instantiated
-//        //    the NoteGroupFile that already held the data that they needed and then called an addNote method on it
-//        //    from there.  Might redo this...
-//        noteGroupFile.saveNoteGroupData();
-//        return true;
-//    } // end addDayNote
 
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there

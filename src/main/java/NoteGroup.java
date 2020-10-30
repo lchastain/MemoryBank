@@ -204,6 +204,7 @@ class NoteGroup implements LinkHolder {
         // variant if/when/after the data is ever cleaned up, possibly via a port from files to database.
 
         // The 'set' methods below will be overridden by child classes so they can set the proper data type.
+        BaseData.loading = true;
         if (theLength == 1) { // Then this is old, legacy data that was originally saved without GroupProperties.
             setNotes(theData[0]);
         } else { // then theLength == 2 (or more, but we only know of two, for now)
@@ -215,6 +216,7 @@ class NoteGroup implements LinkHolder {
             }
             setNotes(theData[1]);
         }
+        BaseData.loading = false;
         setGroupChanged(false); // After a fresh load, no changes.
     }
 
@@ -236,6 +238,7 @@ class NoteGroup implements LinkHolder {
         return new GroupProperties(myGroupInfo.getGroupName(), myGroupInfo.groupType);
     }
 
+
     void saveNoteGroup() {
         if(isEmpty()) {
             // This will remove the old data, if there is any.
@@ -243,7 +246,22 @@ class NoteGroup implements LinkHolder {
         } else {
             dataAccessor.saveNoteGroupData(getTheData());
         }
-        setGroupChanged(false); // The 'save' preserved all changes to this point, so we reset the flag.
+        setGroupChanged(false); // The 'save' preserved all changes to this point (we hope), so we reset the flag.
+        // Note that we didn't check the result of the save.  A few reasons for that; primarily because the
+        // 'happy' path would have been successful, and in the unsuccessful case we don't have a lot of
+        // remediation options; we wouldn't want to halt execution or attempt interaction with the user because
+        // there is nothing to be done about it and processing continues in any case.  Simply notifying the user
+        // that there was some problem would have limited value but saving is an operation that happens often,
+        // sometimes per user action and sometimes automatically, and not all of them will be a good time to
+        // stop and complain to the user with an error dialog that they must review and dismiss.  So effectively
+        // we just don't need to know.
+        //   Future - we may be able to tell the difference between automatic and user-directed save operations and
+        //   act accordingly, maybe with another param to this method.  not all operations come directly here; there
+        //   is also the preClose code for Panels that calls this one, and that one could also be auto or user directed.
+        //
+        // But at least when errors are encountered they are trapped and printed to the screen.
+        // Status is set at various points; calling contexts that 'care' about the status should check it and adjust
+        // their operations according those status values.
     }
 
 

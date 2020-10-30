@@ -6,41 +6,43 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
-moveToDayNote - fix in several places and calling contexts.
-RESELECT app days if note added. - done, by nulling out appDays.
-  Move to date when date not loaded into panel, saves a no-properties group data.
-
-
-
 
 Questions:
-        EventNoteGroupPanel has a commented-out addDayNote - an inherited method from ?
+    Are instanceIds changing every time they get loaded?  See the condition/comment in BaseData.  This could benefit
+        from a test, which would answer this question and it could be an easy 'fix', if needed.
 
 Info:
 
 Broken, to fix later (and remember when restoring to also restore all calls/usages):
-    addDayNote, in NoteGroupFile - commented out.  disabled in the accessor.  Use the base addNote method?
     doSearch, in AppTreePanel - commented out because it is too file-centric.  Needs rework.
     TodoNoteGroupPanel - saveAs and merge, chooseMergeFile - disabled for now.
-    moveToDayNote, in TodoNoteComponent - commented out due to a call to addDayNote (and prettyName)
-    EventNoteGroupPanel - ageEvents, merge, chooseMergeFile, saveAs - disabled.
+    EventNoteGroupPanel - merge, chooseMergeFile, saveAs - disabled.
     addNewGroup, in AppTreePanel, has one reachout about file name legality.  Do it differently.
     deleteGroup, in AppTreePanel, has one reachout to get a filename and delete the file.  Do it differently.
     getConsolidateView, in AppTreePanel, has one reachout to get a filename.  Do it differently.
-    the four branch helpers in AppTreePanel.treeSelectionChanged - no longer active.  BranchHelper needs different param.
-    moveToDayNote, in MilestoneComponent - commented out due to a call to addDayNote (and prettyName)
     event sorting not working...  even before, in pub.
 
 New:
-    searchResultGroup - was editable; moved a constructor line to ahead of group load.
-    Better management of 'groupChanged', to handle external changes such as addNote (done external to panels).
-    Added an 'addNote' method to NoteGroupPanel, to sync with the one in NoteGroup.
-    Repaired the TodoNoteComponent moveToDayNote method, AND wrote a very robust test to cover 10 different scenarios.
+    Repaired the EventNoteGroup.ageEvents (now using the new addNote method of NoteGroup), then repaired the
+      EventAgingTest.  Removed addNote from NoteGroupFile and the NoteGroupDataAccessor interface.  The data
+      accessor interface is now only a load and a save.
+    Gave the same moveToDayNote solution to MilestoneComponent, as was done for TodoNoteComponent.
+    Restored the BranchHelpers.  Still highly file-centric, though.
+    Had to restore the check for BaseData.loading.  Do not understand how this happens, but this is the fix.
     Check-in point.
 
 
 
 =====================================================================================================
+29 Oct 2020
+    searchResultGroup - was editable; moved a constructor line to ahead of group load.
+    Better management of 'groupChanged', to handle external changes such as addNote (done external to panels).
+    Changed CalendarNoteGroupPanel.setDate() to allow same date, to save first if needed and then force a reload from
+        persisted data.  A save-first will not be needed, if an external context did that before coming here.
+    Added an 'addNote' method to NoteGroupPanel, to sync with the one in NoteGroup.
+    Repaired the TodoNoteComponent moveToDayNote method, AND wrote a very robust test to cover 10 different scenarios.
+    Check-in point.
+
 27 Oct 2020
     The GroupInfo.getNoteGroupDataAccessor - now makes and returns a NoteGroupFile, not a Panel.
     GroupInfo now has a getNoteGroup() method.  It will either give you the NoteGroup from a 'kept' Panel, or

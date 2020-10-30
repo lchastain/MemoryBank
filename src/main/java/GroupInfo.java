@@ -42,7 +42,8 @@ class GroupInfo extends BaseData {
     private String groupName; // The name of the group, as shown in the Tree.
     private String simpleName; // The name of the group, as shown in the Tree.  See more in comments in getGroupName
 
-    public GroupInfo() {} // Jackson uses this when loading json string text into instances of this class.
+    public GroupInfo() {
+    } // Jackson uses this when loading json string text into instances of this class.
 
     GroupInfo(String theName, GroupType theType) {
         super();
@@ -70,7 +71,7 @@ class GroupInfo extends BaseData {
     // Calendar note type in which case it will just be 'Note'.
     String getCategory() {
         String theCategory = groupType.toString();
-        if(theCategory.endsWith(" Note")) theCategory = GroupType.NOTES.toString();
+        if (theCategory.endsWith(" Note")) theCategory = GroupType.NOTES.toString();
         return theCategory;
     }
 
@@ -79,9 +80,14 @@ class GroupInfo extends BaseData {
     NoteGroup getNoteGroup() {
         NoteGroup theNoteGroup;
         // Try to get the NoteGroup from an existing Panel
-        NoteGroupPanel thePanel = AppTreePanel.theInstance.getPanelFromKeeper(this);
+        NoteGroupPanel thePanel = null;
+        if (AppTreePanel.theInstance != null) {
+            // This condition is only here for tests; under normal operating conditions
+            //   theInstance of AppTreePanel would never be null.
+            thePanel = AppTreePanel.theInstance.getPanelFromKeeper(this);
+        }
 
-        if(thePanel != null) { // It worked!
+        if (thePanel != null) { // It worked!
             theNoteGroup = thePanel.myNoteGroup;
             thePanel.preClosePanel(); // Ensures persisted data matches Panel data.
         } else { // There isn't a Panel for it, so we will just make a NoteGroup of the right type; Panel not needed.
@@ -138,8 +144,8 @@ class GroupInfo extends BaseData {
     //  from this class and simplify this method.
     // Find the problems by:  grep -r simpleName * | grep -v null
     String getGroupName() {
-        if(simpleName != null) {
-            if(groupName == null || groupName.isEmpty()) groupName = simpleName;
+        if (simpleName != null) {
+            if (groupName == null || groupName.isEmpty()) groupName = simpleName;
             simpleName = null;
         }
         return groupName;
@@ -151,6 +157,8 @@ class GroupInfo extends BaseData {
     // was added to it.  So when that data comes back in now to the current class definition, groupName could be
     // missing from the file data, in which case this class would be reconstructed without it and that
     // is when this method can be used to fix that.
-    void setGroupName(String theName) { groupName = theName; }
+    void setGroupName(String theName) {
+        groupName = theName;
+    }
 
 }

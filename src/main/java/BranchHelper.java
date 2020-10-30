@@ -15,25 +15,41 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 
 public class BranchHelper implements BranchHelperInterface {
-    private static Logger log = LoggerFactory.getLogger(BranchHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
-    private JTree theTree;  // The original tree, not the one from the editor.
-    private NoteGroupPanelKeeper theNoteGroupPanelKeeper;
-    private DefaultTreeModel theTreeModel;
-    private DefaultMutableTreeNode theRoot;
+    private final JTree theTree;  // The original tree, not the one from the editor.
+    private final NoteGroupPanelKeeper theNoteGroupPanelKeeper;
+    private final DefaultTreeModel theTreeModel;
+    private final DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;  // Used when deciding if special handling is needed.
     private String renameTo;    // Provides a way for us override the value.
-    private String theArea;
+    private final AreaName theArea;
     private Notifier optionPane;  // for Testing
     private String thePrefix; // event_, todo_, search_
     private String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
-    private static final String AREA_GOAL = "Goals";
-    private static final String AREA_EVENT = "Upcoming Events";
-    private static final String AREA_TODO = "To Do Lists";
-    private static final String AREA_SEARCH = "Search Results";
 
-    BranchHelper(JTree jt, NoteGroupPanelKeeper noteGroupPanelKeeper, String areaName) {
+    enum AreaName {
+        GOALS("Goals"),
+        EVENTS("UpcomingEvents"),
+        TODO("TodoLists"),
+        SEARCH("SearchResults"),
+        YEARS("Years");
+
+        private final String display;
+
+        AreaName(String s) {
+            display = s;
+        }
+
+        @Override
+        public String toString() {
+            return display;
+        }
+    }
+
+
+    BranchHelper(JTree jt, NoteGroupPanelKeeper noteGroupPanelKeeper, AreaName areaName) {
         theTree = jt;
         theNoteGroupPanelKeeper = noteGroupPanelKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
@@ -41,17 +57,17 @@ public class BranchHelper implements BranchHelperInterface {
         theArea = areaName;
 
         // This Helper is for one of these Branches -
-        if (NoteGroup.goalGroupArea.equals(theArea)) {
-            theAreaNodeName = AREA_GOAL;
+        if (theArea.equals(AreaName.GOALS)) {
+            theAreaNodeName = "Goals";
             thePrefix = "goal_";
-        } else if (NoteGroup.eventGroupArea.equals(theArea)) {
-            theAreaNodeName = AREA_EVENT;
+        } else if (theArea.equals(AreaName.EVENTS)) {
+            theAreaNodeName = "Upcoming Events";
             thePrefix = "event_";
-        } else if (NoteGroup.todoListGroupArea.equals(theArea)) {
-            theAreaNodeName = AREA_TODO;
+        } else if (theArea.equals(AreaName.TODO)) {
+            theAreaNodeName = "To Do Lists";
             thePrefix = "todo_";
-        } else if(NoteGroup.searchResultGroupArea.equals(theArea)) {
-            theAreaNodeName = AREA_SEARCH;
+        } else if(theArea.equals(AreaName.SEARCH)) {
+            theAreaNodeName = "Search Results";
             thePrefix = "search_";
         }
         assert thePrefix != null; // Doing it this way vs an 'else' section, we get full test coverage.
@@ -89,7 +105,7 @@ public class BranchHelper implements BranchHelperInterface {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        File aFile = new File(NoteGroupFile.makeFullFilename(theArea, theName));
+        File aFile = new File(NoteGroupFile.makeFullFilename(theArea.toString(), theName));
         String theComplaint = BranchHelperInterface.checkFilename(theName, aFile.getParent());
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theTree, theComplaint,
@@ -146,8 +162,8 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = NoteGroupFile.makeFullFilename(theArea, nodeChange.nodeName);
-                String newNamedFile = NoteGroupFile.makeFullFilename(theArea, nodeChange.renamedTo);
+                String oldNamedFile = NoteGroupFile.makeFullFilename(theArea.toString(), nodeChange.nodeName);
+                String newNamedFile = NoteGroupFile.makeFullFilename(theArea.toString(), nodeChange.renamedTo);
                 File f = new File(oldNamedFile);
 
                 try {
@@ -176,7 +192,7 @@ public class BranchHelper implements BranchHelperInterface {
                 if (!doDelete) continue;
 
                 // Delete the file -
-                String deleteFile =  NoteGroupFile.makeFullFilename(theArea, nodeChange.nodeName);
+                String deleteFile =  NoteGroupFile.makeFullFilename(theArea.toString(), nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.

@@ -209,7 +209,7 @@ public class TodoNoteComponent extends NoteComponent {
         NoteGroup theGroup = new GroupInfo(groupName, GroupInfo.GroupType.DAY_NOTES).getNoteGroup();
         theGroup.addNote(dnd);
 
-        // Save the updated group and clear our note line.
+        // Save the updated DayNoteGroup and clear our note line.
         theGroup.saveNoteGroup();
         clear();  // This creates a 'gap'.
     } // end moveToDayNote

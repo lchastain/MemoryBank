@@ -1493,29 +1493,28 @@ success = true;
 
         //<editor-fold desc="Actions Depending on the selection">
         if (isGoalsBranch) {  // Edit the Goals parent branch
-System.out.println("Branch helpers temporarily disabled.");
-//            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, GoalGroupPanel.areaName);
-//            TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
-//            selectionContext = "Goals Branch Editor";
-//            rightPane.setViewportView(tbe);
-//        } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
-//            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, EventNoteGroupPanel.areaName);
-//            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", node, tbh);
-//            selectionContext = "Upcoming Events Branch Editor";
-//            rightPane.setViewportView(tbe);
-//        } else if (isTodoBranch) {  // Edit the Todo parent branch
-//            // To Do List management - select, deselect, rename, reorder, remove
-//            // The 'tree' may change often.  We instantiate a new helper
-//            // and editor each time, to be sure all are in sync.
-//            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, TodoNoteGroupPanel.areaName);
-//            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", node, tbh);
-//            selectionContext = "To Do Lists Branch Editor";
-//            rightPane.setViewportView(tbe);
-//        } else if (isSearchBranch) {  // Edit the Search parent branch
-//            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, SearchResultGroupPanel.areaName);
-//            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", node, sbh);
-//            selectionContext = "Search Results Branch Editor";
-//            rightPane.setViewportView(tbe);
+            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, BranchHelper.AreaName.GOALS);
+            TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
+            selectionContext = "Goals Branch Editor";
+            rightPane.setViewportView(tbe);
+        } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
+            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, BranchHelper.AreaName.EVENTS);
+            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", node, tbh);
+            selectionContext = "Upcoming Events Branch Editor";
+            rightPane.setViewportView(tbe);
+        } else if (isTodoBranch) {  // Edit the Todo parent branch
+            // To Do List management - select, deselect, rename, reorder, remove
+            // The 'tree' may change often.  We instantiate a new helper
+            // and editor each time, to be sure all are in sync.
+            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, BranchHelper.AreaName.TODO);
+            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", node, tbh);
+            selectionContext = "To Do Lists Branch Editor";
+            rightPane.setViewportView(tbe);
+        } else if (isSearchBranch) {  // Edit the Search parent branch
+            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, BranchHelper.AreaName.SEARCH);
+            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", node, sbh);
+            selectionContext = "Search Results Branch Editor";
+            rightPane.setViewportView(tbe);
         } else if (!node.isLeaf()) {  // Looking at other expandable nodes
             JTree jt = new JTree(node); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);

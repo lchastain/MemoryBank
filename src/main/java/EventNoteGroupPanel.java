@@ -71,12 +71,12 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         theNotePager.reset(1);
 
         // Call 'ageEvents'
-//        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
-//            // removed.  We show that by saving the altered data and then reloading it.
-//            preClosePanel();    // Save the new states of 'aged' events.
-//            updateGroup(); // Reload the group (visually removes aged-off items, if any)
-//            doSort();
-//        } // end if
+        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
+            // removed.  We show that by saving the altered data and then reloading it.
+            preClosePanel();    // Save the new states of 'aged' events.
+            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+            doSort();
+        } // end if
 
     }// end constructor
 
@@ -88,74 +88,70 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // The return value will be true if one or more events were aged
     //   off.  If they were not aged at all, or only aged forward, the
     //   return value is false.
-//    private boolean ageEvents() {
-//        boolean blnDropThisEvent;
-//        boolean blnAnEventWasAged = false;
-//
-//        String s;
-//        EventNoteData tempNoteData;
-//
-//        // AppUtil.localDebug(true);
-//        for (Object ndTmp : myNoteGroup.noteGroupDataVector) {
-//            blnDropThisEvent = false;
-//            tempNoteData = (EventNoteData) ndTmp;
-//
-//            s = tempNoteData.getNoteString();
-//            MemoryBank.debug("Examining: " + s + " starting " + tempNoteData.getEventStartDateTime());
-//
-//            // 'Age' the event, if appropriate to do so.
-//            while (tempNoteData.hasStarted()) {
-//                if (tempNoteData.getRetainNote()) {
-//                    // We save this version of the event.
-//                    DayNoteData dnd = new DayNoteData(tempNoteData);
-//                    LocalDateTime eventStartDateTime = tempNoteData.getEventStartDateTime();
-//                    boolean success = addDayNote(eventStartDateTime.toLocalDate(), dnd);
-//
-//                    // Although we test the result for success or fail, this
-//                    //   aging event is one of potentially several, and one
-//                    //   of the times it could occur is at app startup while the
-//                    //   'always on top' splash screen is displayed.  It is
-//                    //   definitely NOT a good time to stop at each problem
-//                    //   and complain to the user with an error dialog that
-//                    //   they must review and dismiss.
-//                    if (success) {
-//                        MemoryBank.debug("  Retention of Event data succeeded");
-//                    } else {
-//                        MemoryBank.debug("  Retention of Event data failed");
-//                    } // end if
-//                } // end if retain note
-//
-//                // Now adjust forward in time -
-//                if (tempNoteData.getRecurrenceString().trim().equals("")) { // No recurrence
-//                    blnDropThisEvent = true;
-//                    break; // get out of the while loop
-//                } else {  // There is recurrence, but not necessarily indefinite
-//                    if (!tempNoteData.goForward()) {
-//                        // It might not have moved at all, or not enough to get past 'today'.
-//                        MemoryBank.debug("  The Event has started but is still ongoing; cannot age it yet.");
-//                        break; // get out of the while loop
-//                    } else {  // a new Event Start was set by 'goForward'
-//                        MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
-//                        blnAnEventWasAged = true;
-//                    } // end if
-//                } // end if
-//            } // end while the event Start date is in the past
-//
-//            if (blnDropThisEvent) {
-//                MemoryBank.debug("  Aging off " + tempNoteData.getNoteString());
-//                tempNoteData.clear();
-//                blnAnEventWasAged = true;
-//            } // end if
-//
-//        } // end for - for each Event
-//
-//        //  Just clearing DATA (above) does not set noteChanged (nor should it,
-//        //    because that data may not even be loaded into a component).
-//        //  So since we can't go that route to a groupChanged, just do it explicitly.
-//        if (blnAnEventWasAged) setGroupChanged(true);
-//        // AppUtil.localDebug(false);
-//        return blnAnEventWasAged;
-//    } // end ageEvents
+    private boolean ageEvents() {
+        boolean blnDropThisEvent;
+        boolean blnAnEventWasAged = false;
+
+        String s;
+        EventNoteData tempNoteData;
+
+        // AppUtil.localDebug(true);
+        for (Object ndTmp : myNoteGroup.noteGroupDataVector) {
+            blnDropThisEvent = false;
+            tempNoteData = (EventNoteData) ndTmp;
+
+            s = tempNoteData.getNoteString();
+            MemoryBank.debug("Examining: " + s + " starting " + tempNoteData.getEventStartDateTime());
+
+            // 'Age' the event, if appropriate to do so.
+            while (tempNoteData.hasStarted()) { // If it has started then we definitely have a start date.
+                if (tempNoteData.getRetainNote()) { // We save this version of the event.
+                    DayNoteData dnd = new DayNoteData(tempNoteData);
+                    LocalDate eventStartDate = tempNoteData.getStartDate();
+                    String dayName = CalendarNoteGroup.getGroupNameForDate(eventStartDate, GroupInfo.GroupType.DAY_NOTES);
+                    GroupInfo dayGroupInfo = new GroupInfo(dayName, GroupInfo.GroupType.DAY_NOTES);
+                    DayNoteGroup dayNoteGroup = new DayNoteGroup(dayGroupInfo);
+                    dayNoteGroup.addNote(dnd);
+                    dayNoteGroup.saveNoteGroup();
+
+                    // I don't see any Exception handling going on here - what gives?
+                    // This aging event is one of potentially several, and one of the times that several of them could
+                    //   occur is at app startup while the 'always on top' splash screen is displayed.  It is
+                    //   definitely NOT a good time to stop at each problem and complain to the user with an error
+                    //   dialog that they must review and dismiss.  Also, there is not a lot that could go wrong.
+                } // end if retain note
+
+                // Now adjust forward in time -
+                if (tempNoteData.getRecurrenceString().trim().equals("")) { // No recurrence
+                    blnDropThisEvent = true;
+                    break; // get out of the while loop
+                } else {  // There is recurrence, but not necessarily indefinite
+                    if (!tempNoteData.goForward()) {
+                        // It might not have moved at all, or not enough to get past 'today'.
+                        MemoryBank.debug("  The Event has started but is still ongoing; cannot age it yet.");
+                        break; // get out of the while loop
+                    } else {  // a new Event Start was set by 'goForward'
+                        MemoryBank.debug("  Aged forward to: " + tempNoteData.getEventStartDateTime());
+                        blnAnEventWasAged = true;
+                    } // end if
+                } // end if
+            } // end while the event Start date is in the past
+
+            if (blnDropThisEvent) {
+                MemoryBank.debug("  Aging off " + tempNoteData.getNoteString());
+                tempNoteData.clear();
+                blnAnEventWasAged = true;
+            } // end if
+
+        } // end for - for each Event
+
+        //  Just clearing DATA (above) does not set noteChanged (nor should it,
+        //    because that data may not even be loaded into a component).
+        //  So since we can't go that route to a groupChanged, just do it explicitly.
+        if (blnAnEventWasAged) setGroupChanged(true);
+        // AppUtil.localDebug(false);
+        return blnAnEventWasAged;
+    } // end ageEvents
 
 
 //    private File chooseMergeFile() {
@@ -371,13 +367,13 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         updateGroup();
 
         // Call 'ageEvents'
-//        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
-//            // removed.  We show that by saving the altered data and then reloading it.
-//            preClosePanel();    // Save the new states of 'aged' events.
-//            updateGroup(); // Reload the group (visually removes aged-off items, if any)
-//            doSort();  // This action could change the current selection  -
-//            showComponent(null, false); // so unselect, if not already.
-//        } // end if
+        if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
+            // removed.  We show that by saving the altered data and then reloading it.
+            preClosePanel();    // Save the new states of 'aged' events.
+            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+            doSort();  // This action could change the current selection  -
+            showComponent(null, false); // so unselect, if not already.
+        } // end if
 
     } // end refresh
 

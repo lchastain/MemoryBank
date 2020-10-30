@@ -8,9 +8,16 @@ public class BaseData {
 
     BaseData() {
         instanceId = UUID.randomUUID();
-        if(!loading) {  // This mechanism may NOT be needed after all.
-            // Yes, jackson runs this constructor, but THEN it overlays zdtLastModString with the value that it parsed out.
+        if(!loading) {  // This mechanism is definitely needed.
+            // I would think that jackson would run this constructor and then overlay zdtLastModString
+            // with the value that it deserialized but no, end result is that without this condition, loaded
+            // data comes in as 'new'.  Don't need to fully understand it, just dealing with the way that it
+            // is known to operate.
             zdtLastModString = ZonedDateTime.now().toString();
+
+            // So what about instanceId?  Are you getting a new one of those every time data loads in?  If so
+            // then this is a big problem, or at a minimum that assignment also needs to move into the
+            // conditional block.
         }
     }
 

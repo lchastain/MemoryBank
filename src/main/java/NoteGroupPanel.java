@@ -384,6 +384,18 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Called by all contexts that make a change to the data, each time a change is made.
     //   Child classes can override if they need to intercept a data change, but in that case
     //   they should still call THIS super method so that menu items are managed correctly.
+    // The setGroupChanged() method in NoteGroup
+
+
+    // the flag-setting method is overridden by
+    // the one here so that we can also disable
+    // the 'save' menu item.  This will prevent a second+ attempt to save whether it is still needed
+    // or not; if still needed then the first attempt failed in some way and trying again is unlikely to
+    // do any good, so at least disable the menu item so that the user cannot keep trying and they see
+    // that there is nothing more that they can do.  The disabled menu item might give them a false sense
+    // of having had a successful save, but given that we are considering a hypothetical situation along a
+    // path where we already have an unanticipated error, that particular potential downside is entirely
+    // acceptable, at least until it begins cropping up repeatedly.
     @Override // A NoteComponentManager interface implementation
     public void setGroupChanged(boolean b) {
         myNoteGroup.setGroupChanged(b); // Calling the 'real' one, in the NoteGroup.
@@ -580,16 +592,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         if(myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
             myNoteGroup.saveNoteGroup();
-            // Note that as a final step the save method in NoteGroup calls setGroupChanged(false), without even
-            // checking the result of the save.  A few reasons for that; primarily because it covers the 'happy'
-            // path, but also because the flag-setting method is overridden by the one here so that we can also disable
-            // the 'save' menu item.  This will prevent a second+ attempt to save whether it is still needed
-            // or not; if still needed then the first attempt failed in some way and trying again is unlikely to
-            // do any good, so at least disable the menu item so that the user cannot keep trying and they see
-            // that there is nothing more that they can do.  The disabled menu item might give them a false sense
-            // of having had a successful save, but given that we are considering a hypothetical situation along a
-            // path where we already have an unanticipated error, that particular potential downside is entirely
-            // acceptable, at least until it begins cropping up repeatedly.
         }
 
     } // end preClosePanel
