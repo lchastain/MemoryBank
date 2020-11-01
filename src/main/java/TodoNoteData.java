@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 public class TodoNoteData extends NoteData {
     static final int TODO_STARTED = 0;
@@ -139,11 +140,13 @@ public class TodoNoteData extends NoteData {
     @JsonIgnore
     public void setPriority(int val) {
         intPriority = val;
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
     @JsonIgnore
     public void setStatus(int val) {
         intStatus = val;
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
     void setTodoDate(LocalDate value) {
@@ -152,6 +155,7 @@ public class TodoNoteData extends NoteData {
         } else {
             todoDateString = value.toString();
         }
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
 } // end class TodoNoteData

@@ -9,6 +9,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 
+// This class takes much of its operation directly from a ToDo List.  But one functionality that it does not take is
+//   the ability to merge with another group of the same type.  While that might make sense depending on the milestones,
+//   there is no good way to merge the plan statements and so it will be better to have the user do any merging
+//   themselves, manually.  They do have all the tools to do that, if that is the need.
 
 public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);

@@ -40,6 +40,8 @@ class IconNoteData extends NoteData {
     }
 
     void setShowIconOnMonthBoolean(boolean val) {
+        // Whether or not we show this on the MonthView should not have an
+        // effect on its Last Mod date, so this 'set' method does not update it.
         showIconOnMonthBoolean = val;
     }
 

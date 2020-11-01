@@ -33,9 +33,9 @@ class AddTodoListTest {
 
     @Test
     void testAddNewTodoList() {
-        // Construct a TodoNoteGroup for a list that is known to NOT exist.
-        String strGroupFilename = "Assemble The Avengers";
-        TodoNoteGroupPanel tng = new TodoNoteGroupPanel(strGroupFilename);
+        // Construct a TodoNoteGroup (via a TodoNoteGroupPanel) for a list that is known to NOT exist.
+        String groupName = "Assemble The Avengers";
+        TodoNoteGroupPanel tng = new TodoNoteGroupPanel(groupName);
         Assertions.assertNotNull(tng);
 
         // Initializations
@@ -43,14 +43,13 @@ class AddTodoListTest {
         String s1 = "Ask Tony Stark to get in touch with Iron Man";
         String s2 = "Contact Bruce Banner - be nice";
         String s3 = "Call on the Asgard line, ask for Thor";
+        String s4 = "Tell Steve Rogers that his country needs him";
         NoteComponent tnc1 = tng.getNoteComponent(0);
         NoteComponent tnc2 = tng.getNoteComponent(1);
         NoteComponent tnc3 = tng.getNoteComponent(2);
 
-        // Verify that initially, no file exists
-//        strGroupFilename = tng.getGroupFilename();
-        File theFile = new File(strGroupFilename);
-        Assertions.assertFalse(theFile.exists());
+        // Verify that initially, no group exists
+        Assertions.assertFalse(tng.myNoteGroup.exists());
 
         // Set some data to save to the new list.
         // We use the copy-constructor of a new NoteData or else we would only
@@ -83,6 +82,6 @@ class AddTodoListTest {
         tng.preClosePanel();
 
         // Verify that there is now a file for it
-        Assertions.assertTrue(theFile.exists());
+        Assertions.assertTrue(tng.myNoteGroup.exists());
     }
 }

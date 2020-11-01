@@ -151,7 +151,7 @@ public class MonthView extends JLayeredPane {
         String iconFileString;
 
         Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
-        BaseData.loading = true; // We don't want to affect the lastModDates!
+//        NoteInfo.loading = true; // We don't want to affect the lastModDates!
 
         // relatively new 'adjustment', to adapt to addition of properties to data files
         // and the possibility that a properties is all that the file contains.
@@ -161,7 +161,7 @@ public class MonthView extends JLayeredPane {
         if(!theClass.equals("java.util.ArrayList")) return null;
 
         Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<DayNoteData>>() { });
-        BaseData.loading = false; // Restore normal lastModDate updating.
+//        NoteInfo.loading = false; // Restore normal lastModDate updating.
 
         for (DayNoteData tempDayData : theDayNotes) {
             if (tempDayData.getShowIconOnMonthBoolean()) {

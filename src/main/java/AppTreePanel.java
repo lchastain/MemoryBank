@@ -248,7 +248,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 title = "Add a new Goal";
                 groupParentPath = goalsPath;
                 theNoteGroupPanelKeeper = theGoalsKeeper;
-//                areaName = GoalGroupPanel.areaName;
+                areaName = NoteGroup.goalGroupArea;
                 break;
             case "Upcoming Event":
             case "Upcoming Events Branch Editor":
@@ -257,7 +257,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 title = "Add a new Events category";
                 groupParentPath = eventsPath;
                 theNoteGroupPanelKeeper = theEventListKeeper;
-//                areaName = EventNoteGroupPanel.areaName;
+                areaName = NoteGroup.eventGroupArea;
                 break;
             case "To Do List":
             case "To Do Lists Branch Editor":
@@ -265,7 +265,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 title = "Add a new To Do List";
                 groupParentPath = todolistsPath;
                 theNoteGroupPanelKeeper = theTodoListKeeper;
-//                areaName = TodoNoteGroupPanel.areaName;
+                areaName = NoteGroup.todoListGroupArea;
                 break;
             default:
                 return;
@@ -302,15 +302,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         if (theNewGroupNode == null) {  // Not already a node on the tree
             theNewGroupNode = new DefaultMutableTreeNode(newName, false);
 
-// Find some other way to do this, or move it -
-//            // Ensure that the new name meets our file-naming requirements.
-//            File aFile = new File(NoteGroupFile.makeFullFilename(areaName, newName));
-//            String theComplaint = BranchHelperInterface.checkFilename(newName, aFile.getParent());
-//            if (!theComplaint.isEmpty()) {
-//                optionPane.showMessageDialog(theTree, theComplaint,
-//                        "Error", JOptionPane.ERROR_MESSAGE);
-//                return;
-//            }
+// Get this to be disassociated from NoteGroupFile; use the dataAccessorInterface and then move it -
+            // Ensure that the new name meets our file-naming requirements.
+            File aFile = new File(NoteGroupFile.makeFullFilename(areaName, newName));
+            String theComplaint = BranchHelperInterface.checkFilename(newName, aFile.getParent());
+            if (!theComplaint.isEmpty()) {
+                optionPane.showMessageDialog(theTree, theComplaint,
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             // Add the new node to the tree
             groupParentNode.add(theNewGroupNode);
@@ -594,7 +594,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Now we need to close the group.
         closeGroup(); // This will change the selection and null out 'theNoteGroup'.
 
-        // Now delete the file
+        // Now remove the underlying data from the repository
+        deletedNoteGroupPanel.myNoteGroup.deleteNoteGroup();
+
+//        // Now delete the file
 //        String deleteFile = deletedNoteGroupPanel.getGroupFilename();
 //        MemoryBank.debug("Deleting " + deleteFile);
 //        try {
@@ -718,10 +721,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             String theFilename = NoteGroupFile.makeFullFilename(NoteGroup.eventGroupArea, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = NoteGroupFile.loadFileData(theFilename);
-            BaseData.loading = true; // We don't want to affect the lastModDates!
+//            NoteInfo.loading = true; // We don't want to affect the lastModDates!
             groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
             });
-            BaseData.loading = false; // Restore normal lastModDate updating.
+//            NoteInfo.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
                 theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -1100,13 +1103,13 @@ success = true;
 
         Object[] theGroupData = NoteGroupFile.loadFileData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-            BaseData.loading = true; // We don't want to affect the lastModDates!
+//            NoteInfo.loading = true; // We don't want to affect the lastModDates!
             // During a search these notes would not be re-preserved anyway, but the reason we care is that
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
             searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() {
             });
-            BaseData.loading = false; // Restore normal lastModDate updating.
+//            NoteInfo.loading = false; // Restore normal lastModDate updating.
         }
         if (searchDataVector == null) return;
 

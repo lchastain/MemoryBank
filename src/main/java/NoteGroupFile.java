@@ -46,13 +46,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         todoListFilePrefix = "todo_";
     }
 
-//    NoteGroupFile() {
-//        super();
-//        saveIsOngoing = false;
-//        failureReason = null;
-//        saveWithoutData = false;
-//    }
-
 
     NoteGroupFile(GroupInfo groupInfo) {
         this.groupInfo = groupInfo;
@@ -100,6 +93,36 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             return true;
         } // end if
     } // end deleteFile
+
+
+    // Can be called directly, or as the first step of the 'save' operation.
+    public void deleteNoteGroupData() {
+        if (!groupFilename.isEmpty()) {
+            MemoryBank.debug("NoteGroupFile.saveNoteGroupData: old filename = " + groupFilename);
+            if (MemoryBank.archive) { // Archive the file
+                MemoryBank.debug("  Archiving: " + shortName());
+                // Note: need to fully implement archiving but for now, what happens
+                // is what does not happen - we simply do not delete the old version.
+            } else { // Need to delete the file
+                File f = new File(groupFilename);
+                if(f.exists()) { // It must exist, for the delete to succeed.  If it already doesn't exist - we can live with that.
+                    // Deleting (or archiving, if ever implemented) as the first step is necessary in case the
+                    // current change is to just delete the information; we might not have any data to save.
+                    if (!deleteFile(f)) { // If we continued after this then the save would fail; may as well stop now.
+                        failureReason = "Failed to delete " + groupFilename;
+                        System.out.println("Error - " + failureReason);
+                        saveIsOngoing = false;
+                    }
+                }
+            } // end if archive or delete
+        } // end if
+    } // end deleteNoteGroupData
+
+
+    public boolean exists() {
+        String theFilename = makeFullFilename();
+        return new File(theFilename).exists();
+    }
 
     String foundFilename() {
         return foundFilename(groupInfo);
@@ -332,9 +355,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         return loadFileData(theFilename);
     }
 
-    // -----------------------------------------------------------------
-    // Method Name: makeFullFilename
-    //
     // This method develops a variable filename that depends on the requested
     // noteType (one of Year, Month, or Date, specified by Y, M, or D).
     // Examples:  Y_timestamp, M03_timestamp, D0704_timestamp.
@@ -344,7 +364,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     // because of the additional calls to two static methods also here.
     // BUT - there is no reason that those two could not also move
     // over there, since this method (and findFilename) is their only 'client'.
-    // -----------------------------------------------------------------
     static String makeFullFilename(LocalDate localDate, String noteType) {
         StringBuilder filename = new StringBuilder(calendarNoteGroupAreaPath);
 //        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
@@ -489,7 +508,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         //AppUtil.localDebug(true);
         saveIsOngoing = true;
         failureReason = null;
-        File f;
 
         // Now here is an important consideration - in this class we have a member that holds the associated filename,
         // (groupFilename) but we could also just extract it from the inner data.  So is there a difference?
@@ -497,33 +515,14 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // different name.  This can happen when filenames are constructed from timestamps (possily for archiving) and
         // also in support of a 'saveAs' operation.  In any case, we treat the separate groupFilename as the one that
         // was loaded, and as for the one to save to, we ask the implementing child class what name to use, and don't
-        // actually get into the data to see what file it thinks it should go to.  This seems wrong somehow...
+        // actually get into the data to see what file it thinks it should go to.
 
         // Step 1 - Move the old file (if any) out of the way.
         // If we have a value in groupFilename at this point then it should mean that a file for it has been
         // successfully loaded in the current session, and that is the one that should be removed.
         // In this case we can trust the 'legality' of the name and path; we just need to verify that the file exists
         // and if so, delete it so that it does not conflict when we save a new file with the updated info.
-        if (!groupFilename.isEmpty()) {
-            MemoryBank.debug("NoteGroupFile.saveNoteGroupData: old filename = " + groupFilename);
-            if (MemoryBank.archive) { // Archive the file
-                MemoryBank.debug("  Archiving: " + shortName());
-                // Note: need to fully implement archiving but for now, what happens
-                // is what does not happen - we simply do not delete the old version.
-            } else { // Need to delete the file
-                f = new File(groupFilename);
-                if(f.exists()) { // It must exist, for the delete to succeed.  If it already doesn't exist - we can live with that.
-                    // Deleting (or archiving, if ever implemented) as the first step is necessary in case the
-                    // current change is to just delete the information; we might not have any data to save.
-                    if (!deleteFile(f)) { // If we continued after this then the save would fail; may as well stop now.
-                        failureReason = "Failed to delete " + groupFilename;
-                        System.out.println("Error - " + failureReason);
-                        saveIsOngoing = false;
-                        return;
-                    }
-                }
-            } // end if archive or delete
-        } // end if
+        deleteNoteGroupData();
 
         // Step 2 - Bail out early if there is no reason to create a file for this data.
         if(theData == null && !saveWithoutData) {
@@ -538,7 +537,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         MemoryBank.debug("  Saving NoteGroup data in " + shortName());
 
         // Step 4 - Verify the path
-        f = new File(groupFilename);
+        File f = new File(groupFilename);
         if (f.exists()) { // If the file already exists -
             // Having now established the filename to save to, we need to check for pre-existence.
             // If the filename is different that the one we started with then the new one might conceivably

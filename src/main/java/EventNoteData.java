@@ -4,6 +4,7 @@ import org.apache.commons.text.WordUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -114,6 +115,7 @@ public class EventNoteData extends IconNoteData {
     void setDurationUnits(String newValue) {
         calculatedDurationValue = null; // Any user-directed setting will invalidate a calculated one.
         calculatedDurationUnits = null; // Any user-directed setting will invalidate a calculated one.
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
 
         // An un-setting variant; 'unknown' also works and is
         // handled the same way but with more commentary, below.
@@ -967,6 +969,7 @@ public class EventNoteData extends IconNoteData {
         calculatedDurationValue = null;
         calculatedDurationUnits = null;
         durationValue = newDuration; // Accept the input (even if null)
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         if (durationValue == null) return;  // The user cleared the duration value or units?
         // You might think that with a durationValue of zero, there would be nothing to do here,
         // but the calcs below can still work with that, to set unknowns to their known equivalents.
@@ -1308,6 +1311,7 @@ public class EventNoteData extends IconNoteData {
     //   is true.
     //------------------------------------------------------------
     public boolean setEndDate(LocalDate newEndDate) {
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         if (newEndDate == null) { // The user is 'un-setting' the date.
             eventEndDateString = null;
             recalcDuration();
@@ -1352,6 +1356,7 @@ public class EventNoteData extends IconNoteData {
     // then the setting is accepted and the return value is true.
     //------------------------------------------------------------
     boolean setEndTime(LocalTime newEndTime) {
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         if (newEndTime == null) { // The user is 'un-setting' the time.
             // We can just accept the setting; removal of an end time
             // cannot result in the event starting after the event end.
@@ -1387,17 +1392,21 @@ public class EventNoteData extends IconNoteData {
 
     public void setLocation(String s) {
         locationString = s;
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
     public void setRecurrence(String s) {
         recurrenceString = s;
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
     void setRetainNote(boolean b) {
         blnRetainNote = b;
+        // Keeping the note (or not) should not affect the Last Mod date.
     }
 
     public boolean setStartDate(LocalDate newStartDate) {
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         recurrenceString = ""; // Setting (or unsetting) the Start date invalidates recurrence.
 
         if (newStartDate == null) { // The user is 'un-setting' the date.
@@ -1453,6 +1462,7 @@ public class EventNoteData extends IconNoteData {
     //   time-only setting when the Date field is initialized.
     //------------------------------------------------------------
     boolean setStartTime(LocalTime newStartTime) {
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
         if (newStartTime == null) { // The user is 'un-setting' the time.
             // We can just accept the setting; removal of a start time
             // cannot result in the event ending after the event start.

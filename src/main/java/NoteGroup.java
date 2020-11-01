@@ -14,6 +14,10 @@ import java.util.Vector;
 @SuppressWarnings("rawtypes")
 class NoteGroup implements LinkHolder {
     private static final Logger log = LoggerFactory.getLogger(NoteGroup.class);
+
+    // These could be database table names, or directory names, or ...
+    // But they should probably move to the data accessor implementation, and use a new data accessor
+    //   method to retrieve them.  Thinking on it..     String getNoteGroupArea(GroupInfo.GroupType) ?
     static String calendarNoteGroupArea = "Years";
     static String eventGroupArea = "UpcomingEvents";
     static String goalGroupArea = "Goals";
@@ -132,6 +136,15 @@ class NoteGroup implements LinkHolder {
         return reverseLinkedEntityData;
     }
 
+    // By 'saving' a null in place of the data, the Group is removed.
+    void deleteNoteGroup() {
+        dataAccessor.deleteNoteGroupData();
+    }
+
+    boolean exists() {
+        return dataAccessor.exists();
+    }
+
     // We don't provide a getGroupInfo(); if you need that, use the GroupInfo copy constructor, with the
     //    GroupProperties as the input param.
 
@@ -206,7 +219,7 @@ class NoteGroup implements LinkHolder {
         // variant if/when/after the data is ever cleaned up, possibly via a port from files to database.
 
         // The 'set' methods below will be overridden by child classes so they can set the proper data type.
-        BaseData.loading = true;
+        NoteInfo.loading = true;
         if (theLength == 1) { // Then this is old, legacy data that was originally saved without GroupProperties.
             setNotes(theData[0]);
         } else { // then theLength == 2 (or more, but we only know of two, for now)
@@ -218,7 +231,7 @@ class NoteGroup implements LinkHolder {
             }
             setNotes(theData[1]);
         }
-        BaseData.loading = false;
+        NoteInfo.loading = false;
         setGroupChanged(false); // After a fresh load, no changes.
     }
 
@@ -244,7 +257,8 @@ class NoteGroup implements LinkHolder {
     void saveNoteGroup() {
         if(isEmpty()) {
             // This will remove the old data, if there is any.
-            dataAccessor.saveNoteGroupData(null);
+            // We could have alternatively (instead of calling 'save') gone directly to deleteNoteGroup.
+            dataAccessor.deleteNoteGroupData();
         } else {
             dataAccessor.saveNoteGroupData(getTheData());
         }
@@ -280,12 +294,14 @@ class NoteGroup implements LinkHolder {
     // This method is called with the raw data that is the GroupProperties.
     // Child groups with properties that are children of GroupProperties should override
     // so they can convert it to the correct child type.
+    // This 'set' method should not affect the Last Mod date of the group.
     protected void setGroupProperties(Object propertiesObject) {
         myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
     }
 
     // This method is called with the raw data that is the data Vector.
     // Child groups with notes that are children of NoteData should override.
+    // This 'set' method should not affect the Last Mod date of the group.
     protected void setNotes(Object vectorObject) {
         noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() { });
     }

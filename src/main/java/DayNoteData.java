@@ -1,4 +1,5 @@
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 class DayNoteData extends IconNoteData {
     private String timeOfDayString;
@@ -113,6 +114,7 @@ class DayNoteData extends IconNoteData {
 
     void setTimeOfDayString(String value) {
         timeOfDayString = value;
+        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
     }
 
 } // end class DayNoteData

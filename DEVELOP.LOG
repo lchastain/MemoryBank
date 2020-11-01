@@ -8,28 +8,30 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
 
 
 Questions:
-    Are instanceIds changing every time they get loaded?  See the condition/comment in BaseData.  This could benefit
-        from a test, which would answer this question and it could be an easy 'fix', if needed.
-
 
 Broken, to fix later (and remember when restoring to also restore all calls/usages):
     TodoNoteGroupPanel - saveAs and merge, chooseMergeFile - disabled for now.
     EventNoteGroupPanel - merge, chooseMergeFile, saveAs - disabled.
-    addNewGroup, in AppTreePanel, has one reachout about file name legality.  Do it differently.
-    deleteGroup, in AppTreePanel, has one reachout to get a filename and delete the file.  Do it differently.
     event sorting not working...  even before, in pub.
 
 New:
-    Repaired getConsolidateView, in AppTreePanel. Had one reachout to makeFullFilename using a static var that has
-        moved.  Several of these have been refactored over the last few days; simple one-line re-specify needed.
-    Fixed doSearch, in AppTreePanel - was commented out because it was too file-centric.  Needed rework to adjust to
-      the new way of making a NoteGroup with properties.  Discovered a possible issue in that you cannot just
-      create a new NoteGroup without an attempt to load data, even if you have everything you need, and when you do
-      try to load, you can lose properties or property settings because they get nulled out prior to the load attempt.
-      May want to add another constructor, to take in the two params of Properties and Notes.
+
 
 
 =====================================================================================================
+ 1 Nov 2020
+    Fixed deleteGroup, in AppTreePanel.  It had one reachout to get a filename and delete the file.  Now it does it
+      according to the new hierarchy and interface; cleaner.  Added a 'delete' method to the data accessor interface.
+    Fixed addNewGroup, in AppTreePanel, to use new area names when checking filename legality.  This still leaves it
+      as file-based, but it does work.  Will eventually do a better job of shifting the op over to an interface method.
+    Repaired the 'add new' test for TodoLists.  Was able to remove the file-centric nature, by adding a new interface
+      method:  boolean exists().  NoteGroupFile implements, and it is called by NoteGroup via its data accessor.
+    Got drawn in to some research on Last Mod dates in the BaseData, and wrote a Test before discovering that the
+      updates to LMD were coming not from Jackson type data conversion loads, but from Group constructors that were
+      calling various 'set' methods on the data.  Moved 'loading' from BaseData to NoteInfo, and removed the BaseData
+      condition on setting LMD; now that condition is only in the 'set' methods that need to know whether or not they
+      are loading.  The new tests can stay but now much less relevant to the potential failure points in the app.
+
 30 Oct 2020
     Repaired the EventNoteGroup.ageEvents (now using the new addNote method of NoteGroup), then repaired the
       EventAgingTest.  Removed addNote from NoteGroupFile and the NoteGroupDataAccessor interface.  The data
@@ -38,6 +40,14 @@ New:
     Restored the BranchHelpers.  Still highly file-centric, though.
     Had to restore the check for BaseData.loading.  Do not understand how this happens, but this is the fix.
     Check-in point.
+    Repaired getConsolidateView, in AppTreePanel. Had one reachout to makeFullFilename using a static var that has
+        moved.  Several of these have been refactored over the last few days; simple one-line re-specify needed.
+    Fixed doSearch, in AppTreePanel - was commented out because it was too file-centric.  Needed rework to adjust to
+      the new way of making a NoteGroup with properties.  Discovered a possible issue in that you cannot just
+      create a new NoteGroup without an attempt to load data, even if you have everything you need, and when you do
+      try to load, you can lose properties or property settings because they get nulled out prior to the load attempt.
+      May want to add another constructor, to take in the two params of Properties and Notes.
+    Another check-in
 
 29 Oct 2020
     searchResultGroup - was editable; moved a constructor line to ahead of group load.

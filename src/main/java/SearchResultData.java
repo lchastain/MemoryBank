@@ -95,6 +95,8 @@ public class SearchResultData extends NoteData {
 
     void setFileFoundIn(File f) {
         fileFoundIn = f;
+        // The LMD of a SearchResult is (currently) of no concern.
+        // This 'set' method will not address it.
     }
 
 } // end class SearchResultData
