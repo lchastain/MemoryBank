@@ -1,9 +1,14 @@
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Vector;
 
 @SuppressWarnings({"unchecked"})
 public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection {
@@ -95,44 +100,28 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         } // end for
     } // end checkColumnOrder
 
-//    private File chooseMergeFile() {
-//        File dataDir = new File(areaPath);
-//        String myName = getGroupName(); // two usages below; this way the method is only called once.
-//
-//        // Get the complete list of Todo List filenames, except this one.
-//        String[] theFileList = dataDir.list(
-//                new FilenameFilter() {
-//                    // Although this filter does not account for directories, it is
-//                    // known that the dataDir will not under normal program
-//                    // operation contain directories.
-//                    public boolean accept(File f, String s) {
-//                        if (myName.equals(prettyName(s))) return false;
-//                        return s.startsWith("todo_");
-//                    }
-//                }
-//        );
-//
-//        // Reformat the list for presentation in the selection control.
-//        // ie, drop the prefix and file extension.
-//        ArrayList<String> todoListNames = new ArrayList<>();
-//        if (theFileList != null) {
-//            for (String aName : theFileList) {
-//                todoListNames.add(prettyName(aName));
-//            } // end for i
-//        }
-//        Object[] theNames = new String[todoListNames.size()];
-//        theNames = todoListNames.toArray(theNames);
-//
-//
-//        String message = "Choose a list to merge with " + myName;
-//        String title = "Merge TodoLists";
-//        String theChoice = optionPane.showInputDialog(theBasePanel, message,
-//                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
-//
-//        System.out.println("The choice is: " + theChoice);
-//        if (theChoice == null) return null;
-//        return new File(areaPath + "todo_" + theChoice + ".json");
-//    } // end chooseMergeFile
+
+    private File chooseMergeFile() {
+        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        groupNames.remove(getGroupName()); // Remove ourselves from consideration.
+
+        // Convert to an Object array so the JOptionPane static method can present a selection list.
+        Object[] theNames = new String[groupNames.size()];
+        theNames = groupNames.toArray(theNames);
+
+        String message = "Choose a list to merge with " + getGroupName();
+        String title = "Merge TodoLists";
+        // Important issue here!  The selection list is presented as an initially closed combobox dropdown with
+        //   either your initial selection or the first choice selected.  BUT if the number of choices is more
+        //   than 20, there is no dropdown control; you see a scrollable list instead, with no preselected choice.
+        //   This is built-in Swing behavior, not my doing.
+        Object theChoice = optionPane.showInputDialog(theBasePanel, message,
+                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
+
+        System.out.println("The choice is: " + theChoice);
+        if (theChoice == null) return null;
+        return new File(NoteGroupFile.todoListGroupAreaPath + "todo_" + theChoice + ".json");
+    } // end chooseMergeFile
 
 
     // Interface to the Three Month Calendar; called by the tmc.
@@ -190,35 +179,30 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     } // end makeNewNote
 
 
-//    @SuppressWarnings({"unchecked"})
-//    public void merge() {
-//        File mergeFile = chooseMergeFile();
-//        if (mergeFile == null) return;
-//
-//        // Load the file to merge in -
-//        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
-//        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-//
-//        BaseData.loading = true; // We don't want to affect the lastModDates!
-//        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
-//        BaseData.loading = false; // Restore normal lastModDate updating.
-//
-//        // Create a 'set', to contain only unique items from both lists.
-//        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(noteGroupDataVector);
-//        theUniqueSet.addAll(mergeVector);
-//
-//        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-//        noteGroupDataVector = new Vector<>(theUniqueSet);
-//        showGroupData(noteGroupDataVector);
-//        setGroupChanged(true);
-//    } // end merge
+    @SuppressWarnings({"unchecked"})
+    public void merge() {
+        File mergeFile = chooseMergeFile();
+        if (mergeFile == null) return;
 
-    //------------------------------------------------------------------
-    // Method Name: pageNumberChanged
-    //
+        // Load the file to merge in -
+        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
+        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
+
+        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
+
+        // Create a 'set', to contain only unique items from both lists.
+        LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(myNoteGroup.noteGroupDataVector);
+        theUniqueSet.addAll(mergeVector);
+
+        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
+        Vector mergedVector = new Vector<>(theUniqueSet);
+        showGroupData(mergedVector);
+        setGroupChanged(true);
+    } // end merge
+
+
     // Overrides the base class no-op method, to ensure the group
     //   columns are displayed in the correct order.
-    //------------------------------------------------------------------
     @Override
     protected void pageNumberChanged() {
         if (tNoteComponent != null) showComponent(tNoteComponent, false);
@@ -359,82 +343,86 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     // Called from the menu bar:
     // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
-    // then if ok, saves the file with that name.
-//    boolean saveAs() {
-//        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
-//
-//        String thePrompt = "Please enter the new list name";
-//        int q = JOptionPane.QUESTION_MESSAGE;
-//        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
-//
-//        // The user cancelled; return with no complaint.
-//        if (newName == null) return false;
-//
-//        newName = newName.trim(); // eliminate outer space.
-//
-//        // Test new name validity.
-//        String theComplaint = BranchHelperInterface.checkFilename(newName, areaPath);
-//        if (!theComplaint.isEmpty()) {
-//            JOptionPane.showMessageDialog(theFrame, theComplaint,
-//                    "Error", JOptionPane.ERROR_MESSAGE);
-//            return false;
-//        }
-//
-//        // Get the current list name -
-//        String oldName = getGroupName();
-//
-//        // If the new name equals the old name, just do the save as the user
-//        //   has asked and don't tell them that they are an idiot.  But no
-//        //   other actions on the filesystem or the tree will be taken.
-//        if (newName.equals(oldName)) {
-//            preClosePanel();
-//            return false;
-//        } // end if
-//
-//        // Check to see if the destination file name already exists.
-//        // If so then complain and refuse to do the saveAs.
-//
-//        // Other applications might offer the option of overwriting
-//        // the existing file.  This was considered and rejected
-//        // because of the possibility of overwriting a file that
-//        // is currently open.  We could check for that as well, but
-//        // decided not to because - why should we go to heroic
-//        // efforts to handle a user request where it seems like
-//        // they may not understand what it is they are asking for?
-//        // This is the same approach that was taken in the 'rename' handling.
-//
-//        // After we refuse the operation due to a preexisting destination
-//        // file name the user has several recourses, depending on
-//        // what it was they really wanted to do - they could delete
-//        // the preexisting file or rename it, after which a second
-//        // attempt at this operation would succeed, or they could
-//        // realize that they had been having a senior moment and
-//        // abandon the effort, or they could choose a different
-//        // new name and try again.
-//        //--------------------------------------------------------------
-//        String newFilename = areaPath + "todo_" + newName + ".json";
-//        if ((new File(newFilename)).exists()) {
-//            ems = "A list named '" + newName + "' already exists!\n";
-//            ems += "  operation cancelled.";
-//            optionPane.showMessageDialog(theFrame, ems,
-//                    "Error", JOptionPane.ERROR_MESSAGE);
-//            return false;
-//        } // end if
-//
-//        // Now change the name and save.
-//        //------------------------------------
-//        log.debug("Saving " + oldName + " as " + newName);
-//
-//        // 'setName' sets the name of the group, which translates into an
-//        // in-place change of the name of the list held by the TodoListKeeper.
-//        // Unfortunately, that list will still have the old title, so it still needs
-//        // to be removed from the keeper.  The calling context will take care of that.
-//        setGroupFilename(areaPath + filePrefix + newName + ".json");
-//        setGroupChanged(true);
-//        preClosePanel();
-//
-//        return true;
-//    } // end saveAs
+    // then if ok, saves the file with that new name.
+    boolean saveAs() {
+        Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
+
+        String thePrompt = "Please enter the new list name";
+        int q = JOptionPane.QUESTION_MESSAGE;
+        String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
+
+        // The user cancelled; return with no complaint.
+        if (newName == null) return false;
+
+        newName = newName.trim(); // eliminate outer space.
+
+        // Test new name validity.
+        String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroupFile.todoListGroupAreaPath);
+        if (!theComplaint.isEmpty()) {
+            JOptionPane.showMessageDialog(theFrame, theComplaint,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Get the current list name -
+        String oldName = getGroupName();
+
+        // If the new name equals the old name, just do the save as the user
+        //   has asked and don't tell them that they are an idiot.  But no
+        //   other actions on the filesystem or the tree will be taken.
+        if (newName.equals(oldName)) {
+            preClosePanel();
+            return false;
+        } // end if
+
+        // Check to see if the destination file name already exists.
+        // If so then complain and refuse to do the saveAs.
+
+        // Other applications might offer the option of overwriting
+        // the existing file.  This was considered and rejected
+        // because of the possibility of overwriting a file that
+        // is currently open.  We could check for that as well, but
+        // decided not to because - why should we go to heroic
+        // efforts to handle a user request where it seems like
+        // they may not understand what it is they are asking for?
+        // This is the same approach that was taken in the 'rename' handling.
+
+        // After we refuse the operation due to a preexisting destination
+        // file name the user has several recourses, depending on
+        // what it was they really wanted to do - they could delete
+        // the preexisting file or rename it, after which a second
+        // attempt at this operation would succeed, or they could
+        // realize that they had been having a senior moment and
+        // abandon the effort, or they could choose a different
+        // new name and try again.
+        //--------------------------------------------------------------
+        String newFilename = NoteGroupFile.todoListGroupAreaPath + NoteGroupFile.todoListFilePrefix + newName + ".json";
+        if ((new File(newFilename)).exists()) {
+            ems = "A list named '" + newName + "' already exists!\n";
+            ems += "  operation cancelled.";
+            optionPane.showMessageDialog(theFrame, ems,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } // end if
+
+        // Now change the name and save.
+        //------------------------------------
+        log.debug("Saving " + oldName + " as " + newName);
+
+        // 'setGroupName' sets the name of the group, which translates into an
+        // in-place change of the name of the list held by the TodoListKeeper.
+        // Unfortunately, that list will still have the old title, so it still needs
+        // to be removed from the keeper.  The calling context will take care of that.
+        myNoteGroup.getGroupProperties().setGroupName(newName);
+        myNoteGroup.myGroupInfo.setGroupName(newName);
+        // Seems like above should only have needed one of those.
+
+        setGroupChanged(true);
+        // There is also the option to archive the old file, vs remove.  The Event group does that.
+        preClosePanel();
+
+        return true;
+    } // end saveAs
 
     private void saveProperties() {
         // Update the header text of the columns.

@@ -145,18 +145,14 @@ class GroupInfo extends BaseData {
     // Find the problems by:  grep -r simpleName * | grep -v null
     String getGroupName() {
         if (simpleName != null) {
-            if (groupName == null || groupName.isEmpty()) groupName = simpleName;
+            groupName = simpleName;
             simpleName = null;
         }
         return groupName;
     }
 
 
-    // With this member being set in the constructor, it looks like this method would never be needed,
-    // but this class existed in various forms over time, and data was persisted before the group name
-    // was added to it.  So when that data comes back in now to the current class definition, groupName could be
-    // missing from the file data, in which case this class would be reconstructed without it and that
-    // is when this method can be used to fix that.
+    // Used by 'saveAs' and other one-off situations.
     void setGroupName(String theName) {
         groupName = theName;
     }

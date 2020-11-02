@@ -39,7 +39,7 @@ class TodoNoteGroupPanelTest {
         String theNewName = "Get New Job";
         testUtil.setTheAnswer(theNewName);
         testUtil.setNotifyCount(0); // arbitrary, just needs to be known.
-//        todoNoteGroup.saveAs();
+        todoNoteGroup.saveAs();
         // Verify that the 'tell me the new name' dialog was shown.
         Assertions.assertEquals(1, testUtil.getNotifyCount());
 
@@ -47,18 +47,16 @@ class TodoNoteGroupPanelTest {
         theNewName = "New Car Shopping";
         testUtil.setTheAnswer(theNewName);
         testUtil.setNotifyCount(5); // arbitrary, just needs to be known.
-//        todoNoteGroup.saveAs();
+        todoNoteGroup.saveAs();
         // Verify that two dialogs were shown.
         Assertions.assertEquals(7, testUtil.getNotifyCount());
 
         // The Happy Path
-//        theNewName = "blarg";
-//        testUtil.setTheAnswer(theNewName);
-//        todoNoteGroup.saveAs();
-//        String theGroupName = todoNoteGroup.getGroupFilename();
-//        Assertions.assertTrue(theGroupName.endsWith(File.separatorChar + "todo_" + theNewName + ".json"));
-//        File f = new File(theGroupName);
-//        Assertions.assertTrue(f.exists());
+        theNewName = "blarg";
+        testUtil.setTheAnswer(theNewName);
+        todoNoteGroup.saveAs();
+        Assertions.assertEquals(theNewName, todoNoteGroup.myNoteGroup.getGroupProperties().getGroupName());
+        Assertions.assertTrue(todoNoteGroup.myNoteGroup.exists());
     }
 
     @Test

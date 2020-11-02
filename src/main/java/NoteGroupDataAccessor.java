@@ -1,6 +1,10 @@
+import java.util.ArrayList;
+
 public interface NoteGroupDataAccessor {
 
     void deleteNoteGroupData();
+
+    ArrayList getGroupNames(ArrayList exceptions);
 
     Object[] loadNoteGroupData(GroupInfo groupInfo);
 

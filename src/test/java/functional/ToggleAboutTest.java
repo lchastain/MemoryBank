@@ -35,7 +35,8 @@ class ToggleAboutTest {
 
     @AfterAll
     static void meLast() {
-        appTreePanel.restoringPreviousSelection = false;
+        appTreePanel = null;
+//      appTreePanel.restoringPreviousSelection = false;
     }
 
     // Test that showing the About graphic will do that, and then

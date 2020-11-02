@@ -96,6 +96,7 @@ class PreserveExpansionStatesTest {
 
         // Load the file again -
         AppOptions.loadOpts();
+        atp = null;
 
         // And verify that the 'expanded' flags are false.
         assertFalse(MemoryBank.appOpts.viewsExpanded);
@@ -136,6 +137,7 @@ class PreserveExpansionStatesTest {
 
         // Load the file again -
         AppOptions.loadOpts();
+        atp = null;
 
         // And verify that the 'expanded' flag for Search Results is true.
         assertTrue(MemoryBank.appOpts.viewsExpanded);

@@ -51,7 +51,8 @@ public class DateTrackingTests {
     static void meLast() {
         theTree = null;
         amb = null;
-        appTreePanel.restoringPreviousSelection = false;
+        //appTreePanel.restoringPreviousSelection = false;
+        appTreePanel = null;
     }
 
     // This test comes close to the one that is written (textually) in SCR0106.  But this one starts

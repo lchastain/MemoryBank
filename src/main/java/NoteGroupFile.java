@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 
 class NoteGroupFile implements NoteGroupDataAccessor {
     static String basePath;
@@ -14,15 +15,18 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static String goalGroupAreaPath;
     static String searchResultGroupAreaPath;
     static String todoListGroupAreaPath;
+    String theAreaPath;
 
     static String eventGroupFilePrefix;
     static String goalGroupFilePrefix;
     static String searchResultFilePrefix;
     static String todoListFilePrefix;
+    String thePrefix;
 
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
     boolean saveIsOngoing; // A 'state' flag used by getGroupFilename (for now; other uses are possible).
     GroupInfo groupInfo;
+    private String groupName; // This is the 'pretty' name.
 
     private String failureReason; // Various file access failure reasons, or null.
 
@@ -50,16 +54,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     NoteGroupFile(GroupInfo groupInfo) {
         this.groupInfo = groupInfo;
 
-// No need to have a filename hanging around until we actually use it.
-// First real need is to capture it once a file is loaded.
-        // Try to find an existing file first.  If found, use that filename.
-        // Otherwise - make one.
-//        String theFilename = foundFilename(groupInfo);
-//        if(theFilename.isEmpty()) {
-//            theFilename = makeFullFilename();
-//        }
-//        setGroupFilename(theFilename);
+        // No need to have a filename hanging around until we actually use it.
+        // First real need is to capture it once a file is loaded.
         setGroupFilename(null); // This sets it to an empty string.
+
+        groupName = groupInfo.getGroupName();
 
         saveIsOngoing = false;
         failureReason = null;
@@ -69,11 +68,62 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         //   be added subsequently, and/or they have extended properties that should be
         //   preserved even though there are no notes to go along with them, such as the
         //   search panel settings of a SearchResultGroup.
-        saveWithoutData = groupInfo.groupType == GroupInfo.GroupType.TODO_LIST; // Initialize the flag.
-        if(groupInfo.groupType == GroupInfo.GroupType.GOALS) saveWithoutData = true;
-        if(groupInfo.groupType == GroupInfo.GroupType.SEARCH_RESULTS) saveWithoutData = true;
-        if(groupInfo.groupType == GroupInfo.GroupType.EVENTS) saveWithoutData = true;
+        switch (groupInfo.groupType) {
+            case DAY_NOTES:
+            case MONTH_NOTES:
+            case YEAR_NOTES:
+                theAreaPath = calendarNoteGroupAreaPath;
+                thePrefix = "";
+                saveWithoutData = false;
+                break;
+            case SEARCH_RESULTS:
+                theAreaPath = searchResultGroupAreaPath;
+                thePrefix = searchResultFilePrefix;
+                saveWithoutData = true;
+                break;
+            case TODO_LIST:
+                theAreaPath = todoListGroupAreaPath;
+                thePrefix = todoListFilePrefix;
+                saveWithoutData = true;
+                break;
+            case EVENTS:
+                theAreaPath = eventGroupAreaPath;
+                thePrefix = eventGroupFilePrefix;
+                saveWithoutData = true;
+                break;
+            case GOALS:
+                theAreaPath = goalGroupAreaPath;
+                thePrefix = goalGroupFilePrefix;
+                saveWithoutData = true;
+                break;
+        }
     }
+
+
+    // This method will return all active groups of the specified type, that are not present in the 'exceptions' list.
+    public ArrayList getGroupNames(ArrayList exceptions) {
+        File dataDir = new File(theAreaPath);
+
+        // Get the complete list of Group filenames.
+        String[] theFileList = dataDir.list();
+
+        // Filter and normalize the selections.
+        // ie, drop the prefixes and file extensions, and exclude the exceptions and non-active groups.
+        ArrayList<String> theGroupNames = new ArrayList<>();
+        if (theFileList != null) {
+            for (String aName : theFileList) {
+                String theGroupName = getGroupNameFromFilename(aName);
+                if(MemoryBank.appOpts.active(groupInfo.groupType, theGroupName)) {
+                    if (exceptions == null) {
+                        theGroupNames.add(theGroupName);
+                    } else if (!exceptions.contains(theGroupName)) {
+                        theGroupNames.add(theGroupName);
+                    }
+                }
+            } // end for i
+        }
+        return theGroupNames;
+    } // end getGroupNames
 
 
     protected boolean deleteFile(File f) {
@@ -106,7 +156,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             } else { // Need to delete the file
                 File f = new File(groupFilename);
                 if(f.exists()) { // It must exist, for the delete to succeed.  If it already doesn't exist - we can live with that.
-                    // Deleting (or archiving, if ever implemented) as the first step is necessary in case the
+                    // Deleting (or archiving, if ever implemented) as the first step of saving is necessary in case the
                     // current change is to just delete the information; we might not have any data to save.
                     if (!deleteFile(f)) { // If we continued after this then the save would fail; may as well stop now.
                         failureReason = "Failed to delete " + groupFilename;
@@ -449,12 +499,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
 
-    // A convenience method so that an instance can make a call to the static method
-    //   without having to provide the parameter.
-    String prettyName() {
-        return prettyName(groupFilename);
-    } // end prettyName
-
 
     // A formatter for a String that is a filename specifier.  It strips
     //   away the File path, separators, prefix and ending, leaving only
@@ -464,7 +508,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     //   Calendar NoteGroups use a different 'name' and do not need
     //   to prettify the path+name of their data file since it is not
     //   intended to be shown to users.
-    static String prettyName(String theLongName) {
+    static String getGroupNameFromFilename(String theLongName) {
         // Trim any leading/trailing whitespace.
         String thePrettyName = theLongName.trim();
 
@@ -492,7 +536,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         if (i > 0) thePrettyName = thePrettyName.substring(0, i);
 
         return thePrettyName;
-    } // end prettyName
+    } // end getGroupNameFromFilename
 
 
     // To arrive at this point we have already ensured that either the data is entirely new or there has been
@@ -523,6 +567,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // In this case we can trust the 'legality' of the name and path; we just need to verify that the file exists
         // and if so, delete it so that it does not conflict when we save a new file with the updated info.
         deleteNoteGroupData();
+        if(!saveIsOngoing) return; // A problem in deleting might have derailed the save operation.
 
         // Step 2 - Bail out early if there is no reason to create a file for this data.
         if(theData == null && !saveWithoutData) {

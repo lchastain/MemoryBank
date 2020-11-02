@@ -2,6 +2,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -43,12 +44,8 @@ class NoteGroup implements LinkHolder {
 //    transient NoteGroupPanel myNoteGroupPanel; // This might remain null; depends on usage of the NoteGroup.
     NoteGroupPanel myNoteGroupPanel; // This might remain null; depends on usage of the NoteGroup.
 
-//    public NoteGroup() {
-//        super();
-//    }
 
     NoteGroup(GroupInfo groupInfo) {
-//        this();
         log.debug("Constructing NoteGroup for: " + groupInfo.getGroupName());
         myGroupInfo = groupInfo; // Everything else comes from this.
 
@@ -145,8 +142,14 @@ class NoteGroup implements LinkHolder {
         return dataAccessor.exists();
     }
 
-    // We don't provide a getGroupInfo(); if you need that, use the GroupInfo copy constructor, with the
-    //    GroupProperties as the input param.
+    // We don't provide a getGroupInfo(); if you need that, use the GroupInfo copy constructor with the
+    //    GroupProperties as the input param, and use getGroupProperties to get them, if you need to.
+
+
+    ArrayList getGroupNames() {
+        return dataAccessor.getGroupNames(null);
+    }
+
 
     // All higher contexts that need this info are encouraged to use this getter to retrieve 'myProperties'.
     // In some child classes the getter will be overridden, in order to set the value correctly first.  This

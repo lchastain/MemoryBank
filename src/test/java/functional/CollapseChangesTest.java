@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import java.io.IOException;
 // that we get no warning but do preserve the changes, and the file remains.
 
 class CollapseChangesTest {
-    private AppTreePanel appTreePanel;
+    private static AppTreePanel appTreePanel;
     private JTree theTree;
     private String viewsNodeName = "Views";
     private String notesNodeName = "Notes";
@@ -42,12 +43,20 @@ class CollapseChangesTest {
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+
+        // The AppTreePanel is what creates the Tree for us.
+        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
     }
+
+
+    @AfterAll
+    static void meLast() {
+        appTreePanel = null;
+    }
+
 
     @Test
     void testFileNotRemovedOnCollapse() {
-        // The AppTreePanel is what creates the Tree for us.
-        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading (interferes with TodoItemFocusTest).
         theTree = appTreePanel.getTree();
 

@@ -56,17 +56,18 @@ public class AppTreePanelTest {
         theSelectionRow = 3;
     }
 
-    @AfterEach
-    void tearDown() throws InterruptedException {
-        // These tests drive the app faster than it would go if it was only under user control.
-        Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
-    }
+//    @AfterEach
+//    void tearDown() throws InterruptedException {
+//        // These tests drive the app faster than it would go if it was only under user control.
+//        Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
+//    }
 
     @AfterAll
     static void meLast() {
         theTree = null;
         amb = null;
-        appTreePanel.restoringPreviousSelection = false;
+        appTreePanel = null;
+//        appTreePanel.restoringPreviousSelection = false;
     }
 
     @Test

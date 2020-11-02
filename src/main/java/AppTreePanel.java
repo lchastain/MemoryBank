@@ -856,10 +856,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         String theContext = appMenuBar.getCurrentContext();
         switch (theContext) {
             case "Upcoming Event":
-//                ((EventNoteGroupPanel) theNoteGroupPanel).merge();
+                ((EventNoteGroupPanel) theNoteGroupPanel).merge();
                 break;
             case "To Do List":
-//                ((TodoNoteGroupPanel) theNoteGroupPanel).merge();
+                ((TodoNoteGroupPanel) theNoteGroupPanel).merge();
                 break;
         }
     } // end mergeGroup
@@ -960,14 +960,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         String theContext = appMenuBar.getCurrentContext();
         switch (theContext) {
             case "Upcoming Event":
-//                success = ((EventNoteGroupPanel) theNoteGroupPanel).saveAs();
-success = true;
+                success = ((EventNoteGroupPanel) theNoteGroupPanel).saveAs();
                 groupParentPath = eventsPath;
                 theNoteGroupPanelKeeper = theEventListKeeper;
                 break;
             case "To Do List":
-//                success = ((TodoNoteGroupPanel) theNoteGroupPanel).saveAs();
-success = true;
+                success = ((TodoNoteGroupPanel) theNoteGroupPanel).saveAs();
                 groupParentPath = todolistsPath;
                 theNoteGroupPanelKeeper = theTodoListKeeper;
                 break;
@@ -982,7 +980,7 @@ success = true;
             // the leaf on the tree below.  But in this case we do not want that behavior,
             // because we have already saved the file, milliseconds ago.  It wouldn't hurt
             // to let it save again, but why allow it, when all it takes to stop it is:
-            theNoteGroupPanel = null;
+//            theNoteGroupPanel = null;
 
             // Removal from the NoteGroupKeeper is needed, to force a file reload
             // during the rename of the leaf (below), because even though the saveAs
@@ -1233,55 +1231,59 @@ success = true;
     void showFoundIn(SearchResultData srd) {
         // Determine the treepath to be shown, based on
         //   the result's file name/path.
-        String fname = srd.getFileFoundIn().getName();
-        String fpath = srd.getFileFoundIn().getParent();
-
-        if (fname.startsWith("todo_")) {
-            // Given that a 'FoundIn' button has presumably been clicked, the implication
-            // is that 'theNoteGroup' is populated with a SearchResultGroup, so we can use
-            // that reference to access it's prettyName method (that it has due to NoteGroup implemening TreeLeaf).
-            String prettyName = NoteGroupFile.prettyName(fname);
-
-            if (!(srd.getFileFoundIn()).exists()) {
-                String s;
-                s = "Error in loading " + prettyName + " !\n";
-                s += "The original list no longer exists.";
-                optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                // We want to show the TodoNoteGroup where this data (srd) was found, but what if it is not currently
-                // showing as a selectable leaf on the tree?  We cannot just setNotes it anyway; it may be very old and
-                // had been deliberately deselected.  This review of 'found-in-a-search' results should not change
-                // the user's tree configuration.
-                // The beauty of this approach is that the path we set the selection to does not actually have to be
-                // resent in the tree for this to work and display the list.  But a problem (bug?) is that
-                // we get the correct full path but the child that we get from that path shows no 'parent'.
-                // That complicates matters when handling the selection change, but it still gets handled correctly.
-                TreePath phantomPath = todolistsPath.pathByAddingChild(new DefaultMutableTreeNode(prettyName));
-                theTree.setSelectionPath(phantomPath);
-            } // end if
-        } else if (fname.equals("UpcomingEvents")) { // This is (may be?) older, but there may still be some.  It can come out, eventually.
-            // TODO - test the Found In for an event - working?  seems not.  Fix, or setNotes better comments.
-            theTree.setSelectionPath(eventsPath);
-        } else if (!fpath.endsWith(MemoryBank.userDataHome)) {
-            // If the path does not end at the top level data
-            //   directory, then (at least at this writing) it
-            //   means that we are down one of the calendar-
-            //   based 'Year' paths.
-
-            // Note that we should be able to utilize srd.getNoteDate()
-            //   here, rather than having to develop it from the filename.
-            //   need to look into why that is not working...
-            if (fname.startsWith("Y")) {
-                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
-                theTree.setSelectionPath(yearNotesPath);
-            } else if (fname.startsWith("M")) {
-                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
-                theTree.setSelectionPath(monthNotesPath);
-            } else if (fname.startsWith("D")) {
-                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
-                theTree.setSelectionPath(dayNotesPath);
-            } // end if
-        } // end if
+//        String fname = srd.getFileFoundIn().getName();
+//        String fpath = srd.getFileFoundIn().getParent();
+//
+//        if (fname.startsWith("todo_")) {
+//            // Given that a 'FoundIn' button has presumably been clicked, the implication
+//            // is that 'theNoteGroup' is populated with a SearchResultGroup, so we can use
+//            // that reference to access it's prettyName method (that it has due to NoteGroup implemening TreeLeaf).
+//            String prettyName = NoteGroupFile.prettyName(fname);
+//
+//            if (!(srd.getFileFoundIn()).exists()) {
+//                String s;
+//                s = "Error in loading " + prettyName + " !\n";
+//                s += "The original list no longer exists.";
+//                optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
+//            } else {
+//                // We want to show the TodoNoteGroup where this data (srd) was found, but what if it is not currently
+//                // showing as a selectable leaf on the tree?  We cannot just setNotes it anyway; it may be very old and
+//                // had been deliberately deselected.  This review of 'found-in-a-search' results should not change
+//                // the user's tree configuration.
+//                // The beauty of this approach is that the path we set the selection to does not actually have to be
+//                // resent in the tree for this to work and display the list.  But a problem (bug?) is that
+//                // we get the correct full path but the child that we get from that path shows no 'parent'.
+//                // That complicates matters when handling the selection change, but it still gets handled correctly.
+//                TreePath phantomPath = todolistsPath.pathByAddingChild(new DefaultMutableTreeNode(prettyName));
+//                theTree.setSelectionPath(phantomPath);
+//            } // end if
+//        } else if (fname.equals("UpcomingEvents")) { // This is (may be?) older, but there may still be some.  It can come out, eventually.
+//            // TODO - test the Found In for an event - working?  seems not.  Fix, or setNotes better comments.
+//            // I get it now (2 Nov 2020) - this has not worked ever since UpcomingEvents went from a destination node to an expandable.
+//            //   At that time it should have gotten a similar treatment to todo lists.  But now, it also does not work for Goals,
+//            //   and the effort to remove 'File' specific syntax and handling is further along, so the SearchResultData needs to drop
+//            //   the 'fileFoundIn' member and replace it with a GroupInfo 'foundIn'.  This entire feature will be disabled, for now.
+//            theTree.setSelectionPath(eventsPath);
+//        } else if (!fpath.endsWith(MemoryBank.userDataHome)) {
+//            // If the path does not end at the top level data
+//            //   directory, then (at least at this writing) it
+//            //   means that we are down one of the calendar-
+//            //   based 'Year' paths.
+//
+//            // Note that we should be able to utilize srd.getNoteDate()
+//            //   here, rather than having to develop it from the filename.
+//            //   need to look into why that is not working...
+//            if (fname.startsWith("Y")) {
+//                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
+//                theTree.setSelectionPath(yearNotesPath);
+//            } else if (fname.startsWith("M")) {
+//                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
+//                theTree.setSelectionPath(monthNotesPath);
+//            } else if (fname.startsWith("D")) {
+//                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
+//                theTree.setSelectionPath(dayNotesPath);
+//            } // end if
+//        } // end if
     } // end showFoundIn
 
 
@@ -1458,6 +1460,7 @@ success = true;
         appOpts.theSelectionRow = theTree.getMaxSelectionRow();
 
         // If there was a NoteGroup open prior to this tree selection change then update its data now.
+        // But we don't just automatically save it, at this point.
         if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
             theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
         } // end if

@@ -9,12 +9,17 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
 
 Questions:
 
-Broken, to fix later (and remember when restoring to also restore all calls/usages):
-    TodoNoteGroupPanel - saveAs and merge, chooseMergeFile - disabled for now.
-    EventNoteGroupPanel - merge, chooseMergeFile, saveAs - disabled.
+Problems:
     event sorting not working...  even before, in pub.
 
 New:
+
+    Fixed merge and chooseMergeFile, not fully File-extracted but one step closer, now using a new accessor method:
+        getGroupNames.  This is for both TodoLists and Events.
+    Fixed saveAs for both TodoLists and Events.  Events uses archiving, Todo does not.  Just for variety.
+    Repaired all tests that were broken due to rearch effort.  That effort is now concluded!
+        Caveat - some File-centric operations still exist; saveAs, merge, etc.
+
 
 
 
@@ -31,6 +36,7 @@ New:
       calling various 'set' methods on the data.  Moved 'loading' from BaseData to NoteInfo, and removed the BaseData
       condition on setting LMD; now that condition is only in the 'set' methods that need to know whether or not they
       are loading.  The new tests can stay but now much less relevant to the potential failure points in the app.
+    Check-in.  Now down to only two Panels (multiple methods) needing post-rearch repairs.
 
 30 Oct 2020
     Repaired the EventNoteGroup.ageEvents (now using the new addNote method of NoteGroup), then repaired the

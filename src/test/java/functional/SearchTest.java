@@ -72,7 +72,8 @@ public class SearchTest {
     static void meLast() {
         theTree = null;
         amb = null;
-        appTreePanel.restoringPreviousSelection = false;
+        //appTreePanel.restoringPreviousSelection = false;
+        appTreePanel = null;
     }
 
     // NOT a real test; this is just here to spit out the menu hierarchy so that

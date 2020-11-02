@@ -56,14 +56,14 @@ class NoteGroupPanelKeeperTest {
     @Test
     void testRemove() {
         // This verifies our starting point, plus shows that 'setNotes' worked correctly.
-        assertEquals(2, noteGroupPanelKeeper.size());
+        Assertions.assertEquals(2, noteGroupPanelKeeper.size());
 
         // This one can be found.
         noteGroupPanelKeeper.remove("New Car Shopping");
-        assertEquals(1, noteGroupPanelKeeper.size());
+        Assertions.assertEquals(1, noteGroupPanelKeeper.size());
 
         // This one will not be found.
         noteGroupPanelKeeper.remove("Get Lost");
-        assertEquals(1, noteGroupPanelKeeper.size());
+        Assertions.assertEquals(1, noteGroupPanelKeeper.size());
     }
 }

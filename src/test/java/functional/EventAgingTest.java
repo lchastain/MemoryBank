@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 class EventAgingTest {
+    static AppTreePanel appTreePanel;
 
     @BeforeAll
     static void setup() {
@@ -23,7 +25,12 @@ class EventAgingTest {
         } catch (Exception e) {
             System.out.println("ignored Exception: " + e.getMessage());
         }
+        appTreePanel = new AppTreePanel(new JFrame("Event Aging Test"), MemoryBank.appOpts);
+    }
 
+    @AfterAll
+    static void meLast() {
+        appTreePanel = null;
     }
 
     // Verify that events are copied to the right Days and that it happens only once
@@ -44,7 +51,6 @@ class EventAgingTest {
         // This one missing directory gives us a high confidence that there are none.
 
         // the aging (EventNoteGroupPanel constructor calls ageEvents)
-        new AppTreePanel(new JFrame("Event Aging Test"), MemoryBank.appOpts);
         EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("holidays");
         Assertions.assertTrue(theFolder.exists()); // this verifies SCR0029
 

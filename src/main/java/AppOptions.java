@@ -54,6 +54,36 @@ class AppOptions {
         searchResultList = new Vector<>(0, 1);
     } // end constructor
 
+    boolean active(GroupInfo.GroupType groupType, String groupName) {
+        Vector theList = null;
+        switch (groupType) {
+            case DAY_NOTES:
+            case MONTH_NOTES:
+            case YEAR_NOTES:
+                // These types are always active.
+                return true;
+            case GOALS:
+                theList = goalsList;
+                break;
+            case EVENTS:
+                theList = eventsList;
+                break;
+            case TODO_LIST:
+                theList = tasksList;
+                break;
+            case SEARCH_RESULTS:
+                theList = searchResultList;
+                break;
+        }
+        if(theList == null) return false;
+
+        for (Object o : theList) {
+            String object = (String) o;
+            if(groupName.equals(object)) return true;
+        }
+        return false;
+    }
+
     static void loadOpts() {
         Exception e = null;
         String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
