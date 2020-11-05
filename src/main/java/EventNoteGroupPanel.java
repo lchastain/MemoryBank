@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Vector;
 
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, DateSelection {
     private static final Logger log = LoggerFactory.getLogger(EventNoteGroupPanel.class);
 

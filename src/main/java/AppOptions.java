@@ -20,6 +20,7 @@ import java.util.Vector;
 //     critical component; it could confuse support people, when we get to the
 //     point of having support people.
 //-------------------------------------------------------------------------
+@SuppressWarnings("rawtypes")
 class AppOptions {
     boolean goalsExpanded;
     boolean eventsExpanded;

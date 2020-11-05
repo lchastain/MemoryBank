@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
+@SuppressWarnings("rawtypes")
 class NoteGroupFile implements NoteGroupDataAccessor {
     static String basePath;
     static String calendarNoteGroupAreaPath;

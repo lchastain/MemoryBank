@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Vector;
 
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection {
     private static final Logger log = LoggerFactory.getLogger(TodoNoteGroupPanel.class);
     private static final int PAGE_SIZE = 20;
