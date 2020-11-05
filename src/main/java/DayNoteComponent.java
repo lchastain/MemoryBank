@@ -14,12 +14,12 @@ public class DayNoteComponent extends IconNoteComponent {
 
     // The Members
     private DayNoteData myDayNoteData;
-    private NoteTimeLabel noteTimeLabel;
+    private final NoteTimeLabel noteTimeLabel;
 
     // Private static values that are accessed from multiple contexts.
-    private static JMenuItem clearTimeMi;
-    private static JMenuItem setTimeMi;
-    private static JPopupMenu timePopup;
+    private static final JMenuItem clearTimeMi;
+    private static final JMenuItem setTimeMi;
+    private static final JPopupMenu timePopup;
 
     static {
         // Normally just a wrapper for a JOptionPane, but tests may replace this
@@ -157,6 +157,12 @@ public class DayNoteComponent extends IconNoteComponent {
 
 
     @Override
+    void setEditable(boolean b) {
+        super.setEditable(b);
+        noteTimeLabel.setEditable(b);
+    }
+
+    @Override
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
     public void setNoteData(NoteData newNoteData) {
@@ -265,7 +271,6 @@ public class DayNoteComponent extends IconNoteComponent {
         NoteTimeLabel() {
             super();
             clear(); // initializes as well as 'clears'.
-            addMouseListener(this);
             setHorizontalAlignment(JLabel.CENTER);
             setFont(Font.decode("DialogInput-bold-20"));
         } // end constructor
@@ -281,6 +286,27 @@ public class DayNoteComponent extends IconNoteComponent {
             return new Dimension(timeWidth, DAYNOTEHEIGHT);
         } // end getPreferredSize
 
+
+        void setEditable(boolean b) {
+            if(b) { // This limits us to only one mouseListener.
+                // The limitation was more appropriate when an initial one was added during construction, but now
+                // we no longer do that.  However, this more careful approach is still valid, just more verbose.
+                MouseListener[] mouseListeners = getMouseListeners();
+                boolean alreadyEditable = false;
+                for (MouseListener ml : mouseListeners) {
+                    if(ml.getClass() == this.getClass()) {
+                        alreadyEditable = true;
+                        break;
+                    }
+                }
+                if (!alreadyEditable) { // Separate line, for debug clarity.
+                    addMouseListener(this);
+                }
+            }
+            // Luckily, if 'this' is not currently a MouseListener then the next line is a silent no-op,
+            // and otherwise it does what we've asked.
+            else removeMouseListener(this);
+        }
 
         void setInactive() {
             setBorder(highBorder);

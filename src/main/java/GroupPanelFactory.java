@@ -4,9 +4,6 @@ import java.time.LocalDate;
 // This Factory has methods to construct and return Panels of supported NoteGroup types.
 
 class GroupPanelFactory {
-    // Currently we only have the NoteGroupFile class as a usable NoteGroupDataAccessor,
-    // so there is no 'switch' logic; for now we will just use it to
-    // facilitate a file-based load of the data during the construction of a Panel.
     static NoteGroupPanel loadNoteGroupPanel(GroupInfo groupInfo) {
         String parentNodeString = "Nada";
         CalendarNoteGroupPanel calendarNoteGroupPanel = null;

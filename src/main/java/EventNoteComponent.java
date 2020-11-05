@@ -4,7 +4,7 @@
 
 public class EventNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
-    private EventNoteGroupPanel myNoteGroup;
+    private final EventNoteGroupPanel myNoteGroup;
 
     // The Member
     private EventNoteData myEventNoteData;

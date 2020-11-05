@@ -400,10 +400,7 @@ public class NoteComponent extends JPanel {
         myManager.shiftUp(index);
     } // end shiftUp
 
-    //------------------------------------------------------------------
-    // Method Name: swap
-    //
-    //------------------------------------------------------------------
+
     public void swap(NoteComponent nc) {
         // Get a reference to the two data objects
         NoteData nd1 = this.getNoteData();

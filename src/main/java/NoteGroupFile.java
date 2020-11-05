@@ -26,7 +26,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
     boolean saveIsOngoing; // A 'state' flag used by getGroupFilename (for now; other uses are possible).
     GroupInfo groupInfo;
-    private String groupName; // This is the 'pretty' name.
 
     private String failureReason; // Various file access failure reasons, or null.
 
@@ -56,9 +55,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
         // No need to have a filename hanging around until we actually use it.
         // First real need is to capture it once a file is loaded.
-        setGroupFilename(null); // This sets it to an empty string.
-
-        groupName = groupInfo.getGroupName();
+        setGroupFilename(null); // This sets it to an empty string (not really null).
 
         saveIsOngoing = false;
         failureReason = null;
@@ -98,33 +95,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 break;
         }
     }
-
-
-    // This method will return all active groups of the specified type, that are not present in the 'exceptions' list.
-    public ArrayList getGroupNames(ArrayList exceptions) {
-        File dataDir = new File(theAreaPath);
-
-        // Get the complete list of Group filenames.
-        String[] theFileList = dataDir.list();
-
-        // Filter and normalize the selections.
-        // ie, drop the prefixes and file extensions, and exclude the exceptions and non-active groups.
-        ArrayList<String> theGroupNames = new ArrayList<>();
-        if (theFileList != null) {
-            for (String aName : theFileList) {
-                String theGroupName = getGroupNameFromFilename(aName);
-                if(MemoryBank.appOpts.active(groupInfo.groupType, theGroupName)) {
-                    if (exceptions == null) {
-                        theGroupNames.add(theGroupName);
-                    } else if (!exceptions.contains(theGroupName)) {
-                        theGroupNames.add(theGroupName);
-                    }
-                }
-            } // end for i
-        }
-        return theGroupNames;
-    } // end getGroupNames
-
 
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there
@@ -287,6 +257,115 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     } // end findFilename
 
 
+    // This method will return a Date (if it can) that is constructed from the input File's filename and path.
+    // It relies on the parent directory of the file being named for the corresponding year, and the name of
+    // the file (prior to the underscore) indicating the date within the year.
+    // If the parsing operations trip over a bad format, a null will be returned.
+    static LocalDate getDateFromFilename(File f) {
+        String strAbsolutePath = f.getAbsolutePath();
+        String strTheName = f.getName();
+        MemoryBank.debug("Looking for date in filename: " + strAbsolutePath);
+
+        // Initial format checking -
+        if (!strTheName.contains("_"))
+            return null;
+        boolean badName = true;
+        if (strTheName.startsWith("D"))
+            badName = false;
+        if (strTheName.startsWith("M"))
+            badName = false;
+        if (strTheName.startsWith("Y"))
+            badName = false;
+        if (badName)
+            return null;
+
+        // Parse the Year from the path -
+        int theYear;
+        try {
+            int index2 = strAbsolutePath.indexOf(strTheName) - 1;
+            int index1 = strAbsolutePath.substring(0, index2).lastIndexOf(
+                    File.separatorChar) + 1;
+
+            String strTheYear = strAbsolutePath.substring(index1, index2);
+            try {
+                theYear = Integer.parseInt(strTheYear);
+            } catch (NumberFormatException nfe) {
+                return null;
+            } // end try/catch
+        } catch (IndexOutOfBoundsException ioobe) {
+            return null;
+        }
+
+        // Get the Month from the filename, if present.
+        int theMonth = 1;
+        if (!strTheName.startsWith("Y")) {
+            // Then it starts with either 'D' or 'M', which means that
+            // it has a 'Month' component that must be converted.
+            try { // Position of the 2-digit Month in the filename is fixed.
+                int index1 = 1;
+                int index2 = 3;
+
+                String strTheMonth = strTheName.substring(index1, index2);
+                try {
+                    theMonth = Integer.parseInt(strTheMonth);
+                } catch (NumberFormatException nfe) {
+                    return null;
+                } // end try to parse the integer
+            } catch (IndexOutOfBoundsException ioobe) {
+                return null;
+            } // end try to cut the substring
+        } // end if
+
+        int theDay = 1;
+        if (strTheName.startsWith("D")) {
+            try { // Position of the 2-digit Day in the filename is fixed.
+                int index1 = 3;
+                int index2 = 5;
+
+                String strTheDay = strTheName.substring(index1, index2);
+                try {
+                    theDay = Integer.parseInt(strTheDay);
+                } catch (NumberFormatException nfe) {
+                    return null;
+                } // end try to parse the integer
+            } catch (IndexOutOfBoundsException ioobe) {
+                return null;
+            } // end try to cut the substring
+        } // end if
+
+        LocalDate dateFromFilename = LocalDate.of(theYear, theMonth, theDay);
+        MemoryBank.debug("Made date from filename: " + dateFromFilename);
+        return dateFromFilename;
+    } // end getDateFromFilename
+
+
+    // This method will return all active groups of the same type.
+    // Usage (currently) is for choosing a file with which to merge a source group.  For that, CalendarNote types are
+    // not the source and are not considered to be a selection, so the simple filename is all that is needed to produce
+    // the desired result list.  Note that the source group will also be the list, but the calling context can easily
+    // remove it from the result, if needed.
+    @Override
+    public ArrayList getGroupNames() {
+        File dataDir = new File(theAreaPath);
+
+        // Get the complete list of Group filenames.
+        String[] theFileList = dataDir.list();
+
+        // Filter and normalize the selections.
+        // ie, drop the prefixes and file extensions, and exclude the non-active groups.
+        ArrayList<String> theGroupNames = new ArrayList<>();
+        if (theFileList != null) {
+            for (String aName : theFileList) {
+                String theGroupName = getGroupNameFromFilename(aName);
+                if(MemoryBank.appOpts.active(groupInfo.groupType, theGroupName)) {
+                    theGroupNames.add(theGroupName);
+                }
+            } // end for i
+        }
+        return theGroupNames;
+    } // end getGroupNames
+
+
     // Returns a String containing the requested portion of the input LocalDateTime.
     // Years are expected to be 4 digits long, all other units are two digits.
     // For hours, the full range (0-23) is returned; no adjustment to a 12-hour clock.
@@ -410,13 +489,8 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     // Examples:  Y_timestamp, M03_timestamp, D0704_timestamp.
     // The numeric Year for these files is known by a parent directory.
     // Used in saving of Calendar-based data files.
-    // It is kept here (for now?) as opposed to the CalendarNoteGroup
-    // because of the additional calls to two static methods also here.
-    // BUT - there is no reason that those two could not also move
-    // over there, since this method (and findFilename) is their only 'client'.
     static String makeFullFilename(LocalDate localDate, String noteType) {
         StringBuilder filename = new StringBuilder(calendarNoteGroupAreaPath);
-//        filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.YEARS, '0'));
         filename.append(localDate.getYear());
         filename.append(File.separatorChar);
         filename.append(noteType);
@@ -500,7 +574,48 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     }
 
 
-    // A formatter for a String that is a filename specifier.  It strips
+    // The name of this method can be slightly misleading; we don't actually have to open the file in order to
+    // determine its GroupInfo; the answers can be gleaned solely from the path and name.  So we 'get' the
+    // info from the object that is a File class, using methods other than opening and reading the file.  The
+    // filesystem does not even need to contain such a file in order for this method to succeed.
+    static GroupInfo getGroupInfoFromFile(File theFile) {
+        GroupInfo theAnsr = new GroupInfo();
+        String theFullFilename = theFile.toString();
+        if(theFullFilename.contains(NoteGroup.calendarNoteGroupArea)) {
+            String nameOnly = theFile.getName();
+            GroupInfo.GroupType groupType = GroupInfo.GroupType.NOTES;
+
+            // Ok, the use of magic numbers here is flaky; I will look for a better way.
+            if(nameOnly.length() == 25) groupType = GroupInfo.GroupType.DAY_NOTES;
+            if(nameOnly.length() == 23) groupType = GroupInfo.GroupType.MONTH_NOTES;
+            if(nameOnly.length() == 21) groupType = GroupInfo.GroupType.YEAR_NOTES;
+            theAnsr.groupType = groupType;
+
+            LocalDate theDate = getDateFromFilename(theFile);
+            String theName = CalendarNoteGroup.getGroupNameForDate(theDate, groupType);
+            theAnsr.setGroupName(theName);
+        } else if(theFullFilename.contains(NoteGroup.todoListGroupArea)) {
+            theAnsr.groupType = GroupInfo.GroupType.TODO_LIST;
+            theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
+        } else if(theFullFilename.contains(NoteGroup.searchResultGroupArea)) {
+            theAnsr.groupType = GroupInfo.GroupType.SEARCH_RESULTS;
+            theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
+        } else if(theFullFilename.contains(NoteGroup.goalGroupArea)) {
+            theAnsr.groupType = GroupInfo.GroupType.GOALS;
+            theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
+        } else if(theFullFilename.contains(NoteGroup.eventGroupArea)) {
+            theAnsr.groupType = GroupInfo.GroupType.EVENTS;
+            theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
+        } else {
+            // Return will be a GroupInfo with null for name & type.
+            System.out.println("NoteGroupFile.getGroupInfoFromFile: unrecognized filename: " + theFullFilename);
+        }
+
+        return theAnsr;
+    }
+
+
+        // A formatter for a String that is a filename specifier.  It strips
     //   away the File path, separators, prefix and ending, leaving only
     //   the base (pretty) name of the file.  It works left-to-right, as
     //   the input shrinks (in case that's important for you to know).

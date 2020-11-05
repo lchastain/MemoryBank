@@ -287,8 +287,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Declare a tree node for the new group.
         DefaultMutableTreeNode theNewGroupNode = null;
 
-        // Allowing 'setNotes' to act as a back-door selection of a group that actually already
-        // exists is ok, but do not setNotes this choice to the branch if it is already there.
+        // Allowing 'addNewGroup' to act as a back-door selection of a group that actually already
+        // exists is ok, but do not add this choice to the branch if it is already there.
         // So - examine the tree to see if there is already a node for the new group -
         Enumeration children = groupParentNode.children();
         while (children.hasMoreElements()) {
@@ -875,7 +875,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theGoalsKeeper.saveAll();
         theEventListKeeper.saveAll();
         theTodoListKeeper.saveAll();
-        // theSearchResultsKeeper.saveAll();  Do not do this one; never needed.
+        theSearchResultsKeeper.saveAll(); // Needed when fixing data or after sorting.
 
         updateTreeState(true); // Capture expansion states into appOpts
     } // end preClose
@@ -999,9 +999,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         }
     } // end saveGroupAs
 
-    //------------------------------------------------------------------------------------------
-    // Method Name:  scanDataDir
-    //
+
     // This method scans a directory for data files.  If it finds a directory rather than a file,
     //   it will recursively call itself for that directory.
     //
@@ -1009,7 +1007,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     //   with the idea that ALL files will be searched and then considers the filters, to eliminate
     //   candidate files.  If a file is not eliminated after the filters have been considered, the
     //   search method is called for that file.
-    //------------------------------------------------------------------------------------------
     private void scanDataDir(File theDir, int level) {
         MemoryBank.dbg("Scanning " + theDir.getName());
 
@@ -1030,7 +1027,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 scanDataDir(theFile, level + 1);
             } else {
                 goLook = true;
-                if (theFile1Name.equals("Goals")) {
+                if (theFile1Name.startsWith("goal_")) {
                     if (!spTheSearchPanel.searchGoals()) {
                         goLook = false;
                     }
@@ -1055,7 +1052,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
                 // Check the Note date, possibly filter out based on 'when'.
                 if (goLook) {
-                    dateNoteDate = AppUtil.getDateFromFilename(theFile);
+                    dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
                     if (dateNoteDate != null) {
                         if (spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
                     } // end if
@@ -1101,13 +1098,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
         Object[] theGroupData = NoteGroupFile.loadFileData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-//            NoteInfo.loading = true; // We don't want to affect the lastModDates!
             // During a search these notes would not be re-preserved anyway, but the reason we care is that
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
             searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() {
             });
-//            NoteInfo.loading = false; // Restore normal lastModDate updating.
         }
         if (searchDataVector == null) return;
 
@@ -1123,7 +1118,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // The copy constructor used above will preserve the
                 //   dateLastMod of the original note.  Members specific
                 //   to a SearchResultData must be set explicitly.
-                srd.setFileFoundIn(dataFile);
+//                srd.setFileFoundIn(dataFile);
+                srd.foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
 
                 // Add this search result data to our findings.
                 foundDataVector.add(srd);
@@ -1224,68 +1220,18 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     } // end showEvents
 
 
-    //------------------------------------------------------------
-    // Method Name:  showFoundIn
-    //
-    //------------------------------------------------------------
+    // Show the Group where the search result was found.  This is going to be its current state and not a snapshot
+    // of the group when the data was found, so the data may now no longer be there.  In some cases the group itself
+    // may no longer be there.  If the group cannot be shown then nothing happens.
     void showFoundIn(SearchResultData srd) {
-        // Determine the treepath to be shown, based on
-        //   the result's file name/path.
-//        String fname = srd.getFileFoundIn().getName();
-//        String fpath = srd.getFileFoundIn().getParent();
-//
-//        if (fname.startsWith("todo_")) {
-//            // Given that a 'FoundIn' button has presumably been clicked, the implication
-//            // is that 'theNoteGroup' is populated with a SearchResultGroup, so we can use
-//            // that reference to access it's prettyName method (that it has due to NoteGroup implemening TreeLeaf).
-//            String prettyName = NoteGroupFile.prettyName(fname);
-//
-//            if (!(srd.getFileFoundIn()).exists()) {
-//                String s;
-//                s = "Error in loading " + prettyName + " !\n";
-//                s += "The original list no longer exists.";
-//                optionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
-//            } else {
-//                // We want to show the TodoNoteGroup where this data (srd) was found, but what if it is not currently
-//                // showing as a selectable leaf on the tree?  We cannot just setNotes it anyway; it may be very old and
-//                // had been deliberately deselected.  This review of 'found-in-a-search' results should not change
-//                // the user's tree configuration.
-//                // The beauty of this approach is that the path we set the selection to does not actually have to be
-//                // resent in the tree for this to work and display the list.  But a problem (bug?) is that
-//                // we get the correct full path but the child that we get from that path shows no 'parent'.
-//                // That complicates matters when handling the selection change, but it still gets handled correctly.
-//                TreePath phantomPath = todolistsPath.pathByAddingChild(new DefaultMutableTreeNode(prettyName));
-//                theTree.setSelectionPath(phantomPath);
-//            } // end if
-//        } else if (fname.equals("UpcomingEvents")) { // This is (may be?) older, but there may still be some.  It can come out, eventually.
-//            // TODO - test the Found In for an event - working?  seems not.  Fix, or setNotes better comments.
-//            // I get it now (2 Nov 2020) - this has not worked ever since UpcomingEvents went from a destination node to an expandable.
-//            //   At that time it should have gotten a similar treatment to todo lists.  But now, it also does not work for Goals,
-//            //   and the effort to remove 'File' specific syntax and handling is further along, so the SearchResultData needs to drop
-//            //   the 'fileFoundIn' member and replace it with a GroupInfo 'foundIn'.  This entire feature will be disabled, for now.
-//            theTree.setSelectionPath(eventsPath);
-//        } else if (!fpath.endsWith(MemoryBank.userDataHome)) {
-//            // If the path does not end at the top level data
-//            //   directory, then (at least at this writing) it
-//            //   means that we are down one of the calendar-
-//            //   based 'Year' paths.
-//
-//            // Note that we should be able to utilize srd.getNoteDate()
-//            //   here, rather than having to develop it from the filename.
-//            //   need to look into why that is not working...
-//            if (fname.startsWith("Y")) {
-//                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
-//                theTree.setSelectionPath(yearNotesPath);
-//            } else if (fname.startsWith("M")) {
-//                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
-//                theTree.setSelectionPath(monthNotesPath);
-//            } else if (fname.startsWith("D")) {
-//                selectedDate = AppUtil.getDateFromFilename(srd.getFileFoundIn());
-//                theTree.setSelectionPath(dayNotesPath);
-//            } // end if
-//        } // end if
-    } // end showFoundIn
+        if(srd.foundIn == null) return;
+        NoteGroupPanel thePanel = srd.foundIn.getNoteGroupPanel();
+        thePanel.setEditable(false);
 
+        theTree.clearSelection();
+        appMenuBar.manageMenus("No Selection");
+        rightPane.setViewportView(thePanel.theBasePanel);
+    }
 
     private void showHelp() {
         try {
@@ -1468,7 +1414,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Get the string for the selected node.
         String theNodeString = node.toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
-        appOpts.theSelection = theNodeString; // Preserved exactly, for app restart.
+        appOpts.theSelection = theNodeString; // Not used, but helpful during a visual review of the persisted options.
         String selectionContext = theNodeString;  // used in menu management; this default value may change, below.
 
         // Get the name of the node's parent.  Thanks to the way we have created the tree and

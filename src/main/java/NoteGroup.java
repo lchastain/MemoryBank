@@ -147,7 +147,7 @@ class NoteGroup implements LinkHolder {
 
 
     ArrayList getGroupNames() {
-        return dataAccessor.getGroupNames(null);
+        return dataAccessor.getGroupNames();
     }
 
 
@@ -258,13 +258,7 @@ class NoteGroup implements LinkHolder {
 
 
     void saveNoteGroup() {
-        if(isEmpty()) {
-            // This will remove the old data, if there is any.
-            // We could have alternatively (instead of calling 'save') gone directly to deleteNoteGroup.
-            dataAccessor.deleteNoteGroupData();
-        } else {
-            dataAccessor.saveNoteGroupData(getTheData());
-        }
+        dataAccessor.saveNoteGroupData(getTheData());
         setGroupChanged(false); // The 'save' preserved all changes to this point (we hope), so we reset the flag.
         // Note that we didn't check the result of the save.  A few reasons for that; primarily because the
         // 'happy' path would have been successful, and in the unsuccessful case we don't have a lot of

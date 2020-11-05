@@ -2,6 +2,7 @@
 // In addition to the ID and LastModDate that it gets from BaseData, it holds
 //   a simple group name (String) and the type of group (enum).
 
+import java.time.LocalDate;
 import java.util.Random;
 
 // A GroupInfo is primarily just a Type and a Name.
@@ -116,28 +117,61 @@ class GroupInfo extends BaseData {
         return theNoteGroup;
     }
 
+    // Called from LinkagesEditorPanel when adding or removing a reverse link.
     // Not much logic here at the moment, but coming soon - there will be other choices as to what
     // other accessors may be returned.  Then - will need to have a way to switch between them.
     NoteGroupDataAccessor getNoteGroupDataAccessor() {
         return new NoteGroupFile(this);
     }
 
-    // Called from LinkagesEditorPanel when adding or removing a reverse link.
-//    NoteGroupPanel getNoteGroupDataAccessor() {
-//        // Get the group's panel from a keeper, if it is there -
-//        NoteGroupPanel thePanel = AppTreePanel.theInstance.getPanelFromKeeper(groupType, groupName);
-//        if(thePanel != null) {
-//            thePanel.refresh(); // Preserve any unsaved changes.
-//            // No need to remove from keeper after this; any link target changes that we make next will pass through
-//            // and still take effect there.
-//            return thePanel;
-//        }
-//
-//        // So if we arrive here it means that our group is not referenced by a currently active panel but it must have
-//        // been in a panel at some point in the past and it was preserved at that time, so we will use the preserved
-//        // data to create a new panel, and return that.  If the load fails for any reason, the return value will be null.
-//        return GroupPanelFactory.loadNoteGroupPanel(this);
-//    }
+
+    // This method will either find and return the one unique existing Panel for this GroupInfo, or it will
+    // make one and return that.  If it has to make one, it will not add it to a keeper.
+    NoteGroupPanel getNoteGroupPanel() {
+        // Try to get the NoteGroup from an existing Panel
+        NoteGroupPanel thePanel = null;
+        if (AppTreePanel.theInstance != null) {
+            // This condition is only here for tests; under normal operating conditions
+            //   theInstance of AppTreePanel would never be null.
+            thePanel = AppTreePanel.theInstance.getPanelFromKeeper(this);
+        }
+
+        if (thePanel != null) { // It worked!
+            thePanel.preClosePanel(); // Ensures persisted data matches Panel data.
+        } else { // There isn't a Panel for it, so we will just make a NoteGroup of the right type; Panel not needed.
+            LocalDate theDate; // Needed by the Calendar note types.
+            switch (groupType) {
+                case SEARCH_RESULTS:
+                    thePanel = new SearchResultGroupPanel(groupName);
+                    break;
+                case TODO_LIST:
+                    thePanel = new TodoNoteGroupPanel(groupName);
+                    break;
+                case EVENTS:
+                    thePanel = new EventNoteGroupPanel(groupName);
+                    break;
+                case GOALS:
+                    thePanel = new GoalGroupPanel(groupName);
+                    break;
+                case DAY_NOTES:
+                    thePanel = new DayNoteGroupPanel();
+                    theDate = CalendarNoteGroup.getDateFromGroupName(this);
+                    ((DayNoteGroupPanel) thePanel).setDate(theDate);
+                    break;
+                case MONTH_NOTES:
+                    thePanel = new MonthNoteGroupPanel();
+                    theDate = CalendarNoteGroup.getDateFromGroupName(this);
+                    ((MonthNoteGroupPanel) thePanel).setDate(theDate);
+                    break;
+                case YEAR_NOTES:
+                    thePanel = new YearNoteGroupPanel();
+                    theDate = CalendarNoteGroup.getDateFromGroupName(this);
+                    ((YearNoteGroupPanel) thePanel).setDate(theDate);
+                    break;
+            }
+        }
+        return thePanel;
+    }
 
     // The condition in the method is needed during a transitional member name change (simpleName --> groupName).
     // TODO - run a data fix (or something) to do replacement on all pre-existing data, then remove simpleName
@@ -153,6 +187,7 @@ class GroupInfo extends BaseData {
 
 
     // Used by 'saveAs' and other one-off situations.
+    // We do not setGroupChanged() at this level; the calling context should do that, if needed.
     void setGroupName(String theName) {
         groupName = theName;
     }

@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -14,9 +16,9 @@ public class SearchResultComponent extends NoteComponent {
 
     // The Members
     private SearchResultData mySearchResultData;
-    private FoundInButton fibTheFoundInButton;
-    private LastModLabel lastModLabel;
-    private SearchResultGroupPanel myNoteGroup; // status msgs & change notification
+    private final FoundInButton foundInButton;
+    private final LastModLabel lastModLabel;
+    private final SearchResultGroupPanel myNoteGroup; // status msgs & change notification
 
     SearchResultComponent(SearchResultGroupPanel ng, int i) {
         super(ng, i);
@@ -24,13 +26,12 @@ public class SearchResultComponent extends NoteComponent {
 
         index = i;
         myNoteGroup = ng;
-        fibTheFoundInButton = new FoundInButton();
+        foundInButton = new FoundInButton();
         lastModLabel = new LastModLabel();
 
-        // Since a SearchResult should never be modified we can do this once here,
-        // unlike the Consolidated View for Events which needs to set the static
-        // boolean both before and after construction because all other instances
-        // of an Event List except that one should remain editable.
+        // Since a SearchResult should never be modified we can do this here and now.
+        // Also, the noteTextField has a built-in boolean for editability, unlike all the other
+        //   composite NoteComponent children that add or remove a MouseListener based on the flag.
         noteTextField.setEditable(false);
 
         //----------------------------------------------------------
@@ -39,7 +40,7 @@ public class SearchResultComponent extends NoteComponent {
         // Note: The dndLayout does not care about any component name other
         //   than 'Stretch', but something must be provided for each one.
         //   Only one component can be the one to be stretched.
-        add(fibTheFoundInButton, "foundIn");
+        add(foundInButton, "foundIn");
         add(noteTextField, "Stretch"); // will resize along with container
         add(lastModLabel, "lastMod");
 
@@ -54,7 +55,7 @@ public class SearchResultComponent extends NoteComponent {
     //-----------------------------------------------------------------
     public void clear() {
         super.clear();
-        fibTheFoundInButton.clear();
+        foundInButton.clear();
         lastModLabel.clear();
     } // end clear
 
@@ -66,7 +67,17 @@ public class SearchResultComponent extends NoteComponent {
     } // end getNoteData
 
     JComponent getFoundInButton() {
-        return fibTheFoundInButton;
+        return foundInButton;
+    }
+
+    String getFoundInButtonText(GroupInfo groupInfo) {
+        if(groupInfo.groupType != GroupInfo.GroupType.DAY_NOTES) {
+            return groupInfo.getGroupName();
+        }
+
+        LocalDate theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("d MMM yyyy");
+        return dtf.format(theDate);
     }
 
     JComponent getLastModLabel() {
@@ -78,20 +89,16 @@ public class SearchResultComponent extends NoteComponent {
     } // end initialize
 
 
-    //----------------------------------------------------------------
-    // Method Name: resetColumnOrder
-    //
     // Do not call this method if the columns are already in order;
     //   it just wastes cpu cycles.  Test for that condition in the
     //   calling context and only make the call if needed.
-    //----------------------------------------------------------------
     public void resetColumnOrder(int theOrder) {
         String pos = String.valueOf(theOrder);
         // System.out.println("SearchResultComponent resetColumnOrder to " + pos);
 
         //   Note that now we do not provide the 'name' and so we will
         //   be going through the base layout class 'setNotes' method.
-        add(fibTheFoundInButton, pos.indexOf("1"));
+        add(foundInButton, pos.indexOf("1"));
         add(noteTextField, pos.indexOf("2"));
         add(lastModLabel, pos.indexOf("3"));
 
@@ -100,12 +107,9 @@ public class SearchResultComponent extends NoteComponent {
     } // end resetColumnOrder
 
 
-    //----------------------------------------------------------
-    // Method Name: resetComponent
-    //
     // Called after a change to the encapsulated data, to show
     //   the visual effects of the change.
-    //----------------------------------------------------------
+    @Override
     protected void resetComponent() {
         super.resetComponent(); // the note text
 
@@ -115,7 +119,28 @@ public class SearchResultComponent extends NoteComponent {
             return;
         }
 
-        fibTheFoundInButton.setText(mySearchResultData.getFoundIn());
+        // On-the-go data fix: We have stopped preserving a File for 'foundInFile' of new searches.  For now the
+        // member is still present but should be null.  If it isn't, we use it to backfill the GroupInfo (foundIn)
+        // and then set it to null.  Once ALL such data is converted (in all user and test data) the fileFoundIn
+        // may be @JsonIgnore'd and after another iteration of load/save fixing, could be removed altogether.
+        File theFile = mySearchResultData.getFileFoundIn();
+        if(theFile != null) {
+            GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFile(theFile);
+            if(groupInfo.getGroupName() != null) { // If data is too whacked, we cannot 'fix' it.
+                mySearchResultData.foundIn = groupInfo;
+                mySearchResultData.setFileFoundIn(null);
+                myNoteGroup.fixedDataWhileLoading = true; // This will cause a re-save, on exit.
+            }
+        }
+
+        // Set the text of the 'Found In' button
+//        fibTheFoundInButton.setText(mySearchResultData.getFoundIn()); // this is the older 'getFoundIn' that is now disabled.
+        GroupInfo groupInfo = mySearchResultData.getFoundIn();
+        if(groupInfo != null) {
+            String foundInString = getFoundInButtonText(groupInfo);
+//            foundInButton.setText(mySearchResultData.getFoundIn().getGroupName());
+            foundInButton.setText(foundInString);
+        }
 
         // Get the Last Mod date
         ZonedDateTime zdtLastModDate = mySearchResultData.getLastModDate();
@@ -216,21 +241,19 @@ public class SearchResultComponent extends NoteComponent {
         boolean rightClicked = false;
 
         public FoundInButton() {
-            super("  ");
+            super("Unknown");
 
             setFont(Font.decode("Monospaced-bold-12"));
             addMouseListener(this);
         } // end FoundInButton constructor
 
         public void clear() {
+            setText("");
         }
 
-        //----------------------------------------------
-        // Overridden AWT methods
-        //----------------------------------------------
-        public boolean isFocusPainted() {
-            return false;
-        }
+//        public boolean isFocusPainted() {
+//            return false;
+//        }
 
         public boolean isFocusable() {
             return false;

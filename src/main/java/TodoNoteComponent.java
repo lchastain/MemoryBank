@@ -304,6 +304,13 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     @Override
+    void setEditable(boolean b) {
+        super.setEditable(b);
+        pbThePriorityButton.setEditable(b);
+        sbTheStatusButton.setEditable(b);
+    }
+
+    @Override
     public void setNoteData(NoteData newNoteData) {
         if (newNoteData instanceof TodoNoteData) {  // same type, but cast is still needed
             setTodoNoteData((TodoNoteData) newNoteData);
@@ -374,7 +381,6 @@ public class TodoNoteComponent extends NoteComponent {
             super("  ");
 
             setFont(Font.decode("Monospaced-bold-12"));
-            if(editable) addMouseListener(this);
             disableEvents(AWTEvent.FOCUS_EVENT_MASK + AWTEvent.COMPONENT_EVENT_MASK
                     + AWTEvent.ACTION_EVENT_MASK + AWTEvent.MOUSE_MOTION_EVENT_MASK
                     + AWTEvent.ITEM_EVENT_MASK);
@@ -387,6 +393,31 @@ public class TodoNoteComponent extends NoteComponent {
         public int getPriority() {
             return Priority;
         }
+
+        void setEditable(boolean b) {
+            if(b) { // This limits us to only one mouseListener.
+                // The limitation was more appropriate when an initial one was added during construction, but now
+                // we no longer do that.  However, this more careful approach is still valid, just more verbose.
+                // Leaving it for now, but all the other NoteComponent members with a setEditable method are
+                // currently of the very simple assignment type, relying on the assumption that the assignment
+                // of MouseListeners is controlled correctly.  ie, they are less careful than this one.
+                MouseListener[] mouseListeners = getMouseListeners();
+                boolean alreadyEditable = false;
+                for (MouseListener ml : mouseListeners) {
+                    if(ml.getClass() == this.getClass()) {
+                        alreadyEditable = true;
+                        break;
+                    }
+                }
+                if (!alreadyEditable) { // Separate line, for debug clarity.
+                    addMouseListener(this);
+                }
+            }
+            // Luckily, if 'this' is not currently a MouseListener then the next line is a silent no-op,
+            // and otherwise it does what we've asked.
+            else removeMouseListener(this);
+        }
+
 
         void setPriority(int value) {
             if (!initialized) return;
@@ -521,7 +552,6 @@ public class TodoNoteComponent extends NoteComponent {
 
         public StatusButton() {
             super();
-            if(editable) addMouseListener(this);
 
             setOpaque(true);
             showStatusIcon();
@@ -547,6 +577,11 @@ public class TodoNoteComponent extends NoteComponent {
         // such as goal percentage completion calculations, if not other features.
         public int getStatus() {
             return theStatus;
+        }
+
+        void setEditable(boolean b) {
+            if(b) addMouseListener(this);
+            else removeMouseListener(this);
         }
 
         public void setStatus(int i) {

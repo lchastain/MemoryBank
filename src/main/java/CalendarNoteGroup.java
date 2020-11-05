@@ -15,7 +15,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
                 dtf = DateTimeFormatter.ofPattern("yyyy");
                 break;
             case MONTH_NOTES:
-                dtf = DateTimeFormatter.ofPattern("d MMMM yyyy");
+                dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
                 break;
             case DAY_NOTES:
                 dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");

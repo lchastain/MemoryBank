@@ -6,24 +6,79 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
+(manual) Test for an unfound FoundIn.
+Automated Search test?
+Re-run all too-old searches.  Fix everything for Lex, jondo and others, as well as test resources.
+    A fix for lee will have to wait until the next pub.
+
 
 Questions:
 
+Issues:
+    The Search operation also looks into deactivated groups - but later - add a Y/N checkbox to the Search Panel
+        Settings for whether or not to include non-active groups.  Maybe one checkbox for each type.
+    It would be very helpful when viewing a 'Found In' type panel, if the user had a way to go back to the
+        SearchResults that they came from.  Suggest a top-level menu item:  'Go Back'.
+
 Problems:
-    event sorting not working...  even before, in pub.
+    event sorting by date not working...  even before, in pub.  But it does, sometimes.
+    Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
+        For this, maybe need two sets of messages - one for editable, one for not.
+    Saving and retrieval of the first ever SearchResults - group may not save, or may not come back as selected,
+        possibly due to non-existent SearchResults directory.  Didn't see the problem when there were two of them.
+    How to disable shiftUp/Down for non-editable Panels, but leave them active for SearchResults.
 
 New:
-
-    Fixed merge and chooseMergeFile, not fully File-extracted but one step closer, now using a new accessor method:
-        getGroupNames.  This is for both TodoLists and Events.
-    Fixed saveAs for both TodoLists and Events.  Events uses archiving, Todo does not.  Just for variety.
-    Repaired all tests that were broken due to rearch effort.  That effort is now concluded!
-        Caveat - some File-centric operations still exist; saveAs, merge, etc.
 
 
 
 
 =====================================================================================================
+5 Nov 2020
+    The view shown for a FoundIn button will be non-editable.  This is because some groups will come from keepers
+      and some will not, and any changes made should not be saved, so don't let the user think that they can make
+      changes in the first place.  Had to add 'setEditable' methods to TodoNoteComponent, MilestoneComponent,
+      IconNoteComponent, and DayNoteComponent members, to add or remove the mouseListener.  But all these
+      sub-components already had a listener, that they got during construction, so removed that setting.  Some of
+      the inner component setEditables will also check to see if there is already a MouseListener set.  Not sure
+      why, but it was needed for the DayNoteComponent icon and time label.
+    Did a date reformat for the 'Found In' button of SearchResults, primarily for the DayNotes, since its group name
+      is otherwise too long.
+    Check-in.
+
+4 Nov 2020
+    Changed SearchResults 'found in' from a File to a GroupInfo, a prerequisite needed before fixing the broken
+      links to Events and Goals.  But for the time being, now ALL links of that sort are broken, and the text
+      on the button is too long, for the DayNotes.  Some of the data to be converted is just too old; the DayNotes
+      were originally found back when there was not yet a 'Years' directory, and no group name was stored for the
+      group, not even the 'simpleName', which has now evolved into a GroupInfo.  Point is - ALL searches should be
+      redone, and the older ones deleted.  The fixes in place now will then be OBE, but at least one new static method
+      will continue to be relevant, called during the search itself in order to get the GroupInfo for each found note.
+    Found an amazing shortcut for the new 'Found In' button click - now very short and simple, and it automatically
+      works for ALL group types, supported mainly by a new GroupInfo method to return a Panel for a GroupInfo.  This
+      solution involves going directly to the rightPane viewport of the app tree, skipping any tree-type Paths or
+      selections.  This means there is no more usage or need for the 'phantom' path solution that I was so proud of
+      when it was first written.  Since it goes away entirely now, it is worth preserving code and comments here:
+      // The beauty of this approach is that the path we set the selection to does not actually have to be
+      // present in the tree for this to work and display the list.  But a problem (bug?) is that
+      // we get the correct full path but the child that we get from that path shows no 'parent'.
+      // That complicates matters when handling the selection change, but it still gets handled correctly because
+      // we don't directly ask the node for its parent but instead extract it from the path to the selected node.
+      TreePath phantomPath = todolistsPath.pathByAddingChild(new DefaultMutableTreeNode(prettyName));
+      theTree.setSelectionPath(phantomPath);
+        One new discovery (that is now not going to be used anyway) is that the path you start with (todoListsPath,
+        in the code above) didn't really matter, since it doesn't appear in the tree and the 'selection' is not
+        highlighted there.  The only requirement was that it was on the tree somewhere, so any one good path would have
+        worked for all note type groups.
+
+2 Nov 2020
+    Fixed merge and chooseMergeFile, not fully File-extracted but one step closer, now using a new accessor method:
+        getGroupNames.  This is for both TodoLists and Events.
+    Fixed saveAs for both TodoLists and Events.  Events leverages archiving, Todo does not.  Just for variety.
+    Repaired all tests that were broken due to rearch effort.  That effort is now concluded as far as inheritance
+      is concerned but there are still some file-centric operations such as saveAs, merge, etc, where the direct
+      usages of File-based methods needs to change over to accomplishing these things via the data accessor.
+
  1 Nov 2020
     Fixed deleteGroup, in AppTreePanel.  It had one reachout to get a filename and delete the file.  Now it does it
       according to the new hierarchy and interface; cleaner.  Added a 'delete' method to the data accessor interface.

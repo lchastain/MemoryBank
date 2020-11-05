@@ -10,6 +10,11 @@ public class BaseData {
         zdtLastModString = ZonedDateTime.now().toString();
     }
 
+    @Override
+    public String toString() {
+        return AppUtil.toJsonString(this);
+    }
+
 //    @Override
 //    public boolean equals(Object theOtherOne) {
 //        // Breakpoint until we find who calls / needs this - IJ gives >1000 results

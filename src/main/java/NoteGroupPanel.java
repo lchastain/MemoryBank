@@ -372,8 +372,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
     }
 
-    // This method does not care about what data might be contained in the NoteComponents, or what
-    // page you might be on.  It simply enables or disables every NoteComponent in the Panel.
+    // This method enables or disables every NoteComponent in the Panel.
     void setEditable(boolean b) {
         if(editable != b) {
             editable = b;
@@ -500,6 +499,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             //   later will be the child class method that is an override of the one
             //   in NoteComponent.  That behavior is critical to this operation.
             tempNoteComponent = (NoteComponent) groupNotesListPanel.getComponent(panelIndex);
+
+            // This method may have been called directly after a Group load but can also be called
+            // as a result of a change to the panel's editability.
             tempNoteComponent.setEditable(editable);
 
             if (dataIndex <= maxDataIndex) { // Put vector data into the interface.

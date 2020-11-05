@@ -8,15 +8,25 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(SearchResultGroupPanel.class);
     private JLabel resultsPageOf;
     SearchResultHeader listHeader;
+    boolean fixedDataWhileLoading;
 
     SearchResultGroupPanel(String groupName) {
         super();    // super(10);  // test, for paging
 
         GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
+
+        // These lines may only be needed for older data ("No Name Yet").  May be able to remove, eventually.
+        myNoteGroup.getGroupProperties().setGroupName(groupName); // Override whatever name was loaded.
+        myNoteGroup.getGroupProperties().groupType = GroupInfo.GroupType.SEARCH_RESULTS;
+        myNoteGroup.myGroupInfo.setGroupName(groupName);
+
         myNoteGroup.myNoteGroupPanel = this;
         editable = false;
-        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
+        loadNotesPanel();
+
+        if(fixedDataWhileLoading) setGroupChanged(true); // This can go away when all is fixed.
+        // The component might have set this to true.
 
         theNotePager.reset(1);
         buildPanelContent();
@@ -154,11 +164,6 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         return src;
     } // end makeNewNote
 
-    @Override
-    protected void preClosePanel() {
-        // The search result file is saved once only, when the search is first conducted.
-        // After that - it should be left alone except for loading and displaying.
-    }
 
     // Disabled this 9/03/2019 so that it does not pull down code coverage for tests.
     // But it appears to have never been used - there was no menu item leading here.

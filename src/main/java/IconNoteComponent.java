@@ -15,15 +15,15 @@ public abstract class IconNoteComponent extends NoteComponent {
     NoteIcon noteIcon;
 
     // Private static values that are accessed from multiple contexts.
-    private static IconFileChooser iconChooser;
-    private static JCheckBoxMenuItem siombMi;
+    private static final IconFileChooser iconChooser;
+    private static final JCheckBoxMenuItem siombMi;
     static JMenuItem sadMi;
-    private static JMenuItem resetMi;
+    private static final JMenuItem resetMi;
     static JMenuItem blankMi;
-    private static JPopupMenu iconPopup;
+    private static final JPopupMenu iconPopup;
 
     // A reference to the container that holds this component
-    private IconKeeper myContainer;
+    private final IconKeeper myContainer;
 
 
     static {
@@ -103,6 +103,12 @@ public abstract class IconNoteComponent extends NoteComponent {
     } // end initialize
 
 
+    @Override
+    void setEditable(boolean b) {
+        super.setEditable(b);
+        noteIcon.setEditable(b);
+    }
+
     //-----------------------------------------------------
     // Method Name: setIcon
     //
@@ -163,9 +169,6 @@ public abstract class IconNoteComponent extends NoteComponent {
 
         NoteIcon() {
             super();
-            if(editable) {
-                addMouseListener(this);
-            }
             setBorder(highBorder);
         } // end constructor
 
@@ -180,6 +183,27 @@ public abstract class IconNoteComponent extends NoteComponent {
             theIconFile = null;
         } // end clear
 
+
+        void setEditable(boolean b) {
+            if(b) { // This limits us to only one mouseListener.
+                // The limitation was more appropriate when an initial one was added during construction, but now
+                // we no longer do that.  However, this more careful approach is still valid, just more verbose.
+                MouseListener[] mouseListeners = getMouseListeners();
+                boolean alreadyEditable = false;
+                for (MouseListener ml : mouseListeners) {
+                    if(ml.getClass() == this.getClass()) {
+                        alreadyEditable = true;
+                        break;
+                    }
+                }
+                if (!alreadyEditable) { // Separate line, for debug clarity.
+                    addMouseListener(this);
+                }
+            }
+            // Luckily, if 'this' is not currently a MouseListener then the next line is a silent no-op,
+            // and otherwise it does what we've asked.
+            else removeMouseListener(this);
+        }
 
         //------------------------------------------------------------
         // Method Name:  showIconPopup

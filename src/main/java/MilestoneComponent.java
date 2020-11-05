@@ -12,7 +12,7 @@ public class MilestoneComponent extends NoteComponent {
 
     // The Members
     private TodoNoteData myTodoNoteData;
-    private StatusButton sbTheStatusButton;
+    private final StatusButton sbTheStatusButton;
 
     private GoalGroupPanel myNoteGroup;
     private static JMenuItem miClearPriority;
@@ -280,6 +280,13 @@ public class MilestoneComponent extends NoteComponent {
 
 
     @Override
+    void setEditable(boolean b) {
+        super.setEditable(b);
+        sbTheStatusButton.setEditable(b);
+    }
+
+
+    @Override
     public void setNoteData(NoteData newNoteData) {
         if (newNoteData instanceof TodoNoteData) {  // same type, but cast is still needed
             setTodoNoteData((TodoNoteData) newNoteData);
@@ -342,7 +349,6 @@ public class MilestoneComponent extends NoteComponent {
 
         public StatusButton() {
             super();
-            if(editable) addMouseListener(this);
 
             setOpaque(true);
             showStatusIcon();
@@ -368,6 +374,12 @@ public class MilestoneComponent extends NoteComponent {
         // such as goal percentage completion calculations, if not other features.
         public int getStatus() {
             return theStatus;
+        }
+
+
+        void setEditable(boolean b) {
+            if(b) addMouseListener(this);
+            else removeMouseListener(this);
         }
 
         public void setStatus(int i) {

@@ -4,7 +4,7 @@ public interface NoteGroupDataAccessor {
 
     void deleteNoteGroupData();
 
-    ArrayList getGroupNames(ArrayList exceptions);
+    ArrayList getGroupNames();
 
     Object[] loadNoteGroupData(GroupInfo groupInfo);
 
