@@ -8,6 +8,8 @@ import java.io.File;
 import java.time.LocalDate;
 
 public class TodoNoteComponent extends NoteComponent {
+    // The icon in a TodoNoteComponent is simpler than the one that would be inherited from IconNoteComponent.
+    // The extra overhead is not needed and so this class can extend directly from NoteComponent.
     private static final long serialVersionUID = 1L;
 
     // The Members
@@ -395,12 +397,8 @@ public class TodoNoteComponent extends NoteComponent {
         }
 
         void setEditable(boolean b) {
-            if(b) { // This limits us to only one mouseListener.
-                // The limitation was more appropriate when an initial one was added during construction, but now
-                // we no longer do that.  However, this more careful approach is still valid, just more verbose.
-                // Leaving it for now, but all the other NoteComponent members with a setEditable method are
-                // currently of the very simple assignment type, relying on the assumption that the assignment
-                // of MouseListeners is controlled correctly.  ie, they are less careful than this one.
+            if(b) { // This limits us to only one mouseListener corresponding to 'this'.
+                // The limitation is needed because this method is called whenever a page is (re-)loaded.
                 MouseListener[] mouseListeners = getMouseListeners();
                 boolean alreadyEditable = false;
                 for (MouseListener ml : mouseListeners) {
@@ -580,7 +578,22 @@ public class TodoNoteComponent extends NoteComponent {
         }
 
         void setEditable(boolean b) {
-            if(b) addMouseListener(this);
+            if(b) { // This limits us to only one mouseListener corresponding to 'this'.
+                // The limitation is needed because this method is called whenever a page is (re-)loaded.
+                MouseListener[] mouseListeners = getMouseListeners();
+                boolean alreadyEditable = false;
+                for (MouseListener ml : mouseListeners) {
+                    if(ml.getClass() == this.getClass()) {
+                        alreadyEditable = true;
+                        break;
+                    }
+                }
+                if (!alreadyEditable) { // Separate line, for debug clarity.
+                    addMouseListener(this);
+                }
+            }
+            // Luckily, if 'this' is not currently a MouseListener then the next line is a silent no-op,
+            // and otherwise it does what we've asked.
             else removeMouseListener(this);
         }
 

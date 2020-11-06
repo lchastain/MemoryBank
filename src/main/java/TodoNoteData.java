@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 public class TodoNoteData extends NoteData {
+    // The icon in a TodoNoteComponent is simpler than the one that would be inherited from IconNoteData.
+    // The extra overhead is not needed and so this class can extend directly from NoteData.
     static final int TODO_STARTED = 0;
     static final int TODO_COMPLETED = 1;
     static final int TODO_INPROG = 2;
@@ -46,7 +48,7 @@ public class TodoNoteData extends NoteData {
     } // end constructor
 
     // Construct a TodoNoteData from a NoteData.
-    // This is used when taking Notes from NoteData interfaces.
+    // This is used when pasting Notes that were copied from NoteData interfaces.
     public TodoNoteData(NoteData nd) {
         super(nd);
         clearTodoNoteData(); // sets default values.
@@ -71,20 +73,6 @@ public class TodoNoteData extends NoteData {
         todoDateString = null;
     } // end clearTodoNoteData
 
-
-    @Override
-    public boolean equals(Object otherObject) {
-        if (this == otherObject) return true; // reference check
-        if (otherObject == null) return false; // null check
-        if (getClass() != otherObject.getClass()) return false; // type check
-
-        TodoNoteData otherData = (TodoNoteData) otherObject;
-
-        if (!noteString.equals(otherData.noteString)) return false;
-        if (!extendedNoteString.equals(otherData.extendedNoteString)) return false;
-        if (intPriority != otherData.getPriority()) return false;
-        return intStatus == otherData.getStatus();
-    }
 
     LocalDate getTodoDate() {
         if(todoDateString == null) return null;

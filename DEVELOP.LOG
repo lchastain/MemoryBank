@@ -6,10 +6,11 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
+    Todo list after a Move To Day - status buttons have only two (randomly chosen?) icons.
+
 (manual) Test for an unfound FoundIn.
 Automated Search test?
-Re-run all too-old searches.  Fix everything for Lex, jondo and others, as well as test resources.
-    A fix for lee will have to wait until the next pub.
+Re-run all too-old searches for Lee, then copy to Lex, fix jondo and others, as well as test resources.
 
 
 Questions:
@@ -21,6 +22,7 @@ Issues:
         SearchResults that they came from.  Suggest a top-level menu item:  'Go Back'.
 
 Problems:
+    Todo list after a Move To Day - status buttons have only two (randomly chosen?) icons.
     event sorting by date not working...  even before, in pub.  But it does, sometimes.
     Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
         For this, maybe need two sets of messages - one for editable, one for not.
@@ -44,7 +46,7 @@ New:
       why, but it was needed for the DayNoteComponent icon and time label.
     Did a date reformat for the 'Found In' button of SearchResults, primarily for the DayNotes, since its group name
       is otherwise too long.
-    Check-in.
+    Check-in, pub and backups
 
 4 Nov 2020
     Changed SearchResults 'found in' from a File to a GroupInfo, a prerequisite needed before fixing the broken

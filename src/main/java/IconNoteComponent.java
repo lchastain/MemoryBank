@@ -185,9 +185,8 @@ public abstract class IconNoteComponent extends NoteComponent {
 
 
         void setEditable(boolean b) {
-            if(b) { // This limits us to only one mouseListener.
-                // The limitation was more appropriate when an initial one was added during construction, but now
-                // we no longer do that.  However, this more careful approach is still valid, just more verbose.
+            if(b) { // This limits us to only one mouseListener corresponding to 'this'.
+                // The limitation is needed because this method is called whenever a page is (re-)loaded.
                 MouseListener[] mouseListeners = getMouseListeners();
                 boolean alreadyEditable = false;
                 for (MouseListener ml : mouseListeners) {
