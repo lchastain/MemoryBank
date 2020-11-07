@@ -127,7 +127,7 @@ public class SearchTest {
     @Test
     void testCloseSearchResult() throws Exception {
         // First, select a known search result (we know the content of our test data)
-        String theSearchResult = "20190927161325";
+        String theSearchResult = "20201107080423"; // Search text 'primatech'
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode dmtn = TestUtil.getTreeNodeForString(theRoot, theSearchResult);

@@ -1101,8 +1101,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // During a search these notes would not be re-preserved anyway, but the reason we care is that
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
+            BaseData.loading = true;
             searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() {
             });
+            BaseData.loading = false;
         }
         if (searchDataVector == null) return;
 

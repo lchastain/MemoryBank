@@ -430,6 +430,13 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     // option would work best but really we can just assign it the empty string and sort anyway,
     // so that's what's happening now and there is only one ascending and one descending way to go.
 
+    // New thoughts 7 Nov 2020 - How can there be no value on a noteString, where a note is not allowed
+    // to be saved in the first place if there is no text?  This means that for SearchResults there are
+    // only the two directions and the user does have control over which one is used.  But this method
+    // looks like it only sorts the visible page; if there is more than one page - there will be problems
+    // when the page is 'turned'.  The sorting needs to be done on the source data vector, set the
+    // groupChanged flag to true and then just reload the current page.
+
     public void sortText(int direction) {
         SearchResultData todoData1, todoData2;
         SearchResultComponent todoComponent1, todoComponent2;
@@ -437,11 +444,10 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         String str1, str2;
         int items = lastVisibleNoteIndex;
 
-        // AppUtil.localDebug(true);
-        MemoryBank.debug("SearchResultGroup sortText - Number of items in list: " + items);
+        log.debug("SearchResultGroup sortText - Number of items in list: " + items);
 
         if(direction == ASCENDING) {
-            MemoryBank.debug("Sorting: Text, ASCENDING");
+            log.debug("Sorting: Text, ASCENDING");
             for (i = 0; i < (items - 1); i++) {
                 todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
                 todoData1 = (SearchResultData) todoComponent1.getNoteData();
@@ -459,7 +465,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
                 } // end for j
             } // end for i
         } else {
-            MemoryBank.debug("Sorting: Text, DESCENDING");
+            log.debug("Sorting: Text, DESCENDING");
             for (i = 0; i < (items - 1); i++) {
                 todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
                 todoData1 = (SearchResultData) todoComponent1.getNoteData();
@@ -477,7 +483,6 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
                 } // end for j
             } // end for i
         }
-        // AppUtil.localDebug(false);
     } // end sortText
 
 } // end class SearchResultGroup

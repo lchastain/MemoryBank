@@ -119,7 +119,7 @@ public class DragAndDropTests {
 
     @Test
     void testDragRight() throws InterruptedException {
-        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20191029073938");
+        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20201107080423");
         SearchResultHeader searchResultHeader = searchResultGroup.listHeader;
         JFrame testFrame = new JFrame("Drag Right And Drop Driver");
         testFrame.addWindowListener(new WindowAdapter() {

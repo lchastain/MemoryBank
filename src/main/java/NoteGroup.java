@@ -156,14 +156,6 @@ class NoteGroup implements LinkHolder {
     // simple default implementation allows us to use the identical means to access, regardless of what type
     // of NoteGroup ultimately responds to the request.
     public GroupProperties getGroupProperties() {
-//        // The preference is to recreate the properties each time from loaded data, if there is any.
-//        if(theData[0] != null) {
-//            String theClass = theData[0].getClass().getName();
-//            if (theClass.equals("java.util.LinkedHashMap")) {
-//                myProperties = AppUtil.mapper.convertValue(theData[0], new TypeReference<GroupProperties>() {});
-//            }
-//        }
-
         return myProperties;
     }
 
@@ -222,7 +214,7 @@ class NoteGroup implements LinkHolder {
         // variant if/when/after the data is ever cleaned up, possibly via a port from files to database.
 
         // The 'set' methods below will be overridden by child classes so they can set the proper data type.
-        NoteInfo.loading = true;
+        BaseData.loading = true;
         if (theLength == 1) { // Then this is old, legacy data that was originally saved without GroupProperties.
             setNotes(theData[0]);
         } else { // then theLength == 2 (or more, but we only know of two, for now)
@@ -234,7 +226,7 @@ class NoteGroup implements LinkHolder {
             }
             setNotes(theData[1]);
         }
-        NoteInfo.loading = false;
+        BaseData.loading = false;
         setGroupChanged(false); // After a fresh load, no changes.
     }
 

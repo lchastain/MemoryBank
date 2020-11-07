@@ -1,7 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 public class TodoNoteData extends NoteData {
     // The icon in a TodoNoteComponent is simpler than the one that would be inherited from IconNoteData.
@@ -128,13 +126,13 @@ public class TodoNoteData extends NoteData {
     @JsonIgnore
     public void setPriority(int val) {
         intPriority = val;
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+        touchLastMod();
     }
 
     @JsonIgnore
     public void setStatus(int val) {
         intStatus = val;
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+        touchLastMod();
     }
 
     void setTodoDate(LocalDate value) {
@@ -143,7 +141,7 @@ public class TodoNoteData extends NoteData {
         } else {
             todoDateString = value.toString();
         }
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+        touchLastMod();
     }
 
 } // end class TodoNoteData

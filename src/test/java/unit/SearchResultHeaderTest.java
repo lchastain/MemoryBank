@@ -46,7 +46,7 @@ class SearchResultHeaderTest {
     @Test
 //    @Disabled
     void testHeaderButtonMouseEvents() throws InterruptedException {
-        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20191029073938");
+        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20201107080423");
         SearchResultHeader searchResultHeader = searchResultGroup.listHeader;
         JFrame testFrame = new JFrame("Sort by Search Text Driver");
         testFrame.addWindowListener(new WindowAdapter() {

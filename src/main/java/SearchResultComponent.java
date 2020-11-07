@@ -48,11 +48,8 @@ public class SearchResultComponent extends NoteComponent {
     } // end constructor
 
 
-    //-----------------------------------------------------------------
-    // Method Name: clear
-    //
     // Clears both the Graphical elements and the underlying data.
-    //-----------------------------------------------------------------
+    // Used by swap
     public void clear() {
         super.clear();
         foundInButton.clear();
@@ -62,7 +59,6 @@ public class SearchResultComponent extends NoteComponent {
 
     @Override
     public NoteData getNoteData() {
-//        if (!initialized) return null;
         return mySearchResultData;
     } // end getNoteData
 

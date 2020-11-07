@@ -1,13 +1,6 @@
 import java.time.ZonedDateTime;
 
 class NoteInfo extends BaseData {
-    // We do not want the BaseData member zdtLastModString (LMD) to be updated when instances of NoteInfo
-    // children are loaded in as Notes of Groups.  But NoteInfo has (and some of its children have) additional
-    // members that when changed can & should update the LMD.  The problem comes in when those 'set' methods
-    // are called during the construction of a Group; in those cases the values being set have come
-    // from the data store and in that case should not affect the LMD.  This flag is used in those 'set'
-    // methods so they will know whether or not to update the LMD.
-    static boolean loading = false;
 
     String noteString;
     String subjectString;
@@ -80,17 +73,17 @@ class NoteInfo extends BaseData {
 
     public void setExtendedNoteString(String val) {
         extendedNoteString = val;
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+        touchLastMod();
     }
 
     void setNoteString(String value) {
         noteString = value;
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+        touchLastMod();
     }
 
     void setSubjectString(String value) {
         subjectString = value;
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+        touchLastMod();
     }
 
 } // end class NoteData

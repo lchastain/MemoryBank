@@ -33,7 +33,7 @@ class SearchResultGroupTest {
     void beforeEach() throws InterruptedException {
         // We have chosen a known search result, so the
         // tests below will know the limitation of indices and text content.
-        String theNodeName = "20190927161325";
+        String theNodeName = "20201107080423"; // Search text 'primatech'
         searchResultGroup = (SearchResultGroupPanel) GroupPanelFactory.loadNoteGroupPanel("Search Result", theNodeName);
         Thread.sleep(200); // Tests need some settling time.
     }
@@ -43,7 +43,7 @@ class SearchResultGroupTest {
     @Test
     void testLoadLastModDate() {
         // The other tests here muck too much with the data; need a fresh results list.
-        String theFileName = "20191029073938";  // Search text 'Office'
+        String theFileName = "20201107080501";  // Search text 'Office'
         SearchResultGroupPanel srg = (SearchResultGroupPanel) GroupPanelFactory.loadNoteGroupPanel("Search Result", theFileName);
         Assertions.assertNotNull(srg);
 

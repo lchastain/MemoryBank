@@ -6,11 +6,11 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
-    Todo list after a Move To Day - status buttons have only two (randomly chosen?) icons.
+LMD of searches - wrong!  Need to identify which part of a load is doing the change, and fix.
+Also need to review LMD of all other note types.
 
 (manual) Test for an unfound FoundIn.
 Automated Search test?
-Re-run all too-old searches for Lee, then copy to Lex, fix jondo and others, as well as test resources.
 
 
 Questions:
@@ -22,7 +22,6 @@ Issues:
         SearchResults that they came from.  Suggest a top-level menu item:  'Go Back'.
 
 Problems:
-    Todo list after a Move To Day - status buttons have only two (randomly chosen?) icons.
     event sorting by date not working...  even before, in pub.  But it does, sometimes.
     Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
         For this, maybe need two sets of messages - one for editable, one for not.
@@ -36,6 +35,18 @@ New:
 
 
 =====================================================================================================
+7 Nov 2020
+   After fixing search data, tests broke in several places.  They turned up a regression in the display of the LMD
+     for the search results (fixed now) and also some tests relied on search result group names that had changed.
+     Repaired all search results, check-in and pub.
+
+6 Nov 2020
+    Fixed a problem where after a 'Move To Today', the status buttons did not seem to have all the choices.  This was
+       because there were two mouse listeners, incrementing the status once per listener.  This was a regression that
+       happened after the Panel/NoteComponent editability changes.  Fixed it by applying the same 'cautious' listener
+       assignment that was previously only in a couple of them, now it is in all of the ones that control editability
+       by enabling or disabling a MouseListener.  Check-in and pub (did not update the backup)
+
 5 Nov 2020
     The view shown for a FoundIn button will be non-editable.  This is because some groups will come from keepers
       and some will not, and any changes made should not be saved, so don't let the user think that they can make
