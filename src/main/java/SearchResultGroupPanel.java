@@ -12,6 +12,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
     SearchResultGroupPanel(String groupName) {
         super();    // super(10);  // test, for paging
+        BaseData.loading = true;
 
         GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
@@ -30,6 +31,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         theNotePager.reset(1);
         buildPanelContent();
+        BaseData.loading = false;
     } // end constructor
 
 

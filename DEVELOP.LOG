@@ -6,11 +6,15 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
-LMD of searches - wrong!  Need to identify which part of a load is doing the change, and fix.
-Also need to review LMD of all other note types.
+
+  When todo list LMDs are fixed, need to backtrack as much as possible from earlier data snapshots, wherever they may be.
 
 (manual) Test for an unfound FoundIn.
 Automated Search test?
+
+Now toying with an idea to pull BaseData out of the hierarchy, having NoteData and GroupProperties individually
+  define the two members.  This would have the effect of reducing the 'Found In' size and also the Link targets.
+  The current downside is how to control the 'loading' boolean.  Maybe should solve that current problem, first.
 
 
 Questions:
@@ -20,6 +24,7 @@ Issues:
         Settings for whether or not to include non-active groups.  Maybe one checkbox for each type.
     It would be very helpful when viewing a 'Found In' type panel, if the user had a way to go back to the
         SearchResults that they came from.  Suggest a top-level menu item:  'Go Back'.
+    Need a way to review LMD of all other note types besides Search Results.
 
 Problems:
     event sorting by date not working...  even before, in pub.  But it does, sometimes.
@@ -33,8 +38,15 @@ New:
 
 
 
-
 =====================================================================================================
+9 Nov 2020
+  Every note in a ToDo list was getting LMD updated when a note in the group changed, yet its own properties stayed old.
+    Several reorg-type changes related to the setting of LMD and the check of BaseData.loading, to fix.  Still unclear
+    if the Jackson type conversion is involved or not; currently there is probably too much wrapping of changes but
+    that's ok because operationally we are good even if there is some unnecessary processing.  Will eventually clear
+    up the unneeded ones.  One NEW feature, added to help track this down:  An in-memory NoteGroup can now be reviewed
+    without having to write it out to a file.  Check in and pub, so Lee data can be fixed there.
+
 7 Nov 2020
    After fixing search data, tests broke in several places.  They turned up a regression in the display of the LMD
      for the search results (fixed now) and also some tests relied on search result group names that had changed.

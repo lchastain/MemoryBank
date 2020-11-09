@@ -33,10 +33,11 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     public TodoNoteGroupPanel(String groupName, int pageSize) {
         super(pageSize); // This builds the notes panel
 
+
         GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.TODO_LIST);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
-        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
+        loadNotesPanel();
 
         buildMyPanel(groupName);
         theNotePager.reset(1);

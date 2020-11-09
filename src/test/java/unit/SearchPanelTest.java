@@ -37,6 +37,7 @@ class SearchPanelTest {
         // An empty (new) NoteData - one specified keyword, does not get found.
         searchPanelSettings = new SearchPanelSettings();
         NoteData searchingIn = new NoteData();
+        searchingIn.setNoteString("Just a note"); // To ensure LMD gets set.
         searchPanelSettings.word1 = word1;
         theSearchPanel.setTheSettings(searchPanelSettings);
         theResult = theSearchPanel.foundIt(searchingIn);

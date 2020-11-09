@@ -103,14 +103,11 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     } // end getSummary
 
 
-    //-------------------------------------------------------------------------
-    // Method Name: reset
-    //
-    // This method is used to set the current page number and to
+    // This method is used to set the current page number of the pager and to
     //   calculate the maximum number of pages.  It is called
     //   by NoteGroup.updateGroup() where it sets the current
-    //   page to 1, both before and after a group load.
-    //-------------------------------------------------------------------------
+    //   page to 1, both before and after a group load.  Loading occurs in the
+    //   calling context, not here.
     public void reset(int i) {
         currentPageNumber = i;
         intPageSize = myNoteGroupPanel.pageSize;

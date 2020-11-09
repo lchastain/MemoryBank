@@ -1,4 +1,4 @@
-import java.time.ZonedDateTime;
+
 
 class NoteInfo extends BaseData {
 
@@ -45,15 +45,6 @@ class NoteInfo extends BaseData {
         return new NoteInfo(this);
     }
 
-
-    ZonedDateTime getLastModDate() {
-        // We don't keep an actual date; we keep the string from it.
-        // So when the request comes in, if somehow that string hasn't been set then we don't want
-        //   to default to current date & time, so the only other answer is to send back a null.
-        if(zdtLastModString == null) return null;
-
-        return ZonedDateTime.parse(zdtLastModString);
-    }
 
     public String getExtendedNoteString() {
         return extendedNoteString;

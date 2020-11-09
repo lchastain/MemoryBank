@@ -5,18 +5,18 @@ public class AppMenuBar extends JMenuBar{
 
     // Menus
     //-------------------------------------------------
-    private static JMenu fileMenu;
-    private static JMenu branchEditorMenu;
-    private static JMenu deletedMenu;
+    private static final JMenu fileMenu;
+    private static final JMenu branchEditorMenu;
+    private static final JMenu deletedMenu;
 
-    private static JMenu goalsMenu;
-    private static JMenu eventsMenu;
-    private static JMenu viewsMenu;
-    private static JMenu notesMenu;
-    private static JMenu todolistsMenu;
-    private static JMenu searchesMenu;
+    private static final JMenu goalsMenu;
+    private static final JMenu eventsMenu;
+    private static final JMenu viewsMenu;
+    private static final JMenu notesMenu;
+    private static final JMenu todolistsMenu;
+    private static final JMenu searchesMenu;
 
-    private static JMenu helpMenu;
+    private static final JMenu helpMenu;
     //-------------------------------------------------
 
     private String theCurrentContext;
@@ -26,6 +26,7 @@ public class AppMenuBar extends JMenuBar{
         fileMenu = new JMenu("App");
         fileMenu.add(new JMenuItem("Search..."));
         fileMenu.add(new JMenuItem("Show Scheduled Events"));
+        fileMenu.add(new JMenuItem("Show Current NoteGroup"));
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 

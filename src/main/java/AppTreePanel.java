@@ -7,9 +7,6 @@
 // 
 // MenuBar events        - actionPerformed() --> handleMenuBar().
 // Tree Selection events - valueChanged() --> treeSelectionChanged() in a new thread.
-//
-// Management of search results should be rewritten to be closer to
-//   the way to do lists are handled.
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
@@ -32,6 +29,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Vector;
+
+import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 
 public class AppTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
@@ -87,7 +86,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     private TreePath eventsPath;
     private TreePath goalsPath;
 
-    private AppOptions appOpts;
+    private final AppOptions appOpts;
 
     boolean restoringPreviousSelection;
     boolean searching;
@@ -721,10 +720,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             String theFilename = NoteGroupFile.makeFullFilename(NoteGroup.eventGroupArea, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = NoteGroupFile.loadFileData(theFilename);
-//            NoteInfo.loading = true; // We don't want to affect the lastModDates!
+            NoteInfo.loading = true; // We don't want to affect the lastModDates!
             groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
             });
-//            NoteInfo.loading = false; // Restore normal lastModDate updating.
+            NoteInfo.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
                 theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -818,6 +817,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Group Linkages...")) theNoteGroupPanel.groupLinkages();
         else if (what.equals("Show Scheduled Events")) showEvents();
+        else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
         else if (what.equals("Delete")) deleteGroup();
         else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroupPanel) theNoteGroupPanel).setOptions();
@@ -1198,6 +1198,24 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theTree.setSelectionPath(dayNotesPath);
     } // end showDay
 
+
+    void showCurrentNoteGroup() {
+        Object theMessage;
+        if(theNoteGroupPanel == null) {
+            theMessage = "No NoteGroup is selected!";
+        } else {
+            JScrollPane jScrollPane = new JScrollPane();
+            JTextArea jTextArea = new JTextArea();
+            String groupChangedString = "\"groupChanged\" : " + theNoteGroupPanel.myNoteGroup.groupChanged + ",\n";
+            jTextArea.append(groupChangedString);
+            Object[] theData = theNoteGroupPanel.myNoteGroup.getTheData();
+            jTextArea.append( AppUtil.toJsonString(theData));
+            jScrollPane.setViewportView(jTextArea);
+            jScrollPane.setPreferredSize(new Dimension(600, 500));
+            theMessage = jScrollPane;
+        }
+        optionPane.showMessageDialog(this, theMessage, "Viewing Current NoteGroup", PLAIN_MESSAGE);
+    }
 
     void showEvents() {
         JDialog dialogWindow;

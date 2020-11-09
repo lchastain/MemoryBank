@@ -112,7 +112,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         // The proper approach for all accesses is to save a group before possibly altering it.  This doesn't mean
         // that it always happens that way but if it doesn't then there could be data-loss type problems.  So for
         // the hypothetical case where the data for this date has been externally changed, any changes we had in
-        // progress in this Panel will have already been saved before the external change, and so the call below
+        // progress in this Panel will have already been saved by the context that made the external change, before
+        // it made that change, and so the call below
         // will NOT result in the old data going back to overwrite the newer info because preClose will not make
         // a call to save since by then the groupChanged flag will be false.  On the other hand, if there has been
         // no other access to the group and there ARE unsaved changes in the Panel, then the call below will capture

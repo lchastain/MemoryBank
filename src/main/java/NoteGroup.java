@@ -56,6 +56,7 @@ class NoteGroup implements LinkHolder {
         dataAccessor = groupInfo.getNoteGroupDataAccessor();  // currently this can only be a new NoteGroupFile.
 
         // Load the group data (using the accessor).
+        BaseData.loading = true;
         loadNoteGroup();
         // For all NoteGroup children, if we have a concrete data set then we will be able to deserialize our
         //   properties from that data.  But when there IS no persisted data then the GroupProperties will remain
@@ -77,6 +78,7 @@ class NoteGroup implements LinkHolder {
         if(myProperties == null) {
             myProperties = makeGroupProperties(); // This method might be overridden, in child classes of NoteGroup.
         }
+        BaseData.loading = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -189,13 +191,6 @@ class NoteGroup implements LinkHolder {
         setGroupProperties(null); // If no persisted data came in then the calling context can set new properties.
 
         if(theData == null) return;
-
-//        if(theData == null) {
-//            // Reinitialize our internal members
-//            myProperties = null;
-//            noteGroupDataVector = new Vector<>(0, 1);
-//            return;  // Nothing more to do.
-//        }
         // Not that uncommon; many CalendarNote groups will have no data to load.
         // There is also still the (theoretical) possibility that theData is not null but is an array of zero length,
         //   but operationally we have no such logical code path that would result in that situation, so not going
@@ -214,7 +209,6 @@ class NoteGroup implements LinkHolder {
         // variant if/when/after the data is ever cleaned up, possibly via a port from files to database.
 
         // The 'set' methods below will be overridden by child classes so they can set the proper data type.
-        BaseData.loading = true;
         if (theLength == 1) { // Then this is old, legacy data that was originally saved without GroupProperties.
             setNotes(theData[0]);
         } else { // then theLength == 2 (or more, but we only know of two, for now)
@@ -226,23 +220,9 @@ class NoteGroup implements LinkHolder {
             }
             setNotes(theData[1]);
         }
-        BaseData.loading = false;
         setGroupChanged(false); // After a fresh load, no changes.
     }
 
-
-    @SuppressWarnings("rawtypes")
-    boolean isEmpty() {
-        if(myProperties != null) {
-            if (myProperties.linkTargets.size() > 0) return false;
-        }
-
-        if(noteGroupDataVector != null) {
-            return noteGroupDataVector.size() <= 0;
-        }
-
-        return true;
-    }
 
     GroupProperties makeGroupProperties() {
         return new GroupProperties(myGroupInfo.getGroupName(), myGroupInfo.groupType);
@@ -272,6 +252,7 @@ class NoteGroup implements LinkHolder {
 
     public void setGroupChanged(boolean b) {
         groupChanged = b;
+        if(myProperties != null) myProperties.touchLastMod();
     } // end setGroupChanged
 
 
@@ -279,6 +260,7 @@ class NoteGroup implements LinkHolder {
         myProperties = groupProperties;
         setGroupChanged(true);
     }
+
 
     // This method is called with the raw data that is the GroupProperties.
     // Child groups with properties that are children of GroupProperties should override
@@ -288,9 +270,17 @@ class NoteGroup implements LinkHolder {
         myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
     }
 
+
+
+    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of NoteData),
+    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
+    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
+    // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
+    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
+    // Exception that needed to be caught.
+    //
     // This method is called with the raw data that is the data Vector.
     // Child groups with notes that are children of NoteData should override.
-    // This 'set' method should not affect the Last Mod date of the group.
     protected void setNotes(Object vectorObject) {
         noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() { });
     }

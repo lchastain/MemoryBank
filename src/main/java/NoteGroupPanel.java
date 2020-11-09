@@ -52,7 +52,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     NoteGroupPanel(int intPageSize) {
         pageSize = intPageSize;
+        BaseData.loading = true;   // attempted fix..
         buildNotesPanel();
+        BaseData.loading = false;
     } // end constructor 2
 
     // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).
@@ -401,50 +403,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         adjustMenuItems(b);
     } // end setGroupChanged
 
-// MOVE the comments to the right place (NoteGroup?) and fix/remove the one remaining calling context
-    // which is currently in the ReverseLinkagesTest.
-//    // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of NoteData),
-//    // from: https://stackoverflow.com/questions/15430715/casting-linkedhashmap-to-complex-object
-//    // Previously, I just cycled thru the LinkedHashMap by accepting the entries as Object, then converted them
-//    // to JSON string, then parsed the string back in to a NoteData and added it to a new Vector.  But that was
-//    // a several-line method; this conversion is a one-liner, and my version had the possibility of throwing an
-//    // Exception that needed to be caught.
-//    void setPanelData(@NotNull Object[] theGroup) {
-//        int theLength = theGroup.length;
-//        if (theLength == 0) return; // theGroup is not null but the array could still be empty, somehow.
-//
-//        // Now the length can either be 1 or 2.  If 2 then it will be a group properties and
-//        // the group data vector, but this is a relatively new structure where previously there
-//        // were no properties for this class, so there are several years-worth of data files
-//        // already out there, where the only element is the group data, and rather than attempting
-//        // to fix old data, the decision is to examine the content first, then load the correct type.
-//        // As a developer I know this is not the best solution but it does work and I'm lazy, so I'm
-//        // going with it for now.  One possible future 'data fix' (other than writing a DataFix program)
-//        // could come when/if the app is ever ported into a database.
-//        BaseData.loading = true; // We don't want to affect the lastModDates!
-//        if (theLength == 1) {
-//            // There are two cases where there might only be one element in the object array:
-//            // 1.  Old, legacy data that was originally saved without GroupProperties.
-//            // 2.  New Group Properties with LinkedEntityData (linkTargets) but no group data.
-//            // TODO -
-//            //     But is it really only one length?  Groups should save with two now, regardless.
-//            //     the second element can be null, but there are still two of them.
-//            //  No - that is only true for the second case, not for the older stuff.  Still only one, there.  And we need
-//            //    to verify that it is ALWAYS true for the second case.
-//            String theClass = theGroup[0].getClass().getName();
-//            System.out.println("The NoteData class type is: " + theClass);
-//            if (theClass.equals("java.util.ArrayList")) { // old structure; this is just group data.
-//                noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[0], myGroupDataType);
-//            } else { // new structure; this is a GroupProperties.  The expected class here is java.util.LinkedHashMap
-//                setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
-//            }
-//        } else { // 2 (or more, but more would mean that there has been yet another structure change)
-//            setGroupProperties(AppUtil.mapper.convertValue(theGroup[0], GroupProperties.class));
-//            noteGroupDataVector = AppUtil.mapper.convertValue(theGroup[1], myGroupDataType);
-//        }
-//        BaseData.loading = false; // Restore normal lastModDate updating.
-//    }
-
 
     // Provides a way to set the displayed data, vs loading it from a file.
     void showGroupData(Vector<NoteData> newGroupData) {
@@ -493,6 +451,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
         lastVisibleNoteIndex = -1;
         NoteComponent tempNoteComponent;
+        BaseData.loading = true; // We don't want to update the LMDs just for showing the info.
         for (int panelIndex = 0; panelIndex < pageSize; panelIndex++) {
             // The next line casts to NoteComponent.  Since the component is actually
             //   a child of NoteComponent, the 'setNoteData' method that is called
@@ -541,16 +500,14 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         // having preserved the original value, we now set it back to that.
         setGroupChanged(currentChangedState);
 
+        BaseData.loading = false;
+
         //AppUtil.localDebug(false);
     } // end loadPage
 
 
-    //-------------------------------------------------------------------
-    // Method Name: makeNewNote
-    //
     // This is called from the constructor; should be overridden by
     //   child classes and those children should NOT call this one.
-    //-------------------------------------------------------------------
     JComponent makeNewNote(int i) {
         NoteComponent nc = new NoteComponent(this, i);
         nc.setVisible(false);
@@ -558,14 +515,10 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end makeNewNote
 
 
-    //------------------------------------------------------------------
-    // Method Name: pageNumberChanged
-    //
     // This method is provided as a means for the pager to notify a
     //   group that the page has changed.  If this notification is
     //   needed, the child will override this no-op base method and
     //   take some action.
-    //------------------------------------------------------------------
     protected void pageNumberChanged() {
     } // end pageNumberChanged
 
@@ -814,7 +767,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     //   the calling context should first call 'preClosePanel'.
     //----------------------------------------------------
     public void updateGroup() {
-        clearPage(); // Clears the data (not Components) from the interface.
+        BaseData.loading = true; // This needs to happen before we 'clear'.
+        clearPage(); // Clears the data from the interface Components.
+        BaseData.loading = false;
 
         // The page reset below is needed BEFORE loadGroup, in case we came here
         //   when the page number was higher than 1; a condition
@@ -823,13 +778,19 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         //   one data.  So - we make sure we are on page one.
         theNotePager.reset(1);
 
+        BaseData.loading = true;
         myNoteGroup.loadNoteGroup(); // Now we have 'new' data.
-        loadNotesPanel();      // Loads the data array and interface.
-        myNoteGroup.myNoteGroupPanel = this; // The 'load' cleared this value; needs a reset.
-        setGroupChanged(false);
+        BaseData.loading = false;
 
-        // Also needed AFTER loadGroup, not to set the page number but to set the
-        //   total number of pages, which will be shown in the pager control.
+        loadNotesPanel();      // Loads the data array and interface.  This calls loadPage, which toggles BaseData.loading.
+        BaseData.loading = true;
+        setGroupChanged(false);
+        BaseData.loading = false;
+
+        myNoteGroup.myNoteGroupPanel = this; // The 'load' cleared this value; needs a reset.
+
+        // Also needed AFTER loadGroup, not to set the page number but to set the total number of
+        //   pages, which will be shown in the pager control and may have changed due to the load.
         theNotePager.reset(1);
 
     } // end updateGroup

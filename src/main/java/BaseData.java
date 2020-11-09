@@ -12,21 +12,35 @@ public class BaseData {
     // group will first have to set 'loading' to true, and then put it back to 'false' when done.
     static boolean loading = false;
 
-    protected String zdtLastModString;
+    protected String zdtLastModString; // This is the Last Modified Date (LMD) (and time)
     protected UUID instanceId;
 
     BaseData() { // This constructor is (unfortunately) used by Jackson during loads and type conversions.
         instanceId = UUID.randomUUID();
-        zdtLastModString = ZonedDateTime.now().toString();
+//        touchLastMod();
     }
 
-    void touchLastMod() {
-        if(!loading) zdtLastModString = ZonedDateTime.now().toString();
+    ZonedDateTime getLastModDate() {
+        // We don't keep an actual date; we keep the string from it.  This is due in part to problems
+        //   encountered during serialization (Jackson 'sees' infinite recursion with a ZDT).
+        // So when the request comes in, if somehow that string hasn't been set then we don't want
+        //   to default to current date & time, so the only other answer is to send back a null.
+        if(zdtLastModString == null) return null;
+
+        return ZonedDateTime.parse(zdtLastModString);
     }
+
 
     @Override
     public String toString() {
         return AppUtil.toJsonString(this);
+    }
+
+
+    void touchLastMod() {
+        if(!loading) {
+            zdtLastModString = ZonedDateTime.now().toString();
+        }
     }
 
 //    @Override
