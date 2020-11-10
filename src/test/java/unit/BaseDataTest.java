@@ -1,12 +1,15 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+
+// The big difference between the two tests here and all the ones in the LastModRetentionTest is that here we look
+// at the BaseData via its NoteGroup, whereas there we use the data in Panel construction, then scrape it back out
+// of the Panel to examine it and verify that it is unchanged.
 
 class BaseDataTest {
 
@@ -25,35 +28,40 @@ class BaseDataTest {
         FileUtils.copyDirectory(testResource, testData);
     }
 
-    // This will verify that the instanceIds do not change between Group instantiations.
+    // This will verify that instanceIds are correctly retrieved from storage.
+    // As opposed to just generating a new one with each instantiation.
     @Test
-    void testInstanceId() {
+    void testInstanceIdRetrieval() {
         // These two Strings came from the known test data.
         String instanceIdGroup = "788f99d2-406a-45cb-b9b2-f28f7a138a94";
         String instanceIdNote = "0c0ec15a-eeb0-4ee4-9267-3baf54b05ee4";
 
-        // First, load a group and snag the ID for both the Group and its first note.
+        // Load the group under test and snag the ID for both the Group and its first note.
         TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Preparations");
         UUID groupId = todoNoteGroup.getGroupProperties().instanceId;
         TodoNoteData todoNoteData = (TodoNoteData) todoNoteGroup.noteGroupDataVector.elementAt(0);
         UUID noteId = todoNoteData.instanceId;
 
+        // Compare the expected info with the freshly loaded info.
         Assertions.assertEquals(instanceIdGroup, groupId.toString());
         Assertions.assertEquals(instanceIdNote, noteId.toString());
     }
 
+    // This verifies that the Last Mod info is correctly retrieved from storage.
+    // As opposed to just updating to current date & time
     @Test
-    void testLastMod() {
+    void testLastModRetrieval() {
         // These two Strings came from the known test data.
         String zdtLastModGroup = "2020-10-17T10:47:28.590+04:00[Europe/Samara]";
         String zdtLastModNote = "2020-10-17T10:47:50.533+04:00[Europe/Samara]";
 
-        // First, load a group and snag the Last Mod dates for both the Group and its first note.
+        // Load the group under test and snag the Last Mod dates for both the Group and its first note.
         TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Preparations");
         String groupLastMod = todoNoteGroup.getGroupProperties().zdtLastModString;
         TodoNoteData todoNoteData = (TodoNoteData) todoNoteGroup.noteGroupDataVector.elementAt(0);
         String noteLastMod = todoNoteData.zdtLastModString;
 
+        // Compare the expected info with the freshly loaded info.
         Assertions.assertEquals(zdtLastModGroup, groupLastMod);
         Assertions.assertEquals(zdtLastModNote, noteLastMod);
     }

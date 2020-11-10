@@ -46,7 +46,7 @@ class NoteGroup implements LinkHolder {
 
 
     NoteGroup(GroupInfo groupInfo) {
-        log.debug("Constructing NoteGroup for: " + groupInfo.getGroupName());
+        log.debug("Constructing NoteGroup (base class) for: " + groupInfo.groupType);
         myGroupInfo = groupInfo; // Everything else comes from this.
 
         // Initialize the data.  (myProperties is already null at this point)
@@ -258,7 +258,7 @@ class NoteGroup implements LinkHolder {
 
     public void setGroupProperties(GroupProperties groupProperties) {
         myProperties = groupProperties;
-        setGroupChanged(true);
+//        setGroupChanged(true);
     }
 
 
@@ -292,7 +292,7 @@ class NoteGroup implements LinkHolder {
         } else {
             noteGroupDataVector = incomingNotes;
         }
-        setGroupChanged(true);
+//        setGroupChanged(true);
     }
 
 

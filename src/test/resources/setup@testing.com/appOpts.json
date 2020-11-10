@@ -1,0 +1,15 @@
+{
+  "goalsExpanded" : true,
+  "eventsExpanded" : true,
+  "viewsExpanded" : true,
+  "notesExpanded" : true,
+  "todoListsExpanded" : true,
+  "searchesExpanded" : false,
+  "theSelection" : "Reverse Links",
+  "theSelectionRow" : 17,
+  "goalsList" : [ "Retire", "Reverse Links" ],
+  "eventsList" : [ "holidays", "meetings", "other", "Reverse Links" ],
+  "tasksList" : [ "Reverse Links", "Preparations" ],
+  "searchResultList" : [ ],
+  "paneSeparator" : 140
+}

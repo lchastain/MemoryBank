@@ -1,0 +1,210 @@
+[ {
+  "zdtLastModString" : "2020-07-14T07:19:01.211+04:00[Europe/Samara]",
+  "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
+  "groupType" : "EVENTS",
+  "groupName" : "holidays",
+  "simpleName" : "holidays",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:04:26.958+04:00[Europe/Samara]",
+    "instanceId" : "ab75a562-6ebf-4b38-a423-6a466e50a2e7",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "AFTER",
+    "reversed" : true
+  }, {
+    "zdtLastModString" : "2020-10-16T05:07:49.281+04:00[Europe/Samara]",
+    "instanceId" : "11650d1c-5309-4709-8cff-435d182d14af",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDED_ON_BY",
+    "reversed" : true
+  } ]
+}, [ {
+  "zdtLastModString" : "2019-10-09T12:09:20.686+04:00[Europe/Samara]",
+  "instanceId" : "2a78ae4c-2f99-4507-958c-27a4e752c5d0",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/program files/memory bank/icons/heart0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2021-02-14",
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "Y_the 14th of February_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+}, {
+  "zdtLastModString" : "2020-01-26T17:39:47.301+04:00[Europe/Samara]",
+  "instanceId" : "f2901736-7399-4360-8a35-48b77da7f094",
+  "noteString" : "Memorial Day",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/program files/memory bank/icons/crossbon.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2021-05-31",
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "Y_the last Monday in May_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+}, {
+  "zdtLastModString" : "2019-10-23T07:14:54.066+04:00[Europe/Samara]",
+  "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
+  "noteString" : "Halloween",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:05:53.994+04:00[Europe/Samara]",
+    "instanceId" : "23d429ef-73f5-47c8-b831-545cfabd0ad2",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "AFTER",
+    "reversed" : true
+  }, {
+    "zdtLastModString" : "2020-10-16T05:09:01.364+04:00[Europe/Samara]",
+    "instanceId" : "5b8d712f-b77a-40aa-93bc-a0851e5020b0",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDED_ON_BY",
+    "reversed" : true
+  } ],
+  "iconFileString" : "c:/program files/memory bank/icons/smiley2_pumpkin.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2020-10-31",
+  "eventStartTimeString" : "00:00",
+  "eventEndDateString" : "2020-10-31",
+  "eventEndTimeString" : "23:59",
+  "recurrenceString" : "Y_the 31st of October_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+}, {
+  "zdtLastModString" : "2020-10-17T11:05:05.120+04:00[Europe/Samara]",
+  "instanceId" : "92a6074b-ed08-4099-aad0-67de28149352",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/program files/memory bank/icons/hatchet.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2020-11-26",
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "Y_the fourth Thursday in November_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+}, {
+  "zdtLastModString" : "2019-12-18T16:47:46.288+04:00[Europe/Samara]",
+  "instanceId" : "5e632142-5f6c-424d-90cd-de023d349e18",
+  "noteString" : "New Year's Day",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/program files/memory bank/icons/dya1.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2021-01-01",
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "Y_the 1st of January_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+}, {
+  "zdtLastModString" : "2020-10-17T10:53:48.527+04:00[Europe/Samara]",
+  "instanceId" : "ac9e42d7-bb16-4449-8bcd-e449d621034f",
+  "noteString" : "Christmas",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/program files/memory bank/icons/xtree1b.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2020-12-25",
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "Y_the 25th of December_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+}, {
+  "zdtLastModString" : "2020-10-17T10:54:39.704+04:00[Europe/Samara]",
+  "instanceId" : "88772639-2249-4559-aae7-2d98938f5971",
+  "noteString" : "Labor Day",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/program files/memory bank/icons/worker1b.gif",
+  "showIconOnMonthBoolean" : true,
+  "locationString" : "",
+  "eventStartDateString" : "2021-09-06",
+  "eventStartTimeString" : null,
+  "eventEndDateString" : null,
+  "eventEndTimeString" : null,
+  "recurrenceString" : "Y_the first Monday in September_",
+  "blnRetainNote" : true,
+  "durationValue" : null,
+  "durationUnits" : null
+} ] ]

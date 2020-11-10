@@ -17,7 +17,6 @@ public class BaseData {
 
     BaseData() { // This constructor is (unfortunately) used by Jackson during loads and type conversions.
         instanceId = UUID.randomUUID();
-//        touchLastMod();
     }
 
     ZonedDateTime getLastModDate() {

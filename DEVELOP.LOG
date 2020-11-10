@@ -6,11 +6,10 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
+Get a new data backup.
 
-  When todo list LMDs are fixed, need to backtrack as much as possible from earlier data snapshots, wherever they may be.
 
 (manual) Test for an unfound FoundIn.
-Automated Search test?
 
 Now toying with an idea to pull BaseData out of the hierarchy, having NoteData and GroupProperties individually
   define the two members.  This would have the effect of reducing the 'Found In' size and also the Link targets.
@@ -39,6 +38,10 @@ New:
 
 
 =====================================================================================================
+10 Nov 2020
+  Added a full spread of 14 new LMD tests - looking for unchanged when loaded, updated when there was a NoteData mod.
+  Check-in & pub.
+
 9 Nov 2020
   Every note in a ToDo list was getting LMD updated when a note in the group changed, yet its own properties stayed old.
     Several reorg-type changes related to the setting of LMD and the check of BaseData.loading, to fix.  Still unclear
@@ -46,6 +49,10 @@ New:
     that's ok because operationally we are good even if there is some unnecessary processing.  Will eventually clear
     up the unneeded ones.  One NEW feature, added to help track this down:  An in-memory NoteGroup can now be reviewed
     without having to write it out to a file.  Check in and pub, so Lee data can be fixed there.
+  On second thought - no need to 'fix' the data that got updated LMDs; it is all transient anyway and until now I have
+    not had a good way to look at it anyway.  In a todolist context, it would only be helpful to see which note had
+    changed so that the group was re-persisted, and for that use case there is NO chance of needing it for past lists;
+    it MAY come in handy in the future.  So - data is good to go, as-is.
 
 7 Nov 2020
    After fixing search data, tests broke in several places.  They turned up a regression in the display of the LMD

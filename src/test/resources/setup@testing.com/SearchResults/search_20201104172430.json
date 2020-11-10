@@ -1,0 +1,1507 @@
+[ {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "5af6939c-e15e-4e05-a1af-0c67b90b51d2",
+  "groupType" : "SEARCH_RESULTS",
+  "groupName" : "20201104172430",
+  "simpleName" : null,
+  "linkTargets" : [ ],
+  "searchPanelSettings" : {
+    "not1" : false,
+    "not2" : false,
+    "not3" : false,
+    "word1" : null,
+    "word2" : null,
+    "word3" : null,
+    "and1" : false,
+    "and2" : false,
+    "or1" : true,
+    "or2" : true,
+    "paren1" : false,
+    "paren2" : false,
+    "whenChoice" : -1,
+    "noteDateWhen1String" : null,
+    "noteDateWhen2String" : null,
+    "modChoice" : -1,
+    "dateLastMod1String" : null,
+    "dateLastMod2String" : null
+  },
+  "searchDateString" : "2020-11-04",
+  "column1Label" : "Found in",
+  "column2Label" : "Note Text",
+  "column3Label" : "Last Modified",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+  "instanceId" : "974325bc-257f-44b6-bd16-1530781085ac",
+  "noteString" : "Establish retirement income",
+  "subjectString" : null,
+  "extendedNoteString" : "Earn a pension\ninvestment dividends / interest\n\nPoint is, it needs to be enough to sustain.",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:30.994+04:00[Europe/Samara]",
+    "instanceId" : "a936324b-bdcb-4147-8c17-94d47b6368d6",
+    "groupType" : "GOALS",
+    "groupName" : "Retire",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+  "instanceId" : "7c328d00-ca92-4ba4-b9e0-d8e1a00abcb4",
+  "noteString" : "Set a Date",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T04:41:32.144+04:00[Europe/Samara]",
+    "instanceId" : "91312370-13e9-41ad-8dd3-fae184a3dc15",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+      "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+      "noteString" : "Two - links to Goals - Retire",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "AFTER",
+    "reversed" : true
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:30.994+04:00[Europe/Samara]",
+    "instanceId" : "f4d006d1-1e3d-4700-9df3-2f57158d727e",
+    "groupType" : "GOALS",
+    "groupName" : "Retire",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+  "instanceId" : "bc5eb691-6e68-489f-849e-52234a0281eb",
+  "noteString" : "Choose location(s)",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:02:54.435+04:00[Europe/Samara]",
+    "instanceId" : "9f707639-111b-4f8d-bde6-83d7409a26ca",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+      "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+      "noteString" : "Two - links to Goals - Retire",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDED_ON_BY",
+    "reversed" : true
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:30.994+04:00[Europe/Samara]",
+    "instanceId" : "c04e33c8-5f47-4b43-8a28-8d364bff3b64",
+    "groupType" : "GOALS",
+    "groupName" : "Retire",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Preparations",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:30.994+04:00[Europe/Samara]",
+    "instanceId" : "6959f6e7-0e41-491d-bdec-374938cf5b4c",
+    "groupType" : "GOALS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "92dcf254-38fc-4d36-b232-d907f8b38e2f",
+    "groupType" : "GOALS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.869+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "7aa06af3-9974-4bdf-93b0-7cbd3b1b8874",
+    "groupType" : "GOALS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - (today + 2 days)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "678d3ee9-83c8-422e-8a4d-437eb8913296",
+    "groupType" : "GOALS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "af5a3250-747b-4a71-baab-3998e731cd60",
+    "groupType" : "GOALS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "d201f1b6-31b0-4019-8c6d-c4a290fb0ba5",
+    "groupType" : "GOALS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "0c0ec15a-eeb0-4ee4-9267-3baf54b05ee4",
+  "noteString" : "Choose a location",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-19T18:31:20.109+04:00[Europe/Samara]",
+    "instanceId" : "ae5714d8-3e10-4deb-a8f3-c20c86a5ca01",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Reverse Links",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+      "noteString" : "One - links to To Do Lists - Preparations",
+      "subjectString" : null,
+      "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t"
+    },
+    "linkType" : "AFTER",
+    "reversed" : true
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "23515c6c-7910-4d9e-97d7-bef0362766a4",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Preparations",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "8fd49073-01fc-411b-ad5e-7d18be1d5473",
+  "noteString" : "Set a Date",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "8a39603a-0e8b-4d9e-8620-c4cf91d0f0da",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Preparations",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "680675a5-822f-407b-847a-5c8654efaaeb",
+  "noteString" : "Schedule the caterers",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "32b6a43c-1b27-4c4c-821c-2cc281145eac",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Preparations",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "435e27ed-c296-42a6-8d57-6cf8a0b67193",
+  "noteString" : "Notify the authorities",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "ab2b8052-75b9-4385-997b-e3b5d9ed623e",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Preparations",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Near Term",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-14T09:18:48.064+04:00[Europe/Samara]",
+    "instanceId" : "f16827f1-5654-4b7c-898f-63a0bd2d55c4",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-21T20:57:14.589+04:00[Europe/Samara]",
+      "instanceId" : "1dbf5d63-cd28-42ba-95b7-261bf876aa6d",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Near Term",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T04:37:37.545+04:00[Europe/Samara]",
+    "instanceId" : "a2be8e97-a56b-46db-859b-39e538824f20",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-21T20:57:14.589+04:00[Europe/Samara]",
+      "instanceId" : "1dbf5d63-cd28-42ba-95b7-261bf876aa6d",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Near Term",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "6c2a741d-2460-418c-ab9b-f8f2b9352931",
+      "noteString" : "Get 'my' closet content down to 'my' stuff, only",
+      "subjectString" : null,
+      "extendedNoteString" : "We now have extra closet space in the cottage; Nina just needs to clear out."
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T04:37:37.545+04:00[Europe/Samara]",
+    "instanceId" : "c71e5d36-1640-4f93-9dda-a4f9a68175f8",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-21T20:57:14.589+04:00[Europe/Samara]",
+      "instanceId" : "1dbf5d63-cd28-42ba-95b7-261bf876aa6d",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Near Term",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T04:37:36.842+04:00[Europe/Samara]",
+    "instanceId" : "8a629ca8-4e4d-4f5c-9f6a-176555361299",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-21T20:57:14.589+04:00[Europe/Samara]",
+      "instanceId" : "1dbf5d63-cd28-42ba-95b7-261bf876aa6d",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Near Term",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "d0814a45-727a-456f-b341-5b9f45c636bd",
+      "noteString" : "Star Wars Rewatching Plan",
+      "subjectString" : null,
+      "extendedNoteString" : "There are now three movie trilogies in the Star Wars universe.\nThe original (middle of the timeline) trilogy was so long ago (and so good) that it has already been rewatched by me, many times.  Then there was the prequel trilogy, the animated clone wars, and then the final trilogy, with a couple of one-offs thrown in.  Now a final Clone Wars season 7 is released (and not yet seen by me), and it comes so far after watching the first 6 that they should be rewatched as a lead-up to the new season.  But now, the official timeline indicates that this series takes place within the prequel trilogy, so to get the proper bearings, that one should also be rewatched, with everything seen in the correct order (as detailed in the new text file in my video notes on that subject).  So the decision is to rewatch the prequel trilogy and clone wars movie and series, all in the correct timeline order, and then stop there without revisiting the original (mid-timeline) trilogy simce I'm not ready to go there yet again.  And the final trilogy in the timeline and the one-offs have been seen too recently to do them again at this time."
+    },
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "ea6a6c45-8efd-4654-978f-372bcdb59bbb",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links - Copy",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-14T15:09:40.480+04:00[Europe/Samara]",
+    "instanceId" : "d6de9a19-2e32-470c-b74f-256dd1334984",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-19T06:44:39.018+04:00[Europe/Samara]",
+      "instanceId" : "4eec2486-8d01-4cda-83ce-30351189deaa",
+      "groupType" : "GOALS",
+      "groupName" : "Retire",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T04:41:25.768+04:00[Europe/Samara]",
+    "instanceId" : "91312370-13e9-41ad-8dd3-fae184a3dc15",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-19T06:44:39.018+04:00[Europe/Samara]",
+      "instanceId" : "4eec2486-8d01-4cda-83ce-30351189deaa",
+      "groupType" : "GOALS",
+      "groupName" : "Retire",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "7c328d00-ca92-4ba4-b9e0-d8e1a00abcb4",
+      "noteString" : "Set a Date",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T05:01:40.467+04:00[Europe/Samara]",
+    "instanceId" : "616ad79b-e721-4d35-9c31-1a676a0ae938",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-19T06:44:39.018+04:00[Europe/Samara]",
+      "instanceId" : "4eec2486-8d01-4cda-83ce-30351189deaa",
+      "groupType" : "GOALS",
+      "groupName" : "Retire",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T05:02:48.523+04:00[Europe/Samara]",
+    "instanceId" : "9f707639-111b-4f8d-bde6-83d7409a26ca",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-19T06:44:39.018+04:00[Europe/Samara]",
+      "instanceId" : "4eec2486-8d01-4cda-83ce-30351189deaa",
+      "groupType" : "GOALS",
+      "groupName" : "Retire",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "bc5eb691-6e68-489f-849e-52234a0281eb",
+      "noteString" : "Choose location(s)",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "6390aa2d-8956-4bee-b606-075ecc093e81",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links - Copy",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:04:19.312+04:00[Europe/Samara]",
+    "instanceId" : "ab75a562-6ebf-4b38-a423-6a466e50a2e7",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-14T07:19:01.211+04:00[Europe/Samara]",
+      "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
+      "groupType" : "EVENTS",
+      "groupName" : "holidays",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T05:05:47.497+04:00[Europe/Samara]",
+    "instanceId" : "23d429ef-73f5-47c8-b831-545cfabd0ad2",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-14T07:19:01.211+04:00[Europe/Samara]",
+      "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
+      "groupType" : "EVENTS",
+      "groupName" : "holidays",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
+      "noteString" : "Halloween",
+      "subjectString" : "Holiday",
+      "extendedNoteString" : ""
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T05:07:43.568+04:00[Europe/Samara]",
+    "instanceId" : "11650d1c-5309-4709-8cff-435d182d14af",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-14T07:19:01.211+04:00[Europe/Samara]",
+      "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
+      "groupType" : "EVENTS",
+      "groupName" : "holidays",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T05:08:53.564+04:00[Europe/Samara]",
+    "instanceId" : "5b8d712f-b77a-40aa-93bc-a0851e5020b0",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-07-14T07:19:01.211+04:00[Europe/Samara]",
+      "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
+      "groupType" : "EVENTS",
+      "groupName" : "holidays",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
+      "noteString" : "Halloween",
+      "subjectString" : "Holiday",
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "51153a29-6004-401e-a0df-34ddd3aeb05b",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links - Copy",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - ",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:13:22.306+04:00[Europe/Samara]",
+    "instanceId" : "172541b2-6774-4cd4-8887-523738365581",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T05:12:18.684+04:00[Europe/Samara]",
+      "instanceId" : "97e2597b-5266-47cc-999b-a9bc388f3609",
+      "groupType" : "DAY_NOTES",
+      "groupName" : "Tuesday, October 20, 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T05:14:25.845+04:00[Europe/Samara]",
+    "instanceId" : "b1bb6d12-5787-4535-901e-b6c6cb2fabaa",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T05:12:18.684+04:00[Europe/Samara]",
+      "instanceId" : "97e2597b-5266-47cc-999b-a9bc388f3609",
+      "groupType" : "DAY_NOTES",
+      "groupName" : "Tuesday, October 20, 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "4dec9301-468a-4f12-83e3-d30279a413ea",
+      "noteString" : "Note 2 for link testing",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:41:11.886+04:00[Europe/Samara]",
+    "instanceId" : "65d63af1-1178-42d9-a53e-f16b9042157a",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T05:12:18.684+04:00[Europe/Samara]",
+      "instanceId" : "97e2597b-5266-47cc-999b-a9bc388f3609",
+      "groupType" : "DAY_NOTES",
+      "groupName" : "Tuesday, October 20, 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:42:28.133+04:00[Europe/Samara]",
+    "instanceId" : "fb01abeb-b173-4034-a44f-d5bbffe8d5d3",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T05:12:18.684+04:00[Europe/Samara]",
+      "instanceId" : "97e2597b-5266-47cc-999b-a9bc388f3609",
+      "groupType" : "DAY_NOTES",
+      "groupName" : "Tuesday, October 20, 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "4dec9301-468a-4f12-83e3-d30279a413ea",
+      "noteString" : "Note 2 for link testing",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:43:45.877+04:00[Europe/Samara]",
+    "instanceId" : "062badf9-a7c7-4481-9fdd-1f3a869fa29e",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T09:43:45.877+04:00[Europe/Samara]",
+      "instanceId" : "93c5ee77-e8b5-4289-8f8b-89ea5f2a9638",
+      "groupType" : "DAY_NOTES",
+      "groupName" : "Thursday, October 22, 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "RELATED",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "cc41a0b4-e58d-4fe8-8e73-bebc3646e12b",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links - Copy",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes - ",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T09:48:10.697+04:00[Europe/Samara]",
+    "instanceId" : "776f1f9b-a1a8-41d9-83a1-12e5c3573798",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-02T05:17:28.282+04:00[Europe/Samara]",
+      "instanceId" : "5b6d7031-9a31-4301-8af7-88da98f6930b",
+      "groupType" : "MONTH_NOTES",
+      "groupName" : "September 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:48:40.907+04:00[Europe/Samara]",
+    "instanceId" : "bd25b76c-e8db-46af-bd81-dd0314c6d240",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-02T05:17:28.282+04:00[Europe/Samara]",
+      "instanceId" : "5b6d7031-9a31-4301-8af7-88da98f6930b",
+      "groupType" : "MONTH_NOTES",
+      "groupName" : "September 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "40329b69-fad9-4feb-99db-57215d10a1c3",
+      "noteString" : "Extended visa stay on 25 Sep (10 days late) until 15 Dec 2020",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:49:47.994+04:00[Europe/Samara]",
+    "instanceId" : "0a1d8f71-6a70-412b-b54e-129f31e00e42",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-24T02:52:08.013+04:00[Europe/Samara]",
+      "instanceId" : "58756446-24e6-403d-bb52-80e342a9ba7d",
+      "groupType" : "MONTH_NOTES",
+      "groupName" : "October 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:51:59.294+04:00[Europe/Samara]",
+    "instanceId" : "ee6c6b40-7427-47a6-b6a7-d11de755d533",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-24T02:52:08.013+04:00[Europe/Samara]",
+      "instanceId" : "58756446-24e6-403d-bb52-80e342a9ba7d",
+      "groupType" : "MONTH_NOTES",
+      "groupName" : "October 2020",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "5821b555-8563-4b4f-ad90-20497477861b",
+      "noteString" : "new note",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T09:53:03.025+04:00[Europe/Samara]",
+    "instanceId" : "a5d57163-079e-437c-bc08-a18c0cc2f723",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T09:53:03.025+04:00[Europe/Samara]",
+      "instanceId" : "635af018-827d-474f-ae75-2ba0b76448ce",
+      "groupType" : "MONTH_NOTES",
+      "groupName" : "May 2021",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "RELATED",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "d3dedf93-e4f1-45b2-bdd0-49c4aa079fa5",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links - Copy",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes - ",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T10:04:54.384+04:00[Europe/Samara]",
+    "instanceId" : "4b6633a8-034f-4f24-baf6-48ed0c427356",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T10:04:51.535+04:00[Europe/Samara]",
+      "instanceId" : "c774c53c-9fc0-44b2-bc70-a79cbc2b5956",
+      "groupType" : "YEAR_NOTES",
+      "groupName" : "2018",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T10:05:19.324+04:00[Europe/Samara]",
+    "instanceId" : "69055532-43e4-46c3-9bc7-1fe6113f2639",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T10:04:58.955+04:00[Europe/Samara]",
+      "instanceId" : "ee80739d-0de4-4ca0-a242-d286663bf0b4",
+      "groupType" : "YEAR_NOTES",
+      "groupName" : "2018",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.885+04:00[Europe/Samara]",
+      "instanceId" : "a6a0870d-e696-497d-b713-3c9732cebbab",
+      "noteString" : "Layoff, Early Retirement, Trip to Russia to set up for move. Social Security Started",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-16T11:40:13.203+04:00[Europe/Samara]",
+    "instanceId" : "f623651c-9429-4030-aa5d-b0fcd96ea670",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-16T11:40:13.203+04:00[Europe/Samara]",
+      "instanceId" : "63618c00-544d-4190-9b20-cdb906fddbb5",
+      "groupType" : "YEAR_NOTES",
+      "groupName" : "2023",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "DEPENDING_ON",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "2e766150-26bf-45c8-8528-5760eea67196",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links - Copy",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Preparations",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-19T18:30:59.401+04:00[Europe/Samara]",
+    "instanceId" : "ae5714d8-3e10-4deb-a8f3-c20c86a5ca01",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-17T10:47:28.590+04:00[Europe/Samara]",
+      "instanceId" : "788f99d2-406a-45cb-b9b2-f28f7a138a94",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Preparations",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+      "instanceId" : "0c0ec15a-eeb0-4ee4-9267-3baf54b05ee4",
+      "noteString" : "Choose a location",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "BEFORE",
+    "reversed" : false
+  }, {
+    "zdtLastModString" : "2020-10-19T18:31:12.265+04:00[Europe/Samara]",
+    "instanceId" : "3f1128bc-49cf-42ca-bb0e-b09eabb1a8e9",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-10-17T10:47:28.590+04:00[Europe/Samara]",
+      "instanceId" : "788f99d2-406a-45cb-b9b2-f28f7a138a94",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Preparations",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : null,
+    "linkType" : "BEFORE",
+    "reversed" : false
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "898938f8-62bc-47e7-bc03-f37132d4b66f",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "a7a4ec34-dcd2-43da-997e-0b994d164d56",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "a2e6dae9-87cf-44b9-8fd7-33e8c367f4e8",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - (today + 2 days)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.010+04:00[Europe/Samara]",
+    "instanceId" : "1acd607b-5aef-4ef4-946c-dd985faee5f0",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "14c7f4e8-e262-4830-a20d-3c69658bcde6",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "d4454806-51ad-4833-9bc8-00ef5e92f9f7",
+    "groupType" : "TODO_LIST",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "2a78ae4c-2f99-4507-958c-27a4e752c5d0",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "e8042e03-790d-4bd2-962e-6384b7fda61f",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "f2901736-7399-4360-8a35-48b77da7f094",
+  "noteString" : "Memorial Day",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "aa46e06c-1209-48c9-a29d-34acead6c2f5",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
+  "noteString" : "Halloween",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:05:53.994+04:00[Europe/Samara]",
+    "instanceId" : "23d429ef-73f5-47c8-b831-545cfabd0ad2",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "AFTER",
+    "reversed" : true
+  }, {
+    "zdtLastModString" : "2020-10-16T05:09:01.364+04:00[Europe/Samara]",
+    "instanceId" : "5b8d712f-b77a-40aa-93bc-a0851e5020b0",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDED_ON_BY",
+    "reversed" : true
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "900c06ad-5325-4787-86a8-19431b1d95cb",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "92a6074b-ed08-4099-aad0-67de28149352",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "10e5008a-dd88-489b-b64f-6dc43c1f7a42",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "5e632142-5f6c-424d-90cd-de023d349e18",
+  "noteString" : "New Year's Day",
+  "subjectString" : "Holiday",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "79cc91f5-eceb-4b31-b7ff-73e923ff70a7",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "ac9e42d7-bb16-4449-8bcd-e449d621034f",
+  "noteString" : "Christmas",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "58292c8f-7d2a-429f-8805-e711c1ba52d6",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "88772639-2249-4559-aae7-2d98938f5971",
+  "noteString" : "Labor Day",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "c5a5f0b9-c1dd-4552-b72e-42fbb880da0a",
+    "groupType" : "EVENTS",
+    "groupName" : "holidays",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "aaef2fb4-d9c8-47da-92d0-0d7e0536f6b2",
+  "noteString" : "Annual Superhero Reunion",
+  "subjectString" : null,
+  "extendedNoteString" : "Iron Man comes every year.",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "32c9ccad-17ab-4132-9182-dcc433776042",
+    "groupType" : "EVENTS",
+    "groupName" : "meetings",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "ab113ffd-fee8-4fa9-a18e-1b658606e79e",
+  "noteString" : "Company Picnic",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "e56a9064-89eb-4ceb-bc3d-0029768d58ef",
+    "groupType" : "EVENTS",
+    "groupName" : "meetings",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "3ed6e624-8b55-43c0-b9c8-e03add06de3d",
+  "noteString" : "Anniversary",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "ebc75448-6ce4-4ab6-bbfe-d72f73c59ac8",
+    "groupType" : "EVENTS",
+    "groupName" : "other",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "774b0fc4-f179-4d29-b8ba-79c1974ae899",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "892bb630-39b6-40e6-8153-be421ffb5e1e",
+    "groupType" : "EVENTS",
+    "groupName" : "other",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "e0d36ed6-1986-4caf-a8c9-eff6e63818d7",
+  "noteString" : "Daylight Savings Time Ends",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "1ba2d241-440c-4469-8d54-3703f6a00a3b",
+    "groupType" : "EVENTS",
+    "groupName" : "other",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Preparations",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "2736550a-48a9-4431-9eca-195e8d059b07",
+    "groupType" : "EVENTS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "9433e20c-8e3a-4fe6-b839-a26d3061d486",
+    "groupType" : "EVENTS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-04T17:24:31.025+04:00[Europe/Samara]",
+    "instanceId" : "9fc1c489-133f-4f3b-932d-4f3434c67548",
+    "groupType" : "EVENTS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - (today + 2 days)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.813+04:00[Europe/Samara]",
+    "instanceId" : "eb44b9ce-752f-47e9-8d7d-51b43ce31cc6",
+    "groupType" : "EVENTS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.828+04:00[Europe/Samara]",
+    "instanceId" : "83c6a8d2-16dd-429e-9566-8f816d362ee6",
+    "groupType" : "EVENTS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.828+04:00[Europe/Samara]",
+    "instanceId" : "c1c58351-f77c-4ca9-a8fb-ed02601c9cc9",
+    "groupType" : "EVENTS",
+    "groupName" : "Reverse Links",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Preparations",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.828+04:00[Europe/Samara]",
+    "instanceId" : "cae23f76-9143-423e-a9c9-a2dde7ea94f5",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Sunday, October 18, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.828+04:00[Europe/Samara]",
+    "instanceId" : "d7f59d29-3b62-4462-82d8-4d9c04cac9ed",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Sunday, October 18, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.828+04:00[Europe/Samara]",
+    "instanceId" : "dfdc002f-4c56-42a1-8375-e2d05cc19ff6",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Sunday, October 18, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - (today + 2 days)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.828+04:00[Europe/Samara]",
+    "instanceId" : "32dcc544-5c9e-407c-b0fe-38def7e4ff2f",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Sunday, October 18, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.844+04:00[Europe/Samara]",
+    "instanceId" : "432fb922-d8ad-41d0-9ee8-eaa294713ec0",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Sunday, October 18, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.900+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.844+04:00[Europe/Samara]",
+    "instanceId" : "8d0222ec-ca91-4946-a9aa-b14c69c990d8",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Sunday, October 18, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
+  "noteString" : "Halloween",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "linkTargets" : [ {
+    "zdtLastModString" : "2020-10-16T05:05:53.994+04:00[Europe/Samara]",
+    "instanceId" : "23d429ef-73f5-47c8-b831-545cfabd0ad2",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "AFTER",
+    "reversed" : true
+  }, {
+    "zdtLastModString" : "2020-10-16T05:09:01.364+04:00[Europe/Samara]",
+    "instanceId" : "5b8d712f-b77a-40aa-93bc-a0851e5020b0",
+    "targetGroupInfo" : {
+      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
+      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupType" : "TODO_LIST",
+      "groupName" : "Testing",
+      "simpleName" : null
+    },
+    "targetNoteInfo" : {
+      "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteString" : "Three - links to Events - holidays",
+      "subjectString" : null,
+      "extendedNoteString" : ""
+    },
+    "linkType" : "DEPENDED_ON_BY",
+    "reversed" : true
+  } ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.844+04:00[Europe/Samara]",
+    "instanceId" : "b7d580b9-682a-423a-9042-e855bc04dcfd",
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Saturday, October 31, 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : null
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Preparations",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : null
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.844+04:00[Europe/Samara]",
+    "instanceId" : "3737d1ac-800f-4968-882c-f026c4c36129",
+    "groupType" : "MONTH_NOTES",
+    "groupName" : "October 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - (today + 2 days)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.844+04:00[Europe/Samara]",
+    "instanceId" : "3155ae69-5f1f-46ac-84c2-dd80540decd9",
+    "groupType" : "MONTH_NOTES",
+    "groupName" : "October 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.844+04:00[Europe/Samara]",
+    "instanceId" : "cb94169c-50e0-4bd8-8c4b-08337230bfa3",
+    "groupType" : "MONTH_NOTES",
+    "groupName" : "October 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "69a2a535-0c42-4c2d-8333-515eee3aacdd",
+    "groupType" : "MONTH_NOTES",
+    "groupName" : "October 2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
+  "noteString" : "One - links to To Do Lists - Preparations",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "bcb242c8-f2ff-4b5a-b9a8-039d6d713df9",
+    "groupType" : "YEAR_NOTES",
+    "groupName" : "2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
+  "noteString" : "Two - links to Goals - Retire",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "5f57d5db-225c-445f-86c6-5b4055f3a332",
+    "groupType" : "YEAR_NOTES",
+    "groupName" : "2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+  "noteString" : "Three - links to Events - holidays",
+  "subjectString" : null,
+  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "b486b1d5-19a1-4705-8935-2e39c432437a",
+    "groupType" : "YEAR_NOTES",
+    "groupName" : "2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
+  "noteString" : "Four - links to Day Notes - (today + 2 days)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "fc71b8a8-91e5-4d05-a35b-fa70628b142c",
+    "groupType" : "YEAR_NOTES",
+    "groupName" : "2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
+  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "9e27c28f-ecea-469b-ba4b-8eb110fce52f",
+    "groupType" : "YEAR_NOTES",
+    "groupName" : "2020",
+    "simpleName" : null
+  }
+}, {
+  "zdtLastModString" : "2020-11-04T17:24:30.916+04:00[Europe/Samara]",
+  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
+  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
+  "subjectString" : null,
+  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "zdtLastModString" : "2020-11-05T05:45:02.860+04:00[Europe/Samara]",
+    "instanceId" : "380b4192-d380-40f4-9c85-e98d7f12c4c5",
+    "groupType" : "YEAR_NOTES",
+    "groupName" : "2020",
+    "simpleName" : null
+  }
+} ] ]

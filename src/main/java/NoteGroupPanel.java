@@ -324,7 +324,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 // that line is now in the CalendarNoteGroupPanel override of this method.
 // Leaving the comments here for now because we are not 100% sure that it really is not otherwise needed.
         // maybe needed for link target changes?
-// can remove after all tests pass.
+// can remove after all tests pass and reverse link auto-removal is working.
 //        myNoteGroup.setGroupProperties(myNoteGroup.getGroupProperties());
 
         unloadNotesPanel(theNotePager.getCurrentPage());
