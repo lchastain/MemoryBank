@@ -47,7 +47,9 @@ New:
 =====================================================================================================
 10 Nov 2020
   Added a full spread of 14 new LMD tests - looking for unchanged when loaded, updated when there was a NoteData mod.
-  Check-in & pub.
+    Check-in & pub.
+  Decided to clear out the 'simpleName' from all data now, before it begins to propagate even more by being in the
+    targetInfo of links.  Did it for Lee, jondo, test resource files, and setup.  Copied Lee to Lex.
 
 9 Nov 2020
   Every note in a ToDo list was getting LMD updated when a note in the group changed, yet its own properties stayed old.

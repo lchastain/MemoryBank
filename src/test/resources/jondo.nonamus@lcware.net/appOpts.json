@@ -1,0 +1,15 @@
+{
+  "goalsExpanded" : true,
+  "eventsExpanded" : true,
+  "viewsExpanded" : true,
+  "notesExpanded" : true,
+  "todoListsExpanded" : true,
+  "searchesExpanded" : true,
+  "theSelection" : "Search Results",
+  "theSelectionRow" : -1,
+  "goalsList" : [ "Graduate", "Retire by age 50" ],
+  "eventsList" : [ "holidays", "appointments", "disasters", "money" ],
+  "tasksList" : [ "Get New Job", "New Car Shopping" ],
+  "searchResultList" : [ "20201107080423", "20201107080501" ],
+  "paneSeparator" : 191
+}

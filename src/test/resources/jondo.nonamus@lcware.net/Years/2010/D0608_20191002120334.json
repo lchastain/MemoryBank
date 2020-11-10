@@ -1,11 +1,6 @@
-[  {
-  "zdtLastModString" : "2020-09-06T15:08:13.774+04:00[Europe/Samara]",
-  "instanceId" : "1e11015d-ad8f-48f0-978a-77340fb5be88",
-  "groupType" : "DAY_NOTES",
-  "groupName" : "Sunday, September 6, 2020",
-  "linkTargets" : [ ]
-}, [ {
+[ [ {
   "zdtLastModString" : "2019-10-02T05:38:39.388+04:00[Europe/Samara]",
+  "instanceId" : "c3c4619e-29a7-4ad3-8a48-be5522957145",
   "noteString" : "Taxi to airport",
   "subjectString" : null,
   "extendedNoteString" : "I've been summoned to the home office, for an important meeting.  No idea what to expect.",
@@ -14,6 +9,7 @@
   "timeOfDayString" : "05:27:56.941"
 }, {
   "zdtLastModString" : "2019-10-02T05:33:34.299+04:00[Europe/Samara]",
+  "instanceId" : "7db04cf7-b23a-49f6-b5bb-3f600ee2b6e9",
   "noteString" : "Dropped off suitcase, went thru security",
   "subjectString" : null,
   "extendedNoteString" : "",
@@ -22,6 +18,7 @@
   "timeOfDayString" : "07:16:11.442"
 }, {
   "zdtLastModString" : "2019-10-02T05:29:08.474+04:00[Europe/Samara]",
+  "instanceId" : "0c622ba8-9e57-4152-8397-121bcd37393b",
   "noteString" : "Breakfast - Love that airport food",
   "subjectString" : null,
   "extendedNoteString" : "And the price helps keep my wallet slim.",
@@ -30,6 +27,7 @@
   "timeOfDayString" : "07:28:28.070"
 }, {
   "zdtLastModString" : "2019-10-02T05:29:28.933+04:00[Europe/Samara]",
+  "instanceId" : "5717c383-888a-4d79-a191-4fa3f5ca2593",
   "noteString" : "Boarded the plane",
   "subjectString" : null,
   "extendedNoteString" : "",
@@ -38,6 +36,7 @@
   "timeOfDayString" : "08:30:23.726"
 }, {
   "zdtLastModString" : "2019-10-02T05:39:52.761+04:00[Europe/Samara]",
+  "instanceId" : "f516fded-f163-4708-908c-26769778856c",
   "noteString" : "Late takeoff; planes stacked up on runway",
   "subjectString" : null,
   "extendedNoteString" : "I think I'll still make the meeting on time, but won't be able to check in to the hotel until afterwards.  The room will be held for me, anyway.",
@@ -46,6 +45,7 @@
   "timeOfDayString" : "09:30:33.055"
 }, {
   "zdtLastModString" : "2019-10-02T05:34:32.718+04:00[Europe/Samara]",
+  "instanceId" : "5fc58dd8-e974-4d9a-bc7f-7e5e01c5a294",
   "noteString" : "In-flight entertainment, lunch",
   "subjectString" : null,
   "extendedNoteString" : "",
@@ -54,6 +54,7 @@
   "timeOfDayString" : "09:50:13.652"
 }, {
   "zdtLastModString" : "2019-10-02T05:31:13.405+04:00[Europe/Samara]",
+  "instanceId" : "63210684-2856-4a82-ae1c-60c03867eb0b",
   "noteString" : "Arrived",
   "subjectString" : null,
   "extendedNoteString" : "",
@@ -62,6 +63,7 @@
   "timeOfDayString" : "13:33:11.981"
 }, {
   "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
+  "instanceId" : "fe5580fd-c4d2-4c21-ba65-e580e79a3c93",
   "noteString" : "Taxi to office",
   "subjectString" : null,
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
@@ -70,6 +72,7 @@
   "timeOfDayString" : null
 }, {
   "zdtLastModString" : "2019-10-02T05:41:23.248+04:00[Europe/Samara]",
+  "instanceId" : "360c91ac-f3d7-46f5-8b88-4b594f6d7577",
   "noteString" : "THE MEETING",
   "subjectString" : "Work Note",
   "extendedNoteString" : "This was BIG - but not allowed to write it down.",
@@ -78,6 +81,7 @@
   "timeOfDayString" : "14:30:27.368"
 }, {
   "zdtLastModString" : "2019-10-02T05:31:56.917+04:00[Europe/Samara]",
+  "instanceId" : "c9df5c44-a1c1-4a65-ac24-959b2f2e31d3",
   "noteString" : "Drinks in the hotel bar",
   "subjectString" : null,
   "extendedNoteString" : "",

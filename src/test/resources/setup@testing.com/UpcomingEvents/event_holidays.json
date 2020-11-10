@@ -3,7 +3,6 @@
   "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
   "groupType" : "EVENTS",
   "groupName" : "holidays",
-  "simpleName" : "holidays",
   "linkTargets" : [ {
     "zdtLastModString" : "2020-10-16T05:04:26.958+04:00[Europe/Samara]",
     "instanceId" : "ab75a562-6ebf-4b38-a423-6a466e50a2e7",
