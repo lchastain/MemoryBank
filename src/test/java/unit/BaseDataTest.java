@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 // The big difference between the two tests here and all the ones in the LastModRetentionTest is that here we look
-// at the BaseData via its NoteGroup, whereas there we use the data in Panel construction, then scrape it back out
-// of the Panel to examine it and verify that it is unchanged.
+// at the BaseData via its NoteGroup to ensure that it comes in without change, whereas there we use the data in
+// Panel construction, then scrape it back out of the Panel to examine it and verify that it is unchanged.
 
 class BaseDataTest {
 

@@ -6,15 +6,22 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
-Get a new data backup.
-
 
 (manual) Test for an unfound FoundIn.
 
-Now toying with an idea to pull BaseData out of the hierarchy, having NoteData and GroupProperties individually
-  define the two members.  This would have the effect of reducing the 'Found In' size and also the Link targets.
-  The current downside is how to control the 'loading' boolean.  Maybe should solve that current problem, first.
-
+Now toying with an idea to pull BaseData out of the GroupInfo, NoteInfo, and LinkedEntityData hierarchies.
+  This would have the effect of reducing the 'Found In' size and also the size of both components of a Link target
+    (GroupInfo, NoteInfo).  Size reduction is not the only desirable issue; this would render the resulting data
+    files less cluttered and more readable, since IDs and LMDs of 'info' type data are not ever used or examined.
+  GroupProperties can still extend GroupInfo, while individually defining the two BaseData members.
+  NoteData can still extend NoteInfo, while individually defining the two BaseData members.
+  LinkedEntityData would only need to define the ID, not the LMD.
+  There is currently no crossover-type use case where a 'holder' of BaseData is accessed via a reference that
+    could be either a GroupProperties or a NoteData, so these identical member declarations would never be in
+    conflict with each other, although since that is the case they could possibly be given different names
+    (GroupId, NoteId ?) (GroupLastMod, NoteLastMod ?)  If some such crossover access were desired, the classes
+    could be defined as implementors of a common interface.
+  The BaseData class would then be obsolete...
 
 Questions:
 

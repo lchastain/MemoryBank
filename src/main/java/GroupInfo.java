@@ -190,6 +190,7 @@ class GroupInfo extends BaseData {
     // We do not setGroupChanged() at this level; the calling context should do that, if needed.
     void setGroupName(String theName) {
         groupName = theName;
+        simpleName = null;  // Still needed, when GroupType is correct but groupName was not present.
     }
 
 }

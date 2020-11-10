@@ -212,12 +212,15 @@ class NoteGroup implements LinkHolder {
         if (theLength == 1) { // Then this is old, legacy data that was originally saved without GroupProperties.
             setNotes(theData[0]);
         } else { // then theLength == 2 (or more, but we only know of two, for now)
+            // GroupProperties can be much more than just the GroupInfo, so this is definitely needed.
             setGroupProperties(theData[0]);
-            if(myProperties.groupType == GroupInfo.GroupType.UNKNOWN) {
-                // This can happen with earlier data, where groupName and groupType were not present.
-                myProperties.setGroupName(myGroupInfo.getGroupName());
-                myProperties.groupType = myGroupInfo.groupType;
-            }
+
+            // But across a few variants of earlier data, there can be inaccuracies with groupName and groupType.
+            // So we just overwrite those two with what we 'know' to be correct.
+            myProperties.setGroupName(myGroupInfo.getGroupName());
+            myProperties.groupType = myGroupInfo.groupType;
+
+            // And finally, set all the Notes in the group.
             setNotes(theData[1]);
         }
         setGroupChanged(false); // After a fresh load, no changes.
