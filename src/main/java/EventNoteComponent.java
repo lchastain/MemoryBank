@@ -42,7 +42,7 @@ public class EventNoteComponent extends IconNoteComponent {
                     s = "Click here to enter text for this Event.";
                     break;
                 case HAS_BASE_TEXT:
-                    s = "Double-click here to setNotes details about this Event.";
+                    s = "Double-click here to add details about this Event.";
                     break;
                 case HAS_EXT_TEXT:
                     // This gives away the 'hidden' text, if

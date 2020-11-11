@@ -82,7 +82,7 @@ public class ExtendedNoteComponent extends JPanel {
     void addSubject(String s) {
         MemoryBank.debug("Adding subject: [" + s + "]");
         //------------------------------------------------------------------
-        // Do not want to setNotes the subject to the file in these cases.
+        // Do not want to add the subject to the file in these cases.
         //------------------------------------------------------------------
         if (s.equals("")) return;
         if (s.equals(initialSubject)) return;

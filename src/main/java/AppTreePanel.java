@@ -172,7 +172,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //   occurs when we restore the previous selection, below.
         theTree.addTreeSelectionListener(this);
 
-        // Create the scroll pane and setNotes the tree to it.
+        // Create the scroll pane and add the tree to it.
         JScrollPane treeView = new JScrollPane(theTree);
 
         // Create the viewing pane and start with the 'about' graphic.
@@ -1355,7 +1355,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
         //viewedDate = theMonthToShow; // NOT NEEDED until we have a week view to show.
         //viewedDateGranularity = ChronoUnit.WEEKS;
-        // At that time you will also need to setNotes handling to the selection changed area.
+        // At that time you will also need to add handling to the selection changed area.
 
         theTree.setSelectionPath(weekViewPath);
     } // end showWeek

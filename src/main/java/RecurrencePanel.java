@@ -234,7 +234,7 @@ public class RecurrencePanel extends JPanel implements
                         break;
                 }
 
-//                calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
+//                calTmp.setNotes(Calendar.DATE, 1); // add a day
                 dateTheEndDate = dateTheEndDate.plusDays(1);
 
                 // and keep going, if we need to,
@@ -259,7 +259,7 @@ public class RecurrencePanel extends JPanel implements
             while (true) {
 //                dateGood = calTmp.getTime();
                 dateGood = dateTheEndDate;
-//                calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
+//                calTmp.setNotes(Calendar.DATE, 1); // add a day
                 dateTheEndDate = dateTheEndDate.plusDays(1);
 
 //                if (calTmp.get(Calendar.MONTH) != intMonth) {

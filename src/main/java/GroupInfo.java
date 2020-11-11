@@ -2,6 +2,8 @@
 // In addition to the ID and LastModDate that it gets from BaseData, it holds
 //   a simple group name (String) and the type of group (enum).
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 import java.util.Random;
 
@@ -41,7 +43,9 @@ class GroupInfo extends BaseData {
 
     GroupType groupType;     // Says what kind of group this is.  Values defined above.
     private String groupName; // The name of the group, as shown in the Tree.
-    private String simpleName; // The name of the group, as shown in the Tree.  See more in comments in getGroupName
+
+    @JsonIgnore
+    private String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
 
     public GroupInfo() {
     } // Jackson uses this when loading json string text into instances of this class.
@@ -173,15 +177,8 @@ class GroupInfo extends BaseData {
         return thePanel;
     }
 
-    // The condition in the method is needed during a transitional member name change (simpleName --> groupName).
-    // TODO - run a data fix (or something) to do replacement on all pre-existing data, then remove simpleName
-    //  from this class and simplify this method.
-    // Find the problems by:  grep -r simpleName * | grep -v null
+
     String getGroupName() {
-        if (simpleName != null) {
-            groupName = simpleName;
-            simpleName = null;
-        }
         return groupName;
     }
 
@@ -190,7 +187,6 @@ class GroupInfo extends BaseData {
     // We do not setGroupChanged() at this level; the calling context should do that, if needed.
     void setGroupName(String theName) {
         groupName = theName;
-        simpleName = null;  // Still needed, when GroupType is correct but groupName was not present.
     }
 
 }

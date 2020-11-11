@@ -9,7 +9,7 @@ public class EventNoteDefaults {
     String defaultIconFileName;
 
     // Additional members may occasionally be needed.  It will be better to
-    // setNotes them at that time rather than having pre-existing placeholders
+    // add them at that time rather than having pre-existing placeholders
     // for them, because additions do not cause JSON deserialization issues,
     // whereas renames or deletions from the class will result in exceptions
     // when loading data that was saved with the earlier class version.

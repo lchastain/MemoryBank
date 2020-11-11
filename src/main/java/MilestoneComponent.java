@@ -241,7 +241,7 @@ public class MilestoneComponent extends NoteComponent {
                 s = "Click here to enter text for this task.";
                 break;
             case HAS_BASE_TEXT:
-                s = "Double-click here to setNotes details about this task.";
+                s = "Double-click here to add details about this task.";
                 break;
             case HAS_EXT_TEXT:
                 // This gives away the 'hidden' text, if

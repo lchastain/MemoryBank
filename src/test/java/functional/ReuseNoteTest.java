@@ -42,7 +42,7 @@ class ReuseNoteTest {
         dayNoteData.setNoteString("This is it!");
         dayNoteComponent4.setNoteData(dayNoteData);
 
-        // Verify that reusing the line did not setNotes a new one (SCR0065)
+        // Verify that reusing the line did not add a new one (SCR0065)
         int highest = dayNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(highest, 10);
 
@@ -80,7 +80,7 @@ class ReuseNoteTest {
         todoNoteComponent.setNoteData(todoNoteData);
         Assertions.assertEquals("The third thang.", todoNoteComponent.getNoteData().getNoteString());
 
-        // Verify that reusing the line did not setNotes a new one (SCR0065)
+        // Verify that reusing the line did not add a new one (SCR0065)
         int highest = todoNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(highest, 10);
 

@@ -210,7 +210,7 @@ public class DayNoteComponent extends IconNoteComponent {
 
     protected void shiftUp() {
         if (noteTimeLabel.isActive) {
-            // setNotes one minute
+            // add one minute
             LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
             lt = lt.plusMinutes(1);
             myDayNoteData.setTimeOfDayString(lt.toString());

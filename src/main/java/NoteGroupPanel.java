@@ -128,7 +128,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             private static final long serialVersionUID = 1L;
 
             // This preference is necessary to set a limit of a maximum height value.
-            //   After we setNotes content to the scrollable area of this panel, if the
+            //   After we add content to the scrollable area of this panel, if the
             //   height of that content exceeds the limit that we set here then
             //   the vertical scrollbar will kick in.
             @Override

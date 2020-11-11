@@ -56,7 +56,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         theTree.addTreeSelectionListener(this); // Listen for when the selection changes.
         theTree.setFocusable(false);  // Do not let focus escape from the right side; close off other avenues.
 
-        // Create the scroll pane and setNotes the tree to it.
+        // Create the scroll pane and add the tree to it.
         // This will be the left side of the JSplitPane.
         JScrollPane treeView = new JScrollPane(theTree);
         treeView.setFocusable(false);
@@ -73,7 +73,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         splitPane.setLeftComponent(treeView);
         splitPane.setRightComponent(rightPane);
 
-        // Declare a selection result label and setNotes it to the top of the base panel.
+        // Declare a selection result label and add it to the top of the base panel.
         targetSelectionLabel = new JLabel();
         targetSelectionLabel.setFont(Font.decode("Dialog-bold-12"));
         add(targetSelectionLabel, BorderLayout.NORTH);
@@ -85,7 +85,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         infoPanelTitleLabel.setOpaque(true);
         infoPanelTitleLabel.setFont(Font.decode("Serif-bold-20"));
 
-        // Declare the info panel and its text area, setNotes the title label and text area
+        // Declare the info panel and its text area, add the title label and text area
         theInfoPanel = new JPanel(new BorderLayout());
         infoPanelTextArea = new JTextArea();
         infoPanelTextArea.setFont(Font.decode("Serif-bold-14"));

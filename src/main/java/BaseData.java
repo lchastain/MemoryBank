@@ -42,16 +42,16 @@ public class BaseData {
         }
     }
 
+    // Only known usage is EventNoteData, now disabled.   (shift-alt-ctrl-f7)
 //    @Override
 //    public boolean equals(Object theOtherOne) {
-//        // Breakpoint until we find who calls / needs this - IJ gives >1000 results
 //        if (getClass() != theOtherOne.getClass()) return false;
 //        return instanceId.toString().equals(((BaseData) theOtherOne).instanceId.toString());
 //    }
 
-//    // This is used during uniqueness checking.  This method effectively disables
-//    // the 'hashcode' part of the check, so that the only remaining uniqueness criteria
-//    // is the result of the .equals() method.
+    // This is used during uniqueness checking.
+    // This method effectively disables the 'hashcode' part of the
+    //   equality test, so that only the .equals() method is used.
 //    @Override
 //    public int hashCode() {
 //        return 1;

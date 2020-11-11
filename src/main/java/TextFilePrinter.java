@@ -144,7 +144,7 @@ class TextFilePrinter extends Dialog implements
         //   depending on screen resolution.  However, if a vertical
         //   scrollbar does appear, it will decrease the viewable
         //   width and create the need for the horizontal sb.
-        //   So, to counteract that event, we setNotes to our
+        //   So, to counteract that event, we add to our
         //   width setting by the amount of the width of the
         //   vertical sb.
 

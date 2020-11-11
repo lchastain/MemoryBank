@@ -668,7 +668,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         spaneNotes.validate();
     } // end reinitializeComponent
 
-    // Needed to setNotes this after moving from a JDialog to a JOptionPane.
+    // Needed to add this after moving from a JDialog to a JOptionPane.
     public Dimension getPreferredSize() {
         return new Dimension(getMinimumSize());
     }

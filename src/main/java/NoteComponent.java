@@ -305,7 +305,7 @@ public class NoteComponent extends JPanel {
                 s = "Click here to enter text for this note.";
                 break;
             case HAS_BASE_TEXT:
-                s = "Press 'Enter' to setNotes a subject or an extended note.";
+                s = "Press 'Enter' to add a subject or an extended note.";
                 break;
             case HAS_EXT_TEXT:
                 // This gives away the 'hidden' text, if
@@ -319,7 +319,7 @@ public class NoteComponent extends JPanel {
 
     // This method is called each time before displaying the popup menu.
     //   Child classes may override it if they have additional selections,
-    //   but they can still call this one first, to setNotes the base items.
+    //   but they can still call this one first, to add the base items.
     void resetPopup() {
         popup.removeAll();
         popup.add(miCutLine);   // the default state is 'enabled'.

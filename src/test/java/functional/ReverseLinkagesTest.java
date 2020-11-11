@@ -88,10 +88,10 @@ class ReverseLinkagesTest {
         AppTreePanel.theInstance.theGoalsKeeper.add(goalGroupPanel);
         AppTreePanel.theInstance.theAppDays = dayNoteGroupPanel;
 
-        // Make a new Todo note and setNotes it to a (fake new) TodoNoteGroup.
+        // Make a new Todo note and add it to a (fake new) TodoNoteGroup.
         // This note will be the source entity for the reverse links.
-        // For reverse link creation we need to setNotes the note to a 'real' group, but that group does not
-        //   need to be persisted before (or after) we setNotes the reverse link.  This is because this test
+        // For reverse link creation we need to add the note to a 'real' group, but that group does not
+        //   need to be persisted before (or after) we add the reverse link.  This is because this test
         //   is about links going to the targets; it doesn't need the source entity to be 'real' beyond
         //   the needs of the code under test.
         TodoNoteData todoNoteData = new TodoNoteData();

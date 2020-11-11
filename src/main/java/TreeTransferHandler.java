@@ -10,7 +10,7 @@
 // called; rather, the tree and branches that we create are presented to the user for their
 // management, and it is their drag/drop actions, via the Java framework classes that
 // process the events, that exercise the code here.  So why isn't this code part of the
-// framework as well?  Beats me; I didn't setNotes anything to it (that I can recall) that was
+// framework as well?  Beats me; I didn't add anything to it (that I can recall) that was
 // specific to my needs, but without it you don't get the DnD ability that I want to have
 // on the tree leaves presented by my TreeBranchEditor.  So it really sucks that this
 // counts against my code coverage and I have to provide tests for it, when my code

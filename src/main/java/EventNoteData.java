@@ -481,7 +481,7 @@ public class EventNoteData extends IconNoteData {
             int intTmp;
             while (true) {
                 // If we are at the end of the week, jump the
-                //   interval before we setNotes another day.
+                //   interval before we add another day.
                 // ok, doing that, but why?  need better comment here.
                 intTmp = AppUtil.getDayOfWeekInt(futureDate);
                 if (intTmp == SATURDAY) {
@@ -632,7 +632,7 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-//                    calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
+//                    calTmp.setNotes(Calendar.DATE, 1); // add a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
 
                     // and keep going, if we need to,
@@ -682,7 +682,7 @@ public class EventNoteData extends IconNoteData {
                             break;
                     }
 
-//                    calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
+//                    calTmp.setNotes(Calendar.DATE, 1); // add a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
 
 
@@ -711,7 +711,7 @@ public class EventNoteData extends IconNoteData {
                 while (true) {
 //                    dateGood = calTmp.getTime();
                     ldGood = tmpFutureDate;
-//                    calTmp.setNotes(Calendar.DATE, 1); // setNotes a day
+//                    calTmp.setNotes(Calendar.DATE, 1); // add a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
 
 //                    if (calTmp.get(Calendar.MONTH) != intMonth) {
@@ -755,7 +755,7 @@ public class EventNoteData extends IconNoteData {
 
 //                    dateGood = calTmp.getTime();
                     ldGood = tmpFutureDate;
-//                    calTmp.setNotes(Calendar.DATE, 7); // setNotes a week
+//                    calTmp.setNotes(Calendar.DATE, 7); // add a week
                     tmpFutureDate = tmpFutureDate.plusWeeks(1);
 
                     // System.out.println(strWhichOne + " " + calTmp.getTime());
@@ -1117,7 +1117,7 @@ public class EventNoteData extends IconNoteData {
                 break;
             case (START_TIME_KNOWN + END_DATE_KNOWN):  // We can set the remaining two values
                 // Less straightforward on how to proceed; here is the logic:
-                // Convert the duration to minutes and setNotes it the start time so that we can have
+                // Convert the duration to minutes and add it the start time so that we can have
                 // a known end time to go along with the known end date.  Then use the complete
                 // end minus the duration to get back to the correct start date.
                 theMinutes = durationToMinutes(durationValue, theUnits);
@@ -1262,32 +1262,33 @@ public class EventNoteData extends IconNoteData {
         return theMinutes;
     }
 
-    @Override
-    public boolean equals(Object otherObject) {
-        if (this == otherObject) return true; // self check
-        if (otherObject == null) return false; // null check
-        if (getClass() != otherObject.getClass()) return false; // type check
-
-        EventNoteData otherEvent = (EventNoteData) otherObject;
-
-        if(!noteString.equals(otherEvent.noteString)) return false;
-        if(!extendedNoteString.equals(otherEvent.extendedNoteString)) return false;
-        if(eventStartDateString == null && otherEvent.eventStartDateString != null) return false;
-        if(eventStartDateString != null) {
-            if (!eventStartDateString.equals(otherEvent.eventStartDateString)) return false;
-        }
-        if(eventEndDateString == null && otherEvent.eventEndDateString != null) return false;
-        if(eventEndDateString != null) {
-            if(!eventEndDateString.equals(otherEvent.eventEndDateString)) return false;
-        }
-
-        return null != recurrenceString || otherEvent.recurrenceString == null;
-
-//        if(!eventStartTimeString.equals(otherEvent.eventStartTimeString)) return false;
-//        if(!eventEndTimeString.equals(otherEvent.eventEndTimeString)) return false;
-//        if(!durationUnits.equals(otherEvent.durationUnits)) return false;
-//        if(!durationValue.equals(otherEvent.durationValue)) return false;
-    }
+// Found no usages of this, so disabled, for now (10 Nov 2020).  It overrides the one in BaseData, unused except for this.
+//    @Override
+//    public boolean equals(Object otherObject) {
+//        if (this == otherObject) return true; // self check
+//        if (otherObject == null) return false; // null check
+//        if (getClass() != otherObject.getClass()) return false; // type check
+//
+//        EventNoteData otherEvent = (EventNoteData) otherObject;
+//
+//        if(!noteString.equals(otherEvent.noteString)) return false;
+//        if(!extendedNoteString.equals(otherEvent.extendedNoteString)) return false;
+//        if(eventStartDateString == null && otherEvent.eventStartDateString != null) return false;
+//        if(eventStartDateString != null) {
+//            if (!eventStartDateString.equals(otherEvent.eventStartDateString)) return false;
+//        }
+//        if(eventEndDateString == null && otherEvent.eventEndDateString != null) return false;
+//        if(eventEndDateString != null) {
+//            if(!eventEndDateString.equals(otherEvent.eventEndDateString)) return false;
+//        }
+//
+//        return null != recurrenceString || otherEvent.recurrenceString == null;
+//
+////        if(!eventStartTimeString.equals(otherEvent.eventStartTimeString)) return false;
+////        if(!eventEndTimeString.equals(otherEvent.eventEndTimeString)) return false;
+////        if(!durationUnits.equals(otherEvent.durationUnits)) return false;
+////        if(!durationValue.equals(otherEvent.durationValue)) return false;
+//    }
 
     // NOTES:
     //

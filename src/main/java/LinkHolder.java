@@ -37,7 +37,7 @@ public interface LinkHolder {
     default void  addReverseLinks(LinkTargets linkages) {
         for (LinkedEntityData linkedEntityData : linkages) {
             // Since we are looking through ALL links to see if we need to handle new ones, we will also see the
-            // ones (if any) that were already there.   In those cases we don't want to setNotes a reverse link for them
+            // ones (if any) that were already there.   In those cases we don't want to add a reverse link for them
             // because that already happened when they first appeared, and we don't want them to pile up; only one
             // reverse link per forward link is allowed.  We can know that a forward link pre-existed based
             // on whether or not we are allowed to change its type, because only new links are allowed to be

@@ -162,7 +162,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                     // First - capture any link type or ordering changes in the existing list.
                     deleteCheckedLinks = false;
                     // This will update all pre-existing link types; they could have changed between
-                    // link additions, when this dialog is used to setNotes more than just one.
+                    // link additions, when this dialog is used to add more than just one.
                     updateLinkagesFromEditor();
                     deleteCheckedLinks = true;
 
@@ -218,7 +218,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         int linkCount = linkTargets.size();
         if (linkCount == 0) {
             theSourceNoteText = "There are no existing links for " + AppUtil.makeRed(downsizedNote);
-            theSourceNoteText += ".  Click on 'Add New Link' to setNotes one.";
+            theSourceNoteText += ".  Click on 'Add New Link' to add one.";
         } else if (linkCount == 1) {
             theUserInstructions = "Use the dropdown to change the link type, or put a check in the checkbox to mark it for deletion";
             userInstructionsLabel.setText(theUserInstructions);

@@ -222,7 +222,7 @@ public class MonthView extends JLayeredPane {
         // as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have been
         // added to any given day of this month, and if we are not on the exact same day then the choice would
         // also be wrong.  If we want to first check to see if a recalc-worthy change was made, then we would need to
-        // setNotes new flags in various places and that introduces more complexity to the feature, making it more fragile
+        // add new flags in various places and that introduces more complexity to the feature, making it more fragile
         // and harder to maintain, with questionable improvement to performance when displaying any month with a lower
         // number of icons.  So - sorry, the recalc IS needed every time.  But this is open to reevaluation once we
         // get to a point where the app is being load-tested.  Max number of icons per month would be 31 x 5 = 155.

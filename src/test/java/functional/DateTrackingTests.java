@@ -131,7 +131,7 @@ public class DateTrackingTests {
 // 12/17/2019 - Disabled the rest of this test, because a mismatch was discovered between initial implementation
 //   and the intended design, and it was fixed in AppTreePanel.  Now that any YearView will change granularity to YEARS,
 //   the remaining steps here have improper expectations.
-//   Need to revise these steps and/or just end here and setNotes different tests.
+//   Need to revise these steps and/or just end here and add different tests.
 
 //        // 4.  Go to MonthNotes.  Verify that it shows Notes for the viewed date.
 //        theTree.setSelectionPath(appTreePanel.monthNotesPath);
