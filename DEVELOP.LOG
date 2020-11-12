@@ -8,6 +8,8 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
 
 (manual) Test for an unfound FoundIn.
 
+Problem:  DayNote advance does not load new day.
+
 
 Questions:
 
@@ -42,7 +44,8 @@ New:
 
     Unlike a GroupInfo that is used to find and load a Group, a NoteInfo will never be used as a way to bootstrap
     itself into a full NoteData.  Currently its only real usage is for Links.  The 'safer' approach appears to be
-    the second one, and it is more in line with the GroupInfo solution.  Did that.
+    the second one, and it is more in line with the GroupInfo solution.  Did that.  Added a new 'swap' test. 180 now.
+  Checked in and pub'd.
 
 =====================================================================================================
 11 Nov 2020

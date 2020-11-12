@@ -141,7 +141,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.minus(1, dateType);
-        myNoteGroup.getGroupProperties().setGroupName(getTitle());
+        myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
+//        myNoteGroup.getGroupProperties().setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
     } // end setOneBack
 
@@ -150,7 +151,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.plus(1, dateType);
-        myNoteGroup.getGroupProperties().setGroupName(getTitle());
+        myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
+//        myNoteGroup.getGroupProperties().setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
     } // end setOneForward
 
