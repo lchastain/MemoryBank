@@ -1,4 +1,7 @@
-class NoteData extends NoteInfo implements LinkHolder {
+class NoteData extends BaseData implements LinkHolder {
+    String noteString;
+    String subjectString;
+    String extendedNoteString;
     LinkTargets linkTargets;
 
     // This member is used in linking.  Not always present; needs to be set by a higher context.
@@ -7,28 +10,37 @@ class NoteData extends NoteInfo implements LinkHolder {
 
     NoteData() {
         super();
+        clear();
     } // end constructor
 
 
     // The copy constructor (clone).  Primary usage is by the 'swap' methods,
     // and when child classes need to have their additional members stripped off
     // so that the result is an an isolated copy of the base class members from
-    // the original note (for pasting from one type
-    // of NoteData child to a different type).  Secondary usage is to provide
-    // a true object copy and not just a reference, for editing and undoing.
+    // the original note (for pasting from one type of NoteData child to a different type).
+    // Secondary usage is to provide a true object copy and not just a reference, for editing and undoing.
     NoteData(NoteData ndCopy) {
         super(ndCopy);
+        this.extendedNoteString = ndCopy.extendedNoteString;
+        this.noteString = ndCopy.noteString;
+        this.subjectString = ndCopy.subjectString;
         this.linkTargets = (LinkTargets) ndCopy.linkTargets.clone();
     }// end of the copy constructor
 
-    NoteData(NoteInfo noteInfo) {
-        super(noteInfo);
-        // This usage comes from LinkNoteComponent.  We leave the linkTargets null.
-    }
+//    NoteData(NoteInfo noteInfo) {
+//        super(noteInfo);
+//        // This usage comes from LinkNoteComponent.  We leave the linkTargets null.
+//    }
 
 
     void clear() {
-        super.clear();
+        noteString = "";
+
+        // initialize subject to null to indicate that a group-specified default subject should be used.
+        // If someone actually enters a value of "" then that's what they will get, vs the default.
+        subjectString = null;  // null, not "".
+
+        extendedNoteString = "";
         linkTargets = new LinkTargets();
     } // end clear
 
@@ -85,14 +97,43 @@ class NoteData extends NoteInfo implements LinkHolder {
     }
 
 
+    public String getExtendedNoteString() {
+        return extendedNoteString;
+    }
+
     NoteGroup getMyNoteGroup() {
         return myNoteGroup;
     }
 
+    public String getNoteString() {
+        return noteString;
+    }
+
+    public String getSubjectString() {
+        return subjectString;
+    }
+
+
+    boolean hasText() {
+        return !noteString.trim().equals("") || !extendedNoteString.trim().equals("");
+    } // end hasText()
+
+    public void setExtendedNoteString(String val) {
+        extendedNoteString = val;
+        touchLastMod();
+    }
 
     void setMyNoteGroup(NoteGroup myNoteGroup) {
         this.myNoteGroup = myNoteGroup;
     }
 
+    void setNoteString(String value) {
+        noteString = value;
+        touchLastMod();
+    }
 
+    void setSubjectString(String value) {
+        subjectString = value;
+        touchLastMod();
+    }
 } // end class NoteData

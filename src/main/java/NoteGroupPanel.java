@@ -424,12 +424,13 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         } // end try/catch
 
         if (e != null) {
-            ems = "NoteGroupPanel loadGroup: Error in loading the interface for " + getGroupName() + " !\n";
-            ems = ems + e.toString();  // or should this be e.getMessage() ?
+            ems = "NoteGroupPanel loadNotesPanel: Error in loading the interface for " + getGroupName() + " !\n";
+            ems = ems + e.toString();  // e.getMessage() just says 'null'; not good enough.
             ems = ems + "\nLoad Notes Panel operation aborted.";
             System.out.println("ems = " + ems);
             optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
                     ems, "Error", JOptionPane.ERROR_MESSAGE);
+            //e.printStackTrace();
         } // end if
     } // end loadNotesPanel
 

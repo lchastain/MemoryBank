@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ public class BaseData {
         zdtLastModString = baseData.zdtLastModString;
     }
 
+    @JsonIgnore  // Don't even try to serialize this..
     ZonedDateTime getLastModDate() {
         // We don't keep an actual date; we keep the string from it.  This is due in part to problems
         //   encountered during serialization (Jackson 'sees' infinite recursion with a ZDT).

@@ -20,7 +20,7 @@ public class LinkNoteComponent extends NoteComponent {
     JComboBox<String> linkTypeDropdown;
     JCheckBox deleteCheckBox;
     GroupInfo targetGroupInfo;
-    NoteInfo noteInfo;   // The info for this component; not necessarily the info of the link target note.
+    NoteInfo thisNoteInfo;   // The info for this component; not necessarily the info of the link target note.
     String linkTitleString;
     JLabel linkTitleLabel;
 
@@ -29,18 +29,17 @@ public class LinkNoteComponent extends NoteComponent {
         super(noteComponentManager, i);
         myManager = noteComponentManager;
         myLinkedEntityData = linkedEntityData;
-        targetGroupInfo = myLinkedEntityData.getTargetGroupInfo();
         makeLinkTitle();
 
         removeAll();   // We will redo the base layout.
         setLayout(new BorderLayout());
 
         // Construct our component info from the link sent in to the constructor.
-        noteInfo = myLinkedEntityData.getTargetNoteInfo();
-        if (noteInfo == null) {
+        thisNoteInfo = myLinkedEntityData.getTargetNoteInfo();
+        if (thisNoteInfo == null) {
             // If none then we make our own, for usage only in the LinkagesEditorPanel, probably.
-            noteInfo = new NoteInfo();
-            noteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getGroupName();
+            thisNoteInfo = new NoteInfo();
+            thisNoteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getGroupName();
 //            noteInfo.myNoteGroupPanel = myLinkedEntityData.getTargetGroupInfo().myNoteGroupPanel;
             // Rather than trying to keep this around, replace it with a 'get' method that is only called when needed.
             // Its usage from within a link note component - I don't remember; maybe not needed at all, or else
@@ -50,7 +49,10 @@ public class LinkNoteComponent extends NoteComponent {
             // Here we COULD set an extended note for a popup tooltip, but decided against it, at this time.
             //noteInfo.extendedNoteString = "All notes in this group";
         }
-        myNoteData = new NoteData(noteInfo); // This isolates our 'component' NoteData from the source entity.
+//        myNoteData = new NoteData(noteInfo); // This isolates our 'component' NoteData from the source entity.
+        myNoteData = new NoteData(); // This isolates our 'component' NoteData from the source entity.
+        myNoteData.setNoteString(thisNoteInfo.noteString);  // If there are other needs for it then make a new constructor
+        myNoteData.setExtendedNoteString(thisNoteInfo.extendedNoteString); // for NoteData, that takes in a NoteInfo.
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
@@ -132,6 +134,7 @@ public class LinkNoteComponent extends NoteComponent {
     void makeLinkTitle() {
         String theTitleString;
 
+        targetGroupInfo = myLinkedEntityData.getTargetGroupInfo();
         String groupType = targetGroupInfo.groupType.toString();
         String groupName = targetGroupInfo.getGroupName(); // User-provided at group creation, except for Notes.
 

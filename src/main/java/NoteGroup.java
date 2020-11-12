@@ -190,7 +190,7 @@ class NoteGroup implements LinkHolder {
     // reference, WILL be seen in the note in this group.
     @SuppressWarnings("rawtypes")
     public LinkTargets getLinkTargets(NoteInfo noteInfo) {
-        String theNoteId = noteInfo.instanceId.toString();
+        String theNoteId = noteInfo.noteId.toString();
         for(Object vectorObject: noteGroupDataVector) {
             NoteData noteData = (NoteData) vectorObject;
             // For this 'search' we cannot rely on the BaseData.equals() method because the classes are different.

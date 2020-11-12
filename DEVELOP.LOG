@@ -6,15 +6,7 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
-There is some work needed to implement the new design thoughts around GroupInfo and NoteInfo:
-  Find where/how we have both Info and those objects that extend them, then -
-    See about merging GroupInfo into GroupProperties, when a GroupInfo is used to construct a NoteGroup.
-    See about merging NoteInfo into NoteData, when a NoteInfo is used.
-  When a GroupProperties is instantiated from a GroupInfo, the IDs should match.
-  Persisted GroupInfo and NoteInfo objects should have null LMDs.
-
 (manual) Test for an unfound FoundIn.
-
 
 
 Questions:
@@ -50,7 +42,7 @@ New:
 
     Unlike a GroupInfo that is used to find and load a Group, a NoteInfo will never be used as a way to bootstrap
     itself into a full NoteData.  Currently its only real usage is for Links.  The 'safer' approach appears to be
-    the second one, and it is more in line with the GroupInfo solution.  
+    the second one, and it is more in line with the GroupInfo solution.  Did that.
 
 =====================================================================================================
 11 Nov 2020
