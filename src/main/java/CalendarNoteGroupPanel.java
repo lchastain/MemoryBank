@@ -18,7 +18,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     JLabel panelTitleLabel;
 
 
-    CalendarNoteGroupPanel(GroupInfo.GroupType groupType) {
+    CalendarNoteGroupPanel(GroupType groupType) {
         super();  // This builds the notes panel
 
         // Unlike other group types, we do not start off knowing our exact name.
@@ -120,8 +120,16 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         // them.
         preClosePanel();
 
+        // This new date will be used to generate a new title for the Panel, which also happens to be the Group Name.
         theChoice = theNewChoice;
-        myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo prior to data load
+
+        // This reset of the GroupInfo groupName is needed because the name it currently has is still the 'old' date,
+        //   and the GroupInfo is what is used to identify the Group that needs to be loaded.  After the load, the
+        //   existing GroupProperties, if any, are cleared out so that the new ones, if any, can be deserialized
+        //   into them from the data that was loaded.  If none were loaded, new ones are created when
+        //   getGroupProperties() is called, and the name used at that time will be the one we set here and now.
+        myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
+
         updateGroup();  // Be aware that this clears the panel, which clears the source data.
         // In operational use cases that works just fine; tests, however, might not be happy about it.
 
@@ -133,7 +141,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.minus(1, dateType);
-        myNoteGroup.myGroupInfo.setGroupName(getTitle());
+        myNoteGroup.getGroupProperties().setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
     } // end setOneBack
 
@@ -142,7 +150,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.plus(1, dateType);
-        myNoteGroup.myGroupInfo.setGroupName(getTitle());
+        myNoteGroup.getGroupProperties().setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
     } // end setOneForward
 

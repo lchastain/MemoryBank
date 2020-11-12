@@ -364,7 +364,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             showInfoPanel(theNodeString);
         } else if (parentNodeName.equals("Notes")) { // Selection of a Note type
             chosenCategory = "Note";
-            GroupInfo.GroupType groupType = GroupInfo.GroupType.NOTES;
+            GroupType groupType = GroupType.NOTES;
 
             calendarNoteGroup = (CalendarNoteGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
 
@@ -402,7 +402,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
             chosenCategory = "Goal";
 
-            GroupInfo.GroupType groupType = GroupInfo.GroupType.GOALS;
+            GroupType groupType = GroupType.GOALS;
             GoalGroupPanel goalGroup = (GoalGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
             if(goalGroup == null) {
                 goalGroup = (GoalGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
@@ -431,7 +431,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
             chosenCategory = "Upcoming Event";
 
-            GroupInfo.GroupType groupType = GroupInfo.GroupType.EVENTS;
+            GroupType groupType = GroupType.EVENTS;
             EventNoteGroupPanel eventNoteGroup = (EventNoteGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
             if(eventNoteGroup == null) {
                 eventNoteGroup = (EventNoteGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
@@ -460,7 +460,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         } else if (parentNodeName.equals("To Do Lists")) { // Selection of a To Do List
             chosenCategory = "To Do List";
 
-            GroupInfo.GroupType groupType = GroupInfo.GroupType.TODO_LIST;
+            GroupType groupType = GroupType.TODO_LIST;
             TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) AppTreePanel.theInstance.getPanelFromKeeper(groupType, theNodeString);
             if(todoNoteGroup == null) {
                 todoNoteGroup = (TodoNoteGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);

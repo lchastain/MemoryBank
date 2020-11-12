@@ -5,50 +5,33 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
-import java.util.Random;
+import java.util.UUID;
 
 // A GroupInfo is primarily just a Type and a Name.
 // From that you can get a full NoteGroup or a NoteGroupPanel or a NoteGroupDataAccessor.
 
-class GroupInfo extends BaseData {
-    static Random random = new Random();
+class GroupInfo {
 
-    enum GroupType {
-        NOTES("Note"),
-        DAY_NOTES("Day Note"),
-        MONTH_NOTES("Month Note"),
-        YEAR_NOTES("Year Note"),
-        GOALS("Goal"),
-        EVENTS("Event"),
-        TODO_LIST("To Do List"),
-        SEARCH_RESULTS("Search Result"),
-        UNKNOWN("Unknown");
-
-        private final String display;
-
-        GroupType(String s) {
-            display = s;
-        }
-
-        // Used in dev/test
-        public static GroupType getRandomType() {
-            return values()[random.nextInt(values().length)];
-        }
-
-        @Override
-        public String toString() {
-            return display;
-        }
-    }
-
-    GroupType groupType;     // Says what kind of group this is.  Values defined above.
+    UUID groupId; // The ID of the group that this info references
+    GroupType groupType;     // Says what kind of group it is.  Values defined above.
     private String groupName; // The name of the group, as shown in the Tree.
 
+    // These members were previously defined here or inherited, but not now and so we need to acknowledge
+    //   that we might see them in previously persisted data, but 'ignore' them otherwise.
+    //   This is so that they do not gum up the type conversions when this object gets deserialized.
+    //--------------------------------------------------
     @JsonIgnore
-    private String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
+    protected String zdtLastModString;
 
-    public GroupInfo() {
-    } // Jackson uses this when loading json string text into instances of this class.
+    @JsonIgnore
+    protected UUID instanceId;
+
+    @JsonIgnore
+    protected String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
+    //--------------------------------------------------
+
+    public GroupInfo() { }
+
 
     GroupInfo(String theName, GroupType theType) {
         super();
@@ -56,29 +39,15 @@ class GroupInfo extends BaseData {
         groupType = theType;
     }
 
-    // When this copy constructor is called with child classes of GroupInfo, the
-    // effect is to strip off their extra baggage.  A simple upcast would give you
-    // the right class but does not remove the unwanted members, which cause conversion
-    // problems when deserializing.  After this, the result will be serialized with only
-    // the base class data, and it cannot be cast back to its original child type.
     // This particular constructor is used by LinkedEntityData to populate its member
     //   'targetGroupInfo' when a new link is created, after having chosen a link target.
-    GroupInfo(GroupInfo theCopy) {
+    GroupInfo(GroupProperties groupProperties) {
         super();
-        instanceId = theCopy.instanceId;
-        zdtLastModString = theCopy.zdtLastModString;
-        groupName = theCopy.groupName;
-        groupType = theCopy.groupType;
-        simpleName = theCopy.simpleName;
+        groupId = groupProperties.instanceId;
+        groupName = groupProperties.getGroupName();
+        groupType = groupProperties.groupType;
     }
 
-    // The return value will just be the string representation of the Type, unless it is a
-    // Calendar note type in which case it will just be 'Note'.
-    String getCategory() {
-        String theCategory = groupType.toString();
-        if (theCategory.endsWith(" Note")) theCategory = GroupType.NOTES.toString();
-        return theCategory;
-    }
 
     // Get the one unique NoteGroup that goes with this GroupInfo.
     // The NoteGroup will either come from a pre-constructed Panel, or we will make a new one.

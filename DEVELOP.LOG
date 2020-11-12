@@ -6,22 +6,16 @@ NEXT:  Big picture: Implement Auto-removal of reverse links.
         result is that the group can be re-persisted without constructing a Panel.
       This required a rearchitecting of the app - repairs from that are underway.
 
+There is some work needed to implement the new design thoughts around GroupInfo and NoteInfo:
+  Find where/how we have both Info and those objects that extend them, then -
+    See about merging GroupInfo into GroupProperties, when a GroupInfo is used to construct a NoteGroup.
+    See about merging NoteInfo into NoteData, when a NoteInfo is used.
+  When a GroupProperties is instantiated from a GroupInfo, the IDs should match.
+  Persisted GroupInfo and NoteInfo objects should have null LMDs.
 
 (manual) Test for an unfound FoundIn.
 
-Now toying with an idea to pull BaseData out of the GroupInfo, NoteInfo, and LinkedEntityData hierarchies.
-  This would have the effect of reducing the 'Found In' size and also the size of both components of a Link target
-    (GroupInfo, NoteInfo).  Size reduction is not the only desirable issue; this would render the resulting data
-    files less cluttered and more readable, since IDs and LMDs of 'info' type data are not ever used or examined.
-  GroupProperties can still extend GroupInfo, while individually defining the two BaseData members.
-  NoteData can still extend NoteInfo, while individually defining the two BaseData members.
-  LinkedEntityData would only need to define the ID, not the LMD.
-  There is currently no crossover-type use case where a 'holder' of BaseData is accessed via a reference that
-    could be either a GroupProperties or a NoteData, so these identical member declarations would never be in
-    conflict with each other, although since that is the case they could possibly be given different names
-    (GroupId, NoteId ?) (GroupLastMod, NoteLastMod ?)  If some such crossover access were desired, the classes
-    could be defined as implementors of a common interface.
-  The BaseData class would then be obsolete...
+
 
 Questions:
 
@@ -30,7 +24,6 @@ Issues:
         Settings for whether or not to include non-active groups.  Maybe one checkbox for each type.
     It would be very helpful when viewing a 'Found In' type panel, if the user had a way to go back to the
         SearchResults that they came from.  Suggest a top-level menu item:  'Go Back'.
-    Need a way to review LMD of all other note types besides Search Results.
 
 Problems:
     event sorting by date not working...  even before, in pub.  But it does, sometimes.
@@ -42,14 +35,81 @@ Problems:
 
 New:
 
+12 Nov 2020
+  I did do some of the work, but then in fixing code and tests, found that there is some usage of GroupInfo needed,
+    where it starts off with only the name and type so that it can load the full group and only then would
+    it be backfilled with the ID of the group.  So we continue to support 3 different GroupInfo constructors.  The
+    big difference is the hierarchy change, to be seen in search result FoundIn and linkedEntityData targetInfo.
+  As for changing NoteInfo in the same way - it cannot be done exactly the same, because too much of NoteInfo is
+    needed in NoteData.  There are two options:
+    1.  Move the two BaseData members into NoteData directly, and duplicate the setter/getter for LMD.
+      Since as it was previously stated there is no crossover usage of note vs group access of the
+      LMD, there is no need for a new BaseDataManager-type interface. (but what about 'loading' ?)
+    2.  Move the three NoteInfo members into NoteData, extend it from BaseData, and redefine NoteInfo entirely, as the
+      ID of the referenced NoteData and a copy of its noteString (and extendedNoteString?)
 
+    Unlike a GroupInfo that is used to find and load a Group, a NoteInfo will never be used as a way to bootstrap
+    itself into a full NoteData.  Currently its only real usage is for Links.  The 'safer' approach appears to be
+    the second one, and it is more in line with the GroupInfo solution.  
 
 =====================================================================================================
+11 Nov 2020
+  Continuing the Info vs Object thoughts (no, cannot put it down with how it ended in the previous session):
+    Nulling out the LMD in those cases where it isn't needed - still seems like a bad design.  I feel like what is
+    needed is yet another breakout in the inheritance chain, to introduce the concept of an identifier that can
+    stand alone, outside of the entity that it identifies, so that its own ID and LMD just don't matter.  A Group COULD
+    be uniquely identified by its ID alone, but that only works well in a DB environment where the name and type can be
+    quickly retrieved.  It doesn't work as well when the data comes from human-readable files where I need to quickly
+    see what is going 'under the hood' while the app is still in development.
+    So currently the GroupProperties extend from GroupInfo, and I try to treat the internal 'info' fields of the
+    GroupProperties as though they are a GroupInfo, but that isn't right because a GroupInfo has its own ID and LMD
+    (BaseData).  What would be better here is to have a reference class (without its own ID or LMD) that holds the ID
+    of the object instance that it references (along with human-readable info from that object).
+  So to make that happen - changing the inheritance again - now, the info types will be created from an actual instance
+    and their critical info will be copied from the object they reference.
+    GroupProperties will now extend BaseData, and GroupInfo will come directly from Object.
+
 10 Nov 2020
   Added a full spread of 14 new LMD tests - looking for unchanged when loaded, updated when there was a NoteData mod.
     Check-in & pub.
   Decided to clear out the 'simpleName' from all data now, before it begins to propagate even more by being in the
     targetInfo of links.  Did it for Lee, jondo, test resource files, and setup.  Copied Lee to Lex.
+  Have been toying with an idea to pull BaseData out of the GroupInfo, NoteInfo, and LinkedEntityData hierarchies.
+      This would have the effect of reducing the 'Found In' size and also the size of both components of a Link target
+        (GroupInfo, NoteInfo).  Size reduction is not the only desirable issue; this would render the resulting data
+        files less cluttered and more readable, since IDs and LMDs of 'info' type data are not ever used or examined.
+      GroupProperties can still extend GroupInfo, while individually defining the two BaseData members.
+      NoteData can still extend NoteInfo, while individually defining the two BaseData members.
+      LinkedEntityData would only need to define the ID, not the LMD.
+      There is currently no crossover-type use case where a 'holder' of BaseData is accessed via a reference that
+        could be either a GroupProperties or a NoteData, so these identical member declarations would never be in
+        conflict with each other, although since that is the case they could possibly be given different names
+        (GroupId, NoteId ?) (GroupLastMod, NoteLastMod ?)  If some such crossover access were desired, the classes
+        could be defined as implementors of a common interface.
+      The BaseData class would then be obsolete...
+      .. and after a bit more thought on these subjects - If a group were to undergo a name change or even more disruptive
+        if it were to be deleted and then a new one started that had that same name - a GroupInfo from a LinkTarget with
+        only a name and a type would either not find the renamed group, or would incorrectly decide that the new one with
+        the same name is the group that it references.  There could be many other examples of non- or mis- identification,
+        especially if we ever begin to care about traceability.  And when we do start to care about that, the base data
+        will need to be able to support the various evaluations.  This is not only true for Groups; individual notes will
+        also need unambiguous identification when being examined for linkage evaluations, searches, etc.  Sometimes these
+        operations will be initiated based solely on the NoteInfo, and for that, the NoteInfo should also have an ID.
+      So was this all a waste of time?  No - it points out that the real reducibility factor here is the Last Mod Date.
+        The 'info' type objects do not need that, since the LMDs of the 'real' instances that extend them are what really
+        matter, and when these info classes are used solely as references, they have the same ID as the instantiated
+        object that they point to, so an LMD of the pointed-to object, if needed, could be determined.  We wouldn't want
+        the reference to have an LMD of its own, that is currently meaningless, and we don't want to use the LMD of the
+        referenced object since we've already covered how the info reference could be used to obtain that.
+      This is leading me to this design decision:  I want to leave the BaseData in the hierarchy as it currently stands,
+        but instances of info-types will have a null for their LMD.  Two reasons for (mostly) leaving it alone:
+        1.  less disruptive of currently persisted data and the serialization activities required to manage it.
+        2.  Info types are only persisted as FoundIn (GroupInfo) of SearchResultData, and as GroupInfo and NoteInfo of
+            link targets, both of which are relatively low impact on storage needs but since they are part of a NoteData or
+            a GroupProperties, they provide the extra traceability in the LMD that is desired.  Even the link targets
+            might eventually come into relevance with regard to traceability - ie, when were these two items linked?
+            (linking them implies that you are making an official record that there is a relationship between them; it
+            can answer the question: "what did you know, and when did you know it?".
 
 9 Nov 2020
   Every note in a ToDo list was getting LMD updated when a note in the group changed, yet its own properties stayed old.

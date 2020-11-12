@@ -76,7 +76,7 @@ public class GoalGroupProperties extends GroupProperties {
     public GoalGroupProperties() {} // Needed / used by Jackson.
 
     public GoalGroupProperties(String groupName) {
-        super(groupName, GroupProperties.GroupType.GOALS);
+        super(groupName, GroupType.GOALS);
     }
 
 

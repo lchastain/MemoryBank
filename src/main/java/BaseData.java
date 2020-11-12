@@ -19,20 +19,20 @@ public class BaseData {
         instanceId = UUID.randomUUID();
     }
 
+    // Copy constructor
+    BaseData(BaseData baseData) {
+        instanceId = baseData.instanceId;
+        zdtLastModString = baseData.zdtLastModString;
+    }
+
     ZonedDateTime getLastModDate() {
         // We don't keep an actual date; we keep the string from it.  This is due in part to problems
         //   encountered during serialization (Jackson 'sees' infinite recursion with a ZDT).
         // So when the request comes in, if somehow that string hasn't been set then we don't want
-        //   to default to current date & time, so the only other answer is to send back a null.
+        //   to default to current date & time, so the best answer is to send back a null.
         if(zdtLastModString == null) return null;
 
         return ZonedDateTime.parse(zdtLastModString);
-    }
-
-
-    @Override
-    public String toString() {
-        return AppUtil.toJsonString(this);
     }
 
 

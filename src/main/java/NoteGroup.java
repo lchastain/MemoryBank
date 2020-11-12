@@ -18,7 +18,7 @@ class NoteGroup implements LinkHolder {
 
     // These could be database table names, or directory names, or ...
     // But they should probably move to the data accessor implementation, and use a new data accessor
-    //   method to retrieve them.  Thinking on it..     String getNoteGroupArea(GroupInfo.GroupType) ?
+    //   method to retrieve them.  Thinking on it..     String getNoteGroupArea(GroupType) ?
     static String calendarNoteGroupArea = "Years";
     static String eventGroupArea = "UpcomingEvents";
     static String goalGroupArea = "Goals";
@@ -92,7 +92,7 @@ class NoteGroup implements LinkHolder {
     // This is used by data-accessor contexts, prior to saving.  But tests may also use it.
     public Object[] getTheData() {
         Object[] theData = new Object[2];
-        theData[0] = myProperties;
+        theData[0] = getGroupProperties();
         theData[1] = noteGroupDataVector;
         return theData;
     }
@@ -157,9 +157,33 @@ class NoteGroup implements LinkHolder {
     // In some child classes the getter will be overridden, in order to set the value correctly first.  This
     // simple default implementation allows us to use the identical means to access, regardless of what type
     // of NoteGroup ultimately responds to the request.
+//    public GroupProperties getGroupProperties() {
+//        return myProperties;
+//    }
+
     public GroupProperties getGroupProperties() {
+        // If we loaded our properties member from a data store then we need to use that one.
+        //   (it may already contain linkages).
+        if(myProperties != null) return myProperties;
+
+        // But a CalendarNoteGroup has a different GroupProperties for every choice.  They can be set at construction
+        // but then they get nulled out when there is an attempt to load new data.  But if the specified data is not
+        // there, the properties remain null.  That is when this part is needed.
+        switch(myGroupInfo.groupType) {
+            case DAY_NOTES:
+                setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.DAY_NOTES));
+                break;
+            case MONTH_NOTES:
+                setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.MONTH_NOTES));
+                break;
+            case YEAR_NOTES:
+                setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.YEAR_NOTES));
+                break;
+        }
         return myProperties;
     }
+
+
 
     // Given a NoteInfo with an ID that matches a note in this group, find and return a reference
     // to that note's link targets.  Any changes that the calling context then makes via that
@@ -224,7 +248,7 @@ class NoteGroup implements LinkHolder {
             setNotes(theData[1]);
         }
         setGroupChanged(false); // After a fresh load, no changes.
-    }
+    } // end loadNoteGroup
 
 
     GroupProperties makeGroupProperties() {
@@ -271,6 +295,9 @@ class NoteGroup implements LinkHolder {
     // This 'set' method should not affect the Last Mod date of the group.
     protected void setGroupProperties(Object propertiesObject) {
         myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
+        //myGroupInfo = new GroupInfo(myProperties);  // Set GroupInfo per the data that came from storage.
+        // If we do that ^^^ then when the file data does not match the tree node text, no (or wrong) data gets loaded.
+        // But this all seems wrong; may want to re-enable that line...
     }
 
 

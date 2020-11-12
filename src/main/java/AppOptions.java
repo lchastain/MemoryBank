@@ -55,7 +55,7 @@ class AppOptions {
         searchResultList = new Vector<>(0, 1);
     } // end constructor
 
-    boolean active(GroupInfo.GroupType groupType, String groupName) {
+    boolean active(GroupType groupType, String groupName) {
         Vector theList = null;
         switch (groupType) {
             case DAY_NOTES:

@@ -18,7 +18,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
 
 
     YearNoteGroupPanel() {
-        super(GroupInfo.GroupType.YEAR_NOTES);
+        super(GroupType.YEAR_NOTES);
         buildMyPanel();
     } // end constructor
 

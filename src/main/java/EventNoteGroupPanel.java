@@ -55,7 +55,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     EventNoteGroupPanel(String groupName) {
         super();
 
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.EVENTS);
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.EVENTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
@@ -113,8 +113,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
                 if (tempNoteData.getRetainNote()) { // We save this version of the event.
                     DayNoteData dnd = new DayNoteData(tempNoteData);
                     LocalDate eventStartDate = tempNoteData.getStartDate();
-                    String dayName = CalendarNoteGroup.getGroupNameForDate(eventStartDate, GroupInfo.GroupType.DAY_NOTES);
-                    GroupInfo dayGroupInfo = new GroupInfo(dayName, GroupInfo.GroupType.DAY_NOTES);
+                    String dayName = CalendarNoteGroup.getGroupNameForDate(eventStartDate, GroupType.DAY_NOTES);
+                    GroupInfo dayGroupInfo = new GroupInfo(dayName, GroupType.DAY_NOTES);
                     DayNoteGroup dayNoteGroup = new DayNoteGroup(dayGroupInfo);
                     dayNoteGroup.addNote(dnd);
                     dayNoteGroup.saveNoteGroup();
@@ -439,7 +439,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         // Unfortunately, that list will still have the old title, so it still needs
         // to be removed from the keeper.  The calling context will take care of that.
         myNoteGroup.getGroupProperties().setGroupName(newName);
-        myNoteGroup.myGroupInfo.setGroupName(newName);
+//        myNoteGroup.myGroupInfo.setGroupName(newName);
         // Seems like above should only have needed one of those.
         setGroupChanged(true);
 

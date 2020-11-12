@@ -64,7 +64,7 @@ class NoteGroupFileTest {
             System.out.println(aFile.toString());
             groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
             //System.out.println(groupInfo.toString());
-            assertSame(groupInfo.groupType, GroupInfo.GroupType.EVENTS);
+            assertSame(groupInfo.groupType, GroupType.EVENTS);
         }
 
         // Test Goal Note types
@@ -77,7 +77,7 @@ class NoteGroupFileTest {
             System.out.println(aFile.toString());
             groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
             //System.out.println(groupInfo.toString());
-            assertSame(groupInfo.groupType, GroupInfo.GroupType.GOALS);
+            assertSame(groupInfo.groupType, GroupType.GOALS);
         }
 
         // Test SearchResult types
@@ -90,7 +90,7 @@ class NoteGroupFileTest {
             System.out.println(aFile.toString());
             groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
             //System.out.println(groupInfo.toString());
-            assertSame(groupInfo.groupType, GroupInfo.GroupType.SEARCH_RESULTS);
+            assertSame(groupInfo.groupType, GroupType.SEARCH_RESULTS);
         }
 
         // Test TodoList types
@@ -103,7 +103,7 @@ class NoteGroupFileTest {
             System.out.println(aFile.toString());
             groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
             //System.out.println(groupInfo.toString());
-            assertSame(groupInfo.groupType, GroupInfo.GroupType.TODO_LIST);
+            assertSame(groupInfo.groupType, GroupType.TODO_LIST);
         }
     }
 }

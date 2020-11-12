@@ -4,7 +4,7 @@ public class LinkHelper {
     }
 
     LinkedEntityData makeGoalGroupLink() {
-        GroupInfo groupInfo = new GroupInfo("Test Goal", GroupInfo.GroupType.GOALS);
+        GroupInfo groupInfo = new GroupInfo("Test Goal", GroupType.GOALS);
         NoteInfo noteInfo = null;
         LinkedEntityData linkedEntityData = new LinkedEntityData(groupInfo, noteInfo);
         linkedEntityData.linkType = LinkedEntityData.LinkType.RELATED;
@@ -12,7 +12,7 @@ public class LinkHelper {
     }
 
     LinkedEntityData makeGoalNoteLink() {
-        GroupInfo groupInfo = new GroupInfo("Test Goal", GroupInfo.GroupType.GOALS);
+        GroupInfo groupInfo = new GroupInfo("Test Goal", GroupType.GOALS);
         NoteInfo noteInfo = new NoteInfo();
         noteInfo.setNoteString("important milestone");
         LinkedEntityData linkedEntityData = new LinkedEntityData(groupInfo, noteInfo);
@@ -21,7 +21,7 @@ public class LinkHelper {
     }
 
     LinkedEntityData makeEventGroupLink() {
-        GroupInfo groupInfo = new GroupInfo("Conventions", GroupInfo.GroupType.EVENTS);
+        GroupInfo groupInfo = new GroupInfo("Conventions", GroupType.EVENTS);
         NoteInfo noteInfo = null;
         LinkedEntityData linkedEntityData = new LinkedEntityData(groupInfo, noteInfo);
         linkedEntityData.linkType = LinkedEntityData.LinkType.DEPENDED_ON_BY;
@@ -29,7 +29,7 @@ public class LinkHelper {
     }
 
     LinkedEntityData makeEventNoteLink() {
-        GroupInfo groupInfo = new GroupInfo("Conventions", GroupInfo.GroupType.EVENTS);
+        GroupInfo groupInfo = new GroupInfo("Conventions", GroupType.EVENTS);
         NoteInfo noteInfo = new NoteInfo();
         noteInfo.setNoteString("Comic-Con");
         LinkedEntityData linkedEntityData = new LinkedEntityData(groupInfo, noteInfo);

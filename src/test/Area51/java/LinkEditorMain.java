@@ -35,9 +35,10 @@ public class LinkEditorMain {
         // it, that avoids that complaint.
         if (new AtomicBoolean(createFakeData).get()) {
             for (int i = 0; i < 6; i++) {
-                GroupProperties groupProperties = new GroupProperties("Group " + i, GroupProperties.GroupType.getRandomType());
+              //  GroupProperties groupProperties = new GroupProperties("Group " + i, GroupType.getRandomType());
                 // Since we don't have a 'real' group, we don't have a value in groupProperties.myNoteGroup, but that's
                 // ok because the only usage of it is to save the reverse link, and we don't go that far in this test driver.
+                GroupProperties groupProperties = new GroupProperties("Group " + i, GroupType.DAY_NOTES);
 
                 NoteData targetNoteData = new NoteData();
                 targetNoteData.setNoteString("Note string " + i);

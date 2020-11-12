@@ -7,7 +7,7 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         super(groupInfo);
     }
 
-    static String getGroupNameForDate(LocalDate theDate, GroupInfo.GroupType theType) {
+    static String getGroupNameForDate(LocalDate theDate, GroupType theType) {
         String theName;
         DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         switch(theType) {
@@ -45,41 +45,5 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         }
         return theDate;
     }
-
-    // A CalendarNoteGroup has a different GroupProperties for every choice.  They can be set at construction but
-    // then they get nulled out when there is an attempt to load new data.  But if the specified data is not there,
-    // the properties remain null.  That is when this method is needed.
-    @Override
-    public GroupProperties getGroupProperties() {
-        if(myProperties == null) {
-            // If we loaded our properties member from a data store then we need to use that one because it may
-            // already contain linkages.  Otherwise it will be null and we can just make one right now.
-            switch(myGroupInfo.groupType) {
-                case DAY_NOTES:
-                    setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupInfo.GroupType.DAY_NOTES));
-                    break;
-                case MONTH_NOTES:
-                    setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupInfo.GroupType.MONTH_NOTES));
-                    break;
-                case YEAR_NOTES:
-                    setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupInfo.GroupType.YEAR_NOTES));
-                    break;
-                default:
-                    setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupInfo.GroupType.NOTES));
-            }
-        }
-        return myProperties;
-    }
-
-    // This is used by data-accessor contexts, prior to saving.  But tests may also use it.
-    @Override
-    public Object[] getTheData() {
-        Object[] theData = new Object[2];
-        theData[0] = getGroupProperties(); // This is the difference from the base method.
-        theData[1] = noteGroupDataVector;
-        return theData;
-    }
-
-
 
 }

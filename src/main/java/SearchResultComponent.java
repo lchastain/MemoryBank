@@ -67,7 +67,7 @@ public class SearchResultComponent extends NoteComponent {
     }
 
     String getFoundInButtonText(GroupInfo groupInfo) {
-        if(groupInfo.groupType != GroupInfo.GroupType.DAY_NOTES) {
+        if(groupInfo.groupType != GroupType.DAY_NOTES) {
             return groupInfo.getGroupName();
         }
 

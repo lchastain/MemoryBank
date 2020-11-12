@@ -38,7 +38,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
 
     DayNoteGroupPanel() {
-        super(GroupInfo.GroupType.DAY_NOTES);
+        super(GroupType.DAY_NOTES);
         buildMyPanel();
     } // end constructor
 

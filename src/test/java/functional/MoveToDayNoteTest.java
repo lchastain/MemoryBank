@@ -142,14 +142,14 @@ public class MoveToDayNoteTest {
         // 2.  Verify that the data repo for 'theOtherDate' has a list of one note
 
         // Load the NoteGroups directly, do not get via a Panel.
-        String theName = CalendarNoteGroup.getGroupNameForDate(selectedDate, GroupInfo.GroupType.DAY_NOTES);
-        GroupInfo groupInfo = new GroupInfo(theName, GroupInfo.GroupType.DAY_NOTES);
+        String theName = CalendarNoteGroup.getGroupNameForDate(selectedDate, GroupType.DAY_NOTES);
+        GroupInfo groupInfo = new GroupInfo(theName, GroupType.DAY_NOTES);
         NoteGroup noteGroup = new DayNoteGroup(groupInfo);
         int noteCount = noteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(6, noteCount);
 
-        theName = CalendarNoteGroup.getGroupNameForDate(theOtherDate, GroupInfo.GroupType.DAY_NOTES);
-        groupInfo = new GroupInfo(theName, GroupInfo.GroupType.DAY_NOTES);
+        theName = CalendarNoteGroup.getGroupNameForDate(theOtherDate, GroupType.DAY_NOTES);
+        groupInfo = new GroupInfo(theName, GroupType.DAY_NOTES);
         noteGroup = new DayNoteGroup(groupInfo);
         noteCount = noteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(1, noteCount);
@@ -225,14 +225,14 @@ public class MoveToDayNoteTest {
         // 2.  Verify that the data repo for 'theOtherDate' has a list of one note
 
         // Load the NoteGroups directly, do not get via a Panel.
-        String theName = CalendarNoteGroup.getGroupNameForDate(LocalDate.now(), GroupInfo.GroupType.DAY_NOTES);
-        GroupInfo groupInfo = new GroupInfo(theName, GroupInfo.GroupType.DAY_NOTES);
+        String theName = CalendarNoteGroup.getGroupNameForDate(LocalDate.now(), GroupType.DAY_NOTES);
+        GroupInfo groupInfo = new GroupInfo(theName, GroupType.DAY_NOTES);
         NoteGroup noteGroup = new DayNoteGroup(groupInfo);
         int noteCount = noteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(6, noteCount);
 
-        theName = CalendarNoteGroup.getGroupNameForDate(theOtherDate, GroupInfo.GroupType.DAY_NOTES);
-        groupInfo = new GroupInfo(theName, GroupInfo.GroupType.DAY_NOTES);
+        theName = CalendarNoteGroup.getGroupNameForDate(theOtherDate, GroupType.DAY_NOTES);
+        groupInfo = new GroupInfo(theName, GroupType.DAY_NOTES);
         noteGroup = new DayNoteGroup(groupInfo);
         noteCount = noteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(1, noteCount);

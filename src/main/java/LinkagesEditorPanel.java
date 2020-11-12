@@ -31,7 +31,10 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
         this.sourceNoteData = sourceNoteData;
         this.sourceGroupProperties = sourceGroupProperties;
         editorNoteData = new NoteData();
-        editorNoteData.noteString = sourceGroupProperties.getCategory() + ": " + sourceGroupProperties.getGroupName();
+        String theCategory = sourceGroupProperties.groupType.toString();
+        if (theCategory.endsWith(" Note")) theCategory = GroupType.NOTES.toString();
+        editorNoteData.noteString = theCategory + ": " + sourceGroupProperties.getGroupName();
+
 
         // Isolate the source entity from changes the user makes here until and unless they are
         // accepted, by first cloning our own copy of its linkTargets.
@@ -168,7 +171,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
                     // Get the Group and Note selections
 //                    GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroup.myNoteGroup.getGroupProperties();
-                    GroupInfo selectedGroupInfo = new GroupInfo(linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.myGroupInfo);
+                    GroupInfo selectedGroupInfo = new GroupInfo(linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.getGroupProperties());
                     NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
 
                     LinkedEntityData linkedEntityData;

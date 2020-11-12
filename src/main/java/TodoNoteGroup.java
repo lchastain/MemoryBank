@@ -5,7 +5,7 @@ import java.util.Vector;
 public class TodoNoteGroup extends NoteGroup {
 
     TodoNoteGroup(String groupName) {
-        this(new GroupInfo(groupName, GroupInfo.GroupType.TODO_LIST));
+        this(new GroupInfo(groupName, GroupType.TODO_LIST));
     }
 
     TodoNoteGroup(GroupInfo groupInfo) {

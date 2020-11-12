@@ -678,7 +678,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Make a unique name for the results
         String resultsName;
         resultsName = NoteGroupFile.getTimestamp();
-        SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupInfo.GroupType.SEARCH_RESULTS));
+        SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupType.SEARCH_RESULTS));
         SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
         searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
@@ -720,10 +720,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             String theFilename = NoteGroupFile.makeFullFilename(NoteGroup.eventGroupArea, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = NoteGroupFile.loadFileData(theFilename);
-            NoteInfo.loading = true; // We don't want to affect the lastModDates!
+            BaseData.loading = true; // We don't want to affect the lastModDates!
             groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
             });
-            NoteInfo.loading = false; // Restore normal lastModDate updating.
+            BaseData.loading = false; // Restore normal lastModDate updating.
 
             if (theUniqueSet == null) {
                 theUniqueSet = new LinkedHashSet<>(groupDataVector);
@@ -749,7 +749,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     // Usage of this method relates to linking.  Since SearchResults cannot be linked,
     //      they are not addressed.
     // If the requested group is not in its keeper, a null is returned.
-    NoteGroupPanel getPanelFromKeeper(GroupInfo.GroupType theType, String theName) {
+    NoteGroupPanel getPanelFromKeeper(GroupType theType, String theName) {
         NoteGroupPanel noteGroupPanel = null;
         switch (theType) {
             case GOALS:
@@ -1096,17 +1096,23 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         MemoryBank.debug("Searching: " + theFilename);
         Vector<AllNoteData> searchDataVector = null;
 
+        // Load the file
         Object[] theGroupData = NoteGroupFile.loadFileData(dataFile);
         if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
             // During a search these notes would not be re-preserved anyway, but the reason we care is that
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
             BaseData.loading = true;
-            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() {
-            });
+            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
             BaseData.loading = false;
         }
         if (searchDataVector == null) return;
+
+        // Get the 'foundIn' info -
+        // TODO - we need to also get the GroupID here; need a new way to do this.
+        //   or maybe it doesn't matter, for SearchResultData.  ??  Search results are not intended to
+        //   themselves be a part of the traceability chain.
+        GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
 
         // Now get on with the search -
         for (AllNoteData vectorItem : searchDataVector) {
@@ -1120,8 +1126,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // The copy constructor used above will preserve the
                 //   dateLastMod of the original note.  Members specific
                 //   to a SearchResultData must be set explicitly.
-//                srd.setFileFoundIn(dataFile);
-                srd.foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
+                srd.foundIn = foundIn; // No need to 'copy' foundIn; in this case it can be reused.
 
                 // Add this search result data to our findings.
                 foundDataVector.add(srd);
@@ -1209,7 +1214,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             String groupChangedString = "\"groupChanged\" : " + theNoteGroupPanel.myNoteGroup.groupChanged + ",\n";
             jTextArea.append(groupChangedString);
             Object[] theData = theNoteGroupPanel.myNoteGroup.getTheData();
-            jTextArea.append( AppUtil.toJsonString(theData));
+            jTextArea.append(AppUtil.toJsonString(theData));
             jScrollPane.setViewportView(jTextArea);
             jScrollPane.setPreferredSize(new Dimension(600, 500));
             theMessage = jScrollPane;

@@ -45,9 +45,7 @@ public class LinkedEntityData extends BaseData {
     LinkType linkType;     // Says what kind of connection this is.  Values defined above.
     boolean reversed;
 
-    // This default constructor is used by Jackson when loading the predefined class from a
-    //      file, and in that case no further grooming of the data members occurs -
-    //      (even though we might want to).
+    // This default constructor is used by Jackson when loading the predefined class from persisted data.
     // The other constructors here do use this one, but they continue on to fully define the data
     //      entity when making a new one.
     // Otherwise, this constructor should not be called and so it is scoped as 'private'.
@@ -55,6 +53,7 @@ public class LinkedEntityData extends BaseData {
         super();
         linkType = LinkedEntityData.LinkType.RELATED;
         showMe = true;
+        touchLastMod(); // Preserve the time of link creation.
     }
 
     // This is the true, 'meaty' constructor, used to make a new data entity vs a copy or loaded from file.

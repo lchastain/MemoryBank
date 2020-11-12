@@ -14,13 +14,13 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         super();    // super(10);  // test, for paging
         BaseData.loading = true;
 
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.SEARCH_RESULTS);
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
 
         // These lines may only be needed for older data ("No Name Yet").  May be able to remove, eventually.
         myNoteGroup.getGroupProperties().setGroupName(groupName); // Override whatever name was loaded.
-        myNoteGroup.getGroupProperties().groupType = GroupInfo.GroupType.SEARCH_RESULTS;
-        myNoteGroup.myGroupInfo.setGroupName(groupName);
+        myNoteGroup.getGroupProperties().groupType = GroupType.SEARCH_RESULTS;
+//        myNoteGroup.myGroupInfo.setGroupName(groupName);
 
         myNoteGroup.myNoteGroupPanel = this;
         editable = false;

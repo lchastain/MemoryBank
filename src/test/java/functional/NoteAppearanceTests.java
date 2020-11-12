@@ -51,7 +51,7 @@ public class NoteAppearanceTests {
     // The two Event groups in the test data have three and five notes, respectively.
     @Test
     void testEvents() {
-        EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("one");
+        EventNoteGroupPanel eventNoteGroup = new EventNoteGroupPanel("One");
 
         // Test condition 1:  NoteGroup loads the data, and the rest of the interface is 'empty' (not visible).
         //-------------------------------------------------------------------------------------------------------------

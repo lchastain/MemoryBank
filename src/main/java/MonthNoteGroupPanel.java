@@ -18,7 +18,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
 
 
     MonthNoteGroupPanel() {
-        super(GroupInfo.GroupType.MONTH_NOTES);
+        super(GroupType.MONTH_NOTES);
         buildMyPanel();
     } // end constructor
 

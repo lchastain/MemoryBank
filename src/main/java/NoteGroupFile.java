@@ -457,7 +457,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
     @Override // The NoteGroupDataAccessor method implementation.
     public Object[] loadNoteGroupData(GroupInfo groupInfo) {
-   // This comment belongs in a calling context, where the referenced content is changed.
         // Get the Filename for the GroupInfo.  Refresh it
         //   just prior to loading the group rather than earlier, because the Panel content may
         //   have changed so that the file to load now is not the same as it was at group construction;
@@ -584,28 +583,28 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         String theFullFilename = theFile.toString();
         if(theFullFilename.contains(NoteGroup.calendarNoteGroupArea)) {
             String nameOnly = theFile.getName();
-            GroupInfo.GroupType groupType = GroupInfo.GroupType.NOTES;
+            GroupType groupType = GroupType.NOTES;
 
             // Ok, the use of magic numbers here is flaky; I will look for a better way.
-            if(nameOnly.length() == 25) groupType = GroupInfo.GroupType.DAY_NOTES;
-            if(nameOnly.length() == 23) groupType = GroupInfo.GroupType.MONTH_NOTES;
-            if(nameOnly.length() == 21) groupType = GroupInfo.GroupType.YEAR_NOTES;
+            if(nameOnly.length() == 25) groupType = GroupType.DAY_NOTES;
+            if(nameOnly.length() == 23) groupType = GroupType.MONTH_NOTES;
+            if(nameOnly.length() == 21) groupType = GroupType.YEAR_NOTES;
             theAnsr.groupType = groupType;
 
             LocalDate theDate = getDateFromFilename(theFile);
             String theName = CalendarNoteGroup.getGroupNameForDate(theDate, groupType);
             theAnsr.setGroupName(theName);
         } else if(theFullFilename.contains(NoteGroup.todoListGroupArea)) {
-            theAnsr.groupType = GroupInfo.GroupType.TODO_LIST;
+            theAnsr.groupType = GroupType.TODO_LIST;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else if(theFullFilename.contains(NoteGroup.searchResultGroupArea)) {
-            theAnsr.groupType = GroupInfo.GroupType.SEARCH_RESULTS;
+            theAnsr.groupType = GroupType.SEARCH_RESULTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else if(theFullFilename.contains(NoteGroup.goalGroupArea)) {
-            theAnsr.groupType = GroupInfo.GroupType.GOALS;
+            theAnsr.groupType = GroupType.GOALS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else if(theFullFilename.contains(NoteGroup.eventGroupArea)) {
-            theAnsr.groupType = GroupInfo.GroupType.EVENTS;
+            theAnsr.groupType = GroupType.EVENTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else {
             // Return will be a GroupInfo with null for name & type.

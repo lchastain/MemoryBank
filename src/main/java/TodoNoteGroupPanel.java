@@ -34,7 +34,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         super(pageSize); // This builds the notes panel
 
 
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.TODO_LIST);
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.TODO_LIST);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel();
@@ -415,7 +415,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         // Unfortunately, that list will still have the old title, so it still needs
         // to be removed from the keeper.  The calling context will take care of that.
         myNoteGroup.getGroupProperties().setGroupName(newName);
-        myNoteGroup.myGroupInfo.setGroupName(newName);
+//        myNoteGroup.myGroupInfo.setGroupName(newName);
         // Seems like above should only have needed one of those.
 
         setGroupChanged(true);

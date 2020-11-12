@@ -207,8 +207,8 @@ public class TodoNoteComponent extends NoteComponent {
 
         // Use the date to get the right group, then add the note to it.
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
-        String groupName = CalendarNoteGroup.getGroupNameForDate(theTodoDate, GroupInfo.GroupType.DAY_NOTES);
-        NoteGroup theGroup = new GroupInfo(groupName, GroupInfo.GroupType.DAY_NOTES).getNoteGroup();
+        String groupName = CalendarNoteGroup.getGroupNameForDate(theTodoDate, GroupType.DAY_NOTES);
+        NoteGroup theGroup = new GroupInfo(groupName, GroupType.DAY_NOTES).getNoteGroup();
         theGroup.addNote(dnd);
 
         // Save the updated DayNoteGroup and clear our note line.

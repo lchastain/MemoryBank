@@ -36,7 +36,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     public GoalGroupPanel(String groupName) {
         super(10);
 
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupInfo.GroupType.GOALS);
+        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.GOALS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
