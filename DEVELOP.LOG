@@ -2,14 +2,12 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    1.  Link handling - down to auto reverse removal
+    1.  Link handling - Implement Auto-removal of reverse links.
     2.  Goals - better design of the Panel/Data
     3.  Search issues
+    4.  Larger range for AlterButtons or alternative controls.
 
-NEXT:  Big picture: Implement Auto-removal of reverse links.
-
-With the recent regression - need a test that would have caught that.  Highest priority.
-    day, month, year - set forward, backward, check for expected content.
+Next:
 
 Questions:
     Do a (manual) Test for an unfound FoundIn.  Need to know/document what happens / should happen.
@@ -27,6 +25,14 @@ Problems:
 New:
 
 =====================================================================================================
+13 Nov 2020
+  With yesterday's regression failure - need a test that would have caught that.
+    day, month, year - set forward, backward, check for expected content.
+    Possibly have no-content tests as well; going from, going to - content or not.
+  Did that, at least for the DayNotes, then found that the problem that needed testing is in common code; no need
+    to continue adding Month and Year tests; the horse is already dead 5 times over.
+  Will check this in and then can return to current priorities.
+
 12 Nov 2020
   I did do some of the work, but then in fixing code and tests, found that there is some usage of GroupInfo needed,
     where it starts off with only the name and type so that it can load the full group and only then would

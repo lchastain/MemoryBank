@@ -1,0 +1,37 @@
+[ {
+  "zdtLastModString" : "2020-11-13T10:39:42.840+04:00[Europe/Samara]",
+  "instanceId" : "47c5f4a4-6ea3-4056-9388-73e1c2a015b4",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Wednesday, March 14, 2018",
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-11-13T10:34:40.767+04:00[Europe/Samara]",
+  "instanceId" : "39882135-6661-436c-b1fb-1878e88de84f",
+  "noteString" : "This is the last day of data for testing Day",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "10:34:36.375"
+}, {
+  "zdtLastModString" : "2020-11-13T10:36:14.143+04:00[Europe/Samara]",
+  "instanceId" : "829fb8e8-b7d9-45b9-a8e4-95e36aae9462",
+  "noteString" : "date changes",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/binary.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "10:35:17.200"
+}, {
+  "zdtLastModString" : "2020-11-13T10:38:30.511+04:00[Europe/Samara]",
+  "instanceId" : "64aaf02d-f56d-47ea-b12b-d0addd7a864a",
+  "noteString" : "of the DayNote data containers",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/box.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "10:36:31.375"
+} ] ]

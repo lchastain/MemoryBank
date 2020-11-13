@@ -1,0 +1,28 @@
+[ {
+  "zdtLastModString" : "2020-11-13T10:51:22.953+04:00[Europe/Samara]",
+  "instanceId" : "4738823e-1ec0-4633-960a-27fa3df21de0",
+  "groupType" : "YEAR_NOTES",
+  "groupName" : "2019",
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-11-13T10:50:16.327+04:00[Europe/Samara]",
+  "instanceId" : "15f7383c-8c4c-4dc8-a4bf-9064b66cb29d",
+  "noteString" : "This is the last note for testing Year",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ]
+}, {
+  "zdtLastModString" : "2020-11-13T10:50:39.072+04:00[Europe/Samara]",
+  "instanceId" : "d84b929b-d81f-4de5-aa4f-d0f5baa5ae54",
+  "noteString" : "date changes",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ]
+}, {
+  "zdtLastModString" : "2020-11-13T10:51:22.953+04:00[Europe/Samara]",
+  "instanceId" : "419dcb9f-e406-45a2-8a5d-f47dc51b8a2d",
+  "noteString" : "of the CalendarNoteGroup for a Year and and its corresponding YearNoteGroupPanel ",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ]
+} ] ]

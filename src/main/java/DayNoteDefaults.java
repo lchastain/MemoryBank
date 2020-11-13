@@ -30,7 +30,7 @@ public class DayNoteDefaults {
         try {
             String text = FileUtils.readFileToString(new File(fileName), StandardCharsets.UTF_8.name());
             DayNoteDefaults fromFile = AppUtil.mapper.readValue(text, DayNoteDefaults.class);
-            System.out.println("DayNoteDefaults from JSON file: " + AppUtil.toJsonString(fromFile));
+            MemoryBank.debug("DayNoteDefaults from JSON file: " + AppUtil.toJsonString(fromFile));
             return fromFile;
         } catch (FileNotFoundException ignore) { // not a problem; we'll use defaults.
         } catch (IOException ioe) {

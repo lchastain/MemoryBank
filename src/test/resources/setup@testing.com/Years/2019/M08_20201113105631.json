@@ -1,0 +1,28 @@
+[ {
+  "zdtLastModString" : "2020-11-13T10:56:27.166+04:00[Europe/Samara]",
+  "instanceId" : "736eab54-345b-4e16-9101-6ac2584ae547",
+  "groupType" : "MONTH_NOTES",
+  "groupName" : "August 2019",
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-11-13T10:55:14.644+04:00[Europe/Samara]",
+  "instanceId" : "5a610770-8041-42a8-8fdf-f6c385c7b3ff",
+  "noteString" : "This is the middle MonthNote for testing Month",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ]
+}, {
+  "zdtLastModString" : "2020-11-13T10:54:22.318+04:00[Europe/Samara]",
+  "instanceId" : "0a3de988-e2a5-4d1f-a186-dbabd8eece72",
+  "noteString" : "decreases and increases",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ]
+}, {
+  "zdtLastModString" : "2020-11-13T10:56:27.166+04:00[Europe/Samara]",
+  "instanceId" : "428d432a-6ed7-4303-aa7a-e3e910b0469c",
+  "noteString" : "of the MonthNoteGroupPanel and its underlying CalendarNoteGroup",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ]
+} ] ]

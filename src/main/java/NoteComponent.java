@@ -147,9 +147,9 @@ public class NoteComponent extends JPanel {
     void clear() {
         // Clear the data object.  Since child classes override the
         //   getNoteData method, this works for them as well.
-        System.out.println("NoteComponent.clear, calling getNoteData()!"); // scr0050 troubleshooting.
+        MemoryBank.debug("NoteComponent.clear, calling getNoteData()!"); // scr0050 troubleshooting.
         NoteData nd = getNoteData();
-        System.out.println("NoteComponent.clear, calling NoteData.clear!"); // scr0050 troubleshooting.
+        MemoryBank.debug("NoteComponent.clear, calling NoteData.clear!"); // scr0050 troubleshooting.
         if (nd != null) nd.clear(); // This can possibly affect groupDataVector.
 
         // Clear the (base) Component - ie, the noteTextField
