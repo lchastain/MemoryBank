@@ -55,20 +55,16 @@ public class DateTrackingTests {
         appTreePanel = null;
     }
 
-    // This test comes close to the one that is written (textually) in SCR0106.  But this one starts
-    // with a known date which is not going to be the 'current' date.  This is better because the
-    // default of new panels is to use current date, and we want to see proper handling of selected
-    // and viewed dates without getting lucky by having one or both be the default and therefore already
-    // properly set.  But one shortfall with this version is that we lack the test for 'looking' at
-    // the day highlighted on the MonthView and YearView.  This seems acceptable given that we do
-    // consider the text of the reported 'choice', which in code is set at/near the same place as the
-    // highlighting of the specific day and based on that same value.
+    // This multi-step test comes close to the one that is written (textually) in SCR0106.  But this one starts with
+    // a known date which is not going to be the 'current' date.  This is better because the default of new panels is
+    // to use current date, and we want to see proper handling of selected and viewed dates without getting lucky by
+    // having one or both be the default and therefore already properly set.
     @Test
-    void testDateManagement1() throws InterruptedException {
+    void testDateManagement() throws InterruptedException {
         LocalDate theChoice;
 
-        // 1.  Start up a YearView with a known date.  This will cause it to be constructed
-        //     and use the known date as both the selected date and the viewed date.
+        // 1.  Start up a YearView with a known date.  This will cause it to
+        //     use it as both the selected date and the viewed date.
         LocalDate knownDate = LocalDate.of(today.getYear(), Month.JULY, 15);
         appTreePanel.setSelectedDate(knownDate);
         theTree.setSelectionPath(appTreePanel.yearViewPath);
@@ -79,10 +75,9 @@ public class DateTrackingTests {
         }
 
         // Verify that the YearView's displayed year (Viewed Date) is correct.
-        // In this case there is limited (no ?) value added for this assertion since
-        // the two dates have not diverged in this test, but checking it anyway for
-        // completeness and to match the same steps for the MonthView, where we do
-        // expect to see a difference.
+        // In this case there is limited value added for this assertion since
+        // the two dates have not diverged in this test, but this establishes a
+        // known starting point and verifies it to be correctly set.
         Assertions.assertEquals(appTreePanel.theYearView.getYear(), knownDate.getYear());
 
         // Verify that the YearView's selection and our known date are the same.
@@ -113,7 +108,8 @@ public class DateTrackingTests {
         theChoice = appTreePanel.theMonthView.getChoice();
         Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
 
-        // Now look at the Label for the selected date
+        // Now look at the Label for the selected date - it should show the correct selected
+        //   date even though we are viewing a different month.
         whatItShouldBe = MonthView.dtf.format(knownDate);
         whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
         Assertions.assertEquals(whatItShouldBe, whatItIs);
@@ -121,7 +117,7 @@ public class DateTrackingTests {
         // 3.  Go back to the YearView
         theTree.setSelectionPath(appTreePanel.yearViewPath);
 
-        // Verify that the YearView didn't pick up any info from the MonthView's displayedMonth date.
+        // Verify that the YearView still shows the correct, original selection.
         theChoice = appTreePanel.theYearView.getChoice();
         Assertions.assertTrue(theChoice.isEqual(knownDate));
         whatItShouldBe = YearView.dtf.format(knownDate);
@@ -129,9 +125,9 @@ public class DateTrackingTests {
         Assertions.assertEquals(whatItShouldBe, whatItIs);
 
 // 12/17/2019 - Disabled the rest of this test, because a mismatch was discovered between initial implementation
-//   and the intended design, and it was fixed in AppTreePanel.  Now that any YearView will change granularity to YEARS,
-//   the remaining steps here have improper expectations.
-//   Need to revise these steps and/or just end here and add different tests.
+//   and the intended design, and it was fixed in AppTreePanel.  Now that Note type panel date changes will
+//   be felt in Viewing type panels, the remaining steps here have improper expectations.
+//   Need an entirely new set of test steps, to cover altered behavior.
 
 //        // 4.  Go to MonthNotes.  Verify that it shows Notes for the viewed date.
 //        theTree.setSelectionPath(appTreePanel.monthNotesPath);

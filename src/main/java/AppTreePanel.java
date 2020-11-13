@@ -1725,9 +1725,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroupPanel();
                 theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
+            } else { // Previously constructed.  Ensure that it is editable.
+                log.debug("Using the previously constructed 'theAppDays' for " + theNodeString);
                 if (!theAppDays.editable) theAppDays.setEditable(true);
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
             theAppDays.setAlteredDateListener(this); // needed for both new and pre-existing.
@@ -1745,9 +1745,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
                 theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
+            } else { // Previously constructed.  Ensure that it is editable.
+                log.debug("Using the previously constructed 'theAppMonths' for " + theNodeString);
                 if (!theAppMonths.editable) theAppMonths.setEditable(true);
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
             theAppMonths.setAlteredDateListener(this); // needed for both new and pre-existing.
@@ -1758,9 +1758,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroupPanel();
                 theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Coming from the keeper, it may have been non-editable.  set Editable to true.
+            } else { // Previously constructed.  Ensure that it is editable.
+                log.debug("Using the previously constructed 'theAppYears' for " + theNodeString);
                 if (!theAppYears.editable) theAppYears.setEditable(true);
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
             theAppYears.setAlteredDateListener(this); // needed for both new and pre-existing.

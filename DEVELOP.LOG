@@ -1,34 +1,32 @@
 12345678901234567890123456789012345678901234567890123456789012345678901234567890    80
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
+Priorities:
+    1.  Link handling - down to auto reverse removal
+    2.  Goals - better design of the Panel/Data
+    3.  Search issues
+
 NEXT:  Big picture: Implement Auto-removal of reverse links.
-    Immediate:  Change the implementation of GroupInfo.getNoteGroupDataAccessor in removeReverseLinks so that the
-        result is that the group can be re-persisted without constructing a Panel.
-      This required a rearchitecting of the app - repairs from that are underway.
 
-(manual) Test for an unfound FoundIn.
-
-Problem:  DayNote advance does not load new day.
-
+With the recent regression - need a test that would have caught that.  Highest priority.
+    day, month, year - set forward, backward, check for expected content.
 
 Questions:
+    Do a (manual) Test for an unfound FoundIn.  Need to know/document what happens / should happen.
+        Do you mean unfound initially?  That is probably not possible.  So later, when clicking on it.
 
 Issues:
-    The Search operation also looks into deactivated groups - but later - add a Y/N checkbox to the Search Panel
-        Settings for whether or not to include non-active groups.  Maybe one checkbox for each type.
-    It would be very helpful when viewing a 'Found In' type panel, if the user had a way to go back to the
-        SearchResults that they came from.  Suggest a top-level menu item:  'Go Back'.
 
 Problems:
-    event sorting by date not working...  even before, in pub.  But it does, sometimes.
-    Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
+    Editability fallout:
+      (setting 'editable' was needed in order to select link targets, so this falls under the current effort)
+      Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
         For this, maybe need two sets of messages - one for editable, one for not.
-    Saving and retrieval of the first ever SearchResults - group may not save, or may not come back as selected,
-        possibly due to non-existent SearchResults directory.  Didn't see the problem when there were two of them.
-    How to disable shiftUp/Down for non-editable Panels, but leave them active for SearchResults.
+      How to disable shiftUp/Down for non-editable Panels, but leave them active for SearchResults.
 
 New:
 
+=====================================================================================================
 12 Nov 2020
   I did do some of the work, but then in fixing code and tests, found that there is some usage of GroupInfo needed,
     where it starts off with only the name and type so that it can load the full group and only then would
@@ -47,7 +45,6 @@ New:
     the second one, and it is more in line with the GroupInfo solution.  Did that.  Added a new 'swap' test. 180 now.
   Checked in and pub'd.
 
-=====================================================================================================
 11 Nov 2020
   Continuing the Info vs Object thoughts (no, cannot put it down with how it ended in the previous session):
     Nulling out the LMD in those cases where it isn't needed - still seems like a bad design.  I feel like what is
