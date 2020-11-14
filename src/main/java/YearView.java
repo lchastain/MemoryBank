@@ -18,36 +18,38 @@ public class YearView extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
 
     // Required for use by 'static' section -
-    private static String[] monthNames;
-    private static String[] weekdayNames;
+    private static final String[] monthNames;
+    private static final String[] weekdayNames;
 
     // Variables needed by more than one method -
     private LocalDate theChoice;    // constructor, event handling, numerous
     private LocalDate choice2;      // when 2 choices are allowed
     private DayLabel activeDayLabel;            // recalc, event handling
-    private JLabel titleLabel;       // constructor, event handling
-    private JTextField yearTextField;  // User entry of the year
-    private JLabel choiceLabel;      // constructor, highlight
-    private JPanel yearPanel;
+    private final JLabel titleLabel;       // constructor, event handling
+    private final JTextField yearTextField;  // User entry of the year
+    private final JLabel choiceLabel;      // constructor, highlight
+    private final JPanel yearPanel;
     private int theYear;            // numerous
     static DateTimeFormatter dtf;
     private AppTreePanel appTreePanel = null;
-    private static Color hasDataColor = Color.blue;
-    private static Color noDataColor = Color.black;
-    private static Font hasDataFont = Font.decode("Dialog-bold-16");
-    private static Font noDataFont = Font.decode("Dialog-plain-14");
+    private static final Color hasDataColor = Color.blue;
+    private static final Color noDataColor = Color.black;
+    private static final Font hasDataFont = Font.decode("Dialog-bold-16");
+    private static final Font noDataFont = Font.decode("Dialog-plain-14");
     private boolean[][] hasDataArray;
     private JDialog dateSelectionDialog;
     private int intNumSelections;
     private int intSelectionCount;
-    private JButton todayButton;
+    private final JButton todayButton;
     private boolean alterButtonDepressed;
     private Depressed depressedThread;   // A Thread to keep responding to year up/down
 
     private static final int borderWidth = 2;
-    private static LineBorder theBorder;
-    private JPanel headerPanel;
-    private JPanel titlePanel;
+    private static final LineBorder theBorder;
+    private final JPanel headerPanel;
+    private final JPanel titlePanel;
+
+    // Directly accessed by Tests
     LabelButton prev;
     LabelButton next;
 
@@ -81,6 +83,9 @@ public class YearView extends JPanel implements ActionListener {
         theChoice = initial;
         theYear = initial.getYear();
 
+        // This MouseAdapter allows that the buttons may be held depressed, and the indicated action
+        //   will repeat until the button is released.  This is an acknowledgement that the desired
+        //   year may be well away from the one currently on display.
         MouseAdapter alterButtonHandler = new MouseAdapter() {
             public void mouseExited(MouseEvent e) {
                 if (alterButtonDepressed) depressedThread.stopit();
@@ -579,7 +584,7 @@ public class YearView extends JPanel implements ActionListener {
     class Depressed extends Thread {
         private int delay = 300; // milliseconds
         private boolean iAmRunning;
-        private int direction;
+        private final int direction;
 
         Depressed(int direction) {
             super();
@@ -588,6 +593,7 @@ public class YearView extends JPanel implements ActionListener {
         } // end constructor
 
         // A thread 'dies' upon return from run.
+        @SuppressWarnings("BusyWait")
         public void run() {
             while (iAmRunning) {
 

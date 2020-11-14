@@ -24,27 +24,31 @@ public class MonthView extends JLayeredPane {
 
     // No need to have more than one of the vars below (so static),
     // but need them to be visible to more than one method here.
-    private static String[] dayNames;
-    private static JPanel monthGrid;
+    private static final String[] dayNames;
+    private static final JPanel monthGrid;
     static DateTimeFormatter dtf;
     private static LocalDate theChoice;
-    private static Color hasDataColor = Color.blue;
-    private static Color noDataColor = Color.black;
-    private static Font hasDataFont = Font.decode("Dialog-bold-20");
-    private static Font noDataFont = Font.decode("Dialog-bold-16");
+    private static final Color hasDataColor = Color.blue;
+    private static final Color noDataColor = Color.black;
+    private static final Font hasDataFont = Font.decode("Dialog-bold-20");
+    private static final Font noDataFont = Font.decode("Dialog-bold-16");
     static LocalDate displayedMonth;  // Of course it also holds a year and date
 
     // Variables needed by more than one method -
     private DayCanvas activeDayCanvas;   // recalc, event handling
-    private MonthCanvas monthCanvas;
-    private JLabel choiceLabel;
-    private int heightOffset = 0;
+    private final MonthCanvas monthCanvas;
+    private final JLabel choiceLabel;
+    private final int heightOffset = 0;
     private AppTreePanel appTreePanel = null;
     private boolean[][] hasDataArray;  // for a year.  index 0 = month, index 1 = days, values have data True or False
-    private Dimension minSize;
+    private final Dimension minSize;
 
     private static final int borderWidth = 2;
-    private static LineBorder theBorder;
+    private static final LineBorder theBorder;
+
+    // Directly accessed by Tests  // TODO - but not yet.  Needed for mouseListener tests, like already seen for YearView.
+    LabelButton prev;
+    LabelButton next;
 
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
@@ -282,10 +286,13 @@ public class MonthView extends JLayeredPane {
         MonthCanvas() { // constructor
             super(new BorderLayout());
 
+            // Difference between this mouse handler and the one for YearView:  this one is a one-time click, whereas
+            //  the one in YearView may be held depressed and the increment/decrement will continue.  We don't want
+            //  that same behavior here for months, because of the every-12-month rollover to a new year.
             MouseAdapter ma = new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     LabelButton source = (LabelButton) e.getSource();
-                    String buttonText = source.getText();
+                    String buttonText = source.getName();
 
                     activeDayCanvas.reset();     // turn off current choice highlight
                     int currentYear = displayedMonth.getYear(); // Get this before we setNotes/subtract
@@ -302,12 +309,12 @@ public class MonthView extends JLayeredPane {
                 } // end mouseClicked
             };// end of new MouseAdapter
 
-            LabelButton prev = new LabelButton("-");
+            prev = new LabelButton("-", LabelButton.LEFT);
             prev.addMouseListener(ma);
             prev.setPreferredSize(new Dimension(28, 28));
             prev.setFont(Font.decode("Dialog-bold-14"));
 
-            LabelButton next = new LabelButton("+");
+            next = new LabelButton("+", LabelButton.RIGHT);
             next.addMouseListener(ma);
             next.setPreferredSize(new Dimension(28, 28));
             next.setFont(Font.decode("Dialog-bold-14"));

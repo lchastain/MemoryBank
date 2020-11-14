@@ -54,7 +54,7 @@ public class LabelButton extends JLabel {
     } // end constructor 2
 
     public LabelButton(String s, int direction) {
-        super();
+        super();  // We don't send the text at this point; we may want icon-only.
         defaultLabel = s;
         switch(direction) {
             case UP:
@@ -76,7 +76,7 @@ public class LabelButton extends JLabel {
         setHorizontalAlignment(JLabel.CENTER);
 
         setBorder(upBorder);
-        setName(s);    // Used later, in event handling
+        setName(s);    // Accessed later, in event handling.  When there is no icon, this is used as the text.
         setOpaque(true);
         setFont(Font.decode("Dialog-12"));
         ma = new MouseAdapter() {

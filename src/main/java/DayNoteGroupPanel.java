@@ -48,12 +48,12 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         timeFormatButton.setPreferredSize(new Dimension(28, 28));
         timeFormatButton.setFont(Font.decode("Dialog-bold-14"));
 
-        LabelButton prev = new LabelButton("-");
+        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
         prev.addMouseListener(this);
         prev.setPreferredSize(new Dimension(28, 28));
         prev.setFont(Font.decode("Dialog-bold-14"));
 
-        LabelButton next = new LabelButton("+");
+        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
         next.addMouseListener(this);
         next.setPreferredSize(new Dimension(28, 28));
         next.setFont(Font.decode("Dialog-bold-14"));
@@ -99,7 +99,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         source.requestFocus(); // Remove selection highlighting
-        String s = source.getText();
+        String s = source.getName();
 
         switch (s) {
             case "+":
@@ -110,10 +110,12 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
                 break;
             case "12":
                 toggleMilitary();
+                source.setName("24");
                 source.setText("24");
                 return;
             case "24":
                 toggleMilitary();
+                source.setName("12");
                 source.setText("12");
                 return;
         }
@@ -124,7 +126,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
-        String s = source.getText();
+        String s = source.getName();
         switch (s) {
             case "+":
                 s = "Click here to see next day";

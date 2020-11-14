@@ -4,25 +4,28 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 Priorities:
     1.  Link handling - Implement Auto-removal of reverse links.
     2.  Goals - better design of the Panel/Data
-    3.  Search issues
+    3.  Search issues - there is an entire todo list to work from
     4.  Larger range for AlterButtons or alternative controls.
 
 Next:
 
 Questions:
-    Do a (manual) Test for an unfound FoundIn.  Need to know/document what happens / should happen.
-        Do you mean unfound initially?  That is probably not possible.  So later, when clicking on it.
 
 Issues:
 
 Problems:
     Editability fallout:
       (setting 'editable' was needed in order to select link targets, so this falls under the current effort)
+      AlterButtons on CalendarNoteGroup types - still clickable when editable = false
       Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
         For this, maybe need two sets of messages - one for editable, one for not.
       How to disable shiftUp/Down for non-editable Panels, but leave them active for SearchResults.
 
 New:
+
+14 Nov 2020
+  Put directional icons on all Calendar-type NoteGroups, plus the MonthView.
+
 
 =====================================================================================================
 13 Nov 2020
@@ -50,6 +53,8 @@ New:
     itself into a full NoteData.  Currently its only real usage is for Links.  The 'safer' approach appears to be
     the second one, and it is more in line with the GroupInfo solution.  Did that.  Added a new 'swap' test. 180 now.
   Checked in and pub'd.
+  Then found that advancing a day - did not change the loaded data.  Changes were needed in CalendarNoteGroupPanel,
+    to get the group name set properly prior to the reload.  Fixed and re-pub'd, but this regression is troubling.
 
 11 Nov 2020
   Continuing the Info vs Object thoughts (no, cannot put it down with how it ended in the previous session):

@@ -25,12 +25,12 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     private void buildMyPanel() {
         dtf = DateTimeFormatter.ofPattern("yyyy");
 
-        LabelButton prev = new LabelButton("-");
+        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
         prev.addMouseListener(this);
         prev.setPreferredSize(new Dimension(28, 28));
         prev.setFont(Font.decode("Dialog-bold-14"));
 
-        LabelButton next = new LabelButton("+");
+        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
         next.addMouseListener(this);
         next.setPreferredSize(new Dimension(28, 28));
         next.setFont(Font.decode("Dialog-bold-14"));
@@ -56,7 +56,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         source.requestFocus(); // Remove selection highlighting
-        String s = source.getText();
+        String s = source.getName();
 
         // One of the two mutually exclusive conditions below is expected
         // to be true but if neither then we just ignore the action.
@@ -73,7 +73,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
-        String s = source.getText();
+        String s = source.getName();
         if (s.equals("-")) {
             s = "Click here to see previous year";
         }
