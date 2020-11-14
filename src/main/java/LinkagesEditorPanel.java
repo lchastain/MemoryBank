@@ -282,34 +282,20 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     //  this entire action is 'under the hood', the user will not be informed of this and it will not be treated as
     //  a problem; if removal was not possible then a strong possibility is that it just wasn't needed, such as in the
     //  case where the user had previously already removed the reverse link themselves, or the entire target group
-    //  had been deleted.
+    //  had been deleted.  If it wasn't removed because it just couldn't be found then it may still be 'out there'
+    //  somewhere but its presence will be low-to-no impact and the user may remove it themselves when/if they ever
+    //  find it.  As it is, we intend to allow orphaned links to exist but when shown in this panel they will have
+    //  a different color so that the user can see that it has a problem of some kind.
     private void removeReverseLink(LinkedEntityData linkedEntityData) {
         // The link will either be directly on a group, or on a note within a group.
         // The first step here will be to obtain the GroupInfo for that target group.
         GroupInfo otherEndGroupInfo = linkedEntityData.getTargetGroupInfo();
 
-        // The difference between the linkedEntityData that was sent to the addReverseLink method and the one that is
-        //  sent here is that the one sent here does not immediately follow the selection of the link target.
-
-        //  with correctly populated
-        //  transient member instances; it most commonly comes from deserialized data that has no handle to a
-        //  panel that holds the data for this group.
-        // A less common operational variant is that the transient members ARE already populated, because the forward
-        //  link was created and persisted in the current session, but then was recalled and is now being deleted.
-        //  An unusual situation but certainly not impossible.  But unlike the sequencing when the reverse link
-        //  was added, here we cannot guarantee that further user changes to the target group did not occur between
-        //  the time the link was created and now when it is being removed, and if there were changes, using the
-        //  reference at this point would give us the group without getting its data updated from the associated panel.
-        // So, we need to use the GroupInfo to get an accessor for the data because whether the data needs updating or
-        //  not, this way we are sure we are getting a group with the most current data.  There is even more verbose
-        //  commenting on this in the getNoteGroupDataAccessor method, looking at the GroupInfo from the perspective
-        //  of the GroupInfo class itself.
-
-        // Use the target GroupInfo to get a reference to the group's data accessor
+        // Use the target GroupInfo to get a reference to the group that holds the reverse link.
         NoteGroup groupToSave = otherEndGroupInfo.getNoteGroup();
         if(groupToSave == null) return; // if that didn't work then we're done here; removal not possible.
 
-        // Remove the link from its 'holder'.
+        // Identify the 'holder' of the reverse link - is it the Group itself, or one of its Notes?
         LinkTargets linkTargets;
         NoteInfo otherEndNoteInfo = linkedEntityData.getTargetNoteInfo();
         if (otherEndNoteInfo != null) {
@@ -318,15 +304,16 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
             linkTargets = groupToSave.getGroupProperties().linkTargets;
         }
 
-        // This removal will pass through our local reference and be felt in the group.
-        boolean removedLink;
-        removedLink = linkTargets.remove(linkedEntityData); // Probably need a new 'remove' method in LinkTargets class.
-        // but may not, if you make an 'equals' method for LinkedEntityData ??
+        // Remove the link from its 'holder'.
+        // This removal via our local 'linkTargets' reference will be felt in the groupToSave,
+        //   whether or not it is currently being 'kept'.
+        //
+        // One thing we know about the reverse link is that it will have the same ID as the forward link
+        //   that was sent to this method.  So in fact that is all we need to send to the 'removeLink' method.
+        boolean removedLink = linkTargets.removeLink(linkedEntityData.instanceId);
 
         // re-persist the group, now without the one removed link.
         if(removedLink) groupToSave.saveNoteGroup();
-
-        // If it came from a keeper, refresh.
     }
 
 
@@ -372,8 +359,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                 // want to remove its reverse link, if this is a forward one.
                 LinkedEntityData linkedEntityData = linkNoteComponent.myLinkedEntityData;
                 if (!linkedEntityData.reversed && !linkedEntityData.retypeMe) { // If this is a pre-existing forward link -
-                    System.out.println("Not yet calling removeReverseLink"); // but this printout silences a warning.
-//                    removeReverseLink(linkedEntityData);
+                    removeReverseLink(linkedEntityData);
                 }
             } else {
                 // This will set the link type according to the combobox value.
