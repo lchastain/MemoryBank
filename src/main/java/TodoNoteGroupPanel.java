@@ -39,6 +39,15 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel();
 
+        int theOrder = INORDER;
+        if (myNoteGroup.getGroupProperties() != null) {
+            theOrder = ((TodoGroupProperties) myNoteGroup.getGroupProperties()).columnOrder;
+        } // end if
+        if (theOrder != INORDER) checkColumnOrder();
+
+        listHeader = new TodoGroupHeader(this);
+        setGroupHeader(listHeader);
+
         buildMyPanel(groupName);
         theNotePager.reset(1);
     } // end constructor

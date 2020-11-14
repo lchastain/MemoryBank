@@ -226,10 +226,10 @@ public class TodoNoteComponent extends NoteComponent {
     //----------------------------------------------------------------
     public void resetColumnOrder(int theOrder) {
         String pos = String.valueOf(theOrder);
-        // System.out.println("TodoNoteComponent resetColumnOrder to " + pos);
+         System.out.println("TodoNoteComponent resetColumnOrder to " + pos);
 
         //   Note that now we do not provide the 'name' and so we will
-        //   be going through the base layout class 'setNotes' method.
+        //   be going through the base layout class 'add' method.
         add(pbThePriorityButton, pos.indexOf("1"));
         add(noteTextField, pos.indexOf("2"));
         add(sbTheStatusButton, pos.indexOf("3"));

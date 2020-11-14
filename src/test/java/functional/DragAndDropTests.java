@@ -1,5 +1,6 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -63,8 +64,8 @@ public class DragAndDropTests {
 
     @Test
     void testDragLeft() throws InterruptedException {
-        TodoNoteGroupPanel todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
-        TodoGroupHeader todoGroupHeader = todoNoteGroup.listHeader;
+        TodoNoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Get New Job");
+        TodoGroupHeader todoGroupHeader = todoNoteGroupPanel.listHeader;
         JFrame testFrame = new JFrame("Drag Left And Drop Driver");
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
@@ -72,7 +73,7 @@ public class DragAndDropTests {
             }
         });
 
-        testFrame.getContentPane().add(todoNoteGroup.theBasePanel);
+        testFrame.getContentPane().add(todoNoteGroupPanel.theBasePanel);
         testFrame.pack();
         testFrame.setSize(new Dimension(620, 540));
         testFrame.setVisible(true);
@@ -114,13 +115,31 @@ public class DragAndDropTests {
 //        while(testFrame.isVisible()) {
 //            Thread.sleep(1000);
 //        }
+
+        // Now save the end result
+        todoNoteGroupPanel.preClosePanel();
+
+        // Reload the data
+        todoNoteGroupPanel.updateGroup();
+
+        // Verify that the column order in the Group properties (used by the group header) has changed -
+        TodoGroupProperties todoGroupProperties = (TodoGroupProperties) todoNoteGroupPanel.myNoteGroup.getGroupProperties();
+        System.out.println("Column order is now " + todoGroupProperties.columnOrder);
+        Assertions.assertEquals(132, todoGroupProperties.columnOrder);
+
+        // Verify that the second column of the TodoNoteComponent now holds the StatusButton component
+        TodoNoteComponent todoNoteComponent = (TodoNoteComponent) todoNoteGroupPanel.groupNotesListPanel.getComponent(0);
+        Class theClass = todoNoteComponent.getComponent(1).getClass();
+        System.out.println("The class of the component in the second position of the TodoNoteComponent is: " + theClass);
+        Assertions.assertSame(TodoNoteComponent.StatusButton.class, theClass);
+
         testFrame.setVisible(false); // Needed, when this is not the only test running.
     } // end testDragLeft
 
     @Test
     void testDragRight() throws InterruptedException {
-        SearchResultGroupPanel searchResultGroup = new SearchResultGroupPanel("20201107080423");
-        SearchResultHeader searchResultHeader = searchResultGroup.listHeader;
+        SearchResultGroupPanel searchResultGroupPanel = new SearchResultGroupPanel("20201107080423");
+        SearchResultHeader searchResultHeader = searchResultGroupPanel.listHeader;
         JFrame testFrame = new JFrame("Drag Right And Drop Driver");
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
@@ -128,7 +147,7 @@ public class DragAndDropTests {
             }
         });
 
-        testFrame.getContentPane().add(searchResultGroup.theBasePanel);
+        testFrame.getContentPane().add(searchResultGroupPanel.theBasePanel);
         testFrame.pack();
         testFrame.setSize(new Dimension(620, 540));
         testFrame.setVisible(true);
@@ -171,6 +190,23 @@ public class DragAndDropTests {
 //        while(testFrame.isVisible()) {
 //            Thread.sleep(1000);
 //        }
+
+        // Now save the end result
+        searchResultGroupPanel.preClosePanel();
+
+        // Reload the data
+        searchResultGroupPanel.updateGroup();
+
+        // Verify that the column order in the Group properties (used by the group header) has changed -
+        SearchResultGroupProperties theProperties = (SearchResultGroupProperties) searchResultGroupPanel.myNoteGroup.getGroupProperties();
+        System.out.println("Column order is now " + theProperties.columnOrder);
+        Assertions.assertEquals(213, theProperties.columnOrder);
+
+        // Verify that the second column of the SearchResultComponent now holds the FoundInButton component
+        SearchResultComponent theComponent = (SearchResultComponent) searchResultGroupPanel.groupNotesListPanel.getComponent(0);
+        Class theClass = theComponent.getComponent(1).getClass();
+        System.out.println("The class of the component in the second position of the SearchResultComponent is: " + theClass);
+        Assertions.assertSame(SearchResultComponent.FoundInButton.class, theClass);
 
         testFrame.setVisible(false); // Needed, when this is not the only test running.
     } // end testDragRight

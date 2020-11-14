@@ -27,7 +27,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         super();
         parent = p;
         headerLayout = new DndLayout();
-        headerLayout.setMoveable(true); // Must be BEFORE setNotes.
+        headerLayout.setMoveable(true); // Must be BEFORE add().
         headerLayout.setClingSource(this);
         setLayout(headerLayout);
 
@@ -46,7 +46,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         add(hb1, "First");
         add(hb2, "Stretch");
         add(hb3, "Third");
-        // setNotes(hb4, "Fourth");
+        // add(hb4, "Fourth");
 
         // Re-order the columns, if necessary
         String pos = String.valueOf(((TodoGroupProperties) parent.myNoteGroup.myProperties).columnOrder);
@@ -54,7 +54,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         add(hb1, pos.indexOf("1"));
         add(hb2, pos.indexOf("2"));
         add(hb3, pos.indexOf("3"));
-        // setNotes(hb4, pos.indexOf("4"));
+        // add(hb4, pos.indexOf("4"));
 
         hb1.setVisible(((TodoGroupProperties) parent.myNoteGroup.myProperties).showPriority);
     } // end constructor

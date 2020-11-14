@@ -14,20 +14,26 @@ Questions:
 Issues:
 
 Problems:
-    Editability fallout:
-      (setting 'editable' was needed in order to select link targets, so this falls under the current effort)
-      AlterButtons on CalendarNoteGroup types - still clickable when editable = false
-      Non-editable status messages not showing - ie, SearchResultPanel messages about non-editable, sorting, etc.
-        For this, maybe need two sets of messages - one for editable, one for not.
-      How to disable shiftUp/Down for non-editable Panels, but leave them active for SearchResults.
 
 New:
 
-14 Nov 2020
-  Put directional icons on all Calendar-type NoteGroups, plus the MonthView.
 
 
 =====================================================================================================
+14 Nov 2020
+  I put directional icons on all Calendar-type NoteGroups, plus the MonthView.
+  This item from 'Editability Fallout':  AlterButtons on CalendarNoteGroup types - still clickable when editable = false
+    I decided this is ok after all; leave this as-is.  A search result reviewer MAY want to see adjacent days/months, etc,
+      of a 'FoundIn' note, but more importantly is that when the non-editability applies to Link Targets, the user
+      MUST still be able to choose a different time period from the otherwise disabled CalendarNoteGroup panel.
+  Moved the other Editability issues (all related to Searches) to the SearchIssues list, work there deferred.
+  Discovered a failure in column reordering - works in real-time but comes back mismatched with header.  This appears
+    to be another regression; needs attention before moving on.  The existing tests do not go far enough; they do the
+    reorder but not the reload and check the result.
+  Found the problem in the two Panel constructors where reordering is possible - both were now missing the call to
+    'checkColumnOrder'.  Restored the calls and expanded the drag and drop tests, to go on and save, then reload
+    the data, then check that it was reordered.
+
 13 Nov 2020
   With yesterday's regression failure - need a test that would have caught that.
     day, month, year - set forward, backward, check for expected content.

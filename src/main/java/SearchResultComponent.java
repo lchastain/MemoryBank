@@ -85,15 +85,10 @@ public class SearchResultComponent extends NoteComponent {
     } // end initialize
 
 
-    // Do not call this method if the columns are already in order;
-    //   it just wastes cpu cycles.  Test for that condition in the
-    //   calling context and only make the call if needed.
     public void resetColumnOrder(int theOrder) {
         String pos = String.valueOf(theOrder);
         // System.out.println("SearchResultComponent resetColumnOrder to " + pos);
 
-        //   Note that now we do not provide the 'name' and so we will
-        //   be going through the base layout class 'setNotes' method.
         add(foundInButton, pos.indexOf("1"));
         add(noteTextField, pos.indexOf("2"));
         add(lastModLabel, pos.indexOf("3"));

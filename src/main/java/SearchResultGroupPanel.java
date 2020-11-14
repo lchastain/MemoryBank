@@ -26,6 +26,9 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         editable = false;
         loadNotesPanel();
 
+        // Unlike with a ToDo list, this is not conditional; we just do it whether needed or not.
+        checkColumnOrder();
+
         if(fixedDataWhileLoading) setGroupChanged(true); // This can go away when all is fixed.
         // The component might have set this to true.
 
