@@ -279,11 +279,11 @@ class LastModUpdateTest {
     @Test
     void testSearchResultGroupPanel() {
         // These Strings came from the known persisted test data.
-        String zdtLastModGroup = "2020-11-04T17:24:30.916+04:00[Europe/Samara]";
-        String zdtLastModNote1 = "2020-11-04T17:24:30.869+04:00[Europe/Samara]";
+        String zdtLastModGroup = "2020-11-18T05:41:04.617+04:00[Europe/Samara]";
+        String zdtLastModNote1 = "2020-10-18T08:11:15.931+04:00[Europe/Samara]";
 
         // Load the Panel under test.
-        SearchResultGroupPanel noteGroupPanel = new SearchResultGroupPanel("20201104172430");
+        SearchResultGroupPanel noteGroupPanel = new SearchResultGroupPanel("day");
 
         // Get handles to the Panel's NoteGroup and the second note.
         NoteGroup theNoteGroup = noteGroupPanel.myNoteGroup;

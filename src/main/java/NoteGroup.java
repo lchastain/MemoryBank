@@ -73,12 +73,12 @@ class NoteGroup implements LinkHolder {
         //   the GroupProperties correctly so that the data is not persisted with a null in that data member.
         // Now you ask why am I talking about Panels in this class?  Mainly because Panels are the primary customer of
         //   the NoteGroup constructor, and CNG type Panels are the ones trying to retrieve Groups that have no data.
-        //
+        BaseData.loading = false;
+
         // Make the basic default properties, if none were loaded.
         if(myProperties == null) {
             myProperties = makeGroupProperties(); // This method might be overridden, in child classes of NoteGroup.
         }
-        BaseData.loading = false;
     }
 
     @SuppressWarnings("unchecked")

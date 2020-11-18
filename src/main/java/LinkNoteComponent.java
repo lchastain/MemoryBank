@@ -20,7 +20,6 @@ public class LinkNoteComponent extends NoteComponent {
     JComboBox<String> linkTypeDropdown;
     JCheckBox deleteCheckBox;
     GroupInfo targetGroupInfo;
-    NoteInfo thisNoteInfo;   // The info for this component; not necessarily the info of the link target note.
     String linkTitleString;
     JLabel linkTitleLabel;
 
@@ -34,25 +33,20 @@ public class LinkNoteComponent extends NoteComponent {
         removeAll();   // We will redo the base layout.
         setLayout(new BorderLayout());
 
-        // Construct our component info from the link sent in to the constructor.
-        thisNoteInfo = myLinkedEntityData.getTargetNoteInfo();
-        if (thisNoteInfo == null) {
-            // If none then we make our own, for usage only in the LinkagesEditorPanel, probably.
-            thisNoteInfo = new NoteInfo();
-            thisNoteInfo.noteString = myLinkedEntityData.getTargetGroupInfo().getGroupName();
-//            noteInfo.myNoteGroupPanel = myLinkedEntityData.getTargetGroupInfo().myNoteGroupPanel;
-            // Rather than trying to keep this around, replace it with a 'get' method that is only called when needed.
-            // Its usage from within a link note component - I don't remember; maybe not needed at all, or else
-            // we'll be back here tracking down the problem.
-            // If we need this, maybe assign it to a yet-to-be defined LinkagesEditorPanel.theInstance member.
+        // From the link we were sent, get the NoteInfo if there is one.
+        NoteInfo thisNoteInfo = myLinkedEntityData.getTargetNoteInfo(); // This could be null -
 
+        // Make a NoteData to use as the underlying data for this component.
+        myNoteData = new NoteData(); // This gives it the ID
+        if (thisNoteInfo == null) {
+            // If there is no NoteInfo then we set our noteString from the Group Name.
+            myNoteData.noteString = myLinkedEntityData.getTargetGroupInfo().getGroupName();
             // Here we COULD set an extended note for a popup tooltip, but decided against it, at this time.
-            //noteInfo.extendedNoteString = "All notes in this group";
+            //myNoteData.extendedNoteString = "All notes in this group";
+        } else {
+            myNoteData.setNoteString(thisNoteInfo.noteString);
+            myNoteData.setExtendedNoteString(thisNoteInfo.extendedNoteString);
         }
-//        myNoteData = new NoteData(noteInfo); // This isolates our 'component' NoteData from the source entity.
-        myNoteData = new NoteData(); // This isolates our 'component' NoteData from the source entity.
-        myNoteData.setNoteString(thisNoteInfo.noteString);  // If there are other needs for it then make a new constructor
-        myNoteData.setExtendedNoteString(thisNoteInfo.extendedNoteString); // for NoteData, that takes in a NoteInfo.
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override

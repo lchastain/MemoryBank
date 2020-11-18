@@ -1,4 +1,9 @@
 [ {
+  "zdtLastModString" : "2020-11-17T05:44:47.532+04:00[Europe/Samara]",
+  "instanceId" : "2167cdf6-9496-419e-9db3-47e6e411d1fa",
+  "groupType" : "TODO_LIST",
+  "groupName" : "Two",
+  "linkTargets" : [ ],
   "showPriority" : true,
   "maxPriority" : 20,
   "deadWidth" : 170,
@@ -12,7 +17,6 @@
   "pCutoff" : 99,
   "lineSpace" : 1,
   "whenNoKey" : 1,
-  "numberOfItems" : 15,
   "column1Label" : "Priority",
   "column2Label" : "To Do Text",
   "column3Label" : "Status",
@@ -20,41 +24,51 @@
   "columnOrder" : 123
 }, [ {
   "zdtLastModString" : "2019-11-30T19:26:39.180+04:00[Europe/Samara]",
+  "instanceId" : "18e4d881-1559-406a-8e5c-68365d6f9a43",
   "noteString" : "Two",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 2,
   "intStatus" : 2
 }, {
   "zdtLastModString" : "2019-11-30T19:27:42.600+04:00[Europe/Samara]",
+  "instanceId" : "475bc41f-1001-4155-8417-ad5417a1d4d4",
   "noteString" : "Four",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 4,
   "intStatus" : 1
 }, {
   "zdtLastModString" : "2019-11-30T19:27:45.137+04:00[Europe/Samara]",
+  "instanceId" : "78ac6aba-bb12-4972-b3fb-3ab8f8e13403",
   "noteString" : "Six",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 6,
   "intStatus" : 3
 }, {
   "zdtLastModString" : "2019-11-30T19:27:47.372+04:00[Europe/Samara]",
+  "instanceId" : "fba6f0b8-10ee-4814-b1dd-06f1ebb4185c",
   "noteString" : "Eight",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 8,
   "intStatus" : 4
 }, {
   "zdtLastModString" : "2019-11-30T19:27:49.218+04:00[Europe/Samara]",
+  "instanceId" : "7e3cb56d-ce83-4255-8ed5-1a11b7ea019d",
   "noteString" : "Ten",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 10,
   "intStatus" : 5

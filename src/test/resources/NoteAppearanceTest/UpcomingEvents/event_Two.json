@@ -1,13 +1,16 @@
 [ {
-  "zdtLastModString" : "2020-04-04T15:35:19.191+04:00[Europe/Samara]",
+  "zdtLastModString" : "2020-11-17T05:45:14.695+04:00[Europe/Samara]",
   "instanceId" : "ef6cf8f0-a0e5-4559-a866-b099331f2fb0",
+  "groupType" : "EVENTS",
   "groupName" : "Two",
-  "groupType" : "EVENTS"
-}, [  {
+  "linkTargets" : [ ]
+}, [ {
   "zdtLastModString" : "2019-11-30T19:14:50.024+04:00[Europe/Samara]",
+  "instanceId" : "33e9f67a-4ceb-4312-94dc-6ff7c68fc58c",
   "noteString" : "Two",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1b.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -21,9 +24,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-11-30T19:15:03.457+04:00[Europe/Samara]",
+  "instanceId" : "e6eb3d03-8234-4e72-b0f2-8f6b32a634fc",
   "noteString" : "Four",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1d.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -37,9 +42,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-11-30T19:15:19.779+04:00[Europe/Samara]",
+  "instanceId" : "f1bcfb6f-2b1e-44d5-b560-f1790a30e940",
   "noteString" : "Six",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1f.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -53,9 +60,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-11-30T19:15:32.099+04:00[Europe/Samara]",
+  "instanceId" : "74e51a76-31a2-4410-bf23-191417f41c2a",
   "noteString" : "Eight",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1h.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -69,9 +78,11 @@
   "durationUnits" : null
 }, {
   "zdtLastModString" : "2019-11-30T19:15:48.849+04:00[Europe/Samara]",
+  "instanceId" : "96e90d4e-df35-4697-b410-5549e84872af",
   "noteString" : "Ten",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1j.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",

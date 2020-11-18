@@ -19,6 +19,7 @@ public class SearchResultGroupProperties extends GroupProperties {
     public SearchResultGroupProperties(String groupName) {
         super(groupName, GroupType.SEARCH_RESULTS);
         searchDateString = LocalDate.now().toString();
+        touchLastMod();
         column1Label = "Found in";
         column2Label = "Note Text";
         column3Label = "Last Modified";
@@ -29,6 +30,7 @@ public class SearchResultGroupProperties extends GroupProperties {
     public SearchResultGroupProperties() {
         super(); // This call would happen under the covers whether it is coded in or not.  So it's here for better readability.
         searchDateString = LocalDate.now().toString();
+        touchLastMod();
         column1Label = "Found in";
         column2Label = "Note Text";
         column3Label = "Last Modified";

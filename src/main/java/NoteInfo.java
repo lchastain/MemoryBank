@@ -22,11 +22,7 @@ class NoteInfo {
     //--------------------------------------------------
 
 
-    NoteInfo() {
-        // We prefer to deal with these as empty strings, vs null, when not yet set.
-        noteString = "";
-        extendedNoteString = "";
-    } // end constructor
+    private NoteInfo() { } // For JSON deserialization, only.  noteId is not allowed to be null.
 
 
     NoteInfo(NoteData noteData) {
@@ -35,5 +31,4 @@ class NoteInfo {
         extendedNoteString = noteData.extendedNoteString;
     }
 
-
-} // end class NoteData
+} // end class NoteInfo

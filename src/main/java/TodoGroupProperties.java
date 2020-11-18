@@ -31,7 +31,7 @@ public class TodoGroupProperties extends GroupProperties {
     public String column4Label;
     public int columnOrder;
 
-    public TodoGroupProperties() {} // Needed / used by Jackson.
+    private TodoGroupProperties() {} // Needed / used by Jackson.
 
     public TodoGroupProperties(String groupName) { // Constructor with defaults
         super(groupName, GroupType.TODO_LIST);

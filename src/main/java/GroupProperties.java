@@ -12,11 +12,10 @@ public class GroupProperties extends BaseData {
     @JsonIgnore
     private String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
 
-    // This constructor is only used by Tests or by Jackson type conversion operations.
+    // This constructor is used by Jackson type conversion operations and child class constructors.
     GroupProperties() {
-        this("No Name Yet", GroupType.UNKNOWN);
+        super();
     }
-
 
     GroupProperties(String theName, GroupType theType) {
         super();
@@ -26,7 +25,7 @@ public class GroupProperties extends BaseData {
     }
 
     GroupProperties(GroupProperties theCopy) {
-        super(theCopy);  // takes care of the ID and LMD.
+        super(theCopy);  // takes care of the ID.
         groupName = theCopy.groupName;
         groupType = theCopy.groupType;
         linkTargets = (LinkTargets) theCopy.linkTargets.clone();

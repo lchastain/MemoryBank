@@ -2,10 +2,9 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    1.  Link handling - Implement Auto-removal of reverse links.
-    2.  Goals - better design of the Panel/Data
-    3.  Search issues - there is an entire todo list to work from
-    4.  Larger range for AlterButtons, or alternative controls.
+    1.  Goals - better design of the Panel/Data
+    2.  Search issues - there is an entire todo list to work from
+    3.  Larger range for AlterButtons, or alternative controls.
 
 Next:
 
@@ -14,12 +13,24 @@ Questions:
 Issues:
 
 Problems:
+    The first time a link is added - the reverse link is created but the link itself is not.  Then delete the
+    reverse, go back and make the forward one again, both created ok.  Delete the forward - both deleted, as
+    expected.  But why the need to create the forward one twice?
+
 
 New:
 
 
 
+
 =====================================================================================================
+16 Nov 2020
+  Seeing a crash now when auto-deleting a reverse link, due to a null noteId on the NoteInfo.  Changed the
+    'plain' constructor to private so that only Jackson will use it, and now all new links will have the noteId, if
+    the targetNote is not null.  Manually fixed all links without the ID.
+  Had to redo test data, caused some test failures - fixed those too.
+  Check in & pub.
+
 14 Nov 2020
   I put directional icons on all Calendar-type NoteGroups, plus the MonthView.
   This item from 'Editability Fallout':  AlterButtons on CalendarNoteGroup types - still clickable when editable = false

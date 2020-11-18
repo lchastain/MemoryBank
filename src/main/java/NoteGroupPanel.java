@@ -399,8 +399,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // acceptable, at least until it begins cropping up repeatedly.
     @Override // A NoteComponentManager interface implementation
     public void setGroupChanged(boolean b) {
-        myNoteGroup.setGroupChanged(b); // Calling the 'real' one, in the NoteGroup.
         adjustMenuItems(b);
+        myNoteGroup.setGroupChanged(b); // Calling the 'real' one, in the NoteGroup.
     } // end setGroupChanged
 
 
@@ -851,7 +851,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Although the boolean currently exactly matches the 'groupChanged' variable, taking it as an input
     // parameter allows it to be based on other criteria (at some future point.  I know, yagni).
     protected void adjustMenuItems(boolean b) {
-        if (myListMenu == null) return; // Too soon.  Come back later.
+        if(myListMenu == null) return; // Too soon.  Come back later.
         MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
 
         // And now we adjust the Menu -

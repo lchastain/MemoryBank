@@ -16,6 +16,7 @@ public class SearchResultData extends NoteData {
     //   explicitly, directly.
     public SearchResultData(NoteData nd) {
         super(nd);
+        linkTargets = null; // Not needed, for a Search result
     } // end constructor
 
 

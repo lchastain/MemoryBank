@@ -1109,9 +1109,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         if (searchDataVector == null) return;
 
         // Get the 'foundIn' info -
-        // TODO - we need to also get the GroupID here; need a new way to do this.
-        //   or maybe it doesn't matter, for SearchResultData.  ??  Search results are not intended to
-        //   themselves be a part of the traceability chain.
+        // Although this is actually a GroupInfo, we do not need to populate the foundIn.groupId
+        //   because search results are not intended to themselves be a part of the traceability chain,
+        //   and they cannot be linked to or from.  Currently, the method below does not read in the
+        //   data, so it cannot provide the groupId.
         GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
 
         // Now get on with the search -

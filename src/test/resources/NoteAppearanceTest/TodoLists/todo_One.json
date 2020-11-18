@@ -1,4 +1,9 @@
 [ {
+  "zdtLastModString" : "2020-11-17T05:44:37.773+04:00[Europe/Samara]",
+  "instanceId" : "99838476-73e2-4ab8-a88d-d1b7737c780b",
+  "groupType" : "TODO_LIST",
+  "groupName" : "One",
+  "linkTargets" : [ ],
   "showPriority" : true,
   "maxPriority" : 20,
   "deadWidth" : 170,
@@ -12,7 +17,6 @@
   "pCutoff" : 99,
   "lineSpace" : 1,
   "whenNoKey" : 1,
-  "numberOfItems" : 15,
   "column1Label" : "Priority",
   "column2Label" : "To Do Text",
   "column3Label" : "Status",
@@ -20,25 +24,31 @@
   "columnOrder" : 123
 }, [ {
   "zdtLastModString" : "2019-11-30T19:26:36.577+04:00[Europe/Samara]",
+  "instanceId" : "f92e59ab-51ae-4f97-88d4-f5fc6658c481",
   "noteString" : "One",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 1,
   "intStatus" : 1
 }, {
   "zdtLastModString" : "2019-11-30T19:26:39.180+04:00[Europe/Samara]",
+  "instanceId" : "5bb00534-3b4e-4a0a-9b59-6decfa4ce192",
   "noteString" : "Two",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 2,
   "intStatus" : 2
 }, {
   "zdtLastModString" : "2019-11-30T19:26:41.627+04:00[Europe/Samara]",
+  "instanceId" : "d61e72fd-0e22-49be-b323-c5d633fbc0f9",
   "noteString" : "Three",
   "subjectString" : null,
   "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 3,
   "intStatus" : 3

@@ -7,15 +7,13 @@
     "zdtLastModString" : "2020-10-16T05:04:26.958+04:00[Europe/Samara]",
     "instanceId" : "ab75a562-6ebf-4b38-a423-6a466e50a2e7",
     "targetGroupInfo" : {
-      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
-      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
       "groupType" : "TODO_LIST",
       "groupName" : "Testing",
       "simpleName" : null
     },
     "targetNoteInfo" : {
-      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
-      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
       "noteString" : "Three - links to Events - holidays",
       "subjectString" : null,
       "extendedNoteString" : ""
@@ -26,15 +24,13 @@
     "zdtLastModString" : "2020-10-16T05:07:49.281+04:00[Europe/Samara]",
     "instanceId" : "11650d1c-5309-4709-8cff-435d182d14af",
     "targetGroupInfo" : {
-      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
-      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
       "groupType" : "TODO_LIST",
       "groupName" : "Testing",
       "simpleName" : null
     },
     "targetNoteInfo" : {
-      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
-      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
       "noteString" : "Three - links to Events - holidays",
       "subjectString" : null,
       "extendedNoteString" : ""
@@ -88,15 +84,13 @@
     "zdtLastModString" : "2020-10-16T05:05:53.994+04:00[Europe/Samara]",
     "instanceId" : "23d429ef-73f5-47c8-b831-545cfabd0ad2",
     "targetGroupInfo" : {
-      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
-      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
       "groupType" : "TODO_LIST",
       "groupName" : "Testing",
       "simpleName" : null
     },
     "targetNoteInfo" : {
-      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
-      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
       "noteString" : "Three - links to Events - holidays",
       "subjectString" : null,
       "extendedNoteString" : ""
@@ -107,15 +101,13 @@
     "zdtLastModString" : "2020-10-16T05:09:01.364+04:00[Europe/Samara]",
     "instanceId" : "5b8d712f-b77a-40aa-93bc-a0851e5020b0",
     "targetGroupInfo" : {
-      "zdtLastModString" : "2020-09-28T07:46:00.353+04:00[Europe/Samara]",
-      "instanceId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
+      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
       "groupType" : "TODO_LIST",
       "groupName" : "Testing",
       "simpleName" : null
     },
     "targetNoteInfo" : {
-      "zdtLastModString" : "2020-10-14T14:56:09.280+04:00[Europe/Samara]",
-      "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
+      "noteId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
       "noteString" : "Three - links to Events - holidays",
       "subjectString" : null,
       "extendedNoteString" : ""

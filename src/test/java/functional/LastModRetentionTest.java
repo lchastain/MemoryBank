@@ -36,7 +36,7 @@ class LastModRetentionTest {
     void testGoalGroupPanel() {
         // These two Strings came from the known persisted test data.
         String zdtLastModGroup = "2020-07-19T06:44:39.018+04:00[Europe/Samara]";
-        String zdtLastModNote = "2020-10-14T15:08:07.488+04:00[Europe/Samara]";
+        String zdtLastModNote = "2020-10-14T14:57:07.577+04:00[Europe/Samara]";
 
         // Load the Panel under test.
         GoalGroupPanel goalGroupPanel = new GoalGroupPanel("Retire");
@@ -197,11 +197,11 @@ class LastModRetentionTest {
     @Test
     void testSearchResultGroupPanel() {
         // These two Strings came from the known persisted test data.
-        String zdtLastModGroup = "2020-11-04T17:24:30.916+04:00[Europe/Samara]";
-        String zdtLastModNote = "2020-11-04T17:24:30.869+04:00[Europe/Samara]";
+        String zdtLastModGroup = "2020-11-18T05:41:04.617+04:00[Europe/Samara]";
+        String zdtLastModNote = "2020-10-17T11:17:00.008+04:00[Europe/Samara]";
 
         // Load the Panel under test.
-        SearchResultGroupPanel noteGroupPanel = new SearchResultGroupPanel("20201104172430");
+        SearchResultGroupPanel noteGroupPanel = new SearchResultGroupPanel("day");
 
         // Since we haven't made any change, for this test only we need to call this NoteGroupPanel method
         //   directly, rather than via preClosePanel().
