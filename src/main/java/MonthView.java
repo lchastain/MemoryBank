@@ -47,8 +47,11 @@ public class MonthView extends JLayeredPane {
     private static final LineBorder theBorder;
 
     // Directly accessed by Tests  // TODO - but not yet.  Needed for mouseListener tests, like already seen for YearView.
+    LabelButton yearMinus;
     LabelButton prev;
+    LabelButton todayButton;
     LabelButton next;
+    LabelButton yearPlus;
 
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
@@ -221,6 +224,17 @@ public class MonthView extends JLayeredPane {
         return choiceLabel.getText().trim();
     }
 
+
+    // Same as the one in CalendarNoteGroupPanel, but it's not static and we have no common ancestor.
+    LabelButton makeAlterButton(String theText, MouseListener theListener) {
+        LabelButton theButton = new LabelButton(theText);
+        if(theListener != null) theButton.addMouseListener(theListener);
+        theButton.setPreferredSize(new Dimension(28, 28));
+        theButton.setFont(Font.decode("Dialog-bold-14"));
+        return theButton;
+    }
+
+
     public void setChoice(LocalDate theNewChoice) {
         // Was tempted (for better performance) to avoid the recalc, if the new choice was still on the same month
         // as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have been
@@ -292,13 +306,17 @@ public class MonthView extends JLayeredPane {
             MouseAdapter ma = new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     LabelButton source = (LabelButton) e.getSource();
+                    if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
                     String buttonText = source.getName();
 
                     activeDayCanvas.reset();     // turn off current choice highlight
                     int currentYear = displayedMonth.getYear(); // Get this before we setNotes/subtract
 
+                    if (buttonText.equals("Y-")) displayedMonth = displayedMonth.minusMonths(12);
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
+                    if (buttonText.equals("T")) displayedMonth = LocalDate.now();
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
+                    if (buttonText.equals("Y+")) displayedMonth = displayedMonth.plusMonths(12);
                     if(appTreePanel != null) appTreePanel.setViewedDate(displayedMonth, ChronoUnit.MONTHS);
 
                     // If we have scrolled into a new year, we need to update the 'hasData' info.
@@ -309,19 +327,24 @@ public class MonthView extends JLayeredPane {
                 } // end mouseClicked
             };// end of new MouseAdapter
 
-            prev = new LabelButton("-", LabelButton.LEFT);
-            prev.addMouseListener(ma);
-            prev.setPreferredSize(new Dimension(28, 28));
-            prev.setFont(Font.decode("Dialog-bold-14"));
 
-            next = new LabelButton("+", LabelButton.RIGHT);
-            next.addMouseListener(ma);
-            next.setPreferredSize(new Dimension(28, 28));
-            next.setFont(Font.decode("Dialog-bold-14"));
+            yearMinus = makeAlterButton("Y-", ma);
+            prev = makeAlterButton("-", ma);
+            todayButton = makeAlterButton("T", ma);
+            next = makeAlterButton("+", ma);
+            yearPlus = makeAlterButton("Y+", ma);
+
+            prev.setIcon(LabelButton.leftIcon);
+            prev.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
+            next.setIcon(LabelButton.rightIcon);
+            next.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
 
             JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            p0.add(yearMinus);
             p0.add(prev);
+            p0.add(todayButton);
             p0.add(next);
+            p0.add(yearPlus);
 
             // Create the month label (no text, yet).
             monthLabel = new JLabel();
@@ -423,8 +446,9 @@ public class MonthView extends JLayeredPane {
                 tmpLocalDate = tmpLocalDate.plusDays(1);
 
                 // If this is true then we went into next month.
-                if (MonthView.displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
+                if (displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
 
+                todayButton.setEnabled(!(displayedMonth.equals(LocalDate.now())));
             } // end for i
         } // end recalc
     } // end class MonthCanvas
@@ -435,17 +459,18 @@ public class MonthView extends JLayeredPane {
     public class DayCanvas extends JPanel implements MouseListener {
         private static final long serialVersionUID = 1L;
 
-        private JLabel dayLabel;
-        private AppImage icon1 = new AppImage();
-        private AppImage icon2 = new AppImage();
-        private AppImage icon3 = new AppImage();
-        private AppImage icon4 = new AppImage();
-        private AppImage icon5 = new AppImage();
+        private final JLabel dayLabel;
+        private final AppImage icon1 = new AppImage();
+        private final AppImage icon2 = new AppImage();
+        private final AppImage icon3 = new AppImage();
+        private final AppImage icon4 = new AppImage();
+        private final AppImage icon5 = new AppImage();
         private Color offColor;
         private Font offFont;
 
-        private Spacer ssV, ssH;
-        private JPanel dayGrid;
+        private final Spacer ssV;
+        private final Spacer ssH;
+        private final JPanel dayGrid;
         private LocalDate myDate;
 
         DayCanvas() {

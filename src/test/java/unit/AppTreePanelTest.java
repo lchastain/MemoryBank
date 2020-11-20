@@ -67,7 +67,6 @@ public class AppTreePanelTest {
         theTree = null;
         amb = null;
         appTreePanel = null;
-//        appTreePanel.restoringPreviousSelection = false;
     }
 
     @Test
@@ -199,10 +198,14 @@ public class AppTreePanelTest {
         JMenuItem jmi = getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
         try {
-            // Sleep, long enough for the help window to appear.
-            // This is because it runs in a different thread and we can get to our
-            // task killer before it ever comes up, and then it stays.
-            Thread.sleep(500);
+            // Sleep, long enough for the help windows to appear.
+            // This is because there are multiple menu item listeners currently active out there during a full test
+            //   suite execution (not under normal operation), and we get more than one help window as a result.
+            //   The taskkill kills all of them, as long as they are up and showing before we try.
+            Thread.sleep(1000);  // Previously, 500 was not enough.
+            //
+            //   So a possibly better alternative is to change the access level of the method to package-private
+            //   and just call it directly, rather than via a menu item click.    Just sayin..
             // Kill the help window -
             Process process = Runtime.getRuntime().exec("taskkill /FI \"WindowTitle eq XML Notepad Help\" /T /F");
 

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public class MoveToDayNoteTest {
     JFrame jFrame;
-    static AppTreePanel appTreePanel;
+    AppTreePanel appTreePanel;
     LocalDate theOtherDate;
     DayNoteData unsavedNoteData;
 
@@ -57,7 +57,6 @@ public class MoveToDayNoteTest {
     void tearDown() {
         appTreePanel = null;
         jFrame = null;
-//        System.gc();
     }
 
     @Test

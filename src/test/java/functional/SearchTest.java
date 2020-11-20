@@ -72,7 +72,6 @@ public class SearchTest {
     static void meLast() {
         theTree = null;
         amb = null;
-        //appTreePanel.restoringPreviousSelection = false;
         appTreePanel = null;
     }
 

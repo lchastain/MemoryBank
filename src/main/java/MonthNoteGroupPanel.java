@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
@@ -25,19 +26,24 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
     private void buildMyPanel() {
         dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
 
-        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
-        prev.addMouseListener(this);
-        prev.setPreferredSize(new Dimension(28, 28));
-        prev.setFont(Font.decode("Dialog-bold-14"));
+        // Note that none of these should get tooltip text; use the mouseEntered / setStatusMessage, instead.
+        LabelButton yearMinus = makeAlterButton("Y-", this);
+        LabelButton prev = makeAlterButton("-", this);
+        todayButton.addMouseListener(this);
+        LabelButton next = makeAlterButton("+", this);
+        LabelButton yearPlus = makeAlterButton("Y+", this);
 
-        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
-        next.addMouseListener(this);
-        next.setPreferredSize(new Dimension(28, 28));
-        next.setFont(Font.decode("Dialog-bold-14"));
+        prev.setIcon(LabelButton.leftIcon);
+        prev.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
+        next.setIcon(LabelButton.rightIcon);
+        next.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
 
         JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p0.add(yearMinus);
         p0.add(prev);
+        p0.add(todayButton);
         p0.add(next);
+        p0.add(yearPlus);
 
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
@@ -50,48 +56,60 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
     } // end constructor
 
 
-
-    // This is called from AppTreePanel.
-//    @Override
-//    public void setDate(LocalDate theNewChoice) {
-//
-//        // If the new date puts us in the same month as the current one - return.
-//        if (dtf.format(getChoice()).equals(dtf.format(theNewChoice))) return;
-//
-//        super.setDate(theNewChoice);
-//        updateHeader();
-//    } // end setDate
-
-
     //---------------------------------------------------------
     // MouseListener methods
     //---------------------------------------------------------
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
+        if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
         source.requestFocus(); // Remove selection highlighting
         String s = source.getName();
 
-        // One of the two mutually exclusive conditions below is expected
-        // to be true but if neither then we just ignore the action.
-        if (s.equals("-")) {
-            setOneBack();
+        // One of the mutually exclusive conditions below is expected
+        // to be true but if none are then we just ignore the action.
+        switch (s) {
+            case "Y-":
+                setDateType(ChronoUnit.YEARS);
+                setOneBack();
+                setDateType(ChronoUnit.MONTHS);
+                break;
+            case "-":
+                setOneBack();
+                break;
+            case "T":
+                AppTreePanel.theInstance.showToday();
+                break;
+            case "+":
+                setOneForward();
+                break;
+            case "Y+":
+                setDateType(ChronoUnit.YEARS);
+                setOneForward();
+                setDateType(ChronoUnit.MONTHS);
+                break;
         }
-        if (s.equals("+")) {
-            setOneForward();
-        }
-
         updateGroup();
-        updateHeader();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getName();
-        if (s.equals("-")) {
-            s = "Click here to see previous month";
-        }
-        if (s.equals("+")) {
-            s = "Click here to see next month";
+        switch (s) {
+            case "Y-":
+                s = "Click here to go back one year";
+                break;
+            case "-":
+                s = "Click here to see previous month";
+                break;
+            case "T":
+                s = "Click here to see notes for this month.";
+                break;
+            case "+":
+                s = "Click here to see next month";
+                break;
+            case "Y+":
+                s = "Click here to go forward one year";
+                break;
         }
         setStatusMessage(s);
     } // end mouseEntered

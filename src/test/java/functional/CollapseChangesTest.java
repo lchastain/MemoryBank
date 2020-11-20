@@ -20,11 +20,6 @@ import java.io.IOException;
 
 class CollapseChangesTest {
     private static AppTreePanel appTreePanel;
-    private JTree theTree;
-    private String viewsNodeName = "Views";
-    private String notesNodeName = "Notes";
-    private String todolistsNodeName = "To Do Lists";
-    private String searchesNodeName = "Search Results";
 
     @BeforeAll
     static void setup() throws IOException {
@@ -54,15 +49,15 @@ class CollapseChangesTest {
         appTreePanel = null;
     }
 
-
     @Test
     void testFileNotRemovedOnCollapse() {
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading (interferes with TodoItemFocusTest).
-        theTree = appTreePanel.getTree();
+        JTree theTree = appTreePanel.getTree();
 
         // Get the TreePath to the collapsible node
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        String todolistsNodeName = "To Do Lists";
         DefaultMutableTreeNode todolistsNode = TestUtil.getTreeNodeForString(theRoot, todolistsNodeName);
         TreePath todolistsPath = AppUtil.getTreePath(todolistsNode);
 

@@ -61,8 +61,10 @@ class PreserveExpansionStatesTest {
     // Otherwise, the 'working' dialog gets intermittently zombified and when that happens in the running of a
     // full suite, the todoItemFocusTest will fail.
     void notWorking() throws InterruptedException {
+        atp = null;
         Thread.sleep(500);
     }
+
 
     @Test
     void testCollapsedNodesPreserved() {

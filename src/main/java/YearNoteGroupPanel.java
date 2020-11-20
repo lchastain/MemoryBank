@@ -25,19 +25,24 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     private void buildMyPanel() {
         dtf = DateTimeFormatter.ofPattern("yyyy");
 
-        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
-        prev.addMouseListener(this);
-        prev.setPreferredSize(new Dimension(28, 28));
-        prev.setFont(Font.decode("Dialog-bold-14"));
+        // Note that none of these should get tooltip text; use the mouseEntered / setStatusMessage, instead.
+        LabelButton decadeMinus = makeAlterButton("D-", this);
+        LabelButton prev = makeAlterButton("-", this);
+        todayButton.addMouseListener(this);
+        LabelButton next = makeAlterButton("+", this);
+        LabelButton decadePlus = makeAlterButton("D+", this);
 
-        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
-        next.addMouseListener(this);
-        next.setPreferredSize(new Dimension(28, 28));
-        next.setFont(Font.decode("Dialog-bold-14"));
+        prev.setIcon(LabelButton.leftIcon);
+        prev.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
+        next.setIcon(LabelButton.rightIcon);
+        next.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
 
         JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p0.add(decadeMinus);
         p0.add(prev);
+        p0.add(todayButton);
         p0.add(next);
+        p0.add(decadePlus);
 
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
@@ -55,30 +60,56 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     //---------------------------------------------------------
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
+        if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
         source.requestFocus(); // Remove selection highlighting
         String s = source.getName();
 
-        // One of the two mutually exclusive conditions below is expected
-        // to be true but if neither then we just ignore the action.
-        if (s.equals("-")) {
-            setOneBack();
-        }
-        if (s.equals("+")) {
-            setOneForward();
+        // One of the mutually exclusive conditions below is expected
+        // to be true but if none are then we just ignore the action.
+        switch (s) {
+            case "D-":
+                for(int i=0; i<10; i++) {
+                    setOneBack();
+                }
+                break;
+            case "-":
+                setOneBack();
+                break;
+            case "T":
+                AppTreePanel.theInstance.showToday();
+                break;
+            case "+":
+                setOneForward();
+                break;
+            case "D+":
+                for(int i=0; i<10; i++) {
+                    setOneForward();
+                }
+                break;
         }
 
         updateGroup();
-        updateHeader();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getName();
-        if (s.equals("-")) {
-            s = "Click here to see previous year";
-        }
-        if (s.equals("+")) {
-            s = "Click here to see next year";
+        switch (s) {
+            case "D-":
+                s = "Click here to go back ten years";
+                break;
+            case "-":
+                s = "Click here to see previous year";
+                break;
+            case "T":
+                s = "Click here to see notes for this year.";
+                break;
+            case "+":
+                s = "Click here to see next year";
+                break;
+            case "D+":
+                s = "Click here to go forward ten years";
+                break;
         }
         setStatusMessage(s);
     } // end mouseEntered

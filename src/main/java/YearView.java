@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class YearView extends JPanel implements ActionListener {
+public class YearView extends JPanel {
     private static final long serialVersionUID = 1L;
 
     // Required for use by 'static' section -
@@ -31,16 +31,15 @@ public class YearView extends JPanel implements ActionListener {
     private final JPanel yearPanel;
     private int theYear;            // numerous
     static DateTimeFormatter dtf;
-    private AppTreePanel appTreePanel = null;
+    private AppTreePanel appTreePanel = null;  // see 'setParent' - not all usages are for the 'real' AppTreePanel.
     private static final Color hasDataColor = Color.blue;
     private static final Color noDataColor = Color.black;
     private static final Font hasDataFont = Font.decode("Dialog-bold-16");
     private static final Font noDataFont = Font.decode("Dialog-plain-14");
     private boolean[][] hasDataArray;
     private JDialog dateSelectionDialog;
-    private int intNumSelections;
+    private int intNumSelections = 0;
     private int intSelectionCount;
-    private final JButton todayButton;
     private boolean alterButtonDepressed;
     private Depressed depressedThread;   // A Thread to keep responding to year up/down
 
@@ -49,9 +48,11 @@ public class YearView extends JPanel implements ActionListener {
     private final JPanel headerPanel;
     private final JPanel titlePanel;
 
-    // Directly accessed by Tests
+    // Package-private accesses; may be used by tests.
     LabelButton prev;
+    LabelButton todayButton;
     LabelButton next;
+
 
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
@@ -112,18 +113,21 @@ public class YearView extends JPanel implements ActionListener {
             } // end mouseReleased
         };// end of new MouseAdapter
 
-        prev = new LabelButton("-", LabelButton.LEFT);
+        prev = makeAlterButton("-");
+        prev.setIcon(LabelButton.leftIcon);
+        prev.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
         prev.addMouseListener(alterButtonHandler);
-        prev.setPreferredSize(new Dimension(28, 28));
-        prev.setFont(Font.decode("Dialog-bold-14"));
 
-        next = new LabelButton("+", LabelButton.RIGHT);
+        todayButton = makeAlterButton("T");
+
+        next = makeAlterButton("+");
+        next.setIcon(LabelButton.rightIcon);
+        next.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
         next.addMouseListener(alterButtonHandler);
-        next.setPreferredSize(new Dimension(28, 28));
-        next.setFont(Font.decode("Dialog-bold-14"));
 
         JPanel alterButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         alterButtonsPanel.add(prev);
+        alterButtonsPanel.add(todayButton);
         alterButtonsPanel.add(next);
 
         titleLabel = new JLabel("Year " + theYear);
@@ -135,6 +139,7 @@ public class YearView extends JPanel implements ActionListener {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 headerPanel.remove(titleLabel);
+                yearTextField.setText(String.valueOf(theYear)); // Needed after re-editing bad user input
                 headerPanel.add(titlePanel, BorderLayout.CENTER);
                 headerPanel.revalidate();
                 headerPanel.repaint();
@@ -152,8 +157,12 @@ public class YearView extends JPanel implements ActionListener {
                 char theChar = evt.getKeyChar();
 
                 if(theChar == KeyEvent.VK_ENTER) {
-                    theYear = Integer.parseInt(yearTextField.getText());
-                    recalc(theYear);
+                    String theEntry = yearTextField.getText();
+                    if(!theEntry.isEmpty()) {
+                        theYear = Integer.parseInt(yearTextField.getText());
+                        if(theYear <= 0) theYear = 1; // Entry limited to 4 digits, but they can still be flaky.
+                        recalc(theYear);
+                    }
                     transferFocusUpCycle(); // Otherwise it holds on, and key mappings don't work no mo.
                     headerPanel.remove(titlePanel);
                     headerPanel.add(titleLabel, BorderLayout.CENTER);
@@ -203,14 +212,6 @@ public class YearView extends JPanel implements ActionListener {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         // Using a BorderLayout so that the choiceLabel can
         //   take the center and thereby expand/contract as needed.
-        todayButton = new JButton("Today");
-        todayButton.setFont(Font.decode("DialogInput-bold-12"));
-        todayButton.addActionListener(YearView.this);
-
-        // This button now only needed when working as a dialog.
-        todayButton.setVisible(false);
-
-        bottomPanel.add(todayButton, BorderLayout.WEST);
         bottomPanel.add(choiceLabel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -225,13 +226,6 @@ public class YearView extends JPanel implements ActionListener {
         getActionMap().put("downYear", new DownAction("downYear"));
 
     } // end constructor
-
-
-    // Handler for the 'Today' button.
-    public void actionPerformed(ActionEvent e) {
-        setChoice(LocalDate.now());
-        if(appTreePanel != null) appTreePanel.setSelectedDate(theChoice);
-    } // end actionPerformed
 
 
     public LocalDate getChoice() {
@@ -277,6 +271,33 @@ public class YearView extends JPanel implements ActionListener {
 
     int getYear() { return theYear; }
 
+
+    LabelButton makeAlterButton(String theText) {
+        // Only the 'today' button needs handling; the others will have their own.
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                LabelButton source = (LabelButton) e.getSource();
+                if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
+
+                if(intNumSelections > 0) {
+                    // This is both a view-change and a selection.
+                    setChoice(LocalDate.now());
+                    if(appTreePanel != null) appTreePanel.setSelectedDate(theChoice);
+                } else {
+                    // This is a view-change only.
+                    theYear = LocalDate.now().getYear();
+                    recalc(theYear);
+                }
+            }
+        };
+        LabelButton theButton = new LabelButton(theText);
+        if(theText.equals("T")) theButton.addMouseListener(mouseAdapter);
+        theButton.setPreferredSize(new Dimension(28, 28));
+        theButton.setFont(Font.decode("Dialog-bold-14"));
+        return theButton;
+    }
+
     public void recalc(int year) {
         // Update the Year info
         titleLabel.setText("Year " + theYear);
@@ -300,6 +321,7 @@ public class YearView extends JPanel implements ActionListener {
         } else {
             choiceLabel.setText(dtf.format(theChoice) + " ");
         }
+        todayButton.setEnabled(!(year == LocalDate.now().getYear()));
     } // end recalc
 
     public void setChoice(LocalDate theNewChoice) {
@@ -321,7 +343,6 @@ public class YearView extends JPanel implements ActionListener {
     public void setDialog(JDialog jd, int numSelections) {
         dateSelectionDialog = jd;
         intNumSelections = numSelections;
-        todayButton.setVisible(true);
     } // end setDialog
 
     void setParent(AppTreePanel atp) {

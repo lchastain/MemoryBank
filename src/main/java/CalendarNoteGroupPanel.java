@@ -5,6 +5,7 @@
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -16,11 +17,12 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     private AlteredDateListener alteredDateListener = null;
     private ChronoUnit dateType;
     JLabel panelTitleLabel;
+    LabelButton todayButton = makeAlterButton("T", null);
 
     CalendarNoteGroupPanel(GroupType groupType) {
         super();  // This builds the notes panel
 
-        // Unlike other group types, we do not start off knowing our exact name.
+        // At this point we do not yet know our exact name.
         // But we do know that it will be some format of 'today'.
         switch(groupType) { // This Panel should not be constructed with any other types.
             case YEAR_NOTES:
@@ -38,8 +40,6 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
                 dateType = ChronoUnit.DAYS;
                 dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
                 break;
-//            default: // Should not ever happen, but need to cover all bases.
-//                dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         }
         // Create the panel's title
         panelTitleLabel = new JLabel();
@@ -75,6 +75,16 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     }
 
 
+
+    // Too many AlterButtons all need the same formatting; may as well do it in one place -
+    LabelButton makeAlterButton(String theText, MouseListener theListener) {
+        LabelButton theButton = new LabelButton(theText);
+        if(theListener != null) theButton.addMouseListener(theListener);
+        theButton.setPreferredSize(new Dimension(28, 28));
+        theButton.setFont(Font.decode("Dialog-bold-14"));
+        return theButton;
+    }
+
     void setAlteredDateListener(AlteredDateListener adl) {
         alteredDateListener = adl;
     }
@@ -109,17 +119,21 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
         updateGroup();  // Be aware that this clears the panel, which clears the source data.
         // In operational use cases that works just fine; tests, however, might not be happy about it.
-
-        updateHeader();
     } // end setDate
 
 
+    void setDateType(ChronoUnit theType) {
+        dateType = theType;
+    }
+
+
+    // After this, the Group is reloaded according to the current choice.
+    // It does not go through 'setDate'; instead the calling context calls 'updateGroup'.
     public void setOneBack() {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.minus(1, dateType);
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
-//        myNoteGroup.getGroupProperties().setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
     } // end setOneBack
 
@@ -129,11 +143,19 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
         theChoice = theChoice.plus(1, dateType);
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
-//        myNoteGroup.getGroupProperties().setGroupName(getTitle());
         if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
     } // end setOneForward
 
 
+    @Override
+    public void updateGroup() {
+        super.updateGroup();
+
+        String today = dtf.format(LocalDate.now());
+        todayButton.setEnabled(!getTitle().equals(today));
+
+        updateHeader();
+    }
 
     // This one-liner is broken out as a separate method to simplify the coding
     //   from the calling contexts, and also to help them be more readable.
@@ -141,7 +163,5 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         // Generate a new title from current choice.
         panelTitleLabel.setText(dtf.format(getChoice()));
     } // end updateHeader
-
-
 
 } // end class CalendarNoteGroup

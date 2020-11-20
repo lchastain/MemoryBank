@@ -1260,6 +1260,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     }
 
     private void showHelp() {
+        //new Exception("Your help is showing").printStackTrace();
         try {
             String s = MemoryBank.logHome + File.separatorChar;
             Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
@@ -1346,7 +1347,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
 
         // Clear the current tree selection, so they can select it again
-        // and get back to a 'normal' view.
+        // and get back to a 'normal' view.  There was a previous version here, where we had kept the earlier
+        // Panel so we could toggle back to it, but dropped that feature - too cute, and not that helpful.
         theTree.clearSelection();
 
     } // end showToday

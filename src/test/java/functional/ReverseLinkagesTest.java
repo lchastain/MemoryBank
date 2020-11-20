@@ -150,10 +150,6 @@ class ReverseLinkagesTest {
         linkTargets.add(led2);
         //monthNoteGroupPanel.linkTargets = linkTargets; // This is for completeness; wasn't necessary for this test.
 
-        // Just running the AppTreePanel constructor creates an instance that is referenced later;
-        //   this prevents a null exception.
-        new AppTreePanel(new JFrame("Reverse Linkages Test"), MemoryBank.appOpts);
-
         // Here it is -
         monthNoteGroupPanel.myNoteGroup.addReverseLinks(linkTargets);
     }

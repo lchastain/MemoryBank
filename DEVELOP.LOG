@@ -4,31 +4,33 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 Priorities:
     1.  Goals - better design of the Panel/Data
     2.  Search issues - there is an entire todo list to work from
-    3.  Larger range for AlterButtons, or alternative controls.
 
-Next:
+Current/Next:
 
 Questions:
 
 Issues:
 
 Problems:
-    The first time a link is added - the reverse link is created but the link itself is not.  Then delete the
-    reverse, go back and make the forward one again, both created ok.  Delete the forward - both deleted, as
-    expected.  But why the need to create the forward one twice?
 
 
 New:
 
 
 
-
 =====================================================================================================
+19 Nov 2020
+  Additional AlterButton controls for larger increments in CalendarNoteGroups.
+    Similar treatments for YearView and MonthView
+  Some more GC after new AppTreePanels in tests, and now a longer wait for Help windows to appear, before killing them.
+    Now none are left after all tests run.
+  Entry grooming on the YearView year title control - fixed entry of '0' and "".  Letters and symbols like '-' already.
+
 16 Nov 2020
   Seeing a crash now when auto-deleting a reverse link, due to a null noteId on the NoteInfo.  Changed the
     'plain' constructor to private so that only Jackson will use it, and now all new links will have the noteId, if
     the targetNote is not null.  Manually fixed all links without the ID.
-  Had to redo test data, caused some test failures - fixed those too.
+  Had to redo test data, caused some test failures - fixed those too (17-18 Nov).
   Check in & pub.
 
 14 Nov 2020

@@ -5,7 +5,6 @@ import javax.swing.*;
 class ToggleAboutTest {
     private static AppTreePanel appTreePanel;
     private int theSelectionRow;
-    private AppMenuBar amb;
 
     @BeforeAll
     static void meFirst() {
@@ -23,12 +22,10 @@ class ToggleAboutTest {
         // In this case we've chosen a relatively low (safer) value, currently
         // should be 'Notes', with the first two being singles, and 'Views' collapsed.
         theSelectionRow = 3;
-        amb = AppTreePanel.appMenuBar;
     }
 
     @AfterEach
     void tearDown() throws InterruptedException {
-        amb = null;
         // These tests drive the app faster than it would go if it was only under user control.
         Thread.sleep(200); // Otherwise we see NullPointerExceptions after tests pass.
     }
@@ -36,7 +33,6 @@ class ToggleAboutTest {
     @AfterAll
     static void meLast() {
         appTreePanel = null;
-//      appTreePanel.restoringPreviousSelection = false;
     }
 
     // Test that showing the About graphic will do that, and then

@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.time.temporal.ChronoUnit;
 
 public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
@@ -42,25 +43,31 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         buildMyPanel();
     } // end constructor
 
+
     private void buildMyPanel() {
-        LabelButton timeFormatButton = new LabelButton("24");
-        timeFormatButton.addMouseListener(this);
-        timeFormatButton.setPreferredSize(new Dimension(28, 28));
-        timeFormatButton.setFont(Font.decode("Dialog-bold-14"));
+        // Note that none of these should get tooltip text; use the mouseEntered / setStatusMessage, instead.
+        LabelButton yearMinus = makeAlterButton("Y-", this);
+        LabelButton monthMinus = makeAlterButton("M-", this);
+        LabelButton prev = makeAlterButton("-", this);
+        todayButton.addMouseListener(this);
+        LabelButton next = makeAlterButton("+", this);
+        LabelButton monthPlus = makeAlterButton("M+", this);
+        LabelButton yearPlus = makeAlterButton("Y+", this);
+        LabelButton timeFormatButton = makeAlterButton("24", this);
 
-        LabelButton prev = new LabelButton("-", LabelButton.LEFT);
-        prev.addMouseListener(this);
-        prev.setPreferredSize(new Dimension(28, 28));
-        prev.setFont(Font.decode("Dialog-bold-14"));
-
-        LabelButton next = new LabelButton("+", LabelButton.RIGHT);
-        next.addMouseListener(this);
-        next.setPreferredSize(new Dimension(28, 28));
-        next.setFont(Font.decode("Dialog-bold-14"));
+        prev.setIcon(LabelButton.leftIcon);
+        prev.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
+        next.setIcon(LabelButton.rightIcon);
+        next.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
 
         JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p0.add(yearMinus);
+        p0.add(monthMinus);
         p0.add(prev);
+        p0.add(todayButton);
         p0.add(next);
+        p0.add(monthPlus);
+        p0.add(yearPlus);
 
         JPanel heading = new JPanel(new BorderLayout());
         heading.setBackground(Color.blue);
@@ -98,41 +105,84 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     //<editor-fold desc="MouseListener methods">
     public void mouseClicked(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
+        if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
         source.requestFocus(); // Remove selection highlighting
         String s = source.getName();
 
         switch (s) {
-            case "+":
-                setOneForward();
+            case "Y-":
+                setDateType(ChronoUnit.YEARS);
+                setOneBack();
+                setDateType(ChronoUnit.DAYS);
+                break;
+            case "M-":
+                setDateType(ChronoUnit.MONTHS);
+                setOneBack();
+                setDateType(ChronoUnit.DAYS);
                 break;
             case "-":
                 setOneBack();
+                break;
+            case "T":
+                AppTreePanel.theInstance.showToday();
+                break;
+            case "+":
+                setOneForward();
+                break;
+            case "M+":
+                setDateType(ChronoUnit.MONTHS);
+                setOneForward();
+                setDateType(ChronoUnit.DAYS);
+                break;
+            case "Y+":
+                setDateType(ChronoUnit.YEARS);
+                setOneForward();
+                setDateType(ChronoUnit.DAYS);
                 break;
             case "12":
                 toggleMilitary();
                 source.setName("24");
                 source.setText("24");
+                mouseEntered(e); // Update the status message, without having to exit/enter.
                 return;
             case "24":
                 toggleMilitary();
                 source.setName("12");
                 source.setText("12");
+                mouseEntered(e); // Update the status message, without having to exit/enter.
                 return;
+            default:
+                System.out.println("DayNoteGroupPanel.mouseClicked unhandled: " + s);
         }
 
         updateGroup();
-        updateHeader();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
+        if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
         String s = source.getName();
         switch (s) {
-            case "+":
-                s = "Click here to see next day";
+            case "Y-":
+                s = "Click here to go back one year";
+                break;
+            case "M-":
+                s = "Click here to go back one month";
                 break;
             case "-":
                 s = "Click here to see previous day";
+                break;
+            case "T":
+                s = "Click here to see notes for 'today'.";
+                break;
+            case "+":
+                s = "Click here to see next day";
+                break;
+            case "M+":
+                s = "Click here to go forward one month";
+                break;
+            case "Y+":
+                s = "Click here to go forward one year";
                 break;
             case "12":
                 s = "Click here to see time in 12 hour format";
