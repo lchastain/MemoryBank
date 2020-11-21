@@ -69,6 +69,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     SearchPanel spTheSearchPanel;
     private final JPanel aboutPanel;
     private final JSplitPane splitPane;
+    private TreePath theWayBack;
 
     private LocalDate selectedDate;  // The selected date
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
@@ -141,25 +142,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 }).start(); // Start the thread
             }
         };
-        //---------------------------------------------------------
-        // Add the above handler to all menu items.
-        //---------------------------------------------------------
-        // Note - if you need cascading menus in the future, use
-        //   the recursive version of this as implemented in
-        //   LogPane.java, a now archived predecessor to AppTreePanel.
-        //---------------------------------------------------------
-        int numMenus = appMenuBar.getMenuCount();
-        // MemoryBank.debug("Number of menus found: " + numMenus);
-        for (int i = 0; i < numMenus; i++) {
-            JMenu jm = appMenuBar.getMenu(i);
-            if (jm == null) continue;
-
-            for (int j = 0; j < jm.getItemCount(); j++) {
-                JMenuItem jmi = jm.getItem(j);
-                if (jmi == null) continue; // Separator
-                jmi.addActionListener(al);
-            } // end for j
-        } // end for i
+        appMenuBar.addHandler(al); // Add the above handler to all menu items.
         //---------------------------------------------------------
 
         setOpaque(true);
@@ -619,6 +602,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         appMenuBar.manageMenus(appMenuBar.getCurrentContext());
     }// end deleteGroup
 
+
+    // Handling for the 'Go Back' menu item, to go back to Search Results after
+    //   viewing one of its 'FoundIn' items.
+    private void doGoBack() {
+        // If menu management is being done correctly then 'theWayBack' will never be null
+        //   when execution comes here to this method.  So, not going to condition this call.
+        // For tests - be aware of this; change of code for a test-only situation - not going to happen.
+        theTree.setSelectionPath(theWayBack);
+    }
+
     private void doSearch() {
         searching = true;
         Frame theFrame = JOptionPane.getFrameForComponent(this);
@@ -815,6 +808,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("Close")) closeGroup();
         else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
         else if (what.equals("Contents")) showHelp();
+        else if (what.equals("Go Back")) doGoBack();
         else if (what.equals("Group Linkages...")) theNoteGroupPanel.groupLinkages();
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
@@ -1247,15 +1241,21 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
 
     // Show the Group where the search result was found.  This is going to be its current state and not a snapshot
-    // of the group when the data was found, so the data may now no longer be there.  In some cases the group itself
-    // may no longer be there.  If the group cannot be shown then nothing happens.
+    // of the group when the data was found, so the note(s) in this group that met the search criteria may not still
+    // be here or may not still meet that criteria.  And it is possible that the
+    // group itself has gone away.  If the group cannot be shown then nothing happens.
     void showFoundIn(SearchResultData srd) {
         if(srd.foundIn == null) return;
         NoteGroupPanel thePanel = srd.foundIn.getNoteGroupPanel();
         thePanel.setEditable(false);
+        theNoteGroupPanel = thePanel; // For 'showCurrentNoteGroup'
+
+        // Preserve the selection path, for 'goBack'
+        // set GoBack to visible
+        // if goback, set goback to not visible
 
         theTree.clearSelection();
-        appMenuBar.manageMenus("No Selection");
+        appMenuBar.manageMenus("Viewing FoundIn");
         rightPane.setViewportView(thePanel.theBasePanel);
     }
 
@@ -1640,6 +1640,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // Selection of a Search Result List
             selectionContext = "Search Result";  // For manageMenus
             SearchResultGroupPanel searchResultGroupPanel;
+            theWayBack = theTree.getSelectionPath();
 
             // If the search has been previously loaded during this session,
             // we can retrieve the group for it from the keeper.

@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 public class DayNoteGroupPanel extends CalendarNoteGroupPanel
@@ -124,7 +125,13 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
                 setOneBack();
                 break;
             case "T":
-                AppTreePanel.theInstance.showToday();
+                // Change to 'today' without affecting theChoice.
+                // This is preferred when this navigation control is used while 'Viewing FoundIn'.
+                // And in that case AppTreePanel.theInstance.showToday() would not work anyway, since
+                //   there would be no active selection on the Tree.  This is in alignment with the
+                //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
+                //   which DOES affect theChoice.
+                setDate(LocalDate.now());
                 break;
             case "+":
                 setOneForward();
@@ -209,25 +216,8 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     }
 
 
-    // This is called from AppTreePanel prior to display of this panel, needed when
-    // the date choice has changed via controls in some other panel.
-//    @Override
-//    public void setDate(LocalDate theNewChoice) {
-//        // If the new day is the same as the current one - return.
-////        if (getTitle().equals(dtf.format(theNewChoice))) return;   // Don't know why this was (for a while) preferred over the one below.
-//        if (dtf.format(theChoice).equals(dtf.format(theNewChoice))) return;
-//
-//        super.setDate(theNewChoice); // setDate is in CalendarNoteGroup.
-//        updateHeader();
-//    } // end setDate
-
-
-    //----------------------------------------------------
-    // Method Name: setDefaultIcon
-    //
     // Called by the DayNoteComponent's
     //   popup menu handler for 'Set As Default'.
-    //----------------------------------------------------
     public void setDefaultIcon(AppIcon li) {
         defaultIcon = li;
         dayNoteDefaults.defaultIconFileName = li.getDescription();

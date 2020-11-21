@@ -11,7 +11,7 @@ C:\UberArchive\SHEBA\PRESERVED\Archive 2005_0423
 
 C:\UberArchive\SHEBA\PRESERVED\Archive 2007_0325\MyJavaArchives
     19 different versions of todo and log; 8 of them are in .tar files
-    There is some overlap of the later ones here and the 39 that are below, but
+    There is some overlap of the later ones here with the 39 that are below, but
     the overlap is not all one-way; this indicates that the snapshots came from different systems
     and locations over time, and got collected into archives unevenly.  There is not going to be a
     lot of value added in trying now to deconflict / condense, so will not bother.
@@ -55,6 +55,7 @@ C:\UberArchive\SHEBA\PRESERVED\Memory Bank Archives
 C:\Dropbox\Memory Bank Archives - Most recent archive snapshots; these may eventually merge in to the above repo.
     Memory Bank 2019_1205 - this is the repo for the final v0.3, described below.
     Memory Bank 2020_0206 - this is the repo for a pre-final v0.4, described below.
+    Memory Bank 2020_1120 - this is the repo for the final v0.4, described below.
 
 
 
@@ -94,14 +95,18 @@ Ver.    Notes
         Increased Test coverage - now 100% classes, 75% lines (SCR0107, plus many no-SCR changes)
         Load and unload interface changes related to paging
         Menu item enablement tied to NoteGroupPanel changes, moved save to app end (SCR0108)
-        Last version prior to starting Tree revisions to add support for Goals
 
-        <date - current work, not archived>
+0.4     21 Nov 2020   final v0.4
+        Goals became a branch, vs leaf/placeholder.  Some slightly better work on that UI but yet 'ready'.
+        All NoteGroups now have Properties, with an ID
         Restored an ID to NoteData
-        Goals became a branch, vs leaf/placeholder
-        Inserted new FileGroup class as an ancestor of NoteGroupPanel, made 'Panel' a data member vs a 'this'
-        Reworked the groupFilename settings for consistency and access, now located in FileGroup.
-        Implemented linkages from NoteData to NoteGroups or other NoteData
+        Linkages to/from NoteGroups and NoteData, and Reverse linkages
+        Hierarchy changes to separate out File operations, in prep for having a DB alternative data accessor
+        Reworked the groupFilename settings for consistency and access, now all located in NoteGroupFile
+        Added a new debug dialog - 'View current NoteGroup' - allows view of the in-memory data (such as LMD)
+        All Panels with a Calendar basis now have more/better date-changing controls (AlterButtons).
+
+        <date - current work, not archived>    keeping the v0.4, for now ....
 
 
 

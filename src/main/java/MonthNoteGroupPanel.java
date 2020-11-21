@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -77,7 +78,13 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
                 setOneBack();
                 break;
             case "T":
-                AppTreePanel.theInstance.showToday();
+                // Change to 'today' without affecting theChoice.
+                // This is preferred when this navigation control is used while 'Viewing FoundIn'.
+                // And in that case AppTreePanel.theInstance.showToday() would not work anyway, since
+                //   there would be no active selection on the Tree.  This is in alignment with the
+                //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
+                //   which DOES affect theChoice.
+                setDate(LocalDate.now());
                 break;
             case "+":
                 setOneForward();

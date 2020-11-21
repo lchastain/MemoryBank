@@ -12,9 +12,11 @@ Questions:
 Issues:
 
 Problems:
-
+    Two consecutive 'Move To Today' - only the first is saved.
 
 New:
+    Added a 'Go Back' menu item and handling, for returning to Search Results after viewing a FoundIn.
+
 
 
 
@@ -1056,8 +1058,8 @@ This was 'discovered' sometime in Early October; could have been before or after
   from any NoteData to a Goal.
 
 2/06/2020 0820 - Finished organizing all the earlier snapshots and versioning notes (in Help),
-  and now will preserve the work to this point as a final v0.4, before starting the changes that
-  will support the Goals work.
+  and now will preserve the work to this point as a final v0.4, before starting the changes
+  that will support the Goals work.
 
 2/05/2020 0938 - Still not fully 'on', but have been thinking a bit more deeply about AI and how
   I want to proceed there.  Finally arrived at a decision to document (but not develop) a way

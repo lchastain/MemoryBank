@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.event.ActionListener;
 
 public class AppMenuBar extends JMenuBar{
     static final long serialVersionUID = 1L; // JMenuBar wants this but we will not serialize.
@@ -21,6 +22,7 @@ public class AppMenuBar extends JMenuBar{
 
     private String theCurrentContext;
     private boolean showDeleteUndo;
+    private static JMenuItem goBack;
 
     static {
         fileMenu = new JMenu("App");
@@ -87,6 +89,8 @@ public class AppMenuBar extends JMenuBar{
         helpMenu = new JMenu("Help");
         helpMenu.add(new JMenuItem("Contents"));
         helpMenu.add(new JMenuItem("About"));
+
+        goBack = new JMenuItem("Go Back");
     } // end static
 
     public AppMenuBar() {
@@ -100,6 +104,7 @@ public class AppMenuBar extends JMenuBar{
         add(notesMenu);
         add(todolistsMenu);
         add(searchesMenu);
+        add(goBack);
         showDeleteUndo = false;
 
         // This puts the 'Help' on the far right side.
@@ -108,6 +113,29 @@ public class AppMenuBar extends JMenuBar{
         // mb.setHelpMenu(menuHelp);  // Not implemented in Java 1.4.2 ...
         // Still not implemented in Java 1.5.0_03
         // In Java 1.8, throws a Not Implemented exception
+    }
+
+
+    void addHandler(ActionListener actionListener) {
+        //---------------------------------------------------------
+        // Note - if you need cascading menus in the future, use
+        //   the recursive version of this as implemented in
+        //   // Add the above handler to all menu items.LogPane.java, a now archived predecessor to AppTreePanel.
+        //---------------------------------------------------------
+        int numMenus = getMenuCount();
+        // MemoryBank.debug("Number of menus found: " + numMenus);
+        for (int i = 0; i < numMenus; i++) {
+            JMenu jm = getMenu(i);
+            if (jm == null) continue;
+
+            for (int j = 0; j < jm.getItemCount(); j++) {
+                JMenuItem jmi = jm.getItem(j);
+                if (jmi == null) continue; // Separator
+                jmi.addActionListener(actionListener);
+            } // end for j
+        } // end for i
+        //---------------------------------------------------------
+        goBack.addActionListener(actionListener);
     }
 
     String getCurrentContext() {
@@ -170,6 +198,7 @@ public class AppMenuBar extends JMenuBar{
         notesMenu.setVisible(false);
         todolistsMenu.setVisible(false);
         searchesMenu.setVisible(false);
+        goBack.setVisible(false);
 
         deletedMenu.setVisible(showDeleteUndo);
 
@@ -210,9 +239,12 @@ public class AppMenuBar extends JMenuBar{
             case "To Do List":       // A List
                 todolistsMenu.setVisible(true);
                 break;
-            default: // No special handling but still a valid configuration.
-                // Expected examples:  About, Today (conditional), Branches without an editor.
-                // Unexpected - will only show up during development.
+            case "Viewing FoundIn":
+                goBack.setVisible(true);
+                break;
+            default: // aka "No Selection"
+                // No special handling but still a valid configuration; all custom menus hidden.
+                // Expected uses:  Show About, Branches without an editor, a few others.
                 break;
         }
     } // end manageMenus
