@@ -235,7 +235,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
     @Override
     void preClosePanel() {
-        saveProperties();
+        updateProperties();
         super.preClosePanel();
     }
 
@@ -434,15 +434,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         return true;
     } // end saveAs
 
-    private void saveProperties() {
-        // Update the header text of the columns.
-        ((TodoGroupProperties) myNoteGroup.myProperties).column1Label = listHeader.getColumnHeader(1);
-        ((TodoGroupProperties) myNoteGroup.myProperties).column2Label = listHeader.getColumnHeader(2);
-        ((TodoGroupProperties) myNoteGroup.myProperties).column3Label = listHeader.getColumnHeader(3);
-        ((TodoGroupProperties) myNoteGroup.myProperties).columnOrder = listHeader.getColumnOrder();
-    } // end saveProperties
-
-
     public void setOptions() {
         TodoNoteComponent tempNote;
 
@@ -632,4 +623,14 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         checkColumnOrder();
         loadPage(theNotePager.getCurrentPage());
     } // end sortText
+
+
+    private void updateProperties() {
+        // Update the header text of the columns.
+        ((TodoGroupProperties) myNoteGroup.myProperties).column1Label = listHeader.getColumnHeader(1);
+        ((TodoGroupProperties) myNoteGroup.myProperties).column2Label = listHeader.getColumnHeader(2);
+        ((TodoGroupProperties) myNoteGroup.myProperties).column3Label = listHeader.getColumnHeader(3);
+        ((TodoGroupProperties) myNoteGroup.myProperties).columnOrder = listHeader.getColumnOrder();
+    } // end updateProperties
+
 } // end class TodoNoteGroup

@@ -12,15 +12,25 @@ Questions:
 Issues:
 
 Problems:
-    Two consecutive 'Move To Today' - only the first is saved.
 
 New:
-    Added a 'Go Back' menu item and handling, for returning to Search Results after viewing a FoundIn.
-
 
 
 
 =====================================================================================================
+23 Nov 2020
+  Finally made a tooltip solution that works the way I want; had been on the wishlist for a very long time.  Now,
+    tooltips will stay much longer but will go away instantly upon extended note editing.  Made a new SCR (120)
+    to cover the work, checked in and pub'd.
+
+21 Nov 2020
+  Made an archival backup of the Final v0.4 code, from the latest changes.  Code from this point onward will be
+    for an eventual v0.5 or later, but currently still has the v0.4 version graphic.
+  Added a 'Go Back' menu item and handling, for returning to Search Results after viewing a FoundIn.
+    Then fixed 'Today' button clicks on Day, Month, Year notes when viewing them via FoundIn, fixed display of
+    current NoteGroup when it was called up via a FoundIn.
+  Checked in and pub'd
+
 19 Nov 2020
   Additional AlterButton controls for larger increments in CalendarNoteGroups.
     Similar treatments for YearView and MonthView

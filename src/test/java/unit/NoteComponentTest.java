@@ -59,9 +59,9 @@ class NoteComponentTest {
     void testResetNoteStatusMessage() {
         MonthNoteGroupPanel monthNoteGroup = new MonthNoteGroupPanel();
         NoteComponent noteComponent = monthNoteGroup.getNoteComponent(0);
-        noteComponent.resetNoteStatusMessage(NoteComponent.NEEDS_TEXT);
-        noteComponent.resetNoteStatusMessage(NoteComponent.HAS_BASE_TEXT);
-        noteComponent.resetNoteStatusMessage(NoteComponent.HAS_EXT_TEXT);
+        noteComponent.resetPanelStatusMessage(NoteComponent.NEEDS_TEXT);
+        noteComponent.resetPanelStatusMessage(NoteComponent.HAS_BASE_TEXT);
+        noteComponent.resetPanelStatusMessage(NoteComponent.HAS_EXT_TEXT);
     }
 
     @Test

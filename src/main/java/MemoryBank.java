@@ -75,9 +75,6 @@ public class MemoryBank {
     } // end static
 
 
-    //-----------------------------------------------------------------
-    // Method Name: trace
-    //
     // Description:  Prints the class name of the calling context and
     //               specifies whether called from the static section
     //               or the constructor.
@@ -87,7 +84,6 @@ public class MemoryBank {
     //                    indication that the relevant section has
     //                    executed, and also can help in performance
     //                    tuning.
-    //-----------------------------------------------------------------
     public static void trace() {
         if (!init) return;
 
@@ -111,27 +107,18 @@ public class MemoryBank {
             System.out.println("Improper use of constructor trace method!");
             System.out.println(Thread.currentThread().getStackTrace()[2].toString());
         } // end if
-
     } // end trace
 
 
-    //-----------------------------------------------------------------
-    // Method Name: dbg
-    //
     // Description:  Prints the input parameter, without a linefeed.
-    //-----------------------------------------------------------------
     public static void dbg(String s) {
         if (debug) System.out.print(s);
     } // end dbg
 
 
-    //-----------------------------------------------------------------
-    // Method Name: debug
-    //
     // Description:  Prints the input parameter.
     //   Does a 'flush' so that statements are not printed out
     //   of order, when mixed with exceptions.
-    //-----------------------------------------------------------------
     public static void debug(String s) {
         if (debug) {
             System.out.println(s);
@@ -140,25 +127,17 @@ public class MemoryBank {
     } // end debug
 
 
-    //-----------------------------------------------
-    // Method Name: event
-    //
     // Description:  Prints the calling context
-    //-----------------------------------------------
     public static void event() {
         if (!MemoryBank.event) return;
         System.out.println(Thread.currentThread().getStackTrace()[3].toString());
     } // end event
 
 
-    // -----------------------------------------------------------------------
-    // Method Name: setProgramDataLocation
-    //
     // Set the filesystem location for program data - 'logHome'.
     // Look first in the current directory.  This allows the program data to come
     // from a development location.  If not found then set it explicitly to the default
     // location but test that it is valid, by checking for the 'icons' subdirectory.
-    // -----------------------------------------------------------------------
     private static void setProgramDataLocation() {
         String currentDir = System.getProperty("user.dir");
         debug("The current working directory is: " + currentDir);

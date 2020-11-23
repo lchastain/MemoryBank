@@ -66,6 +66,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         p0.add(monthMinus);
         p0.add(prev);
         p0.add(todayButton);
+        todayButton.setToolTipText("Today");
         p0.add(next);
         p0.add(monthPlus);
         p0.add(yearPlus);

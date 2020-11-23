@@ -32,19 +32,19 @@ public class TodoNoteComponent extends NoteComponent {
         // Add to the base class popup menu.
         //-----------------------------------
         PopHandler popHandler = new PopHandler();
-        miClearPriority = popup.add("Clear Priority");
+        miClearPriority = contextMenu.add("Clear Priority");
         miClearPriority.addActionListener(popHandler);
 
-        miMoveToToday = popup.add("Move To Today");
+        miMoveToToday = contextMenu.add("Move To Today");
         miMoveToToday.addActionListener(popHandler);
 
-        miMoveToSelectedDate = popup.add("Move To Selected Date");
+        miMoveToSelectedDate = contextMenu.add("Move To Selected Date");
         miMoveToSelectedDate.addActionListener(popHandler);
 
-        JMenuItem miCopyToAnotherList = popup.add("Copy To Another List...");
+        JMenuItem miCopyToAnotherList = contextMenu.add("Copy To Another List...");
         miCopyToAnotherList.addActionListener(popHandler);
 
-        JMenuItem miMoveToAnotherList = popup.add("Move To Another List...");
+        JMenuItem miMoveToAnotherList = contextMenu.add("Move To Another List...");
         miMoveToAnotherList.addActionListener(popHandler);
 
         //------------------------
@@ -254,7 +254,7 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     @Override
-    void resetNoteStatusMessage(int textStatus) {
+    void resetPanelStatusMessage(int textStatus) {
         String s = " ";
 
         switch (textStatus) {
@@ -271,16 +271,16 @@ public class TodoNoteComponent extends NoteComponent {
                 s += " the additional details for this task.";
         } // end switch
         myNoteGroupPanel.setStatusMessage(s);
-    } // end resetNoteStatusMessage
+    } // end resetPanelStatusMessage
 
 
     // This method enables/disables the popup menu items.
     @Override
     protected void resetPopup() {
         super.resetPopup(); // Needed, but it removes our non-base class items.
-        popup.add(miClearPriority); // so we put them back.
-        popup.add(miMoveToToday);
-        popup.add(miMoveToSelectedDate);
+        contextMenu.add(miClearPriority); // so we put them back.
+        contextMenu.add(miMoveToToday);
+        contextMenu.add(miMoveToSelectedDate);
 
         if (!initialized) {
             miClearPriority.setEnabled(false);

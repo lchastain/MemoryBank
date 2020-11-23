@@ -25,11 +25,11 @@ class EventNoteComponentTest {
 
     @Test
     void testResetNoteStatusMessage() {
-        theEventNoteComponent.resetNoteStatusMessage(NoteComponent.NEEDS_TEXT);
+        theEventNoteComponent.resetPanelStatusMessage(NoteComponent.NEEDS_TEXT);
         theEventNoteComponent.setEditable(true);
         theEventNoteComponent = new EventNoteComponent(myEventNoteGroup, 1);
-        theEventNoteComponent.resetNoteStatusMessage(NoteComponent.NEEDS_TEXT);
-        theEventNoteComponent.resetNoteStatusMessage(NoteComponent.HAS_BASE_TEXT);
-        theEventNoteComponent.resetNoteStatusMessage(NoteComponent.HAS_EXT_TEXT);
+        theEventNoteComponent.resetPanelStatusMessage(NoteComponent.NEEDS_TEXT);
+        theEventNoteComponent.resetPanelStatusMessage(NoteComponent.HAS_BASE_TEXT);
+        theEventNoteComponent.resetPanelStatusMessage(NoteComponent.HAS_EXT_TEXT);
     }
 }

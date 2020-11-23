@@ -14,6 +14,7 @@ import java.awt.event.*;
 public class NoteComponent extends JPanel {
     private static final long serialVersionUID = 1L;
     boolean editable = true;
+    static MouseEvent lastMouseEnteredEvent; // Needed for tooltip management
 
     // The Members
     NoteData myNoteData;
@@ -31,7 +32,7 @@ public class NoteComponent extends JPanel {
     static Border redBorder;
     static Border highBorder;
     static Border lowBorder;
-    static JPopupMenu popup;
+    static JPopupMenu contextMenu;
 
     // This is how we get around the restriction on the
     //   use of 'this' in a static context (PopHandler).  We just
@@ -68,21 +69,21 @@ public class NoteComponent extends JPanel {
         //-----------------------------------
         PopHandler popHandler = new PopHandler();
 
-        popup = new JPopupMenu();
-        popup.setFocusable(false);
+        contextMenu = new JPopupMenu();
+        contextMenu.setFocusable(false);
 
         //--------------------------------------------
         // Define the popup menus for a NoteComponent
         //--------------------------------------------
-        miCutLine = popup.add("Cut Line");
+        miCutLine = contextMenu.add("Cut Line");
         miCutLine.addActionListener(popHandler);
-        miCopyLine = popup.add("Copy Line");
+        miCopyLine = contextMenu.add("Copy Line");
         miCopyLine.addActionListener(popHandler);
-        miLinkLine = popup.add("Note Linkages...");
+        miLinkLine = contextMenu.add("Note Linkages...");
         miLinkLine.addActionListener(popHandler);
-        miPasteLine = popup.add("Paste Line");
+        miPasteLine = contextMenu.add("Paste Line");
         miPasteLine.addActionListener(popHandler);
-        miClearLine = popup.add("Clear Line");
+        miClearLine = contextMenu.add("Clear Line");
         miClearLine.addActionListener(popHandler);
     } // end static section
 
@@ -288,16 +289,10 @@ public class NoteComponent extends JPanel {
 
         noteTextField.setTextColor();
         noteTextField.resetToolTip(getNoteData());
-//    noteTextField.transferFocusUpCycle();  // new.. 3/19/2008
-        // Commented out the above line, 7/20/2008, to clear the
-        // problem of a to-do item being deselected as soon as
-        // a date for it on the TMC was selected.  Need to see if
-        // the problem(s) that it tried to fix are now back....
-
     } // end resetComponent
 
 
-    void resetNoteStatusMessage(int textStatus) {
+    void resetPanelStatusMessage(int textStatus) {
         String s = " ";
 
         switch (textStatus) {
@@ -314,19 +309,19 @@ public class NoteComponent extends JPanel {
                 s += " the subject and extended note.";
         } // end switch
         myManager.setStatusMessage(s);
-    } // end resetNoteStatusMessage
+    } // end resetPanelStatusMessage
 
 
     // This method is called each time before displaying the popup menu.
     //   Child classes may override it if they have additional selections,
     //   but they can still call this one first, to add the base items.
     void resetPopup() {
-        popup.removeAll();
-        popup.add(miCutLine);   // the default state is 'enabled'.
-        popup.add(miCopyLine);
-        popup.add(miLinkLine);
-        popup.add(miPasteLine);
-        popup.add(miClearLine);
+        contextMenu.removeAll();
+        contextMenu.add(miCutLine);   // the default state is 'enabled'.
+        contextMenu.add(miCopyLine);
+        contextMenu.add(miLinkLine);
+        contextMenu.add(miPasteLine);
+        contextMenu.add(miClearLine);
 
         if (!initialized) {
             miCutLine.setEnabled(false);
@@ -451,17 +446,19 @@ public class NoteComponent extends JPanel {
             setBorder(offBorder);
             addMouseListener(this);
             setFont(Font.decode("Dialog-bold-14"));
-            addActionListener(this);
+            addActionListener(this);  // The Enter key, and a mouse double-click.
             addFocusListener(this);
-            getDocument().addDocumentListener(this);
+            getDocument().addDocumentListener(this); // cut/paste/changed
             addKeyListener(this);
+            ToolTipManager.sharedInstance().setInitialDelay(1500); // Wait just a bit longer to show the first tooltip.
+            ToolTipManager.sharedInstance().setDismissDelay(90000); // Keep tooltip up for a long time.
         } // end constructor
 
         private void clear() {
             // Remove the document listener, to avoid thread deadlocks.
             getDocument().removeDocumentListener(this);
 
-            // Ckear the text field
+            // Clear the text field
             setText(null);
             setForeground(Color.black);
             setToolTipText(null);
@@ -485,10 +482,15 @@ public class NoteComponent extends JPanel {
 
         // This provides a constant location for the tooltip, so that the
         // extended note editor (if/when it pops up) will cover it entirely.
+        // But also - just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
+        //   move the pointer into the tooltip text area, and that causes the tooltip to go away.
+        // Important:  If font sizes change then this behavior may break.  Probably not
+        //    hardened in the face of different L&Fs; optimized for Windows Classic.
         @Override
         public Point getToolTipLocation(MouseEvent e) {
-            return new Point(20, 20);
+            return new Point(10, 30);
         }
+
 
         private void resetToolTip(NoteData nd) {
             if (nd == null) return;
@@ -550,9 +552,7 @@ public class NoteComponent extends JPanel {
         // EVENT HANDLERS
         //=====================================================================
 
-        //---------------------------------------------------------
-        // Method Name: actionPerformed
-        //
+        //<editor-fold desc="actionPerformed method for the TextField">
         // Although there are several child classes, only this base class is handling events on the JTextField.
         //   This method will be called directly as the event handler when the field has the focus and the user
         //   presses 'Enter', and indirectly when they mouse double-click on the field.
@@ -561,6 +561,33 @@ public class NoteComponent extends JPanel {
             MemoryBank.event();
             if (!this.isEditable()) return;
             if (!initialized) return;
+
+            // Turn off the currently displayed tooltip, if any.
+            //----------------------------------------------------------------------------------------------------
+            // We preserve a single (static) last MOUSE_ENTERED event across ALL NoteTextFields, but there is a
+            // sequence of operations after program startup, whereby execution could come here while this reference
+            // is still null.  So the following  block of code is conditional on it not being null.
+            if(lastMouseEnteredEvent != null) {
+                // Get a reference to the last entered note
+                NoteTextField theSource = (NoteTextField) lastMouseEnteredEvent.getSource();
+                // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
+                MouseEvent mouseExitedEvent = new MouseEvent(theSource, MouseEvent.MOUSE_EXITED,
+                        lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiers(),
+                        -1, -1, lastMouseEnteredEvent.getClickCount(), false);
+
+                // Now get ALL the mouse listeners on that earlier note.
+                // This is because tooltips are displayed by the JVM library code and not our own, so if there
+                //   is a tooltip showing then it was put there by a listener in that code, so that is the listener
+                //   to which we need to send the event to get the tooltip to go away.
+                MouseListener[] theListeners = theSource.getMouseListeners();
+
+                // Cycle thru the listeners and call .mouseExited() on all of them.
+                // (including our own, but that one will not remove the tooltip).
+                for(MouseListener ml: theListeners) {
+                    ml.mouseExited(mouseExitedEvent);
+                }
+            }
+            //----------------------------------------------------------------------------------------------------
 
             boolean extendedNoteChanged;
 
@@ -581,10 +608,10 @@ public class NoteComponent extends JPanel {
             // Remove the 'modification in progress' highlight
             NoteComponent.this.setBorder(null);
         } // end actionPerformed
+        //</editor-fold>
 
-        //---------------------------------------------------------
-        // DocumentListener methods
-        //---------------------------------------------------------
+
+        //<editor-fold desc="DocumentListener methods for the TextField">
         public void insertUpdate(DocumentEvent e) {
             // System.out.println("insertUpdate: " + e.toString());
             if (!initialized) initialize();
@@ -604,11 +631,10 @@ public class NoteComponent extends JPanel {
             getNoteData().setNoteString(getText());
             setNoteChanged();
         } // end changedUpdate
+        //</editor-fold>
 
 
-        //---------------------------------------------------------
-        // FocusListener methods for the TextField
-        //---------------------------------------------------------
+        //<editor-fold desc="FocusListener methods for the TextField">
         // Note: The order of focusGained / focusLost along with
         //  the visual indicators (borders, highlighting) and
         //  how they can be invoked by either up/down arrows,
@@ -617,8 +643,6 @@ public class NoteComponent extends JPanel {
         //  getting the focus when they appear (most notably, the
         //  PopupMenu and the vertical scrollbar).  Then, do
         //  everything based on Focus here being gained or lost.
-        //---------------------------------------------------------
-
         public void focusGained(FocusEvent e) {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
@@ -645,10 +669,10 @@ public class NoteComponent extends JPanel {
 
             noteActivated(false);
         } // end focusLost
+        //</editor-fold>
 
-        //---------------------------------------------------------
-        // KeyListener methods for the TextField
-        //---------------------------------------------------------
+
+        //<editor-fold desc="KeyListener methods for the TextField">
         @Override
         public void keyPressed(KeyEvent ke) {
             // Turn off a previous popup, if one is showing.
@@ -656,7 +680,7 @@ public class NoteComponent extends JPanel {
             //   pressed a TAB, UP or DOWN key to change focus - the
             //   popup menu would still be up, but active for the
             //   previous note vs the one that appeared to be active.
-            if (popup.isVisible()) popup.setVisible(false);
+            if (contextMenu.isVisible()) contextMenu.setVisible(false);
 
             int kp = ke.getKeyCode();
 
@@ -700,10 +724,10 @@ public class NoteComponent extends JPanel {
             initialize(); // this will activate the next note
             noteActivated(true); // Added for SCR0091
         } // end keyTyped
+        //</editor-fold>
 
-        //---------------------------------------------------------
-        // MouseListener methods for the TextField
-        //---------------------------------------------------------
+
+        //<editor-fold desc="MouseListener methods for the TextField">
         public void mouseClicked(MouseEvent e) {
             MemoryBank.event();
             if (!this.hasFocus()) {
@@ -742,7 +766,7 @@ public class NoteComponent extends JPanel {
 
                 // Show the popup menu
                 // System.out.println("Showing popup!");
-                popup.show(e.getComponent(), e.getX(), e.getY());
+                contextMenu.show(e.getComponent(), e.getX(), e.getY());
 
                 // Double click, left mouse button.
             } else if (e.getClickCount() == 2) {
@@ -751,9 +775,11 @@ public class NoteComponent extends JPanel {
         } // end mouseClicked
 
         public void mouseEntered(MouseEvent e) {
-            popup.setVisible(false);
+            contextMenu.setVisible(false); // This gets rid of a previous one, if any.
+            lastMouseEnteredEvent = e;
             if (!initialized) return;
-            resetNoteStatusMessage(getTextStatus());
+
+            resetPanelStatusMessage(getTextStatus());
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
@@ -765,6 +791,7 @@ public class NoteComponent extends JPanel {
 
         public void mouseReleased(MouseEvent e) {
         }
+        //</editor-fold>
 
     } // end class NoteTextField
 
