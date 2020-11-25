@@ -74,7 +74,6 @@ public class MonthView extends JLayeredPane {
     MonthView(LocalDate initialChoice) {
         super();
         displayedMonth = initialChoice;
-//        setChoice(initialChoice); // We need to do it this way, so we also get the right 'choice' label.
         theChoice = initialChoice;
 
         minSize = new Dimension(480, 200);  // 450
@@ -138,13 +137,9 @@ public class MonthView extends JLayeredPane {
     } // end constructor
 
 
-    //---------------------------------------------------------------------
-    // Method Name: getIconArray
-    //
     // Returns an array of 5 LogIcons that are read from a file
     //   of data for the specified day.  There may be one or more
     //   null placeholders in the array.
-    //---------------------------------------------------------------------
     private Image[] getIconArray(int year, int month, int day) {
         LocalDate ld = LocalDate.of(year, month, day);
 
@@ -152,24 +147,22 @@ public class MonthView extends JLayeredPane {
         if (!new File(theFilename).exists()) return null;
 
         MemoryBank.debug("Loading: " + theFilename);
-        Image[] returnArray = new Image[5];
-
-        int index = 0;
-        String iconFileString;
-
+        // There is a data file, so there will be 'something' to load.
         Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
-//        NoteInfo.loading = true; // We don't want to affect the lastModDates!
 
-        // relatively new 'adjustment', to adapt to addition of properties to data files
-        // and the possibility that a properties is all that the file contains.
+        // If we have only loaded GroupProperties but no accompanying data, then bail out now.
         Object theObject = theDayGroup[theDayGroup.length-1];
         String theClass = theObject.getClass().getName();
         System.out.println("The DayGroup class type is: " + theClass);
         if(!theClass.equals("java.util.ArrayList")) return null;
 
+        // The loaded data is a Vector of DayNoteData.
+        // Not currently worried about the 'loading' boolean, since MonthView does not re-persist the data.
         Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<DayNoteData>>() { });
-//        NoteInfo.loading = false; // Restore normal lastModDate updating.
 
+        Image[] returnArray = new Image[5];
+        int index = 0;
+        String iconFileString;
         for (DayNoteData tempDayData : theDayNotes) {
             if (tempDayData.getShowIconOnMonthBoolean()) {
                 iconFileString = tempDayData.getIconFileString();
@@ -182,7 +175,17 @@ public class MonthView extends JLayeredPane {
                     // Possibly as a 'spacer'.
                     returnArray[index] = null;
                 } else {
-                    returnArray[index] = new AppIcon(iconFileString).getImage();
+                    Image theImage =  new AppIcon(iconFileString).getImage();
+                    theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
+                    // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
+                    //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
+                    //   day), then switch to the MonthView (to be contructed for the first time in your session).
+                    // Adding a .flush() does fix the problem of some icons (answer_bad.gif) not showing the first time
+                    // the MonthView is displayed but other .gif files displayed ok with only this:
+                    //          returnArray[index] = new AppIcon(iconFileString).getImage();
+                    // And - other file types may react differently.  This flush is needed in conjuction with a double
+                    //   load of the initial month to be shown; that is done in AppTreePanel.treeSelectionChanged().
+                    returnArray[index] = theImage;
                 } // end if
 
                 index++;
@@ -191,6 +194,7 @@ public class MonthView extends JLayeredPane {
             } // end if
         }
 
+        //System.out.println("getIconArray: " + Arrays.toString(returnArray));
         return returnArray;
     } // end getIconArray
 
@@ -236,9 +240,9 @@ public class MonthView extends JLayeredPane {
 
 
     public void setChoice(LocalDate theNewChoice) {
-        // Was tempted (for better performance) to avoid the recalc, if the new choice was still on the same month
-        // as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have been
-        // added to any given day of this month, and if we are not on the exact same day then the choice would
+        // Was tempted (for better performance) to avoid the recalc at the end, if the new choice was still on the same
+        // month as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have
+        // been added to any given day of this month, and if we are not on the exact same day then the choice would
         // also be wrong.  If we want to first check to see if a recalc-worthy change was made, then we would need to
         // add new flags in various places and that introduces more complexity to the feature, making it more fragile
         // and harder to maintain, with questionable improvement to performance when displaying any month with a lower
@@ -256,7 +260,7 @@ public class MonthView extends JLayeredPane {
 
         // Highlight the selected day, IF it appears in the currently displayed month.
         monthCanvas.recalc(); // only way to find the day object
-    } // end setDate
+    } // end setChoice
 
     void setChoiceLabel() {
         choiceLabel.setText(dtf.format(theChoice) + " ");
@@ -520,8 +524,8 @@ public class MonthView extends JLayeredPane {
         } // end reset
 
         public void setDate(LocalDate ld) {
+            update(ld);
             myDate = ld;
-            update(myDate);
             dayGrid.setVisible(true);
             bottomLine();
             rightLine();
@@ -567,8 +571,7 @@ public class MonthView extends JLayeredPane {
         public void update(LocalDate ld) {
             int thisDay = ld.getDayOfMonth();
             dayLabel.setText(String.valueOf(thisDay));
-            // System.out.println("DayCanvas update was called " +
-            //     dayLabel.getText());
+            System.out.println("DayCanvas update was called " + dayLabel.getText());
 
             icon1.setImage(null);
             icon2.setImage(null);

@@ -83,10 +83,7 @@ public class AppIcon extends ImageIcon {
     } // end paintIcon
     */
 
-    //-----------------------------------------------------
-    // Method Name: scaleIcon
-    //
-    //-----------------------------------------------------
+
     public static void scaleIcon(AppIcon theIcon) {
         int theHeight, theWidth;
 

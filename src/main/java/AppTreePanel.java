@@ -1382,7 +1382,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     //-----------------------------------------------------------
     static void showWorkingDialog(boolean showIt) {
         if (showIt) {
-//            new Exception("Test tracing").printStackTrace();  // Helpful in finding which tests left this up.
+            //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
 
             // Create a new thread and setVisible within the thread.
             new Thread(new Runnable() {
@@ -1699,12 +1699,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             rightPane.setViewportView(theYearView);
         } else if (theNodeString.equals("Month View")) {
+            // Capture new icons, if any.
+            if(theAppDays != null) theAppDays.preClosePanel();
 
             if (theMonthView == null) {
-                // The MonthView must be constructed with the current choice.
-                // At least until after the choice label and selected day highlight are moved out of the construction path,
-                // which I do intend to do at some point.
-                theMonthView = new MonthView(selectedDate);
+                // Construct with a date where the Month (with 31 days) starts on a Sunday, part of the cure for:
+                //   SCR00035 - MonthView does not show all icons for a day.  (see also the note in MonthView)
+                theMonthView = new MonthView(LocalDate.of(2020, 3, 15));
+                // This results in a one-time-only double 'set' of the day but is needed so that the various
+                // DayCanvases are ready to properly show icons.  (This appears to also prevent the problem
+                // from appearing in the final (empty) DayCanvases of the MonthCanvas grid (not sure why).
+                theMonthView.setChoice(selectedDate); // This sets the 'choice' label and day highlight, if appropriate.
                 theMonthView.setParent(this);
             } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
                 theMonthView.setChoice(selectedDate);
