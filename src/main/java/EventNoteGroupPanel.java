@@ -273,6 +273,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
 
     @Override
+    // Is it possible that this does not need to be overridden?  Just set tne extendedNoteComponent in the constructor
+    //   and let the base class call the 'regular' edit method.  ??  Cannot research this now; later.
     public boolean editExtendedNoteComponent(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
         if(extendedNoteComponent == null) {

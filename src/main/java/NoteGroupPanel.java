@@ -230,9 +230,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end clearPage
 
 
-    // Provides an interface for the modification of data elements of
-    //   the extended note component, and returns true if there
-    //   was a change; false otherwise.
+    // Provides an interface for the modification of two members of the NoteData.
+    //   Returns true if there was a change to either one; false otherwise.
     public boolean editExtendedNoteComponent(NoteData noteData) {
         // System.out.println("NoteGroup editExtendedNoteComponent");
 
@@ -249,9 +248,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         String origSubject = noteData.getSubjectString();
         String origExtendedString = noteData.getExtendedNoteString();
 
-        //---------------------------------------------------------
-        // Present the ExtendedNoteComponent in a dialog
-        //---------------------------------------------------------
+        // Present the ExtendedNoteComponent in a modal dialog
         int doit = JOptionPane.showConfirmDialog(
                 JOptionPane.getFrameForComponent(theBasePanel),
                 extendedNoteComponent,
@@ -544,7 +541,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         }
 
         // Without this condition, the existing unchanged data might get written out to the data store
-        //   and that might overwrite changes that had been made and already persisted outside of a Panel.
+        //   and that might overwrite changes that had been made and were already persisted outside of a Panel.
         if(myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
             myNoteGroup.saveNoteGroup();
@@ -575,8 +572,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         jsp.setColumnHeaderView(c);
     } // end setGroupHeader
 
-    // The CalendarNoteGroupPanels have a default subject; other Panels do not.  In
-    // the other cases this method is not called, so defaultSubject remains null.
+    // The CalendarNoteGroupPanels have a default subject; other Panels do not.
+    // If this method is not called, defaultSubject remains null.
     void setDefaultSubject(String defaultSubject) {
         this.defaultSubject = defaultSubject;
     }

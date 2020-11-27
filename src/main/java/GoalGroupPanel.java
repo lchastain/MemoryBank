@@ -3,10 +3,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.time.LocalDate;
 
 // This class takes much of its operation directly from a ToDo List.  But one functionality that it does not take is
@@ -19,6 +16,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     static String userInfo;
     static String defaultPlanText;
 
+    JLabel titleLabel;
     private ThreeMonthColumn tmc;  // For Date selection
     private MilestoneComponent milestoneComponent;
 
@@ -61,28 +59,67 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
 
         // The First Header Row -   Title
-        JPanel headingRow1 = new JPanel(new BorderLayout());
-        headingRow1.setBackground(Color.blue);
-        JLabel goalNameLabel = new JLabel(myNoteGroup.myProperties.getGroupName());
+        JPanel headingRow1 = new JPanel(new BorderLayout()); // Need to put the title into a separate panel, because -
+        headingRow1.setBackground(Color.blue); // it covers width of the panel, not just the length of the title.
+        String goalName = myNoteGroup.myProperties.getGroupName();
+        String goalPlan = ((GoalGroupProperties) myNoteGroup.myProperties).goalPlan;
         String longTitle = ((GoalGroupProperties) myNoteGroup.myProperties).longTitle;
-        if (null != longTitle && !longTitle.isEmpty()) goalNameLabel.setText(longTitle);
-        goalNameLabel.setHorizontalAlignment(JLabel.CENTER);
-        goalNameLabel.setBackground(Color.blue);
-        goalNameLabel.setForeground(Color.white);
-        goalNameLabel.setFont(Font.decode("Serif-bold-20"));
-        goalNameLabel.setToolTipText("Click here to enter a longer Goal title");
-        headingRow1.add(goalNameLabel, "Center");
+        if(longTitle == null || longTitle.isEmpty()) longTitle = goalName;
+        titleLabel = new JLabel(longTitle);
+        titleLabel.setText(longTitle);
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        titleLabel.setForeground(Color.white);
+        titleLabel.setFont(Font.decode("Serif-bold-20"));
+        if(goalPlan != null && !goalPlan.trim().isEmpty()) {
+            titleLabel.setToolTipText(goalPlan);
+        } else {
+            titleLabel.setToolTipText("Click here to enter / edit the Goal plan");
+        }
 
-        // The Second Header Row -  Goal Plan
-        //----------------------------------------------------------
+        // Use a NoteData to hold the longer title and the Plan.
+        NoteData titleNoteData = new NoteData(goalName); // In this case the noteString does not get used.
+        titleNoteData.setSubjectString(longTitle);
+        titleNoteData.setExtendedNoteString(goalPlan);
+
+        titleLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                boolean planChanged = editExtendedNoteComponent(titleNoteData);
+                if(planChanged) {
+                    if(titleNoteData.subjectString.isEmpty()) {
+                        titleNoteData.subjectString = goalName;
+                        // In case the user cleared the entry completely; we don't want the title line to go away.
+                        // But a single space - makes a seemingly empty blue title line.  If that's what they want
+                        // to see then we allow it; at least it is still re-selectable, to change to something else.
+                    }
+                    titleLabel.setText(titleNoteData.subjectString);
+                    // set the values in group properties...
+                    String goalPlan = titleNoteData.extendedNoteString;
+                    ((GoalGroupProperties) myNoteGroup.myProperties).longTitle = titleNoteData.subjectString;
+                    ((GoalGroupProperties) myNoteGroup.myProperties).goalPlan = goalPlan;
+                    if(goalPlan != null && !goalPlan.trim().isEmpty()) {
+                        titleLabel.setToolTipText(goalPlan);
+                    } else {
+                        titleLabel.setToolTipText("Click here to enter / edit the Goal plan");
+                    }
+
+                    setGroupChanged(true);
+                }
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                setStatusMessage("Click here to edit your Goal Name and Plan");
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                setStatusMessage(" ");
+            }
+        });
+        headingRow1.add(titleLabel, "Center");
+
+        // The Second Header Row -   Status
         JPanel headingRow2 = new JPanel(new BorderLayout());
-        String thePlanString = ((GoalGroupProperties) myNoteGroup.myProperties).goalPlan;
-        if (thePlanString == null) thePlanString = defaultPlanText;
-        headingRow2.add(makePlanTextArea(thePlanString), BorderLayout.CENTER);
-
-        // The Third Header Row -   Status
-        //----------------------------------------------------------
-        JPanel headingRow3 = new JPanel(new BorderLayout());
 
         JPanel currentStatusPanel = new JPanel(new FlowLayout());
         currentStatusPanel.add(new JLabel("Current Status:"));
@@ -94,7 +131,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         currentStatusPanel.add(currentStatus);
 
         JPanel overallStatusPanel = new JPanel(new FlowLayout());
-        overallStatusPanel.add(new JLabel("Overall Status:"));
+        overallStatusPanel.add(new JLabel("Progress:"));
         JComboBox<String> overallStatus = new JComboBox<>();
         overallStatus.addItem("Undefined");
         overallStatus.addItem("Defined");
@@ -103,16 +140,15 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         overallStatus.addItem("Behind Schedule");
         overallStatusPanel.add(overallStatus);
 
-        headingRow3.add(currentStatusPanel, BorderLayout.WEST);
+        headingRow2.add(currentStatusPanel, BorderLayout.WEST);
         JLabel listHeader = new JLabel("Milestones");
         listHeader.setHorizontalAlignment(JLabel.CENTER);
         listHeader.setFont(Font.decode("Serif-bold-14"));
-        headingRow3.add(listHeader, BorderLayout.CENTER);
-        headingRow3.add(overallStatusPanel, BorderLayout.EAST);
+        headingRow2.add(listHeader, BorderLayout.CENTER);
+        headingRow2.add(overallStatusPanel, BorderLayout.EAST);
 
         heading.add(headingRow1);
         heading.add(headingRow2);
-        heading.add(headingRow3);
         add(heading, BorderLayout.NORTH);
     }
 
@@ -136,12 +172,24 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
 
 
-    //--------------------------------------------------------
-    // Method Name: getNoteComponent
-    //
+    @Override
+    public boolean editExtendedNoteComponent(NoteData noteData) {
+        if(noteData instanceof TodoNoteData) {
+            // Let the base class make this -
+            extendedNoteComponent = null;
+            setDefaultSubject(null);
+        } else {
+            setDefaultSubject("Goal Title"); // Panel uses this when calling editExtendedNoteComponent.
+            // Prevent base class from constructing its own.
+            extendedNoteComponent = new ExtendedNoteComponent("Goal Title");
+            extendedNoteComponent.setPhantomText(userInfo);
+        }
+        return super.editExtendedNoteComponent(noteData);
+    }
+
+
     // Returns a TodoNoteComponent that can be used to manipulate
     // component state as well as set/get underlying data.
-    //--------------------------------------------------------
     @Override
     public MilestoneComponent getNoteComponent(int i) {
         return (MilestoneComponent) groupNotesListPanel.getComponent(i);
@@ -159,62 +207,6 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         return tnc;
     } // end makeNewNote
 
-
-    JTextArea makePlanTextArea(String thePlanString) {
-        final JTextArea goalPlanTextArea = new JTextArea(thePlanString);
-        goalPlanTextArea.setLineWrap(true);
-        goalPlanTextArea.setWrapStyleWord(true);
-        goalPlanTextArea.setPreferredSize(new Dimension(goalPlanTextArea.getPreferredSize().width, 100));
-        if (thePlanString.equals(defaultPlanText)) goalPlanTextArea.setForeground(Color.GRAY);
-
-        // Desired behavior from the event listeners below:  Initial display contains only the default, gray text.
-        //   If the user presses any key, the text area is cleared and the key they pressed, if printable,
-        //     appears in the text area.  If not printable, the text area remains blank.  If the focus
-        //     shifts away from the text area while it is empty, the default text is restored.
-        goalPlanTextArea.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (goalPlanTextArea.getText().trim().isEmpty()) {
-                    goalPlanTextArea.setForeground(Color.GRAY);
-                    goalPlanTextArea.setText(defaultPlanText);
-                }
-            }
-        });
-        goalPlanTextArea.addKeyListener(new KeyAdapter() {
-            boolean clearingDefault;
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                char theyTyped = e.getKeyChar();
-                if (goalPlanTextArea.getText().equals(defaultPlanText)) {
-                    goalPlanTextArea.setText("");
-                    goalPlanTextArea.setForeground(Color.BLACK);
-                    clearingDefault = true;
-                }
-
-                if (Character.isLetterOrDigit(theyTyped)) {
-                    clearingDefault = false;
-                }
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-                if (!clearingDefault) {
-                    if (goalPlanTextArea.getText().trim().isEmpty()) {
-                        goalPlanTextArea.setForeground(Color.GRAY);
-                        goalPlanTextArea.setText(defaultPlanText);
-                    }
-                }
-            }
-        });
-        return goalPlanTextArea;
-    }
 
     //  Several actions needed when a line has
     //    either gone active or inactive.

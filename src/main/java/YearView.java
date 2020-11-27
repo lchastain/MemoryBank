@@ -143,6 +143,7 @@ public class YearView extends JPanel {
                 headerPanel.add(titlePanel, BorderLayout.CENTER);
                 headerPanel.revalidate();
                 headerPanel.repaint();
+                yearTextField.requestFocus();
             }
         });
         yearTextField = new JTextField(String.valueOf(theYear), 4);

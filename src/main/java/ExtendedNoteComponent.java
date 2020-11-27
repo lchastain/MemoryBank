@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Vector;
@@ -20,14 +21,16 @@ public class ExtendedNoteComponent extends JPanel {
 
     private static final int maxSubjects = 20;
 
-    // Laid out differently in extended classes.
+    // Laid out differently in EventEditorPanel
     JComboBox<String> subjectChooser;
     protected JTextArea body;
 
+    JComponent subjectComponent; // Edit the Subject with either a JTextField or a JComboBox
+    String phantomText;  // Leave this null, if not being used.
+
     private Vector<String> subjects;
-    private String initialSubject;
     private String mySubject;
-    private String theDefaultSubject;
+    private final String theDefaultSubject;
     private String subjectsFilename;
 
     // This flag is reset to false when subjects are saved.
@@ -46,31 +49,80 @@ public class ExtendedNoteComponent extends JPanel {
         };
         body.setLineWrap(true);
         body.setWrapStyleWord(true);
+        body.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if(phantomText == null) return;
+                if (body.getText().trim().isEmpty()) {
+                    body.setForeground(Color.GRAY);
+                    body.setText(phantomText);
+                }
+            }
+        });
+        body.addKeyListener(new KeyAdapter() {
+            boolean clearingDefault;
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if(phantomText == null) return;
+                char theyTyped = e.getKeyChar();
+                if (body.getText().equals(phantomText)) {
+                    body.setText("");
+                    body.setForeground(Color.BLACK);
+                    clearingDefault = true;
+                }
+
+                if (Character.isLetterOrDigit(theyTyped)) {
+                    clearingDefault = false;
+                }
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if(phantomText == null) return;
+                if (!clearingDefault) {
+                    if (body.getText().trim().isEmpty()) {
+                        body.setForeground(Color.GRAY);
+                        body.setText(phantomText);
+                    }
+                }
+            }
+        });
 
         JScrollPane scroll = new JScrollPane(body);
         this.add(scroll);
 
-        if(defaultSubject != null) {
-            // Develop the file name of the Subjects from the default
-            //   subject that was the input parameter, by adding the
-            //   word 'Subjects' after the first space, if any.
-            subjects = new Vector<>(6, 1);
-            int space = defaultSubject.indexOf(" ");
-            String s;
-            if (space > -1) s = defaultSubject.substring(0, space);
-            else s = defaultSubject;
-            s += "Subjects.json";
-            subjectsFilename = MemoryBank.userDataHome + File.separatorChar + s;
+        if (defaultSubject != null) {
+            if (defaultSubject.equals("Goal Title")) {
+                subjectComponent = new JTextField();
+                subjectComponent.setFont(Font.decode("Serif-bold-12"));
+                add(subjectComponent, "North");
+            } else {
+                // Develop the file name of the Subjects from the default
+                //   subject that was the input parameter, by adding the
+                //   word 'Subjects' after the first space, if any.
+                subjects = new Vector<>(6, 1);
+                int space = defaultSubject.indexOf(" ");
+                String s;
+                if (space > -1) s = defaultSubject.substring(0, space);
+                else s = defaultSubject;
+                s += "Subjects.json";
+                subjectsFilename = MemoryBank.userDataHome + File.separatorChar + s;
 
-            loadSubjects(); // There may or may not be any.
-            subjectChooser = new JComboBox<>(subjects);
-            subjectChooser.setEditable(true);
-            subjectChooser.setFont(Font.decode("Serif-bold-12"));
-            // Note: too large of font here causes display problems.
+                loadSubjects(); // There may or may not be any.
+                subjectChooser = new JComboBox<>(subjects);
+                subjectChooser.setEditable(true);
+                subjectChooser.setFont(Font.decode("Serif-bold-12"));
+                // Note: too large of font here causes display problems.
 
-            subjectChooser.setToolTipText("Type or Select the Subject for this note");
-            subjectChooser.setMaximumRowCount(maxSubjects);
-            add(subjectChooser, "North");
+                subjectChooser.setToolTipText("Type or Select the Subject for this note");
+                subjectChooser.setMaximumRowCount(maxSubjects);
+                subjectComponent = subjectChooser;
+                add(subjectChooser, "North");
+            }
         }
 
         theDefaultSubject = defaultSubject;
@@ -78,14 +130,12 @@ public class ExtendedNoteComponent extends JPanel {
     } // end constructor
 
 
-    // Called by internal methods only.
     void addSubject(String s) {
         MemoryBank.debug("Adding subject: [" + s + "]");
         //------------------------------------------------------------------
         // Do not want to add the subject to the file in these cases.
         //------------------------------------------------------------------
         if (s.equals("")) return;
-        if (s.equals(initialSubject)) return;
         if (s.equals(theDefaultSubject)) return;
 
         //------------------------------------------------------------------
@@ -124,25 +174,28 @@ public class ExtendedNoteComponent extends JPanel {
     // would be called for every single keypress and dropdown selection, whereas this one is
     // only needed once, at the end of the edit session.
     void updateSubject() {
-        if(subjectChooser == null) return;  // No subject chooser for Todo items.
+        if(subjectComponent == null) return;  // No subject chooser for Todo items.
 
-        String theSubject = (String) subjectChooser.getEditor().getItem();
-        // Note: Cannot use '.getSelectedItem()' above, because it may have
-        //   just been typed in and not be in the list, therefore it is not
-        //   the selected item.
+        if(subjectComponent instanceof JComboBox) {
+            String theSubject = (String) subjectChooser.getEditor().getItem();
+            // Note: Cannot use '.getSelectedItem()' above, because it may have
+            //   just been typed in and not be in the list, therefore it is not
+            //   the selected item.
 
-        MemoryBank.debug("updateSubject " + theSubject);
-        if (theSubject == null) return;
-        else theSubject = theSubject.trim();
-
-        mySubject = theSubject;
-
-        addSubject(mySubject);  // Move to the top of the list.
+            if (theSubject == null) return;
+            else theSubject = theSubject.trim();
+            mySubject = theSubject;
+            addSubject(mySubject);  // Move to the top of the list.
+        } else { // it is a JTextField, so
+            mySubject = ((JTextField) subjectComponent).getText();
+        }
     } // end updateSubject
 
 
     String getExtText() {
-        return body.getText();
+        String theText = body.getText();
+        if(theText.equals(phantomText)) return "";
+        return theText;
     }
 
 
@@ -159,19 +212,32 @@ public class ExtendedNoteComponent extends JPanel {
 
 
     void setExtText(String s) {
-        body.setText(s);
+        if (s != null && !s.trim().isEmpty()) {
+            body.setText(s);
+            body.setForeground(Color.BLACK);
+        } else {
+            if (phantomText != null) {
+                body.setText(phantomText);
+                body.setForeground(Color.GRAY);
+            }
+        }
     } // end setExtText
 
 
-    //-------------------------------------------------------------
-    // Method Name: setSubject
-    //
-    //-------------------------------------------------------------
+    void setPhantomText(String theText) {
+        phantomText = theText;
+    }
+
+
     public void setSubject(String newSubject) {
         if (newSubject == null) mySubject = theDefaultSubject;
         else mySubject = newSubject.trim();
-        addSubject(mySubject);  // Makes this the first choice in the chooser.
-        subjectChooser.setSelectedItem(mySubject);
+        if(subjectComponent instanceof JComboBox) {
+            addSubject(mySubject);  // Makes this the first choice in the chooser.
+            subjectChooser.setSelectedItem(mySubject);
+        } else {
+            ((JTextField) subjectComponent).setText(newSubject);
+        }
     } // end setSubject
 
 

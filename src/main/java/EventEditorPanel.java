@@ -72,7 +72,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private JCheckBox chkboxRetainNote;
     private JTextField txtfDurationValue;
     private JComboBox<String> comboxLocation;
-    private JComboBox<String> jComboBox2;  // placeholder; to be replaced
+    private JComboBox<String> jComboBox2;  // placeholder; to be replaced with subjectChooser
     private JComboBox<String> comboxDurationUnits;
     private JScrollPane spaneNotes;
     private JButton btnRecurrence;
@@ -80,7 +80,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private JPanel contentPane;
     private JLabel lblStartDate;
     private JLabel lblStartTime;
-    private JButton jButton5;               // replaced
+    private JButton jButton5;               // replaced with btnStartDate
     private JButton jButton8;               // replaced
     private JPanel pnlStart;
     private JLabel lblEndDate;

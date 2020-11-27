@@ -13,6 +13,11 @@ class NoteData extends BaseData implements LinkHolder {
         clear();
     } // end constructor
 
+    NoteData(String noteString) {
+        this();
+        this.noteString = noteString;
+    }
+
 
     // The copy constructor (clone).  Primary usage is by the 'swap' methods,
     // and when child classes need to have their additional members stripped off
