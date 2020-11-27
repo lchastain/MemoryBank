@@ -495,24 +495,24 @@ public class NoteComponent extends JPanel {
         private void resetToolTip(NoteData nd) {
             if (nd == null) return;
 
-            String ss = nd.getSubjectString();
-            String ns = nd.getExtendedNoteString().trim();
+            String subjectString = nd.getSubjectString();
+            String extendedNoteString = nd.getExtendedNoteString().trim();
             String strToolTip;
 
-            if (ss != null) {
+            if (subjectString != null) {
                 // System.out.println("Setting the tool tip to: " + ss);
-                if (ss.trim().equals("")) ss = null;
+                if (subjectString.trim().equals("")) subjectString = null;
             } // end if
 
             // The tool tip will be a concatenation of the subject
             //   and the extended note.  If one is not present then
             //   it will just be the other.  If neither, then null.
-            if ((ss != null) && !ns.equals("")) {
-                strToolTip = ss + System.lineSeparator() + ns;
-            } else if (ss != null) {
-                strToolTip = ss;
-            } else if (!ns.equals("")) {
-                strToolTip = ns;
+            if ((subjectString != null) && !extendedNoteString.equals("")) {
+                strToolTip = subjectString + System.lineSeparator() + extendedNoteString;
+            } else if (subjectString != null) {
+                strToolTip = subjectString;
+            } else if (!extendedNoteString.equals("")) {
+                strToolTip = extendedNoteString;
             } else {
                 strToolTip = null;
             } // end if / else - setting strToolTip

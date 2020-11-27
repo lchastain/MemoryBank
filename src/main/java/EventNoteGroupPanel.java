@@ -58,7 +58,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.EVENTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
-        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
+        loadNotesPanel();
 
 //        eventNoteComponent = null;  // needed?
         tmc = new ThreeMonthColumn();
@@ -311,6 +311,10 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         return defaultIcon;
     }
 
+
+    ThreeMonthColumn getThreeMonthColumn() {
+        return tmc;
+    }
 
     @Override
     JComponent makeNewNote(int i) {

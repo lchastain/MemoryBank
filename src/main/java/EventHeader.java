@@ -10,21 +10,21 @@ import java.awt.event.MouseListener;
 public class EventHeader extends JPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
 
-    private JLabel lblEventSummary;
-    private JPanel pnlCenter;
+    private final JLabel lblEventSummary;
+    private final JPanel pnlCenter;
 
     // Custom Types
-    private LabelButton btnShowHide;
-    private EventNoteGroupPanel smTheHeaderContainer;
+    private final LabelButton btnShowHide;
+    private final EventNoteGroupPanel eventNoteGroupPanel;
 
-    EventHeader(EventNoteGroupPanel eventNoteGroup) {
+    EventHeader(EventNoteGroupPanel eventNoteGroupPanel) {
         super(new BorderLayout());
-        smTheHeaderContainer = eventNoteGroup;
+        this.eventNoteGroupPanel = eventNoteGroupPanel;
         setBackground(Color.blue);
 
         // Create the window title
         // Swing Types
-        JLabel lblTheTitle = new JLabel(eventNoteGroup.getGroupName());
+        JLabel lblTheTitle = new JLabel(eventNoteGroupPanel.getGroupName());
         lblTheTitle.setHorizontalAlignment(JLabel.CENTER);
         lblTheTitle.setForeground(Color.white);
         lblTheTitle.setFont(Font.decode("Serif-bold-20"));
@@ -32,10 +32,7 @@ public class EventHeader extends JPanel implements MouseListener {
         lblTheTitle.setOpaque(true);
 
         // Controls
-        btnShowHide = new LabelButton("Show");
-
-        // No longer used; moved to menu as 'refresh'
-        LabelButton btnUpdate = new LabelButton("Update");
+        btnShowHide = new LabelButton("Show Summary ");
 
         lblEventSummary = new JLabel("Select an Event to display.") {
             private static final long serialVersionUID = 1L; // Yes, needed.
@@ -48,13 +45,7 @@ public class EventHeader extends JPanel implements MouseListener {
 
         // Font settings
         btnShowHide.setFont(Font.decode("Dialog-bold-12"));
-        btnUpdate.setFont(Font.decode("Dialog-bold-12"));
         lblEventSummary.setFont(Font.decode("Dialog-bold-11"));
-
-        // Sizing
-        Dimension d = btnShowHide.getPreferredSize();
-        btnShowHide.setPreferredSize(new Dimension(40, d.height));
-        btnUpdate.setPreferredSize(new Dimension(50, d.height));
 
         // Without the width restriction, the label length
         //   can dictate the width of the entire panel, and
@@ -68,8 +59,8 @@ public class EventHeader extends JPanel implements MouseListener {
         JPanel pnlNorth = new JPanel(new BorderLayout());
         pnlNorth.add(btnShowHide, BorderLayout.WEST);
         pnlNorth.add(lblTheTitle, BorderLayout.CENTER);
-        pnlNorth.add(smTheHeaderContainer.theNotePager, BorderLayout.EAST);
-        smTheHeaderContainer.theNotePager.setBackground(getBackground());
+        pnlNorth.add(eventNoteGroupPanel.theNotePager, BorderLayout.EAST);
+        eventNoteGroupPanel.theNotePager.setBackground(getBackground());
 
         // Center panel
         pnlCenter = new JPanel(new BorderLayout());
@@ -81,8 +72,6 @@ public class EventHeader extends JPanel implements MouseListener {
 
         // (Swing) Event Handling
         btnShowHide.addMouseListener(this);
-        btnUpdate.addMouseListener(this);
-
     } // end constructor
 
 
@@ -100,17 +89,15 @@ public class EventHeader extends JPanel implements MouseListener {
         String s = source.getText();
 
         switch (s) {
-            case "Show":
+            case "Show Summary ":
                 pnlCenter.setVisible(true);
-                btnShowHide.setText("Hide");
+                btnShowHide.setText("Show Calendar ");
+                eventNoteGroupPanel.getThreeMonthColumn().setVisible(false);
                 break;
-            case "Hide":
+            case "Show Calendar ":
                 pnlCenter.setVisible(false);
-                btnShowHide.setText("Show");
-                break;
-            case "Update":
-                smTheHeaderContainer.refresh();
-                // System.out.println("Update " + (new Date()).toString());
+                btnShowHide.setText("Show Summary ");
+                eventNoteGroupPanel.getThreeMonthColumn().setVisible(true);
                 break;
             default:
                 (new Exception("Unhandled action!")).printStackTrace();
@@ -122,21 +109,18 @@ public class EventHeader extends JPanel implements MouseListener {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getText();
         switch (s) {
-            case "Show":
+            case "Show Summary ":
                 s = "Click here to show the summary info for each Event";
                 break;
-            case "Hide":
+            case "Show Calendar ":
                 s = "Click here to hide the summary info for each Event";
                 break;
-            case "Update":
-                s = "Click here to update the Events to current date/time";
-                break;
         }
-        smTheHeaderContainer.setStatusMessage(s);
+        eventNoteGroupPanel.setStatusMessage(s);
     } // end mouseEntered
 
     public void mouseExited(MouseEvent e) {
-        smTheHeaderContainer.setStatusMessage(" ");
+        eventNoteGroupPanel.setStatusMessage(" ");
     } // end mouseExited
 
     public void mousePressed(MouseEvent e) {
