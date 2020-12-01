@@ -54,7 +54,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void buildPanelContent() {
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
