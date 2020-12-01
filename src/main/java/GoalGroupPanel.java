@@ -22,12 +22,23 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
     static {
         MemoryBank.trace();
+        userInfo = "Goal Narrative:  If the title alone does not convey the full intent of your Goal then here you ";
+        userInfo += "can describe more precisely what it is that you wish to acquire or accomplish.  Together with ";
+        userInfo += "the milestones that lay out the discrete individual steps, this becomes your Plan.";
+        userInfo += "\n\nIf you want to comment on developments or issues related to this goal, you could put those ";
+        userInfo += "comments here as a snapshot of current status but if you want to track your progress over time ";
+        userInfo += "then put them in a note appropriate its time period, then link that note back to this ";
+        userInfo += "goal.  Your comments can of course include your own estimate of a percentage of goal ";
+        userInfo += "completion, if desired.";
+//        userInfo += "\n\nIf you want to comment on developments or issues related to this goal, put those comments ";
+//        userInfo += "in a note appropriate to the time period where it best fits, then link that note back to this ";
+//        userInfo += "goal.  Your comments can include your estimation of a percentage of goal completeness, if desired.";
 
-        userInfo = "Enter the major (remaining) steps for achieving this goal.  These are the milestones ";
-        userInfo += "(in order when appropriate), without specifics as to how they will be accomplished.  ";
-        userInfo += "The tasks needed to complete each milestone should go to a To Do List and those ";
-        userInfo += "To Do List items (or any other type of note) can then be linked back to this Goal.";
-        defaultPlanText = userInfo; // final because it is used by event handlers
+//        userInfo = "Enter the major (remaining) steps for achieving this goal.  These are the milestones ";
+//        userInfo += "(in order when appropriate), without specifics as to how they will be accomplished.  ";
+//        userInfo += "The tasks needed to complete each milestone should go to a To Do List and those ";
+//        userInfo += "To Do List items (or any other type of note) can then be linked back to this Goal.";
+        defaultPlanText = userInfo;
 
     } // end static
 
@@ -37,12 +48,13 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.GOALS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
-        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
+        loadNotesPanel();
 
         buildPanelContent(); // Content other than the groupDataVector
     }
 
     // Called from within the constructor to create and place the visual components of the panel.
+    @SuppressWarnings({"unchecked"})
     private void buildPanelContent() {
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
@@ -52,6 +64,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         pnl1.add(tmc);
         theBasePanel.add(pnl1, BorderLayout.EAST);
 
+        GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
 
         // The multi-row Header for the GoalGroup -
         //-----------------------------------------------------
@@ -62,8 +75,8 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         JPanel headingRow1 = new JPanel(new BorderLayout()); // Need to put the title into a separate panel, because -
         headingRow1.setBackground(Color.blue); // it covers width of the panel, not just the length of the title.
         String goalName = myNoteGroup.myProperties.getGroupName();
-        String goalPlan = ((GoalGroupProperties) myNoteGroup.myProperties).goalPlan;
-        String longTitle = ((GoalGroupProperties) myNoteGroup.myProperties).longTitle;
+        String goalPlan = groupProperties.goalPlan;
+        String longTitle = groupProperties.longTitle;
         if(longTitle == null || longTitle.isEmpty()) longTitle = goalName;
         titleLabel = new JLabel(longTitle);
         titleLabel.setText(longTitle);
@@ -119,32 +132,53 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         headingRow1.add(titleLabel, "Center");
 
         // The Second Header Row -   Status
-        JPanel headingRow2 = new JPanel(new BorderLayout());
+        JPanel headingRow2 = new JPanel(new DndLayout());
 
         JPanel currentStatusPanel = new JPanel(new FlowLayout());
         currentStatusPanel.add(new JLabel("Current Status:"));
-        JComboBox<String> currentStatus = new JComboBox<>();
-        currentStatus.addItem("Not Started");
-        currentStatus.addItem("Started");
-        currentStatus.addItem("Stalled");
-        currentStatus.addItem("Underway");
+        JComboBox currentStatus = new JComboBox<>();
+        currentStatus.setModel(new DefaultComboBoxModel(GoalGroupProperties.CurrentStatus.values()));
+        if(groupProperties.currentStatus != null) currentStatus.setSelectedItem(groupProperties.currentStatus);
+        currentStatus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
+                JComboBox jComboBox = (JComboBox) e.getSource();
+                GoalGroupProperties.CurrentStatus currentStatus = (GoalGroupProperties.CurrentStatus) jComboBox.getSelectedItem();
+                if(currentStatus != groupProperties.currentStatus) {
+                    setGroupChanged(true);
+                    groupProperties.currentStatus = currentStatus;
+                }
+            }
+        });
         currentStatusPanel.add(currentStatus);
 
         JPanel overallStatusPanel = new JPanel(new FlowLayout());
         overallStatusPanel.add(new JLabel("Progress:"));
-        JComboBox<String> overallStatus = new JComboBox<>();
-        overallStatus.addItem("Undefined");
-        overallStatus.addItem("Defined");
-        overallStatus.addItem("Ahead of Schedule");
-        overallStatus.addItem("On Schedule");
-        overallStatus.addItem("Behind Schedule");
+        JComboBox overallStatus = new JComboBox<>();
+        overallStatus.setModel(new DefaultComboBoxModel(GoalGroupProperties.OverallStatus.values()));
+        if(groupProperties.overallStatus != null) overallStatus.setSelectedItem(groupProperties.overallStatus);
+        else overallStatus.setSelectedIndex(1);
+        overallStatus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
+                JComboBox jComboBox = (JComboBox) e.getSource();
+                GoalGroupProperties.OverallStatus overallStatus = (GoalGroupProperties.OverallStatus) jComboBox.getSelectedItem();
+                if(overallStatus != groupProperties.overallStatus) {
+                    setGroupChanged(true);
+                    groupProperties.overallStatus = overallStatus;
+                }
+            }
+        });
         overallStatusPanel.add(overallStatus);
 
-        headingRow2.add(currentStatusPanel, BorderLayout.WEST);
         JLabel listHeader = new JLabel("Milestones");
         listHeader.setHorizontalAlignment(JLabel.CENTER);
         listHeader.setFont(Font.decode("Serif-bold-14"));
-        headingRow2.add(listHeader, BorderLayout.CENTER);
+        headingRow2.add(listHeader, "Stretch");
+        headingRow2.add(currentStatusPanel, BorderLayout.WEST);
+        headingRow2.add(new JLabel("      "));
         headingRow2.add(overallStatusPanel, BorderLayout.EAST);
 
         heading.add(headingRow1);

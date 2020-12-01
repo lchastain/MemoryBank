@@ -6,12 +6,7 @@ Priorities:
     2.  Search issues - there is an entire todo list to work from
 
 Current/Next:
-   The ExtendedNoteComponent, with regard to its usage by the GoalGroupPanel as the editor for the longer title
-      and the Plan -
-      1.  Needs to disassociate the loading of Subjects from File based data storage.  This is user data, not program
-            data, so it needs to come from an accessor and not necessarily from a File.
-            This will affect ALL group types that have subjects.
-      4.  Possible rename from 'subject' to 'summary ?' or something similar.
+    Now the focus is on the Goal status/progress settings.
 
 
 Questions:
@@ -21,14 +16,51 @@ Issues:
 Problems:
 
 New:
-
+    Now have a greater need for:
+        Past events
+        Notes - get these list-types away from being 'todo' lists.
+        Accomplishments (from scratch, and/or when goals are completed)
+        Numbered list - but is there any need to be different than a Todo?  If it becomes a separate list type, can
+          consider removing the ability to rename 'Priority'
+    New idea for archiving: not with every single character change, but on user-demand.  Preserve a Goal or Todo List
+        as it existed on a certain day/time, along with the appOpts.  If more than one on the same day, query to
+        replace or keep both.
 
 =====================================================================================================
+ 1 Dec 2020
+  Further thought on the progress reporting for Goals - decided to just let the user enter that textually, along with
+    any comments they want to add when making a status-type note.  Updated the phantom text to say as much, and now
+    will not need to add a spinner control for a 0-100% user-setting.  Came to this decision largely through laziness
+    of not wanting to work on the GoalPanel any further, but it also really does seem like the best approach, given
+    that there will now be no app-provided evaluation of progress, so the number is meaningless except to the user
+    who comes up with it, and maybe in that case it does also call out for some words to go along with.
+  Now preparing to wrap up the GoalPanel work for now; letting the Milestones sit as-is, as a TodoNoteData variant.
+  Future work with Goals may be to find the series of date-linked notes and do some reporting there; a variant of
+    the archiving and reporting, which is also possibly on the horizon.
+  The aforementioned wrapup needs to include the preservation of the two 'status' dropdown values.  Working on that
+    now...  Done, checked in and pub'd
+
+28 Nov 2020
+  Big decision here:  The app should not try to be a super-planning tool, but keep the forward-looking capabilities as
+    a secondary feature, with upcoming events, goals, and todo lists all feeding in to the user's eventual
+    notes about what happened or is happening.  Instead, the app should focus
+    on the backward-looking capabilities that it can provide (such as specific time period reviews and searches), and
+    all the new ones that are on the wishlist, like Past Events, Notes (without a time window), Archiving (of Todo
+    Lists, Notes and Goals), Accomplishments, and a new app-level feature that: (ties them all together?)
+    (tracks 'subject' evolution?) (provides a way to see 'what happened' over time?) - obviously still working on this
+    part of the idea...   (possibly capture the appOptions lists for a certain archive event ?)  How to show/review..
+  But back to the point:  Goals will not need to be 'evaluated' for progress, and the app will not try to give life /
+    career advice.  This is purely for memoirs or to see the need for a course-correction if it's not already too late.
+    For that reason, calculation of 'percentage complete' for goals comes off the wishlist.  If anything it can be a
+    user-entered field.  A 'percent complete' spinner?  I like it.  Will update the wishlist, vs remove.
+
 27 Nov 2020
   Redesign of Goals for editing & display of the Goal Plan, and added a way to set the longer name.  This fixes the
     problem with the TMC that was noted in SCR00121, but the work is for Goals so goes also under SCR00116.
     Did add the 'phantom text' feature to editing on the ExtendedNoteComponent.  Also now supports a single text
     field vs a dropdown.  Still need TMC adjustment for Events; will work that next.  Check-in.
+  Took a different approach for Events; now the 'Show' button toggles visibility of TMC, to basically solve the
+    problem (quickly and easily).  Checked this in also.
 
 25 Nov 2020
   Solutions for SCR00035 - Icons not showing on MonthView.  The problem as described has been solved but in testing

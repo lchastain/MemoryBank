@@ -809,7 +809,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Go Back")) doGoBack();
-        else if (what.equals("Group Linkages...")) theNoteGroupPanel.groupLinkages();
+        else if (what.equals("Linkages...")) theNoteGroupPanel.groupLinkages();
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
         else if (what.equals("Delete")) deleteGroup();

@@ -20,42 +20,54 @@
 
 public class GoalGroupProperties extends GroupProperties {
     // From BaseData this class gets its ID and Last Mod Date.
-    String longTitle;  // A single line of text, descriptive of the goal
-    String goalPlan;   // Textual description of what needs to happen
+    String longTitle;  // A single line of text, may be more descriptive of the goal than its title alone.
+    String goalPlan;   // Full textual description of the Goal
 
-    // currentGoalStatus - the immediate status; what is happening on this goal right now.
-    //    disabled, until a Plan is entered.
-    //      stalled  - might be waiting, maybe a (temporary?) loss of drive
-    //      not started / started
-    //          initial not started.  When user sets to started,
-    //      underway
+    enum CurrentStatus {
+        UNDERWAY("Underway"),
+        STALLED("Stalled");
+
+        private final String display;
+
+        CurrentStatus(String s) {
+            display = s;
+        }
+
+        @Override
+        public String toString() {
+            return display;
+        }
+    }
+
+    // currentStatus - the immediate status; what is happening on this goal right now.
+    //      Underway - working on it, or at least not stalled
+    //      Stalled  - might be waiting, maybe a (temporary?) loss of drive
     //
-    // overallGoalStatus - related to time (you could be stalled but still on track)
-    //      undefined / defined   - depends on plan empty/not
-    //          undefined until there is a plan, then defined,
-    //              then the user could set it to any of the others; these two not in the list.
-    //      on track
-    //      ahead of schedule
-    //      behind schedule
-    //
-// Do not go 'live' until naming and values are more certain.  We still need the immediate status, as well as the overall.
-
-    // At some point - consider an 'analyze' button.  A bit of low-level AI to examine the available data and make
-    // suggestions.
-    //  Add a goal
-    //      add a plan
-    //          make a todo list
-    //              link a todo item to the goal
-    //  and then it gets hard....
+    CurrentStatus currentStatus;
 
 
+    enum OverallStatus {
+        OFF_COURSE("Off Course"),
+        ON_TRACK("On Track"),
+        AHEAD_OF_PLAN("Ahead of Plan");
 
-    // Unscheduled - no particular timeline set
-    // Scheduled - by a certain date
-        // in progress, On track, ahead, behind
-        // stalled, waiting
-    // Scheduled - a set of tasks (similar to a todo list?)
-    // Could be 'calculated', but allow the user to override.
+        private final String display;
+
+        OverallStatus(String s) {
+            display = s;
+        }
+
+        @Override
+        public String toString() {
+            return display;
+        }
+    }
+
+    // overallStatus - related to progress (you could be stalled but still be on track)
+    //      Off Course
+    //      On Track
+    //      Ahead of Plan
+    OverallStatus overallStatus;
 
 
     static float percentageComplete; // Did some research to consider float vs double.
@@ -66,7 +78,8 @@ public class GoalGroupProperties extends GroupProperties {
     // do 32-bit operations when appropriate, so that they are faster.  Decided that I
     // like that answer but speed isn't the issue here anyway, so the smaller data type
     // wins out due to being the 'best fit' for the computational memory requirements.
-    //-----------------------------------------------------------------------------------
+    // BUT - currently there is no usage of this member; progress, if kept, will be a
+    // user-determined qualitative value, not calculated by this app.
 
 
     static {
@@ -77,6 +90,8 @@ public class GoalGroupProperties extends GroupProperties {
 
     public GoalGroupProperties(String groupName) {
         super(groupName, GroupType.GOALS);
+        currentStatus = CurrentStatus.UNDERWAY;
+        overallStatus = OverallStatus.ON_TRACK;
     }
 
 

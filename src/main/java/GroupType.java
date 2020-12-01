@@ -1,4 +1,4 @@
-public enum GroupType {
+enum GroupType {
 
     NOTES("Note"),
     DAY_NOTES("Day Note"),

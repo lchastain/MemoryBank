@@ -41,7 +41,7 @@ public class AppMenuBar extends JMenuBar{
         goalsMenu = new JMenu("Goal");
         goalsMenu.add(new JMenuItem("Undo All"));
         goalsMenu.add(new JMenuItem("Close"));
-        goalsMenu.add(new JMenuItem("Group Linkages..."));
+        goalsMenu.add(new JMenuItem("Linkages..."));
         goalsMenu.add(new JMenuItem("Add New..."));
         goalsMenu.add(new JMenuItem("Save"));
         goalsMenu.add(new JMenuItem("Save As..."));
@@ -51,7 +51,7 @@ public class AppMenuBar extends JMenuBar{
         eventsMenu = new JMenu("Upcoming Event");
         eventsMenu.add(new JMenuItem("Undo All"));
         eventsMenu.add(new JMenuItem("Close"));
-        eventsMenu.add(new JMenuItem("Group Linkages..."));
+        eventsMenu.add(new JMenuItem("Linkages..."));
         eventsMenu.add(new JMenuItem("Add New..."));
         eventsMenu.add(new JMenuItem("Merge..."));
         eventsMenu.add(new JMenuItem("Save"));
@@ -64,7 +64,7 @@ public class AppMenuBar extends JMenuBar{
 
         notesMenu = new JMenu("Notes");
         notesMenu.add(new JMenuItem("Undo All"));
-        notesMenu.add(new JMenuItem("Group Linkages..."));
+        notesMenu.add(new JMenuItem("Linkages..."));
         notesMenu.add(new JMenuItem("Today"));
         notesMenu.add(new JMenuItem("Save"));
         notesMenu.add(new JMenuItem("Clear All"));
@@ -72,7 +72,7 @@ public class AppMenuBar extends JMenuBar{
         todolistsMenu = new JMenu("To Do List");
         todolistsMenu.add(new JMenuItem("Undo All"));
         todolistsMenu.add(new JMenuItem("Close"));
-        todolistsMenu.add(new JMenuItem("Group Linkages..."));
+        todolistsMenu.add(new JMenuItem("Linkages..."));
         todolistsMenu.add(new JMenuItem("Add New..."));
         todolistsMenu.add(new JMenuItem("Merge..."));
         todolistsMenu.add(new JMenuItem("Print..."));

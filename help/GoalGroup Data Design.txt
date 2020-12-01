@@ -20,7 +20,7 @@ GoalGroupProperties
         At the Moment
             stalled
             working
-    Percentage complete - a static member, not preserved and currently not in use.
+    Percentage complete - a static member, not preserved and currently NOT IN USE.
         Originally was for app calculation but may still be held for user entry, only.
 
 

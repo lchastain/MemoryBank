@@ -56,10 +56,22 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         LabelButton yearPlus = makeAlterButton("Y+", this);
         LabelButton timeFormatButton = makeAlterButton("24", this);
 
+        // Note:  Tried to use icons along with text in place of the +/- for the Year and Month buttons, but the wider
+        //   end result required more width on the AlterButtons (28-->34) in order to show.  Then I expected the text
+        //   to be displayed first but it put the icon first.  Final decision here: text only, for Y-,M-,M+,Y+.
+        //
+        //yearMinus.setIcon(LabelButton.leftIcon);
+        //yearMinus.setText("Y");
+        //monthMinus.setIcon(LabelButton.leftIcon);
+        //monthMinus.setText("M");
         prev.setIcon(LabelButton.leftIcon);
         prev.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
         next.setIcon(LabelButton.rightIcon);
         next.setText(null); // We don't want both text and icon.  The original text is preserved in the 'name'.
+        //monthPlus.setIcon(LabelButton.rightIcon);
+        //monthPlus.setText("M");
+        //yearPlus.setIcon(LabelButton.rightIcon);
+        //yearPlus.setText("Y");
 
         JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p0.add(yearMinus);
