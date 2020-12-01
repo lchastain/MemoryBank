@@ -1,36 +1,31 @@
-A GoalGroupPanel extends a NoteGroupPanel.
 
-GoalGroupPanel data:   (collected in the GoalGroupPanel, not held as a discrete Class)
-====================================================================
+GoalGroup data:
+==========================================================================
 
-Short name -
-    The text as seen in the selectable leaf of the App tree.  May or may not resemble the goalTitle.
-    This is not a class member; it is just the filename of the data file that it has as a descendant
-        of FileGroup (the portion of the text of the full filename that comes after 'goal_' and before '.json')
+GoalGroupProperties
+    Goal name -
+        The text as seen in the selectable leaf of the App tree.  May or may not resemble the goalTitle.
+        Held in the GoalGroupProperties as the groupName.
 
-GoalGroupProperties:
-        noteId - (inherited from BaseData) Populated at creation of the GoalGroupPanel and Properties.
-            It is a UUID for the Goal.  It will be put into a Linkage of a NoteData item that points to this
-            goal, and will dereference the name of the goal from its unique identifier, allowing
-            for renaming of a Goal while not breaking the linkage of any Note that points to it.
-        Last Mod Date (inherited from BaseData) - updated when title, status, or the plan changes.
-        goalTitle - single line of text beyond the Short name, descriptive of the goal
-                in the 'Title' area of the GoalGroupPanel.
-                Should also be descriptive of the goal, if possible in 1-3 words
-        goalPlan - The plan - textual description of what needs to be done.
-        Status      <this one is still a work in progress, while now starting on the GoalNoteComponent>
-            Overall
-                on track, ahead, behind
-            At the Moment
-                stalled
-                working
-                waiting
-                other?
+    instanceId - (inherited from BaseData) Populated at creation of the GoalGroupPanel and Properties.
+        It is a UUID for the Goal.
+    Last Mod Date (inherited from BaseData) - updated when changes are made to key data elements.
+    goalTitle - single line of text beyond the Short name, descriptive of the goal
+            in the 'Title' area of the GoalGroupPanel.
+            Should also be descriptive of the goal, if possible in 1-3 words
+    goalPlan - The plan - textual description of what needs to be done.
+    Status      <this one is still a work in progress, while now starting on the GoalNoteComponent>
+        Overall
+            on track, ahead, behind
+        At the Moment
+            stalled
+            working
+    Percentage complete - a static member, not preserved and currently not in use.
+        Originally was for app calculation but may still be held for user entry, only.
 
-The untyped Vector (groupDataVector) that is inherited from NoteGroupPanel.
-    Every LinkData that points to this goal (in the right order).
-    The GoalGroupPanel will fill the Vector and set its content type to <LinkData>.
-    See LinkData.java for more on Vector element makeup.
+
+Milestones
+    The untyped Vector (groupDataVector) that is inherited from NoteGroupPanel.
 
 
 

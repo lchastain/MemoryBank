@@ -1,21 +1,13 @@
 A Goal will be represented by a GoalGroupPanel; one GoalGroupPanel per Goal.
+A GoalGroupPanel extends a NoteGroupPanel.
 
 There can be multiple goals active in the app at any given time.
 Goals will be accessible under the expandable tree node 'Goals'
-GoalGroupPanel data is described in the 'GoalGroupPanel Data Design.txt' file
+Data is described in the 'GoalGroup Data Design.txt' file
 
 The Panel  (groupNotesListPanel)
     Inherited from NoteGroupPanel (default Layout manager is BorderLayout)
 
-
-
-
-
-Percentage complete - a static member, not preserved, and held at the group level, only.
-    Calculated when needed.
-
-An 'Evaluate' button - ask the computer to give a report on how you are doing and it
-    will 'calculate' your overall status.  The user will be able to override this.
 
 
 =======================================
@@ -30,27 +22,26 @@ change log
 
 ====================================================================
 
-A menu selection called 'filter', which then removes (visually, only, from the Goal view) all Notes that are not
-        todolists
-        events
-        daynotes
-        monthnotes
-        yearnotes
-    give it a 'Select All' option, like the one in the Excel data filter.
-
-Filtering may (also or alternatively) take a different approach, based on status.
-        completed      shows your progress so far
-        in-progress/next/upcoming/todo  what needs to (or will) happen next.
-
-
 To tie Notes to a goal we finally begin to use the note ID.  A linkage will be the combination of
 which notegroup, and the note ID.  If it is to the group itself then the note ID can be null.
 
 ==========================================================================================================
+One-time note:
+  At the start of Goal design, the idea that a Goal would just be another NoteGroup was not considered.  Instead, it
+  was to be a collection of links.  As links developed into something applicable to ALL NoteGroups and then a way to
+  show them in all cases was developed, the idea of showing them as the Goal itself became less needed and the
+  concept of milestones was brought in.  But then how to show those?  And then that is when it was decided that a Goal
+  could also just be yet another type of NoteGroup, a group of Milestones, with a few defining data members
+  (in GoalGroupProperties) to solidify it as a different group type.  So - all the thoughts below relate to the original
+  idea of having the goal be only a collection of links, and now should not be kept in a current design document.
+  But there was a lot of thought there and it does show some evolutionary concepts, that might one day need to be
+  reviewed, for various reasons.  Hence this note, as a kind of 'intro' to that, now to be kept in archived version
+  control only so that this file will contain only the current design.
+
 Considered and rejected:
 
 1.  Using subjects for linking a NoteData to a Goal -
-    Because a NoteData has only one subject.
+    Rejected because a NoteData has only one subject.
     What if a movie you saw (Subject Movies) was also an accomplished step on a goal?
     (perhaps a research project, proposed goal/subject 'Research') - you cannot have two subjects.
 
