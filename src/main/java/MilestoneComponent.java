@@ -14,15 +14,15 @@ public class MilestoneComponent extends NoteComponent {
     private TodoNoteData myTodoNoteData;
     private final StatusButton sbTheStatusButton;
 
-    private GoalGroupPanel myNoteGroup;
-    private static JMenuItem miClearPriority;
-    private static JMenuItem miMoveToToday;
-    private static JMenuItem miMoveToSelectedDate;
-    private static ImageIcon todo_done;
-    private static ImageIcon todo_inprog;
-    private static ImageIcon todo_wait;
-    private static ImageIcon todo_query;
-    private static ImageIcon todo_obe;
+    private final GoalGroupPanel myNoteGroup;
+    private static final JMenuItem miClearPriority;
+    private static final JMenuItem miMoveToToday;
+    private static final JMenuItem miMoveToSelectedDate;
+    private static final ImageIcon todo_done;
+    private static final ImageIcon todo_inprog;
+    private static final ImageIcon todo_wait;
+    private static final ImageIcon todo_query;
+    private static final ImageIcon todo_obe;
 
     static {
         //-----------------------------------
@@ -378,7 +378,22 @@ public class MilestoneComponent extends NoteComponent {
 
 
         void setEditable(boolean b) {
-            if(b) addMouseListener(this);
+            if(b) { // This limits us to only one mouseListener corresponding to 'this'.
+                // The limitation is needed because this method is called whenever a page is (re-)loaded.
+                MouseListener[] mouseListeners = getMouseListeners();
+                boolean alreadyEditable = false;
+                for (MouseListener ml : mouseListeners) {
+                    if(ml.getClass() == this.getClass()) {
+                        alreadyEditable = true;
+                        break;
+                    }
+                }
+                if (!alreadyEditable) { // Separate line, for debug clarity.
+                    addMouseListener(this);
+                }
+            }
+            // Luckily, if 'this' is not currently a MouseListener then the next line is a silent no-op,
+            // and otherwise it does what we've asked.
             else removeMouseListener(this);
         }
 
