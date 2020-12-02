@@ -32,7 +32,8 @@ New:
     of not wanting to work on the GoalPanel any further, but it also really does seem like the best approach, given
     that there will now be no app-provided evaluation of progress, so the number is meaningless except to the user
     who comes up with it, and maybe in that case it does also call out for some words to go along with.
-  Now preparing to wrap up the GoalPanel work; letting the Milestones sit as-is (for now), as a TodoNoteData variant.
+  Now preparing to wrap up the GoalPanel work; letting the Milestones sit as-is (for now), as a variant manager of a
+    TodoNoteData.
   Future work with Goals may be to find the series of date-linked notes and do some reporting there; a variant of
     the archiving and reporting, which is also possibly on the horizon.
   The aforementioned wrapup needs to include the preservation of the two 'status' dropdown values.  Working on that

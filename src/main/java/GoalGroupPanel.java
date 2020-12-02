@@ -84,7 +84,10 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         titleLabel.setForeground(Color.white);
         titleLabel.setFont(Font.decode("Serif-bold-20"));
         if(goalPlan != null && !goalPlan.trim().isEmpty()) {
-            titleLabel.setToolTipText(goalPlan);
+            String theTip = AppUtil.getTooltipString(goalPlan);
+            // Wrap in HTML and PREserve the original formatting, to hold on to indents and multi-line.
+            theTip = "<html><pre>" + theTip + "</pre></html>";
+            titleLabel.setToolTipText(theTip);
         } else {
             titleLabel.setToolTipText("Click here to enter / edit the Goal plan");
         }
