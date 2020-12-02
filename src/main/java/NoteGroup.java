@@ -259,11 +259,11 @@ class NoteGroup implements LinkHolder {
     void saveNoteGroup() {
         dataAccessor.saveNoteGroupData(getTheData());
         setGroupChanged(false); // The 'save' preserved all changes to this point (we hope), so we reset the flag.
-        // Note that we didn't check the result of the save.  A few reasons for that; primarily because the
-        // 'happy' path would have been successful, and in the unsuccessful case we don't have a lot of
-        // remediation options; we wouldn't want to halt execution or attempt interaction with the user because
-        // there is nothing to be done about it and processing continues in any case.  Simply notifying the user
-        // that there was some problem would have limited value but saving is an operation that happens often,
+        // Note that we didn't check the result of the save.  A few reasons for that; primarily because the 'happy'
+        // path would have been successful and a success needs no further attention.  In the unsuccessful case we don't
+        // have a lot of remediation options; we wouldn't want to halt execution or attempt interaction with the user
+        // because there is nothing to be done about it and processing continues in any case.  Simply notifying the
+        // user that there was some problem would have limited value but saving is an operation that happens often,
         // sometimes per user action and sometimes automatically, and not all of them will be a good time to
         // stop and complain to the user with an error dialog that they must review and dismiss.  So effectively
         // we just don't need to know.

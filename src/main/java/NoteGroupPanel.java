@@ -382,15 +382,11 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Called by all contexts that make a change to the data, each time a change is made.
     //   Child classes can override if they need to intercept a data change, but in that case
     //   they should still call THIS super method so that menu items are managed correctly.
-    // The setGroupChanged() method in NoteGroup
-
-
-    // the flag-setting method is overridden by
-    // the one here so that we can also disable
-    // the 'save' menu item.  This will prevent a second+ attempt to save whether it is still needed
-    // or not; if still needed then the first attempt failed in some way and trying again is unlikely to
-    // do any good, so at least disable the menu item so that the user cannot keep trying and they see
-    // that there is nothing more that they can do.  The disabled menu item might give them a false sense
+    //
+    // Note that this method is called with a 'false' after a NoteGroup save, regardless of whether or not
+    // the save attempt succeeded.  This disables the 'save' menu item, thereby preventing a second+ attempt to save.
+    // The disabled menu item tells the user that they cannot keep trying and that
+    // there is nothing more they can do.  This might give them a false sense
     // of having had a successful save, but given that we are considering a hypothetical situation along a
     // path where we already have an unanticipated error, that particular potential downside is entirely
     // acceptable, at least until it begins cropping up repeatedly.
