@@ -219,6 +219,8 @@ public class ExtendedNoteComponent extends JPanel {
             if (phantomText != null) {
                 body.setText(phantomText);
                 body.setForeground(Color.GRAY);
+            } else { // Just wipe the text.  Otherwise old text shows up when adding to new, should-be-empty components.
+                body.setText(s);
             }
         }
     } // end setExtText

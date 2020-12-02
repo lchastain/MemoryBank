@@ -12,6 +12,7 @@ Questions:
 Issues:
 
 Problems:
+    The last extended text stays in the text area, if there is no new one to replace it.
 
 New:
     Now have a greater need for:
