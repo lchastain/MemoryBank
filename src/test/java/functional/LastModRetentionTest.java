@@ -197,7 +197,7 @@ class LastModRetentionTest {
     @Test
     void testSearchResultGroupPanel() {
         // These two Strings came from the known persisted test data.
-        String zdtLastModGroup = "2020-11-18T05:41:04.617+04:00[Europe/Samara]";
+        String zdtLastModGroup = "2020-12-04T06:16:35.037+04:00[Europe/Samara]";
         String zdtLastModNote = "2020-10-17T11:17:00.008+04:00[Europe/Samara]";
 
         // Load the Panel under test.

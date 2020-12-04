@@ -59,7 +59,6 @@ public class RecurrencePanel extends JPanel implements
     }
 
     public RecurrencePanel() {
-        super();
         initializeComponent();
 
         // Although size was set explicitly in initializeComponent, each call to getSize()

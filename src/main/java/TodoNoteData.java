@@ -29,7 +29,6 @@ public class TodoNoteData extends NoteData {
 
 
     public TodoNoteData() {
-        super();
         clearTodoNoteData(); // sets default values.
     } // end constructor
 

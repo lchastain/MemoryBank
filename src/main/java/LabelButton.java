@@ -54,7 +54,6 @@ public class LabelButton extends JLabel {
     } // end constructor 2
 
     public LabelButton(String s, int direction) {
-        super();  // We don't send the text at this point; we may want icon-only.
         defaultLabel = s;
         switch(direction) {
             case UP:

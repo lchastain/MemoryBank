@@ -21,8 +21,8 @@ public class SearchPanel extends JPanel implements DocumentListener {
     public static final int BEFORE = 4;
     private static final int BETWEEN = 5;
 
-    private int intPreferredWidth;    // See note in constructor.
-    private int intPreferredHeight;   // See note in constructor.
+    private final int intPreferredWidth;    // See note in constructor.
+    private final int intPreferredHeight;   // See note in constructor.
     private DateTimeFormatter dtf;
     private LocalDate noteWhen1;
     private LocalDate noteWhen2;
@@ -88,8 +88,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
 
     public SearchPanel() {
-        super();
-
         doSearch = false; // A flag that can be used by tests.
 
         // Some parts of the keyword panel have variable visibility.  Others can be

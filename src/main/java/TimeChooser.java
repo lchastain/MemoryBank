@@ -225,7 +225,6 @@ public class TimeChooser extends JPanel implements ActionListener {
 
         // The 't' is Calendar.   HOUR, MINUTE, or SECOND
         TimeAlterButton(ChronoUnit t) {
-            super();
             timeField = t;
             setHorizontalAlignment(JLabel.CENTER);
             setBorder(up);
@@ -289,7 +288,6 @@ public class TimeChooser extends JPanel implements ActionListener {
         private int direction;
 
         Depressed(ChronoUnit t, int d) {
-            super();
             timeField = t;
             direction = d;
             iAmRunning = true;

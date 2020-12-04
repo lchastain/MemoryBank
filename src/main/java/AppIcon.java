@@ -13,7 +13,6 @@ public class AppIcon extends ImageIcon {
 
     // Pass-thru constructor to ImageIcon.
     AppIcon() {
-        super();
         setDescription(""); // empty is ok, null is not.
     }
 

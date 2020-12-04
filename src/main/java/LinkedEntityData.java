@@ -50,7 +50,6 @@ public class LinkedEntityData extends BaseData {
     //      entity when making a new one.
     // Otherwise, this constructor should not be called and so it is scoped as 'private'.
     private LinkedEntityData() {
-        super();
         linkType = LinkedEntityData.LinkType.RELATED;
         showMe = true;
         touchLastMod(); // Preserve the time of link creation.

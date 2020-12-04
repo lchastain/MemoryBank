@@ -85,7 +85,6 @@ public class TimeFormatBar extends Container implements ClingSource {
     } // end static
 
     TimeFormatBar() {
-        super();
         setLayout(new GridLayout(0, 1, 0, 0));
 
         al.setDfb(this);

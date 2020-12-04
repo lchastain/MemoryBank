@@ -59,8 +59,6 @@ public class DateFormatBar extends Container implements ClingSource {
     private boolean beenMoved;
 
     DateFormatBar() {
-        super();
-
         al = new popHandler();
 
         pop1 = new DfbHeaderPopup(new String[]{
@@ -521,7 +519,6 @@ public class DateFormatBar extends Container implements ClingSource {
         private String separatorString;
 
         HeaderButton(DfbHeaderPopup jpm) {
-            super();
             String s = ((JLabel) jpm.getComponent(0)).getText();
             setText(s.trim());
             pop = jpm;
@@ -719,7 +716,6 @@ public class DateFormatBar extends Container implements ClingSource {
         private static final long serialVersionUID = -7409823293157418822L;
 
         DfbHeaderPopup(String[] s) {
-            super();
             JMenuItem mi;
             String choice;
             ButtonGroup bg = null;

@@ -11,7 +11,8 @@ import java.util.Vector;
 //
 // The purpose of this class is to preserve the current state of the
 //   application - JTree expanded nodes, variable leaf names, current
-//   view, etc.
+//   view, etc.  It will be used to restore the app to its previous run state and also
+//   for preserving app state for archives.
 //
 // Considered for storage but not implemented:
 // 1.  A custom icon for the app

@@ -438,8 +438,6 @@ public class NoteComponent extends JPanel {
         public static final int minWidth = 80;
 
         public NoteTextField() {
-            super();
-
             // This is needed so that the KeyListener will hear a TAB.
             setFocusTraversalKeysEnabled(false);
 

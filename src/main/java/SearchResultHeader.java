@@ -24,7 +24,6 @@ public class SearchResultHeader extends Container implements ClingSource {
     DndLayout headerLayout;
 
     public SearchResultHeader(SearchResultGroupPanel p) {
-        super();
         parent = p;
         headerLayout = new DndLayout();
         headerLayout.setMoveable(true); // Must be BEFORE setNotes.

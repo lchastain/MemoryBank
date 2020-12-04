@@ -34,7 +34,6 @@ class GroupInfo {
 
 
     GroupInfo(String theName, GroupType theType) {
-        super();
         groupName = theName;
         groupType = theType;
     }
@@ -42,7 +41,6 @@ class GroupInfo {
     // This particular constructor is used by LinkedEntityData to populate its member
     //   'targetGroupInfo' when a new link is created, after having chosen a link target.
     GroupInfo(GroupProperties groupProperties) {
-        super();
         groupId = groupProperties.instanceId;
         groupName = groupProperties.getGroupName();
         groupType = groupProperties.groupType;

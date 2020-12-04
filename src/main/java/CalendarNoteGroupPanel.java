@@ -20,7 +20,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     LabelButton todayButton = makeAlterButton("T", null);
 
     CalendarNoteGroupPanel(GroupType groupType) {
-        super();  // This builds the notes panel
+        // The implicit call to the base class constructor is what builds the notes panel
 
         // At this point we do not yet know our exact name.
         // But we do know that it will be some format of 'today'.

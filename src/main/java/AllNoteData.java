@@ -44,9 +44,7 @@ public class AllNoteData extends NoteData {
 
 
     // The JSON mapper uses this one during a load; IntelliJ doesn't find a usage.
-    public AllNoteData() {
-        super();
-    } // end default constructor
+    public AllNoteData() { } // end default constructor
 
     // This constructor allows for a kind of 'sidecast' - taking in a different child of the
     // base NoteData class and returning an instance of this class that is a sibling of the
@@ -58,13 +56,14 @@ public class AllNoteData extends NoteData {
     // version of the input parameter, so it gets the same Id as the input so that the original
     // note can be referenced when needed.
     public AllNoteData(NoteData noteData) {
-        this();
-        this.instanceId = noteData.instanceId;
-        this.zdtLastModString = noteData.zdtLastModString;
-
-        this.extendedNoteString = noteData.extendedNoteString;
-        this.noteString = noteData.noteString;
-        this.subjectString = noteData.subjectString;
+        super(noteData);
+//        this();
+//        this.instanceId = noteData.instanceId;
+//        this.zdtLastModString = noteData.zdtLastModString;
+//
+//        this.extendedNoteString = noteData.extendedNoteString;
+//        this.noteString = noteData.noteString;
+//        this.subjectString = noteData.subjectString;
     }
 
 } // end class AllNoteData

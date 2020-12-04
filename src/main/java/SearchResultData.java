@@ -7,16 +7,14 @@ public class SearchResultData extends NoteData {
     GroupInfo foundIn;  // Not (yet?) using a setter for this...
 
     // The JSON mapper uses this one during a load; IntelliJ doesn't find a usage.
-    public SearchResultData() {
-        super();
-    } // end default constructor
+    public SearchResultData() { } // end default constructor
 
 
     // Called during a search - foundIn will be set
     //   explicitly, directly.
     public SearchResultData(NoteData nd) {
         super(nd);
-        linkTargets = null; // Not needed, for a Search result
+        linkTargets = new LinkTargets(); // Clear out, if there are any.  Not needed, for a Search result.
     } // end constructor
 
 

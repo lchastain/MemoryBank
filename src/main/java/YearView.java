@@ -609,7 +609,6 @@ public class YearView extends JPanel {
         private final int direction;
 
         Depressed(int direction) {
-            super();
             this.direction = direction;
             iAmRunning = true;
         } // end constructor

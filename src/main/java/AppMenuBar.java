@@ -94,7 +94,6 @@ public class AppMenuBar extends JMenuBar{
     } // end static
 
     public AppMenuBar() {
-        super();
         add(fileMenu);
         add(branchEditorMenu);
         add(deletedMenu);

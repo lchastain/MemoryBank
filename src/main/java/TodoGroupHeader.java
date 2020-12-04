@@ -24,7 +24,6 @@ public class TodoGroupHeader extends Container implements ClingSource {
     DndLayout headerLayout;
 
     TodoGroupHeader(TodoNoteGroupPanel p) {
-        super();
         parent = p;
         headerLayout = new DndLayout();
         headerLayout.setMoveable(true); // Must be BEFORE add().

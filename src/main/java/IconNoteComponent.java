@@ -168,7 +168,6 @@ public abstract class IconNoteComponent extends NoteComponent {
         private String theIconFile;
 
         NoteIcon() {
-            super();
             setBorder(highBorder);
         } // end constructor
 

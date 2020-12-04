@@ -4,7 +4,6 @@ class DayNoteData extends IconNoteData {
     private String timeOfDayString;
 
     DayNoteData() {
-        super();
         timeOfDayString = LocalTime.now().toString();
     } // end constructor
 

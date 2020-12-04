@@ -51,7 +51,6 @@ public class EventNoteData extends IconNoteData {
     private static DateTimeFormatter dtf;
 
     public EventNoteData() {
-        super();
         clearEventNoteData();
     } // end constructor
 

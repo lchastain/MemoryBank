@@ -18,7 +18,6 @@ public class TodoOpts extends JTabbedPane {
     private TodoGroupProperties todoGroupProperties;
 
     public TodoOpts(TodoGroupProperties todoGroupProperties) {
-        super();
         this.todoGroupProperties = todoGroupProperties;
         priorityPanel = new PriorityPanel();
         pp = new PrintPanel();

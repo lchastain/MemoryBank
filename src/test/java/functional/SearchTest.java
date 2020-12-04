@@ -159,24 +159,17 @@ public class SearchTest {
     // paths in this class, starting from the public menu 'Search' item.
     @Test
     void testDoSearch() throws InterruptedException {
-        while(appTreePanel.spTheSearchPanel == null) {
-            // Sleep, long enough for the SearchPanel to be constructed.
-            // This is because its construction runs in a different thread and
-            // we could otherwise end the test before we even configure the search.
-            Thread.sleep(100);
-        }
-
         // Bring up the SearchPanel by 'clicking' on the Search menu item.
         JMenuItem jmi = getMenuItem("App", "Search...");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
 
         // Allow time for the search panel to be displayed.
         while(!appTreePanel.searching) {
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
 
         // Select the Last Modified 'After' radio button (all other settings remain at their defaults).
-        JRadioButton jRadioButton = appTreePanel.spTheSearchPanel.rbtnModAfter;
+        JRadioButton jRadioButton = appTreePanel.searchPanel.rbtnModAfter;
         jRadioButton.setSelected(true);
 
         // But programmatically setting the button to selected did not kick off the mouse listener, and
@@ -202,7 +195,7 @@ public class SearchTest {
                     LocalDate ld = LocalDate.of(2019, 5, 15); // We know there is data here.
 
                     // Make a new 'virtual' DayLabel - it has the same handler as the 'real' ones.
-                    YearView.DayLabel dayLabel = appTreePanel.spTheSearchPanel.yvDateChooser.new DayLabel();
+                    YearView.DayLabel dayLabel = appTreePanel.searchPanel.yvDateChooser.new DayLabel();
                     // Did anyone notice how awesome was the above statment that instantiated that DayLabel?  Wow.
                     dayLabel.setText("15"); // The handler doesn't listen to DayLabels that have no text.
                     dayLabel.myDate = ld;  // Set this DayLabel's date to the one we want to use.
@@ -232,7 +225,7 @@ public class SearchTest {
         while(appTreePanel.searching) {
             Thread.sleep(1500);
             // Ensure that the search will be run, regardless of the JOPtionPane.showOptionDialog return value (-1).
-            appTreePanel.spTheSearchPanel.doSearch = true;
+            appTreePanel.searchPanel.doSearch = true;
 
             // Step 4 in the note above (programmatically click on the 'Search Now' button of the SearchPanel) - will
             // not be done after all (because I don't know how).  Instead we will just close the dialog, and the flag

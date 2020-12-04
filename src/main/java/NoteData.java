@@ -9,7 +9,6 @@ class NoteData extends BaseData implements LinkHolder {
 
 
     NoteData() {
-        super();
         clear();
     } // end constructor
 

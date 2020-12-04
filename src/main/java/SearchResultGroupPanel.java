@@ -3,6 +3,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SearchResultGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(SearchResultGroupPanel.class);
@@ -11,7 +13,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     boolean fixedDataWhileLoading;
 
     SearchResultGroupPanel(String groupName) {
-        super();    // super(10);  // test, for paging
+        // super(10);  // test, for paging
         BaseData.loading = true;
 
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.SEARCH_RESULTS);
@@ -20,17 +22,17 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         // These lines may only be needed for older data ("No Name Yet").  May be able to remove, eventually.
         myNoteGroup.getGroupProperties().setGroupName(groupName); // Override whatever name was loaded.
         myNoteGroup.getGroupProperties().groupType = GroupType.SEARCH_RESULTS;
-//        myNoteGroup.myGroupInfo.setGroupName(groupName);
 
         myNoteGroup.myNoteGroupPanel = this;
         editable = false;
         loadNotesPanel();
+        editable = true;
 
         // Unlike with a ToDo list, this is not conditional; we just do it whether needed or not.
         checkColumnOrder();
 
         if(fixedDataWhileLoading) setGroupChanged(true); // This can go away when all is fixed.
-        // The component might have set this to true.
+        // The component might have set this to true, if it found a non-null 'fileFoundIn' value.
 
         theNotePager.reset(1);
         buildPanelContent();
@@ -50,18 +52,33 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         headingRow1.setBackground(Color.blue);
 
         // Title
-        JLabel resultsTitle = new JLabel();
-        resultsTitle.setHorizontalAlignment(JLabel.CENTER);
-        resultsTitle.setForeground(Color.white);
-        resultsTitle.setFont(Font.decode("Serif-bold-20"));
-        resultsTitle.setText(getGroupName());
+        JLabel titleLabel = new JLabel();
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        titleLabel.setForeground(Color.white);
+        titleLabel.setFont(Font.decode("Serif-bold-20"));
+        titleLabel.setText(getGroupName());
+        titleLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                // More is coming here; otherwise this method not needed.
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                setStatusMessage("Click here to see the Search criteria");
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                setStatusMessage(" ");
+            }
+        });
 
         // Set the pager's background to the same color as this row,
         //   since other items on this row make it slightly 'higher'
         //   than the pager control.
         theNotePager.setBackground(headingRow1.getBackground());
 
-        headingRow1.add(resultsTitle, "Center");
+        headingRow1.add(titleLabel, "Center");
         headingRow1.add(theNotePager, "East");
         //----------------------------------------------------------
 
@@ -284,145 +301,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         src2.setActive();
     } // end shiftUp
 
-    // See see the comment at TodoNoteGroup.sortDeadline for best explanation.
-//    public void sortDeadline(int direction) {
-//        SearchResultData todoData1, todoData2;
-//        SearchResultComponent todoComponent1, todoComponent2;
-//        int i, j;
-//        long lngDate1, lngDate2;
-//        int sortMethod = 0;
-//        int items = lastVisibleNoteIndex;
-//        MemoryBank.debug("SearchResultGroup sortDeadline - Number of items in list: " + items);
-//
-//        // Bitmapping of the 6 possible sorting variants.
-//        //  Zero-values are ASCENDING, STAY (but that is not the default)
-//        if (direction == DESCENDING) sortMethod += 4;
-//
-//        switch (sortMethod) {
-//            case 0:         // ASCENDING, STAY
-//                // System.out.println("Sorting: Deadline, ASCENDING, STAY");
-//                for (i = 0; i < (items - 1); i++) {
-//                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-//                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-//                    if (todoData1 == null) lngDate1 = 0;
-//                    else lngDate1 = todoData1.getNoteDate().getTime();
-//                    if (lngDate1 == 0) continue; // No key; skip.
-//                    for (j = i + 1; j < items; j++) {
-//                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-//                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-//                        if (todoData2 == null) lngDate2 = 0;
-//                        else lngDate2 = todoData2.getNoteDate().getTime();
-//                        if (lngDate2 == 0) continue; // No key; skip.
-//                        if (lngDate1 > lngDate2) {
-//                            lngDate1 = lngDate2;
-//                            todoComponent1.swap(todoComponent2);
-//                        } // end if
-//                    } // end for j
-//                } // end for i
-//                break;
-//            case 1:         // ASCENDING, TOP
-//                // System.out.println("Sorting: Deadline, ASCENDING, TOP");
-//                for (i = 0; i < (items - 1); i++) {
-//                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-//                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-//                    if (todoData1 == null) lngDate1 = 0;
-//                    else lngDate1 = todoData1.getNoteDate().getTime();
-//                    for (j = i + 1; j < items; j++) {
-//                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-//                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-//                        if (todoData2 == null) lngDate2 = 0;
-//                        else lngDate2 = todoData2.getNoteDate().getTime();
-//                        if (lngDate1 > lngDate2) {
-//                            lngDate1 = lngDate2;
-//                            todoComponent1.swap(todoComponent2);
-//                        } // end if
-//                    } // end for j
-//                } // end for i
-//                break;
-//            case 2:         // ASCENDING, BOTTOM
-//                // System.out.println("Sorting: Deadline, ASCENDING, BOTTOM");
-//                for (i = 0; i < (items - 1); i++) {
-//                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-//                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-//                    if (todoData1 == null) lngDate1 = 0;
-//                    else lngDate1 = todoData1.getNoteDate().getTime();
-//                    for (j = i + 1; j < items; j++) {
-//                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-//                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-//                        if (todoData2 == null) lngDate2 = 0;
-//                        else lngDate2 = todoData2.getNoteDate().getTime();
-//                        if (((lngDate1 > lngDate2) && (lngDate2 != 0)) || (lngDate1 == 0)) {
-//                            lngDate1 = lngDate2;
-//                            todoComponent1.swap(todoComponent2);
-//                        } // end if
-//                    } // end for j
-//                } // end for i
-//                break;
-//            case 4:         // DESCENDING, STAY
-//                // System.out.println("Sorting: Deadline, DESCENDING, STAY");
-//                for (i = 0; i < (items - 1); i++) {
-//                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-//                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-//                    if (todoData1 == null) lngDate1 = 0;
-//                    else lngDate1 = todoData1.getNoteDate().getTime();
-//                    if (lngDate1 == 0) continue; // No key; skip.
-//                    for (j = i + 1; j < items; j++) {
-//                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-//                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-//                        if (todoData2 == null) lngDate2 = 0;
-//                        else lngDate2 = todoData2.getNoteDate().getTime();
-//                        if (lngDate2 == 0) continue; // No key; skip.
-//                        if (lngDate1 < lngDate2) {
-//                            lngDate1 = lngDate2;
-//                            todoComponent1.swap(todoComponent2);
-//                        } // end if
-//                    } // end for j
-//                } // end for i
-//                break;
-//            case 5:         // DESCENDING, TOP
-//                // System.out.println("Sorting: Deadline, DESCENDING, TOP");
-//                for (i = 0; i < (items - 1); i++) {
-//                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-//                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-//                    if (todoData1 == null) lngDate1 = 0;
-//                    else lngDate1 = todoData1.getNoteDate().getTime();
-//                    for (j = i + 1; j < items; j++) {
-//                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-//                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-//                        if (todoData2 == null) lngDate2 = 0;
-//                        else lngDate2 = todoData2.getNoteDate().getTime();
-//                        if (((lngDate1 < lngDate2) && (lngDate1 != 0)) || (lngDate2 == 0)) {
-//                            lngDate1 = lngDate2;
-//                            todoComponent1.swap(todoComponent2);
-//                        } // end if
-//                    } // end for j
-//                } // end for i
-//                break;
-//            case 6:         // DESCENDING, BOTTOM
-//                // System.out.println("Sorting: Deadline, DESCENDING, BOTTOM");
-//                for (i = 0; i < (items - 1); i++) {
-//                    todoComponent1 = (SearchResultComponent) groupNotesListPanel.getComponent(i);
-//                    todoData1 = (SearchResultData) todoComponent1.getNoteData();
-//                    if (todoData1 == null) lngDate1 = 0;
-//                    else lngDate1 = todoData1.getNoteDate().getTime();
-//                    for (j = i + 1; j < items; j++) {
-//                        todoComponent2 = (SearchResultComponent) groupNotesListPanel.getComponent(j);
-//                        todoData2 = (SearchResultData) todoComponent2.getNoteData();
-//                        if (todoData2 == null) lngDate2 = 0;
-//                        else lngDate2 = todoData2.getNoteDate().getTime();
-//                        if (lngDate1 < lngDate2) {
-//                            lngDate1 = lngDate2;
-//                            todoComponent1.swap(todoComponent2);
-//                        } // end if
-//                    } // end for j
-//                } // end for i
-//                break;
-//        } // end switch sortMethod
-//        //thisFrame.getContentPane().validate();
-//    } // end sortDeadline
-
-
-    // Originally these 'sort' methods were cloned from a sorter where it was possible that
+    // Originally this 'sort' method was cloned from a class where it was possible that
     // the items being sorted might not actually have a value in the field they were being sorted
     // on.  So those cases needed to be handled and the question to ask was - if there is no sort
     // key, where do we put this?  There were 3 possible answers - put it at the top, put it at

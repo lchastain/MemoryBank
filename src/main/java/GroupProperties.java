@@ -13,12 +13,9 @@ public class GroupProperties extends BaseData {
     private String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
 
     // This constructor is used by Jackson type conversion operations and child class constructors.
-    GroupProperties() {
-        super();
-    }
+    GroupProperties() { }
 
     GroupProperties(String theName, GroupType theType) {
-        super();
         groupName = theName;
         groupType = theType;
         linkTargets = new LinkTargets();

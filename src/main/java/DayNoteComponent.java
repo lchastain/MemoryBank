@@ -269,7 +269,6 @@ public class DayNoteComponent extends IconNoteComponent {
         int timeWidth = 68;
 
         NoteTimeLabel() {
-            super();
             clear(); // initializes as well as 'clears'.
             setHorizontalAlignment(JLabel.CENTER);
             setFont(Font.decode("DialogInput-bold-20"));

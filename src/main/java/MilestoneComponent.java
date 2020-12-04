@@ -348,8 +348,6 @@ public class MilestoneComponent extends NoteComponent {
         private int theOriginalStatus;
 
         public StatusButton() {
-            super();
-
             setOpaque(true);
             showStatusIcon();
         } // end StatusButton constructor

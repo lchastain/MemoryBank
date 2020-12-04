@@ -1,8 +1,8 @@
 [ {
-  "zdtLastModString" : "2020-11-18T05:41:04.617+04:00[Europe/Samara]",
-  "instanceId" : "5ce0c712-8738-4db5-b43f-36c86d22300e",
+  "zdtLastModString" : "2020-12-04T06:16:35.037+04:00[Europe/Samara]",
+  "instanceId" : "8c7183dd-5b7f-4490-bd69-286e13bb1506",
   "groupType" : "SEARCH_RESULTS",
-  "groupName" : "20201118054104",
+  "groupName" : "20201204061635",
   "linkTargets" : [ ],
   "searchPanelSettings" : {
     "not1" : false,
@@ -24,7 +24,7 @@
     "dateLastMod1String" : null,
     "dateLastMod2String" : null
   },
-  "searchDateString" : "2020-11-18",
+  "searchDateString" : "2020-12-04",
   "column1Label" : "Found in",
   "column2Label" : "Note Text",
   "column3Label" : "Last Modified",
@@ -35,7 +35,7 @@
   "noteString" : "Three - links to Events - holidays",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -48,7 +48,7 @@
   "noteString" : "Four - links to Day Notes - (today + 2 days)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -61,7 +61,7 @@
   "noteString" : "Five - links to Month Notes -  (today + 2 months)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -74,63 +74,11 @@
   "noteString" : "Six - links to Year Notes -  (today + 2 years)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
     "groupType" : "GOALS",
-    "groupName" : "Reverse Links"
-  }
-}, {
-  "zdtLastModString" : "2020-10-17T11:17:00.008+04:00[Europe/Samara]",
-  "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
-  "noteString" : "Three - links to Events - holidays",
-  "subjectString" : null,
-  "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : null,
-  "fileFoundIn" : null,
-  "foundIn" : {
-    "groupId" : null,
-    "groupType" : "TODO_LIST",
-    "groupName" : "Reverse Links"
-  }
-}, {
-  "zdtLastModString" : "2020-10-18T08:11:15.931+04:00[Europe/Samara]",
-  "instanceId" : "b8f7b6c2-b5f4-4cda-804a-86b22183c161",
-  "noteString" : "Four - links to Day Notes - (today + 2 days)",
-  "subjectString" : null,
-  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
-  "fileFoundIn" : null,
-  "foundIn" : {
-    "groupId" : null,
-    "groupType" : "TODO_LIST",
-    "groupName" : "Reverse Links"
-  }
-}, {
-  "zdtLastModString" : "2020-10-18T08:11:21.324+04:00[Europe/Samara]",
-  "instanceId" : "689218ea-6a03-45e4-8a26-280e8f25ce6b",
-  "noteString" : "Five - links to Month Notes -  (today + 2 months)",
-  "subjectString" : null,
-  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
-  "fileFoundIn" : null,
-  "foundIn" : {
-    "groupId" : null,
-    "groupType" : "TODO_LIST",
-    "groupName" : "Reverse Links"
-  }
-}, {
-  "zdtLastModString" : "2020-10-18T08:11:29.641+04:00[Europe/Samara]",
-  "instanceId" : "2cbf145d-8f01-48e8-a4eb-8e5945a9faa6",
-  "noteString" : "Six - links to Year Notes -  (today + 2 years)",
-  "subjectString" : null,
-  "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
-  "fileFoundIn" : null,
-  "foundIn" : {
-    "groupId" : null,
-    "groupType" : "TODO_LIST",
     "groupName" : "Reverse Links"
   }
 }, {
@@ -139,7 +87,7 @@
   "noteString" : "Valentine's Day",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -152,7 +100,7 @@
   "noteString" : "Memorial Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -160,12 +108,12 @@
     "groupName" : "holidays"
   }
 }, {
-  "zdtLastModString" : "2019-10-23T07:14:54.066+04:00[Europe/Samara]",
+  "zdtLastModString" : "2020-12-03T10:15:23.319+04:00[Europe/Samara]",
   "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
   "noteString" : "Halloween",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -173,12 +121,12 @@
     "groupName" : "holidays"
   }
 }, {
-  "zdtLastModString" : "2020-10-17T11:05:05.120+04:00[Europe/Samara]",
+  "zdtLastModString" : "2020-12-03T10:15:23.319+04:00[Europe/Samara]",
   "instanceId" : "92a6074b-ed08-4099-aad0-67de28149352",
   "noteString" : "Thanksgiving",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -191,7 +139,7 @@
   "noteString" : "New Year's Day",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -204,7 +152,7 @@
   "noteString" : "Labor Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -212,38 +160,12 @@
     "groupName" : "holidays"
   }
 }, {
-  "zdtLastModString" : "2020-01-23T10:54:21.570+04:00[Europe/Samara]",
-  "instanceId" : "774b0fc4-f179-4d29-b8ba-79c1974ae899",
-  "noteString" : "Daylight Savings Time Starts",
-  "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : null,
-  "fileFoundIn" : null,
-  "foundIn" : {
-    "groupId" : null,
-    "groupType" : "EVENTS",
-    "groupName" : "other"
-  }
-}, {
-  "zdtLastModString" : "2019-10-09T12:00:25.676+04:00[Europe/Samara]",
-  "instanceId" : "e0d36ed6-1986-4caf-a8c9-eff6e63818d7",
-  "noteString" : "Daylight Savings Time Ends",
-  "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : null,
-  "fileFoundIn" : null,
-  "foundIn" : {
-    "groupId" : null,
-    "groupType" : "EVENTS",
-    "groupName" : "other"
-  }
-}, {
   "zdtLastModString" : "2020-10-17T11:17:00.008+04:00[Europe/Samara]",
   "instanceId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
   "noteString" : "Three - links to Events - holidays",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -256,7 +178,7 @@
   "noteString" : "Four - links to Day Notes - (today + 2 days)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -269,7 +191,7 @@
   "noteString" : "Five - links to Month Notes -  (today + 2 months)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -282,7 +204,7 @@
   "noteString" : "Six - links to Year Notes -  (today + 2 years)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -295,7 +217,7 @@
   "noteString" : "This is the first day of data for testing Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -308,7 +230,7 @@
   "noteString" : "of the DayNote Group and Panel",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -321,7 +243,7 @@
   "noteString" : "This is the middle day of data for testing Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -334,7 +256,7 @@
   "noteString" : "of the DayNote Panel and Group",
   "subjectString" : "Middle day test note subject",
   "extendedNoteString" : "Yes, no icon, but this one has a Subject and an Extended note.",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -347,7 +269,7 @@
   "noteString" : "This is the last day of data for testing Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -360,7 +282,7 @@
   "noteString" : "of the DayNote data containers",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -373,7 +295,46 @@
   "noteString" : "Daylight Savings Time Starts",
   "subjectString" : "Event",
   "extendedNoteString" : "",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "groupId" : null,
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Monday, October 12, 2020"
+  }
+}, {
+  "zdtLastModString" : "2020-12-03T10:00:48.819+04:00[Europe/Samara]",
+  "instanceId" : "774b0fc4-f179-4d29-b8ba-79c1974ae899",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "groupId" : null,
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Monday, October 12, 2020"
+  }
+}, {
+  "zdtLastModString" : "2020-12-03T10:15:25.320+04:00[Europe/Samara]",
+  "instanceId" : "774b0fc4-f179-4d29-b8ba-79c1974ae899",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "groupId" : null,
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Monday, October 12, 2020"
+  }
+}, {
+  "zdtLastModString" : "2020-12-03T12:31:34.170+04:00[Europe/Samara]",
+  "instanceId" : "774b0fc4-f179-4d29-b8ba-79c1974ae899",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -386,7 +347,7 @@
   "noteString" : "Three - links to Events - holidays",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -399,7 +360,7 @@
   "noteString" : "Four - links to Day Notes - (today + 2 days)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -412,7 +373,7 @@
   "noteString" : "Five - links to Month Notes -  (today + 2 months)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -425,12 +386,38 @@
   "noteString" : "Six - links to Year Notes -  (today + 2 years)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
     "groupType" : "DAY_NOTES",
     "groupName" : "Sunday, October 18, 2020"
+  }
+}, {
+  "zdtLastModString" : "2020-12-03T10:15:23.319+04:00[Europe/Samara]",
+  "instanceId" : "e6685d43-9602-4672-a002-0c252f48fa3e",
+  "noteString" : "Halloween",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "groupId" : null,
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Saturday, October 31, 2020"
+  }
+}, {
+  "zdtLastModString" : "2020-12-03T10:15:23.319+04:00[Europe/Samara]",
+  "instanceId" : "92a6074b-ed08-4099-aad0-67de28149352",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "linkTargets" : [ ],
+  "fileFoundIn" : null,
+  "foundIn" : {
+    "groupId" : null,
+    "groupType" : "DAY_NOTES",
+    "groupName" : "Thursday, November 26, 2020"
   }
 }, {
   "zdtLastModString" : "2020-10-17T11:17:00.008+04:00[Europe/Samara]",
@@ -438,7 +425,7 @@
   "noteString" : "Three - links to Events - holidays",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -451,7 +438,7 @@
   "noteString" : "Four - links to Day Notes - (today + 2 days)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -464,7 +451,7 @@
   "noteString" : "Five - links to Month Notes -  (today + 2 months)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -477,7 +464,7 @@
   "noteString" : "Six - links to Year Notes -  (today + 2 years)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -490,7 +477,7 @@
   "noteString" : "Three - links to Events - holidays",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -503,7 +490,7 @@
   "noteString" : "Four - links to Day Notes - (today + 2 days)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -516,7 +503,7 @@
   "noteString" : "Five - links to Month Notes -  (today + 2 months)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,
@@ -529,7 +516,7 @@
   "noteString" : "Six - links to Year Notes -  (today + 2 years)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : null,
+  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupId" : null,

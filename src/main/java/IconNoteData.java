@@ -2,9 +2,7 @@ class IconNoteData extends NoteData {
     String iconFileString;
     boolean showIconOnMonthBoolean;
 
-    IconNoteData() {
-        super();
-    } // end constructor
+    IconNoteData() { } // end constructor
 
     // The copy constructor (clone)
     IconNoteData(IconNoteData ind) {

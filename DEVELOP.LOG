@@ -2,11 +2,18 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    1.  Search issues - there is an entire todo list to work from
+    Search issues - there is an entire todo list to work from, but the top items for me are:
+        1.  Clear the search parameters when calling up a new search; do not leave the last info still there.
+        2.  Filter out inactive groups
+        3.  Recall the search settings for any given completed search.
+    Generic Notes
+    Archiving of Goals & ToDo Lists (and Notes, after those come in)
 
 
 Current/Next:
     Work on Search issues but think towards choosing the next big feature to work on.
+
+    Shrink the page size, to get paging to kick in earlier.  Then check the text sort across pages.
 
 Questions:
 
@@ -21,11 +28,18 @@ New:
         Accomplishments (from scratch, and/or when goals are completed)
         Numbered list - but is there any need to be different than a Todo?  If it becomes a separate list type, can
           consider removing the ability to rename 'Priority'
-    New idea for archiving: not with every single character change, but on user-demand.  Preserve a Goal or Todo List
+    New ideas for archiving: not with every single character change, but on user-demand.  Preserve a Goal or Todo List
         as it existed on a certain day/time, along with the appOpts.  If more than one on the same day, query to
-        replace or keep both.
+        replace or keep both.  Allow archive removal.  Possibly an 'archive' specifier, with a checkbox next to archivable
+        groups (including search results?).
 
 =====================================================================================================
+ 3 Dec 2020
+   Have now moved on to clearing up some of the Search Issues:
+        Do a 'save all', first.
+        Clear out the panel from previous searches
+        Filtered out inactive groups
+
  2 Dec 2020
    Burn-in of the newly usable Goals panel, finding (and fixing) several small issues.  Need to pub every time, to be
      able to keep using / exercising the feature / testing.

@@ -53,8 +53,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
 
     EventNoteGroupPanel(String groupName) {
-        super();
-
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.EVENTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;

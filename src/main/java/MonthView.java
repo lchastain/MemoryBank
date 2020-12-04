@@ -72,7 +72,6 @@ public class MonthView extends JLayeredPane {
     }
 
     MonthView(LocalDate initialChoice) {
-        super();
         displayedMonth = initialChoice;
         theChoice = initialChoice;
 

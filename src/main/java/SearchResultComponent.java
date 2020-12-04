@@ -326,8 +326,6 @@ public class SearchResultComponent extends NoteComponent {
         static final int intWidth = 80;
 
         public LastModLabel() {
-            super();
-
             // May resemble one, but not a Java method -
             this.removeMouseListener(); // Removes the 'depress' functionality
 

@@ -66,7 +66,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
     NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
     NoteGroupPanelKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
-    SearchPanel spTheSearchPanel;
+    SearchPanel searchPanel;
     private final JPanel aboutPanel;
     private final JSplitPane splitPane;
     private TreePath theWayBack;
@@ -111,16 +111,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theWorkingDialog.add(lbl);
         theWorkingDialog.pack();
         theWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        theWorkingDialog.setLocationRelativeTo(this);
-        //</editor-fold>
-
-        //<editor-fold desc="Initialize the Search Panel from a new thread">
-        searching = false;
-        new Thread(new Runnable() {
-            public void run() {
-                spTheSearchPanel = new SearchPanel();
-            }
-        }).start();
         //</editor-fold>
 
         optionPane = new Notifier() {
@@ -614,6 +604,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
     private void doSearch() {
         searching = true;
+        searchPanel = new SearchPanel();
         Frame theFrame = JOptionPane.getFrameForComponent(this);
 
         // Now display the search dialog.
@@ -621,7 +612,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         String string2 = "Cancel";
         Object[] options = {string1, string2};
         int choice = JOptionPane.showOptionDialog(theFrame,
-                spTheSearchPanel,
+                searchPanel,
                 "Search - Please specify the conditions for your quest",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
@@ -630,14 +621,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 string1); //the title of the default button
 
         if (choice != JOptionPane.OK_OPTION) {
-            if (!spTheSearchPanel.doSearch) {
+            if (!searchPanel.doSearch) {
                 searching = false;
                 return;
             }
-            spTheSearchPanel.doSearch = false; // Put this flag back to non-testing mode.
+            // Tests might have set this flag directly, without going through the dialog.
+            searchPanel.doSearch = false; // Put this flag back to non-testing mode.
         }
 
-        if (!spTheSearchPanel.hasWhere()) {
+        if (!searchPanel.hasWhere()) {
             JOptionPane.showMessageDialog(this,
                     " No location to search was chosen!",
                     "Search conditions specification error",
@@ -649,17 +641,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
         showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
 
-        // Make sure that the most recent changes, if any,
-        //   will be included in the search.
-        if (theNoteGroupPanel != null) {
-            theNoteGroupPanel.preClosePanel();
-        } // end if
+        // Make sure that the most recent changes, if any, will be included in the search.
+        preClose();
 
         // Now make a Vector that can collect the search results.
         foundDataVector = new Vector<>();
 
         // We will display the results of the search, even if it finds nothing.
-        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(spTheSearchPanel.getSettings()));
+        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(searchPanel.getSettings()));
 
         // Now scan the user's data area for data files - we do a recursive
         //   directory search and each file is examined as soon as it is
@@ -673,7 +662,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         resultsName = NoteGroupFile.getTimestamp();
         SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupType.SEARCH_RESULTS));
         SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
-        searchResultGroupProperties.setSearchSettings(spTheSearchPanel.getSettings());
+        searchResultGroupProperties.setSearchSettings(searchPanel.getSettings());
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
 
         theResultsGroup.setNotes(foundDataVector);
@@ -1021,24 +1010,31 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 scanDataDir(theFile, level + 1);
             } else {
                 goLook = true;
+                String theGroupName = NoteGroupFile.getGroupNameFromFilename(theFile1Name);
                 if (theFile1Name.startsWith("goal_")) {
-                    if (!spTheSearchPanel.searchGoals()) {
+                    if (!searchPanel.searchGoals()) {
                         goLook = false;
+                    } else {
+                        if(!MemoryBank.appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
                     }
                 } else if (theFile1Name.startsWith("event_")) {
-                    if (!spTheSearchPanel.searchEvents()) {
+                    if (!searchPanel.searchEvents()) {
                         goLook = false;
+                    } else {
+                        if(!MemoryBank.appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
                     }
                 } else if (theFile1Name.startsWith("todo_")) {
-                    if (!spTheSearchPanel.searchLists()) {
+                    if (!searchPanel.searchLists()) {
                         goLook = false;
+                    } else {
+                        if(!MemoryBank.appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
                     }
                 } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
-                    if (!spTheSearchPanel.searchDays()) goLook = false;
+                    if (!searchPanel.searchDays()) goLook = false;
                 } else if ((theFile1Name.startsWith("M")) && (level > 0)) {
-                    if (!spTheSearchPanel.searchMonths()) goLook = false;
+                    if (!searchPanel.searchMonths()) goLook = false;
                 } else if ((theFile1Name.startsWith("Y")) && (level > 0)) {
-                    if (!spTheSearchPanel.searchYears()) goLook = false;
+                    if (!searchPanel.searchYears()) goLook = false;
                 } else { // Any other file type not covered above.
                     // This includes search results (for now - SCR0073)
                     goLook = false;
@@ -1048,7 +1044,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 if (goLook) {
                     dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
                     if (dateNoteDate != null) {
-                        if (spTheSearchPanel.filterWhen(dateNoteDate)) goLook = false;
+                        if (searchPanel.filterWhen(dateNoteDate)) goLook = false;
                     } // end if
                 } // end if
 
@@ -1062,8 +1058,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 //   trust all admins, of course).
                 if (goLook) {
                     LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
-                    if (spTheSearchPanel.getLastModSetting() == SearchPanel.AFTER) {
-                        if (spTheSearchPanel.filterLastMod(dateLastMod)) goLook = false;
+                    if (searchPanel.getLastModSetting() == SearchPanel.AFTER) {
+                        if (searchPanel.filterLastMod(dateLastMod)) goLook = false;
                     } // end if
                 } // end if
 
@@ -1113,7 +1109,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         for (AllNoteData vectorItem : searchDataVector) {
 
             // If we find what we're looking for in/about this note -
-            if (spTheSearchPanel.foundIt(vectorItem)) {
+            if (searchPanel.foundIt(vectorItem)) {
 
                 // Make new search result data for this find.
                 SearchResultData srd = new SearchResultData(vectorItem);
@@ -1382,6 +1378,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     //-----------------------------------------------------------
     static void showWorkingDialog(boolean showIt) {
         if (showIt) {
+            theWorkingDialog.setLocationRelativeTo(theInstance); // In case the app has been moved around.
             //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
 
             // Create a new thread and setVisible within the thread.

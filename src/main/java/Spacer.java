@@ -16,7 +16,6 @@ public class Spacer extends JComponent {
     Color c = null;
 
     public Spacer() {  // constructor
-        super();
         bColor = getBackground();
         fColor = getForeground();
     } // end constructor
