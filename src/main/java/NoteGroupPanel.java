@@ -24,6 +24,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
 
+    String defaultSubject;
     boolean editable;
     int lastVisibleNoteIndex = 0;
     int pageSize;
@@ -35,7 +36,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     NotePager theNotePager;
 
     // Private members
-    private String defaultSubject;
     private int intHighestNoteComponentIndex;
     private JScrollPane jsp;
     private JLabel lblStatusMessage; // The Information/Status panel of the frame.
@@ -568,8 +568,10 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         jsp.setColumnHeaderView(c);
     } // end setGroupHeader
 
-    // The CalendarNoteGroupPanels have a default subject; other Panels do not.
+    // Some Panels have a default subject; others do not.
     // If this method is not called, defaultSubject remains null.
+    // Usage convention is that this method is to be used for all value writes, but defaultSubject is
+    //   package-accessible so it may be 'read' directly.
     void setDefaultSubject(String defaultSubject) {
         this.defaultSubject = defaultSubject;
     }

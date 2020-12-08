@@ -186,7 +186,7 @@ public interface BranchHelperInterface {
     }
 
     // The handler for the 'Apply' button.
-    void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes);
+    boolean doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes);
 
     // What text appears on the 'Remove' button.  Ex:  'Delete', 'Remove', or
     // something else.  If your implementation returns a null, the editor will

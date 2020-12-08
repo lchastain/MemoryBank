@@ -326,7 +326,7 @@ public class TreeBranchEditor extends JPanel
                 showTree();
                 showChoices();
                 break;
-            case "Apply":
+            case "Apply": // For selections, deselections, renames and removals
                 for (String s : removals) {
                     changeList.add(new NodeChange(s, NodeChange.REMOVED));
                 }
@@ -384,7 +384,7 @@ public class TreeBranchEditor extends JPanel
         //log.debug(renamedFrom + " was renamed to " + renamedTo);
         doRename(renamedFrom, renamedTo);
         changeList.add(new NodeChange(renamedFrom, renamedTo));
-    }
+    } // end treeNodesChanged
 
     // This method is called after a rename has been done on the JTree UI,
     // in order to keep the selections in line with the new text.

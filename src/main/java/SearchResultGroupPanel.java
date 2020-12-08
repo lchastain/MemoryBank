@@ -2,9 +2,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class SearchResultGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(SearchResultGroupPanel.class);
@@ -15,6 +17,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     SearchResultGroupPanel(String groupName) {
         // super(10);  // test, for paging
         BaseData.loading = true;
+        setDefaultSubject("Search Info"); // Used in Search Criteria review, only.
 
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
@@ -61,7 +64,55 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                // More is coming here; otherwise this method not needed.
+                SearchResultGroupProperties myProperties = (SearchResultGroupProperties) myNoteGroup.myProperties;
+
+                // Invoking a new SearchPanel with previously established settings -
+                //   means that it will be non-editable, for criteria review only.
+                SearchPanel searchPanel = new SearchPanel(myProperties.searchPanelSettings);
+
+                // Make our own ExtendedNoteComponent, vs the default one provided by our base class when the editor
+                //  is invoked.  This allows further customization, below.
+                extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
+
+                // Provide an alternative center panel for the ExtendedNoteComponent -
+                //   the SearchPanel replaces the JScrollPane that holds a JTextArea.
+                extendedNoteComponent.setCenterPanel(searchPanel);
+
+                // Configure the title of the editor, and the initial subject (in this case 'subject' == search name).
+                NoteData titleNoteData = new NoteData("Search criteria for:    " + getGroupName());
+                titleNoteData.setSubjectString(getGroupName());
+                // Since we are not using the default JTextArea, there is no need to set an extendedNoteString.
+
+                // We will use the base class 'edit' method for displaying the search criteria.
+                // It takes the subject from the provided note, IF this NoteGroup has a default subject.
+                boolean nameChanged = editExtendedNoteComponent(titleNoteData);
+
+                // The non-editable display of the search criteria does still allow for the Search name to be changed.
+                if(nameChanged) {
+                    JTree theTree = AppTreePanel.theInstance.getTree();
+                    NoteGroupPanelKeeper theKeeper = AppTreePanel.theInstance.theSearchResultsKeeper;
+                    BranchHelper searchBranchHelper = new BranchHelper(theTree, theKeeper, BranchHelper.AreaName.SEARCH);
+                    DefaultMutableTreeNode myBranch = BranchHelperInterface.getNodeByName(searchBranchHelper.theRoot, searchBranchHelper.theAreaNodeName);
+                    ArrayList<NodeChange> changeList = new ArrayList<>(); // Array of NodeChange
+                    String renamedFrom = getGroupName();
+                    String renamedTo = extendedNoteComponent.getSubject();
+                    changeList.add(new NodeChange(renamedFrom, renamedTo));
+
+                    // Unlike with the TreeBranchEditor, we have no alternate tree branch to swap with.
+                    // But this is a single operation, so we do it more surgically - rename the one affected node.
+                    DefaultMutableTreeNode changedNode = BranchHelperInterface.getNodeByName(myBranch, renamedFrom);
+                    changedNode.setUserObject(renamedTo); // This is the tree-flavored equivalent of node.setText().
+
+                    // Now - do all required operations.
+                    boolean didIt = searchBranchHelper.doApply(myBranch, changeList);
+
+                    if(!didIt) {
+                        System.out.println("The renamed operation failed; resetting node name to original value");
+                        changedNode.setUserObject(renamedFrom);
+                    } else {
+                        System.out.println("Renamed SearchResult FROM: " + renamedFrom + "   TO: " + renamedTo);
+                    }
+                }
             }
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -132,6 +183,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
             tempNote.resetColumnOrder(((SearchResultGroupProperties) myNoteGroup.myProperties).columnOrder);
         } // end for
     } // end checkColumnOrder
+
 
 
     //--------------------------------------------------------

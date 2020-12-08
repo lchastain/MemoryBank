@@ -1414,12 +1414,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // exceptions on the 'node = ' line directly below, AFTER the test has passed.
 
         // Obtain a reference to the new selection.
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
         // This is better than 'theTree.getLastSelectedPathComponent()' because it works for
         //   normal tree selection events but also allows for 'phantom' selections; tree
         //   paths that were created and selected by code vs those that came from a user's
         //   mouse click event on an existing (visible and active) tree node.
-        if (node == null) return;
+        if (selectedNode == null) return;
 
         // We have started to handle the change; now disallow
         //   further input until we are finished.
@@ -1437,7 +1437,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } // end if
 
         // Get the string for the selected node.
-        String theNodeString = node.toString();
+        String theNodeString = selectedNode.toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
         appOpts.theSelection = theNodeString; // Not used, but helpful during a visual review of the persisted options.
         String selectionContext = theNodeString;  // used in menu management; this default value may change, below.
@@ -1464,12 +1464,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //<editor-fold desc="Actions Depending on the selection">
         if (isGoalsBranch) {  // Edit the Goals parent branch
             BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, BranchHelper.AreaName.GOALS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Goals", node, tbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
             selectionContext = "Goals Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
             BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, BranchHelper.AreaName.EVENTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", node, tbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", selectedNode, tbh);
             selectionContext = "Upcoming Events Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isTodoBranch) {  // Edit the Todo parent branch
@@ -1477,16 +1477,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
             BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, BranchHelper.AreaName.TODO);
-            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", node, tbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", selectedNode, tbh);
             selectionContext = "To Do Lists Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isSearchBranch) {  // Edit the Search parent branch
             BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, BranchHelper.AreaName.SEARCH);
-            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", node, sbh);
+            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", selectedNode, sbh);
             selectionContext = "Search Results Branch Editor";
             rightPane.setViewportView(tbe);
-        } else if (!node.isLeaf()) {  // Looking at other expandable nodes
-            JTree jt = new JTree(node); // Show as a tree but no editing.
+        } else if (!selectedNode.isLeaf()) {  // Looking at other expandable nodes
+            JTree jt = new JTree(selectedNode); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal

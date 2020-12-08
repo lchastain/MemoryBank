@@ -34,35 +34,29 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     private LabelButton btnEndTime;
 
     // Simple data types
-    private int intPreferredWidth;    // See note in constructor.
-    private int intPreferredHeight;   // See note in constructor.
-    private DateTimeFormatter dtf;
+    private final int intPreferredWidth;    // See note in constructor.
+    private final int intPreferredHeight;   // See note in constructor.
+    private final DateTimeFormatter dtf;
     private Locations locations;
 
 
     // For Events
-    private MouseAdapter maDateTimeHandler;
+    private final MouseAdapter maDateTimeHandler;
     private ItemListener ilDurationUnits;
-    private KeyAdapter userTyping;
+    private final KeyAdapter userTyping;
 
     // Ancillary dialogs -
-    private YearView yvDateChooser;
+    private final YearView yvDateChooser;
     private TimeChooser tcTimeChooser;
-    private RecurrencePanel rpRepeatSetting;
+    private final RecurrencePanel rpRepeatSetting;
 
     // Note:  This editor should be initialized with an EventNoteData
     // (by a call to 'showTheData').  Any changes that the user makes
     // to the interface are immediately sent into the initial data
-    // object.  May want to disassociate, to allow for a 'cancel'.
+    // object.  May want to disassociate at some point, to allow for a 'cancel'.
 
     private String strRecurrenceSetting;  // Recurrence
 
-    // The reason for NOT immediately updating the data (as
-    //   touched on in the note above) is to support a
-    //   possible future 'Cancel' option.
-    //-------------------------------------------------------------
-
-    // JFrameBuilder Variables declaration section
     //-------------------------------------------------------------
     private JLabel lblDuration;
     private JLabel lblCategory;
@@ -337,7 +331,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         comboxLocation = new JComboBox<>();
         jComboBox2 = new JComboBox<>(); // Needed to hold this place because Subjects not yet loaded.
         comboxDurationUnits = new JComboBox<>();
-        JTextArea jTextArea1 = new JTextArea();
+        JTextArea jTextArea1 = new JTextArea(); // A placeholder; will be replaced by 'body'
         spaneNotes = new JScrollPane();
         btnRecurrence = new JButton();
         btnDateFormat = new JButton();
@@ -356,17 +350,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         pnlEnd = new JPanel();
         //----- 
 
-        // 
-        // lblDuration 
-        // 
         lblDuration.setText("Duration");
-        // 
-        // lblCategory 
-        // 
         lblCategory.setText("Category");
-        // 
-        // lblLocation 
-        // 
         lblLocation.setText("Location");
         // 
         // lblRecurrenceSetting 
@@ -374,19 +359,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         lblRecurrenceSetting.setHorizontalTextPosition(SwingConstants.LEFT);
         lblRecurrenceSetting.setText("jLabel9");
         // 
-        // lblNotes 
-        // 
         lblNotes.setText("Notes");
-        // 
-        // chkboxRetainNote 
-        // 
+
         chkboxRetainNote.setText("Retain Day Note");
         chkboxRetainNote.setSelected(true);
-        // 
-        // txtfDurationValue 
-        // 
-        // 
-        // comboxLocation 
         // 
         comboxLocation.addItem("My place");
         comboxLocation.addItem("Your place");
@@ -397,14 +373,11 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         comboxLocation.setEditable(true);
         //
         // comboxDurationUnits 
-        // 
         comboxDurationUnits.addItem("Unknown");
         comboxDurationUnits.addItem("Minutes");
         comboxDurationUnits.addItem("Hours");
         comboxDurationUnits.addItem("Days");
         comboxDurationUnits.addItem("Weeks");
-        // 
-        // jTextArea1 
         // 
         jTextArea1.setText("jTextArea1");
         // 
@@ -1031,13 +1004,6 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // But the extended note is.
         updateSubject();
         end.setExtendedNoteString(getExtText());
-
-        // For size of the Extended text - non-adjustable by the user
-        //   but it is larger here than the default for a Note,
-        //   and if this event gets aged off and retained as a
-        //   note then this size will be used.
-//        end.setExtendedNoteWidthInt(body.getWidth() + 10);
-//        end.setExtendedNoteHeightInt(spaneNotes.getHeight() + 40);
 
         end.setSubjectString(getSubject());
         // We need to be able to save a blank subject, and recall it,

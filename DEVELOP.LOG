@@ -2,18 +2,17 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    Search issues - there is an entire todo list to work from, but the top items for me are:
-        1.  Clear the search parameters when calling up a new search; do not leave the last info still there.
-        2.  Filter out inactive groups
-        3.  Recall the search settings for any given completed search.
     Generic Notes
     Archiving of Goals & ToDo Lists (and Notes, after those come in)
 
 
 Current/Next:
-    Work on Search issues but think towards choosing the next big feature to work on.
+    Clear up the hipri Search issues, then get on with Archiving.
 
     Shrink the page size, to get paging to kick in earlier.  Then check the text sort across pages.
+        If ok then remove the issue(s) where? - todo list, comments?
+    Typing into a notestring should fire the mouseExited, to turn off tooltip.
+    Sorting of search results by LMD or Text - re-enables editing
 
 Questions:
 
@@ -33,7 +32,26 @@ New:
         replace or keep both.  Allow archive removal.  Possibly an 'archive' specifier, with a checkbox next to archivable
         groups (including search results?).
 
+
+
 =====================================================================================================
+ 8 Dec 2020
+    Accurately recall the full search settings for any given completed search.   (SCR 84)
+    Clearing searchpanel keywords now clears the and/or selection
+    Two new search locations:  Past Events and Notes.  Neither one exists, yet.  Renamed 'Upcoming Events' to
+      'Future Events'.
+    The criteria review feature uses the editExtendedNote method from the base class, with the Subject field allowing
+      a search name change but all other criteria non-changeable.
+    These were the hi-pri items from the Search Issues todo list.  A few stragglers and newly visible issues may follow
+        but the rest will be deferred for now.
+
+ 5 Dec 2020
+  With the filter-out approach for searches, before now there was no need to preserve the 'where to search' setting but
+    now that we want to show search criteria, there is.  However, the default value (true) is not in alignment with all
+    other checkbox defaults.  Decision here is to proceed as though all older searches were preserved with 'false'
+    values on where to search.  This will be wrong, but it will only matter to MY older data, and I can live with this
+    very minor issue until all my searches have been redone, although there is no real need for that anyway.
+
  3 Dec 2020
    Have now moved on to clearing up some of the Search Issues:
         Do a 'save all', first.

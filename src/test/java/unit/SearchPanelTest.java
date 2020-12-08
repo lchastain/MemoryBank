@@ -9,9 +9,7 @@ class SearchPanelTest {
     SearchPanel theSearchPanel;
 
     @BeforeEach
-    void setUp() {
-        theSearchPanel = new SearchPanel();
-    }
+    void setUp() { }
 
     @AfterEach
     void tearDown() {
@@ -28,6 +26,9 @@ class SearchPanelTest {
         String word1 = "bling";
         String word2 = "blang";
         String word3 = "blarg";
+
+        theSearchPanel = new SearchPanel();
+        Assertions.assertTrue(theSearchPanel.editable);
 
         // 'line' comments below refer to the line number of the
         // Excel spreadsheet Truth Table from the docs.
@@ -141,6 +142,7 @@ class SearchPanelTest {
     // don't really matter at this point.
     @Test
     void testSearchBooleans() {
+        theSearchPanel = new SearchPanel();
         theSearchPanel.searchGoals();
         theSearchPanel.searchDays();
         theSearchPanel.searchEvents();
@@ -155,6 +157,7 @@ class SearchPanelTest {
     // up and close it.
     @Test
     void testShowDateDialogAndWindowClosing() {
+        theSearchPanel = new SearchPanel();
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -165,5 +168,15 @@ class SearchPanelTest {
             }
         }).start(); // Start the thread
         theSearchPanel.showDateDialog("Select a date", 1);
+    }
+
+    @Test
+    void testNonEditableDisplaySettings() {
+        SearchPanelSettings searchPanelSettings = new SearchPanelSettings();
+        searchPanelSettings.word1 = "sharf";
+        searchPanelSettings.word2 = "blurg";
+        searchPanelSettings.word3 = "clarp";
+        theSearchPanel = new SearchPanel(searchPanelSettings);
+        Assertions.assertFalse(theSearchPanel.editable);
     }
 }

@@ -25,11 +25,11 @@ class EditorHelper implements BranchHelperInterface {
     }
 
     @Override
-    public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
+    public boolean doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         for(Object nco: changes) {
             System.out.println(nco.toString());
         }
-        System.exit(0);
+        return true;
     }
 
     @Override

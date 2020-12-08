@@ -10,9 +10,10 @@ import java.time.format.DateTimeFormatter;
 public class SearchPanel extends JPanel implements DocumentListener {
     private static final long serialVersionUID = 1L;
 
+    // TODO searchPastEvents, searchNotes
+
     // 'My' Variables declaration section
     //-------------------------------------------------------------
-
     private static final int NOPARENS = 0;
     private static final int PARENS1 = 1;
     private static final int PARENS2 = 2;
@@ -30,39 +31,45 @@ public class SearchPanel extends JPanel implements DocumentListener {
     private LocalDate dateLastMod2;
     private ButtonGroup bgWhen;
     private ButtonGroup bgMod;
+    private ButtonGroup andOr1;
+    private ButtonGroup andOr2;
+
     YearView yvDateChooser;
     private boolean blnDialogClosed; // For use by inner classes
     JDialog dialogWindow;
     boolean doSearch;
+    SearchPanelSettings searchPanelSettings;
+    boolean editable;
     //-------------------------------------------------------------
-
 
     //-----
     private JCheckBox chkboxGoals;
     private JCheckBox chkboxDayNotes;
     private JCheckBox chkboxMonthNotes;
     private JCheckBox chkboxYearNotes;
-    private JCheckBox chkboxEvents;
+    private JCheckBox chkboxOtherNotes;
+    private JCheckBox chkboxPastEvents;
+    private JCheckBox chkboxFutureEvents;
     private JCheckBox chkboxTodoLists;
     private JPanel pnlWhere;
     //-----
     private JPanel keywordPanel;
     private JLabel lblOpenParen1;
     private JCheckBox chkboxNot1;
-    private JTextField comboxSearchText1;
+    private JTextField searchText1;
     //-----
     private JLabel lblOpenParen2;
     private JLabel lblCloseParen1;
     private JRadioButton rbtnAnd1;
     private JRadioButton rbtnOr1;
     private JCheckBox chkboxNot2;
-    private JTextField comboxSearchText2;
+    private JTextField searchText2;
     //-----
     private JLabel lblCloseParen2;
     private JRadioButton rbtnAnd2;
     private JRadioButton rbtnOr2;
     private JCheckBox chkboxNot3;
-    private JTextField comboxSearchText3;
+    private JTextField searchText3;
     private JLabel parensOnLabel;
     private JLabel parensOffLabel;
     //-----
@@ -89,6 +96,8 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
     public SearchPanel() {
         doSearch = false; // A flag that can be used by tests.
+        searchPanelSettings = new SearchPanelSettings();
+        editable = true;
 
         // Some parts of the keyword panel have variable visibility.  Others can be
         // enabled or disabled, depending on other factors.  These variables are
@@ -100,9 +109,9 @@ public class SearchPanel extends JPanel implements DocumentListener {
             }
         };
 
-        initializeComponent(); // Build (most of) the panel
+        buildPanel(); // Build (most of) the panel
 
-        // Although size was set explicitly in initializeComponent, each call to getSize()
+        // Although size was set explicitly in buildPanel, each call to getSize()
         //   reported a smaller amount by (6,25) after each time the dialog was closed.
         //   This method of capturing the initial size is the workaround.  Now the
         //   EventNoteGroup calls getMinimumSize (defined below) to get the size value.
@@ -110,9 +119,29 @@ public class SearchPanel extends JPanel implements DocumentListener {
         intPreferredHeight = getSize().height;
         blnDialogClosed = false;
 
-        reinitializeComponent(); // Finishing touches on the panel construction
-        resetKeywordPanel();
+        rebuildPanel(); // Finishing touches on the panel construction
+        resetKeywordPanel(); // default settings and enablement
     } // end constructor
+
+
+    SearchPanel(SearchPanelSettings searchPanelSettings) {
+        doSearch = false; // A flag that can be used by tests.
+        this.searchPanelSettings = searchPanelSettings;
+        editable = false;
+
+        buildPanel(); // Build (most of) the panel
+
+        // Although size was set explicitly in buildPanel, each call to getSize()
+        //   reported a smaller amount by (6,25) after each time the dialog was closed.
+        //   This method of capturing the initial size is the workaround.  Now the
+        //   EventNoteGroup calls getMinimumSize (defined below) to get the size value.
+        intPreferredWidth = getSize().width;
+        intPreferredHeight = getSize().height;
+        blnDialogClosed = false;
+
+        rebuildPanel(); // Finishing touches on the panel construction
+        loadTheSettings();
+    }
 
 
     /**
@@ -476,68 +505,68 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
 
     private int getParens() {
-        if (getWord1() == null) return NOPARENS;
-        if (getWord2() == null) return NOPARENS;
-        if (getWord3() == null) return NOPARENS;
-
-        if (lblOpenParen1.isVisible()) return PARENS1;
-        if (lblOpenParen2.isVisible()) return PARENS2;
+        if (searchPanelSettings.paren1) return PARENS1;
+        if (searchPanelSettings.paren2) return PARENS2;
         return NOPARENS;
     } // end getParens
 
+    // Set the values of our settings from the current states of our components
     SearchPanelSettings getSettings() {
-        SearchPanelSettings sps = new SearchPanelSettings();
+        searchPanelSettings.not1 = getNot1();
+        searchPanelSettings.not2 = getNot2();
+        searchPanelSettings.not3 = getNot3();
 
-        sps.not1 = getNot1();
-        sps.not2 = getNot2();
-        sps.not3 = getNot3();
+        searchPanelSettings.word1 = getWord1();
+        searchPanelSettings.word2 = getWord2();
+        searchPanelSettings.word3 = getWord3();
 
-        sps.word1 = getWord1();
-        sps.word2 = getWord2();
-        sps.word3 = getWord3();
+        searchPanelSettings.and1 = getAnd1();
+        searchPanelSettings.and2 = getAnd2();
+        searchPanelSettings.or1 = getOr1();
+        searchPanelSettings.or2 = getOr2();
 
-        sps.and1 = getAnd1();
-        sps.and2 = getAnd2();
-        sps.or1 = getOr1();
-        sps.or2 = getOr2();
+        // Parentheses are set directly into SearchPanelSettings, by resetParentheses()
 
-        sps.paren1 = false;
-        sps.paren2 = false;
-        int parens = getParens();
-        if (parens == SearchPanel.PARENS1) sps.paren1 = true;
-        if (parens == SearchPanel.PARENS2) sps.paren2 = true;
+        searchPanelSettings.typeGoal = chkboxGoals.isSelected();
+        searchPanelSettings.typeDay = chkboxDayNotes.isSelected();
+        searchPanelSettings.typeMonth = chkboxMonthNotes.isSelected();
+        searchPanelSettings.typeYear = chkboxYearNotes.isSelected();
+        searchPanelSettings.typeOtherNote = chkboxOtherNotes.isSelected();
+        searchPanelSettings.typePastEvent = chkboxPastEvents.isSelected();
+        searchPanelSettings.typeFutureEvent = chkboxFutureEvents.isSelected();
+        searchPanelSettings.typeTask = chkboxTodoLists.isSelected();
 
         LocalDate localDate; // re-used several places below.
 
-        sps.whenChoice = getWhenSetting();
+        searchPanelSettings.whenChoice = getWhenSetting();
         localDate = getnoteWhen1();
         if (localDate == null) {
-            sps.noteDateWhen1String = null;
+            searchPanelSettings.noteDateWhen1String = null;
         } else {
-            sps.noteDateWhen1String = localDate.toString();
+            searchPanelSettings.noteDateWhen1String = localDate.toString();
         }
         localDate = getnoteWhen2();
         if (localDate == null) {
-            sps.noteDateWhen2String = null;
+            searchPanelSettings.noteDateWhen2String = null;
         } else {
-            sps.noteDateWhen2String = localDate.toString();
+            searchPanelSettings.noteDateWhen2String = localDate.toString();
         }
 
-        sps.modChoice = getLastModSetting();
+        searchPanelSettings.modChoice = getLastModSetting();
         localDate = getDateLastMod1();
         if (localDate == null) {
-            sps.dateLastMod1String = null;
+            searchPanelSettings.dateLastMod1String = null;
         } else {
-            sps.dateLastMod1String = localDate.toString();
+            searchPanelSettings.dateLastMod1String = localDate.toString();
         }
         localDate = getDateLastMod2();
         if (localDate == null) {
-            sps.dateLastMod2String = null;
+            searchPanelSettings.dateLastMod2String = null;
         } else {
-            sps.dateLastMod2String = localDate.toString();
+            searchPanelSettings.dateLastMod2String = localDate.toString();
         }
 
-        return sps;
+        return searchPanelSettings;
     } // end getSettings
 
 
@@ -559,17 +588,17 @@ public class SearchPanel extends JPanel implements DocumentListener {
         if ((sps.word3 != null) && (!sps.word3.trim().equals(""))) intMakeup += 4;
 
         switch (intMakeup) {
-            case 1:
+            case 1:  // Only Word1
                 if (sps.not1) strNot = "NOT ";
                 else strNot = "";
                 s = "Search Text was: " + strNot + sps.word1;
                 break;
-            case 2:
+            case 2:  // Only Word2
                 if (sps.not2) strNot = "NOT ";
                 else strNot = "";
                 s = "Search Text was: " + strNot + sps.word2;
                 break;
-            case 3:
+            case 3:  // Two words: Word 1, Word 2
                 if (sps.and1) strAnd = " AND ";
                 else strAnd = "";
                 if (sps.or1) strOr = " OR ";
@@ -584,12 +613,12 @@ public class SearchPanel extends JPanel implements DocumentListener {
                 else strNot = "";
                 s += strNot + sps.word2;
                 break;
-            case 4:
+            case 4:  // Only Word3
                 if (sps.not3) strNot = "NOT ";
                 else strNot = "";
                 s = "Search Text was: " + strNot + sps.word3;
                 break;
-            case 5:
+            case 5:  // Two words: Word 1, Word 3
                 if (sps.and2) strAnd = " AND ";
                 else strAnd = "";
                 if (sps.or2) strOr = " OR ";
@@ -604,7 +633,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
                 else strNot = "";
                 s += strNot + sps.word3;
                 break;
-            case 6:
+            case 6:  // Two words: Word 2, Word 3
                 if (sps.and2) strAnd = " AND ";
                 else strAnd = "";
                 if (sps.or2) strOr = " OR ";
@@ -619,7 +648,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
                 else strNot = "";
                 s += strNot + sps.word3;
                 break;
-            case 7:
+            case 7: // All 3 words
                 s = "Search Text was: ";
                 if (sps.paren1) s += "(";
                 if (sps.not1) strNot = "NOT ";
@@ -664,23 +693,23 @@ public class SearchPanel extends JPanel implements DocumentListener {
     } // end getWhenSetting
 
     private String getWord1() {
-        String s = comboxSearchText1.getText();
+        String s = searchText1.getText();
         if (s.trim().isEmpty()) return null;
-        return s;
+        return s; // Leading or trailing spaces - ok; we don't trim here.
     } // end getWord1
 
 
     private String getWord2() {
-        String s = comboxSearchText2.getText();
+        String s = searchText2.getText();
         if (s.trim().isEmpty()) return null;
-        return s;
+        return s; // Leading or trailing spaces - ok; we don't trim here.
     } // end getWord2
 
 
     private String getWord3() {
-        String s = comboxSearchText3.getText();
+        String s = searchText3.getText();
         if (s.trim().isEmpty()) return null;
-        return s;
+        return s; // Leading or trailing spaces - ok; we don't trim here.
     } // end getWord3
 
 
@@ -736,18 +765,24 @@ public class SearchPanel extends JPanel implements DocumentListener {
             rbtnAnd2.setToolTipText(s);
         } // end if
 
-        if (!rbtnAnd1.isEnabled()) blnNeedParens = false;
-        if (!rbtnAnd2.isEnabled()) blnNeedParens = false;
+        if(editable) {
+            if (!rbtnAnd1.isEnabled()) blnNeedParens = false;
+            if (!rbtnAnd2.isEnabled()) blnNeedParens = false;
+        }
 
+        searchPanelSettings.paren1 = false;
+        searchPanelSettings.paren2 = false;
         if (blnNeedParens) {
             parensOnLabel.setVisible(true);
             parensOffLabel.setVisible(false);
             if (toggle) {
                 lblOpenParen2.setVisible(true);
                 lblCloseParen2.setVisible(true);
+                searchPanelSettings.paren2 = true;
             } else {
                 lblOpenParen1.setVisible(true);
                 lblCloseParen1.setVisible(true);
+                searchPanelSettings.paren1 = true;
             }
         } // end if
 
@@ -826,7 +861,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
             } // end if
         } // end if
 
-        resetDateDisplay();
+        resetDateDisplays();
     } // end handleDateSpecChanged
 
 
@@ -842,13 +877,15 @@ public class SearchPanel extends JPanel implements DocumentListener {
         if (chkboxDayNotes.isSelected()) retVal = true;
         if (chkboxMonthNotes.isSelected()) retVal = true;
         if (chkboxYearNotes.isSelected()) retVal = true;
-        if (chkboxEvents.isSelected()) retVal = true;
+        if (chkboxOtherNotes.isSelected()) retVal = true;
+        if (chkboxPastEvents.isSelected()) retVal = true;
+        if (chkboxFutureEvents.isSelected()) retVal = true;
         if (chkboxTodoLists.isSelected()) retVal = true;
         return retVal;
     } // end hasWhere
 
 
-    private void initializeComponent() {
+    private void buildPanel() {
 
         JPanel contentPane = SearchPanel.this;
         //----- 
@@ -856,7 +893,9 @@ public class SearchPanel extends JPanel implements DocumentListener {
         chkboxDayNotes = new JCheckBox();
         chkboxMonthNotes = new JCheckBox();
         chkboxYearNotes = new JCheckBox();
-        chkboxEvents = new JCheckBox();
+        chkboxOtherNotes = new JCheckBox();
+        chkboxPastEvents = new JCheckBox();
+        chkboxFutureEvents = new JCheckBox();
         chkboxTodoLists = new JCheckBox();
         pnlWhere = new JPanel();
         //----- 
@@ -865,7 +904,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
         JLabel jLabel3 = new JLabel();
         lblOpenParen1 = new JLabel();
         chkboxNot1 = new JCheckBox();
-        comboxSearchText1 = new JTextField();
+        searchText1 = new JTextField();
         JPanel pnlKeyword1 = new JPanel();
         //----- 
         lblOpenParen2 = new JLabel();
@@ -873,14 +912,14 @@ public class SearchPanel extends JPanel implements DocumentListener {
         rbtnAnd1 = new JRadioButton();
         rbtnOr1 = new JRadioButton();
         chkboxNot2 = new JCheckBox();
-        comboxSearchText2 = new JTextField();
+        searchText2 = new JTextField();
         JPanel pnlKeyword2 = new JPanel();
         //----- 
         lblCloseParen2 = new JLabel();
         rbtnAnd2 = new JRadioButton();
         rbtnOr2 = new JRadioButton();
         chkboxNot3 = new JCheckBox();
-        comboxSearchText3 = new JTextField();
+        searchText3 = new JTextField();
         JPanel pnlKeyword3 = new JPanel();
         //----- 
         pnlWhen = new JPanel();
@@ -910,38 +949,56 @@ public class SearchPanel extends JPanel implements DocumentListener {
         contentPane.setLayout(null);
         addComponent(contentPane, keywordPanel, 9, 10, 421, 135);
         addComponent(contentPane, pnlWhen, 9, 150, 272, 100);
-        addComponent(contentPane, pnlLastMod, 9, 257, 272, 100);
-        addComponent(contentPane, pnlWhere, 293, 150, 138, 207);
+        addComponent(contentPane, pnlLastMod, 9, 257, 272, 102);
+        addComponent(contentPane, pnlWhere, 293, 150, 138, 209);
         //
         // chkboxGoals 
         // 
         chkboxGoals.setText("Goals");
         chkboxGoals.setSelected(true);
+        chkboxGoals.setEnabled(editable);
         // 
         // chkboxDayNotes 
         // 
         chkboxDayNotes.setText("Day Notes");
         chkboxDayNotes.setSelected(true);
+        chkboxDayNotes.setEnabled(editable);
         // 
         // chkboxMonthNotes 
         // 
         chkboxMonthNotes.setText("Month Notes");
         chkboxMonthNotes.setSelected(true);
+        chkboxMonthNotes.setEnabled(editable);
         // 
         // chkboxYearNotes 
         // 
         chkboxYearNotes.setText("Year Notes");
         chkboxYearNotes.setSelected(true);
-        // 
+        chkboxYearNotes.setEnabled(editable);
+        //
+        // chkboxOtherNotes
+        //
+        chkboxOtherNotes.setText("Other Notes");
+        chkboxOtherNotes.setSelected(true);
+        chkboxOtherNotes.setEnabled(editable);
+        //
+        // chkboxPastEvents
+        //
+        chkboxPastEvents.setText("Past Events");
+        chkboxPastEvents.setSelected(true);
+        chkboxPastEvents.setEnabled(editable);
+        //
         // chkboxEvents 
         // 
-        chkboxEvents.setText("Upcoming Events");
-        chkboxEvents.setSelected(true);
+        chkboxFutureEvents.setText("Future Events");
+        chkboxFutureEvents.setSelected(true);
+        chkboxFutureEvents.setEnabled(editable);
         // 
         // chkboxTodoLists 
         // 
         chkboxTodoLists.setText("To Do Lists");
         chkboxTodoLists.setSelected(true);
+        chkboxTodoLists.setEnabled(editable);
         //
         // pnlKeywords
         //
@@ -962,26 +1019,21 @@ public class SearchPanel extends JPanel implements DocumentListener {
         pnlWhere.add(chkboxDayNotes, 1);
         pnlWhere.add(chkboxMonthNotes, 2);
         pnlWhere.add(chkboxYearNotes, 3);
-        pnlWhere.add(chkboxEvents, 4);
-        pnlWhere.add(chkboxTodoLists, 5);
+        pnlWhere.add(chkboxOtherNotes);
+        pnlWhere.add(chkboxPastEvents);
+        pnlWhere.add(chkboxFutureEvents);
+        pnlWhere.add(chkboxTodoLists);
         pnlWhere.setBorder(new TitledBorder("Title"));
         //
         // jLabel3 
         // 
         jLabel3.setText("Keyword(s)");
-        // 
-        // lblOpenParen1 
-        // 
         lblOpenParen1.setText("(");
-        // 
-        // chkboxNot1 
         // 
         chkboxNot1.setText("NOT");
         // 
-        // comboxSearchText1 
-        //
-        comboxSearchText1.setEditable(true);
-        comboxSearchText1.getDocument().addDocumentListener(this);
+        searchText1.setEditable(editable);
+        searchText1.getDocument().addDocumentListener(this);
 
         //
         // pnlKeyword1 
@@ -990,64 +1042,34 @@ public class SearchPanel extends JPanel implements DocumentListener {
         addComponent(pnlKeyword1, jLabel3, 20, 5, 60, 18);
         addComponent(pnlKeyword1, lblOpenParen1, 111, 6, 15, 18);
         addComponent(pnlKeyword1, chkboxNot1, 120, 5, 47, 23);
-        addComponent(pnlKeyword1, comboxSearchText1, 170, 6, 210, 21);
-        // 
-        // lblOpenParen2 
+        addComponent(pnlKeyword1, searchText1, 170, 6, 210, 21);
         // 
         lblOpenParen2.setText("(");
-        // 
-        // lblCloseParen1 
-        // 
         lblCloseParen1.setText(")");
         // 
-        // rbtnAnd1 
-        // 
         rbtnAnd1.setText("AND");
-        // 
-        // rbtnOr1 
-        // 
         rbtnOr1.setText("OR");
-        // 
-        // chkboxNot2 
-        // 
         chkboxNot2.setText("NOT");
-        // 
-        // comboxSearchText2 
-        // 
-        comboxSearchText2.setEditable(true);
-        comboxSearchText2.getDocument().addDocumentListener(this);
 
-        //
-        // pnlKeyword2 
-        // 
+        searchText2.setEditable(editable);
+        searchText2.getDocument().addDocumentListener(this);
+
         pnlKeyword2.setLayout(null);
         addComponent(pnlKeyword2, lblOpenParen2, 111, 6, 60, 18);
         addComponent(pnlKeyword2, lblCloseParen1, 389, 5, 60, 18);
         addComponent(pnlKeyword2, rbtnAnd1, 2, 5, 47, 23);
         addComponent(pnlKeyword2, rbtnOr1, 56, 5, 41, 23);
         addComponent(pnlKeyword2, chkboxNot2, 120, 5, 47, 23);
-        addComponent(pnlKeyword2, comboxSearchText2, 170, 6, 210, 21);
-        // 
-        // lblCloseParen2 
+        addComponent(pnlKeyword2, searchText2, 170, 6, 210, 21);
         // 
         lblCloseParen2.setText(")");
-        // 
-        // rbtnAnd2 
-        // 
         rbtnAnd2.setText("AND");
-        // 
-        // rbtnOr2 
-        // 
+
         rbtnOr2.setText("OR");
-        // 
-        // chkboxNot3 
-        // 
         chkboxNot3.setText("NOT");
         // 
-        // comboxSearchText3 
-        // 
-        comboxSearchText3.setEditable(true);
-        comboxSearchText3.getDocument().addDocumentListener(this);
+        searchText3.setEditable(editable);
+        searchText3.getDocument().addDocumentListener(this);
 
         //
         // pnlKeyword3 
@@ -1057,64 +1079,39 @@ public class SearchPanel extends JPanel implements DocumentListener {
         addComponent(pnlKeyword3, rbtnAnd2, 2, 5, 47, 23);
         addComponent(pnlKeyword3, rbtnOr2, 56, 5, 41, 23);
         addComponent(pnlKeyword3, chkboxNot3, 120, 5, 47, 23);
-        addComponent(pnlKeyword3, comboxSearchText3, 170, 6, 210, 21);
+        addComponent(pnlKeyword3, searchText3, 170, 6, 210, 21);
         // 
         // pnlWhen 
-        // 
         pnlWhen.setLayout(new BoxLayout(pnlWhen, BoxLayout.X_AXIS));
         pnlWhen.add(jPanel15, 0);
         pnlWhen.add(jPanel10, 1);
         pnlWhen.setBorder(new TitledBorder("Title"));
         // 
         // pnlLastMod 
-        // 
         pnlLastMod.setLayout(new BoxLayout(pnlLastMod, BoxLayout.X_AXIS));
         pnlLastMod.add(jPanel12, 0);
         pnlLastMod.add(jPanel17, 1);
         pnlLastMod.setBorder(new TitledBorder("Title"));
         // 
         // lblWhenSelected 
-        // 
         lblWhenSelected.setHorizontalAlignment(SwingConstants.CENTER);
         lblWhenSelected.setText("Selected Date");
-        // 
-        // jPanel10 
         // 
         jPanel10.setLayout(null);
         addComponent(jPanel10, lblWhenSelected, 12, 7, 166, 57);
         // 
-        // rbtnModBefore 
-        // 
         rbtnModBefore.setText("Before");
-        // 
-        // rbtnModBetween 
-        // 
         rbtnModBetween.setText("Between");
-        // 
-        // rbtnModAfter 
-        // 
         rbtnModAfter.setText("After");
-        // 
-        // jPanel12 
         // 
         jPanel12.setLayout(new BoxLayout(jPanel12, BoxLayout.Y_AXIS));
         jPanel12.add(rbtnModBefore, 0);
         jPanel12.add(rbtnModBetween, 1);
         jPanel12.add(rbtnModAfter, 2);
         // 
-        // rbtnWhenAfter 
-        // 
         rbtnWhenAfter.setText("After");
-        // 
-        // rbtnWhenBefore 
-        // 
         rbtnWhenBefore.setText("Before");
-        // 
-        // rbtnWhenBetween 
-        // 
         rbtnWhenBetween.setText("Between");
-        // 
-        // jPanel15 
         // 
         jPanel15.setLayout(new BoxLayout(jPanel15, BoxLayout.Y_AXIS));
         jPanel15.add(rbtnWhenBefore, 0);
@@ -1122,21 +1119,95 @@ public class SearchPanel extends JPanel implements DocumentListener {
         jPanel15.add(rbtnWhenAfter, 2);
         // 
         // lblModSelected 
-        // 
         lblModSelected.setHorizontalAlignment(SwingConstants.CENTER);
         lblModSelected.setText("Selected Date");
-        // 
-        // jPanel17 
         // 
         jPanel17.setLayout(null);
         addComponent(jPanel17, lblModSelected, 12, 7, 166, 57);
         // 
         // SearchPanel
-        // 
         this.setLocation(new Point(16, 0));
         this.setSize(new Dimension(443, 357));
-    } // end initializeComponent
+    } // end buildPanel
 
+
+    // Use the searchPanelSettings to configure the panel's controls.  This is for
+    //   search criteria review only, not to be user-altered or used in a new search.
+    void loadTheSettings() {
+        // Keyword Panel
+        chkboxNot1.setSelected(searchPanelSettings.not1);
+        searchText1.setText(searchPanelSettings.word1);
+        rbtnAnd1.setSelected(searchPanelSettings.and1);
+        rbtnOr1.setSelected(searchPanelSettings.or1);
+        chkboxNot2.setSelected(searchPanelSettings.not2);
+        searchText2.setText(searchPanelSettings.word2);
+        rbtnAnd2.setSelected(searchPanelSettings.and2);
+        rbtnOr2.setSelected(searchPanelSettings.or2);
+        chkboxNot3.setSelected(searchPanelSettings.not3);
+        searchText3.setText(searchPanelSettings.word3);
+        if(searchPanelSettings.paren1) resetParentheses(false);
+        if(searchPanelSettings.paren2) resetParentheses(true);
+
+        // These need to be done AFTER the text fields have been set, to avoid the keyTyped listener.
+        // We re-enable these for the coloration, only.  No mouse listeners.
+        if(searchPanelSettings.and1) rbtnAnd1.setEnabled(true);
+        if(searchPanelSettings.or1) rbtnOr1.setEnabled(true);
+        if(searchPanelSettings.and2) rbtnAnd2.setEnabled(true);
+        if(searchPanelSettings.or2) rbtnOr2.setEnabled(true);
+
+        // Group Type Panel - pnlWhere
+        chkboxGoals.setSelected(searchPanelSettings.typeGoal);
+        chkboxDayNotes.setSelected(searchPanelSettings.typeDay);
+        chkboxMonthNotes.setSelected(searchPanelSettings.typeMonth);
+        chkboxYearNotes.setSelected(searchPanelSettings.typeYear);
+        chkboxOtherNotes.setSelected(searchPanelSettings.typeOtherNote);
+        chkboxPastEvents.setSelected(searchPanelSettings.typePastEvent);
+        chkboxFutureEvents.setSelected(searchPanelSettings.typeFutureEvent);
+        chkboxTodoLists.setSelected(searchPanelSettings.typeTask);
+
+        // Note Date Panel - pnlWhen (not all note types have a date)
+        rbtnWhenBefore.setSelected(false);
+        rbtnWhenBetween.setSelected(false);
+        rbtnWhenAfter.setSelected(false);
+        switch(searchPanelSettings.whenChoice) {
+            case BEFORE:
+                rbtnWhenBefore.setSelected(true);
+                break;
+            case BETWEEN:
+                rbtnWhenBetween.setSelected(true);
+                break;
+            case AFTER:
+                rbtnWhenAfter.setSelected(true);
+                break;
+        }
+
+        // Note Last Modified Panel - pnlLastMod
+        rbtnModBefore.setSelected(false);
+        rbtnModBetween.setSelected(false);
+        rbtnModAfter.setSelected(false);
+        switch(searchPanelSettings.modChoice) {
+            case BEFORE:
+                rbtnModBefore.setSelected(true);
+                break;
+            case BETWEEN:
+                rbtnModBetween.setSelected(true);
+                break;
+            case AFTER:
+                rbtnModAfter.setSelected(true);
+                break;
+        }
+
+        // Format and show the Dates
+        if(searchPanelSettings.noteDateWhen1String != null)
+            noteWhen1 = LocalDate.parse(searchPanelSettings.noteDateWhen1String);
+        if(searchPanelSettings.noteDateWhen2String != null)
+            noteWhen2 = LocalDate.parse(searchPanelSettings.noteDateWhen2String);
+        if(searchPanelSettings.dateLastMod1String != null)
+            dateLastMod1 = LocalDate.parse(searchPanelSettings.dateLastMod1String);
+        if(searchPanelSettings.dateLastMod2String != null)
+            dateLastMod2 = LocalDate.parse(searchPanelSettings.dateLastMod2String);
+        resetDateDisplays();
+    }
 
     /**
      * This method is called from within the constructor.
@@ -1144,7 +1215,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
      * Replaces some standard components with custom types, retaining their
      * sizes and positions.  Also additional property settings.
      */
-    private void reinitializeComponent() {
+    private void rebuildPanel() {
         yvDateChooser = new YearView(LocalDate.now());
 
         TitledBorder tb;   // For a shorter pointer to the panel borders.
@@ -1173,26 +1244,33 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
         // Make button groups for radio buttons
         //-----------------------------------------------
-        ButtonGroup bg1 = new ButtonGroup();
-        bg1.add(rbtnAnd1);
-        bg1.add(rbtnOr1);
+        andOr1 = new ButtonGroup();
+        andOr1.add(rbtnAnd1);
+        andOr1.add(rbtnOr1);
+        rbtnAnd1.setEnabled(editable);
+        rbtnOr1.setEnabled(editable);
 
-        ButtonGroup bg2 = new ButtonGroup();
-        bg2.add(rbtnAnd2);
-        bg2.add(rbtnOr2);
-
-        rbtnOr1.setSelected(true);
-        rbtnOr2.setSelected(true);
+        andOr2 = new ButtonGroup();
+        andOr2.add(rbtnAnd2);
+        andOr2.add(rbtnOr2);
+        rbtnAnd2.setEnabled(editable);
+        rbtnOr2.setEnabled(editable);
 
         bgWhen = new ButtonGroup();
         bgWhen.add(rbtnWhenBefore);
         bgWhen.add(rbtnWhenBetween);
         bgWhen.add(rbtnWhenAfter);
+        rbtnWhenBefore.setEnabled(editable);
+        rbtnWhenBetween.setEnabled(editable);
+        rbtnWhenAfter.setEnabled(editable);
 
         bgMod = new ButtonGroup();
         bgMod.add(rbtnModBefore);
         bgMod.add(rbtnModBetween);
         bgMod.add(rbtnModAfter);
+        rbtnModBefore.setEnabled(editable);
+        rbtnModBetween.setEnabled(editable);
+        rbtnModAfter.setEnabled(editable);
         //-----------------------------------------------
 
         // Increase the size and boldness of the parens
@@ -1209,19 +1287,20 @@ public class SearchPanel extends JPanel implements DocumentListener {
             }
         }; // end redefined MouseAdapter
 
-        rbtnAnd1.addMouseListener(ma1);
-        rbtnAnd2.addMouseListener(ma1);
-        rbtnOr1.addMouseListener(ma1);
-        rbtnOr2.addMouseListener(ma1);
+        if(editable) {
+            rbtnAnd1.addMouseListener(ma1);
+            rbtnAnd2.addMouseListener(ma1);
+            rbtnOr1.addMouseListener(ma1);
+            rbtnOr2.addMouseListener(ma1);
+        }
         //--------------------------------------------------------
-        resetParentheses(false); // Initialize parens to all non-visible
 
         // Initialize the Date Specification prompts
         noteWhen1 = null;
         noteWhen2 = null;
         dateLastMod1 = null;
         dateLastMod2 = null;
-        resetDateDisplay();
+        resetDateDisplays();
 
         // Define and assign a handler for date specifications
         //--------------------------------------------------------
@@ -1243,19 +1322,19 @@ public class SearchPanel extends JPanel implements DocumentListener {
         rbtnModBetween.setName("rbtnModBetween");
         rbtnModAfter.setName("rbtnModAfter");
 
-        rbtnWhenBefore.addMouseListener(ma2);
-        rbtnWhenBetween.addMouseListener(ma2);
-        rbtnWhenAfter.addMouseListener(ma2);
-        rbtnModBefore.addMouseListener(ma2);
-        rbtnModBetween.addMouseListener(ma2);
-        rbtnModAfter.addMouseListener(ma2);
+        if(editable) {
+            rbtnWhenBefore.addMouseListener(ma2);
+            rbtnWhenBetween.addMouseListener(ma2);
+            rbtnWhenAfter.addMouseListener(ma2);
+            rbtnModBefore.addMouseListener(ma2);
+            rbtnModBetween.addMouseListener(ma2);
+            rbtnModAfter.addMouseListener(ma2);
+        }
         //--------------------------------------------------------
+    } // end rebuildPanel
 
 
-    } // end reinitializeComponent
-
-
-    private void resetDateDisplay() {
+    private void resetDateDisplays() {
         String s;
         s = "<html>Click on a choice to the left to make";
         s += " your date selection(s).</html>";
@@ -1284,10 +1363,13 @@ public class SearchPanel extends JPanel implements DocumentListener {
             lblModSelected.setText(s);
             lblModSelected.setFont(Font.decode("Dialog-bold-14"));
         } // end if
-    } // end resetDateDisplay
+    } // end resetDateDisplays
 
+
+    // Enable/disable keyword checkboxes and and/or buttons based on presence of keywords.
+    // This is called with every entry into any keyword field, every time.  (from insertUpdate)
     void resetKeywordPanel() {
-        // Set the defaults
+        // Initialize to all controls disabled and checkboxes deselected -
         chkboxNot1.setSelected(false);
         chkboxNot1.setEnabled(false);
         rbtnAnd1.setEnabled(false);
@@ -1296,28 +1378,43 @@ public class SearchPanel extends JPanel implements DocumentListener {
         chkboxNot2.setEnabled(false);
         rbtnAnd2.setEnabled(false);
         rbtnOr2.setEnabled(false);
-        chkboxNot2.setSelected(false);
+        chkboxNot3.setSelected(false);
         chkboxNot3.setEnabled(false);
 
         if (getWord1() != null) {
-            chkboxNot1.setEnabled(true);
+            if(editable) chkboxNot1.setEnabled(true);
         }
-        if (getWord2() != null) {
+        if(getWord2() == null) andOr1.clearSelection();
+        if (getWord2() != null && editable) {
             chkboxNot2.setEnabled(true);
             if (getWord1() != null) {
                 rbtnAnd1.setEnabled(true);
                 rbtnOr1.setEnabled(true);
+                if(searchPanelSettings.and1) {
+                    rbtnAnd1.setSelected(true);
+                }
+                else {
+                    rbtnOr1.setSelected(true);
+                }
+
             }
         }
-        if (getWord3() != null) {
+        if(getWord3() == null) andOr2.clearSelection();
+        if (getWord3() != null && editable) {
             chkboxNot3.setEnabled(true);
             if (getWord1() != null || getWord2() != null) {
                 rbtnAnd2.setEnabled(true);
                 rbtnOr2.setEnabled(true);
+                if(searchPanelSettings.and2) {
+                    rbtnAnd2.setSelected(true);
+                }
+                else {
+                    rbtnOr2.setSelected(true);
+                }
             }
         }
-        resetParentheses(false);
-    }
+        if(editable) resetParentheses(false);
+    } // end resetKeywordPanel
 
     boolean searchGoals() {
         return chkboxGoals.isSelected();
@@ -1336,28 +1433,22 @@ public class SearchPanel extends JPanel implements DocumentListener {
     }
 
     boolean searchEvents() {
-        return chkboxEvents.isSelected();
+        return chkboxFutureEvents.isSelected();
     }
 
     boolean searchLists() {
         return chkboxTodoLists.isSelected();
     }
 
-    // Used only by tests (for now).
-    // Future dev may support a 'recall' of a previously conducted search.
+    // Used only by tests.
+    // Refactor them to use the new constructor and 'loadTheSettings'.
     void setTheSettings(SearchPanelSettings theSettings) {
         // All SearchPanelSettings default to null, which is NOT the same defaults
         // in every setting on the SearchPanel.
 
-        // The SearchPanel keeps NO local variables; all values are held in the components.
-        // This just is; it wasn't by design and now - don't know if it was a good idea or not.
-        // It seems kind of cool but then it makes getting/setting a lot more complicated.
-        // And it definitely does not keep data separate of representation which goes against
-        // industry standard practices, so now that I've written it down it's looking more like
-        // it probably was NOT a good idea.  Oh well - it works and I'll keep it this way for now.
-        if (theSettings.word1 != null) comboxSearchText1.setText(theSettings.word1);
-        if (theSettings.word2 != null) comboxSearchText2.setText(theSettings.word2);
-        if (theSettings.word3 != null) comboxSearchText3.setText(theSettings.word3);
+        if (theSettings.word1 != null) searchText1.setText(theSettings.word1);
+        if (theSettings.word2 != null) searchText2.setText(theSettings.word2);
+        if (theSettings.word3 != null) searchText3.setText(theSettings.word3);
         rbtnAnd1.setSelected(theSettings.and1);
         rbtnOr1.setSelected(theSettings.or1);
         rbtnAnd2.setSelected(theSettings.and2);

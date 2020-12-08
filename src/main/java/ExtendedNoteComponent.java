@@ -21,9 +21,9 @@ public class ExtendedNoteComponent extends JPanel {
 
     private static final int maxSubjects = 20;
 
-    // Laid out differently in EventEditorPanel
+    // This Panel can have variable content; default declarations below.
     JComboBox<String> subjectChooser;
-    protected JTextArea body;
+    protected JTextArea body;  // held/shown in a JScrollPane
 
     JComponent subjectComponent; // Edit the Subject with either a JTextField or a JComboBox
     String phantomText;  // Leave this null, if not being used.
@@ -92,14 +92,27 @@ public class ExtendedNoteComponent extends JPanel {
             }
         });
 
-        JScrollPane scroll = new JScrollPane(body);
-        this.add(scroll);
+        JScrollPane scrollPane = new JScrollPane(body);
+//        this.add(scrollPane);   // disabled, suspected extraneous.  Otherwise re-enable and add a comment as to why.
 
         if (defaultSubject != null) {
             if (defaultSubject.equals("Goal Title")) {
                 subjectComponent = new JTextField();
                 subjectComponent.setFont(Font.decode("Serif-bold-12"));
                 add(subjectComponent, "North");
+            } else if (defaultSubject.equals("Search Info")) {
+                subjectComponent = new JTextField(32);
+//                int height = subjectComponent.getPreferredSize().height;
+//                subjectComponent.setMaximumSize(new Dimension(20, height));
+//                subjectComponent.setPreferredSize(new Dimension(20, height));
+                JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5, 0));
+                JLabel titleLabel = new JLabel("    Search Title: ");
+                titleLabel.setFont(Font.decode("Serif-bold-12"));
+//                titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+                titlePanel.add(titleLabel);
+                titlePanel.add(subjectComponent);
+                subjectComponent.setFont(Font.decode("Serif-bold-12"));
+                add(titlePanel, "North");
             } else {
                 // Develop the file name of the Subjects from the default
                 //   subject that was the input parameter, by adding the
@@ -126,7 +139,7 @@ public class ExtendedNoteComponent extends JPanel {
         }
 
         theDefaultSubject = defaultSubject;
-        add(scroll, "Center");
+        add(scrollPane, "Center");
     } // end constructor
 
 
@@ -225,6 +238,9 @@ public class ExtendedNoteComponent extends JPanel {
         }
     } // end setExtText
 
+    void setCenterPanel(JPanel theCenterPanel) {
+        add(theCenterPanel, BorderLayout.CENTER);
+    }
 
     void setPhantomText(String theText) {
         phantomText = theText;

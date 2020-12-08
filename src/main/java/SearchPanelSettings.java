@@ -6,6 +6,7 @@
 //   (and Tests).
 //-----------------------------------------------------------------------
 class SearchPanelSettings  {
+    // Keyword Configuration
     boolean not1;
     boolean not2;
     boolean not3;
@@ -19,11 +20,22 @@ class SearchPanelSettings  {
     boolean paren1;
     boolean paren2;
 
-    int whenChoice;
+    // Where to look
+    boolean typeGoal;
+    boolean typeDay;
+    boolean typeMonth;
+    boolean typeYear;
+    boolean typeOtherNote;
+    boolean typePastEvent;
+    boolean typeFutureEvent;
+    boolean typeTask;
+
+    // Note Dates
+    int whenChoice; // Before / Between / After
     String noteDateWhen1String;
     String noteDateWhen2String;
 
-    int modChoice;
+    int modChoice; // Before / Between / After
     String dateLastMod1String;
     String dateLastMod2String;
 

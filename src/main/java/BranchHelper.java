@@ -20,14 +20,14 @@ public class BranchHelper implements BranchHelperInterface {
     private final JTree theTree;  // The original tree, not the one from the editor.
     private final NoteGroupPanelKeeper theNoteGroupPanelKeeper;
     private final DefaultTreeModel theTreeModel;
-    private final DefaultMutableTreeNode theRoot;
+    final DefaultMutableTreeNode theRoot;
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;  // Used when deciding if special handling is needed.
     private String renameTo;    // Provides a way for us override the value.
     private final AreaName theArea;
     private Notifier optionPane;  // for Testing
     private String thePrefix; // event_, todo_, search_
-    private String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
+    String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
 
     enum AreaName {
         GOALS("Goals"),
@@ -137,12 +137,12 @@ public class BranchHelper implements BranchHelperInterface {
     // tasks from the list?  In that case, the branch may no longer accurately
     // represent the true state of the group data files and the user will be informed.
     @Override
-    public void doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
+    public boolean doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         // 'theIndex' is the location of the branch that we will replace.  It is set
         // in the constructor here and it is NOT the same as the row of the tree so
         // it is not error-prone due to changes such as collapse/expand events or a
         // new NoteGroup appearing above it.  But the line below is a 'just in case'.
-        if (theIndex == -1) return;
+        if (theIndex == -1) return false;
 
         // Handle file renamings and deletions
         String deleteWarning = null;
@@ -169,10 +169,10 @@ public class BranchHelper implements BranchHelperInterface {
                 try {
                     if (!f.renameTo(new File(newNamedFile))) {
                         throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
+                    } else {
+                        // Remove the Panel from its keeper; now that it has a new name, this one would not be found anyway.
+                        theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
                     } // end if
-
-                    // Remove the Panel from its keeper; now that it has a new name, this one would not be found anyway.
-                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
@@ -209,9 +209,10 @@ public class BranchHelper implements BranchHelperInterface {
         if (!ems.toString().equals("")) {
             optionPane.showMessageDialog(theTree, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
+            if(changes.size() == 1) return false; // If there was only one change request, we can bail out right now.
         } // end if
 
-        // Accept all 'To Do' Branch structure changes.
+        // Accept all Branch structure changes.
         // We saved this for last, in case the error message above kicked in and the user
         // wants to compare the original branch with the one shown in the editor.
         theRoot.remove(theIndex);
@@ -234,9 +235,9 @@ public class BranchHelper implements BranchHelperInterface {
             // it will also happen with any other Tree selection, after the call to
             // showRestoreOption() below sets the flag to false.
             AppTreePanel.appMenuBar.showRestoreOption(false);
-
             AppTreePanel.theInstance.showAbout();
         }
+        return true;
     }  // end doApply
 
 
