@@ -95,9 +95,9 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         pastColor = Color.pink;  // or new Color(250, 178, 178);
         futureColor = new Color(178, 250, 178);
 
-        // Although size was set explicitly in initializeComponent, each call to getSize()
-        //   reported a smaller amount by (6,25) after each time the dialog was closed.
-        //   This method of capturing the initial size is the workaround.  Now the
+        // Although size was set explicitly in initializeComponent, each call to getSize() reported a smaller amount (by 6,25)
+        //   after each time the dialog was closed, when invoked from the EventNoteGroupPanel in order to edit the
+        //   Event details.  This method of capturing the initial size is the workaround.  Now the
         //   EventNoteGroup calls getMinimumSize (defined below) to get the size value.
         intPreferredWidth = getSize().width;
         intPreferredHeight = getSize().height;

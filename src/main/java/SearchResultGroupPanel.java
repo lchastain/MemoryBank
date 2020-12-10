@@ -22,9 +22,13 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
 
-        // These lines may only be needed for older data ("No Name Yet").  May be able to remove, eventually.
-        myNoteGroup.getGroupProperties().setGroupName(groupName); // Override whatever name was loaded.
-        myNoteGroup.getGroupProperties().groupType = GroupType.SEARCH_RESULTS;
+        // These lines may only be needed for older data.  May be able to remove, eventually.
+        SearchResultGroupProperties srgProperties = (SearchResultGroupProperties) myNoteGroup.getGroupProperties();
+        srgProperties.setGroupName(groupName); // Override whatever name was loaded ("No Name Yet").
+        srgProperties.groupType = GroupType.SEARCH_RESULTS; // Wasn't there, before.
+        // The 'or' controls originally defaulted to 'true'.  The two lines below help with that.
+        if(srgProperties.searchPanelSettings.word2 == null) srgProperties.searchPanelSettings.or1 = false;
+        if(srgProperties.searchPanelSettings.word3 == null) srgProperties.searchPanelSettings.or2 = false;
 
         myNoteGroup.myNoteGroupPanel = this;
         editable = false;

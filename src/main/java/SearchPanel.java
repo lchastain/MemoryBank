@@ -24,7 +24,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
     private final int intPreferredWidth;    // See note in constructor.
     private final int intPreferredHeight;   // See note in constructor.
-    private DateTimeFormatter dtf;
+    private final DateTimeFormatter dtf;
     private LocalDate noteWhen1;
     private LocalDate noteWhen2;
     private LocalDate dateLastMod1;
@@ -35,14 +35,13 @@ public class SearchPanel extends JPanel implements DocumentListener {
     private ButtonGroup andOr2;
 
     YearView yvDateChooser;
-    private boolean blnDialogClosed; // For use by inner classes
+    private boolean blnDialogClosed; // Has an input dialog been properly dismissed?
     JDialog dialogWindow;
     boolean doSearch;
     SearchPanelSettings searchPanelSettings;
     boolean editable;
     //-------------------------------------------------------------
 
-    //-----
     private JCheckBox chkboxGoals;
     private JCheckBox chkboxDayNotes;
     private JCheckBox chkboxMonthNotes;
@@ -51,9 +50,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
     private JCheckBox chkboxPastEvents;
     private JCheckBox chkboxFutureEvents;
     private JCheckBox chkboxTodoLists;
-    private JPanel pnlWhere;
-    //-----
-    private JPanel keywordPanel;
     private JLabel lblOpenParen1;
     private JCheckBox chkboxNot1;
     private JTextField searchText1;
@@ -73,10 +69,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
     private JLabel parensOnLabel;
     private JLabel parensOffLabel;
     //-----
-    private JPanel pnlWhen;
-    //-----
-    private JPanel pnlLastMod;
-    //-----
     private JLabel lblWhenSelected;
     //-----
     private JRadioButton rbtnModBefore;
@@ -95,52 +87,37 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
 
     public SearchPanel() {
+        this(null);
+    }
+
+
+    SearchPanel(SearchPanelSettings sps) {
+        // Prepare our date formatter.
+        dtf = DateTimeFormatter.ofPattern("EEE  d MMM yyyy");
+
+        yvDateChooser = new YearView(LocalDate.now());
+
         doSearch = false; // A flag that can be used by tests.
-        searchPanelSettings = new SearchPanelSettings();
-        editable = true;
+        if(sps != null) {
+            searchPanelSettings = sps;
+            editable = false;
+        } else {
+            searchPanelSettings = new SearchPanelSettings();
+            editable = true;
+        }
 
-        // Some parts of the keyword panel have variable visibility.  Others can be
-        // enabled or disabled, depending on other factors.  These variables are
-        // examined in resetKeywordPanel, and settings made accordingly.
-        typingListener = new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                resetKeywordPanel();
-            }
-        };
+        buildPanel(); // Build the panel
 
-        buildPanel(); // Build (most of) the panel
-
-        // Although size was set explicitly in buildPanel, each call to getSize()
-        //   reported a smaller amount by (6,25) after each time the dialog was closed.
-        //   This method of capturing the initial size is the workaround.  Now the
-        //   EventNoteGroup calls getMinimumSize (defined below) to get the size value.
+        // Sizes captured here once, for consistency when used by the 'get<some>Size' methods, below.
         intPreferredWidth = getSize().width;
         intPreferredHeight = getSize().height;
         blnDialogClosed = false;
 
-        rebuildPanel(); // Finishing touches on the panel construction
-        resetKeywordPanel(); // default settings and enablement
-    } // end constructor
-
-
-    SearchPanel(SearchPanelSettings searchPanelSettings) {
-        doSearch = false; // A flag that can be used by tests.
-        this.searchPanelSettings = searchPanelSettings;
-        editable = false;
-
-        buildPanel(); // Build (most of) the panel
-
-        // Although size was set explicitly in buildPanel, each call to getSize()
-        //   reported a smaller amount by (6,25) after each time the dialog was closed.
-        //   This method of capturing the initial size is the workaround.  Now the
-        //   EventNoteGroup calls getMinimumSize (defined below) to get the size value.
-        intPreferredWidth = getSize().width;
-        intPreferredHeight = getSize().height;
-        blnDialogClosed = false;
-
-        rebuildPanel(); // Finishing touches on the panel construction
-        loadTheSettings();
+        if(sps != null) {
+            loadTheSettings();
+        } else {
+            resetKeywordPanel(); // default settings and enablement
+        }
     }
 
 
@@ -474,6 +451,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
     } // end getLastModSetting
 
 
+    @Override
     public Dimension getMinimumSize() {
         return new Dimension(intPreferredWidth, intPreferredHeight);
     } // end getMinimumSize
@@ -499,6 +477,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
     }
 
     // Used by the static JOptionPane 'show' methods.
+    @Override
     public Dimension getPreferredSize() {
         return getMinimumSize();
     }
@@ -511,6 +490,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
     } // end getParens
 
     // Set the values of our settings from the current states of our components
+    // But not covered here: paren1 & paren2
     SearchPanelSettings getSettings() {
         searchPanelSettings.not1 = getNot1();
         searchPanelSettings.not2 = getNot2();
@@ -726,19 +706,313 @@ public class SearchPanel extends JPanel implements DocumentListener {
         resetKeywordPanel();
     } // end removeUpdate
 
+
+    private void buildPanel() {
+        // The 'where to search' panel and its checkboxes
+        JPanel pnlWhere = new JPanel();
+        chkboxGoals = new JCheckBox("Goals", true);
+        chkboxDayNotes = new JCheckBox("Day Notes", true);
+        chkboxMonthNotes = new JCheckBox("Month Notes", true);
+        chkboxYearNotes = new JCheckBox("Year Notes", true);
+        chkboxOtherNotes = new JCheckBox("Other Notes", true);
+        chkboxPastEvents = new JCheckBox("Past Events", true);
+        chkboxFutureEvents = new JCheckBox("Future Events", true);
+        chkboxTodoLists = new JCheckBox("To Do Lists", true);
+        //-----
+        // Visibility and enablement of these (not their text) is controlled from other contexts.
+        lblOpenParen1 = new JLabel("(");
+        lblOpenParen2 = new JLabel("(");
+        lblCloseParen1 = new JLabel(")");
+        lblCloseParen2 = new JLabel(")");
+        chkboxNot1 = new JCheckBox("NOT");
+        chkboxNot2 = new JCheckBox("NOT");
+        chkboxNot3 = new JCheckBox("NOT");
+        rbtnAnd1 = new JRadioButton("AND");
+        rbtnOr1 = new JRadioButton("OR");
+        rbtnAnd2 = new JRadioButton("AND");
+        rbtnOr2 = new JRadioButton("OR");
+
+        searchText1 = new JTextField();
+        searchText2 = new JTextField();
+        searchText3 = new JTextField();
+
+        JPanel keywordPanel = new JPanel(); // Holds 3 'rows'
+        JPanel pnlKeyword1 = new JPanel();
+        JPanel pnlKeyword2 = new JPanel();
+        JPanel pnlKeyword3 = new JPanel();
+        //-----
+        JPanel pnlWhen = new JPanel();
+        JPanel pnlLastMod = new JPanel();
+        //-----
+        lblWhenSelected = new JLabel();
+        JPanel jPanel10 = new JPanel();
+        //-----
+        rbtnModBefore = new JRadioButton("Before");
+        rbtnModBetween = new JRadioButton("Between");
+        rbtnModAfter = new JRadioButton("After");
+        JPanel jPanel12 = new JPanel();
+        //-----
+        rbtnWhenBefore = new JRadioButton("Before");
+        rbtnWhenBetween = new JRadioButton("Between");
+        rbtnWhenAfter = new JRadioButton("After");
+        JPanel jPanel15 = new JPanel();
+        //-----
+        lblModSelected = new JLabel();
+        JPanel jPanel17 = new JPanel();
+        //-----
+
+        // The base panel for this class -
+        setLayout(null);
+        addComponent(this, keywordPanel, 9, 10, 421, 135);
+        addComponent(this, pnlWhen, 9, 150, 272, 100);
+        addComponent(this, pnlLastMod, 9, 257, 272, 102);
+        addComponent(this, pnlWhere, 293, 150, 138, 209);
+
+        chkboxGoals.setEnabled(editable);
+        chkboxDayNotes.setEnabled(editable);
+        chkboxMonthNotes.setEnabled(editable);
+        chkboxYearNotes.setEnabled(editable);
+        chkboxOtherNotes.setEnabled(editable);
+        chkboxPastEvents.setEnabled(editable);
+        chkboxFutureEvents.setEnabled(editable);
+        chkboxTodoLists.setEnabled(editable);
+
+        // pnlKeywords
+        parensOnLabel = new JLabel("   Group keywords when AND+OR.  Same AND/OR again to move the parentheses.");
+        parensOffLabel = new JLabel("   Keyword searches are case-insensitive.");
+        keywordPanel.setLayout(new BoxLayout(keywordPanel, BoxLayout.Y_AXIS));
+        keywordPanel.add(pnlKeyword1, 0);
+        keywordPanel.add(pnlKeyword2, 1);
+        keywordPanel.add(pnlKeyword3, 2);
+        keywordPanel.add(parensOnLabel, 3);
+        keywordPanel.add(parensOffLabel, 4);
+        keywordPanel.setBorder(new TitledBorder("Title"));
+
+        // pnlWhere
+        pnlWhere.setLayout(new BoxLayout(pnlWhere, BoxLayout.Y_AXIS));
+        pnlWhere.add(chkboxGoals, 0);
+        pnlWhere.add(chkboxDayNotes, 1);
+        pnlWhere.add(chkboxMonthNotes, 2);
+        pnlWhere.add(chkboxYearNotes, 3);
+        pnlWhere.add(chkboxOtherNotes);
+        pnlWhere.add(chkboxPastEvents);
+        pnlWhere.add(chkboxFutureEvents);
+        pnlWhere.add(chkboxTodoLists);
+        pnlWhere.setBorder(new TitledBorder("Title"));
+
+        // Panel for the first keyword
+        searchText1.setEditable(editable);
+        chkboxNot1.setEnabled(editable);
+        if(editable) searchText1.getDocument().addDocumentListener(this);
+        pnlKeyword1.setLayout(null);
+        addComponent(pnlKeyword1, new JLabel("Keyword(s)"), 20, 5, 60, 18);
+        addComponent(pnlKeyword1, lblOpenParen1, 111, 6, 15, 18);
+        addComponent(pnlKeyword1, chkboxNot1, 120, 5, 47, 23);
+        addComponent(pnlKeyword1, searchText1, 170, 6, 210, 21);
+
+        // Panel for the second keyword
+        searchText2.setEditable(editable);
+        chkboxNot2.setEnabled(editable);
+        if(editable) searchText2.getDocument().addDocumentListener(this);
+        pnlKeyword2.setLayout(null);
+        addComponent(pnlKeyword2, lblOpenParen2, 111, 6, 60, 18);
+        addComponent(pnlKeyword2, lblCloseParen1, 389, 5, 60, 18);
+        addComponent(pnlKeyword2, rbtnAnd1, 2, 5, 47, 23);
+        addComponent(pnlKeyword2, rbtnOr1, 56, 5, 41, 23);
+        addComponent(pnlKeyword2, chkboxNot2, 120, 5, 47, 23);
+        addComponent(pnlKeyword2, searchText2, 170, 6, 210, 21);
+
+        // Panel for the third keyword
+        searchText3.setEditable(editable);
+        chkboxNot3.setEnabled(editable);
+        if(editable) searchText3.getDocument().addDocumentListener(this);
+        pnlKeyword3.setLayout(null);
+        addComponent(pnlKeyword3, lblCloseParen2, 389, 5, 60, 18);
+        addComponent(pnlKeyword3, rbtnAnd2, 2, 5, 47, 23);
+        addComponent(pnlKeyword3, rbtnOr2, 56, 5, 41, 23);
+        addComponent(pnlKeyword3, chkboxNot3, 120, 5, 47, 23);
+        addComponent(pnlKeyword3, searchText3, 170, 6, 210, 21);
+        //
+        // pnlWhen
+        pnlWhen.setLayout(new BoxLayout(pnlWhen, BoxLayout.X_AXIS));
+        pnlWhen.add(jPanel15, 0);
+        pnlWhen.add(jPanel10, 1);
+        pnlWhen.setBorder(new TitledBorder("Title"));
+        //
+        // pnlLastMod
+        pnlLastMod.setLayout(new BoxLayout(pnlLastMod, BoxLayout.X_AXIS));
+        pnlLastMod.add(jPanel12, 0);
+        pnlLastMod.add(jPanel17, 1);
+        pnlLastMod.setBorder(new TitledBorder("Title"));
+        //
+        // lblWhenSelected
+        lblWhenSelected.setHorizontalAlignment(SwingConstants.CENTER);
+//        lblWhenSelected.setText("Selected Date");
+        //
+        jPanel10.setLayout(null);
+        addComponent(jPanel10, lblWhenSelected, 12, 7, 166, 57);
+        //
+        jPanel12.setLayout(new BoxLayout(jPanel12, BoxLayout.Y_AXIS));
+        jPanel12.add(rbtnModBefore, 0);
+        jPanel12.add(rbtnModBetween, 1);
+        jPanel12.add(rbtnModAfter, 2);
+        //
+        jPanel15.setLayout(new BoxLayout(jPanel15, BoxLayout.Y_AXIS));
+        jPanel15.add(rbtnWhenBefore, 0);
+        jPanel15.add(rbtnWhenBetween, 1);
+        jPanel15.add(rbtnWhenAfter, 2);
+        //
+        // lblModSelected
+        lblModSelected.setHorizontalAlignment(SwingConstants.CENTER);
+//        lblModSelected.setText("Selected Date");
+        //
+        jPanel17.setLayout(null);
+        addComponent(jPanel17, lblModSelected, 12, 7, 166, 57);
+        //
+        // SearchPanel
+        this.setLocation(new Point(16, 0));
+        this.setSize(new Dimension(443, 357));
+
+        // Below here was originally rebuildPanel()
+        //===================================================================================================
+        // Fill in the border titles -
+        //-----------------------------------------------
+        TitledBorder tb; // Using the same reference for all borders.
+
+        tb = (TitledBorder) pnlWhere.getBorder();
+        tb.setTitle("Where to search");
+        tb.setTitleFont(Font.decode("Dialog-bold-14"));
+
+        tb = (TitledBorder) keywordPanel.getBorder();
+        tb.setTitle("What word(s) to look for");
+        tb.setTitleFont(Font.decode("Dialog-bold-14"));
+
+        tb = (TitledBorder) pnlWhen.getBorder();
+        tb.setTitle("Look for items with Dates");
+        tb.setTitleFont(Font.decode("Dialog-bold-14"));
+
+        tb = (TitledBorder) pnlLastMod.getBorder();
+        tb.setTitle("In a note that was Last Modified");
+        tb.setTitleFont(Font.decode("Dialog-bold-14"));
+        //-----------------------------------------------
+
+        // Make button groups for radio buttons
+        //-----------------------------------------------
+        andOr1 = new ButtonGroup();
+        andOr1.add(rbtnAnd1);
+        andOr1.add(rbtnOr1);
+        rbtnAnd1.setEnabled(editable);
+        rbtnOr1.setEnabled(editable);
+
+        andOr2 = new ButtonGroup();
+        andOr2.add(rbtnAnd2);
+        andOr2.add(rbtnOr2);
+        rbtnAnd2.setEnabled(editable);
+        rbtnOr2.setEnabled(editable);
+
+        bgWhen = new ButtonGroup();
+        bgWhen.add(rbtnWhenBefore);
+        bgWhen.add(rbtnWhenBetween);
+        bgWhen.add(rbtnWhenAfter);
+        rbtnWhenBefore.setEnabled(editable);
+        rbtnWhenBetween.setEnabled(editable);
+        rbtnWhenAfter.setEnabled(editable);
+
+        bgMod = new ButtonGroup();
+        bgMod.add(rbtnModBefore);
+        bgMod.add(rbtnModBetween);
+        bgMod.add(rbtnModAfter);
+        rbtnModBefore.setEnabled(editable);
+        rbtnModBetween.setEnabled(editable);
+        rbtnModAfter.setEnabled(editable);
+        //-----------------------------------------------
+
+        // Increase the size and boldness of the parens
+        lblOpenParen1.setFont(Font.decode("Dialog-bold-14"));
+        lblOpenParen2.setFont(Font.decode("Dialog-bold-14"));
+        lblCloseParen1.setFont(Font.decode("Dialog-bold-14"));
+        lblCloseParen2.setFont(Font.decode("Dialog-bold-14"));
+
+        // Define and assign a handler for parentheses positioning.
+        // This also implements a 'toggle' functionality.
+        //--------------------------------------------------------
+        MouseAdapter ma1 = new MouseAdapter() {
+            public void mouseClicked(MouseEvent me) {
+                getSettings(); // Update all SearchPanelSettings data based on curent state of Panel controls.
+
+                if(searchPanelSettings.paren1) {
+                    searchPanelSettings.paren1 = false;
+                    searchPanelSettings.paren2 = true;
+                } else if(searchPanelSettings.paren2) {
+                    searchPanelSettings.paren2 = false;
+                    searchPanelSettings.paren1 = true;
+                } else {
+                    // Initial showing of parens.  We always start with paren1.
+                    if(rbtnAnd1.isSelected() && rbtnOr2.isSelected()) searchPanelSettings.paren1 = true;
+                    if(rbtnAnd2.isSelected() && rbtnOr1.isSelected()) searchPanelSettings.paren1 = true;
+                }
+                resetParentheses();
+            }
+        }; // end redefined MouseAdapter
+
+        if(editable) {
+            rbtnAnd1.addMouseListener(ma1);
+            rbtnAnd2.addMouseListener(ma1);
+            rbtnOr1.addMouseListener(ma1);
+            rbtnOr2.addMouseListener(ma1);
+        }
+        //--------------------------------------------------------
+
+        // Date Initialization
+        noteWhen1 = null;
+        noteWhen2 = null;
+        dateLastMod1 = null;
+        dateLastMod2 = null;
+        resetDateDisplays(); // Set the initial date prompts
+
+        // Define and assign a handler for date specifications
+        //--------------------------------------------------------
+        MouseAdapter ma2 = new MouseAdapter() {
+            public void mouseClicked(MouseEvent me) {
+                boolean rightClick = false;
+                int m = me.getModifiers();
+                if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
+
+                JRadioButton source = (JRadioButton) me.getSource();
+                if (!source.isSelected() && rightClick) return;
+                handleDateSpecChange(source, rightClick);
+            }
+        }; // end redefined MouseAdapter
+
+        rbtnWhenBefore.setName("rbtnWhenBefore");
+        rbtnWhenBetween.setName("rbtnWhenBetween");
+        rbtnWhenAfter.setName("rbtnWhenAfter");
+        rbtnModBefore.setName("rbtnModBefore");
+        rbtnModBetween.setName("rbtnModBetween");
+        rbtnModAfter.setName("rbtnModAfter");
+
+        if(editable) {
+            rbtnWhenBefore.addMouseListener(ma2);
+            rbtnWhenBetween.addMouseListener(ma2);
+            rbtnWhenAfter.addMouseListener(ma2);
+            rbtnModBefore.addMouseListener(ma2);
+            rbtnModBetween.addMouseListener(ma2);
+            rbtnModAfter.addMouseListener(ma2);
+        }
+
+    } // end buildPanel
+
+
     public void changedUpdate(DocumentEvent e) {
         System.out.println("changedUpdate: " + e.toString());
         resetKeywordPanel();
     } // end changedUpdate
 
 
-    // Called when an AND or an OR radio button was clicked.
-    private void resetParentheses(boolean moveEm) {
-        boolean toggle = false;
+    // Called when an AND or an OR radio button is clicked.
+    // Set the visibility and text of components based on the current SearchPanelSettings.
+    private void resetParentheses() {
         boolean blnNeedParens = false;
-        if (moveEm) {
-            toggle = lblOpenParen1.isVisible();
-        }
 
         lblOpenParen1.setVisible(false);
         lblOpenParen2.setVisible(false);
@@ -753,41 +1027,34 @@ public class SearchPanel extends JPanel implements DocumentListener {
         rbtnOr2.setToolTipText(null);
 
         String s = "Click again to move parentheses";
-        if (rbtnAnd1.isSelected() && rbtnOr2.isSelected()) {
+        if(searchPanelSettings.and1 && searchPanelSettings.or2) {
             blnNeedParens = true;
             rbtnAnd1.setToolTipText(s);
             rbtnOr2.setToolTipText(s);
         } // end if
 
-        if (rbtnOr1.isSelected() && rbtnAnd2.isSelected()) {
+        if(searchPanelSettings.or1 && searchPanelSettings.and2) {
             blnNeedParens = true;
             rbtnOr1.setToolTipText(s);
             rbtnAnd2.setToolTipText(s);
         } // end if
 
-        if(editable) {
-            if (!rbtnAnd1.isEnabled()) blnNeedParens = false;
-            if (!rbtnAnd2.isEnabled()) blnNeedParens = false;
-        }
-
-        searchPanelSettings.paren1 = false;
-        searchPanelSettings.paren2 = false;
         if (blnNeedParens) {
-            parensOnLabel.setVisible(true);
-            parensOffLabel.setVisible(false);
-            if (toggle) {
+            if(editable) {
+                // We only want to give the paren-move help text when the panel is editable.
+                parensOnLabel.setVisible(true);
+                parensOffLabel.setVisible(false);
+            }
+            if (searchPanelSettings.paren2) {
                 lblOpenParen2.setVisible(true);
                 lblCloseParen2.setVisible(true);
-                searchPanelSettings.paren2 = true;
             } else {
                 lblOpenParen1.setVisible(true);
                 lblCloseParen1.setVisible(true);
-                searchPanelSettings.paren1 = true;
             }
         } // end if
 
     } // end resetParentheses
-
 
     private void handleDateSpecChange(JRadioButton source, boolean rc) {
         String strPrompt = "";
@@ -885,252 +1152,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
     } // end hasWhere
 
 
-    private void buildPanel() {
-
-        JPanel contentPane = SearchPanel.this;
-        //----- 
-        chkboxGoals = new JCheckBox();
-        chkboxDayNotes = new JCheckBox();
-        chkboxMonthNotes = new JCheckBox();
-        chkboxYearNotes = new JCheckBox();
-        chkboxOtherNotes = new JCheckBox();
-        chkboxPastEvents = new JCheckBox();
-        chkboxFutureEvents = new JCheckBox();
-        chkboxTodoLists = new JCheckBox();
-        pnlWhere = new JPanel();
-        //----- 
-        keywordPanel = new JPanel();
-        //----- 
-        JLabel jLabel3 = new JLabel();
-        lblOpenParen1 = new JLabel();
-        chkboxNot1 = new JCheckBox();
-        searchText1 = new JTextField();
-        JPanel pnlKeyword1 = new JPanel();
-        //----- 
-        lblOpenParen2 = new JLabel();
-        lblCloseParen1 = new JLabel();
-        rbtnAnd1 = new JRadioButton();
-        rbtnOr1 = new JRadioButton();
-        chkboxNot2 = new JCheckBox();
-        searchText2 = new JTextField();
-        JPanel pnlKeyword2 = new JPanel();
-        //----- 
-        lblCloseParen2 = new JLabel();
-        rbtnAnd2 = new JRadioButton();
-        rbtnOr2 = new JRadioButton();
-        chkboxNot3 = new JCheckBox();
-        searchText3 = new JTextField();
-        JPanel pnlKeyword3 = new JPanel();
-        //----- 
-        pnlWhen = new JPanel();
-        //----- 
-        pnlLastMod = new JPanel();
-        //----- 
-        lblWhenSelected = new JLabel();
-        JPanel jPanel10 = new JPanel();
-        //----- 
-        rbtnModBefore = new JRadioButton();
-        rbtnModBetween = new JRadioButton();
-        rbtnModAfter = new JRadioButton();
-        JPanel jPanel12 = new JPanel();
-        //----- 
-        rbtnWhenAfter = new JRadioButton();
-        rbtnWhenBefore = new JRadioButton();
-        rbtnWhenBetween = new JRadioButton();
-        JPanel jPanel15 = new JPanel();
-        //----- 
-        lblModSelected = new JLabel();
-        JPanel jPanel17 = new JPanel();
-        //----- 
-
-        // 
-        // contentPane 
-        // 
-        contentPane.setLayout(null);
-        addComponent(contentPane, keywordPanel, 9, 10, 421, 135);
-        addComponent(contentPane, pnlWhen, 9, 150, 272, 100);
-        addComponent(contentPane, pnlLastMod, 9, 257, 272, 102);
-        addComponent(contentPane, pnlWhere, 293, 150, 138, 209);
-        //
-        // chkboxGoals 
-        // 
-        chkboxGoals.setText("Goals");
-        chkboxGoals.setSelected(true);
-        chkboxGoals.setEnabled(editable);
-        // 
-        // chkboxDayNotes 
-        // 
-        chkboxDayNotes.setText("Day Notes");
-        chkboxDayNotes.setSelected(true);
-        chkboxDayNotes.setEnabled(editable);
-        // 
-        // chkboxMonthNotes 
-        // 
-        chkboxMonthNotes.setText("Month Notes");
-        chkboxMonthNotes.setSelected(true);
-        chkboxMonthNotes.setEnabled(editable);
-        // 
-        // chkboxYearNotes 
-        // 
-        chkboxYearNotes.setText("Year Notes");
-        chkboxYearNotes.setSelected(true);
-        chkboxYearNotes.setEnabled(editable);
-        //
-        // chkboxOtherNotes
-        //
-        chkboxOtherNotes.setText("Other Notes");
-        chkboxOtherNotes.setSelected(true);
-        chkboxOtherNotes.setEnabled(editable);
-        //
-        // chkboxPastEvents
-        //
-        chkboxPastEvents.setText("Past Events");
-        chkboxPastEvents.setSelected(true);
-        chkboxPastEvents.setEnabled(editable);
-        //
-        // chkboxEvents 
-        // 
-        chkboxFutureEvents.setText("Future Events");
-        chkboxFutureEvents.setSelected(true);
-        chkboxFutureEvents.setEnabled(editable);
-        // 
-        // chkboxTodoLists 
-        // 
-        chkboxTodoLists.setText("To Do Lists");
-        chkboxTodoLists.setSelected(true);
-        chkboxTodoLists.setEnabled(editable);
-        //
-        // pnlKeywords
-        //
-        parensOnLabel = new JLabel("   Group keywords when AND+OR.  Same AND/OR again to move the parentheses.");
-        parensOffLabel = new JLabel("   Keyword searches are case-insensitive.");
-        keywordPanel.setLayout(new BoxLayout(keywordPanel, BoxLayout.Y_AXIS));
-        keywordPanel.add(pnlKeyword1, 0);
-        keywordPanel.add(pnlKeyword2, 1);
-        keywordPanel.add(pnlKeyword3, 2);
-        keywordPanel.add(parensOnLabel, 3);
-        keywordPanel.add(parensOffLabel, 4);
-        keywordPanel.setBorder(new TitledBorder("Title"));
-        //
-        // pnlWhere 
-        // 
-        pnlWhere.setLayout(new BoxLayout(pnlWhere, BoxLayout.Y_AXIS));
-        pnlWhere.add(chkboxGoals, 0);
-        pnlWhere.add(chkboxDayNotes, 1);
-        pnlWhere.add(chkboxMonthNotes, 2);
-        pnlWhere.add(chkboxYearNotes, 3);
-        pnlWhere.add(chkboxOtherNotes);
-        pnlWhere.add(chkboxPastEvents);
-        pnlWhere.add(chkboxFutureEvents);
-        pnlWhere.add(chkboxTodoLists);
-        pnlWhere.setBorder(new TitledBorder("Title"));
-        //
-        // jLabel3 
-        // 
-        jLabel3.setText("Keyword(s)");
-        lblOpenParen1.setText("(");
-        // 
-        chkboxNot1.setText("NOT");
-        // 
-        searchText1.setEditable(editable);
-        searchText1.getDocument().addDocumentListener(this);
-
-        //
-        // pnlKeyword1 
-        // 
-        pnlKeyword1.setLayout(null);
-        addComponent(pnlKeyword1, jLabel3, 20, 5, 60, 18);
-        addComponent(pnlKeyword1, lblOpenParen1, 111, 6, 15, 18);
-        addComponent(pnlKeyword1, chkboxNot1, 120, 5, 47, 23);
-        addComponent(pnlKeyword1, searchText1, 170, 6, 210, 21);
-        // 
-        lblOpenParen2.setText("(");
-        lblCloseParen1.setText(")");
-        // 
-        rbtnAnd1.setText("AND");
-        rbtnOr1.setText("OR");
-        chkboxNot2.setText("NOT");
-
-        searchText2.setEditable(editable);
-        searchText2.getDocument().addDocumentListener(this);
-
-        pnlKeyword2.setLayout(null);
-        addComponent(pnlKeyword2, lblOpenParen2, 111, 6, 60, 18);
-        addComponent(pnlKeyword2, lblCloseParen1, 389, 5, 60, 18);
-        addComponent(pnlKeyword2, rbtnAnd1, 2, 5, 47, 23);
-        addComponent(pnlKeyword2, rbtnOr1, 56, 5, 41, 23);
-        addComponent(pnlKeyword2, chkboxNot2, 120, 5, 47, 23);
-        addComponent(pnlKeyword2, searchText2, 170, 6, 210, 21);
-        // 
-        lblCloseParen2.setText(")");
-        rbtnAnd2.setText("AND");
-
-        rbtnOr2.setText("OR");
-        chkboxNot3.setText("NOT");
-        // 
-        searchText3.setEditable(editable);
-        searchText3.getDocument().addDocumentListener(this);
-
-        //
-        // pnlKeyword3 
-        // 
-        pnlKeyword3.setLayout(null);
-        addComponent(pnlKeyword3, lblCloseParen2, 389, 5, 60, 18);
-        addComponent(pnlKeyword3, rbtnAnd2, 2, 5, 47, 23);
-        addComponent(pnlKeyword3, rbtnOr2, 56, 5, 41, 23);
-        addComponent(pnlKeyword3, chkboxNot3, 120, 5, 47, 23);
-        addComponent(pnlKeyword3, searchText3, 170, 6, 210, 21);
-        // 
-        // pnlWhen 
-        pnlWhen.setLayout(new BoxLayout(pnlWhen, BoxLayout.X_AXIS));
-        pnlWhen.add(jPanel15, 0);
-        pnlWhen.add(jPanel10, 1);
-        pnlWhen.setBorder(new TitledBorder("Title"));
-        // 
-        // pnlLastMod 
-        pnlLastMod.setLayout(new BoxLayout(pnlLastMod, BoxLayout.X_AXIS));
-        pnlLastMod.add(jPanel12, 0);
-        pnlLastMod.add(jPanel17, 1);
-        pnlLastMod.setBorder(new TitledBorder("Title"));
-        // 
-        // lblWhenSelected 
-        lblWhenSelected.setHorizontalAlignment(SwingConstants.CENTER);
-        lblWhenSelected.setText("Selected Date");
-        // 
-        jPanel10.setLayout(null);
-        addComponent(jPanel10, lblWhenSelected, 12, 7, 166, 57);
-        // 
-        rbtnModBefore.setText("Before");
-        rbtnModBetween.setText("Between");
-        rbtnModAfter.setText("After");
-        // 
-        jPanel12.setLayout(new BoxLayout(jPanel12, BoxLayout.Y_AXIS));
-        jPanel12.add(rbtnModBefore, 0);
-        jPanel12.add(rbtnModBetween, 1);
-        jPanel12.add(rbtnModAfter, 2);
-        // 
-        rbtnWhenAfter.setText("After");
-        rbtnWhenBefore.setText("Before");
-        rbtnWhenBetween.setText("Between");
-        // 
-        jPanel15.setLayout(new BoxLayout(jPanel15, BoxLayout.Y_AXIS));
-        jPanel15.add(rbtnWhenBefore, 0);
-        jPanel15.add(rbtnWhenBetween, 1);
-        jPanel15.add(rbtnWhenAfter, 2);
-        // 
-        // lblModSelected 
-        lblModSelected.setHorizontalAlignment(SwingConstants.CENTER);
-        lblModSelected.setText("Selected Date");
-        // 
-        jPanel17.setLayout(null);
-        addComponent(jPanel17, lblModSelected, 12, 7, 166, 57);
-        // 
-        // SearchPanel
-        this.setLocation(new Point(16, 0));
-        this.setSize(new Dimension(443, 357));
-    } // end buildPanel
-
-
     // Use the searchPanelSettings to configure the panel's controls.  This is for
     //   search criteria review only, not to be user-altered or used in a new search.
     void loadTheSettings() {
@@ -1145,10 +1166,11 @@ public class SearchPanel extends JPanel implements DocumentListener {
         rbtnOr2.setSelected(searchPanelSettings.or2);
         chkboxNot3.setSelected(searchPanelSettings.not3);
         searchText3.setText(searchPanelSettings.word3);
-        if(searchPanelSettings.paren1) resetParentheses(false);
-        if(searchPanelSettings.paren2) resetParentheses(true);
+        resetParentheses();
+//        if(searchPanelSettings.paren1) resetParentheses(false);
+//        if(searchPanelSettings.paren2) resetParentheses(true);
 
-        // These need to be done AFTER the text fields have been set, to avoid the keyTyped listener.
+        // These need to be done AFTER the text fields have been set, to avoid the Document listener.
         // We re-enable these for the coloration, only.  No mouse listeners.
         if(searchPanelSettings.and1) rbtnAnd1.setEnabled(true);
         if(searchPanelSettings.or1) rbtnOr1.setEnabled(true);
@@ -1209,131 +1231,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
         resetDateDisplays();
     }
 
-    /**
-     * This method is called from within the constructor.
-     * It continues the work of the JFrameBuilder generated code.
-     * Replaces some standard components with custom types, retaining their
-     * sizes and positions.  Also additional property settings.
-     */
-    private void rebuildPanel() {
-        yvDateChooser = new YearView(LocalDate.now());
-
-        TitledBorder tb;   // For a shorter pointer to the panel borders.
-
-        // Prepare our date formatter.
-        dtf = DateTimeFormatter.ofPattern("EEE  d MMM yyyy");
-
-        // Fill in the border titles -
-        //-----------------------------------------------
-        tb = (TitledBorder) pnlWhere.getBorder();
-        tb.setTitle("Where to search");
-        tb.setTitleFont(Font.decode("Dialog-bold-14"));
-
-        tb = (TitledBorder) keywordPanel.getBorder();
-        tb.setTitle("What word(s) to look for");
-        tb.setTitleFont(Font.decode("Dialog-bold-14"));
-
-        tb = (TitledBorder) pnlWhen.getBorder();
-        tb.setTitle("Look for items with Dates");
-        tb.setTitleFont(Font.decode("Dialog-bold-14"));
-
-        tb = (TitledBorder) pnlLastMod.getBorder();
-        tb.setTitle("In a note that was Last Modified");
-        tb.setTitleFont(Font.decode("Dialog-bold-14"));
-        //-----------------------------------------------
-
-        // Make button groups for radio buttons
-        //-----------------------------------------------
-        andOr1 = new ButtonGroup();
-        andOr1.add(rbtnAnd1);
-        andOr1.add(rbtnOr1);
-        rbtnAnd1.setEnabled(editable);
-        rbtnOr1.setEnabled(editable);
-
-        andOr2 = new ButtonGroup();
-        andOr2.add(rbtnAnd2);
-        andOr2.add(rbtnOr2);
-        rbtnAnd2.setEnabled(editable);
-        rbtnOr2.setEnabled(editable);
-
-        bgWhen = new ButtonGroup();
-        bgWhen.add(rbtnWhenBefore);
-        bgWhen.add(rbtnWhenBetween);
-        bgWhen.add(rbtnWhenAfter);
-        rbtnWhenBefore.setEnabled(editable);
-        rbtnWhenBetween.setEnabled(editable);
-        rbtnWhenAfter.setEnabled(editable);
-
-        bgMod = new ButtonGroup();
-        bgMod.add(rbtnModBefore);
-        bgMod.add(rbtnModBetween);
-        bgMod.add(rbtnModAfter);
-        rbtnModBefore.setEnabled(editable);
-        rbtnModBetween.setEnabled(editable);
-        rbtnModAfter.setEnabled(editable);
-        //-----------------------------------------------
-
-        // Increase the size and boldness of the parens
-        lblOpenParen1.setFont(Font.decode("Dialog-bold-14"));
-        lblOpenParen2.setFont(Font.decode("Dialog-bold-14"));
-        lblCloseParen1.setFont(Font.decode("Dialog-bold-14"));
-        lblCloseParen2.setFont(Font.decode("Dialog-bold-14"));
-
-        // Define and assign a handler for parentheses visibility
-        //--------------------------------------------------------
-        MouseAdapter ma1 = new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                resetParentheses(true);
-            }
-        }; // end redefined MouseAdapter
-
-        if(editable) {
-            rbtnAnd1.addMouseListener(ma1);
-            rbtnAnd2.addMouseListener(ma1);
-            rbtnOr1.addMouseListener(ma1);
-            rbtnOr2.addMouseListener(ma1);
-        }
-        //--------------------------------------------------------
-
-        // Initialize the Date Specification prompts
-        noteWhen1 = null;
-        noteWhen2 = null;
-        dateLastMod1 = null;
-        dateLastMod2 = null;
-        resetDateDisplays();
-
-        // Define and assign a handler for date specifications
-        //--------------------------------------------------------
-        MouseAdapter ma2 = new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                boolean rightClick = false;
-                int m = me.getModifiers();
-                if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
-
-                JRadioButton source = (JRadioButton) me.getSource();
-                if (!source.isSelected() && rightClick) return;
-                handleDateSpecChange(source, rightClick);
-            }
-        }; // end redefined MouseAdapter
-        rbtnWhenBefore.setName("rbtnWhenBefore");
-        rbtnWhenBetween.setName("rbtnWhenBetween");
-        rbtnWhenAfter.setName("rbtnWhenAfter");
-        rbtnModBefore.setName("rbtnModBefore");
-        rbtnModBetween.setName("rbtnModBetween");
-        rbtnModAfter.setName("rbtnModAfter");
-
-        if(editable) {
-            rbtnWhenBefore.addMouseListener(ma2);
-            rbtnWhenBetween.addMouseListener(ma2);
-            rbtnWhenAfter.addMouseListener(ma2);
-            rbtnModBefore.addMouseListener(ma2);
-            rbtnModBetween.addMouseListener(ma2);
-            rbtnModAfter.addMouseListener(ma2);
-        }
-        //--------------------------------------------------------
-    } // end rebuildPanel
-
-
     private void resetDateDisplays() {
         String s;
         s = "<html>Click on a choice to the left to make";
@@ -1368,52 +1265,95 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
     // Enable/disable keyword checkboxes and and/or buttons based on presence of keywords.
     // This is called with every entry into any keyword field, every time.  (from insertUpdate)
+    // Some parts of the keyword panel have variable visibility.  Others can be
+    // enabled or disabled, depending on combinations of the states of other controls.  These
+    // settings and combinations are examined here, and settings made accordingly.
+    // The 'editable' flag is not considered, since this method is not called when the panel is non-editable.
     void resetKeywordPanel() {
-        // Initialize to all controls disabled and checkboxes deselected -
-        chkboxNot1.setSelected(false);
-        chkboxNot1.setEnabled(false);
+        // Initialize all And/Or controls to disabled -
         rbtnAnd1.setEnabled(false);
         rbtnOr1.setEnabled(false);
-        chkboxNot2.setSelected(false);
-        chkboxNot2.setEnabled(false);
         rbtnAnd2.setEnabled(false);
         rbtnOr2.setEnabled(false);
-        chkboxNot3.setSelected(false);
-        chkboxNot3.setEnabled(false);
 
         if (getWord1() != null) {
-            if(editable) chkboxNot1.setEnabled(true);
+            chkboxNot1.setEnabled(true);
+            if(getWord2() != null) {
+                rbtnAnd1.setEnabled(true);
+                rbtnOr1.setEnabled(true);
+            }
+        } else {
+            andOr1.clearSelection();
+            chkboxNot1.setSelected(false);
+            chkboxNot1.setEnabled(false);
+            searchPanelSettings.paren1 = false;
+            searchPanelSettings.paren2 = false;
+            searchPanelSettings.and1 = false;
+            searchPanelSettings.or1 = false;
+            if(getWord2() == null) {
+                // We already didn't have a word 1; now if there is also
+                //  no word 2 then the and/or for word 3 can be cleared.
+                andOr2.clearSelection();
+                searchPanelSettings.and2 = false;
+                searchPanelSettings.or2 = false;
+            }
         }
-        if(getWord2() == null) andOr1.clearSelection();
-        if (getWord2() != null && editable) {
+
+        if (getWord2() != null) {
             chkboxNot2.setEnabled(true);
             if (getWord1() != null) {
                 rbtnAnd1.setEnabled(true);
                 rbtnOr1.setEnabled(true);
+
+                // We might have arrived here with .and1 being true, if words 1&2 were not null on a recent previous keystroke.
                 if(searchPanelSettings.and1) {
-                    rbtnAnd1.setSelected(true);
+                    rbtnAnd1.setSelected(true); // The 'and's are never the default.
                 }
                 else {
                     rbtnOr1.setSelected(true);
+                    searchPanelSettings.or1 = true; // Either it already was, or we need to make it so now, as the default.
                 }
-
             }
+        } else {
+            andOr1.clearSelection();
+            chkboxNot2.setSelected(false);
+            chkboxNot2.setEnabled(false);
+            searchPanelSettings.paren1 = false;
+            searchPanelSettings.paren2 = false;
+            searchPanelSettings.and1 = false;
+            searchPanelSettings.or1 = false;
         }
-        if(getWord3() == null) andOr2.clearSelection();
-        if (getWord3() != null && editable) {
+
+        if (getWord3() != null) {
             chkboxNot3.setEnabled(true);
             if (getWord1() != null || getWord2() != null) {
                 rbtnAnd2.setEnabled(true);
                 rbtnOr2.setEnabled(true);
+
+                // We might have arrived here with .and2 being true, if word 3 was not null on a recent previous keystroke.
                 if(searchPanelSettings.and2) {
-                    rbtnAnd2.setSelected(true);
+                    rbtnAnd2.setSelected(true); // The 'and's are never the default.
                 }
                 else {
                     rbtnOr2.setSelected(true);
+                    searchPanelSettings.or2 = true; // Either it already was, or we need to make it so now, as the default.
                 }
             }
+        } else {
+            andOr2.clearSelection();
+            chkboxNot3.setSelected(false);
+            chkboxNot3.setEnabled(false);
+            searchPanelSettings.paren1 = false;
+            searchPanelSettings.paren2 = false;
+            searchPanelSettings.and2 = false;
+            searchPanelSettings.or2 = false;
         }
-        if(editable) resetParentheses(false);
+
+        if(getWord1() == null || getWord2() == null || getWord3() == null) {
+            searchPanelSettings.paren1 = false;
+            searchPanelSettings.paren2 = false;
+        }
+        resetParentheses();
     } // end resetKeywordPanel
 
     boolean searchGoals() {
@@ -1453,7 +1393,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
         rbtnOr1.setSelected(theSettings.or1);
         rbtnAnd2.setSelected(theSettings.and2);
         rbtnOr2.setSelected(theSettings.or2);
-        lblOpenParen1.setVisible(theSettings.paren1); // Closed tracks along with Open
+        lblOpenParen1.setVisible(theSettings.paren1); // 'closed' is in sync with 'open' -
         lblOpenParen2.setVisible(theSettings.paren2); // we're depending on it.
     }
 
