@@ -665,7 +665,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
     } // end getSummary
 
 
-    private int getWhenSetting() {
+    int getWhenSetting() {
         if (rbtnWhenAfter.isSelected()) return AFTER;
         if (rbtnWhenBefore.isSelected()) return BEFORE;
         if (rbtnWhenBetween.isSelected()) return BETWEEN;

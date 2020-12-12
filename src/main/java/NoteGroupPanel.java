@@ -460,7 +460,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             tempNoteComponent.setEditable(editable);
 
             if (dataIndex <= maxDataIndex) { // Put vector data into the interface.
-                MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
+                //MemoryBank.debug("  loading panel index " + panelIndex + " with data element " + dataIndex);
                 tempNoteComponent.setNoteData((NoteData) myNoteGroup.noteGroupDataVector.elementAt(dataIndex)); // sets initialized to true
                 tempNoteComponent.setVisible(true);
                 lastVisibleNoteIndex = panelIndex;

@@ -1041,11 +1041,15 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 } // end if / else if
 
                 // Check the Note date, possibly filter out based on 'when'.
+
                 if (goLook) {
-                    dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
-                    if (dateNoteDate != null) {
-                        if (searchPanel.filterWhen(dateNoteDate)) goLook = false;
-                    } // end if
+                    if(searchPanel.getWhenSetting() != -1) {
+                        // This section is only needed if the user has specified a date in the search.
+                        dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
+                        if (dateNoteDate != null) {
+                            if (searchPanel.filterWhen(dateNoteDate)) goLook = false;
+                        } // end if
+                    }
                 } // end if
 
 
@@ -1057,10 +1061,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 //   or the app is being served from a server where only admins have access (and we
                 //   trust all admins, of course).
                 if (goLook) {
-                    LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
-                    if (searchPanel.getLastModSetting() == SearchPanel.AFTER) {
-                        if (searchPanel.filterLastMod(dateLastMod)) goLook = false;
-                    } // end if
+                    if(searchPanel.getLastModSetting() != -1) {
+                        // This section is only needed if the user has specified a date in the search.
+                        LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
+                        if (searchPanel.getLastModSetting() == SearchPanel.AFTER) {
+                            if (searchPanel.filterLastMod(dateLastMod)) goLook = false;
+                        } // end if
+                    }
                 } // end if
 
                 if (goLook) {
@@ -1082,8 +1089,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     //   the filter so if not desired, don't search there.
     //---------------------------------------------------------
     private void searchDataFile(File dataFile) {
-        String theFilename = dataFile.getName();
-        MemoryBank.debug("Searching: " + theFilename);
+        //MemoryBank.debug("Searching: " + dataFile.getName());  // This one is a bit too verbose.
         Vector<AllNoteData> searchDataVector = null;
 
         // Load the file
@@ -1098,18 +1104,17 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         }
         if (searchDataVector == null) return;
 
-        // Get the 'foundIn' info -
-        // Although this is actually a GroupInfo, we do not need to populate the foundIn.groupId
-        //   because search results are not intended to themselves be a part of the traceability chain,
-        //   and they cannot be linked to or from.  Currently, the method below does not read in the
-        //   data, so it cannot provide the groupId.
-        GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
-
         // Now get on with the search -
         for (AllNoteData vectorItem : searchDataVector) {
 
             // If we find what we're looking for in/about this note -
             if (searchPanel.foundIt(vectorItem)) {
+                // Get the 'foundIn' info -
+                // Although this is actually a GroupInfo, we do not need to populate the foundIn.groupId
+                //   because search results are not intended to themselves be a part of the traceability chain,
+                //   and they cannot be linked to or from.  Currently, the method below does not read in the
+                //   data, so it cannot provide the groupId.
+                GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
 
                 // Make new search result data for this find.
                 SearchResultData srd = new SearchResultData(vectorItem);

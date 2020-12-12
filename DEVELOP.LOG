@@ -8,7 +8,6 @@ Priorities:
 
 
 Current/Next:
-    Clear up the hipri issues, then get on with Archiving.
 
 Issues and/or Problems:
 
@@ -34,6 +33,7 @@ New:
     back to true - why back to true, for a Search?  Anyway, removed that line to fix ALL the various symptoms in this
     area.  In the process, had changed 'editable' to a private member so I could see changes coming through the 'set'
     method.  Seems ok to leave it that way.
+  Reduced overly verbose debug printouts - loading panel, getting dates from files, 'Searching', etc.
 
 11 Dec 2020
     Typing into a notestring now calls hideToolTip(), which fires the mouseExited, to turn off tooltip.  Without this,
