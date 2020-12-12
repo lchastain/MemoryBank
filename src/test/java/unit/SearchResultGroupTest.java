@@ -110,13 +110,6 @@ class SearchResultGroupTest {
     }
 
     @Test
-    void testSortText() {
-        // Just the coverage -
-        searchResultGroup.sortText(NoteGroupPanel.ASCENDING);
-        searchResultGroup.sortText(NoteGroupPanel.DESCENDING);
-    }
-
-    @Test
     void testSaving() {
         // covers multiple methods
         searchResultGroup.setGroupChanged(true);

@@ -241,7 +241,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
 
     public void shiftDown(int index) {
-        if(!editable) return;
+        if(!getEditable()) return;
         if (index >= (lastVisibleNoteIndex - 1)) return;
         MemoryBank.debug("Day Shifting note down");
         DayNoteComponent dnc1, dnc2;
@@ -254,7 +254,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
 
     public void shiftUp(int index) {
-        if(!editable) return;
+        if(!getEditable()) return;
         if (index == 0 || index == lastVisibleNoteIndex) return;
         System.out.println("Day Shifting note up");
         DayNoteComponent dnc1, dnc2;

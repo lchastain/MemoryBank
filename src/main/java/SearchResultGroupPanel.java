@@ -22,18 +22,30 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         GroupInfo groupInfo = new GroupInfo(groupName, GroupType.SEARCH_RESULTS);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
 
-        // These lines may only be needed for older data.  May be able to remove, eventually.
+        // The lines below may only be needed for older data.  May be able to remove, eventually.
+        //----------------------------------------------------------------------------------------------------------
         SearchResultGroupProperties srgProperties = (SearchResultGroupProperties) myNoteGroup.getGroupProperties();
         srgProperties.setGroupName(groupName); // Override whatever name was loaded ("No Name Yet").
         srgProperties.groupType = GroupType.SEARCH_RESULTS; // Wasn't there, before.
-        // The 'or' controls originally defaulted to 'true'.  The two lines below help with that.
-        if(srgProperties.searchPanelSettings.word2 == null) srgProperties.searchPanelSettings.or1 = false;
-        if(srgProperties.searchPanelSettings.word3 == null) srgProperties.searchPanelSettings.or2 = false;
+        // The 'or' controls originally defaulted to 'true'.  The lines below help with that.
+        boolean word1, word2, word3;
+        word1 = srgProperties.searchPanelSettings.word1 != null;
+        word2 = srgProperties.searchPanelSettings.word2 != null;
+        word3 = srgProperties.searchPanelSettings.word3 != null;
+        if(!word1 || !word2) srgProperties.searchPanelSettings.or1 = false;
+        if(!word1 && !word2) srgProperties.searchPanelSettings.or2 = false;
+        if(!word3) srgProperties.searchPanelSettings.or2 = false;
+        // Group types to search previously defaulted to all true in the dialog, but no values were stored.  So if they
+        // are not in the file it can only mean that the default was used since if they were ALL false in reality
+        // then the search would not have been conducted in the first place.  The missing settings have been 'fixed' by
+        // setting the default 'true' values in the SearchPanelSettings class definition which is used when the file is
+        // read in.
+
+        //----------------------------------------------------------------------------------------------------------
 
         myNoteGroup.myNoteGroupPanel = this;
-        editable = false;
+        setEditable(false);
         loadNotesPanel();
-        editable = true;
 
         // Unlike with a ToDo list, this is not conditional; we just do it whether needed or not.
         checkColumnOrder();

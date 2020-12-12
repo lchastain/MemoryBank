@@ -1506,7 +1506,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theGoalsKeeper.add(goalGroup);
                 }
             } else {
-                if (!goalGroup.editable) goalGroup.setEditable(true);
+                if (!goalGroup.getEditable()) goalGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1554,7 +1554,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theEventListKeeper.add(eventNoteGroup);
                 }
             } else {
-                if (!eventNoteGroup.editable) eventNoteGroup.setEditable(true);
+                if (!eventNoteGroup.getEditable()) eventNoteGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1602,7 +1602,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                     theTodoListKeeper.add(todoNoteGroup);
                 }
             } else {
-                if (!todoNoteGroup.editable) todoNoteGroup.setEditable(true);
+                if (!todoNoteGroup.getEditable()) todoNoteGroup.setEditable(true);
                 log.debug("Retrieved '" + theNodeString + "' from the keeper");
             }
 
@@ -1733,7 +1733,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Previously constructed.  Ensure that it is editable.
                 log.debug("Using the previously constructed 'theAppDays' for " + theNodeString);
-                if (!theAppDays.editable) theAppDays.setEditable(true);
+                if (!theAppDays.getEditable()) theAppDays.setEditable(true);
             }
 
             theAppDays.setAlteredDateListener(this); // needed for both new and pre-existing.
@@ -1753,7 +1753,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Previously constructed.  Ensure that it is editable.
                 log.debug("Using the previously constructed 'theAppMonths' for " + theNodeString);
-                if (!theAppMonths.editable) theAppMonths.setEditable(true);
+                if (!theAppMonths.getEditable()) theAppMonths.setEditable(true);
             }
 
             theAppMonths.setAlteredDateListener(this); // needed for both new and pre-existing.
@@ -1766,7 +1766,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Previously constructed.  Ensure that it is editable.
                 log.debug("Using the previously constructed 'theAppYears' for " + theNodeString);
-                if (!theAppYears.editable) theAppYears.setEditable(true);
+                if (!theAppYears.getEditable()) theAppYears.setEditable(true);
             }
 
             theAppYears.setAlteredDateListener(this); // needed for both new and pre-existing.

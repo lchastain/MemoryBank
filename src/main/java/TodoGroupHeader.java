@@ -225,11 +225,8 @@ public class TodoGroupHeader extends Container implements ClingSource {
                     parent.sortPriority(shift);
                     break;
                 case "To Do Text":
-                    parent.sortText(shift);
+                    parent.sortNoteString(shift);
                     break;
-//                case "Deadline":    See the note in the commented-out TodoNoteGroup.sortDeadline()
-//                    parent.sortDeadline(shift);
-//                    break;
             }
 
             parent.setGroupChanged(true);

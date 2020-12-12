@@ -490,6 +490,34 @@ public class NoteComponent extends JPanel {
         }
 
 
+        // Turn off the currently displayed tooltip, if there is one.
+        void hideToolTip() {
+            // We preserve a single (static) last MOUSE_ENTERED event across ALL NoteTextFields, but there is a
+            // sequence of operations after program startup, whereby execution could come here while this reference
+            // is still null.  So the following  block of code is conditional on it not being null.
+            if(lastMouseEnteredEvent != null) {
+                // Get a reference to the last entered note
+                NoteTextField theSource = (NoteTextField) lastMouseEnteredEvent.getSource();
+                // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
+                MouseEvent mouseExitedEvent = new MouseEvent(theSource, MouseEvent.MOUSE_EXITED,
+                        lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiers(),
+                        -1, -1, lastMouseEnteredEvent.getClickCount(), false);
+
+                // Now get ALL the mouse listeners on that earlier note.
+                // This is because tooltips are displayed by the JVM library code and not our own, so if there
+                //   is a tooltip showing then it was put there by a listener in that code, so that is the listener
+                //   to which we need to send the event to get the tooltip to go away.
+                MouseListener[] theListeners = theSource.getMouseListeners();
+
+                // Cycle thru the listeners and call .mouseExited() on all of them.
+                // (including our own, but that one will not remove the tooltip).
+                for(MouseListener ml: theListeners) {
+                    ml.mouseExited(mouseExitedEvent);
+                }
+            }
+        }
+
+
         private void resetToolTip(NoteData nd) {
             if (nd == null) return;
 
@@ -557,37 +585,10 @@ public class NoteComponent extends JPanel {
         //---------------------------------------------------------
         public void actionPerformed(ActionEvent ae) {
             MemoryBank.event();
+            boolean extendedNoteChanged;
             if (!this.isEditable()) return;
             if (!initialized) return;
-
-            // Turn off the currently displayed tooltip, if any.
-            //----------------------------------------------------------------------------------------------------
-            // We preserve a single (static) last MOUSE_ENTERED event across ALL NoteTextFields, but there is a
-            // sequence of operations after program startup, whereby execution could come here while this reference
-            // is still null.  So the following  block of code is conditional on it not being null.
-            if(lastMouseEnteredEvent != null) {
-                // Get a reference to the last entered note
-                NoteTextField theSource = (NoteTextField) lastMouseEnteredEvent.getSource();
-                // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
-                MouseEvent mouseExitedEvent = new MouseEvent(theSource, MouseEvent.MOUSE_EXITED,
-                        lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiers(),
-                        -1, -1, lastMouseEnteredEvent.getClickCount(), false);
-
-                // Now get ALL the mouse listeners on that earlier note.
-                // This is because tooltips are displayed by the JVM library code and not our own, so if there
-                //   is a tooltip showing then it was put there by a listener in that code, so that is the listener
-                //   to which we need to send the event to get the tooltip to go away.
-                MouseListener[] theListeners = theSource.getMouseListeners();
-
-                // Cycle thru the listeners and call .mouseExited() on all of them.
-                // (including our own, but that one will not remove the tooltip).
-                for(MouseListener ml: theListeners) {
-                    ml.mouseExited(mouseExitedEvent);
-                }
-            }
-            //----------------------------------------------------------------------------------------------------
-
-            boolean extendedNoteChanged;
+            hideToolTip(); // Turn off the currently displayed tooltip, if any.
 
             // Highlight this note to show it is the one being modified.
             NoteComponent.this.setBorder(redBorder);
@@ -679,6 +680,8 @@ public class NoteComponent extends JPanel {
             //   popup menu would still be up, but active for the
             //   previous note vs the one that appeared to be active.
             if (contextMenu.isVisible()) contextMenu.setVisible(false);
+
+            hideToolTip(); // Turn off the currently displayed tooltip, if any.
 
             int kp = ke.getKeyCode();
 

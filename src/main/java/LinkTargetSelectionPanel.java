@@ -415,7 +415,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
             if (goalGroup != null) {
                 selectedTargetGroupPanel = goalGroup;
-                if(selectedTargetGroupPanel.editable) selectedTargetGroupPanel.setEditable(false);
+                if(selectedTargetGroupPanel.getEditable()) selectedTargetGroupPanel.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(goalGroup.theBasePanel);
             } else {
@@ -444,7 +444,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
             if (eventNoteGroup != null) {
                 selectedTargetGroupPanel = eventNoteGroup;
-                if(selectedTargetGroupPanel.editable) selectedTargetGroupPanel.setEditable(false);
+                if(selectedTargetGroupPanel.getEditable()) selectedTargetGroupPanel.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(eventNoteGroup.theBasePanel);
             } else {
@@ -473,7 +473,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
 
             if (todoNoteGroup != null) {
                 selectedTargetGroupPanel = todoNoteGroup;
-                if(selectedTargetGroupPanel.editable) selectedTargetGroupPanel.setEditable(false);
+                if(selectedTargetGroupPanel.getEditable()) selectedTargetGroupPanel.setEditable(false);
                 resetTargetSelectionLabel();
                 rightPane.setViewportView(todoNoteGroup.theBasePanel);
             } else {

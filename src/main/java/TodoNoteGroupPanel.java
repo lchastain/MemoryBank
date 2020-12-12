@@ -137,7 +137,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     // Interface to the Three Month Calendar; called by the tmc.
     @Override // Implementation of the DateSelection interface
     public void dateSelected(LocalDate ld) {
-        if(editable) {
+        if(getEditable()) {
             MemoryBank.debug("Date selected on TMC = " + ld);
 
             if (tNoteComponent == null) {
@@ -555,74 +555,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         checkColumnOrder();
         loadPage(theNotePager.getCurrentPage());
     } // end sortPriority
-
-
-    void sortText(int direction) {
-        TodoNoteData todoData1, todoData2;
-        String str1, str2;
-        boolean doSwap;
-        int items = myNoteGroup.noteGroupDataVector.size();
-
-        AppUtil.localDebug(true);
-
-//        preSort();
-        unloadNotesPanel(theNotePager.getCurrentPage());
-        MemoryBank.debug("TodoNoteGroup.sortText - Number of items in list: " + items);
-
-        // Prettyprinting of sort conditions -
-        if (direction == ASCENDING) MemoryBank.dbg("  ASCENDING \t");
-        else MemoryBank.dbg("  DESCENDING \t");
-        if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == TOP) MemoryBank.dbg("TOP");
-        else if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == BOTTOM) MemoryBank.dbg("BOTTOM");
-        else if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) MemoryBank.dbg("STAY");
-        MemoryBank.dbg("\n");
-
-        for (int i = 0; i < (items - 1); i++) {
-            todoData1 = (TodoNoteData) myNoteGroup.noteGroupDataVector.elementAt(i);
-            if (todoData1 == null) str1 = "";
-            else str1 = todoData1.getNoteString().trim();
-            if (str1.equals("")) if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) continue; // No key; skip.
-            for (int j = i + 1; j < items; j++) {
-                doSwap = false;
-                todoData2 = (TodoNoteData) myNoteGroup.noteGroupDataVector.elementAt(j);
-                if (todoData2 == null) str2 = "";
-                else str2 = todoData2.getNoteString().trim();
-                if (str2.equals("")) if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == STAY) continue; // No key; skip.
-
-                if (direction == ASCENDING) {
-                    if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == BOTTOM) {
-                        if (((str1.compareTo(str2) > 0) && (!str2.equals(""))) || (str1.equals(""))) doSwap = true;
-                    } else {
-                        // TOP and STAY have same behavior for ASCENDING, unless a
-                        //   key was missing in which case we bailed out earlier.
-                        if (str1.compareTo(str2) > 0) doSwap = true;
-                    } // end if TOP/BOTTOM
-                } else if (direction == DESCENDING) {
-                    if (((TodoGroupProperties) myNoteGroup.myProperties).whenNoKey == TOP) {
-                        if (((str1.compareTo(str2) < 0) && (!str1.equals(""))) || (str2.equals(""))) doSwap = true;
-                    } else {
-                        // BOTTOM and STAY have same behavior for DESCENDING, unless a
-                        //   key was missing in which case we bailed out earlier.
-                        if (str1.compareTo(str2) < 0) doSwap = true;
-                    } // end if TOP/BOTTOM
-                } // end if ASCENDING/DESCENDING
-
-                if (doSwap) {
-                    MemoryBank.debug("  Moving data element " + i + " below " + j);
-                    myNoteGroup.noteGroupDataVector.setElementAt(todoData2, i);
-                    myNoteGroup.noteGroupDataVector.setElementAt(todoData1, j);
-                    str1 = str2;
-                    todoData1 = todoData2;
-                } // end if
-            } // end for j
-        } // end for i
-
-        AppUtil.localDebug(false);
-
-        // Display the same page, now with possibly different contents.
-        checkColumnOrder();
-        loadPage(theNotePager.getCurrentPage());
-    } // end sortText
 
 
     private void updateProperties() {

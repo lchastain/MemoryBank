@@ -8,20 +8,9 @@ Priorities:
 
 
 Current/Next:
-    Clear up the hipri Search issues, then get on with Archiving.
+    Clear up the hipri issues, then get on with Archiving.
 
-    Shrink the page size, to get paging to kick in earlier.  Then check the text sort across pages.
-        If ok then remove the issue(s) where? - todo list, comments?
-
-Questions:
-
-Issues:
-
-Problems:
-    Typing into a notestring should fire the mouseExited, to turn off tooltip.
-    Sorting of search results by LMD or Text - re-enables editing
-    Paging - re-enables editing
-    Parens are initializing wrong, as are the andOrs selections for empty words.
+Issues and/or Problems:
 
 New:
     Now have a greater need for:
@@ -38,8 +27,29 @@ New:
 
 
 =====================================================================================================
+12 Dec 2020
+  Researching that last issue - traced back to editability, actually.  It was caused by paging, which changed editability
+    of Searches from false to true, just like is happening with sorting - in paging and sorting, editable goes to true.
+    For some reason I was setting it to false in the SearchResultGroupPanel only to load the first page and then put it
+    back to true - why back to true, for a Search?  Anyway, removed that line to fix ALL the various symptoms in this
+    area.  In the process, had changed 'editable' to a private member so I could see changes coming through the 'set'
+    method.  Seems ok to leave it that way.
+
+11 Dec 2020
+    Typing into a notestring now calls hideToolTip(), which fires the mouseExited, to turn off tooltip.  Without this,
+      in a TodoList with focus on a note and the tooltip for any note was showing, tooltip still showed while typing.
+    Removed the 'sortText()' method from SearchResultGroupPanel, because it had been replaced by the one in the base
+      class for a very long time, unnoticed because there is a test for it, also now removed.  The older one is the one
+      that did not sort across more than the currently visible page; the new one does not have that problem.
+      Then did the same thing for Todo Lists, where the text sort had NOT yet been changed, but is now.
+      For the moment, sortPriority on a TodoList and sortLMD on Searches - both still have the cross-page sort problem.
+    But then a new issue arose - seemingly related because it was seen while testing, but not actually related:  The
+      last page of a pageable group has a leftover from the previous page, as the last item on the last page (which
+      isn't really there, as proved by the record count in a SearchResultHeader).  Need to look into this...
+
 10 Dec 2020
-  Fixed the SearchPanel for new search or review, for parentheses and the and/or selections.
+  Fixed the SearchPanel for new search or review, for parentheses and the and/or selections.  Most of the work needed
+    was in resolving the proper current state when keywords were removed entirely and then something entered again.
 
  8 Dec 2020
     Accurately recall the full search settings for any given completed search.   (SCR 84)

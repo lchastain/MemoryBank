@@ -183,7 +183,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // Interface to the Three Month Calendar; called by the tmc.
     @Override // Implementation of the DateSelection interface
     public void dateSelected(LocalDate selectedDate) {
-        if(editable) {
+        if(getEditable()) {
             if (eventNoteComponent == null) {
                 String s;
                 s = "You must select an Event before a Start date can be set!";

@@ -25,7 +25,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     JMenu myListMenu; // Child classes each have their own menu
 
     String defaultSubject;
-    boolean editable;
+    private boolean editable;
     int lastVisibleNoteIndex = 0;
     int pageSize;
 
@@ -298,6 +298,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     public int getLastVisibleNoteIndex() {
         return lastVisibleNoteIndex;
     }
+
+    boolean getEditable() { return editable; }
 
     // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
     String getGroupName() {

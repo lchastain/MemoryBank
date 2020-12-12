@@ -119,9 +119,7 @@ class TodoNoteGroupPanelTest {
     void testSorting() {
         // Just the coverage -
         todoNoteGroup.sortPriority(NoteGroupPanel.ASCENDING);
-        todoNoteGroup.sortText(NoteGroupPanel.DESCENDING);
-        todoNoteGroup.sortPriority(NoteGroupPanel.ASCENDING);
-        todoNoteGroup.sortText(NoteGroupPanel.DESCENDING);
+        todoNoteGroup.sortPriority(NoteGroupPanel.DESCENDING);
     }
 
 }
