@@ -21,9 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
@@ -220,7 +218,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 title = "Add a new Goal";
                 groupParentPath = goalsPath;
                 theNoteGroupPanelKeeper = theGoalsKeeper;
-                areaName = NoteGroup.goalGroupArea;
+                areaName = DataArea.GOALS.getAreaName();
                 break;
             case "Upcoming Event":
             case "Upcoming Events Branch Editor":
@@ -229,7 +227,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 title = "Add a new Events category";
                 groupParentPath = eventsPath;
                 theNoteGroupPanelKeeper = theEventListKeeper;
-                areaName = NoteGroup.eventGroupArea;
+                areaName = DataArea.UPCOMING_EVENTS.getAreaName();
                 break;
             case "To Do List":
             case "To Do Lists Branch Editor":
@@ -237,7 +235,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 title = "Add a new To Do List";
                 groupParentPath = todolistsPath;
                 theNoteGroupPanelKeeper = theTodoListKeeper;
-                areaName = NoteGroup.todoListGroupArea;
+                areaName = DataArea.TODO_LISTS.getAreaName();
                 break;
             default:
                 return;
@@ -593,12 +591,52 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     }// end deleteGroup
 
 
+    private void doArchive() {
+        String theMessage = "This allows you to take a snapshot of the current content of this\n";
+              theMessage += "application, preserving your active Goals, To Do Lists, etc, as  \n";
+              theMessage += "they are at this precise moment, for later review.  The notes will\n";
+              theMessage += "continue to evolve in the main application but an archive will hold\n";
+              theMessage += "these earlier versions which can sometimes help when reviewed at a\n";
+              theMessage += "later date when you are wondering - 'what was going on back then?'";
+
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                theMessage,
+                "Create a new Archive ?", // pane title bar
+                JOptionPane.OK_CANCEL_OPTION, // Option type
+                JOptionPane.PLAIN_MESSAGE);    // Message type
+
+        if (choice == JOptionPane.OK_OPTION) {
+            System.out.println("\nCreating an archive: \n");
+            // 1.  Save anything that is currently in progress.
+            preClose();
+            AppOptions.saveOpts();
+
+            // 2.  Make a unique name for the archive
+            long timestamp = System.currentTimeMillis();
+            System.out.println("Current timestamp: " + timestamp);
+            LocalDateTime rightNow = LocalDateTime.now();
+            DateTimeFormatter archiveFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh-mm-ss");
+
+            System.out.println("Current DateTime: " + archiveFormat.format(rightNow));
+
+
+            // 3.  Create a location for the data
+            // createArea  - a DataAccessor interface method.  Returns true if creation was successful OR already existed.
+
+            // 4.  Copy the current appOptions and its lists to the new repo.
+
+        } else {
+            System.out.println("Archiving was cancelled.");
+        }
+    }
+
     // Handling for the 'Go Back' menu item, to go back to Search Results after
     //   viewing one of its 'FoundIn' items.
     private void doGoBack() {
         // If menu management is being done correctly then 'theWayBack' will never be null
         //   when execution comes here to this method.  So, not going to condition this call.
-        // For tests - be aware of this; change of code for a test-only situation - not going to happen.
+        // For testers - be aware of this; changing this code for a test-only situation - not going to happen.
         theTree.setSelectionPath(theWayBack);
     }
 
@@ -699,7 +737,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             }
             // Then we can look at merging any possible child nodes into the CV group.
             theNodeName = eventNode.toString();
-            String theFilename = NoteGroupFile.makeFullFilename(NoteGroup.eventGroupArea, theNodeName);
+            String theFilename = NoteGroupFile.makeFullFilename(DataArea.UPCOMING_EVENTS.getAreaName(), theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = NoteGroupFile.loadFileData(theFilename);
             BaseData.loading = true; // We don't want to affect the lastModDates!
@@ -793,6 +831,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
+        else if (what.equals("Archive...")) doArchive();
         else if (what.equals("Add New...")) addNewGroup();
         else if (what.equals("Close")) closeGroup();
         else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
@@ -1468,12 +1507,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
         //<editor-fold desc="Actions Depending on the selection">
         if (isGoalsBranch) {  // Edit the Goals parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, BranchHelper.AreaName.GOALS);
+            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
             TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
             selectionContext = "Goals Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, BranchHelper.AreaName.EVENTS);
+            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
             TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", selectedNode, tbh);
             selectionContext = "Upcoming Events Branch Editor";
             rightPane.setViewportView(tbe);
@@ -1481,12 +1520,12 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
-            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, BranchHelper.AreaName.TODO);
+            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
             TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", selectedNode, tbh);
             selectionContext = "To Do Lists Branch Editor";
             rightPane.setViewportView(tbe);
         } else if (isSearchBranch) {  // Edit the Search parent branch
-            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, BranchHelper.AreaName.SEARCH);
+            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
             TreeBranchEditor tbe = new TreeBranchEditor("Search Results", selectedNode, sbh);
             selectionContext = "Search Results Branch Editor";
             rightPane.setViewportView(tbe);

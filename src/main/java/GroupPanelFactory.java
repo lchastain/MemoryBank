@@ -49,22 +49,22 @@ class GroupPanelFactory {
     // to simply calling a constructor, which of course cannot return a null.
     static NoteGroupPanel loadNoteGroupPanel(String parentNodeString, String nodeString) {
         if (parentNodeString.startsWith("Goal")) {
-            if (exists(NoteGroup.goalGroupArea, nodeString)) {
+            if (exists(DataArea.GOALS.getAreaName(), nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new GoalGroupPanel(nodeString);
             } // end if there is a file
         } else if (parentNodeString.startsWith("Upcoming Event")) {
-            if (exists(NoteGroup.eventGroupArea, nodeString)) {
+            if (exists(DataArea.UPCOMING_EVENTS.getAreaName(), nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new EventNoteGroupPanel(nodeString);
             } // end if there is a file
         } else if (parentNodeString.startsWith("To Do List")) {
-            if (exists(NoteGroup.todoListGroupArea, nodeString)) {
+            if (exists(DataArea.TODO_LISTS.getAreaName(), nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new TodoNoteGroupPanel(nodeString);
             } // end if there is a file
         } else if (parentNodeString.startsWith("Search Result")) {
-            if (exists(NoteGroup.searchResultGroupArea, nodeString)) {
+            if (exists(DataArea.SEARCH_RESULTS.getAreaName(), nodeString)) {
                 MemoryBank.debug("Loading " + nodeString + " from filesystem");
                 return new SearchResultGroupPanel(nodeString);
             } // end if there is a file

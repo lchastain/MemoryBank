@@ -13,8 +13,8 @@ Viewed dates will only differ from selected dates when a date-related panel chan
 
 Of the five date-related panels, a date selection can only occur from these three:
     Day Notes - whatever date is shown IS the selection (and therefore also the Viewed Date).
-    Year View - if the user clicks on a specific date
-    Month View - if the user clicks on a specific date
+    Year View - only if the user clicks on a specific date.  Clicking on a specific month (its name) switches to that view.
+    Month View - only if the user clicks on a specific date
 
 All five panels can alter the Viewed Date via the controls on their interfaces
 
@@ -23,6 +23,7 @@ All five panels can alter the Viewed Date via the controls on their interfaces
     When this node becomes active, the day that it shows will be the currently Selected Date.
     At the same time the Viewed Date is set to the Selected Date, with DAYS granularity.
     If the day is changed, Selected Date and Viewed Date track along with it.
+        (not happening...)
 
 2.  Year Notes
     When this node becomes active, the year shown is the year from the Viewed Date, and its granularity becomes YEARS,

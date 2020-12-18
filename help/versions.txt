@@ -60,6 +60,7 @@ C:\Dropbox\Memory Bank Archives - Most recent archive snapshots; these may event
 
 
 C:\Users\Lee\workspace\Memory Bank - current development
+C:\Dropbox\workspace - Development snapshots
 
 
 Version numbers of the apps were reset back down to 0.2 when the name changed to Memory Bank.
@@ -102,11 +103,20 @@ Ver.    Notes
         Restored an ID to NoteData
         Linkages to/from NoteGroups and NoteData, and Reverse linkages
         Hierarchy changes to separate out File operations, in prep for having a DB alternative data accessor
+        First data accessor:  NoteGroupFile - for file-based type data accesses
         Reworked the groupFilename settings for consistency and access, now all located in NoteGroupFile
         Added a new debug dialog - 'View current NoteGroup' - allows view of the in-memory data (such as LMD)
         All Panels with a Calendar basis now have more/better date-changing controls (AlterButtons).
 
-        <date - current work, not archived>    keeping the v0.4, for now ....
+        New version number.  Date not final; this will 'grow' for some time...
+0.5     <17 Dec 2020 - not archived, but Dev snapshot in Dropbox:  C:\Dropbox\workspace>
+        The 'Found In' link is now fixed for all types, and when using it there is a new menu choice:  'Go Back'.
+        Tooltips now stay up much longer, but go away upon typing or invoking the ExtendedNoteComponent editor.
+        Now able to set a longer title, and the Goal Plan, via the Title / ExtendedNoteComponent editor.
+        The two status settings for Goals is now user-settable, preserved and reloaded.  Goals is now usable.
+        Search Panel settings now recallable and shown as Search Criteria, several other Search Issues resolved.
+            beginnings of Archiving...
+
 
 
 

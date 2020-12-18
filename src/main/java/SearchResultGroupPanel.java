@@ -107,7 +107,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
                 if(nameChanged) {
                     JTree theTree = AppTreePanel.theInstance.getTree();
                     NoteGroupPanelKeeper theKeeper = AppTreePanel.theInstance.theSearchResultsKeeper;
-                    BranchHelper searchBranchHelper = new BranchHelper(theTree, theKeeper, BranchHelper.AreaName.SEARCH);
+                    BranchHelper searchBranchHelper = new BranchHelper(theTree, theKeeper, DataArea.SEARCH_RESULTS);
                     DefaultMutableTreeNode myBranch = BranchHelperInterface.getNodeByName(searchBranchHelper.theRoot, searchBranchHelper.theAreaNodeName);
                     ArrayList<NodeChange> changeList = new ArrayList<>(); // Array of NodeChange
                     String renamedFrom = getGroupName();

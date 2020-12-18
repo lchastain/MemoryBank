@@ -49,7 +49,7 @@ class BranchHelperTest {
         DefaultTreeModel treeModel = new DefaultTreeModel(trunk);
         JTree tree = new JTree(treeModel);
 
-        searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, BranchHelper.AreaName.SEARCH);
+        searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
         searchBranchHelper.setNotifier(new TestUtil());
     }
 

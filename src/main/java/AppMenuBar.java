@@ -27,6 +27,7 @@ public class AppMenuBar extends JMenuBar{
     static {
         fileMenu = new JMenu("App");
         fileMenu.add(new JMenuItem("Search..."));
+        fileMenu.add(new JMenuItem("Archive..."));
         fileMenu.add(new JMenuItem("Show Scheduled Events"));
         fileMenu.add(new JMenuItem("Show Current NoteGroup"));
         fileMenu.add(new JMenuItem("Icon Manager..."));

@@ -16,16 +16,7 @@ import java.util.Vector;
 class NoteGroup implements LinkHolder {
     private static final Logger log = LoggerFactory.getLogger(NoteGroup.class);
 
-    // These could be database table names, or directory names, or ...
-    // But they should probably move to the data accessor implementation, and use a new data accessor
-    //   method to retrieve them.  Thinking on it..     String getNoteGroupArea(GroupType) ?
-    static String calendarNoteGroupArea = "Years";
-    static String eventGroupArea = "UpcomingEvents";
-    static String goalGroupArea = "Goals";
-    static String searchResultGroupArea = "SearchResults";
-    static String todoListGroupArea = "TodoLists";
-
-    NoteGroupDataAccessor dataAccessor; // Provides a way to persist and retrieve the Group data
+    NoteGroupDataAccessor groupDataAccessor; // Provides a way to persist and retrieve the Group data
 
     // Currently we don't save a NoteGroup, but we do save its relevant content.
     // And since that is true, the use of transient or not - is meaningless.  But I'm using it anyway
@@ -53,7 +44,7 @@ class NoteGroup implements LinkHolder {
         noteGroupDataVector = new Vector<>(0, 1);
 
         // Get the data accessor for this group.
-        dataAccessor = groupInfo.getNoteGroupDataAccessor();  // currently this can only be a new NoteGroupFile.
+        groupDataAccessor = groupInfo.getNoteGroupDataAccessor();  // currently this can only be a new NoteGroupFile.
 
         // Load the group data (using the accessor).
         BaseData.loading = true;
@@ -137,11 +128,11 @@ class NoteGroup implements LinkHolder {
 
     // By 'saving' a null in place of the data, the Group is removed.
     void deleteNoteGroup() {
-        dataAccessor.deleteNoteGroupData();
+        groupDataAccessor.deleteNoteGroupData();
     }
 
     boolean exists() {
-        return dataAccessor.exists();
+        return groupDataAccessor.exists();
     }
 
     // We don't provide a getGroupInfo(); if you need that, use the GroupInfo copy constructor with the
@@ -149,18 +140,12 @@ class NoteGroup implements LinkHolder {
 
 
     ArrayList getGroupNames() {
-        return dataAccessor.getGroupNames();
+        return groupDataAccessor.getGroupNames();
     }
 
 
     // All higher contexts that need this info are encouraged to use this getter to retrieve 'myProperties'.
-    // In some child classes the getter will be overridden, in order to set the value correctly first.  This
-    // simple default implementation allows us to use the identical means to access, regardless of what type
-    // of NoteGroup ultimately responds to the request.
-//    public GroupProperties getGroupProperties() {
-//        return myProperties;
-//    }
-
+    // They may have direct access to 'myProperties', but this ensures uniform access, one-stop shopping.
     public GroupProperties getGroupProperties() {
         // If we loaded our properties member from a data store then we need to use that one.
         //   (it may already contain linkages).
@@ -207,7 +192,7 @@ class NoteGroup implements LinkHolder {
 
     void loadNoteGroup() {
         // First, load the raw data (if any) for the group.  If not then theData remains null.
-        Object[] theData = dataAccessor.loadNoteGroupData(myGroupInfo);
+        Object[] theData = groupDataAccessor.loadNoteGroupData(myGroupInfo);
 
         // Now get any pre-existing data members cleared out to make way for whatever came in (if anything) from the
         // data store.  This is important even when no new data came in, so there are no 'leftovers'.
@@ -257,7 +242,7 @@ class NoteGroup implements LinkHolder {
 
 
     void saveNoteGroup() {
-        dataAccessor.saveNoteGroupData(getTheData());
+        groupDataAccessor.saveNoteGroupData(getTheData());
         setGroupChanged(false); // The 'save' preserved all changes to this point (we hope), so we reset the flag.
         // Note that we didn't check the result of the save.  A few reasons for that; primarily because the 'happy'
         // path would have been successful and a success needs no further attention.  In the unsuccessful case we don't

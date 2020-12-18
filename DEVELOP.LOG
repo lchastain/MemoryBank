@@ -2,30 +2,44 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    Generic Notes
     Archiving of Goals & ToDo Lists (and Notes, after those come in)
-    Past Events
+    Data-only review for calandar type groups (menu option?)  SCR 22
+    Generic Notes - get these list-types away from being 'todo' lists.
+    Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
+      doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
+      with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
 
 
 Current/Next:
+    Working archives; creating, first.
+    Need to do this whereby the FILE accesses are encapsulated separately, so that the same op could be done by a
+        different (database) accessor.
 
-Issues and/or Problems:
-
-New:
-    Now have a greater need for:
-        Past events
-        Notes - get these list-types away from being 'todo' lists.
-        Accomplishments (from scratch, and/or when goals are completed)
+Issues, Thoughts, Problems:
+        Accomplishments (from scratch, and/or when goals are completed, or just plain years after the fact).  How to
+          dovetail with Goals?
         Numbered list - but is there any need to be different than a Todo?  If it becomes a separate list type, can
           consider removing the ability to rename 'Priority'
-    New ideas for archiving: not with every single character change, but on user-demand.  Preserve a Goal or Todo List
-        as it existed on a certain day/time, along with the appOpts.  If more than one on the same day, query to
-        replace or keep both.  Allow archive removal.  Possibly an 'archive' specifier, with a checkbox next to archivable
-        groups (including search results?).
 
+New:
+
+The current data accessor is a group-level accessor, whereas needed now is an app-level accessor, for Archives, possibly
+  options, etc.   AppDataAccessor?  Possibly this is the one that then provides the NoteGroupDataAccessor for groups,
+  based on an enum:  DataType:  FILE, DATABASE
 
 
 =====================================================================================================
+
+17 Dec 2020
+  Made a new dev snapshot for Dropbox and updated the version to 0.5 at this point.  Still working archiving, slowly.
+  This past week there was a Starz trial underway, with lots of recordings to manage.
+  The gov't website that Nina monitors - now says I can stay without issue until 15 Jun 2021.  Need to get that in
+    writing, early next week.
+
+13 Dec 2020
+  Thoughts and design file for archiving.  Now, not with every single character change, but on user-demand.  Preserve a
+    Goal or Todo List as it existed on a certain day/time, along with the appOpts.  Baby-step coding, for now.
+
 12 Dec 2020
   Researching that last issue - traced back to editability, actually.  It was caused by paging, which changed editability
     of Searches from false to true, just like is happening with sorting - in paging and sorting, editable goes to true.
@@ -33,7 +47,9 @@ New:
     back to true - why back to true, for a Search?  Anyway, removed that line to fix ALL the various symptoms in this
     area.  In the process, had changed 'editable' to a private member so I could see changes coming through the 'set'
     method.  Seems ok to leave it that way.
-  Reduced overly verbose debug printouts - loading panel, getting dates from files, 'Searching', etc.
+  Reduced overly verbose debug printouts - loading panel, getting dates from files, 'Searching', etc.  By moving two of the
+    calls to the methods that made these printouts down into conditional blocks, search performance improved noticeably.
+  Did a checkin and pub - now ready for the next thing...
 
 11 Dec 2020
     Typing into a notestring now calls hideToolTip(), which fires the mouseExited, to turn off tooltip.  Without this,

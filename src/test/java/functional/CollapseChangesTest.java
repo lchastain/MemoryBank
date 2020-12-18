@@ -89,7 +89,7 @@ class CollapseChangesTest {
         // Expecting no warning here; a popup dialog will ruin that
         // expectation and definitely counts as a test fail.
         // And aside from that, we should verify that our file still exists -
-        String theFilePath = MemoryBank.userDataHome + File.separatorChar + "TodoLists" + File.separatorChar;
+        String theFilePath = MemoryBank.userDataHome + File.separatorChar + "ToDoLists" + File.separatorChar;
         String theFileName = "todo_Get New Job.json";
         File theFile = new File(theFilePath + theFileName);
         Assertions.assertTrue(theFile.exists());

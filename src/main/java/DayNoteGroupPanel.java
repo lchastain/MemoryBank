@@ -88,14 +88,17 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         heading.add(p0, "West");
         heading.add(panelTitleLabel, "Center");
 
-        if (dayNoteDefaults.military) timeFormatButton.setText("12");
+        if (dayNoteDefaults.military) {
+            timeFormatButton.setText("12");
+            timeFormatButton.setName("12");
+        }
         heading.add(timeFormatButton, "East");  // spacer 56
 
         add(heading, BorderLayout.NORTH);
 
         updateHeader();
         MemoryBank.trace();
-    }
+    }// end buildMyPanel
 
 
     public AppIcon getDefaultIcon() {

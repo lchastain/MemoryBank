@@ -24,50 +24,27 @@ public class BranchHelper implements BranchHelperInterface {
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;  // Used when deciding if special handling is needed.
     private String renameTo;    // Provides a way for us override the value.
-    private final AreaName theArea;
+    private final DataArea theArea;
     private Notifier optionPane;  // for Testing
     private String thePrefix; // event_, todo_, search_
     String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
 
-    enum AreaName {
-        GOALS("Goals"),
-        EVENTS("UpcomingEvents"),
-        TODO("TodoLists"),
-        SEARCH("SearchResults"),
-        YEARS("Years");
-
-        private final String display;
-
-        AreaName(String s) {
-            display = s;
-        }
-
-        @Override
-        public String toString() {
-            return display;
-        }
-    }
-
-
-    BranchHelper(JTree jt, NoteGroupPanelKeeper noteGroupPanelKeeper, AreaName areaName) {
+    BranchHelper(JTree jt, NoteGroupPanelKeeper noteGroupPanelKeeper, DataArea areaName) {
         theTree = jt;
         theNoteGroupPanelKeeper = noteGroupPanelKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         theArea = areaName;
+        theAreaNodeName = theArea.toString();
 
         // This Helper is for one of these Branches -
-        if (theArea.equals(AreaName.GOALS)) {
-            theAreaNodeName = "Goals";
+        if (theArea.equals(DataArea.GOALS)) {
             thePrefix = "goal_";
-        } else if (theArea.equals(AreaName.EVENTS)) {
-            theAreaNodeName = "Upcoming Events";
+        } else if (theArea.equals(DataArea.UPCOMING_EVENTS)) {
             thePrefix = "event_";
-        } else if (theArea.equals(AreaName.TODO)) {
-            theAreaNodeName = "To Do Lists";
+        } else if (theArea.equals(DataArea.TODO_LISTS)) {
             thePrefix = "todo_";
-        } else if(theArea.equals(AreaName.SEARCH)) {
-            theAreaNodeName = "Search Results";
+        } else if(theArea.equals(DataArea.SEARCH_RESULTS)) {
             thePrefix = "search_";
         }
         assert thePrefix != null; // Doing it this way vs an 'else' section, we get full test coverage.
@@ -246,7 +223,7 @@ public class BranchHelper implements BranchHelperInterface {
         ArrayList<String> theChoices = new ArrayList<>();
 
         // Get a list of <theNodeName> files in that area of the user's data directory.
-        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + theArea);
+        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + theArea.toString().replaceAll("\\s", ""));
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {
                     // Although this filter does not account for directories, it is

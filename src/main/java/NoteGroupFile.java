@@ -38,11 +38,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static {
         basePath = MemoryBank.userDataHome + File.separatorChar;
 
-        calendarNoteGroupAreaPath = basePath + NoteGroup.calendarNoteGroupArea + File.separatorChar;
-        eventGroupAreaPath = basePath + NoteGroup.eventGroupArea + File.separatorChar;
-        goalGroupAreaPath = basePath + NoteGroup.goalGroupArea + File.separatorChar;
-        searchResultGroupAreaPath = basePath + NoteGroup.searchResultGroupArea + File.separatorChar;
-        todoListGroupAreaPath = basePath + NoteGroup.todoListGroupArea + File.separatorChar;
+        calendarNoteGroupAreaPath = basePath + DataArea.CALENDARS + File.separatorChar;
+        eventGroupAreaPath = basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
+        goalGroupAreaPath = basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
+        searchResultGroupAreaPath = basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
+        todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
 
         eventGroupFilePrefix = "event_";
         goalGroupFilePrefix = "goal_";
@@ -340,11 +340,9 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     } // end getDateFromFilename
 
 
-    // This method will return all active groups of the same type.
-    // Usage (currently) is for choosing a file with which to merge a source group.  For that, CalendarNote types are
-    // not the source and are not considered to be a selection, so the simple filename is all that is needed to produce
-    // the desired result list.  Note that the source group will also be the list, but the calling context can easily
-    // remove it from the result, if needed.
+    // This method will return all active groups of the same type (not applicable to CalendarNote types).
+    // Note that the source group will also be the list, but the calling context can easily remove it from
+    // the result, if needed.
     @Override
     public ArrayList getGroupNames() {
         File dataDir = new File(theAreaPath);
@@ -538,7 +536,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 groupName = groupInfo.getGroupName();
                 break;
             case TODO_LIST:
-                areaName = "TodoLists";
+                areaName = "ToDoLists";
                 prefix = todoListFilePrefix;
                 groupName = groupInfo.getGroupName();
                 break;
@@ -560,12 +558,15 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             case "Goals":
                 prefix = goalGroupFilePrefix;
                 break;
+            case "Upcoming Events":
             case "UpcomingEvents":
                 prefix = eventGroupFilePrefix;
                 break;
-            case "TodoLists":
+            case "To Do Lists":
+            case "ToDoLists":
                 prefix = todoListFilePrefix;
                 break;
+            case "Search Results":
             case "SearchResults":
                 prefix = searchResultFilePrefix;
                 break;
@@ -581,7 +582,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static GroupInfo getGroupInfoFromFile(File theFile) {
         GroupInfo theAnsr = new GroupInfo();
         String theFullFilename = theFile.toString();
-        if(theFullFilename.contains(NoteGroup.calendarNoteGroupArea)) {
+        if(theFullFilename.contains(DataArea.CALENDARS.getAreaName())) {
             String nameOnly = theFile.getName();
             GroupType groupType = GroupType.NOTES;
 
@@ -594,16 +595,16 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             LocalDate theDate = getDateFromFilename(theFile);
             String theName = CalendarNoteGroup.getGroupNameForDate(theDate, groupType);
             theAnsr.setGroupName(theName);
-        } else if(theFullFilename.contains(NoteGroup.todoListGroupArea)) {
+        } else if(theFullFilename.contains(DataArea.TODO_LISTS.getAreaName())) {
             theAnsr.groupType = GroupType.TODO_LIST;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(theFullFilename.contains(NoteGroup.searchResultGroupArea)) {
+        } else if(theFullFilename.contains(DataArea.SEARCH_RESULTS.getAreaName())) {
             theAnsr.groupType = GroupType.SEARCH_RESULTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(theFullFilename.contains(NoteGroup.goalGroupArea)) {
+        } else if(theFullFilename.contains(DataArea.GOALS.getAreaName())) {
             theAnsr.groupType = GroupType.GOALS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(theFullFilename.contains(NoteGroup.eventGroupArea)) {
+        } else if(theFullFilename.contains(DataArea.UPCOMING_EVENTS.getAreaName())) {
             theAnsr.groupType = GroupType.EVENTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else {
