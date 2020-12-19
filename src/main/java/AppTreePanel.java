@@ -604,28 +604,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 theMessage,
                 "Create a new Archive ?", // pane title bar
                 JOptionPane.OK_CANCEL_OPTION, // Option type
-                JOptionPane.PLAIN_MESSAGE);    // Message type
+                PLAIN_MESSAGE);    // Message type
 
         if (choice == JOptionPane.OK_OPTION) {
             System.out.println("\nCreating an archive: \n");
-            // 1.  Save anything that is currently in progress.
+            // Save anything that is currently in progress.
             preClose();
             AppOptions.saveOpts();
 
-            // 2.  Make a unique name for the archive
-            long timestamp = System.currentTimeMillis();
-            System.out.println("Current timestamp: " + timestamp);
-            LocalDateTime rightNow = LocalDateTime.now();
-            DateTimeFormatter archiveFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh-mm-ss");
-
-            System.out.println("Current DateTime: " + archiveFormat.format(rightNow));
-
-
-            // 3.  Create a location for the data
-            // createArea  - a DataAccessor interface method.  Returns true if creation was successful OR already existed.
-
-            // 4.  Copy the current appOptions and its lists to the new repo.
-
+            // Create the archive
+            if(MemoryBank.appDataAccessor.createArchive()) {
+                MemoryBank.debug("Archive creation was successful.");
+            } else {
+                MemoryBank.debug("Unable to create the archive!");
+            }
         } else {
             System.out.println("Archiving was cancelled.");
         }
@@ -653,7 +645,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 searchPanel,
                 "Search - Please specify the conditions for your quest",
                 JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
+                PLAIN_MESSAGE,
                 null,     //don't use a custom Icon
                 options,  //the titles of buttons
                 string1); //the title of the default button

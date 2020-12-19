@@ -23,12 +23,16 @@ Issues, Thoughts, Problems:
 
 New:
 
-The current data accessor is a group-level accessor, whereas needed now is an app-level accessor, for Archives, possibly
-  options, etc.   AppDataAccessor?  Possibly this is the one that then provides the NoteGroupDataAccessor for groups,
-  based on an enum:  DataType:  FILE, DATABASE
-
 
 =====================================================================================================
+
+19 Dec 2020
+    The current data accessor is a group-level accessor, whereas needed now is an app-level accessor, for Archives, possibly
+      options, etc.   AppDataAccessor?  Possibly this is the one that then provides the NoteGroupDataAccessor for groups,
+      based on an enum:  DataType:  FILE, DATABASE
+    Yes, did all that as described.  The initial setting of type FILE is currently hardcoded into MemoryBank.java, but
+      can eventually come from a configuration file.
+    Done with Archive creation (file based).
 
 17 Dec 2020
   Made a new dev snapshot for Dropbox and updated the version to 0.5 at this point.  Still working archiving, slowly.

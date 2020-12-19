@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 @SuppressWarnings("rawtypes")
 class NoteGroupFile implements NoteGroupDataAccessor {
-    static String basePath;
     static String calendarNoteGroupAreaPath;
     static String eventGroupAreaPath;
     static String goalGroupAreaPath;
@@ -36,13 +35,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
 
     static {
-        basePath = MemoryBank.userDataHome + File.separatorChar;
-
-        calendarNoteGroupAreaPath = basePath + DataArea.CALENDARS + File.separatorChar;
-        eventGroupAreaPath = basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
-        goalGroupAreaPath = basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
-        searchResultGroupAreaPath = basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
-        todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
+        calendarNoteGroupAreaPath = FileDataAccessor.basePath + DataArea.CALENDARS + File.separatorChar;
+        eventGroupAreaPath = FileDataAccessor.basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
+        goalGroupAreaPath = FileDataAccessor.basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
+        searchResultGroupAreaPath = FileDataAccessor.basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
+        todoListGroupAreaPath = FileDataAccessor.basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
 
         eventGroupFilePrefix = "event_";
         goalGroupFilePrefix = "goal_";
@@ -548,7 +545,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             default:
                 // The other types do not have associated File data.
         }
-        return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
+        return FileDataAccessor.basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
 
 
@@ -571,7 +568,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 prefix = searchResultFilePrefix;
                 break;
         }
-        return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
+        return FileDataAccessor.basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
 
 

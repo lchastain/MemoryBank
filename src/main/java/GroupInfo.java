@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 // A GroupInfo is primarily just a Type and a Name.
-// From that you can get a full NoteGroup or a NoteGroupPanel or a NoteGroupDataAccessor.
+// From that you can get a full NoteGroup or a NoteGroupPanel.
 
 class GroupInfo {
 
@@ -98,14 +98,6 @@ class GroupInfo {
         }
         return theNoteGroup;
     }
-
-    // Called from LinkagesEditorPanel when adding or removing a reverse link.
-    // Not much logic here at the moment, but coming soon - there will be other choices as to what
-    // other accessors may be returned.  Then - will need to have a way to switch between them.
-    NoteGroupDataAccessor getNoteGroupDataAccessor() {
-        return new NoteGroupFile(this);
-    }
-
 
     // This method will either find and return the one unique existing Panel for this GroupInfo, or it will
     // make one and return that.  If it has to make one, it will not add it to a keeper.

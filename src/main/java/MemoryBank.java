@@ -16,24 +16,28 @@ public class MemoryBank {
     static Color amColor;
     static Color pmColor;
     static boolean archive;
-    public static DateTimeFormatter dtf;
-    public static boolean debug;
-    public static boolean event;
+    static DateTimeFormatter dtf;
+    static boolean debug;
+    static boolean event;
     static boolean init;
-    private static boolean timing;
-    public static String userDataHome; // User data top-level directory 'mbankData'
-    public static String logHome;  // For finding icons & images
+    static String userDataHome; // User data top-level directory 'mbankData'
+    static String logHome;  // For finding icons & images
     static AppOptions appOpts;     // saved/loaded
-    private static AppTreePanel appTreePanel;
     static NoteData clipboardNote;
+    static JFrame logFrame;
+    static Notifier optionPane;
+    static SubSystem system;
+    static AppDataAccessor appDataAccessor;
+
+    private static AppTreePanel appTreePanel;
+    private static boolean timing;
     private static AppSplash splash;
     private static boolean logApplicationShowing;
     private static final int[] percs = {20, 25, 45, 50, 60, 90, 100};
     private static int updateNum = 0;
     private static String appIconFileName;
-    static JFrame logFrame;
-    static Notifier optionPane;
-    static SubSystem system;
+
+
 
     static {
         // These can be 'defined' in the startup command.  Ex:
@@ -52,7 +56,7 @@ public class MemoryBank {
         if (init) System.out.println("Initialization trace printouts on.");
         if (timing) System.out.println("Timing printouts on.");
 
-        setProgramDataLocation();
+        setProgramDataLocation();  // logHome is set here.
 
         appOpts = new AppOptions(); // Start with default values.
 
@@ -341,6 +345,14 @@ public class MemoryBank {
         // size of main frame         - only if it makes sense after the future sizing work is done.
         // location of main frame     - only if it makes sense after the future sizing work is done.
         // user's preferred Log name (vs the system's user name) - needs a dialog to take in the new string.
+
+        // Set the type of Data Accessor that this app will use.
+        // The parameter can eventually come from a configuration setting that can be read either from the filesystem
+        // or from a database; the source of the configuration values does not dictate how the rest of the app must
+        // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
+        // allow easier access and alteration by support personnel (once we get support personnel).
+        // This setting should be made AFTER the static vars (that it relies on) are set.
+        appDataAccessor = AppDataAccessor.getAppDataAccessor(AppDataAccessor.AccessType.FILE);
 
         //--------------------------------------
         // Specify logFrame attributes
