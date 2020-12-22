@@ -2,7 +2,7 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    Archiving of Goals & ToDo Lists (and Notes, after those come in)
+    Archiving of all non-calendar type Notes
     Data-only review for calandar type groups (menu option?)  SCR 22
     Generic Notes - get these list-types away from being 'todo' lists.
     Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
@@ -11,20 +11,38 @@ Priorities:
 
 
 Current/Next:
-    Working archives; creating, first.
-    Need to do this whereby the FILE accesses are encapsulated separately, so that the same op could be done by a
-        different (database) accessor.
+    Working archives.  Creation is done.  Now:  How to review an existing one.
+    Names of new classes:  ArchiveTreePanel (with the tree)        ArchiveSelectionPanel (list of selectable archives)
+        ArchiveMenuBar (different menu options when viewing archived groups)
 
-Issues, Thoughts, Problems:
-        Accomplishments (from scratch, and/or when goals are completed, or just plain years after the fact).  How to
-          dovetail with Goals?
+Issues, Ideas, Analyses, Problems:
+        New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
+          after the fact).  How to dovetail with Goals?  When it used to be a Goal?
         Numbered list - but is there any need to be different than a Todo?  If it becomes a separate list type, can
           consider removing the ability to rename 'Priority'
+        Past Events -
+            Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
+            or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
 
 New:
 
 
 =====================================================================================================
+22 Dec 2020
+  Displayed and formatted the archives listing, added dynamic tree changes for new archives.
+
+21 Dec 2020
+  Updated my paperwork - now ok to stay in Russia until 15 June 2021!
+  Added a new interface method: getArchiveNames().  Used (for now) in initial tree creation
+
+20 Dec 2020
+  The first choice of putting the appDataAccessor assignment into the main() of MemoryBank - proved to be problematic
+    for most tests because they call setUserDataHome directly and never go thru the main.  So - moved it to the end of
+    that one, instead; otherwise 40+ tests would need rework, most of them to make two separate calls to MemoryBank.
+    This way they stay unchanged but at some point (distant future?) may need to revisit this solution, when also
+    reworking userDataHome for a Database implementation.
+  Also - realized that the archive creation is NOT done (well) after all; currently it just takes ALL groups; it was
+    supposed to only take the active ones.  Not a blocker right now but will want to fix it as work progresses.
 
 19 Dec 2020
     The current data accessor is a group-level accessor, whereas needed now is an app-level accessor, for Archives, possibly

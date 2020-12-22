@@ -49,7 +49,7 @@ class NoteGroup implements LinkHolder {
         // Load the group data (using the accessor).
         BaseData.loading = true;
         loadNoteGroup();
-        // For all NoteGroup children, if we have a concrete data set then we will be able to deserialize our
+        // For all NoteGroup children, if we have a loaded data set then we will be able to deserialize our
         //   properties from that data.  But when there IS no persisted data then the GroupProperties will remain
         //   null after a data load, so the condition below takes care of that, right?
         // Well no, not completely.  All NoteGroups get constructed with their group name, but the

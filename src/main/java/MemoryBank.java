@@ -234,6 +234,14 @@ public class MemoryBank {
         if (!goodUserDataLoc) {  // Some validity testing here..
             System.exit(0);
         } // end if
+
+        // Set the type of Data Accessor that this app will use.
+        // The parameter can eventually come from a configuration setting that can be read either from the filesystem
+        // or from a database; the source of the configuration values does not dictate how the rest of the app must
+        // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
+        // allow easier access and alteration by support personnel (once we get support personnel).
+        // This setting should be made AFTER the static vars that it relies on (such as userDataHome) are set.
+        appDataAccessor = AppDataAccessor.getAppDataAccessor(AppDataAccessor.AccessType.FILE);
     } // end setUserDataHome
 
 
@@ -345,14 +353,6 @@ public class MemoryBank {
         // size of main frame         - only if it makes sense after the future sizing work is done.
         // location of main frame     - only if it makes sense after the future sizing work is done.
         // user's preferred Log name (vs the system's user name) - needs a dialog to take in the new string.
-
-        // Set the type of Data Accessor that this app will use.
-        // The parameter can eventually come from a configuration setting that can be read either from the filesystem
-        // or from a database; the source of the configuration values does not dictate how the rest of the app must
-        // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
-        // allow easier access and alteration by support personnel (once we get support personnel).
-        // This setting should be made AFTER the static vars (that it relies on) are set.
-        appDataAccessor = AppDataAccessor.getAppDataAccessor(AppDataAccessor.AccessType.FILE);
 
         //--------------------------------------
         // Specify logFrame attributes

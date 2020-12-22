@@ -382,9 +382,23 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
         // It begins -
         //---------------------------------------------------
+        // Archives
+        //---------------------------------------------------
+        // Get a count of archives - if none then no tree leaf goes here.
+        String[] archiveNames = MemoryBank.appDataAccessor.getArchiveNames();
+        if(archiveNames != null) {
+            if(archiveNames.length == 1) {
+                leaf = new DefaultMutableTreeNode("Archive", false);
+            } else {
+                leaf = new DefaultMutableTreeNode(DataArea.ARCHIVES, false);
+            }
+            trunk.add(leaf);
+        }
+
+        //---------------------------------------------------
         // Goals
         //---------------------------------------------------
-        branch = new DefaultMutableTreeNode("Goals");
+        branch = new DefaultMutableTreeNode(DataArea.GOALS);
         trunk.add(branch);
         pathToRoot = branch.getPath();
         goalsPath = new TreePath(pathToRoot);
@@ -401,7 +415,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //---------------------------------------------------
         // Events
         //---------------------------------------------------
-        branch = new DefaultMutableTreeNode("Upcoming Events");
+        branch = new DefaultMutableTreeNode(DataArea.UPCOMING_EVENTS);
         trunk.add(branch);
         pathToRoot = branch.getPath();
         eventsPath = new TreePath(pathToRoot);
@@ -466,7 +480,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //---------------------------------------------------
         // To Do Lists
         //---------------------------------------------------
-        branch = new DefaultMutableTreeNode("To Do Lists", true);
+        branch = new DefaultMutableTreeNode(DataArea.TODO_LISTS, true);
         trunk.add(branch);
         pathToRoot = branch.getPath();
         todolistsPath = new TreePath(pathToRoot);
@@ -612,8 +626,37 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             preClose();
             AppOptions.saveOpts();
 
+            // Preserve the current tree selection
+            int currentSelection = theTree.getMaxSelectionRow();
+
+            String[] existingArchives = MemoryBank.appDataAccessor.getArchiveNames();
+            int startingCount = existingArchives == null ? 0 : existingArchives.length;
+
             // Create the archive
             if(MemoryBank.appDataAccessor.createArchive()) {
+                // Update the main tree with the correct text for the Archive leaf, if there has been a change -
+                if(startingCount < 2) { // We went from 0 to 1, or from 1 to 2 -
+                    DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
+
+                    if(startingCount == 0) { // Add 'Archive'
+                        theRootNode.insert(new DefaultMutableTreeNode("Archive"), 0);
+                        currentSelection += 1;
+                    } else { // Replace 'Archive' with 'Archives'
+                        theRootNode.remove(0);
+                        theRootNode.insert(new DefaultMutableTreeNode("Archives"), 0);
+                    }
+                    theTreeModel.nodeStructureChanged(theRootNode);
+                    resetTreeState();
+
+                    // Reselect wherever we were before altering the tree.
+                    theTree.clearSelection();
+                    theTree.setSelectionRow(currentSelection);
+                } else {  // The reselect is only needed if we are showing the archive listing.
+                    if(currentSelection == 0) {
+                        theTree.clearSelection();
+                        theTree.setSelectionRow(currentSelection);
+                    }
+                }
                 MemoryBank.debug("Archive creation was successful.");
             } else {
                 MemoryBank.debug("Unable to create the archive!");
@@ -1487,9 +1530,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //   new selection, in cases where some bozo named their group the same as a parent
         //   branch.  For example, a To Do list named 'To Do Lists'.  We first look to see if
         //   the selection is a branch before we would start handling it as a leaf, and by
-        //   then we will know which branch the leaf falls under.
+        //   then we will know which branch the leaf belongs on.
         //-----------------------------------------------------
         boolean isTopLevel = parentNodeName.equals("App");
+        boolean isArchives = isTopLevel && theNodeString.startsWith("Archive");
         boolean isGoalsBranch = isTopLevel && theNodeString.equals("Goals");
         boolean isEventsBranch = isTopLevel && theNodeString.equals("Upcoming Events");
         boolean isTodoBranch = isTopLevel && theNodeString.equals("To Do Lists");
@@ -1498,7 +1542,27 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theNoteGroupPanel = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (isGoalsBranch) {  // Edit the Goals parent branch
+        if ( isArchives ) {
+            String[] archiveNames = MemoryBank.appDataAccessor.getArchiveNames();
+            DefaultMutableTreeNode archiveBranch = new DefaultMutableTreeNode(selectedNode);
+
+            for(String aName: archiveNames) {
+                //jScrollPane.add(new Label(aName));
+                archiveBranch.add(new DefaultMutableTreeNode(aName));
+            }
+            // Create a default model based on the archive node, and create the tree from that model.
+            treeModel = new DefaultTreeModel(archiveBranch);
+            JTree archiveTree = new JTree(treeModel);
+
+            // Set to single selection mode.
+            archiveTree.getSelectionModel().setSelectionMode
+                    (TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+            // Do not show the root of the tree.
+            archiveTree.setRootVisible(false);
+
+            rightPane.setViewportView(archiveTree);
+        } else if (isGoalsBranch) {  // Edit the Goals parent branch
             BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
             TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
             selectionContext = "Goals Branch Editor";

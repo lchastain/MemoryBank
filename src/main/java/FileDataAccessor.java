@@ -3,16 +3,19 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class FileDataAccessor implements AppDataAccessor {
     static String archiveAreaPath;
-    static DateTimeFormatter archiveFormat;
+    static DateTimeFormatter archiveFileFormat;
+    static DateTimeFormatter archiveNameFormat;
     static String basePath;
 
     static {
         basePath = MemoryBank.userDataHome + File.separatorChar;
         archiveAreaPath = basePath + "Archives";
-        archiveFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh-mm-ss");
+        archiveFileFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
+        archiveNameFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd  h:mm:ss a");
     }
 
     @Override
@@ -22,10 +25,10 @@ public class FileDataAccessor implements AppDataAccessor {
 
     public boolean createArchive() {
         // Make a unique name for the archive
-        String archiveName = archiveFormat.format(LocalDateTime.now());
-        MemoryBank.debug("Creating archive at DateTime: " + archiveName);
+        String archiveFileName = archiveFileFormat.format(LocalDateTime.now());
+        MemoryBank.debug("Creating archive at DateTime: " + archiveFileName);
 
-        File f = new File(archiveAreaPath + File.separatorChar + archiveName);
+        File f = new File(archiveAreaPath + File.separatorChar + archiveFileName);
         if(!f.mkdirs()) return false;
 
         // Copy the required items into the archive
@@ -40,6 +43,22 @@ public class FileDataAccessor implements AppDataAccessor {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String[] getArchiveNames() {
+        String[] theFileNames;
+        ArrayList<String> theArchiveNames = new ArrayList<>();
+        File dataDir = new File(archiveAreaPath);
+
+        theFileNames = dataDir.list( );
+        if(theFileNames == null) return null;
+        for(String aFileName : theFileNames) {
+            LocalDateTime localDateTime = LocalDateTime.parse(aFileName, archiveFileFormat);
+            String anArchiveName = archiveNameFormat.format(localDateTime);
+            theArchiveNames.add(anArchiveName);
+        }
+        return theArchiveNames.toArray(new String[0]);
     }
 
     //  Returns true if the area already existed OR the creation was successful.

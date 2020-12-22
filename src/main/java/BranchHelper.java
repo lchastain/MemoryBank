@@ -26,7 +26,7 @@ public class BranchHelper implements BranchHelperInterface {
     private String renameTo;    // Provides a way for us override the value.
     private final DataArea theArea;
     private Notifier optionPane;  // for Testing
-    private String thePrefix; // event_, todo_, search_
+    private String thePrefix; // goal_, event_, todo_, search_
     String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
 
     BranchHelper(JTree jt, NoteGroupPanelKeeper noteGroupPanelKeeper, DataArea areaName) {
@@ -95,7 +95,7 @@ public class BranchHelper implements BranchHelperInterface {
     @Override
     public boolean deleteAllowed(String theSelection) {
         // This method previously had only one usage; disallowing the removal of the Event Consolidated List.
-        // However, since then I removed it myself, permananently.  But this mechanism of potentially diabling
+        // However, since then I removed it myself, permananently.  But this mechanism of potentially disabling
         // the ability to remove a selection - seems highly likely to be needed again, so leaving it as a
         // placeholder / example.
 //        if(AREA_EVENT.equals(theAreaNodeName)) {

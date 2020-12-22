@@ -18,12 +18,14 @@ public interface AppDataAccessor {
     }
     boolean createArea(DataArea dataArea);
     boolean createArchive();
+    String[] getArchiveNames();
     NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo);
 
     static AppDataAccessor getAppDataAccessor(AccessType accessType) {
         if(accessType == AccessType.FILE) {
             return new FileDataAccessor();
+        } else {
+            return new FileDataAccessor(); // Currently it's the only choice, anyway.
         }
-        return new FileDataAccessor(); // Currently it's the only choice, anyway.
     }
 }
