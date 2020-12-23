@@ -12,8 +12,7 @@ Priorities:
 
 Current/Next:
     Working archives.  Creation is done.  Now:  How to review an existing one.
-    Names of new classes:  ArchiveTreePanel (with the tree)        ArchiveSelectionPanel (list of selectable archives)
-        ArchiveMenuBar (different menu options when viewing archived groups)
+    Names of new class(es):  ArchiveTreePanel (with the tree)
 
 Issues, Ideas, Analyses, Problems:
         New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
@@ -28,6 +27,14 @@ Issues, Ideas, Analyses, Problems:
         Viewing 'Found In' shows a non-editable panel - is that right?  Decide, then document.
 
 New:
+
+23 Dec 2020
+  Menu management for Archive selections, fixed? a closeGroup problem where it was not updating the tree properly,
+    by simply changing node.removeFromParent() to parent.remove(node).  But the original syntax did work much of
+    the time, hence the ? on the 'fixed'.  Checked in, tested all, and pub'd, to fix a problem in deleting
+    Search Results that was seen yesterday.
+  Added filtering, to only take active NoteGroups into the archive.
+
 
 
 =====================================================================================================

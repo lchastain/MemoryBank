@@ -1,6 +1,7 @@
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,47 +19,79 @@ public class FileDataAccessor implements AppDataAccessor {
         archiveNameFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd  h:mm:ss a");
     }
 
-    @Override
-    public NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo) {
-        return new NoteGroupFile(groupInfo);
+    private void archiveGroupType(File archiveRepo, GroupType groupType) throws IOException {
+        String archiveRepoPath = archiveRepo.getAbsolutePath();
+        File theSourceDir = null;
+        File theDestDir = null;
+
+        switch (groupType) {
+            case GOALS:
+                theSourceDir = new File(NoteGroupFile.goalGroupAreaPath);
+                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.GOALS.getAreaName());
+                break;
+            case EVENTS:
+                theSourceDir = new File(NoteGroupFile.eventGroupAreaPath);
+                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName());
+                break;
+            case TODO_LIST:
+                theSourceDir = new File(NoteGroupFile.todoListGroupAreaPath);
+                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.TODO_LISTS.getAreaName());
+                break;
+            case SEARCH_RESULTS:
+                theSourceDir = new File(NoteGroupFile.searchResultGroupAreaPath);
+                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName());
+                break;
+        }
+        if(theSourceDir == null) return;
+
+        File[] theFiles = theSourceDir.listFiles();
+
+        for(File aFile: theFiles) {
+            GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+            if(MemoryBank.appOpts.active(groupInfo.groupType, groupInfo.getGroupName())) {
+                FileUtils.copyFileToDirectory(aFile, theDestDir);
+            }
+        }
+
+
+
     }
+
 
     public boolean createArchive() {
         // Make a unique name for the archive
         String archiveFileName = archiveFileFormat.format(LocalDateTime.now());
         MemoryBank.debug("Creating archive at DateTime: " + archiveFileName);
 
-        File f = new File(archiveAreaPath + File.separatorChar + archiveFileName);
-        if(!f.mkdirs()) return false;
+        // Create the directory with the archive name, and its content directories as well.
+        String archiveRepoPath = archiveAreaPath + File.separatorChar + archiveFileName;
+        File archiveRepo = new File(archiveRepoPath);
+        if(!archiveRepo.mkdirs()) return false;
+        if(!new File(archiveRepoPath + File.separatorChar + DataArea.GOALS.getAreaName()).mkdir()) return false;
+        if(!new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName()).mkdir()) return false;
+        if(!new File(archiveRepoPath + File.separatorChar + DataArea.TODO_LISTS.getAreaName()).mkdir()) return false;
+        if(!new File(archiveRepoPath + File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName()).mkdir()) return false;
 
-        // Copy the required items into the archive
+        // Copy the appOpts and active NoteGroups into the archive -
         try {
-            FileUtils.copyFileToDirectory(new File(basePath + "AppOpts.json"), f);
-            FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.goalGroupAreaPath), f);
-            FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.eventGroupAreaPath), f);
-            FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.todoListGroupAreaPath), f);
-            FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.searchResultGroupAreaPath), f);
+            FileUtils.copyFileToDirectory(new File(basePath + "AppOpts.json"), archiveRepo);
+
+            // Copy the active notegroups into the archive
+            archiveGroupType(archiveRepo, GroupType.GOALS);
+            archiveGroupType(archiveRepo, GroupType.EVENTS);
+            archiveGroupType(archiveRepo, GroupType.TODO_LIST);
+            archiveGroupType(archiveRepo, GroupType.SEARCH_RESULTS);
+
+            // Leftover, from initial solution when ALL notegroups were being taken.  Just keep this for a little while...
+            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.goalGroupAreaPath), archiveRepo);
+            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.eventGroupAreaPath), archiveRepo);
+            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.todoListGroupAreaPath), archiveRepo);
+            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.searchResultGroupAreaPath), archiveRepo);
         } catch(Exception e) {
             System.out.println("Archiving error: " + e.getMessage());
             return false;
         }
         return true;
-    }
-
-    @Override
-    public String[] getArchiveNames() {
-        String[] theFileNames;
-        ArrayList<String> theArchiveNames = new ArrayList<>();
-        File dataDir = new File(archiveAreaPath);
-
-        theFileNames = dataDir.list( );
-        if(theFileNames == null) return null;
-        for(String aFileName : theFileNames) {
-            LocalDateTime localDateTime = LocalDateTime.parse(aFileName, archiveFileFormat);
-            String anArchiveName = archiveNameFormat.format(localDateTime);
-            theArchiveNames.add(anArchiveName);
-        }
-        return theArchiveNames.toArray(new String[0]);
     }
 
     //  Returns true if the area already existed OR the creation was successful.
@@ -89,5 +122,30 @@ public class FileDataAccessor implements AppDataAccessor {
         if(f.exists()) return true;
         return f.mkdirs();
     }
+
+
+    @Override
+    public String[] getArchiveNames() {
+        String[] theFileNames;
+        ArrayList<String> theArchiveNames = new ArrayList<>();
+        File dataDir = new File(archiveAreaPath);
+
+        theFileNames = dataDir.list( );
+        if(theFileNames == null) return null;
+        for(String aFileName : theFileNames) {
+            LocalDateTime localDateTime = LocalDateTime.parse(aFileName, archiveFileFormat);
+            String anArchiveName = archiveNameFormat.format(localDateTime);
+            theArchiveNames.add(anArchiveName);
+        }
+        return theArchiveNames.toArray(new String[0]);
+    }
+
+
+    @Override
+    public NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo) {
+        return new NoteGroupFile(groupInfo);
+    }
+
+
 
 }

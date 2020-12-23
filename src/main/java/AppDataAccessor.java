@@ -16,10 +16,11 @@ public interface AppDataAccessor {
             return display;
         }
     }
-    boolean createArea(DataArea dataArea);
+    boolean createArea(DataArea dataArea); // tie in usage of this with 'add new group'
     boolean createArchive();
     String[] getArchiveNames();
     NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo);
+
 
     static AppDataAccessor getAppDataAccessor(AccessType accessType) {
         if(accessType == AccessType.FILE) {
