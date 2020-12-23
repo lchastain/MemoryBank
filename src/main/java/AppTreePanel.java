@@ -350,10 +350,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         assert node.getChildCount() == 0; // another fail-safe; the assertion should never fail.
 
         // Remove this leaf from the tree but do not let the removal result in the need to
-        // process another tree selection event.
+        // process another tree selection event (the event is selection == null).
         theTree.removeTreeSelectionListener(this);
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) node.getParent();
-        node.removeFromParent();
+        theParent.remove(node); // Previously:  node.removeFromParent(); - worked only sometimes.
         treeModel.nodeStructureChanged(theParent);
         theTree.addTreeSelectionListener(this);
 
@@ -580,17 +580,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
         // Now remove the underlying data from the repository
         deletedNoteGroupPanel.myNoteGroup.deleteNoteGroup();
-
-//        // Now delete the file
-//        String deleteFile = deletedNoteGroupPanel.getGroupFilename();
-//        MemoryBank.debug("Deleting " + deleteFile);
-//        try {
-//            if (!(new File(deleteFile)).delete()) { // Delete the file.
-//                throw new Exception("Unable to delete " + deleteFile);
-//            } // end if
-//        } catch (Exception se) {
-//            MemoryBank.debug(se.getMessage());
-//        } // end try/catch
 
         // Now make sure that the group will not be saved upon app exit.
         // That could happen because it is still being held in its DataGroupKeeper.
@@ -1557,6 +1546,13 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // Set to single selection mode.
             archiveTree.getSelectionModel().setSelectionMode
                     (TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+            archiveTree.addTreeSelectionListener(new TreeSelectionListener() {
+                @Override
+                public void valueChanged(TreeSelectionEvent e) {
+                    appMenuBar.manageMenus("One Archive");
+                }
+            });
 
             // Do not show the root of the tree.
             archiveTree.setRootVisible(false);

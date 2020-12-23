@@ -6,6 +6,7 @@ public class AppMenuBar extends JMenuBar{
 
     // Menus
     //-------------------------------------------------
+    private static final JMenu archiveMenu;
     private static final JMenu fileMenu;
     private static final JMenu branchEditorMenu;
     private static final JMenu deletedMenu;
@@ -38,6 +39,10 @@ public class AppMenuBar extends JMenuBar{
 
         deletedMenu = new JMenu("Deleted");
         deletedMenu.add(new JMenuItem("Undo Delete"));
+
+        archiveMenu = new JMenu("Archive");
+        archiveMenu.add("View");
+        archiveMenu.add("Remove");
 
         goalsMenu = new JMenu("Goal");
         goalsMenu.add(new JMenuItem("Undo All"));
@@ -98,6 +103,7 @@ public class AppMenuBar extends JMenuBar{
         add(fileMenu);
         add(branchEditorMenu);
         add(deletedMenu);
+        add(archiveMenu);
         add(goalsMenu);
         add(eventsMenu);
         add(viewsMenu);
@@ -192,6 +198,7 @@ public class AppMenuBar extends JMenuBar{
         //-----------------------------------------
 
         branchEditorMenu.setVisible(false);
+        archiveMenu.setVisible(false);
         goalsMenu.setVisible(false);
         eventsMenu.setVisible(false);
         viewsMenu.setVisible(false);
@@ -205,6 +212,9 @@ public class AppMenuBar extends JMenuBar{
         MemoryBank.debug("Setting MenuBar Configuration: " + theCurrentContext);
 
         switch (theCurrentContext) {
+            case "One Archive":
+                archiveMenu.setVisible(true);
+                break;
             case "Year View":  // Year View
             case "Month View":  // Month View
             case "Week View":

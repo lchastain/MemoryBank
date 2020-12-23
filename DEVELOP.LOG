@@ -23,6 +23,9 @@ Issues, Ideas, Analyses, Problems:
         Past Events -
             Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
             or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
+        SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
+            But it IS ready, activated from the title label.  Make it work from here, too.
+        Viewing 'Found In' shows a non-editable panel - is that right?  Decide, then document.
 
 New:
 
