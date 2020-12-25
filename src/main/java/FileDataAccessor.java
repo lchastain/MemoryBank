@@ -141,11 +141,37 @@ public class FileDataAccessor implements AppDataAccessor {
     }
 
 
+    // The archive name cannot be used directly as a directory name due to the presence
+    //   of the colons in the time portion.  So, we need to parse the archive name with
+    //   the format that was used to make the directory name from the original date, in
+    //   order to get back to that original date. 
+    @Override
+    public LocalDateTime getDateTimeForArchiveName(String archiveName) {
+        if(archiveName == null) return null;
+        return LocalDateTime.parse(archiveName, archiveNameFormat);
+    }
+
+
     @Override
     public NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo) {
         return new NoteGroupFile(groupInfo);
     }
 
+    @Override
+    public boolean removeArchive(LocalDateTime localDateTime) {
+        String archiveFileName = archiveFileFormat.format(localDateTime);
+        MemoryBank.debug("Removing archive: " + archiveFileName);
+
+        String archiveRepoPath = archiveAreaPath + File.separatorChar + archiveFileName;
+        File archiveRepo = new File(archiveRepoPath);
+        try {
+            FileUtils.deleteDirectory(archiveRepo); // This one can remove non-empty directories.
+            return true;
+        } catch (Exception e) {
+            System.out.println("  Exception during archive removal: " + e.getMessage());
+        }
+        return false;
+    }
 
 
 }

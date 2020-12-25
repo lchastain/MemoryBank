@@ -74,6 +74,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     private ChronoUnit viewedDateGranularity;
 
     private DefaultMutableTreeNode theRootNode;
+    private DefaultMutableTreeNode selectedArchiveNode;
 
     // Predefined Tree Paths to 'leaf' nodes.
     TreePath dayNotesPath;
@@ -349,19 +350,27 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         if (node == null) return; // But this is here just in case someone got here another way.
         assert node.getChildCount() == 0; // another fail-safe; the assertion should never fail.
 
-        // Remove this leaf from the tree but do not let the removal result in the need to
-        // process another tree selection event (the event is selection == null).
-        theTree.removeTreeSelectionListener(this);
+        // Get the parent of the node to be removed -
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) node.getParent();
+
+        // Remove this node from the tree but do not let the removal result in the need to
+        // process another tree selection event (the 'event' is selection being set to null).
+        theTree.removeTreeSelectionListener(this);
         theParent.remove(node); // Previously:  node.removeFromParent(); - worked only sometimes.
-        treeModel.nodeStructureChanged(theParent);
+
+        // Redisplay the branch that had the removal (but not if it was the 'trunk')
+        if(!theParent.toString().equals("App")) {
+            treeModel.nodeStructureChanged(theParent);
+
+            // Select the parent branch.
+            TreeNode[] pathToRoot = theParent.getPath();
+            theTree.setSelectionPath(new TreePath(pathToRoot));
+
+            updateTreeState(true); // Needed now, in case there is a new link target selection.
+        }
+
+        // Restore the tree selection listening.
         theTree.addTreeSelectionListener(this);
-
-        updateTreeState(true); // Needed prior to new link target selection.
-
-        // Select the parent branch
-        TreeNode[] pathToRoot = theParent.getPath();
-        theTree.setSelectionPath(new TreePath(pathToRoot));
     } // end closeGroup
 
 
@@ -386,7 +395,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //---------------------------------------------------
         // Get a count of archives - if none then no tree leaf goes here.
         String[] archiveNames = MemoryBank.appDataAccessor.getArchiveNames();
-        if(archiveNames != null) {
+        if(archiveNames != null && archiveNames.length != 0) {
             if(archiveNames.length == 1) {
                 leaf = new DefaultMutableTreeNode("Archive", false);
             } else {
@@ -594,7 +603,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     }// end deleteGroup
 
 
-    private void doArchive() {
+    private void doCreateArchive() {
         String theMessage = "This allows you to take a snapshot of the current content of this\n";
               theMessage += "application, preserving your active Goals, To Do Lists, etc, as  \n";
               theMessage += "they are at this precise moment, for later review.  The notes will\n";
@@ -663,6 +672,47 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // For testers - be aware of this; changing this code for a test-only situation - not going to happen.
         theTree.setSelectionPath(theWayBack);
     }
+
+
+    private void doRemoveArchive() {
+        // With correct menu management, we cannot arrive here without having a value in the selecteArchiveNode.
+        if(selectedArchiveNode == null) return;
+
+        // Get the archive's name from the selected tree node.
+        String archiveName = selectedArchiveNode.toString();
+        System.out.println("Selected Archive: " + archiveName);
+
+        // Convert the archive name into an archive date
+        LocalDateTime localDateTime = MemoryBank.appDataAccessor.getDateTimeForArchiveName(archiveName);
+
+        // Get the initial count of archives -
+        String[] existingArchives = MemoryBank.appDataAccessor.getArchiveNames(); // Cannot be null, in this method.
+        int startingCount = existingArchives.length;
+
+        // Remove the indicated archive
+        if (MemoryBank.appDataAccessor.removeArchive(localDateTime)) {
+            // We may need to make adjustments to the main app tree.
+            if(startingCount < 3) {
+                if (startingCount == 2) { // Going from 2 down to 1 - 'Archives' --> 'Archive'
+                    theRootNode.remove(0); // Remove 'Archives'
+                    theRootNode.insert(new DefaultMutableTreeNode("Archive"), 0);
+                    treeModel.nodeStructureChanged(theRootNode);
+                    resetTreeState();
+                    theTree.setSelectionRow(0);
+                }
+                if(startingCount == 1) { // Going from 1 down to 0 - 'Archive' leaf --> no leaf.
+                    closeGroup();  // Archive is not exactly a group, but the method does what we need.
+                    resetTreeState();
+                    showAbout();
+                }
+
+            }
+
+        } else {
+            optionPane.showMessageDialog(theTree, "Archive removal failed!");
+        }
+    }
+
 
     private void doSearch() {
         searching = true;
@@ -855,7 +905,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
-        else if (what.equals("Archive...")) doArchive();
+        else if (what.equals("Archive...")) doCreateArchive();
         else if (what.equals("Add New...")) addNewGroup();
         else if (what.equals("Close")) closeGroup();
         else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
@@ -869,6 +919,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("Set Options...")) ((TodoNoteGroupPanel) theNoteGroupPanel).setOptions();
         else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
+        else if (what.equals("Remove")) doRemoveArchive();
         else if (what.equals("Review...")) System.out.println("Review was selected.  It aint reddy yet."); // SCR00084
         else if (what.equals("Save")) theNoteGroupPanel.refresh();
         else if (what.startsWith("Save As")) saveGroupAs();
@@ -880,7 +931,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             deletedNoteGroupPanel = null;
             appMenuBar.showRestoreOption(false);
             treeSelectionChanged(theTree.getSelectionPath()); // Reload the branch editor, to show the 'new' file.
-        } else if (what.equals("Icon Manager...")) {
+        }
+        else if (what.equals("View")) {
+            System.out.println("Selected Archive: " + selectedArchiveNode.toString());
+        }
+        else if (what.equals("Icon Manager...")) {
             theTree.clearSelection();
             JPanel jp = new JPanel(new GridBagLayout());
             jp.add(new JLabel(what));
@@ -1488,6 +1543,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //   paths that were created and selected by code vs those that came from a user's
         //   mouse click event on an existing (visible and active) tree node.
         if (selectedNode == null) return;
+        selectedArchiveNode = null; // Clear any previous archive selection.
 
         // We have started to handle the change; now disallow
         //   further input until we are finished.
@@ -1540,8 +1596,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 archiveBranch.add(new DefaultMutableTreeNode(aName));
             }
             // Create a default model based on the archive node, and create the tree from that model.
-            treeModel = new DefaultTreeModel(archiveBranch);
-            JTree archiveTree = new JTree(treeModel);
+            TreeModel archiveTreeModel = new DefaultTreeModel(archiveBranch);
+            JTree archiveTree = new JTree(archiveTreeModel);
 
             // Set to single selection mode.
             archiveTree.getSelectionModel().setSelectionMode
@@ -1551,6 +1607,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 @Override
                 public void valueChanged(TreeSelectionEvent e) {
                     appMenuBar.manageMenus("One Archive");
+                    TreePath newPath = e.getNewLeadSelectionPath();
+                    if (newPath == null) return;
+
+                    // Obtain a reference to the new selection.
+                    selectedArchiveNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
                 }
             });
 

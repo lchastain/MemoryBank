@@ -28,6 +28,12 @@ Issues, Ideas, Analyses, Problems:
 
 New:
 
+
+
+=====================================================================================================
+24 Dec 2020
+  Implemented archive removals.
+
 23 Dec 2020
   Menu management for Archive selections, fixed? a closeGroup problem where it was not updating the tree properly,
     by simply changing node.removeFromParent() to parent.remove(node).  But the original syntax did work much of
@@ -35,9 +41,6 @@ New:
     Search Results that was seen yesterday.
   Added filtering, to only take active NoteGroups into the archive.
 
-
-
-=====================================================================================================
 22 Dec 2020
   Displayed and formatted the archives listing, added dynamic tree changes for new archives.
 
