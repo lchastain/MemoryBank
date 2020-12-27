@@ -139,8 +139,9 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = NoteGroupFile.makeFullFilename(theArea.toString(), nodeChange.nodeName);
-                String newNamedFile = NoteGroupFile.makeFullFilename(theArea.toString(), nodeChange.renamedTo);
+                String oldNamedFile = NoteGroupFile.makeFullFilename(theArea.getAreaName(), nodeChange.nodeName);
+                String newNamedFile = NoteGroupFile.makeFullFilename(theArea.getAreaName(), nodeChange.renamedTo);
+                MemoryBank.debug("Full name of original file: " + oldNamedFile);
                 File f = new File(oldNamedFile);
 
                 try {

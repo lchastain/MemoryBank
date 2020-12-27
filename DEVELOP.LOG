@@ -27,10 +27,22 @@ Issues, Ideas, Analyses, Problems:
         Viewing 'Found In' shows a non-editable panel - is that right?  Decide, then document.
 
 New:
+    Working on 'restoring selection', trying to switch over to a tree path vs row and when it works, the node on
+        the tree is still not highlighted.  Needed for when the Archive node is not shown in the ArchiveTreePanel,
+        so the row number from the archived appOpts WILL be wrong.
 
 
 
 =====================================================================================================
+27 Dec 2020
+  New problems:  Search results renaming fails, from either method.
+  This was fallout from switching to using the new DataArea class; a regression.  Fixed, and ci/pub.
+
+25 Dec 2020
+  Continuing with implementing the archive View, now.  But struggling with a bad head cold, that evolved
+    into some strong coughing.  For a short while I thought it might be covid, but no fever and never lost
+    taste or smell, so probably not.
+
 24 Dec 2020
   Implemented archive removals.
 

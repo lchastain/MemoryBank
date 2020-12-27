@@ -144,7 +144,7 @@ public class FileDataAccessor implements AppDataAccessor {
     // The archive name cannot be used directly as a directory name due to the presence
     //   of the colons in the time portion.  So, we need to parse the archive name with
     //   the format that was used to make the directory name from the original date, in
-    //   order to get back to that original date. 
+    //   order to get back to that original date.
     @Override
     public LocalDateTime getDateTimeForArchiveName(String archiveName) {
         if(archiveName == null) return null;
