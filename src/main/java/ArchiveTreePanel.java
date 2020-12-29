@@ -17,8 +17,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -34,12 +32,9 @@ import java.util.Vector;
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 
-public class AppTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
+public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
-    static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
-    static AppMenuBar appMenuBar;
-
-    private static final Logger log = LoggerFactory.getLogger(AppTreePanel.class);
+    private static final Logger log = LoggerFactory.getLogger(ArchiveTreePanel.class);
 
     Notifier optionPane;
     //-------------------------------------------------------------------
@@ -54,9 +49,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     private TreePath todolistsPath;
     private TreePath searchresultsPath;
 
-    static JDialog theWorkingDialog;
     private NoteGroupPanel theNoteGroupPanel; // A reference to the current selection
-    private NoteGroupPanel deletedNoteGroupPanel;
     DayNoteGroupPanel theAppDays;
     MonthNoteGroupPanel theAppMonths;
     YearNoteGroupPanel theAppYears;
@@ -94,50 +87,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     boolean restoringPreviousSelection;
     boolean searching;
 
-    public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
+    public ArchiveTreePanel(JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
-        appMenuBar = new AppMenuBar();
-        aFrame.setJMenuBar(appMenuBar);
-        theInstance = this; // This works because we will always only have one AppTreePanel in this app.
         this.appOpts = appOpts;
-
-        //<editor-fold desc="Make the 'Working...' dialog">
-        theWorkingDialog = new JDialog(aFrame, "Working", true);
-        JLabel lbl = new JLabel("Please Wait...");
-        lbl.setFont(Font.decode("Dialog-bold-16"));
-        String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
-        strWorkingIcon += "icons" + File.separatorChar + "animated" + File.separatorChar + "const_anim.gif";
-        lbl.setIcon(new AppIcon(strWorkingIcon));
-        lbl.setVerticalTextPosition(JLabel.TOP);
-        lbl.setHorizontalTextPosition(JLabel.CENTER);
-        theWorkingDialog.add(lbl);
-        theWorkingDialog.pack();
-        theWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        //</editor-fold>
 
         optionPane = new Notifier() {
         }; // Uses all default methods.
 
-        //---------------------------------------------------
-        // Create the menubar handler, but fire it from a
-        //   thread so we can quickly return and then if
-        //   any of those items need to show the 'Working...'
-        //   dialog, they will be able to.
-        //---------------------------------------------------
-        ActionListener al = new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                final String what = ae.getActionCommand();
-                new Thread(new Runnable() {
-                    public void run() {
-                        handleMenuBar(what);
-                    }
-                }).start(); // Start the thread
-            }
-        };
-        appMenuBar.addHandler(al); // Add the above handler to all menu items.
-        //---------------------------------------------------------
-
-        setOpaque(true);
+//        setOpaque(true);
 
         MemoryBank.update("Recreating the previous Tree configuration");
         createTree();  // Create the tree.
@@ -185,12 +142,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         viewedDate = selectedDate;
         viewedDateGranularity = ChronoUnit.DAYS;
 
-        // Restore the last selection that was made in the previous session.
+        // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
         restoringPreviousSelection = true;
-        // If there is a 'good' value stored as the previous selection -
+        // If there is a previous selection -
         if (appOpts.theSelectionRow >= 0) theTree.setSelectionRow(appOpts.theSelectionRow);
-        else appMenuBar.manageMenus("No Selection");
         // There are a few cases where there would be no previous selection.
         // Ex: Showing the About graphic, First-time-ever for this user, lost or corrupted AppOptions.
         // In these cases leave as-is and the view will go to the About graphic.
@@ -198,121 +154,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         restoringPreviousSelection = false;
 
     } // end constructor for AppTreePanel
-
-    // Decide which type of Group we are adding, get a name for it, and put it into the app tree.
-    // The new group is not actually instantiated here; that happens when it is selected.
-    @SuppressWarnings("rawtypes")  // For the xlint warning about Enumeration, (much farther) below.
-    private void addNewGroup() {
-        String newName;
-
-        // Initialize the following local variables, otherwise IJ complains.
-        String prompt;
-        String title;
-        TreePath groupParentPath;
-        NoteGroupPanelKeeper theNoteGroupPanelKeeper;
-
-        String theContext = appMenuBar.getCurrentContext();
-        String areaName;
-        MemoryBank.debug("Adding new group in this context: " + theContext);
-        switch (theContext) {
-            case "Goal":
-            case "Goals Branch Editor":
-                prompt = "Enter a short name for the Goal\n";
-                prompt += "Ex: Graduate, Learn a Language, etc";
-                title = "Add a new Goal";
-                groupParentPath = goalsPath;
-                theNoteGroupPanelKeeper = theGoalsKeeper;
-                areaName = DataArea.GOALS.getAreaName();
-                break;
-            case "Upcoming Event":
-            case "Upcoming Events Branch Editor":
-                prompt = "Enter a name for the new Event category\n";
-                prompt += "Ex: meetings, appointments, birthdays, etc";
-                title = "Add a new Events category";
-                groupParentPath = eventsPath;
-                theNoteGroupPanelKeeper = theEventListKeeper;
-                areaName = DataArea.UPCOMING_EVENTS.getAreaName();
-                break;
-            case "To Do List":
-            case "To Do Lists Branch Editor":
-                prompt = "Enter a name for the new To Do List";
-                title = "Add a new To Do List";
-                groupParentPath = todolistsPath;
-                theNoteGroupPanelKeeper = theTodoListKeeper;
-                areaName = DataArea.TODO_LISTS.getAreaName();
-                break;
-            default:
-                return;
-        }
-
-        // Get user entry of a name for the new group.
-        newName = JOptionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
-        MemoryBank.debug("Name chosen for new group: " + newName);
-        if (newName == null) return;      // No user entry; dialog was Cancelled.
-
-        // Here is where we might have done some grooming of the input, to possibly deconflict user input from the
-        // prefixes and extensions used internally by the app.  But then, decided that (under 'normal' circumstances)
-        // they wouldn't know those anyway and so we should take them at their stated intent, that they really do
-        // want a group with a crappy name.  So - no call here to prettify it.
-
-        String groupParentName = groupParentPath.getLastPathComponent().toString();
-        DefaultMutableTreeNode groupParentNode = BranchHelperInterface.getNodeByName(theRootNode, groupParentName);
-
-        // Declare a tree node for the new group.
-        DefaultMutableTreeNode theNewGroupNode = null;
-
-        // Allowing 'addNewGroup' to act as a back-door selection of a group that actually already
-        // exists is ok, but do not add this choice to the branch if it is already there.
-        // So - examine the tree to see if there is already a node for the new group -
-        Enumeration children = groupParentNode.children();
-        while (children.hasMoreElements()) {
-            DefaultMutableTreeNode achild = (DefaultMutableTreeNode) children.nextElement();
-            if (achild.toString().equals(newName)) {
-                theNewGroupNode = achild;
-            }
-        }
-
-        // And now we know.  If the node did not already exist, we make it now.
-        if (theNewGroupNode == null) {  // Not already a node on the tree
-            theNewGroupNode = new DefaultMutableTreeNode(newName, false);
-
-// Get this to be disassociated from NoteGroupFile; use the dataAccessorInterface and then move it -
-            // Ensure that the new name meets our file-naming requirements.
-            File aFile = new File(NoteGroupFile.makeFullFilename(areaName, newName));
-            String theComplaint = BranchHelperInterface.checkFilename(newName, aFile.getParent());
-            if (!theComplaint.isEmpty()) {
-                optionPane.showMessageDialog(theTree, theComplaint,
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Add the new node to the tree
-            groupParentNode.add(theNewGroupNode);
-            DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
-            theTreeModel.nodeStructureChanged(groupParentNode);
-
-            // Update tree state.  This is needed now and not only at app shutdown, because there are some functions
-            // (such as linking) that need for the appOpts to be up-to-date after a new group has been added.
-            updateTreeState(true);
-        }
-
-        // Try to get this Group from the NoteGroupKeeper (the 'Add New' request might just be a back-door
-        // selection rather than actually intending to make a new one).  If not found there then go ahead
-        // and make a new one, and put it there.
-        NoteGroupPanel theGroup = theNoteGroupPanelKeeper.get(newName);
-        if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
-            MemoryBank.debug("Getting a new group from the factory.");
-            theGroup = GroupPanelFactory.loadOrMakePanel(theContext, newName);
-            assert theGroup != null; // It won't be, but IJ needs to be sure.
-            theNoteGroupPanelKeeper.add(theGroup);
-            // The new group will be saved by preClose().
-        }
-
-        // Expand the parent node (if needed) and select the group.
-        theTree.expandPath(groupParentPath);
-        theTree.setSelectionPath(groupParentPath.pathByAddingChild(theNewGroupNode));
-    } // end addNewGroup
-
 
     // Adds a search result branch to the tree.
     private void addSearchResult(String searchResultName) {
@@ -348,7 +189,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Since the App menu provides the only 'legal' entry to this
         // method by only showing the 'Close' option when a closeable
         // group is showing, it follows that the current tree selection
-        // is the group (and not its branch) that we want to close.
+        // is the group that we want to close.
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) theTree.getLastSelectedPathComponent();
         if (node == null) return; // But this is here just in case someone got here another way.
         assert node.getChildCount() == 0; // another fail-safe; the assertion should never fail.
@@ -359,11 +200,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Remove this node from the tree but do not let the removal result in the need to
         // process another tree selection event (the 'event' is selection being set to null).
         theTree.removeTreeSelectionListener(this);
-        if(theParent == null) node.removeFromParent(); // theParent can be null during testing...
-        else theParent.remove(node); // but otherwise this is the better method to use.
+        theParent.remove(node); // Previously:  node.removeFromParent(); - worked only sometimes.
 
         // Redisplay the branch that had the removal (but not if it was the 'trunk')
-        if(theParent != null && !theParent.toString().equals("App")) {
+        if(!theParent.toString().equals("App")) {
             treeModel.nodeStructureChanged(theParent);
 
             // Select the parent branch.
@@ -394,12 +234,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         TreeNode[] pathToRoot;  // An array of node names leading back to the root (after the node has been added)
 
         // It begins -
-        //---------------------------------------------------
-        // Archives
-        //---------------------------------------------------
-        leaf = new DefaultMutableTreeNode(DataArea.ARCHIVES, false);
-        trunk.add(leaf);
-
         //---------------------------------------------------
         // Goals
         //---------------------------------------------------
@@ -562,83 +396,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         return newRoot;
     }
 
-    // Delete the data file for this group.
-    // This method is provided as a more direct route to file deletion than going thru
-    // the BranchHelper.  This section of the code is similar to what is done there,
-    // except that we don't remove it from the DataGroupKeeper.  This will allow for
-    // an 'undo', if desired.
-    private void deleteGroup() {
-        // They get one warning..
-        String deleteWarning;
-        boolean doDelete;
-        deleteWarning = "Are you sure?" + System.lineSeparator();
-        deleteWarning += "This deletion may be undone (via the menu option) but only while still on this Editor.";
-        doDelete = optionPane.showConfirmDialog(theTree, deleteWarning,
-                "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-        if (!doDelete) return;
-
-        // Preserve the reference to the group to be deleted.
-        deletedNoteGroupPanel = theNoteGroupPanel;
-
-        // Now we need to close the group.
-        closeGroup(); // This will change the selection and null out 'theNoteGroup'.
-
-        // Now remove the underlying data from the repository
-        deletedNoteGroupPanel.myNoteGroup.deleteNoteGroup();
-
-        // Now make sure that the group will not be saved upon app exit.
-        // That could happen because it is still being held in its DataGroupKeeper.
-        deletedNoteGroupPanel.setGroupChanged(false);
-
-        // And finally, give the user an 'undo' capability.  This will be a one-time,
-        //   one file only option.  Upon deletion they will have gone back to the
-        //   Branch Editor.  If they then apply other actions on the Editor, or go on
-        //   to some other list, the 'undo' menu option goes away.
-        appMenuBar.showRestoreOption(true);
-        appMenuBar.manageMenus(appMenuBar.getCurrentContext());
-    }// end deleteGroup
-
-
-    private void doCreateArchive() {
-        String theMessage = "This allows you to take a snapshot of the current content of this\n";
-              theMessage += "application, preserving your active Goals, To Do Lists, etc, as  \n";
-              theMessage += "they are at this precise moment, for later review.  The notes will\n";
-              theMessage += "continue to evolve in the main application but an archive will hold\n";
-              theMessage += "these earlier versions which can sometimes help when reviewed at a\n";
-              theMessage += "later date when you are wondering - 'what was going on back then?'";
-
-        int choice = JOptionPane.showConfirmDialog(
-                this,
-                theMessage,
-                "Create a new Archive ?", // pane title bar
-                JOptionPane.OK_CANCEL_OPTION, // Option type
-                PLAIN_MESSAGE);    // Message type
-
-        if (choice == JOptionPane.OK_OPTION) {
-            System.out.println("\nCreating an archive: \n");
-            // Save anything that is currently in progress.
-            preClose();
-            AppOptions.saveOpts();
-
-            // Preserve the current tree selection
-            int currentSelection = theTree.getMaxSelectionRow();
-
-            // Create the archive
-            if(MemoryBank.appDataAccessor.createArchive()) {
-                // The reselect is only needed if we are showing the archive listing.
-                    if(currentSelection == 0) {
-                        theTree.clearSelection();
-                        theTree.setSelectionRow(currentSelection);
-                    }
-                MemoryBank.debug("Archive creation was successful.");
-            } else {
-                MemoryBank.debug("Unable to create the archive!");
-            }
-        } else {
-            System.out.println("Archiving was cancelled.");
-        }
-    }
-
     // Handling for the 'Go Back' menu item, to go back to Search Results after
     //   viewing one of its 'FoundIn' items.
     private void doGoBack() {
@@ -660,14 +417,29 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // Convert the archive name into an archive date
         LocalDateTime localDateTime = MemoryBank.appDataAccessor.getDateTimeForArchiveName(archiveName);
 
+        // Get the initial count of archives -
+        String[] existingArchives = MemoryBank.appDataAccessor.getArchiveNames(); // Cannot be null, in this method.
+        int startingCount = existingArchives.length;
+
         // Remove the indicated archive
         if (MemoryBank.appDataAccessor.removeArchive(localDateTime)) {
-            int currentSelection = theTree.getMaxSelectionRow();
-                // The reselect is only needed if we are showing the archive listing.
-                if(currentSelection == 0) {
-                    theTree.clearSelection();
-                    theTree.setSelectionRow(currentSelection);
+            // We may need to make adjustments to the main app tree.
+            if(startingCount < 3) {
+                if (startingCount == 2) { // Going from 2 down to 1 - 'Archives' --> 'Archive'
+                    theRootNode.remove(0); // Remove 'Archives'
+                    theRootNode.insert(new DefaultMutableTreeNode("Archive"), 0);
+                    treeModel.nodeStructureChanged(theRootNode);
+                    resetTreeState();
+                    theTree.setSelectionRow(0);
                 }
+                if(startingCount == 1) { // Going from 1 down to 0 - 'Archive' leaf --> no leaf.
+                    closeGroup();  // Archive is not exactly a group, but the method does what we need.
+                    resetTreeState();
+                    showAbout();
+                }
+
+            }
+
         } else {
             optionPane.showMessageDialog(theTree, "Archive removal failed!");
         }
@@ -710,8 +482,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             return;
         } // end if no search location was specified.
 
-        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
+//        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
+        AppTreePanel.showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
 
         // Make sure that the most recent changes, if any, will be included in the search.
         preClose();
@@ -745,18 +517,19 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         addSearchResult(resultsName);
 
         searching = false;
-        showWorkingDialog(false);
+        AppTreePanel.showWorkingDialog(false);
     } // end doSearch
 
     void doViewArchive(String archiveName) {
         MemoryBank.debug("Selected Archive: " + archiveName);
         JFrame archiveWindow = new JFrame("Archive: " + archiveName);
-        ArchiveTreePanel archiveTreePanel = new ArchiveTreePanel(archiveWindow, MemoryBank.appOpts); // change to using archive opts.
-
-        archiveWindow.getContentPane().add(archiveTreePanel);
-        archiveWindow.pack();
         archiveWindow.setSize(new Dimension(880, 600));
+
+
+        archiveWindow.getContentPane().add(new JLabel(archiveName), BorderLayout.CENTER);
+
         archiveWindow.setLocationRelativeTo(null); // Center screen
+
         archiveWindow.setVisible(true);
     } // end doViewArchive
 
@@ -807,134 +580,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     } // end getConsolidatedView
 
 
-    NoteGroupPanel getPanelFromKeeper(GroupInfo groupInfo) {
-        return getPanelFromKeeper(groupInfo.groupType, groupInfo.getGroupName());
-    }
-
-
-    // Get the requested Panel from the appropriate keeper.
-    // Usage of this method relates to linking.  Since SearchResults cannot be linked,
-    //      they are not addressed.
-    // If the requested group is not in its keeper, a null is returned.
-    NoteGroupPanel getPanelFromKeeper(GroupType theType, String theName) {
-        NoteGroupPanel noteGroupPanel = null;
-        switch (theType) {
-            case GOALS:
-                noteGroupPanel = theGoalsKeeper.get(theName);
-                break;
-            case EVENTS:
-                noteGroupPanel = theEventListKeeper.get(theName);
-                break;
-            case TODO_LIST:
-                noteGroupPanel = theTodoListKeeper.get(theName);
-                break;
-            case NOTES:
-                switch (theName) {
-                    case "Day Notes":
-                        noteGroupPanel = theAppDays;
-                        break;
-                    case "Month Notes":
-                        noteGroupPanel = theAppMonths;
-                        break;
-                    case "Year Notes":
-                        noteGroupPanel = theAppYears;
-                        break;
-                }
-                break;
-            case DAY_NOTES:
-                if(theAppDays != null) {
-                    String theTitle = theAppDays.getTitle();
-                    // if theAppDays is set to the named group then we use it.
-                    if (theTitle.equals(theName)) noteGroupPanel = theAppDays;
-                }
-                break;
-            case MONTH_NOTES:
-                if(theAppMonths != null) {
-                    String theTitle = theAppMonths.getTitle();
-                    // if theAppMonths is set to the named group then we use it.
-                    if (theTitle.equals(theName)) noteGroupPanel = theAppMonths;
-                }
-                break;
-            case YEAR_NOTES:
-                if(theAppYears != null) {
-                    String theTitle = theAppYears.getTitle();
-                    // if theAppYears is set to the named group then we use it.
-                    if (theTitle.equals(theName)) noteGroupPanel = theAppYears;
-                }
-                break;
-        }
-        return noteGroupPanel;
-    }
-
-    // Used by Test
-    NoteGroupPanel getTheNoteGroup() {
-        return theNoteGroupPanel;
-    }
-
     public JTree getTree() {
         return theTree;
     }
-
-    private void handleMenuBar(String what) {
-        if (what.equals("Exit")) System.exit(0);
-        else if (what.equals("About")) showAbout();
-        else if (what.equals("Archive...")) doCreateArchive();
-        else if (what.equals("Add New...")) addNewGroup();
-        else if (what.equals("Close")) closeGroup();
-        else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
-        else if (what.equals("Contents")) showHelp();
-        else if (what.equals("Go Back")) doGoBack();
-        else if (what.equals("Linkages...")) theNoteGroupPanel.groupLinkages();
-        else if (what.equals("Show Scheduled Events")) showEvents();
-        else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
-        else if (what.equals("Delete")) deleteGroup();
-        else if (what.equals("Search...")) doSearch();
-        else if (what.equals("Set Options...")) ((TodoNoteGroupPanel) theNoteGroupPanel).setOptions();
-        else if (what.startsWith("Merge")) mergeGroup();
-            //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
-        else if (what.equals("Remove")) doRemoveArchive();
-        else if (what.equals("Review...")) System.out.println("Review was selected.  It aint reddy yet."); // SCR00084
-        else if (what.equals("Save")) theNoteGroupPanel.refresh();
-        else if (what.startsWith("Save As")) saveGroupAs();
-        else if (what.equals("Undo Delete")) {
-            appMenuBar.manageMenus(appMenuBar.getCurrentContext());
-            deletedNoteGroupPanel.setGroupChanged(true);
-            deletedNoteGroupPanel.preClosePanel();
-            System.out.println("Did it.");
-            deletedNoteGroupPanel = null;
-            appMenuBar.showRestoreOption(false);
-            treeSelectionChanged(theTree.getSelectionPath()); // Reload the branch editor, to show the 'new' file.
-        }
-        else if (what.equals("View")) doViewArchive(selectedArchiveNode.toString());
-        else if (what.equals("Icon Manager...")) {
-            theTree.clearSelection();
-            JPanel jp = new JPanel(new GridBagLayout());
-            jp.add(new JLabel(what));
-            appMenuBar.manageMenus("Icons"); // This will get the default / unhandled case.
-            rightPane.setViewportView(jp);
-        } else if (what.equals("Today")) showToday();
-        else if (what.equals("Undo All")) {
-            theNoteGroupPanel.updateGroup(); // reload without save
-        } else {
-            AppUtil.localDebug(true);
-            MemoryBank.debug("  " + what);
-            AppUtil.localDebug(false);
-        } // end if/else
-    } // end handleMenuBar
-
-
-    private void mergeGroup() {
-        preClose(); // Close everything that might be open.
-        String theContext = appMenuBar.getCurrentContext();
-        switch (theContext) {
-            case "Upcoming Event":
-                ((EventNoteGroupPanel) theNoteGroupPanel).merge();
-                break;
-            case "To Do List":
-                ((TodoNoteGroupPanel) theNoteGroupPanel).merge();
-                break;
-        }
-    } // end mergeGroup
 
 
     // Purpose:  Preserves any unsaved changes to all NoteGroups
@@ -1021,55 +669,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         if (appOpts.searchesExpanded) theTree.expandPath(searchresultsPath);
 
     } // end resetTreeState
-
-
-    private void saveGroupAs() {
-        String oldName = theNoteGroupPanel.getGroupName();
-        boolean success = false;
-        NoteGroupPanelKeeper theNoteGroupPanelKeeper = null;
-        TreePath groupParentPath = null;
-
-        String theContext = appMenuBar.getCurrentContext();
-        switch (theContext) {
-            case "Upcoming Event":
-                success = ((EventNoteGroupPanel) theNoteGroupPanel).saveAs();
-                groupParentPath = eventsPath;
-                theNoteGroupPanelKeeper = theEventListKeeper;
-                break;
-            case "To Do List":
-                success = ((TodoNoteGroupPanel) theNoteGroupPanel).saveAs();
-                groupParentPath = todolistsPath;
-                theNoteGroupPanelKeeper = theTodoListKeeper;
-                break;
-        }
-        if (null == groupParentPath) return; // Should not happen in normal operation.
-
-        if (success) {
-            String newName = theNoteGroupPanel.getGroupName();
-
-            // When the tree selection changes, any open NoteGroup is automatically saved,
-            // and the tree selection will change automatically when we do the rename of
-            // the leaf on the tree below.  But in this case we do not want that behavior,
-            // because we have already saved the file, milliseconds ago.  It wouldn't hurt
-            // to let it save again, but why allow it, when all it takes to stop it is:
-//            theNoteGroupPanel = null;
-
-            // Removal from the NoteGroupKeeper is needed, to force a file reload
-            // during the rename of the leaf (below), because even though the saveAs
-            // operation changed the name of the list held by the ListKeeper, it
-            // still shows a title that was developed from the old file name.
-            // Reloading from the file with the new name will fix that.
-            theNoteGroupPanelKeeper.remove(newName);
-
-            // Rename the leaf.
-            // This will refresh the branch and reselect the same tree row to
-            // cause a reload and redisplay of the group.  Note that not only does the
-            // leaf name change, but the reload also changes the displayed group title.
-            String groupParentName = groupParentPath.getLastPathComponent().toString();
-            DefaultMutableTreeNode groupParentNode = BranchHelperInterface.getNodeByName(theRootNode, groupParentName);
-            renameTreeBranchLeaf(groupParentNode, oldName, newName);
-        }
-    } // end saveGroupAs
 
 
     // This method scans a directory for data files.  If it finds a directory rather than a file,
@@ -1277,128 +876,9 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             // Show it.
             rightPane.setViewportView(aboutPanel);
 
-            appMenuBar.manageMenus("About"); // This will get the default / unhandled case.
+//            appMenuBar.manageMenus("About"); // This will get the default / unhandled case.
         } // end if
     } // end showAbout
-
-
-    // Create and show an Archive panel
-    // Content may start out with informative text, if there are few enough archives.
-    void showArchives() {
-        JPanel archivePanel = new JPanel(new BorderLayout());
-        String[] archiveNames = MemoryBank.appDataAccessor.getArchiveNames();
-        int archiveCount = archiveNames == null ? 0 : archiveNames.length;
-
-        // In the base container, the NORTH area will hold a Box.
-        // The Box will have rows; first row is the title.
-        Box myBox = new Box(BoxLayout.Y_AXIS);
-        JLabel theHeading = new JLabel(("  Archives"));
-        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        theHeading.setHorizontalAlignment(SwingConstants.LEFT);
-        theHeading.setFont(Font.decode("Serif-bold-24"));
-        titleRow.add(theHeading);
-        myBox.add(titleRow);
-
-        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 10));
-        infoPanel.add(new JLabel(" ")); // This (plus the hgap) is the left side margin/indent.
-        JTextArea theTextArea = new JTextArea();
-        theTextArea.setLineWrap(true);
-        theTextArea.setWrapStyleWord(true);
-        theTextArea.setOpaque(false);
-        theTextArea.setFont(Font.decode("Serif-bold-14"));
-        String theInfo = "The Memory Bank application is already archiving the notable aspects of your life by ";
-        theInfo += "mapping them onto the calendar by way of your date and time specific entries, but to go ";
-        theInfo += "just a bit beyond that, this feature also preserves your Goals, To Do Lists, ";
-        theInfo += "and other notes in the same state that they were on the day that the archive was created.  ";
-        theInfo += "These lists all evolve over time, but this feature allows you to look back and see them as ";
-        theInfo += "they were at the moment that you made the archive.  Suggestion is to make a new archive at least ";
-        theInfo += "once a year, possibly on a birthday or anniversary. ";
-        theTextArea.setText(theInfo);
-
-        theTextArea.setEditable(false);
-        JPanel infoRow = new JPanel(new DndLayout()); // Dnd, to stretch the TextArea content to its horizontal limit.
-        infoRow.setPreferredSize(new Dimension(500, 160));
-        infoRow.add(theTextArea, "Stretch");
-
-        // If our list of archives has gotten too long then the screen real estate taken up by the info message can
-        // be reclaimed; after this many archives they really don't need to see the justification for having them.
-        // But they may want to occasionally review that message, so now we move it from the default screen and up
-        // into the tool tip of the heading.
-        if (archiveCount > 15) {
-            // Make a tool tip - add line breaks and wrap in HTML to PREserve multi-line.
-            // Tool Tip is only to be added after we get so many archives that we start hiding the info row.
-            String theToolTip = "<html><pre>" + AppUtil.getTooltipString(theInfo) + "</pre></html>";
-            theHeading.setToolTipText(theToolTip);
-            myBox.add(new JLabel(" ")); // Spacer before the archives start, below this.
-        } else {
-            infoPanel.add(infoRow);
-            myBox.add(infoPanel);
-        }
-        archivePanel.add(myBox, BorderLayout.NORTH);
-
-        if(archiveCount > 0) {  // There are already archives - show the selectable list.
-            // Build a single-level tree of archive leaves
-            DefaultMutableTreeNode archiveTreeRootNode = new DefaultMutableTreeNode("Archives");
-
-            for (String aName : archiveNames) {
-                //jScrollPane.add(new Label(aName));
-                DefaultMutableTreeNode aNode = new DefaultMutableTreeNode(aName);
-                archiveTreeRootNode.add(new DefaultMutableTreeNode(aName));
-            }
-            // Create a default model based on the archive node, and create the tree from that model.
-            TreeModel archiveTreeModel = new DefaultTreeModel(archiveTreeRootNode);
-            //UIManager.put("Tree.rendererFillBackground", false); // Works ok for unselected but not selected.
-            JTree archiveTree = new JTree(archiveTreeModel);
-            // Set a tree cell renderer that does not override the background of unselected nodes.
-            archiveTree.setCellRenderer(new DefaultTreeCellRenderer() {
-                @Override
-                public Color getBackgroundNonSelectionColor() {
-                    return (null);
-                }
-
-                @Override
-                public Color getBackground() {
-                    return (null);
-                }
-            });
-
-            // Set to single selection mode.
-            archiveTree.getSelectionModel().setSelectionMode
-                    (TreeSelectionModel.SINGLE_TREE_SELECTION);
-
-            archiveTree.addTreeSelectionListener(new TreeSelectionListener() {
-                @Override
-                public void valueChanged(TreeSelectionEvent e) {
-                    appMenuBar.manageMenus("One Archive");
-                    TreePath newPath = e.getNewLeadSelectionPath();
-                    if (newPath == null) return;
-
-                    // Obtain a reference to the new selection.
-                    selectedArchiveNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
-                }
-            });
-
-            // Do not show the root of the tree.
-            archiveTree.setRootVisible(false);
-            //rightPane.setViewportView(archiveTree);
-            archiveTree.setOpaque(false);
-            archiveTree.setFont(Font.decode("Serif-bold-14"));
-            JPanel archiveRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-            archiveRow.add(new JLabel(" ")); // a bit of left-indentation.
-            archiveRow.add(archiveTree);
-            archivePanel.add(archiveRow, BorderLayout.CENTER);
-        } else {  // There are no archives; suggest that they make one, and say how to do it.
-            // For whatever reason, giving the label a left justification and adding it directly to the Box -
-            // resulted in a right-justified appearance.  So - wrapped it in the left-flavored FlowLayout.
-            JLabel thePrompt = new JLabel("  You can make a new archive via the main menu.");
-            thePrompt.setFont(Font.decode("Serif-bold-20"));
-            JPanel promptRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0,0));
-            promptRow.add(thePrompt);
-            myBox.add(promptRow);
-        }
-
-        rightPane.setViewportView(archivePanel);
-    } // end showArchives
 
 
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
@@ -1464,7 +944,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // if goback, set goback to not visible
 
         theTree.clearSelection();
-        appMenuBar.manageMenus("Viewing FoundIn");
+//        appMenuBar.manageMenus("Viewing FoundIn");
         rightPane.setViewportView(thePanel.theBasePanel);
     }
 
@@ -1553,7 +1033,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         dayTitle.setFont(Font.decode("Serif-bold-24"));
         dayTitle.setText(dtf.format(selectedDate));
         rightPane.setViewportView(dayTitle);
-        appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
+//        appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
 
         // Clear the current tree selection, so they can select it again
         // and get back to a 'normal' view.  There was a previous version here, where we had kept the earlier
@@ -1578,53 +1058,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     } // end showWeek
 
 
-    //-----------------------------------------------------------
-    // Method Name: showWorkingDialog
-    //
-    // This method will either show or hide a small modal
-    //   dialog with an animated gif and a 'Working...' message.
-    //   Call this method with 'true' before you start
-    //   a potentially long task that the user must wait for,
-    //   then call it with 'false' to go on.  It is static
-    //   in order to give access to external classes such
-    //   as group headers, that need to wait for sorting.
-    //-----------------------------------------------------------
-    static void showWorkingDialog(boolean showIt) {
-        if (showIt) {
-            theWorkingDialog.setLocationRelativeTo(theInstance); // In case the app has been moved around.
-            //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
-
-            // Create a new thread and setVisible within the thread.
-            new Thread(new Runnable() {
-                public void run() {
-                    theWorkingDialog.setVisible(true);
-                }
-            }).start(); // Start the thread so that the dialog will show.
-        } else {
-            new Thread(new Runnable() {
-                public void run() {
-                    // Give the 'visible' time to complete, before going invisible.
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    theWorkingDialog.setVisible(false);
-                }
-            }).start();
-        } // end if show - else hide
-    } // end showWorkingDialog
-
     void treeSelectionChanged(TreePath newPath) {
         if (newPath == null) return;
-        // You know how some animals will still move or twitch a bit after death?
-        // The explanation is that their central nervous system is still sending
-        // (random) signals as it shuts down, and there is enough of their body
-        // still in working order well enough to react somewhat to those signals.
-        // This app is similar in that some of the tests for it will run and then
-        // end so quickly that some of the threads here have not finished their
-        // processing.  The above line helps with that; otherwise we see null
-        // exceptions on the 'node = ' line directly below, AFTER the test has passed.
 
         // Obtain a reference to the new selection.
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
@@ -1637,18 +1072,18 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
         // We have started to handle the change; now disallow
         //   further input until we are finished.
-        theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
-        if (!restoringPreviousSelection) showWorkingDialog(true);
+        AppTreePanel.theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
+        if (!restoringPreviousSelection) AppTreePanel.showWorkingDialog(true);
 
         // Update the current selection row
         // Single-selection mode; Max == Min; take either one.
         appOpts.theSelectionRow = theTree.getMaxSelectionRow();
 
-        // If there was a NoteGroup open prior to this tree selection change then update its data now.
-        // But we don't just automatically save it; it has to have undergone one or more changes.
-        if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
-            theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
-        } // end if
+//        // If there was a NoteGroup open prior to this tree selection change then update its data now.
+//        // But we don't just automatically save it, at this point.
+//        if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
+//            theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
+//        } // end if
 
         // Get the string for the selected node.
         String theNodeString = selectedNode.toString();
@@ -1668,7 +1103,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         //   then we will know which branch the leaf belongs on.
         //-----------------------------------------------------
         boolean isTopLevel = parentNodeName.equals("App");
-        boolean isArchives = isTopLevel && theNodeString.equals(DataArea.ARCHIVES.toString());
         boolean isGoalsBranch = isTopLevel && theNodeString.equals(DataArea.GOALS.toString());
         boolean isEventsBranch = isTopLevel && theNodeString.equals(DataArea.UPCOMING_EVENTS.toString());
         boolean isTodoBranch = isTopLevel && theNodeString.equals(DataArea.TODO_LISTS.toString());
@@ -1677,9 +1111,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         theNoteGroupPanel = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if ( isArchives ) {
-            showArchives();
-        } else if (isGoalsBranch) {  // Edit the Goals parent branch
+        if (isGoalsBranch) {  // Edit the Goals parent branch
             BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
             TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
             selectionContext = "Goals Branch Editor";
@@ -1739,7 +1171,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // the last selection that had been made during a previous run,
                 // and now it is being restored, possibly several days later.
                 if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    showWorkingDialog(false);
+                    AppTreePanel.showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the Goal.\n" +
                                     "This Goal selection will be removed.",
@@ -1749,7 +1181,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 // There is only one menu, for ALL Goals.  It needs to be reset with every list change.
-                goalGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+//                goalGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
 
                 theNoteGroupPanel = goalGroup;
                 rightPane.setViewportView(goalGroup.theBasePanel);
@@ -1787,7 +1219,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // the last selection that had been made during a previous run,
                 // and now it is being restored, possibly several days later.
                 if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    showWorkingDialog(false);
+                    AppTreePanel.showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the Event group.\n" +
                                     "This group selection will be removed.",
@@ -1797,7 +1229,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 // There is only one menu, for ALL event lists.  It needs to be reset with every list change.
-                eventNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+//                eventNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
 
                 theNoteGroupPanel = eventNoteGroup;
                 rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
@@ -1835,7 +1267,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // the last selection that had been made during a previous run,
                 // and now it is being restored, possibly several days later.
                 if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    showWorkingDialog(false);
+                    AppTreePanel.showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the To Do List.\n" +
                                     "This list selection will be removed.",
@@ -1845,7 +1277,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
-                todoNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+//                todoNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
 
                 theNoteGroupPanel = todoNoteGroup;
                 rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
@@ -1883,7 +1315,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // the last selection that had been made during a previous run,
                 // and now it is being restored, possibly several days later.
                 if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    showWorkingDialog(false);
+                    AppTreePanel.showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the search results.\n" +
                                     "This search results selection will be removed.",
@@ -1898,7 +1330,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } else if (theNodeString.equals("Year View")) {
             if (theYearView == null) {
                 theYearView = new YearView(viewedDate);
-                theYearView.setParent(this);
+//                theYearView.setParent(this);
             } else {
                 theYearView.setChoice(selectedDate); // To get the right choiceLabel
                 theYearView.setView(viewedDate); // To show the right Year
@@ -1924,7 +1356,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 // DayCanvases are ready to properly show icons.  (This appears to also prevent the problem
                 // from appearing in the final (empty) DayCanvases of the MonthCanvas grid (not sure why).
                 theMonthView.setChoice(selectedDate); // This sets the 'choice' label and day highlight, if appropriate.
-                theMonthView.setParent(this);
+//                theMonthView.setParent(this);
             } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
                 theMonthView.setChoice(selectedDate);
             }
@@ -1947,7 +1379,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } else if (theNodeString.equals("Day Notes")) {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroupPanel();
-                theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+//                theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Previously constructed.  Ensure that it is editable.
                 log.debug("Using the previously constructed 'theAppDays' for " + theNodeString);
                 if (!theAppDays.getEditable()) theAppDays.setEditable(true);
@@ -1967,7 +1399,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
-                theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+//                theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Previously constructed.  Ensure that it is editable.
                 log.debug("Using the previously constructed 'theAppMonths' for " + theNodeString);
                 if (!theAppMonths.getEditable()) theAppMonths.setEditable(true);
@@ -1980,7 +1412,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroupPanel();
-                theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
+//                theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
             } else { // Previously constructed.  Ensure that it is editable.
                 log.debug("Using the previously constructed 'theAppYears' for " + theNodeString);
                 if (!theAppYears.getEditable()) theAppYears.setEditable(true);
@@ -2000,8 +1432,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } // end if/else if
         //</editor-fold>
 
-        appMenuBar.manageMenus(selectionContext);
-        showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
+//        appMenuBar.manageMenus(selectionContext);
+        AppTreePanel.showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
 
 
@@ -2110,8 +1542,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         // This event-handling method is called due to user action to change the selection
         // and would not run if the current selection was simply being rehandled.  So - this
         // is the best place to accept that an offer to undo a deletion has been abandoned.
-        appMenuBar.showRestoreOption(false);
-        appMenuBar.requestFocus(); // Do not start out with a note already selected.
 
         final TreePath newPath = e.getNewLeadSelectionPath();
         if (restoringPreviousSelection) {

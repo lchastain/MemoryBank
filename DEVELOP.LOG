@@ -25,18 +25,39 @@ Issues, Ideas, Analyses, Problems:
         SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
             But it IS ready, activated from the title label.  Make it work from here, too.
         Viewing 'Found In' shows a non-editable panel - is that right?  Decide, then document.
+        Tool tip display changes are needed sooner than NoteGroups - move it.
 
 New:
-    Working on 'restoring selection', trying to switch over to a tree path vs row and when it works, the node on
-        the tree is still not highlighted.  Needed for when the Archive node is not shown in the ArchiveTreePanel,
-        so the row number from the archived appOpts WILL be wrong.
+    Get the archive tree panel to use the archived opts.  On that panel,
+    keep the archive leaf but react by saying "Cannot view archives from an archive."
+    Allow a double-click / View archive without having to go thru the menu.
 
 
 
 =====================================================================================================
+29 Dec 2020
+  Worked on the archive listing page, formatting of the selection list as well as the addition of the info panel
+    that explains the need/usage of archives, and gives a prompt if there are none.  Shift the info up into a
+    tool tip, once there are more than 15 archives, to save screen space.
+
 27 Dec 2020
   New problems:  Search results renaming fails, from either method.
-  This was fallout from switching to using the new DataArea class; a regression.  Fixed, and ci/pub.
+    This was fallout from switching to using the new DataArea class; a regression.  Fixed, and ci/pub.
+  Have been working on the Archive view - feature is currently in progress, not checked in.
+  Decision point:  Not going to continue with the 'Archive-->Archives' growth or reduction when adding or removing
+    archives; it too much complicates the tree management and besides we don't do that for Todo Lists, Search Results,
+    or Events, so why should this be inconsistent?  After any significant usage there will then always be more than
+    one, so the leaf will be consistently named 'Archives', regardless of how many there are, but if there are zero
+    then it will require a special 'message' in the viewing pane, as the only special case to be handled.
+  Backed out the dynamic tree changes, which 'cures' the selection row vs path problem; now that Archives is always
+    there, selection row can remain as it was.  Had to rebuild/repub, to fix prod and get the TreePath back out of
+    the options.  If you look here again, know that the base problem was that a TreePath cannot be jackson-serialized,
+    and trying to save just a string - I was unable to recreate a TreePath from that alone, where the components could
+    then be cast back to DefaultMutableTreeNodes when restoring the previous selection (and I did try, more than once;
+    this latest attempt was possibly the 3rd time since 2014.  Ok, a little more on that - I may have been close; a
+    debug session showed me that the nodes that I made had no parents; maybe if they did...  but that's where I made
+    a value judgement and decided simpler was better; I can make the damn row number be correct by maintaining the
+    various expanded/collapsed states as they were when the row num was captured).
 
 25 Dec 2020
   Continuing with implementing the archive View, now.  But struggling with a bad head cold, that evolved

@@ -16,14 +16,14 @@ import java.util.Enumeration;
 public class TreeBranchEditor extends JPanel
         implements ItemListener, ActionListener, TreeModelListener {
     static final long serialVersionUID = 1L;
-    private static Logger log = LoggerFactory.getLogger(TreeBranchEditor.class);
+    private static final Logger log = LoggerFactory.getLogger(TreeBranchEditor.class);
 
-    private JScrollPane leftScroller;
-    private JScrollPane rightScroller;
+    private final JScrollPane leftScroller;
+    private final JScrollPane rightScroller;
 
-    private DefaultMutableTreeNode origBranch;
+    private final DefaultMutableTreeNode origBranch;
     private DefaultMutableTreeNode myBranch;
-    private BranchHelperInterface myHelper;
+    private final BranchHelperInterface myHelper;
     private ArrayList<String> theChoices;
     private ArrayList<String> removals = new ArrayList<>();
     private BranchEditorModel bem;
