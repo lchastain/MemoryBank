@@ -19,10 +19,7 @@ import javax.swing.tree.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
@@ -36,6 +33,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     private static final Logger log = LoggerFactory.getLogger(ArchiveTreePanel.class);
 
+    JFrame archiveWindow;
     Notifier optionPane;
     //-------------------------------------------------------------------
 
@@ -84,15 +82,28 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
     private final AppOptions appOpts;
 
-    boolean restoringPreviousSelection;
-    boolean searching;
+    JDialog theWorkingDialog;
 
-    public ArchiveTreePanel(JFrame aFrame, AppOptions appOpts) {
+    public ArchiveTreePanel(String archiveName) {
         super(new GridLayout(1, 0));
-        this.appOpts = appOpts;
+        archiveWindow = new JFrame("Archive: " + archiveName);
+        appOpts = MemoryBank.appDataAccessor.getArchiveOptions(archiveName);
 
-        optionPane = new Notifier() {
-        }; // Uses all default methods.
+        //<editor-fold desc="Make the 'Working...' dialog">
+        theWorkingDialog = new JDialog(archiveWindow, "Working", true);
+        JLabel lbl = new JLabel("Please Wait...");
+        lbl.setFont(Font.decode("Dialog-bold-16"));
+        String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
+        strWorkingIcon += "icons" + File.separatorChar + "animated" + File.separatorChar + "manrun.gif";
+        lbl.setIcon(new AppIcon(strWorkingIcon));
+        lbl.setVerticalTextPosition(JLabel.TOP);
+        lbl.setHorizontalTextPosition(JLabel.CENTER);
+        theWorkingDialog.add(lbl);
+        theWorkingDialog.pack();
+        theWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        //</editor-fold>
+
+        optionPane = new Notifier() { }; // Uses all default methods.
 
 //        setOpaque(true);
 
@@ -144,38 +155,19 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
         // Restore the last selection.
         MemoryBank.update("Restoring the previous selection");
-        restoringPreviousSelection = true;
         // If there is a previous selection -
         if (appOpts.theSelectionRow >= 0) theTree.setSelectionRow(appOpts.theSelectionRow);
         // There are a few cases where there would be no previous selection.
         // Ex: Showing the About graphic, First-time-ever for this user, lost or corrupted AppOptions.
         // In these cases leave as-is and the view will go to the About graphic.
 
-        restoringPreviousSelection = false;
-
-    } // end constructor for AppTreePanel
-
-    // Adds a search result branch to the tree.
-    private void addSearchResult(String searchResultName) {
-        // Remove the tree selection listener while we
-        //   rebuild this portion of the tree.
-        theTree.removeTreeSelectionListener(this);
-
-        // Make a new tree node for the result file whose path
-        //   is given in the input parameter
-        DefaultMutableTreeNode tmpNode;
-        tmpNode = new DefaultMutableTreeNode(searchResultName, false);
-
-        // Add to the tree under the Search Results branch
-        DefaultMutableTreeNode nodeSearchResults = BranchHelperInterface.getNodeByName(theRootNode, "Search Results");
-        nodeSearchResults.add(tmpNode);
-        treeModel.nodeStructureChanged(nodeSearchResults);
-
-        // Select the new list.
-        TreeNode[] pathToRoot = tmpNode.getPath();
-        theTree.addTreeSelectionListener(this);
-        theTree.setSelectionPath(new TreePath(pathToRoot));
-    } // end addSearchResult
+        // I'm a self-starter!
+        archiveWindow.getContentPane().add(this);
+        archiveWindow.pack();
+        archiveWindow.setSize(new Dimension(880, 600));
+        archiveWindow.setLocationRelativeTo(null); // Center screen
+        archiveWindow.setVisible(true);
+    } // end constructor for ArchiveTreePanel
 
 
     //-------------------------------------------------------
@@ -406,135 +398,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     }
 
 
-    private void doRemoveArchive() {
-        // With correct menu management, we cannot arrive here without having a value in the selecteArchiveNode.
-        if(selectedArchiveNode == null) return;
-
-        // Get the archive's name from the selected tree node.
-        String archiveName = selectedArchiveNode.toString();
-        System.out.println("Selected Archive: " + archiveName);
-
-        // Convert the archive name into an archive date
-        LocalDateTime localDateTime = MemoryBank.appDataAccessor.getDateTimeForArchiveName(archiveName);
-
-        // Get the initial count of archives -
-        String[] existingArchives = MemoryBank.appDataAccessor.getArchiveNames(); // Cannot be null, in this method.
-        int startingCount = existingArchives.length;
-
-        // Remove the indicated archive
-        if (MemoryBank.appDataAccessor.removeArchive(localDateTime)) {
-            // We may need to make adjustments to the main app tree.
-            if(startingCount < 3) {
-                if (startingCount == 2) { // Going from 2 down to 1 - 'Archives' --> 'Archive'
-                    theRootNode.remove(0); // Remove 'Archives'
-                    theRootNode.insert(new DefaultMutableTreeNode("Archive"), 0);
-                    treeModel.nodeStructureChanged(theRootNode);
-                    resetTreeState();
-                    theTree.setSelectionRow(0);
-                }
-                if(startingCount == 1) { // Going from 1 down to 0 - 'Archive' leaf --> no leaf.
-                    closeGroup();  // Archive is not exactly a group, but the method does what we need.
-                    resetTreeState();
-                    showAbout();
-                }
-
-            }
-
-        } else {
-            optionPane.showMessageDialog(theTree, "Archive removal failed!");
-        }
-    }
-
-
-    private void doSearch() {
-        searching = true;
-        searchPanel = new SearchPanel();
-        Frame theFrame = JOptionPane.getFrameForComponent(this);
-
-        // Now display the search dialog.
-        String string1 = "Search Now";
-        String string2 = "Cancel";
-        Object[] options = {string1, string2};
-        int choice = JOptionPane.showOptionDialog(theFrame,
-                searchPanel,
-                "Search - Please specify the conditions for your quest",
-                JOptionPane.OK_CANCEL_OPTION,
-                PLAIN_MESSAGE,
-                null,     //don't use a custom Icon
-                options,  //the titles of buttons
-                string1); //the title of the default button
-
-        if (choice != JOptionPane.OK_OPTION) {
-            if (!searchPanel.doSearch) {
-                searching = false;
-                return;
-            }
-            // Tests might have set this flag directly, without going through the dialog.
-            searchPanel.doSearch = false; // Put this flag back to non-testing mode.
-        }
-
-        if (!searchPanel.hasWhere()) {
-            JOptionPane.showMessageDialog(this,
-                    " No location to search was chosen!",
-                    "Search conditions specification error",
-                    JOptionPane.ERROR_MESSAGE);
-            searching = false;
-            return;
-        } // end if no search location was specified.
-
-//        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-        AppTreePanel.showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
-
-        // Make sure that the most recent changes, if any, will be included in the search.
-        preClose();
-
-        // Now make a Vector that can collect the search results.
-        foundDataVector = new Vector<>();
-
-        // We will display the results of the search, even if it finds nothing.
-        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(searchPanel.getSettings()));
-
-        // Now scan the user's data area for data files - we do a recursive
-        //   directory search and each file is examined as soon as it is
-        //   found, provided that it passes the file-level filters.
-        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
-        File f = new File(MemoryBank.userDataHome);
-        scanDataDir(f, 0); // Indirectly fills the foundDataVector
-
-        // Make a unique name for the results
-        String resultsName;
-        resultsName = NoteGroupFile.getTimestamp();
-        SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupType.SEARCH_RESULTS));
-        SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
-        searchResultGroupProperties.setSearchSettings(searchPanel.getSettings());
-        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
-
-        theResultsGroup.setNotes(foundDataVector);
-        // We allow the search to be saved without results because what was searched for, and when, is also important.
-        theResultsGroup.saveNoteGroup();
-
-        // Make a new tree node for these results.
-        addSearchResult(resultsName);
-
-        searching = false;
-        AppTreePanel.showWorkingDialog(false);
-    } // end doSearch
-
-    void doViewArchive(String archiveName) {
-        MemoryBank.debug("Selected Archive: " + archiveName);
-        JFrame archiveWindow = new JFrame("Archive: " + archiveName);
-        archiveWindow.setSize(new Dimension(880, 600));
-
-
-        archiveWindow.getContentPane().add(new JLabel(archiveName), BorderLayout.CENTER);
-
-        archiveWindow.setLocationRelativeTo(null); // Center screen
-
-        archiveWindow.setVisible(true);
-    } // end doViewArchive
-
-
-
     // Make a Consolidated View group from all the currently selected Event Groups.
     @SuppressWarnings({"rawtypes"})
     private EventNoteGroupPanel getConsolidatedView() {
@@ -671,154 +534,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     } // end resetTreeState
 
 
-    // This method scans a directory for data files.  If it finds a directory rather than a file,
-    //   it will recursively call itself for that directory.
-    //
-    // The SearchPanel interface follows a 'filter out' plan.  To support that, this method starts
-    //   with the idea that ALL files will be searched and then considers the filters, to eliminate
-    //   candidate files.  If a file is not eliminated after the filters have been considered, the
-    //   search method is called for that file.
-    private void scanDataDir(File theDir, int level) {
-        MemoryBank.dbg("Scanning " + theDir.getName());
-
-        File[] theFiles = theDir.listFiles();
-        assert theFiles != null;
-        int howmany = theFiles.length;
-        MemoryBank.debug("\t\tFound " + howmany + " data files");
-        boolean goLook;
-        LocalDate dateNoteDate;
-        MemoryBank.debug("Level " + level);
-
-        for (File theFile : theFiles) {
-            String theFile1Name = theFile.getName();
-            if (theFile.isDirectory()) {
-                if (theFile1Name.equals("Archives")) continue;
-                if (theFile1Name.equals("icons")) continue;
-                if (theFile1Name.equals("SearchResults")) continue;
-                scanDataDir(theFile, level + 1);
-            } else {
-                goLook = true;
-                String theGroupName = NoteGroupFile.getGroupNameFromFilename(theFile1Name);
-                if (theFile1Name.startsWith("goal_")) {
-                    if (!searchPanel.searchGoals()) {
-                        goLook = false;
-                    } else {
-                        if(!MemoryBank.appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
-                    }
-                } else if (theFile1Name.startsWith("event_")) {
-                    if (!searchPanel.searchEvents()) {
-                        goLook = false;
-                    } else {
-                        if(!MemoryBank.appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
-                    }
-                } else if (theFile1Name.startsWith("todo_")) {
-                    if (!searchPanel.searchLists()) {
-                        goLook = false;
-                    } else {
-                        if(!MemoryBank.appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
-                    }
-                } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
-                    if (!searchPanel.searchDays()) goLook = false;
-                } else if ((theFile1Name.startsWith("M")) && (level > 0)) {
-                    if (!searchPanel.searchMonths()) goLook = false;
-                } else if ((theFile1Name.startsWith("Y")) && (level > 0)) {
-                    if (!searchPanel.searchYears()) goLook = false;
-                } else { // Any other file type not covered above.
-                    // This includes search results (for now - SCR0073)
-                    goLook = false;
-                } // end if / else if
-
-                // Check the Note date, possibly filter out based on 'when'.
-
-                if (goLook) {
-                    if(searchPanel.getWhenSetting() != -1) {
-                        // This section is only needed if the user has specified a date in the search.
-                        dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
-                        if (dateNoteDate != null) {
-                            if (searchPanel.filterWhen(dateNoteDate)) goLook = false;
-                        } // end if
-                    }
-                } // end if
-
-
-                // The Last Modified date of the FILE is not necessarily the same as the Note, but
-                //   it CAN be considered when looking for a last mod AFTER a certain date, because
-                //   the last mod to ANY note in the file CANNOT be later than the last mod to the
-                //   file itself.  Of course this depends on having no outside mods to the filesystem
-                //   but we assume that because this is either a dev system (and we trust all devs :)
-                //   or the app is being served from a server where only admins have access (and we
-                //   trust all admins, of course).
-                if (goLook) {
-                    if(searchPanel.getLastModSetting() != -1) {
-                        // This section is only needed if the user has specified a date in the search.
-                        LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
-                        if (searchPanel.getLastModSetting() == SearchPanel.AFTER) {
-                            if (searchPanel.filterLastMod(dateLastMod)) goLook = false;
-                        } // end if
-                    }
-                } // end if
-
-                if (goLook) {
-                    searchDataFile(theFile);
-                } // end if
-            } // end if
-        }//end for i
-    }//end scanDataDir
-
-
-    //---------------------------------------------------------
-    // Method Name: searchDataFile
-    //
-    // File-level (but not item-level) date filtering will
-    //   have been done prior to this method being called.
-    // For item-level filtering is not done; date-filtering
-    //   is done against Calendar notes, by using their
-    //   filename, only.  Todo items will all just pass thru
-    //   the filter so if not desired, don't search there.
-    //---------------------------------------------------------
-    private void searchDataFile(File dataFile) {
-        //MemoryBank.debug("Searching: " + dataFile.getName());  // This one is a bit too verbose.
-        Vector<AllNoteData> searchDataVector = null;
-
-        // Load the file
-        Object[] theGroupData = NoteGroupFile.loadFileData(dataFile);
-        if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-            // During a search these notes would not be re-preserved anyway, but the reason we care is that
-            // the search parameters may have specified a date-specific search; we don't want all Last Mod
-            // dates to get updated to this moment and thereby muck up the search results.
-            BaseData.loading = true;
-            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
-            BaseData.loading = false;
-        }
-        if (searchDataVector == null) return;
-
-        // Now get on with the search -
-        for (AllNoteData vectorItem : searchDataVector) {
-
-            // If we find what we're looking for in/about this note -
-            if (searchPanel.foundIt(vectorItem)) {
-                // Get the 'foundIn' info -
-                // Although this is actually a GroupInfo, we do not need to populate the foundIn.groupId
-                //   because search results are not intended to themselves be a part of the traceability chain,
-                //   and they cannot be linked to or from.  Currently, the method below does not read in the
-                //   data, so it cannot provide the groupId.
-                GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
-
-                // Make new search result data for this find.
-                SearchResultData srd = new SearchResultData(vectorItem);
-
-                // The copy constructor used above will preserve the
-                //   dateLastMod of the original note.  Members specific
-                //   to a SearchResultData must be set explicitly.
-                srd.foundIn = foundIn; // No need to 'copy' foundIn; in this case it can be reused.
-
-                // Add this search result data to our findings.
-                foundDataVector.add(srd);
-
-            } // end if
-        } // end for
-    }// end searchDataFile
-
     void setSelectedDate(LocalDate theSelection) {
         selectedDate = theSelection;
         viewedDate = theSelection;
@@ -858,7 +573,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
         if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
             // Reset tree to the state it was in before.
-            restoringPreviousSelection = true;
             if (appOpts.eventsExpanded) theTree.expandPath(eventsPath);
             else theTree.collapsePath(viewsPath);
             if (appOpts.viewsExpanded) theTree.expandPath(viewsPath);
@@ -1058,6 +772,39 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     } // end showWeek
 
 
+    // This method will either show or hide a small modal
+    //   dialog with an animated gif and a 'Working...' message.
+    //   Call this method with 'true' before you start
+    //   a potentially long task that the user must wait for,
+    //   then call it with 'false' to go on.  It is static
+    //   in order to give access to external classes such
+    //   as group headers, that need to wait for sorting.
+    void showWorkingDialog(boolean showIt) {
+        if (showIt) {
+            theWorkingDialog.setLocationRelativeTo(archiveWindow); // In case the app has been moved around.
+            //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
+
+            // Create a new thread and setVisible within the thread.
+            new Thread(new Runnable() {
+                public void run() {
+                    theWorkingDialog.setVisible(true);
+                }
+            }).start(); // Start the thread so that the dialog will show.
+        } else {
+            new Thread(new Runnable() {
+                public void run() {
+                    // Give the 'visible' time to complete, before going invisible.
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    theWorkingDialog.setVisible(false);
+                }
+            }).start();
+        } // end if show - else hide
+    } // end showWorkingDialog
+
     void treeSelectionChanged(TreePath newPath) {
         if (newPath == null) return;
 
@@ -1072,74 +819,30 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
         // We have started to handle the change; now disallow
         //   further input until we are finished.
-        AppTreePanel.theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
-        if (!restoringPreviousSelection) AppTreePanel.showWorkingDialog(true);
+        theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
+        showWorkingDialog(true);
 
         // Update the current selection row
         // Single-selection mode; Max == Min; take either one.
         appOpts.theSelectionRow = theTree.getMaxSelectionRow();
 
-//        // If there was a NoteGroup open prior to this tree selection change then update its data now.
-//        // But we don't just automatically save it, at this point.
-//        if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
-//            theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
-//        } // end if
-
         // Get the string for the selected node.
         String theNodeString = selectedNode.toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
         appOpts.theSelection = theNodeString; // Not used, but helpful during a visual review of the persisted options.
-        String selectionContext = theNodeString;  // used in menu management; this default value may change, below.
 
         // Get the name of the node's parent.  Thanks to the way we have created the tree and
         // the unselectability of the tree root, we never expect the parent path to be null.
         String parentNodeName = newPath.getParentPath().getLastPathComponent().toString();
 
-        //-----------------------------------------------------
-        // These booleans will help us to avoid incorrect assumptions based on the text of the
-        //   new selection, in cases where some bozo named their group the same as a parent
-        //   branch.  For example, a To Do list named 'To Do Lists'.  We first look to see if
-        //   the selection is a branch before we would start handling it as a leaf, and by
-        //   then we will know which branch the leaf belongs on.
-        //-----------------------------------------------------
-        boolean isTopLevel = parentNodeName.equals("App");
-        boolean isGoalsBranch = isTopLevel && theNodeString.equals(DataArea.GOALS.toString());
-        boolean isEventsBranch = isTopLevel && theNodeString.equals(DataArea.UPCOMING_EVENTS.toString());
-        boolean isTodoBranch = isTopLevel && theNodeString.equals(DataArea.TODO_LISTS.toString());
-        boolean isSearchBranch = isTopLevel && theNodeString.equals(DataArea.SEARCH_RESULTS.toString());
-
         theNoteGroupPanel = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if (isGoalsBranch) {  // Edit the Goals parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
-            selectionContext = "Goals Branch Editor";
-            rightPane.setViewportView(tbe);
-        } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", selectedNode, tbh);
-            selectionContext = "Upcoming Events Branch Editor";
-            rightPane.setViewportView(tbe);
-        } else if (isTodoBranch) {  // Edit the Todo parent branch
-            // To Do List management - select, deselect, rename, reorder, remove
-            // The 'tree' may change often.  We instantiate a new helper
-            // and editor each time, to be sure all are in sync.
-            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", selectedNode, tbh);
-            selectionContext = "To Do Lists Branch Editor";
-            rightPane.setViewportView(tbe);
-        } else if (isSearchBranch) {  // Edit the Search parent branch
-            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", selectedNode, sbh);
-            selectionContext = "Search Results Branch Editor";
-            rightPane.setViewportView(tbe);
-        } else if (!selectedNode.isLeaf()) {  // Looking at other expandable nodes
+        if (!selectedNode.isLeaf()) {  // Looking at expandable nodes
             JTree jt = new JTree(selectedNode); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
-            selectionContext = "Goal";  // For manageMenus
             GoalGroupPanel goalGroup;
 
             // If this group has been previously loaded during this session,
@@ -1163,20 +866,12 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 // We just tried to retrieve it or to load it, so if it is STILL null
                 //   then we take it to mean that the file is effectively not there.
 
-                // We can show a notice about what went wrong and what we're
-                // going to do about it, but that will only be helpful if
-                // the user had just asked to see the selection, and NOT
-                // in the case where this situation arose during a program
-                // restart where the missing file just happens to be
-                // the last selection that had been made during a previous run,
-                // and now it is being restored, possibly several days later.
-                if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    AppTreePanel.showWorkingDialog(false);
+                // So we show a notice about what went wrong and what we're going to do about it.
+                    showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the Goal.\n" +
                                     "This Goal selection will be removed.",
                             "Data not accessible", JOptionPane.WARNING_MESSAGE);
-                } // end if
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
@@ -1188,7 +883,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
             } // end if
 
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
-            selectionContext = "Upcoming Event";  // For manageMenus
             EventNoteGroupPanel eventNoteGroup;
 
             // If this group has been previously loaded during this session,
@@ -1211,20 +905,12 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 // We just tried to retrieve it or to load it, so if it is STILL null
                 //   then we take it to mean that the file is effectively not there.
 
-                // We can show a notice about what went wrong and what we're
-                // going to do about it, but that will only be helpful if
-                // the user had just asked to see the selection, and NOT
-                // in the case where this situation arose during a program
-                // restart where the missing file just happens to be for
-                // the last selection that had been made during a previous run,
-                // and now it is being restored, possibly several days later.
-                if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    AppTreePanel.showWorkingDialog(false);
+                // So we show a notice about what went wrong and what we're going to do about it.
+                    showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the Event group.\n" +
                                     "This group selection will be removed.",
                             "File not accessible", JOptionPane.WARNING_MESSAGE);
-                } // end if
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
@@ -1236,7 +922,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
             } // end if
         } else if (parentNodeName.equals("To Do Lists")) {
             // Selection of a To Do List
-            selectionContext = "To Do List";  // For manageMenus
             TodoNoteGroupPanel todoNoteGroup;
 
             // If the list has been previously loaded during this session,
@@ -1259,20 +944,12 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 // We just tried to retrieve it or to load it, so if it is STILL null
                 //   then we take it to mean that the file is effectively not there.
 
-                // We can show a notice about what went wrong and what we're
-                // going to do about it, but that will only be helpful if
-                // the user had just asked to see the selection, and NOT
-                // in the case where this situation arose during a program
-                // restart where the missing file just happens to be
-                // the last selection that had been made during a previous run,
-                // and now it is being restored, possibly several days later.
-                if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    AppTreePanel.showWorkingDialog(false);
+                // So we show a notice about what went wrong and what we're going to do about it.
+                    showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the To Do List.\n" +
                                     "This list selection will be removed.",
                             "List not accessible", JOptionPane.WARNING_MESSAGE);
-                } // end if
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
@@ -1284,7 +961,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
             } // end if
         } else if (parentNodeName.equals("Search Results")) {
             // Selection of a Search Result List
-            selectionContext = "Search Result";  // For manageMenus
             SearchResultGroupPanel searchResultGroupPanel;
             theWayBack = theTree.getSelectionPath();
 
@@ -1307,20 +983,12 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 // We just tried to retrieve it or to load it, so if it is STILL null
                 //   then we take it to mean that the file is effectively not there.
 
-                // We can show a notice about what went wrong and what we're
-                // going to do about it, but that will only be helpful if
-                // the user had just asked to see the search results, and NOT
-                // in the case where this situation arose during a program
-                // restart where the missing search results just happen to be
-                // the last selection that had been made during a previous run,
-                // and now it is being restored, possibly several days later.
-                if (!restoringPreviousSelection) { // We are here due to a recent user action.
-                    AppTreePanel.showWorkingDialog(false);
+                // So we show a notice about what went wrong and what we're going to do about it.
+                    showWorkingDialog(false);
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the search results.\n" +
                                     "This search results selection will be removed.",
                             "Results not accessible", JOptionPane.WARNING_MESSAGE);
-                } // end if
 
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
@@ -1433,7 +1101,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         //</editor-fold>
 
 //        appMenuBar.manageMenus(selectionContext);
-        AppTreePanel.showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
+        showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
 
 
@@ -1539,31 +1207,16 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     //   and that defeats its entire purpose.
     //-------------------------------------------------------------
     public void valueChanged(TreeSelectionEvent e) {
-        // This event-handling method is called due to user action to change the selection
-        // and would not run if the current selection was simply being rehandled.  So - this
-        // is the best place to accept that an offer to undo a deletion has been abandoned.
-
         final TreePath newPath = e.getNewLeadSelectionPath();
-        if (restoringPreviousSelection) {
-            // We don't need to handle this event from a separate
-            //   thread because we don't need the 'working' dialog
-            //   when restoring a previous selection because the
-            //   corresponding file, if any, would have already
-            //   been accessed and loaded.  Although there is one
-            //   exception to that, at program restart but in that
-            //   case we have the splash screen and main progress bar.
-            treeSelectionChanged(newPath);
-        } else {
-            // This is a user-directed selection;
-            //   handle from a separate thread.
-            new Thread(new Runnable() {
-                public void run() {
-                    // AppUtil.localDebug(true);
-                    treeSelectionChanged(newPath);
-                    // AppUtil.localDebug(false);
-                }
-            }).start(); // Start the thread
-        }
+        // Handle from a separate thread.
+        new Thread(new Runnable() {
+            public void run() {
+                // AppUtil.localDebug(true);
+                treeSelectionChanged(newPath);
+                // AppUtil.localDebug(false);
+            }
+        }).start(); // Start the thread
+
     } // end valueChanged
 
 } // end AppTreePanel class

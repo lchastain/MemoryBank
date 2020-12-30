@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 
 public interface AppDataAccessor {
+
     enum AccessType {
         DATABASE("Database"),
         FILE("File");
@@ -20,6 +21,7 @@ public interface AppDataAccessor {
     boolean createArea(DataArea dataArea); // tie in usage of this with 'add new group'
     boolean createArchive();
     String[] getArchiveNames();
+    AppOptions getArchiveOptions(String archiveName);
 
     // Convert the archive name into a LocalDateTime
     LocalDateTime getDateTimeForArchiveName(String archiveName);

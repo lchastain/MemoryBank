@@ -17,8 +17,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -750,14 +749,10 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
     void doViewArchive(String archiveName) {
         MemoryBank.debug("Selected Archive: " + archiveName);
-        JFrame archiveWindow = new JFrame("Archive: " + archiveName);
-        ArchiveTreePanel archiveTreePanel = new ArchiveTreePanel(archiveWindow, MemoryBank.appOpts); // change to using archive opts.
 
-        archiveWindow.getContentPane().add(archiveTreePanel);
-        archiveWindow.pack();
-        archiveWindow.setSize(new Dimension(880, 600));
-        archiveWindow.setLocationRelativeTo(null); // Center screen
-        archiveWindow.setVisible(true);
+        // Now - use the name to load in the application options from that archive.
+        new ArchiveTreePanel(archiveName); // It shows itself; reference not needed.
+
     } // end doViewArchive
 
 
@@ -1378,6 +1373,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
                 }
             });
 
+            MouseListener ml = new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    if(e.getClickCount() == 2) {
+                        System.out.println("Going directly to view: " + selectedArchiveNode.toString());
+                        doViewArchive(selectedArchiveNode.toString());
+                    }
+                }
+            };
+            archiveTree.addMouseListener(ml);
+
             // Do not show the root of the tree.
             archiveTree.setRootVisible(false);
             //rightPane.setViewportView(archiveTree);
@@ -1578,9 +1583,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     } // end showWeek
 
 
-    //-----------------------------------------------------------
-    // Method Name: showWorkingDialog
-    //
     // This method will either show or hide a small modal
     //   dialog with an animated gif and a 'Working...' message.
     //   Call this method with 'true' before you start
@@ -1588,7 +1590,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     //   then call it with 'false' to go on.  It is static
     //   in order to give access to external classes such
     //   as group headers, that need to wait for sorting.
-    //-----------------------------------------------------------
     static void showWorkingDialog(boolean showIt) {
         if (showIt) {
             theWorkingDialog.setLocationRelativeTo(theInstance); // In case the app has been moved around.
@@ -1614,6 +1615,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             }).start();
         } // end if show - else hide
     } // end showWorkingDialog
+
 
     void treeSelectionChanged(TreePath newPath) {
         if (newPath == null) return;

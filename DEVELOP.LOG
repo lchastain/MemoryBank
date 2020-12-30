@@ -12,7 +12,6 @@ Priorities:
 
 Current/Next:
     Working archives.  Creation is done.  Now:  How to review an existing one.
-    Names of new class(es):  ArchiveTreePanel (with the tree)
 
 Issues, Ideas, Analyses, Problems:
         New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
@@ -28,17 +27,26 @@ Issues, Ideas, Analyses, Problems:
         Tool tip display changes are needed sooner than NoteGroups - move it.
 
 New:
-    Get the archive tree panel to use the archived opts.  On that panel,
-    keep the archive leaf but react by saying "Cannot view archives from an archive."
-    Allow a double-click / View archive without having to go thru the menu.
+    View Archive to look at Archived notes, not the current ones
 
 
 
 =====================================================================================================
+30 Dec 2020
+  Adjusted the loaded archived appOpts to reduce the selected row by 1, due to not having an Archives leaf of the
+    viewed Archive tree.  Threw out the idea to have that leaf and have an alternate message on the doViewArchive;
+    this way the differences between 'main' app and archive reviews will be clearer and less confusing.
+  Changed branch editors to unhandled expandable nodes, implemented a 'working' dialog just for archives; different gif.
+  Now allow a double-click / View archive without having to go thru the menu.
+
+
 29 Dec 2020
   Worked on the archive listing page, formatting of the selection list as well as the addition of the info panel
     that explains the need/usage of archives, and gives a prompt if there are none.  Shift the info up into a
     tool tip, once there are more than 15 archives, to save screen space.
+    New class:  ArchiveTreePanel, shown in a new window when viewing archive.  Invoked by menu View Archive.
+  Got the archive tree panel to use the archived opts; new interface method: getArchiveOptions
+  Left the ArchiveTree without an 'Archives' leaf.
 
 27 Dec 2020
   New problems:  Search results renaming fails, from either method.

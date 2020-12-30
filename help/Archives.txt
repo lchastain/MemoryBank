@@ -1,0 +1,65 @@
+The Memory Bank application is already archiving the notable aspects of one's life by mapping them onto the calendar by
+  way of date-specific entries, but to go just a bit beyond that, this feature also preserves Goals, To Do Lists,
+  and other notes in the same state that they were on the day that the archive was created.  Goals, notes and other
+  lists will all evolve over time, but this feature allows one to look back and see them as they were on the date of
+  the archive.  Recommendation is to make an archive at least once a year, possibly on a birthday or anniversary.
+
+History / Background
+ Initially the vision for an archive ability was that we would track every single change to the data that was made by
+  the user, so that the state of the app could be accurately restored to any given day/time in the past.  This was to
+  be in support of a 'what did you know and when did you know it' kind of tracking, usable in campaigns, memoirs, and
+  even admissible in courts during legal proceedings.  When it became apparent that the data storage requirements for
+  such a feature were going to be excessive, the vision was adjusted so that the feature would be a paid add-on.
+  Knowing that perhaps less than 10% of potential users would go for it, the expectation was that the data storage
+  requirements would remain manageable.  But with the final application still being so far from market, the priority of
+  development of this feature was significantly lowered, and work proceeded on other features while code for this one
+  was either a placeholder or non-existent.
+ Now that many other features are in place, different motivations for an Archive feature have arisen - simple personal
+  nostalgia, or use as a memory aid.  This kind of personal usage takes us back to being relevant for all users and so
+  the original idea of automated stringent character-by-character tracking of user activity has been dropped, in favor
+  of preserving on-demand, user-initiated snapshots in time (that can and should remain user-private, and are highly
+  unlikely to ever be admitted into evidence in any legal proceeding).
+
+
+Creating
+  Menu Item:  Create Archive...
+      with a popup showing a short message to allow continue or cancel
+      If continue, an archive is created
+      It uses the current AppOptions, and only takes the active notegroups.
+        If no active notegroups - oh well, archive will be there but be empty except for the AppOptions
+
+Reviewing
+  'Archives' is the first leaf on the tree.  It is not a branch since it is not expandable.
+  When the user clicks on this leaf, the viewing pane will show a list of selectable archives, in a
+    human-readable format of dates (in order of oldest to newest).
+    If there are fewer than 15 existing archives, the pane will start with some useful information and if
+      there are none at all then there will be a prompt to use the main menu to create one.
+  A click on one of the archive dates will bring up a new window.
+  The new window will be non-modal, with a component panel that looks and (mostly) acts like an AppTreePanel but it
+    will be a different class (ArchiveTreePanel ?) with a separate, isolated tree comprised of archive content.
+      It will respond to clicks on the tree but NO changes allowed in any selected notegroup
+      No Menubar on the new window - only the top-right 'X' will be used, to close the window.
+      No keepers, so saving of any referenced data
+      No 'Archives' on this tree
+      In the archived Upcoming Events, Future Events that are now past - do not age off
+      Alterbuttons on CalendarNoteGroups go from current view to the next available data in the chosen direction.
+        No 'future' from the archive onward; only backward but after they do, can go forward again as long as the
+          archive date is not surpassed.
+        If no data in a direction, it refuses to move further (possibly with a (one-time-only?) popup message about that).
+
+  Review Panels for all Calendar-type Notes can go from data-only dates, do not show empty date-data.  This is
+    a wishlist/SCR00022 item.  Possibly different alterbuttons - without the larger jumps?
+  To achieve the same data-review effect on 'live' Panels, the CalendarNoteGroup can have a 'Review Mode' menu item.
+    Should 'review mode' still be non-editable like it is during an archive review, if used with the main app and not
+      an archive?  I believe no, because most main app activities are not read-only.  Turning it on or off would be a
+      simple menu item click, and the viewed date would not change, so editability should not also toggle along with
+      review mode; that should be a function of yes-or-no archive reviewing.
+
+Deleting
+  This is done with a Menu item that will act on the currently active archive.  If no active archive, then no Menu.
+  Closing like we do with the expandable branches - not needed because Archives not expandable.
+  Closes the window (if open), removes the repo, and adjustments are made to the 'Archive/Archives' text, or it is
+    just removed altogether.
+
+
+
