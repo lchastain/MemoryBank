@@ -448,8 +448,6 @@ public class NoteComponent extends JPanel {
             addFocusListener(this);
             getDocument().addDocumentListener(this); // cut/paste/changed
             addKeyListener(this);
-            ToolTipManager.sharedInstance().setInitialDelay(1500); // Wait just a bit longer to show the first tooltip.
-            ToolTipManager.sharedInstance().setDismissDelay(90000); // Keep tooltip up for a long time.
         } // end constructor
 
         private void clear() {

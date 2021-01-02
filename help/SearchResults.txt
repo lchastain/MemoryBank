@@ -1,6 +1,13 @@
 Removing a SearchResultNode can come from either a SearchResult 'Close' operation, or the selection
 of a node that has no corresponding data file.
 
+
+When viewing the Panel that contains a search result (Found In) - the panel that is invoked shall be
+  non-editable, and the menu bar will have a 'Go Back' option, to switch back to the Search Results
+  list.  Non-editable because the operation is intended to be a review, not a back door shortcut to
+  an editing session.  Too many ways to do the same thing can be confusing for the users; only the
+  front-door view of a Note should be editable.
+
 closeSearchResult
   removeSearchNode
     showAbout

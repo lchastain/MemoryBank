@@ -124,6 +124,13 @@ public class FileDataAccessor implements AppDataAccessor {
     }
 
 
+    @Override
+    public String getArchiveStorageName(String archiveName) {
+        LocalDateTime localDateTime = LocalDateTime.parse(archiveName, archiveNameFormat);
+        return archiveFileFormat.format(localDateTime);
+    }
+
+
     @Override  // The interface implementation
     public String[] getArchiveNames() {
         String[] theFileNames;
@@ -145,12 +152,12 @@ public class FileDataAccessor implements AppDataAccessor {
     public AppOptions getArchiveOptions(String archiveName) {
         AppOptions appOptions = null;
         LocalDateTime theArchiveTimestamp = LocalDateTime.parse(archiveName, archiveNameFormat);
-        String archiveFileName = archiveFileFormat.format(theArchiveTimestamp);
+        String archiveDirectoryName = archiveFileFormat.format(theArchiveTimestamp);
 
         Exception e = null;
 //        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
         String filename = MemoryBank.userDataHome + File.separatorChar + DataArea.ARCHIVES.getAreaName();
-        filename += File.separatorChar + archiveFileName + File.separatorChar + "appOpts.json";
+        filename += File.separatorChar + archiveDirectoryName + File.separatorChar + "appOpts.json";
 
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());

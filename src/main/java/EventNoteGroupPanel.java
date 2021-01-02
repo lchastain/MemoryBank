@@ -52,13 +52,11 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end static section
 
 
-    EventNoteGroupPanel(String groupName) {
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.EVENTS);
-        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
+    public EventNoteGroupPanel(GroupInfo groupInfo) {
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel();
 
-//        eventNoteComponent = null;  // needed?
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
 
@@ -73,6 +71,15 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         optionPane = new Notifier() { }; // Uses all default methods.
         theNotePager.reset(1);
 
+        if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
+    }
+
+
+    // This constructor will load the group if it exists in 'current' data, otherwise
+    // you get a new one with that group name.
+    EventNoteGroupPanel(String groupName) {
+        this(new GroupInfo(groupName, GroupType.EVENTS));
+
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
             // removed.  We show that by saving the altered data and then reloading it.
@@ -80,7 +87,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
             doSort();
         } // end if
-
     }// end constructor
 
 

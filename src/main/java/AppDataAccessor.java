@@ -20,6 +20,9 @@ public interface AppDataAccessor {
     }
     boolean createArea(DataArea dataArea); // tie in usage of this with 'add new group'
     boolean createArchive();
+    default String getArchiveStorageName(String archiveName) {
+        return archiveName; // Override this when the 'storage' name differs from the archive name.
+    }
     String[] getArchiveNames();
     AppOptions getArchiveOptions(String archiveName);
 

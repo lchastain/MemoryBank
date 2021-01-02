@@ -29,14 +29,22 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         this(groupName, PAGE_SIZE);
     }
 
-
     public TodoNoteGroupPanel(String groupName, int pageSize) {
-        super(pageSize); // This builds the notes panel
+        this(new GroupInfo(groupName, GroupType.TODO_LIST), pageSize);
+    } // end constructor
 
 
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.TODO_LIST);
+    public TodoNoteGroupPanel(GroupInfo groupInfo) {
+        this(groupInfo, PAGE_SIZE);
+    }
+
+
+    public TodoNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
+        super(pageSize);
+
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
+        if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
         loadNotesPanel();
 
         int theOrder = INORDER;
@@ -48,7 +56,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         listHeader = new TodoGroupHeader(this);
         setGroupHeader(listHeader);
 
-        buildMyPanel(groupName);
+        buildMyPanel(groupInfo.getGroupName());
         theNotePager.reset(1);
     } // end constructor
 

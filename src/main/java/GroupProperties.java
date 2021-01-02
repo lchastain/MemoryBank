@@ -4,8 +4,11 @@
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+// We don't want GroupInfo to come from BaseData, yet GroupProperties needs to, so -
+// GroupProperties do not extend GroupInfo; the needed members are present in both.
+
 public class GroupProperties extends BaseData {
-    GroupType groupType;     // Says what kind of group this is.  Values defined above.
+    GroupType groupType;     // Says what kind of group this is.
     private String groupName; // The name of the group, as shown in the Tree.
     LinkTargets linkTargets;
 

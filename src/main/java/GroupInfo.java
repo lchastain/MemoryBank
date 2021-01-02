@@ -15,6 +15,7 @@ class GroupInfo {
     UUID groupId; // The ID of the group that this info references
     GroupType groupType;     // Says what kind of group it is.  Values defined above.
     private String groupName; // The name of the group, as shown in the Tree.
+    transient String archiveName; // The human-readable one, with colons in the time portion (or null).
 
     // These members were previously defined here or inherited, but not now and so we need to acknowledge
     //   that we might see them in previously persisted data, but 'ignore' them otherwise.
@@ -36,6 +37,7 @@ class GroupInfo {
     GroupInfo(String theName, GroupType theType) {
         groupName = theName;
         groupType = theType;
+        archiveName = null;
     }
 
     // This particular constructor is used by LinkedEntityData to populate its member
@@ -55,13 +57,13 @@ class GroupInfo {
         NoteGroup theNoteGroup;
         // Try to get the NoteGroup from an existing Panel
         NoteGroupPanel thePanel = null;
-        if (AppTreePanel.theInstance != null) {
+        if (AppTreePanel.theInstance != null && archiveName == null) {
             // This condition is only here for tests; under normal operating conditions
             //   theInstance of AppTreePanel would never be null.
             thePanel = AppTreePanel.theInstance.getPanelFromKeeper(this);
         }
 
-        if (thePanel != null) { // It worked!
+        if (thePanel != null) { // The NoteGroup was already instantiated in a Panel.
             theNoteGroup = thePanel.myNoteGroup;
             thePanel.preClosePanel(); // Ensures persisted data matches Panel data.
         } else { // There isn't a Panel for it, so we will just make a NoteGroup of the right type; Panel not needed.
@@ -104,7 +106,7 @@ class GroupInfo {
     NoteGroupPanel getNoteGroupPanel() {
         // Try to get the NoteGroup from an existing Panel
         NoteGroupPanel thePanel = null;
-        if (AppTreePanel.theInstance != null) {
+        if (AppTreePanel.theInstance != null && archiveName == null) {
             // This condition is only here for tests; under normal operating conditions
             //   theInstance of AppTreePanel would never be null.
             thePanel = AppTreePanel.theInstance.getPanelFromKeeper(this);
@@ -145,6 +147,19 @@ class GroupInfo {
             }
         }
         return thePanel;
+    }
+
+
+    boolean exists() {
+        NoteGroupDataAccessor noteGroupDataAccessor = MemoryBank.appDataAccessor.getNoteGroupDataAccessor(this);
+        return noteGroupDataAccessor.exists();
+    }
+
+
+    String getArchiveStorageName() {
+        if(archiveName == null) return null;
+        AppDataAccessor appDataAccessor = MemoryBank.appDataAccessor;
+        return appDataAccessor.getArchiveStorageName(archiveName);
     }
 
 

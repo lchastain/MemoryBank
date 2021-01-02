@@ -317,6 +317,10 @@ public class MemoryBank {
             } // end run
         }).start();
 
+        // Tool Tip Adjustments
+        ToolTipManager.sharedInstance().setInitialDelay(1500); // Wait just a bit longer to show the first tooltip.
+        ToolTipManager.sharedInstance().setDismissDelay(90000); // Keep tooltip up for a long time.
+
         //---------------------------------------------------------------
         // Evaluate input parameters, if any.
         //---------------------------------------------------------------

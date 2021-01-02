@@ -42,14 +42,20 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
     } // end static
 
-    public GoalGroupPanel(String groupName) {
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.GOALS);
-        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
-        myNoteGroup.myNoteGroupPanel = this;
-        loadNotesPanel();
 
+    public GoalGroupPanel(GroupInfo groupInfo) {
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
+        myNoteGroup.myNoteGroupPanel = this;
+        if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
+        loadNotesPanel();
         buildPanelContent(); // Content other than the groupDataVector
     }
+
+
+    public GoalGroupPanel(String groupName) {
+        this(new GroupInfo(groupName, GroupType.GOALS));
+    }
+
 
     // Called from within the constructor to create and place the visual components of the panel.
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -57,10 +63,10 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
 
-        // Wrapped tmc in a FlowLayout panel, to prevent stretching.
-        JPanel pnl1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        pnl1.add(tmc);
-        theBasePanel.add(pnl1, BorderLayout.EAST);
+        // Placed tmc in a panel with a FlowLayout, to prevent stretching.
+        JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        eastPanel.add(tmc);
+        theBasePanel.add(eastPanel, BorderLayout.EAST);
 
         GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
 

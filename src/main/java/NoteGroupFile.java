@@ -138,15 +138,15 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
 
     public boolean exists() {
-        String theFilename = makeFullFilename();
-        return new File(theFilename).exists();
+        String theFilename = foundFilename();
+        return !theFilename.isEmpty();
     }
 
     String foundFilename() {
         return foundFilename(groupInfo);
     }
 
-        // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
+    // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
     // where the data for the group is persisted.  If no file exists, the return string is empty ("").
     static String foundFilename(GroupInfo groupInfo) {
         String theFilename = "";
@@ -154,7 +154,26 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         String areaPath;
         String filePrefix;
         LocalDate theChoice;
+
+        // Possible additional prefixing, for Archives.
+        String firstPart = FileDataAccessor.basePath;
+        if(groupInfo.archiveName != null) {
+            String fixedName = groupInfo.getArchiveStorageName();
+            firstPart += DataArea.ARCHIVES.getAreaName() + File.separatorChar;
+            firstPart += fixedName + File.separatorChar;
+        }
+
         switch (groupInfo.groupType) {
+            case GOALS:
+                areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
+                filePrefix = goalGroupFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case EVENTS:
+                areaPath = firstPart + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
+                filePrefix = eventGroupFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
             case DAY_NOTES:
                 theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "D");
@@ -168,26 +187,17 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 theFilename = foundFilename(theChoice, "Y");
                 break;
             case TODO_LIST:
-                areaPath = todoListGroupAreaPath;
+                areaPath = firstPart + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
                 filePrefix = todoListFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case SEARCH_RESULTS:
-                areaPath = searchResultGroupAreaPath;
+                areaPath = firstPart + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
                 filePrefix = searchResultFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
-            case EVENTS:
-                areaPath = eventGroupAreaPath;
-                filePrefix = eventGroupFilePrefix;
-                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case GOALS:
-                areaPath = goalGroupAreaPath;
-                filePrefix = goalGroupFilePrefix;
-                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
         }
+
         if(!theFilename.isEmpty() && new File(theFilename).exists()) {
             foundName = theFilename;
         }

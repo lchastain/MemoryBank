@@ -14,18 +14,17 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     SearchResultHeader listHeader;
     boolean fixedDataWhileLoading;
 
-    SearchResultGroupPanel(String groupName) {
-        // super(10);  // test, for paging
-        BaseData.loading = true;
+    public SearchResultGroupPanel(GroupInfo groupInfo) {
         setDefaultSubject("Search Info"); // Used in Search Criteria review, only.
-
-        GroupInfo groupInfo = new GroupInfo(groupName, GroupType.SEARCH_RESULTS);
-        myNoteGroup = groupInfo.getNoteGroup(); // This also loads and sets the data, if any.
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
+        myNoteGroup.myNoteGroupPanel = this;
+        setEditable(false); // Search Results are non-editable
 
         // The lines below may only be needed for older data.  May be able to remove, eventually.
+        // ('older' == before the user was given the ability to review search panel settings)
         //----------------------------------------------------------------------------------------------------------
         SearchResultGroupProperties srgProperties = (SearchResultGroupProperties) myNoteGroup.getGroupProperties();
-        srgProperties.setGroupName(groupName); // Override whatever name was loaded ("No Name Yet").
+        srgProperties.setGroupName(groupInfo.getGroupName()); // Override whatever name was loaded ("No Name Yet").
         srgProperties.groupType = GroupType.SEARCH_RESULTS; // Wasn't there, before.
         // The 'or' controls originally defaulted to 'true'.  The lines below help with that.
         boolean word1, word2, word3;
@@ -43,8 +42,6 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         //----------------------------------------------------------------------------------------------------------
 
-        myNoteGroup.myNoteGroupPanel = this;
-        setEditable(false);
         loadNotesPanel();
 
         // Unlike with a ToDo list, this is not conditional; we just do it whether needed or not.
@@ -54,8 +51,12 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         // The component might have set this to true, if it found a non-null 'fileFoundIn' value.
 
         theNotePager.reset(1);
-        buildPanelContent();
-        BaseData.loading = false;
+        buildPanelContent(); // Content other than the groupDataVector
+    }
+
+
+    SearchResultGroupPanel(String groupName) {
+        this(new GroupInfo(groupName, GroupType.SEARCH_RESULTS));
     } // end constructor
 
 

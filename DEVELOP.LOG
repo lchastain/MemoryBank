@@ -2,7 +2,7 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    Archiving of all non-calendar type Notes
+    Archive review
     Data-only review for calandar type groups (menu option?)  SCR 22
     Generic Notes - get these list-types away from being 'todo' lists.
     Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
@@ -11,7 +11,7 @@ Priorities:
 
 
 Current/Next:
-    Working archives.  Creation is done.  Now:  How to review an existing one.
+    Working archives.  Creation is done.  Now:  data-only date reviews.  Needs thought, here...
 
 Issues, Ideas, Analyses, Problems:
         New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
@@ -23,22 +23,43 @@ Issues, Ideas, Analyses, Problems:
             or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
         SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
             But it IS ready, activated from the title label.  Make it work from here, too.
-        Viewing 'Found In' shows a non-editable panel - is that right?  Decide, then document.
-        Tool tip display changes are needed sooner than NoteGroups - move it.
+        Viewing 'Found In' from archived Search Results - shows the NoteGroup back on the main AppTreePanel.  This
+            can be problematic when main tree selections occur after that and then a different Found In is invoked
+            on the archive, because the 'Go Back' menu item can be restored on the main tree.  It then 'goes back'
+            to the last Search Result that was viewed in the main tree, if any.  The archive tree properly continues
+            to show the Search Results throughout, so the menu item on the other tree is superfluous and should
+            never appear.  Thought is needed here to decide what behavior in each case is really desired.
+                I do like the view happening on the main app, but menu management needs tweaking.  But
+                could also just constrain the view from an archive, TO the archive, but without a 'Go Back'.
+                    (unless you want to 'listen' to the backspace?)
 
 New:
-    View Archive to look at Archived notes, not the current ones
+    Date-review (big)
 
 
 
 =====================================================================================================
+ 2 Jan 2020
+  The archive view of To Do Lists and Search Results is now done (with a leftover issue when viewing Found In).
+  Tool tip display delay change is needed to be set sooner than in the NoteComponent constructor - move it.
+    Did that - moved to MemoryBank.main, and this is also better because it only happens once for the entire app,
+        not every time a notegroup is constructed.
+
+ 1 Jan 2021
+  Working on viewing the actual archived notes - initially had a concept of needing an 'archive' NoteGroup, but that
+    quickly became unworkable while trying to dovetail with the existing 'live' groups, and the key missing item from
+    the existing ones was the archive name (date/time).  Eventually came to understand that the best place for it to
+    be used is as a transient new member of the  GroupInfo.  If a group is selected from the ArchiveTreePanel then the
+    archiveName component of the info is filled in, and we go right back to the usual way of doing business, except
+    now the data accessor can use that field to alter the source of the data to be loaded.  Much simpler - and it works!
+    Did Goals and Events, so far..
+
 30 Dec 2020
   Adjusted the loaded archived appOpts to reduce the selected row by 1, due to not having an Archives leaf of the
     viewed Archive tree.  Threw out the idea to have that leaf and have an alternate message on the doViewArchive;
     this way the differences between 'main' app and archive reviews will be clearer and less confusing.
   Changed branch editors to unhandled expandable nodes, implemented a 'working' dialog just for archives; different gif.
   Now allow a double-click / View archive without having to go thru the menu.
-
 
 29 Dec 2020
   Worked on the archive listing page, formatting of the selection list as well as the addition of the info panel

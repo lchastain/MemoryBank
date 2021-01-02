@@ -1464,12 +1464,14 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         thePanel.setEditable(false);
         theNoteGroupPanel = thePanel; // For 'showCurrentNoteGroup'
 
-        // Preserve the selection path, for 'goBack'
-        // set GoBack to visible
-        // if goback, set goback to not visible
-
+        // Whatever view we are about to switch to - is 'disconnected' from the tree, so clear tree selection.
         theTree.clearSelection();
-        appMenuBar.manageMenus("Viewing FoundIn");
+
+        // set the 'Go Back' menu item to visible
+        if(selectedArchiveNode == null) appMenuBar.manageMenus("Viewing FoundIn");
+        else appMenuBar.manageMenus("No Selection"); // Or not, if we came from an archive.
+
+        // View the Panel where the search result was found.
         rightPane.setViewportView(thePanel.theBasePanel);
     }
 

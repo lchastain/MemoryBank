@@ -20,13 +20,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Vector;
-
-import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 
 public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
@@ -35,6 +32,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
     JFrame archiveWindow;
     Notifier optionPane;
+    AppDataAccessor dataAccessor;
     //-------------------------------------------------------------------
 
     private JTree theTree;
@@ -58,17 +56,13 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
     NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
     NoteGroupPanelKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
-    SearchPanel searchPanel;
-    private final JPanel aboutPanel;
     private final JSplitPane splitPane;
-    private TreePath theWayBack;
 
     private LocalDate selectedDate;  // The selected date
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
     private ChronoUnit viewedDateGranularity;
 
     private DefaultMutableTreeNode theRootNode;
-    private DefaultMutableTreeNode selectedArchiveNode;
 
     // Predefined Tree Paths to 'leaf' nodes.
     TreePath dayNotesPath;
@@ -76,18 +70,20 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     TreePath yearNotesPath;
     TreePath yearViewPath;
     TreePath monthViewPath;
-    private TreePath weekViewPath;
     private TreePath eventsPath;
     private TreePath goalsPath;
 
     private final AppOptions appOpts;
 
     JDialog theWorkingDialog;
+    String archiveName; // The one with colons in the time portion..
 
-    public ArchiveTreePanel(String archiveName) {
+    public ArchiveTreePanel(String theName) {
         super(new GridLayout(1, 0));
+        archiveName = theName;
+        dataAccessor = MemoryBank.appDataAccessor;
         archiveWindow = new JFrame("Archive: " + archiveName);
-        appOpts = MemoryBank.appDataAccessor.getArchiveOptions(archiveName);
+        appOpts = dataAccessor.getArchiveOptions(archiveName);
 
         //<editor-fold desc="Make the 'Working...' dialog">
         theWorkingDialog = new JDialog(archiveWindow, "Working", true);
@@ -120,7 +116,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
         // Create the viewing pane and start with the 'about' graphic.
         AppImage abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif");
-        aboutPanel = new JPanel(new GridBagLayout());
+        JPanel aboutPanel = new JPanel(new GridBagLayout());
         aboutPanel.add(abbowt); // Nested the image in a panel with a flexible layout, for centering.
         rightPane = new JScrollPane(aboutPanel);
 
@@ -281,8 +277,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
         leaf = new DefaultMutableTreeNode("Week View");
         branch.add(leaf);
-        pathToRoot = leaf.getPath();
-        weekViewPath = new TreePath(pathToRoot);
         //---------------------------------------------------
 
         //---------------------------------------------------
@@ -388,15 +382,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         return newRoot;
     }
 
-    // Handling for the 'Go Back' menu item, to go back to Search Results after
-    //   viewing one of its 'FoundIn' items.
-    private void doGoBack() {
-        // If menu management is being done correctly then 'theWayBack' will never be null
-        //   when execution comes here to this method.  So, not going to condition this call.
-        // For testers - be aware of this; changing this code for a test-only situation - not going to happen.
-        theTree.setSelectionPath(theWayBack);
-    }
-
 
     // Make a Consolidated View group from all the currently selected Event Groups.
     @SuppressWarnings({"rawtypes"})
@@ -448,78 +433,11 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     }
 
 
-    // Purpose:  Preserves any unsaved changes to all NoteGroups
-    //   and updates the current state of the tree into the app options,
-    //   in advance of saving the options during app shutdown.
-    public void preClose() {
-        if (theAppDays != null) theAppDays.preClosePanel();
-        if (theAppMonths != null) theAppMonths.preClosePanel();
-        if (theAppYears != null) theAppYears.preClosePanel();
-        theGoalsKeeper.saveAll();
-        theEventListKeeper.saveAll();
-        theTodoListKeeper.saveAll();
-        theSearchResultsKeeper.saveAll(); // Needed when fixing data or after sorting.
-
-        updateTreeState(true); // Capture expansion states into appOpts
-    } // end preClose
-
-
-    // Call this method to do a 'programmatic' rename of a node
-    // on the Tree, as opposed to doing it manually via a
-    // TreeBranchEditor.  It operates only on the tree and not with
-    // any corresponding files; you must do that separately.
-    // See the 'Save As...' methodology for a good example.
-    private void renameTreeBranchLeaf(DefaultMutableTreeNode theBranch, String oldname, String newname) {
-        boolean changeWasMade = false;
-        DefaultTreeModel tm = (DefaultTreeModel) theTree.getModel();
-
-        // The tree is set for single-selection, so the selection will not be a collection but a
-        // single value.  Nonetheless, Swing only provides a 'get' for min and max, and either
-        // one will work for us.  Note that the TreePath returned by getSelectionPath()
-        // will probably NOT work for reselection after we do the rename, so we use the row.
-        int returnToRow = theTree.getMaxSelectionRow();
-
-        int numLeaves = theBranch.getChildCount();
-        DefaultMutableTreeNode leafLink;
-
-        leafLink = theBranch.getFirstLeaf();
-
-        // Search the leaves for the old name.
-        while (numLeaves-- > 0) {
-            String leaf = leafLink.toString();
-            if (leaf.equals(oldname)) {
-                String msg = "Renaming tree node from " + oldname;
-                msg += " to " + newname;
-                log.debug(msg);
-                changeWasMade = true;
-                leafLink.setUserObject(newname);
-                break;
-            } // end if
-
-            leafLink = leafLink.getNextLeaf();
-        } // end while
-
-        if (!changeWasMade) return;
-
-        // Force the renamed node to redisplay,
-        // which also causes its deselection.
-        tm.nodeStructureChanged(theBranch);
-
-        // Reselect this tree node.
-        theTree.setSelectionRow(returnToRow);
-
-    } // end renameTreeBranchLeaf
-
-
-    //------------------------------------------------------------------
-    // Method Name: resetTreeState
-    //
     // Call this method after changes have been made to the tree, to
     //   cause a repaint.  The first line below does that all by itself,
     //   but it also results in a tree with all nodes collapsed.  So the
     //   rest of this method is needed to re-expand any nodes that
     //   should have stayed that way.
-    //------------------------------------------------------------------
     private void resetTreeState() {
         treeModel.nodeStructureChanged(theRootNode); // collapses all branches
 
@@ -550,97 +468,12 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         viewedDateGranularity = theGranularity;
     }
 
-    // This method will put the 'About' graphic into the right
-    //   side of the display.  However, if invoked a second time
-    //   without any other tree selection in between, it will
-    //   restore the original selection.  To implement this
-    //   'toggle' functionality, it is also necessary to capture
-    //   the expanded/collapsed state of the tree on the first
-    //   'About' and then restore it on the second call, possibly
-    //   overriding the user's changes if they had made tree
-    //   changes after the first 'About' without also making a new
-    //   tree selection.  This happens because the tree state is
-    //   reset whenever the About graphic is shown.  Acceptable.
-    void showAbout() {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                theTree.getLastSelectedPathComponent();
-
-        // Examine the rightPane to see if the About graphic is already shown, or not.
-        // There are simpler ways (such as aboutPanel.isShowing(), but that does not
-        // work with the toggle test.
-        JViewport viewport = rightPane.getViewport();
-        JComponent theContent = (JComponent) viewport.getView();
-
-        if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
-            // Reset tree to the state it was in before.
-            if (appOpts.eventsExpanded) theTree.expandPath(eventsPath);
-            else theTree.collapsePath(viewsPath);
-            if (appOpts.viewsExpanded) theTree.expandPath(viewsPath);
-            else theTree.collapsePath(viewsPath);
-            if (appOpts.notesExpanded) theTree.expandPath(notesPath);
-            else theTree.collapsePath(notesPath);
-            if (appOpts.todoListsExpanded) theTree.expandPath(todolistsPath);
-            else theTree.collapsePath(todolistsPath);
-            theTree.setSelectionRow(appOpts.theSelectionRow);
-        } else {
-            // Capture the current state; we may have to 'toggle' back to it.
-            updateTreeState(true); // Now updating lists every time, due to link target selection.
-            theTree.clearSelection();
-
-            // Show it.
-            rightPane.setViewportView(aboutPanel);
-
-//            appMenuBar.manageMenus("About"); // This will get the default / unhandled case.
-        } // end if
-    } // end showAbout
-
 
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
     void showDay() {
         MemoryBank.debug("showDay called.");
         theTree.setSelectionPath(dayNotesPath);
     } // end showDay
-
-
-    void showCurrentNoteGroup() {
-        Object theMessage;
-        if(theNoteGroupPanel == null) {
-            theMessage = "No NoteGroup is selected!";
-        } else {
-            JScrollPane jScrollPane = new JScrollPane();
-            JTextArea jTextArea = new JTextArea();
-            String groupChangedString = "\"groupChanged\" : " + theNoteGroupPanel.myNoteGroup.groupChanged + ",\n";
-            jTextArea.append(groupChangedString);
-            Object[] theData = theNoteGroupPanel.myNoteGroup.getTheData();
-            jTextArea.append(AppUtil.toJsonString(theData));
-            jScrollPane.setViewportView(jTextArea);
-            jScrollPane.setPreferredSize(new Dimension(600, 500));
-            theMessage = jScrollPane;
-        }
-        optionPane.showMessageDialog(this, theMessage, "Viewing Current NoteGroup", PLAIN_MESSAGE);
-    }
-
-    void showEvents() {
-        JDialog dialogWindow;
-
-        EventNoteGroupPanel theBigPicture = getConsolidatedView();
-        if (theBigPicture == null) return;
-
-        // Make a dialog window.
-        // A dialog is preferred to the JOptionPane.showMessageDialog, because it is easier to control
-        // the size, and we need no additional buttons.
-        dialogWindow = new JDialog((Frame) null, true);
-        dialogWindow.getContentPane().add(theBigPicture.theBasePanel, BorderLayout.CENTER);
-//        dialogWindow.setTitle("Scheduled Events");
-        dialogWindow.setSize(680, 580);
-        dialogWindow.setResizable(false);
-
-        // Center the dialog.
-        dialogWindow.setLocationRelativeTo(MemoryBank.logFrame);
-
-        // Go modal -
-        dialogWindow.setVisible(true);
-    } // end showEvents
 
 
     // Show the Group where the search result was found.  This is going to be its current state and not a snapshot
@@ -672,104 +505,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
             MemoryBank.debug(ioe.getMessage());
         } // end try/catch
     } // end showHelp
-
-
-    // Called from YearView - a click on a Month name
-    void showMonthView() {
-        MemoryBank.debug("showMonthView called.");
-        theTree.setSelectionPath(monthViewPath);
-    } // end showMonthView
-
-
-    //--------------------------------------------------------
-    // Method Name:  showToday
-    //
-    // If the current tree view is one of the ones that are
-    // date-based and the date they are centered on is NOT
-    // today, then this method will change the date of that
-    // view to today.
-    //
-    // If the view is NOT date-based, it will change to a
-    // textual representation of today's date.  The value
-    // of this variation is questionable but it remains
-    // below and can be enabled by placing a 'Today' on a
-    // non-date-based group's menubar (currently that menu
-    // choice is not present for a non date-centered view).
-    //
-    // If the view is date-based and the selected date is
-    // already today, the user is shown the textual panel
-    // that is described above.
-    //--------------------------------------------------------
-    void showToday() {
-        // Make sure that the most recent changes, if any, are preserved.
-        preClose();
-
-        // Get the current tree selection
-        TreePath tp = theTree.getSelectionPath();
-
-        if (tp == null) return; // Tree selection was cleared?
-        // If the 'big' Today is already showing then there is no current tree selection.
-
-        String theCurrentView = tp.getLastPathComponent().toString();
-        MemoryBank.debug("AppTreePanel.showToday() - current path: " + theCurrentView);
-
-        if (viewedDate.equals(LocalDate.now())) {
-            theCurrentView = "Today";
-        } else {
-            setSelectedDate(LocalDate.now());
-        }
-
-        switch (theCurrentView) {
-            case "Year View":
-                theYearView.setChoice(selectedDate);
-                return;
-            case "Month View":
-                theMonthView.setChoice(selectedDate);
-                return;
-            case "Day Notes": // For Day notes, the choice is not separate of the view.
-                theAppDays.setDate(selectedDate);
-                return;
-            case "Month Notes":
-                theAppMonths.setDate(selectedDate);
-                return;
-            case "Year Notes":
-                theAppYears.setDate(selectedDate);
-                return;
-        }
-
-        // If we got thru to here, it means that we were already
-        //   displaying today's date when the user requested us
-        //   to do so.    So - we do it bigger -
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
-        JLabel dayTitle = new JLabel();
-        dayTitle.setHorizontalAlignment(JLabel.CENTER);
-        dayTitle.setForeground(Color.blue);
-        dayTitle.setFont(Font.decode("Serif-bold-24"));
-        dayTitle.setText(dtf.format(selectedDate));
-        rightPane.setViewportView(dayTitle);
-//        appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
-
-        // Clear the current tree selection, so they can select it again
-        // and get back to a 'normal' view.  There was a previous version here, where we had kept the earlier
-        // Panel so we could toggle back to it, but dropped that feature - too cute, and not that helpful.
-        theTree.clearSelection();
-
-    } // end showToday
-
-    void showWeek(LocalDate theMonthToShow) {
-        MemoryBank.debug("showWeek called.");
-        // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
-        // There IS not actually a view to show, here.  The rightPane is
-        // just loaded with the text, 'Week View'.  Therefore when this node is selected directly
-        // on the tree, it does not come here but just shows the text of the request that it does
-        // not know how to handle.
-
-        //viewedDate = theMonthToShow; // NOT NEEDED until we have a week view to show.
-        //viewedDateGranularity = ChronoUnit.WEEKS;
-        // At that time you will also need to add handling to the selection changed area.
-
-        theTree.setSelectionPath(weekViewPath);
-    } // end showWeek
 
 
     // This method will either show or hide a small modal
@@ -805,6 +540,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         } // end if show - else hide
     } // end showWorkingDialog
 
+
     void treeSelectionChanged(TreePath newPath) {
         if (newPath == null) return;
 
@@ -815,7 +551,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         //   paths that were created and selected by code vs those that came from a user's
         //   mouse click event on an existing (visible and active) tree node.
         if (selectedNode == null) return;
-        selectedArchiveNode = null; // Clear any previous archive selection.
 
         // We have started to handle the change; now disallow
         //   further input until we are finished.
@@ -843,157 +578,124 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
             jt.setShowsRootHandles(true);
             rightPane.setViewportView(jt);
         } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
-            GoalGroupPanel goalGroup;
+            // Make the corresponding GroupInfo -
+            GroupInfo groupInfo = new GroupInfo(theNodeString, GroupType.GOALS);
+            groupInfo.archiveName = archiveName;
 
-            // If this group has been previously loaded during this session,
-            // we can retrieve it from the keeper.
-            goalGroup = (GoalGroupPanel) theGoalsKeeper.get(theNodeString);
-
-            // Otherwise load it if it exists or make a new one if it does not exist.
-            if (goalGroup == null) {
-                goalGroup = (GoalGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
-
-                if (goalGroup != null) {
-                    log.debug("Loaded " + theNodeString + " from filesystem");
-                    theGoalsKeeper.add(goalGroup);
-                }
-            } else {
-                if (!goalGroup.getEditable()) goalGroup.setEditable(true);
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
+            // Load the archived Goal group panel, if it exists (but there is no operationally valid reason why it wouldn't).
+            GoalGroupPanel goalGroupPanel = null;
+            if(groupInfo.exists()) {
+                // Yes, existence is also checked when attempting to load the data, but if it fails in that
+                // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
+                // then we don't want one at all.
+                goalGroupPanel = new GoalGroupPanel(groupInfo);
             }
 
-            if (goalGroup == null) {
-                // We just tried to retrieve it or to load it, so if it is STILL null
-                //   then we take it to mean that the file is effectively not there.
+            showWorkingDialog(false);
 
-                // So we show a notice about what went wrong and what we're going to do about it.
-                    showWorkingDialog(false);
-                    JOptionPane.showMessageDialog(this,
-                            "Cannot read in the Goal.\n" +
-                                    "This Goal selection will be removed.",
-                            "Data not accessible", JOptionPane.WARNING_MESSAGE);
+            if (goalGroupPanel == null) {
+                // We just tried to load it, so if it still null then we take it to mean that the file is
+                // not there.  So we show a notice about that, before we remove this leaf from any
+                // further user attempts to retrieve it.
+                JOptionPane.showMessageDialog(this,
+                        "Cannot read in the Goal.\n" +
+                                "This Goal selection will be removed.",
+                        "Data not accessible", JOptionPane.WARNING_MESSAGE);
 
-                closeGroup(); // File is already gone; this just removes the tree node.
+                // Nothing else can be done; the group was unavailable for some reason.
+                closeGroup(); // This just removes the tree node, but it will reappear the next time
+                // the archive is viewed, since the archive options are not updated or preserved.
             } else {
-                // There is only one menu, for ALL Goals.  It needs to be reset with every list change.
-//                goalGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-
-                theNoteGroupPanel = goalGroup;
-                rightPane.setViewportView(goalGroup.theBasePanel);
+                rightPane.setViewportView(goalGroupPanel.theBasePanel);
             } // end if
 
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
-            EventNoteGroupPanel eventNoteGroup;
+            // Make the corresponding GroupInfo -
+            GroupInfo groupInfo = new GroupInfo(theNodeString, GroupType.EVENTS);
+            groupInfo.archiveName = archiveName;
 
-            // If this group has been previously loaded during this session,
-            // we can retrieve it from the keeper.
-            eventNoteGroup = (EventNoteGroupPanel) theEventListKeeper.get(theNodeString);
-
-            // Otherwise load it, but only if a file for it already exists.
-            if (eventNoteGroup == null) {
-                eventNoteGroup = (EventNoteGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
-                if (eventNoteGroup != null) {
-                    log.debug("Loaded " + theNodeString + " from filesystem");
-                    theEventListKeeper.add(eventNoteGroup);
-                }
-            } else {
-                if (!eventNoteGroup.getEditable()) eventNoteGroup.setEditable(true);
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
+            // Load the archived Event group panel, if it exists (but there is no operationally valid reason why it wouldn't).
+            EventNoteGroupPanel eventNoteGroupPanel = null;
+            if(groupInfo.exists()) {
+                // Yes, existence is also checked when attempting to load the data, but if it fails in that
+                // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
+                // then we don't want one at all.
+                eventNoteGroupPanel = new EventNoteGroupPanel(groupInfo);
             }
 
-            if (eventNoteGroup == null) {
-                // We just tried to retrieve it or to load it, so if it is STILL null
-                //   then we take it to mean that the file is effectively not there.
+            if (eventNoteGroupPanel == null) {
+                // We just tried to load it, so if it still null then we take it to mean that the file is
+                // not there.  So we show a notice about that, before we remove this leaf from any
+                // further user attempts to retrieve it.
+                JOptionPane.showMessageDialog(this,
+                        "Cannot read in the Event List.\n" +
+                                "This Event selection will be removed.",
+                        "Data not accessible", JOptionPane.WARNING_MESSAGE);
 
-                // So we show a notice about what went wrong and what we're going to do about it.
-                    showWorkingDialog(false);
-                    JOptionPane.showMessageDialog(this,
-                            "Cannot read in the Event group.\n" +
-                                    "This group selection will be removed.",
-                            "File not accessible", JOptionPane.WARNING_MESSAGE);
-
-                closeGroup(); // File is already gone; this just removes the tree node.
+                // Nothing else can be done; the group was unavailable for some reason.
+                closeGroup(); // This just removes the tree node, but it will reappear the next time
+                // the archive is viewed, since the archive options are not updated or preserved.
             } else {
-                // There is only one menu, for ALL event lists.  It needs to be reset with every list change.
-//                eventNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-
-                theNoteGroupPanel = eventNoteGroup;
-                rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
+                rightPane.setViewportView(eventNoteGroupPanel.theBasePanel);
             } // end if
-        } else if (parentNodeName.equals("To Do Lists")) {
-            // Selection of a To Do List
-            TodoNoteGroupPanel todoNoteGroup;
+        } else if (parentNodeName.equals("To Do Lists")) { // Selection of a To Do List
+            // Make the corresponding GroupInfo -
+            GroupInfo groupInfo = new GroupInfo(theNodeString, GroupType.TODO_LIST);
+            groupInfo.archiveName = archiveName;
 
-            // If the list has been previously loaded during this session,
-            // we can retrieve the group from the keeper.
-            todoNoteGroup = (TodoNoteGroupPanel) theTodoListKeeper.get(theNodeString);
-
-            // Otherwise load it, but only if a file for it already exists.
-            if (todoNoteGroup == null) {
-                todoNoteGroup = (TodoNoteGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
-                if (todoNoteGroup != null) {
-                    log.debug("Loaded " + theNodeString + " from filesystem");
-                    theTodoListKeeper.add(todoNoteGroup);
-                }
-            } else {
-                if (!todoNoteGroup.getEditable()) todoNoteGroup.setEditable(true);
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
+            // Load the archived group panel, if it exists (but there is no operationally valid reason why it wouldn't).
+            TodoNoteGroupPanel todoNoteGroupPanel = null;
+            if (groupInfo.exists()) {
+                // Yes, existence is also checked when attempting to load the data, but if it fails in that
+                // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
+                // then we don't want one at all.
+                todoNoteGroupPanel = new TodoNoteGroupPanel(groupInfo);
             }
 
-            if (todoNoteGroup == null) {
-                // We just tried to retrieve it or to load it, so if it is STILL null
-                //   then we take it to mean that the file is effectively not there.
+            if (todoNoteGroupPanel == null) {
+                // We just tried to load it, so if it still null then we take it to mean that the file is
+                // not there.  So we show a notice about that, before we remove this leaf from any
+                // further user attempts to retrieve it.
+                JOptionPane.showMessageDialog(this,
+                        "Cannot read in the To Do List.\n" +
+                                "This To Do list selection will be removed.",
+                        "List not accessible", JOptionPane.WARNING_MESSAGE);
 
-                // So we show a notice about what went wrong and what we're going to do about it.
-                    showWorkingDialog(false);
-                    JOptionPane.showMessageDialog(this,
-                            "Cannot read in the To Do List.\n" +
-                                    "This list selection will be removed.",
-                            "List not accessible", JOptionPane.WARNING_MESSAGE);
-
-                closeGroup(); // File is already gone; this just removes the tree node.
+                // Nothing else can be done; the group was unavailable for some reason.
+                closeGroup(); // This just removes the tree node, but it will reappear the next time
+                // the archive is viewed, since the archive options are not updated or preserved.
             } else {
-                // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
-//                todoNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-
-                theNoteGroupPanel = todoNoteGroup;
-                rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
+                rightPane.setViewportView(todoNoteGroupPanel.theBasePanel);
             } // end if
-        } else if (parentNodeName.equals("Search Results")) {
-            // Selection of a Search Result List
-            SearchResultGroupPanel searchResultGroupPanel;
-            theWayBack = theTree.getSelectionPath();
+        } else if (parentNodeName.equals("Search Results")) { // Selection of a Search Result List
+            // Make the corresponding GroupInfo -
+            GroupInfo groupInfo = new GroupInfo(theNodeString, GroupType.SEARCH_RESULTS);
+            groupInfo.archiveName = archiveName;
 
-            // If the search has been previously loaded during this session,
-            // we can retrieve the group for it from the keeper.
-            searchResultGroupPanel = (SearchResultGroupPanel) theSearchResultsKeeper.get(theNodeString);
-
-            // Otherwise construct it, but only if a file for it already exists.
-            if (searchResultGroupPanel == null) {
-                searchResultGroupPanel = (SearchResultGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
-                if (searchResultGroupPanel != null) {
-                    log.debug("Loaded " + theNodeString + " from filesystem");
-                    theSearchResultsKeeper.add(searchResultGroupPanel);
-                }
-            } else {
-                log.debug("Retrieved '" + theNodeString + "' from the keeper");
+            // Load the archived group panel, if it exists (but there is no operationally valid reason why it wouldn't).
+            SearchResultGroupPanel searchResultGroupPanel = null;
+            if (groupInfo.exists()) {
+                // Yes, existence is also checked when attempting to load the data, but if it fails in that
+                // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
+                // then we don't want one at all.
+                searchResultGroupPanel = new SearchResultGroupPanel(groupInfo);
             }
 
             if (searchResultGroupPanel == null) {
-                // We just tried to retrieve it or to load it, so if it is STILL null
-                //   then we take it to mean that the file is effectively not there.
+                // We just tried to load it, so if it still null then we take it to mean that the file is
+                // not there.  So we show a notice about that, before we remove this leaf from any
+                // further user attempts to retrieve it.
+                showWorkingDialog(false);
+                JOptionPane.showMessageDialog(this,
+                        "Cannot read in the search results.\n" +
+                                "This search results selection will be removed.",
+                        "Results not accessible", JOptionPane.WARNING_MESSAGE);
 
-                // So we show a notice about what went wrong and what we're going to do about it.
-                    showWorkingDialog(false);
-                    JOptionPane.showMessageDialog(this,
-                            "Cannot read in the search results.\n" +
-                                    "This search results selection will be removed.",
-                            "Results not accessible", JOptionPane.WARNING_MESSAGE);
-
-                closeGroup(); // File is already gone; this just removes the tree node.
+                // Nothing else can be done; the group was unavailable for some reason.
+                closeGroup(); // This just removes the tree node, but it will reappear the next time
+                // the archive is viewed, since the archive options are not updated or preserved.
             } else {
-                theNoteGroupPanel = searchResultGroupPanel;
-                rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
+                rightPane.setViewportView(searchResultGroupPanel.theBasePanel);
             } // end if
         } else if (theNodeString.equals("Year View")) {
             if (theYearView == null) {

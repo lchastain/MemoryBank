@@ -31,8 +31,6 @@ class NoteGroup implements LinkHolder {
     protected GroupProperties myProperties; // All children can access this directly, but better to use a getter.
     protected GroupInfo myGroupInfo;
 
-    // transient is only helpful if the instance is to be serialized, which it isn't.  So...  why leave it transient?
-//    transient NoteGroupPanel myNoteGroupPanel; // This might remain null; depends on usage of the NoteGroup.
     NoteGroupPanel myNoteGroupPanel; // This might remain null; depends on usage of the NoteGroup.
 
 
