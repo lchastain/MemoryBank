@@ -1,6 +1,6 @@
 import java.time.LocalDateTime;
 
-public interface AppDataAccessor {
+public interface DataAccessor {
 
     enum AccessType {
         DATABASE("Database"),
@@ -12,12 +12,13 @@ public interface AppDataAccessor {
             display = s;
         }
 
-
         @Override
         public String toString() {
             return display;
         }
     }
+    
+    
     boolean createArea(DataArea dataArea); // tie in usage of this with 'add new group'
     boolean createArchive();
     default String getArchiveStorageName(String archiveName) {
@@ -32,7 +33,7 @@ public interface AppDataAccessor {
     NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo);
 
 
-    static AppDataAccessor getAppDataAccessor(AccessType accessType) {
+    static DataAccessor getDataAccessor(AccessType accessType) {
         if(accessType == AccessType.FILE) {
             return new FileDataAccessor();
         } else {

@@ -7,6 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("rawtypes")
 class NoteGroupFile implements NoteGroupDataAccessor {
@@ -28,6 +31,8 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     GroupInfo groupInfo;
 
     private String failureReason; // Various file access failure reasons, or null.
+    private ChronoUnit dateType;
+    private CalendarNoteGroup.CalendarFileFilter fileFilter;
 
     // This is the FULL filename, with storage specifier & path, prefix and extension.
     // Access it with getGroupFilename() & setGroupFilename().
@@ -35,7 +40,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
 
     static {
-        calendarNoteGroupAreaPath = FileDataAccessor.basePath + DataArea.CALENDARS + File.separatorChar;
+        calendarNoteGroupAreaPath = FileDataAccessor.basePath + DataArea.CALENDARS.getAreaName() + File.separatorChar;
         eventGroupAreaPath = FileDataAccessor.basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
         goalGroupAreaPath = FileDataAccessor.basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
         searchResultGroupAreaPath = FileDataAccessor.basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
@@ -58,6 +63,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         saveIsOngoing = false;
         failureReason = null;
 
+        // These defaults apply to CalendarNoteGroup types; if the type is different then they will be overridden, below.
+        saveWithoutData = false;
+        theAreaPath = calendarNoteGroupAreaPath;
+        thePrefix = "";
+
         // Only the Calendar-type groups do not need to be saved when they have no data.
         // The others - saving them creates a placeholder for a new group where notes will
         //   be added subsequently, and/or they have extended properties that should be
@@ -65,11 +75,13 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         //   search panel settings of a SearchResultGroup.
         switch (groupInfo.groupType) {
             case DAY_NOTES:
+                dateType = ChronoUnit.DAYS;
+                break;
             case MONTH_NOTES:
+                dateType = ChronoUnit.MONTHS;
+                break;
             case YEAR_NOTES:
-                theAreaPath = calendarNoteGroupAreaPath;
-                thePrefix = "";
-                saveWithoutData = false;
+                dateType = ChronoUnit.YEARS;
                 break;
             case SEARCH_RESULTS:
                 theAreaPath = searchResultGroupAreaPath;
@@ -92,6 +104,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 saveWithoutData = true;
                 break;
         }
+        if(dateType != null) fileFilter = new CalendarNoteGroup.CalendarFileFilter(dateType);
     }
 
     protected boolean deleteFile(File f) {
@@ -117,11 +130,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     public void deleteNoteGroupData() {
         if (!groupFilename.isEmpty()) {
             MemoryBank.debug("NoteGroupFile.saveNoteGroupData: old filename = " + groupFilename);
-            if (MemoryBank.archive) { // Archive the file
-                MemoryBank.debug("  Archiving: " + shortName());
-                // Note: need to fully implement archiving but for now, what happens
-                // is what does not happen - we simply do not delete the old version.
-            } else { // Need to delete the file
                 File f = new File(groupFilename);
                 if(f.exists()) { // It must exist, for the delete to succeed.  If it already doesn't exist - we can live with that.
                     // Deleting (or archiving, if ever implemented) as the first step of saving is necessary in case the
@@ -132,7 +140,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                         saveIsOngoing = false;
                     }
                 }
-            } // end if archive or delete
         } // end if
     } // end deleteNoteGroupData
 
@@ -370,6 +377,100 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         }
         return theGroupNames;
     } // end getGroupNames
+
+
+    // This method searches the repository for the next data file in the indicated direction.
+    // If it finds one, it returns the associated date.  If there are no more data files in
+    // that direction then it simply returns the next date in that direction.
+    @Override
+    public LocalDate getNextDateWithData(LocalDate initialDate, ChronoUnit dateDelta, CalendarNoteGroup.Direction direction) {
+        LocalDate returnDate;
+        int initialYear = initialDate.getYear();
+
+        // Get a list of all Years (directories) where the user has data
+        // Potential issue here if we're not looking into a directory, but we know that we are.
+        // And if the directory is empty?  Not too much of a problem; it will still 'sort', and then we don't iterate.
+        File theYears = new File(calendarNoteGroupAreaPath); // All directories here, with 4-digit numerical names.
+        List<File> yearsList = Arrays.asList(theYears.listFiles());
+
+        // Sort the Years according to the direction we will be searching.
+        // But also - set a default return value in case nothing is found.
+        if(direction == CalendarNoteGroup.Direction.FORWARD) {
+            Collections.sort(yearsList);
+            returnDate = initialDate.plus(1, dateDelta);
+        } else {  // direction == BACKWARD
+            yearsList.sort(Collections.reverseOrder());
+            returnDate = initialDate.minus(1, dateDelta);
+        }
+
+        // Cycle through the sorted directories -
+        for(File f: yearsList) {
+            int dataYear = Integer.parseInt(f.getName());
+
+            // Skip all Years that are in the 'wrong' direction from the initialDate
+            if(direction == CalendarNoteGroup.Direction.FORWARD) {
+                if(dataYear < initialYear) continue;
+            } else {
+                if(dataYear > initialYear) continue;
+            }
+            if(dateType == ChronoUnit.YEARS && dataYear == initialYear) continue;
+
+            // Now we can start looking in this Year for data -
+            System.out.println("Looking in: " + f.getAbsolutePath());
+
+            LocalDate theDate = getDataDate(f, returnDate, direction);
+            if(theDate != null) return theDate; // This will be the one we were looking for.
+            // Otherwise, we keep looking as long as there are 'Year' directories remaining to be searched -
+        }
+
+        return returnDate; // This is just the default return value.
+    }
+
+    // Get the date of the next data file (that has data) in the direction we are looking.
+    private LocalDate getDataDate(File yearDirectory, LocalDate initialDate, CalendarNoteGroup.Direction direction) {
+        // Get a list of the right type of data files that are in the yearDirectory -
+        File[] dataFiles = yearDirectory.listFiles(fileFilter);
+        if(dataFiles == null || dataFiles.length == 0) return null; // The null check covers possible I/O errors.
+
+        List<File> filesList = Arrays.asList(dataFiles);
+
+        // Sort the data files according to the direction we will be searching.
+        if(direction == CalendarNoteGroup.Direction.FORWARD) {
+            Collections.sort(filesList);
+        } else {  // direction == BACKWARD
+            filesList.sort(Collections.reverseOrder());
+        }
+
+        for(File f: filesList) {
+            LocalDate aDate = getDateFromFilename(f);
+            assert aDate != null;
+            System.out.println("The date for " + f.getAbsolutePath() + " is " + aDate.toString());
+
+            if(direction == CalendarNoteGroup.Direction.FORWARD) {
+                if(aDate.isBefore(initialDate)) continue;
+            } else {
+                if(aDate.isAfter(initialDate)) continue;
+            }
+
+            // Look into the file to see if it has significant content.
+            Object[] theGroup = NoteGroupFile.loadFileData(f);
+            boolean itHasData = false;
+            if(theGroup.length == 1) {
+                // It is not possible to have a length of one for DayNoteData, where the content is GroupProperties.
+                // When only linkages are present in DayNoteData, the file still contains a two-element array
+                // although the second element may be null.  So this is just older (pre linkages) data, and in
+                // that case it is significant since we didn't ever save 'empty\ days.
+                itHasData = true;  // and DayNoteData did not get saved, if no notes.
+            } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
+                // significant for purposes of this method; only the length of the second element (the ArrayList).
+                ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
+                if(arrayList.size() > 0) itHasData = true;
+            }
+            if(itHasData) return aDate;
+
+        }
+        return null;
+    }
 
 
     // Returns a String containing the requested portion of the input LocalDateTime.
@@ -702,7 +803,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // Here we use the GroupInfo we were constructed with to determine the name of the file to save to; it may be
         // different than the one we aready have (and theoretically not a match to the GroupInfo in the data either).
         setGroupFilename(getGroupFilename()); // Set it according to the getter.
-        MemoryBank.debug("  Saving NoteGroup data in " + shortName());
+        MemoryBank.debug("  Saving NoteGroup data in " + groupInfo.getGroupName());
 
         // Step 4 - Verify the path
         File f = new File(groupFilename);
@@ -789,16 +890,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         else newGroupName = newName.trim();
         groupFilename = newGroupName;
     }
-
-
-    // Returns the filename-only component of the group file name.
-    // Used in debug printouts.
-    private String shortName() {
-        String s = getGroupFilename();
-        int ix = s.lastIndexOf(File.separatorChar);
-        if (ix != -1) s = s.substring(ix + 1);
-        return s;
-    } // end shortName
 
 
     // Write the Group data to a file.  Provide the full path and filename, including extension.

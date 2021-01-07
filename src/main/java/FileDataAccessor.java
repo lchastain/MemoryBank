@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class FileDataAccessor implements AppDataAccessor {
+public class FileDataAccessor implements DataAccessor {
     static String archiveAreaPath;
     static DateTimeFormatter archiveFileFormat;
     static DateTimeFormatter archiveNameFormat;
@@ -20,7 +20,7 @@ public class FileDataAccessor implements AppDataAccessor {
         archiveNameFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd  h:mm:ss a");
     }
 
-    private void archiveGroupType(File archiveRepo, GroupType groupType) throws IOException {
+    static void archiveGroupType(File archiveRepo, GroupType groupType) throws IOException {
         String archiveRepoPath = archiveRepo.getAbsolutePath();
         File theSourceDir = null;
         File theDestDir = null;
@@ -56,6 +56,7 @@ public class FileDataAccessor implements AppDataAccessor {
     }
 
 
+    @Override
     public boolean createArchive() {
         // Make a unique name for the archive
         String archiveFileName = archiveFileFormat.format(LocalDateTime.now());
@@ -194,7 +195,6 @@ public class FileDataAccessor implements AppDataAccessor {
         if (archiveName == null) return null;
         return LocalDateTime.parse(archiveName, archiveNameFormat);
     }
-
 
     @Override
     public NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo) {

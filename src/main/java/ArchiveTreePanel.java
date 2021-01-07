@@ -20,19 +20,21 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.UUID;
 import java.util.Vector;
 
 
-public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
+public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     private static final Logger log = LoggerFactory.getLogger(ArchiveTreePanel.class);
 
     JFrame archiveWindow;
     Notifier optionPane;
-    AppDataAccessor dataAccessor;
+    DataAccessor dataAccessor;
     //-------------------------------------------------------------------
 
     private JTree theTree;
@@ -45,17 +47,11 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     private TreePath todolistsPath;
     private TreePath searchresultsPath;
 
-    private NoteGroupPanel theNoteGroupPanel; // A reference to the current selection
     DayNoteGroupPanel theAppDays;
     MonthNoteGroupPanel theAppMonths;
     YearNoteGroupPanel theAppYears;
     MonthView theMonthView;
     YearView theYearView;
-    private Vector<NoteData> foundDataVector;  // Search results
-    NoteGroupPanelKeeper theGoalsKeeper;          // keeper of all loaded Goals.
-    NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
-    NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
-    NoteGroupPanelKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
     private final JSplitPane splitPane;
 
     private LocalDate selectedDate;  // The selected date
@@ -81,8 +77,15 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
     public ArchiveTreePanel(String theName) {
         super(new GridLayout(1, 0));
         archiveName = theName;
-        dataAccessor = MemoryBank.appDataAccessor;
+        dataAccessor = MemoryBank.dataAccessor;
         archiveWindow = new JFrame("Archive: " + archiveName);
+
+        // This covers an edge case, where this archive is deleted from the AppTreePanel; this
+        // provides the handle that it needs to be able to close any open windows onto this archive.
+        String archiveKey = archiveName + " " + UUID.randomUUID();
+        AppTreePanel.theInstance.archiveWindows.put(archiveKey, archiveWindow);
+
+        // Now - use the name to load in the archived application options.
         appOpts = dataAccessor.getArchiveOptions(archiveName);
 
         //<editor-fold desc="Make the 'Working...' dialog">
@@ -229,7 +232,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         trunk.add(branch);
         pathToRoot = branch.getPath();
         goalsPath = new TreePath(pathToRoot);
-        theGoalsKeeper = new NoteGroupPanelKeeper();
 
         for (String s : appOpts.goalsList) {
             // Add to the tree
@@ -246,7 +248,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         trunk.add(branch);
         pathToRoot = branch.getPath();
         eventsPath = new TreePath(pathToRoot);
-        theEventListKeeper = new NoteGroupPanelKeeper();
 
         for (String s : appOpts.eventsList) {
             // Add to the tree
@@ -309,7 +310,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         trunk.add(branch);
         pathToRoot = branch.getPath();
         todolistsPath = new TreePath(pathToRoot);
-        theTodoListKeeper = new NoteGroupPanelKeeper();
 
         for (String s : appOpts.tasksList) {
             // Add to the tree
@@ -324,7 +324,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         trunk.add(branch);
         pathToRoot = branch.getPath();
         searchresultsPath = new TreePath(pathToRoot);
-        theSearchResultsKeeper = new NoteGroupPanelKeeper();
 
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
@@ -353,34 +352,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         // But do show the link that all children have to it.
         theTree.setShowsRootHandles(true);
     } // end createTree
-
-    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
-        viewedDate = theNewDate;
-        viewedDateGranularity = theGranularity;
-    }
-
-    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
-        viewedDate = theNewDate;
-        viewedDateGranularity = theGranularity;
-    }
-
-
-    //----------------------------------------------------------------
-    // Method Name:  deepClone
-    //
-    // Used to fully clone a tree node, since the system-provided
-    // method only does the first level.
-    //----------------------------------------------------------------
-    @SuppressWarnings("rawtypes")
-    static DefaultMutableTreeNode deepClone(DefaultMutableTreeNode root) {
-        DefaultMutableTreeNode newRoot = (DefaultMutableTreeNode) root.clone();
-        for (Enumeration childEnum = root.children(); childEnum.hasMoreElements(); ) {
-            newRoot.add(deepClone((DefaultMutableTreeNode) childEnum.nextElement()));
-        }
-        return newRoot;
-    }
 
 
     // Make a Consolidated View group from all the currently selected Event Groups.
@@ -484,7 +455,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         if(srd.foundIn == null) return;
         NoteGroupPanel thePanel = srd.foundIn.getNoteGroupPanel();
         thePanel.setEditable(false);
-        theNoteGroupPanel = thePanel; // For 'showCurrentNoteGroup'
 
         // Preserve the selection path, for 'goBack'
         // set GoBack to visible
@@ -566,11 +536,13 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         MemoryBank.debug("New tree selection: " + theNodeString);
         appOpts.theSelection = theNodeString; // Not used, but helpful during a visual review of the persisted options.
 
+        // Get the date of the archive -
+        LocalDateTime archiveDateTime = MemoryBank.dataAccessor.getDateTimeForArchiveName(archiveName);
+        LocalDate theArchiveDate = archiveDateTime.toLocalDate();
+
         // Get the name of the node's parent.  Thanks to the way we have created the tree and
         // the unselectability of the tree root, we never expect the parent path to be null.
         String parentNodeName = newPath.getParentPath().getLastPathComponent().toString();
-
-        theNoteGroupPanel = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
         if (!selectedNode.isLeaf()) {  // Looking at expandable nodes
@@ -608,7 +580,6 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
             } else {
                 rightPane.setViewportView(goalGroupPanel.theBasePanel);
             } // end if
-
         } else if (parentNodeName.equals("Upcoming Events")) { // Selection of an Event group
             // Make the corresponding GroupInfo -
             GroupInfo groupInfo = new GroupInfo(theNodeString, GroupType.EVENTS);
@@ -622,6 +593,8 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 // then we don't want one at all.
                 eventNoteGroupPanel = new EventNoteGroupPanel(groupInfo);
             }
+
+            showWorkingDialog(false);
 
             if (eventNoteGroupPanel == null) {
                 // We just tried to load it, so if it still null then we take it to mean that the file is
@@ -652,6 +625,8 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 todoNoteGroupPanel = new TodoNoteGroupPanel(groupInfo);
             }
 
+            showWorkingDialog(false);
+
             if (todoNoteGroupPanel == null) {
                 // We just tried to load it, so if it still null then we take it to mean that the file is
                 // not there.  So we show a notice about that, before we remove this leaf from any
@@ -680,6 +655,8 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
                 // then we don't want one at all.
                 searchResultGroupPanel = new SearchResultGroupPanel(groupInfo);
             }
+
+            showWorkingDialog(false);
 
             if (searchResultGroupPanel == null) {
                 // We just tried to load it, so if it still null then we take it to mean that the file is
@@ -749,49 +726,20 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
         } else if (theNodeString.equals("Day Notes")) {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroupPanel();
-//                theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Previously constructed.  Ensure that it is editable.
-                log.debug("Using the previously constructed 'theAppDays' for " + theNodeString);
-                if (!theAppDays.getEditable()) theAppDays.setEditable(true);
+                theAppDays.setArchiveDate(theArchiveDate);
             }
-
-            theAppDays.setAlteredDateListener(this); // needed for both new and pre-existing.
-            theNoteGroupPanel = theAppDays;
-            theAppDays.setDate(selectedDate);
-
-            setViewedDate(selectedDate, ChronoUnit.DAYS);
             rightPane.setViewportView(theAppDays.theBasePanel);
         } else if (theNodeString.equals("Month Notes")) {
-            if (viewedDateGranularity == ChronoUnit.YEARS) {
-                viewedDate = selectedDate;
-            }
-            viewedDateGranularity = ChronoUnit.MONTHS;
-
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
-//                theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Previously constructed.  Ensure that it is editable.
-                log.debug("Using the previously constructed 'theAppMonths' for " + theNodeString);
-                if (!theAppMonths.getEditable()) theAppMonths.setEditable(true);
+                theAppMonths.setArchiveDate(theArchiveDate);
             }
-
-            theAppMonths.setAlteredDateListener(this); // needed for both new and pre-existing.
-            theNoteGroupPanel = theAppMonths;
-            theAppMonths.setDate(viewedDate);
             rightPane.setViewportView(theAppMonths.theBasePanel);
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroupPanel();
-//                theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Previously constructed.  Ensure that it is editable.
-                log.debug("Using the previously constructed 'theAppYears' for " + theNodeString);
-                if (!theAppYears.getEditable()) theAppYears.setEditable(true);
+                theAppYears.setArchiveDate(theArchiveDate);
             }
-
-            theAppYears.setAlteredDateListener(this); // needed for both new and pre-existing.
-            theNoteGroupPanel = theAppYears;
-            theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
-            viewedDateGranularity = ChronoUnit.YEARS;
             rightPane.setViewportView(theAppYears.theBasePanel);
         } else {
             // Any other as-yet unhandled node on the tree.
@@ -921,5 +869,5 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener, A
 
     } // end valueChanged
 
-} // end AppTreePanel class
+} // end ArchiveTreePanel class
 

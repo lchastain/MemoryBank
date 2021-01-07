@@ -128,14 +128,14 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
         switch (s) {
             case "Y-":
-                setDateType(ChronoUnit.YEARS);
+                setDateDelta(ChronoUnit.YEARS);
                 setOneBack();
-                setDateType(ChronoUnit.DAYS);
+                setDateDelta(ChronoUnit.DAYS);
                 break;
             case "M-":
-                setDateType(ChronoUnit.MONTHS);
+                setDateDelta(ChronoUnit.MONTHS);
                 setOneBack();
-                setDateType(ChronoUnit.DAYS);
+                setDateDelta(ChronoUnit.DAYS);
                 break;
             case "-":
                 setOneBack();
@@ -147,20 +147,21 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
                 //   there would be no active selection on the Tree.  This is in alignment with the
                 //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
                 //   which DOES affect theChoice.
-                setDate(LocalDate.now());
+                if(archiveDate != null) setDate(archiveDate);
+                else setDate(LocalDate.now());
                 break;
             case "+":
                 setOneForward();
                 break;
             case "M+":
-                setDateType(ChronoUnit.MONTHS);
+                setDateDelta(ChronoUnit.MONTHS);
                 setOneForward();
-                setDateType(ChronoUnit.DAYS);
+                setDateDelta(ChronoUnit.DAYS);
                 break;
             case "Y+":
-                setDateType(ChronoUnit.YEARS);
+                setDateDelta(ChronoUnit.YEARS);
                 setOneForward();
-                setDateType(ChronoUnit.DAYS);
+                setDateDelta(ChronoUnit.DAYS);
                 break;
             case "12":
                 toggleMilitary();

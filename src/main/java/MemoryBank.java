@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 public class MemoryBank {
     static Color amColor;
     static Color pmColor;
-    static boolean archive;
     static DateTimeFormatter dtf;
     static boolean debug;
     static boolean event;
@@ -27,7 +26,7 @@ public class MemoryBank {
     static JFrame logFrame;
     static Notifier optionPane;
     static SubSystem system;
-    static AppDataAccessor appDataAccessor;
+    static DataAccessor dataAccessor;
 
     private static AppTreePanel appTreePanel;
     private static boolean timing;
@@ -75,7 +74,6 @@ public class MemoryBank {
 
         amColor = Color.blue;
         pmColor = Color.black;
-        archive = false;
     } // end static
 
 
@@ -241,7 +239,7 @@ public class MemoryBank {
         // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
         // allow easier access and alteration by support personnel (once we get support personnel).
         // This setting should be made AFTER the static vars that it relies on (such as userDataHome) are set.
-        appDataAccessor = AppDataAccessor.getAppDataAccessor(AppDataAccessor.AccessType.FILE);
+        dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
     } // end setUserDataHome
 
 

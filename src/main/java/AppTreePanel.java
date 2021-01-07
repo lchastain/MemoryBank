@@ -26,9 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.Vector;
+import java.util.*;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
@@ -37,6 +35,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
     static AppMenuBar appMenuBar;
+    Map<String, JFrame> archiveWindows;
 
     private static final Logger log = LoggerFactory.getLogger(AppTreePanel.class);
 
@@ -99,6 +98,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         aFrame.setJMenuBar(appMenuBar);
         theInstance = this; // This works because we will always only have one AppTreePanel in this app.
         this.appOpts = appOpts;
+        archiveWindows = new HashMap<>();
 
         //<editor-fold desc="Make the 'Working...' dialog">
         theWorkingDialog = new JDialog(aFrame, "Working", true);
@@ -623,7 +623,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             int currentSelection = theTree.getMaxSelectionRow();
 
             // Create the archive
-            if(MemoryBank.appDataAccessor.createArchive()) {
+            if(MemoryBank.dataAccessor.createArchive()) {
                 // The reselect is only needed if we are showing the archive listing.
                     if(currentSelection == 0) {
                         theTree.clearSelection();
@@ -656,11 +656,20 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         String archiveName = selectedArchiveNode.toString();
         System.out.println("Selected Archive: " + archiveName);
 
+        // Close any windows that are currently open for this Archive -
+        Set<String> setCodes = archiveWindows.keySet();
+        for (String code : setCodes) {
+            if (code.startsWith(archiveName)) {
+                JFrame theArchiveWindow = archiveWindows.get(code);
+                theArchiveWindow.setVisible(false);
+            }
+        }
+
         // Convert the archive name into an archive date
-        LocalDateTime localDateTime = MemoryBank.appDataAccessor.getDateTimeForArchiveName(archiveName);
+        LocalDateTime localDateTime = MemoryBank.dataAccessor.getDateTimeForArchiveName(archiveName);
 
         // Remove the indicated archive
-        if (MemoryBank.appDataAccessor.removeArchive(localDateTime)) {
+        if (MemoryBank.dataAccessor.removeArchive(localDateTime)) {
             int currentSelection = theTree.getMaxSelectionRow();
                 // The reselect is only needed if we are showing the archive listing.
                 if(currentSelection == 0) {
@@ -747,14 +756,11 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         showWorkingDialog(false);
     } // end doSearch
 
+
     void doViewArchive(String archiveName) {
         MemoryBank.debug("Selected Archive: " + archiveName);
-
-        // Now - use the name to load in the application options from that archive.
         new ArchiveTreePanel(archiveName); // It shows itself; reference not needed.
-
     } // end doViewArchive
-
 
 
     // Make a Consolidated View group from all the currently selected Event Groups.
@@ -880,6 +886,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Go Back")) doGoBack();
         else if (what.equals("Linkages...")) theNoteGroupPanel.groupLinkages();
+        else if (what.equals("Review Mode")) toggleReview();
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
         else if (what.equals("Delete")) deleteGroup();
@@ -916,7 +923,6 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             AppUtil.localDebug(false);
         } // end if/else
     } // end handleMenuBar
-
 
     private void mergeGroup() {
         preClose(); // Close everything that might be open.
@@ -1281,7 +1287,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
     // Content may start out with informative text, if there are few enough archives.
     void showArchives() {
         JPanel archivePanel = new JPanel(new BorderLayout());
-        String[] archiveNames = MemoryBank.appDataAccessor.getArchiveNames();
+        String[] archiveNames = MemoryBank.dataAccessor.getArchiveNames();
         int archiveCount = archiveNames == null ? 0 : archiveNames.length;
 
         // In the base container, the NORTH area will hold a Box.
@@ -1346,6 +1352,7 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
             JTree archiveTree = new JTree(archiveTreeModel);
             // Set a tree cell renderer that does not override the background of unselected nodes.
             archiveTree.setCellRenderer(new DefaultTreeCellRenderer() {
+                static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
                 @Override
                 public Color getBackgroundNonSelectionColor() {
                     return (null);
@@ -2007,6 +2014,16 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         appMenuBar.manageMenus(selectionContext);
         showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
+
+
+    // The static menu item applies to all three CalendarNoteGroup types.
+    private void toggleReview() {
+        boolean reviewMode = false;
+        if(AppMenuBar.reviewMode.isSelected()) reviewMode = true;
+        if(theAppDays != null) theAppDays.reviewMode = reviewMode;
+        if(theAppMonths != null) theAppMonths.reviewMode = reviewMode;
+        if(theAppYears != null) theAppYears.reviewMode = reviewMode;
+    }
 
 
     //-------------------------------------------------

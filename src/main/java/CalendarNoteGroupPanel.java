@@ -15,9 +15,11 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     DateTimeFormatter dtf; // Child classes display the date in different formats.
 
     private AlteredDateListener alteredDateListener = null;
-    private ChronoUnit dateType;
+    private ChronoUnit dateDelta;
     JLabel panelTitleLabel;
     LabelButton todayButton = makeAlterButton("T", null);
+    boolean reviewMode;
+    LocalDate archiveDate;
 
     CalendarNoteGroupPanel(GroupType groupType) {
         // The implicit call to the base class constructor is what builds the notes panel
@@ -27,17 +29,17 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         switch(groupType) { // This Panel should not be constructed with any other types.
             case YEAR_NOTES:
                 super.setDefaultSubject("Year Note");
-                dateType = ChronoUnit.YEARS;
+                dateDelta = ChronoUnit.YEARS;
                 dtf = DateTimeFormatter.ofPattern("yyyy");
                 break;
             case MONTH_NOTES:
                 super.setDefaultSubject("Month Note");
-                dateType = ChronoUnit.MONTHS;
+                dateDelta = ChronoUnit.MONTHS;
                 dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
                 break;
             case DAY_NOTES:
                 super.setDefaultSubject("Day Note");
-                dateType = ChronoUnit.DAYS;
+                dateDelta = ChronoUnit.DAYS;
                 dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
                 break;
         }
@@ -52,6 +54,9 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
+
+        archiveDate = null; // unless and until 'setArchiveDate' is called.
+        reviewMode = AppMenuBar.reviewMode.isSelected();
     }
 
 
@@ -90,6 +95,13 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     }
 
 
+    void setArchiveDate(LocalDate theArchiveDate) {
+        archiveDate = theArchiveDate;
+        setDate(archiveDate); // Set the date of this Panel to the date of the archive
+        setEditable(false);
+        reviewMode = true;
+    }
+
     public void setDate(LocalDate theNewChoice) {
         // If the new date is the same as the one that is currently showing then the inclination is to just return
         // without taking any action.  However, that does not cover the case where the data for the date that is
@@ -98,9 +110,9 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
         // The proper approach for all accesses is to save a group before possibly altering it.  This doesn't mean
         // that it always happens that way but if it doesn't then there could be data-loss type problems.  So for
-        // the hypothetical case where the data for this date has been externally changed, any changes we had in
-        // progress in this Panel will have already been saved by the context that made the external change, before
-        // it made that change, and so the call below
+        // the hypothetical case where the data for this date has been externally changed, we just trust that any
+        // changes we had in progress in this Panel will have already been saved by the context that made the
+        // external change, before it made that change, and so the call below
         // will NOT result in the old data going back to overwrite the newer info because preClose will not make
         // a call to save since by then the groupChanged flag will be false.  On the other hand, if there has been
         // no other access to the group and there ARE unsaved changes in the Panel, then the call below will capture
@@ -122,8 +134,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     } // end setDate
 
 
-    void setDateType(ChronoUnit theType) {
-        dateType = theType;
+    void setDateDelta(ChronoUnit theType) {
+        dateDelta = theType;
     }
 
 
@@ -132,26 +144,50 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     public void setOneBack() {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
-        theChoice = theChoice.minus(1, dateType);
+        if(reviewMode) {
+            DataAccessor dataAccessor = MemoryBank.dataAccessor;
+            NoteGroupDataAccessor noteGroupDataAccessor = dataAccessor.getNoteGroupDataAccessor(myNoteGroup.myGroupInfo);
+            theChoice = noteGroupDataAccessor.getNextDateWithData(theChoice, dateDelta, CalendarNoteGroup.Direction.BACKWARD);
+        } else {
+            theChoice = theChoice.minus(1, dateDelta);
+        }
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
-        if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateType);
+        if(alteredDateListener != null) alteredDateListener.dateDecremented(theChoice, dateDelta);
     } // end setOneBack
-
 
     public void setOneForward() {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
-        theChoice = theChoice.plus(1, dateType);
+        if(reviewMode) {
+            boolean hardStop = false; // Flag to keep us from going beyond the archive date.
+            if(archiveDate != null) {
+                if (theChoice.isEqual(archiveDate)) hardStop = true;
+                if (theChoice.plus(1, dateDelta).isAfter(archiveDate)) hardStop = true;
+            }
+            DataAccessor dataAccessor = MemoryBank.dataAccessor;
+            NoteGroupDataAccessor noteGroupDataAccessor = dataAccessor.getNoteGroupDataAccessor(myNoteGroup.myGroupInfo);
+            if(hardStop) {
+                System.out.println("Reached end of archive! \t" + archiveDate.toString());
+            }
+            else theChoice = noteGroupDataAccessor.getNextDateWithData(theChoice, dateDelta, CalendarNoteGroup.Direction.FORWARD);
+        } else {
+            theChoice = theChoice.plus(1, dateDelta);
+        }
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
-        if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateType);
+        if(alteredDateListener != null) alteredDateListener.dateIncremented(theChoice, dateDelta);
     } // end setOneForward
 
 
     @Override
     public void updateGroup() {
         super.updateGroup();
+        String today;
 
-        String today = dtf.format(LocalDate.now());
+        if(archiveDate != null) {
+            today = dtf.format(archiveDate);
+        } else {
+            today = dtf.format(LocalDate.now());
+        }
         todayButton.setEnabled(!getTitle().equals(today));
 
         updateHeader();

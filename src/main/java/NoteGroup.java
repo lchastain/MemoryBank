@@ -42,7 +42,7 @@ class NoteGroup implements LinkHolder {
         noteGroupDataVector = new Vector<>(0, 1);
 
         // Get a data accessor for this group.
-        groupDataAccessor = MemoryBank.appDataAccessor.getNoteGroupDataAccessor(groupInfo);  // currently this can only be a new NoteGroupFile.
+        groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(groupInfo);  // currently this can only be a new NoteGroupFile.
 
         // Load the group data (using the accessor).
         BaseData.loading = true;

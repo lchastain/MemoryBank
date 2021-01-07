@@ -2,8 +2,6 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
-    Archive review
-    Data-only review for calandar type groups (menu option?)  SCR 22
     Generic Notes - get these list-types away from being 'todo' lists.
     Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
       doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
@@ -11,7 +9,7 @@ Priorities:
 
 
 Current/Next:
-    Working archives.  Creation is done.  Now:  data-only date reviews.  Needs thought, here...
+        MonthView cannot go to both places - the first one 'wins' and the others go small.  Very cross-threaded.
 
 Issues, Ideas, Analyses, Problems:
         New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
@@ -34,18 +32,56 @@ Issues, Ideas, Analyses, Problems:
                     (unless you want to 'listen' to the backspace?)
 
 New:
-    Date-review (big)
+
 
 
 
 =====================================================================================================
- 2 Jan 2020
+7 Jan 2020
+  Finished up with the next/prev data file methodology; it came out pretty clean, after the initial slow start.
+  Happy with the end result, both for normal (editable) ops and for Archive viewing.  Will check in and pub.
+  Next:  unsure; need some burn-in time.  May add a test, as part of that.  And there is the MonthView problem(s).
+
+6 Jan 2020
+  Starting view date for CNG panels viewed via archive is the date of the archive, not current date.  This covers
+    the 'T' button, as well.
+  Continuing work on SCR00022 - the algorithm for finding the next file with data is not nearly as easy as I stated
+    in the SCR writeup, but now having some progress, after initially struggling just with where to put the method.
+    Now - struggling with the how, over the past day, and was led down a wrong recursive-search path but now have a
+    much simpler year-based filtering approach that only goes down one directory level and should be much faster when
+    done.
+
+4 Jan 2020
+  Now that archiving has taken shape and it is NOT just a flag in MemoryBank, have removed that flag and its usages.
+    The 'saveAs' variant for Events now no longer keeps the original file; it was the only usage of this feature that
+    was not just a placeholder; now works identically to the one in TodoNoteGroupPanel.
+  The line between NoteGroupDataAccessor (implemented by NoteGroupFile) and DataAccessor (implemented by
+    FileDataAccessor) is becoming unclear.  But there are too many methods to combine; need to come up with
+    a more definitive delineation, and possibly move some methods.
+  Ok, was not able to come up with a better delineation, so have decided to go the other way - consolidation.
+    The one interface will now be simply DataAccessor, and the one implementation will be FileDataAccessor.
+    The methods from NoteGroupFile will move into FileDataAccessor, and that class goes away.
+  But - cannot combine them; as written we must instantiate a NoteGroupDataAccessor with a GroupInfo, whereas the
+    (previously App)DataAccessor has a plain default constructor, and is the gateway to the NoteGroupDataAccessor aka
+    the NoteGroupFile.  The delineation then must be group-specific ops vs app-level ops.  Getting the next or prev
+    date with data - is a group-level op, so the new method that I've been trying to place - belongs in  NoteGroupFile,
+    as an implementation of the 'getNextDateWithData' method of the NoteGroupDataAccessor interface (that I initially
+    put into the higher-level interface, which led to this discussion).
+
+3 Jan 2020
+  Added handling for closing open archives when the archive is deleted.
+
+2 Jan 2020
   The archive view of To Do Lists and Search Results is now done (with a leftover issue when viewing Found In).
   Tool tip display delay change is needed to be set sooner than in the NoteComponent constructor - move it.
     Did that - moved to MemoryBank.main, and this is also better because it only happens once for the entire app,
-        not every time a notegroup is constructed.
+        not every time a NoteTextField is constructed.
+  Checked in and pub'd.
+  Documented that Archives is the solution for the side-by-side viewing request.  Added comment to features.txt,
+    and removed the request from App Wishlist.
+  Made view of DayNotes to be non-editable, starting on date of archive.  Then did Months, Years.
 
- 1 Jan 2021
+1 Jan 2021
   Working on viewing the actual archived notes - initially had a concept of needing an 'archive' NoteGroup, but that
     quickly became unworkable while trying to dovetail with the existing 'live' groups, and the key missing item from
     the existing ones was the archive name (date/time).  Eventually came to understand that the best place for it to
@@ -111,7 +147,7 @@ New:
   Added a new interface method: getArchiveNames().  Used (for now) in initial tree creation
 
 20 Dec 2020
-  The first choice of putting the appDataAccessor assignment into the main() of MemoryBank - proved to be problematic
+  The first choice of putting the dataAccessor assignment into the main() of MemoryBank - proved to be problematic
     for most tests because they call setUserDataHome directly and never go thru the main.  So - moved it to the end of
     that one, instead; otherwise 40+ tests would need rework, most of them to make two separate calls to MemoryBank.
     This way they stay unchanged but at some point (distant future?) may need to revisit this solution, when also
@@ -121,7 +157,7 @@ New:
 
 19 Dec 2020
     The current data accessor is a group-level accessor, whereas needed now is an app-level accessor, for Archives, possibly
-      options, etc.   AppDataAccessor?  Possibly this is the one that then provides the NoteGroupDataAccessor for groups,
+      options, etc.   DataAccessor?  Possibly this is the one that then provides the NoteGroupDataAccessor for groups,
       based on an enum:  DataType:  FILE, DATABASE
     Yes, did all that as described.  The initial setting of type FILE is currently hardcoded into MemoryBank.java, but
       can eventually come from a configuration file.
@@ -1754,7 +1790,7 @@ causing a known start or end to be recalculated.
 
 3/3/2019 1728 - The idea to host my WebSwing server via heroku - not going to work, because that solution is a
  Ruby On Rails (RoR) site, and more importantly, to get heroku to take code requires it to come from GitHub.  So -
- I may just put a link there, that connects us back to my new site that could eventually be hosted on domain.net.
+ I may just put a link there, that connects us back to my new site that could eventually be hosted on doughmain.net.
  Meanwhile, can host it locally until I decide to put up the $$ needed for hosting.
 
 3/1/2019 - Working with the switchover project (WhatWhen) - found WebSwing, that can run THIS app as-is!  So now,

@@ -68,14 +68,14 @@ public class AppUtil {
                 // When only linkages are present in DayNoteData, the file still contains a two-element array
                 // although the second element may be null.  So this is just older (pre linkages) data, and in
                 // that case it is significant since we didn't ever save 'empty\ days.
-                itHasData = true;  // and DayNoteData does not get saved, if no notes.
+                itHasData = true;  // and DayNoteData did not get saved, if no notes.
             } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
                 // significant for purposes of this method; only the length of the second element (the ArrayList).
                 ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
                 if(arrayList.size() > 0) itHasData = true;
             }
             if(itHasData) hasDataArray[month - 1][day - 1] = true;
-        } // end for i
+        } // end for each foundFile
 
         return hasDataArray;
     } // end findDataDays
@@ -120,33 +120,6 @@ public class AppUtil {
 
         return theMenuItem;
     }
-
-    // -------------------------------------------------------
-    // Method Name: localArchive
-    //
-    // Call this method in pairs - first with a 'true'
-    // param, then later with 'false'. Place the calls
-    // as 'brackets' around code that would otherwise
-    // cause a data file to be removed.
-    // ok, this is kludgy but not sure if the 'fix' is
-    // in the coding or just the comments. It works.
-    // -------------------------------------------------------
-    static void localArchive(boolean b) {
-        if (b) {
-            // Preserve the original setting
-            blnGlobalArchive = MemoryBank.archive;
-
-            // and turn on archiving
-            MemoryBank.archive = true;
-        } else {
-            // Put the original setting back, if it had been changed.
-            if (blnGlobalArchive != null)
-                MemoryBank.archive = blnGlobalArchive;
-
-            // and reset our local holding variable
-            blnGlobalArchive = null;
-        } // end if
-    } // end localArchive
 
     // -----------------------------------------------------------------
     // Method Name: localDebug

@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
     private static final long serialVersionUID = 1L;
@@ -69,9 +70,9 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
         // to be true but if none are then we just ignore the action.
         switch (s) {
             case "D-":
-                for(int i=0; i<10; i++) {
-                    setOneBack();
-                }
+                setDateDelta(ChronoUnit.DECADES);
+                setOneBack();
+                setDateDelta(ChronoUnit.YEARS);
                 break;
             case "-":
                 setOneBack();
@@ -83,15 +84,16 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
                 //   there would be no active selection on the Tree.  This is in alignment with the
                 //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
                 //   which DOES affect theChoice.
-                setDate(LocalDate.now());
+                if(archiveDate != null) setDate(archiveDate);
+                else setDate(LocalDate.now());
                 break;
             case "+":
                 setOneForward();
                 break;
             case "D+":
-                for(int i=0; i<10; i++) {
-                    setOneForward();
-                }
+                setDateDelta(ChronoUnit.DECADES);
+                setOneForward();
+                setDateDelta(ChronoUnit.YEARS);
                 break;
         }
 

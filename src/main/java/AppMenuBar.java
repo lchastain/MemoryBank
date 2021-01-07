@@ -23,7 +23,8 @@ public class AppMenuBar extends JMenuBar{
 
     private String theCurrentContext;
     private boolean showDeleteUndo;
-    private static JMenuItem goBack;
+    private static final JMenuItem goBack = new JMenuItem("Go Back");
+    static final JCheckBoxMenuItem reviewMode = new JCheckBoxMenuItem("Review Mode");
 
     static {
         fileMenu = new JMenu("App");
@@ -70,6 +71,7 @@ public class AppMenuBar extends JMenuBar{
 
         notesMenu = new JMenu("Notes");
         notesMenu.add(new JMenuItem("Undo All"));
+        notesMenu.add(reviewMode);
         notesMenu.add(new JMenuItem("Linkages..."));
         notesMenu.add(new JMenuItem("Today"));
         notesMenu.add(new JMenuItem("Save"));
@@ -96,7 +98,6 @@ public class AppMenuBar extends JMenuBar{
         helpMenu.add(new JMenuItem("Contents"));
         helpMenu.add(new JMenuItem("About"));
 
-        goBack = new JMenuItem("Go Back");
     } // end static
 
     public AppMenuBar() {

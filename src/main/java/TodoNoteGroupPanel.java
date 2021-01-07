@@ -432,11 +432,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         // Unfortunately, that list will still have the old title, so it still needs
         // to be removed from the keeper.  The calling context will take care of that.
         myNoteGroup.getGroupProperties().setGroupName(newName);
-//        myNoteGroup.myGroupInfo.setGroupName(newName);
-        // Seems like above should only have needed one of those.
-
         setGroupChanged(true);
-        // There is also the option to archive the old file, vs remove.  The Event group does that.
         preClosePanel();
 
         return true;

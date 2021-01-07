@@ -449,19 +449,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         // Unfortunately, that list will still have the old title, so it still needs
         // to be removed from the keeper.  The calling context will take care of that.
         myNoteGroup.getGroupProperties().setGroupName(newName);
-//        myNoteGroup.myGroupInfo.setGroupName(newName);
-        // Seems like above should only have needed one of those.
         setGroupChanged(true);
-
-        // Since this is effectively a new file, before we save we need to ensure that
-        // the app will not fail in an attempt to remove the nonexistent 'old' file with
-        // this new name.
-        // So this setting will route us around the remove-before-save logic so that
-        // this 'new' file saves without issue, but the side effect is that the original
-        // file will remain.  Still thinking on whether or not that is the desired outcome.
-        AppUtil.localArchive(true);
         preClosePanel();
-        AppUtil.localArchive(false);
 
         return true;
     } // end saveAs

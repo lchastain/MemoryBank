@@ -34,18 +34,24 @@ Reviewing
     human-readable format of dates (in order of oldest to newest).
     If there are fewer than 15 existing archives, the pane will start with some useful information and if
       there are none at all then there will be a prompt to use the main menu to create one.
-  A click on one of the archive dates will bring up a new window.
+  A double-click on one of the archive dates will bring up a new window (or, a single-click and then menu Archive/View).
   The new window will be non-modal, with a component panel that looks and (mostly) acts like an AppTreePanel but it
-    will be a different class (ArchiveTreePanel ?) with a separate, isolated tree comprised of archive content.
-      It will respond to clicks on the tree but NO changes allowed in any selected notegroup
+    will be a different class (ArchiveTreePanel) with a separate, isolated tree comprised of archive content.
+      It will respond to clicks on the tree but NO changes allowed in any selected notegroup - all will be non-editable.
       No Menubar on the new window - only the top-right 'X' will be used, to close the window.
-      No keepers, so saving of any referenced data
+      No keepers, no saving of any referenced data
       No 'Archives' on this tree
       In the archived Upcoming Events, Future Events that are now past - do not age off
-      Alterbuttons on CalendarNoteGroups go from current view to the next available data in the chosen direction.
-        No 'future' from the archive onward; only backward but after they do, can go forward again as long as the
-          archive date is not surpassed.
-        If no data in a direction, it refuses to move further (possibly with a (one-time-only?) popup message about that).
+  CalendarNoteGroups for Archives will automatically be in 'review' mode.  This means that they go from their
+    current view to the next available data in the chosen direction, possibly skipping one or several 'empty'
+    panels where there was no data for the given date.
+    Initial date of these groups will be the date of the archive, and they will only be able to go earlier; no
+      'future' from the archive date forward; only backward.  After they go backward, can go forward again as long
+      as the archive date is not surpassed.
+    If no further data in a given direction, the date will advance anyway (by one increment) but of course will
+      only show an empty panel.
+
+
 
   Review Panels for all Calendar-type Notes can go from data-only dates, do not show empty date-data.  This is
     a wishlist/SCR00022 item.  Possibly different alterbuttons - without the larger jumps?
@@ -53,13 +59,12 @@ Reviewing
     Should 'review mode' still be non-editable like it is during an archive review, if used with the main app and not
       an archive?  I believe no, because most main app activities are not read-only.  Turning it on or off would be a
       simple menu item click, and the viewed date would not change, so editability should not also toggle along with
-      review mode; that should be a function of yes-or-no archive reviewing.
+      review mode; editability should only be a function of yes-or-no archive reviewing.
 
 Deleting
   This is done with a Menu item that will act on the currently active archive.  If no active archive, then no Menu.
-  Closing like we do with the expandable branches - not needed because Archives not expandable.
-  Closes the window (if open), removes the repo, and adjustments are made to the 'Archive/Archives' text, or it is
-    just removed altogether.
+  Closing like we do with the expandable branches - not needed because the Archives leaf is not expandable.
+  Closes the window(s) (if open), removes the repo, and refreshes the Archives list.
 
 
 

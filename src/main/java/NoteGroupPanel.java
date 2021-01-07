@@ -862,7 +862,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // that do, all do the same things.  If this ever branches out into different
     // actions and/or menu items then they can override this and/or adjustMenuItems.
     void setListMenu(JMenu listMenu) {
-        MemoryBank.debug("TreeLeaf.setListMenu: " + listMenu.getText());
+        MemoryBank.debug("NoteGroupPanel.setListMenu: " + listMenu.getText());
         myListMenu = listMenu;
         adjustMenuItems(myNoteGroup.groupChanged); // set enabled state for 'undo' and 'save'.
     }

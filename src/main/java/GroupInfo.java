@@ -151,15 +151,15 @@ class GroupInfo {
 
 
     boolean exists() {
-        NoteGroupDataAccessor noteGroupDataAccessor = MemoryBank.appDataAccessor.getNoteGroupDataAccessor(this);
+        NoteGroupDataAccessor noteGroupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(this);
         return noteGroupDataAccessor.exists();
     }
 
 
     String getArchiveStorageName() {
         if(archiveName == null) return null;
-        AppDataAccessor appDataAccessor = MemoryBank.appDataAccessor;
-        return appDataAccessor.getArchiveStorageName(archiveName);
+        DataAccessor dataAccessor = MemoryBank.dataAccessor;
+        return dataAccessor.getArchiveStorageName(archiveName);
     }
 
 

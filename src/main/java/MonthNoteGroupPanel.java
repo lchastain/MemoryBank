@@ -70,9 +70,9 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
         // to be true but if none are then we just ignore the action.
         switch (s) {
             case "Y-":
-                setDateType(ChronoUnit.YEARS);
+                setDateDelta(ChronoUnit.YEARS);
                 setOneBack();
-                setDateType(ChronoUnit.MONTHS);
+                setDateDelta(ChronoUnit.MONTHS);
                 break;
             case "-":
                 setOneBack();
@@ -84,15 +84,16 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
                 //   there would be no active selection on the Tree.  This is in alignment with the
                 //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
                 //   which DOES affect theChoice.
-                setDate(LocalDate.now());
+                if(archiveDate != null) setDate(archiveDate);
+                else setDate(LocalDate.now());
                 break;
             case "+":
                 setOneForward();
                 break;
             case "Y+":
-                setDateType(ChronoUnit.YEARS);
+                setDateDelta(ChronoUnit.YEARS);
                 setOneForward();
-                setDateType(ChronoUnit.MONTHS);
+                setDateDelta(ChronoUnit.MONTHS);
                 break;
         }
         updateGroup();
