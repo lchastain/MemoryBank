@@ -9,7 +9,6 @@ Priorities:
 
 
 Current/Next:
-        MonthView cannot go to both places - the first one 'wins' and the others go small.  Very cross-threaded.
 
 Issues, Ideas, Analyses, Problems:
         New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
@@ -33,14 +32,22 @@ Issues, Ideas, Analyses, Problems:
 
 New:
 
+8 Jan 2020
+    Worked in ArchiveTreePanel to allow YearView and MonthView transitions to Day (and from YearView to MonthView
+      and handling the 'T' navigation on the Views when the panel is invoked from an archive.
+    All transitons use the same date-checks as the prev/next changes, for archives.  Attempts to navigate past the
+      archive date will result in a date selection of the date of the archive.
 
 
 
 =====================================================================================================
 7 Jan 2020
   Finished up with the next/prev data file methodology; it came out pretty clean, after the initial slow start.
-  Happy with the end result, both for normal (editable) ops and for Archive viewing.  Will check in and pub.
-  Next:  unsure; need some burn-in time.  May add a test, as part of that.  And there is the MonthView problem(s).
+    Happy with the end result, both for normal (editable) ops and for Archive viewing.  Will check in and pub.
+  Next:  need some burn-in time.  May add a test, as part of that.  And there is the MonthView problem(s).
+  Fixed the issues with some static components in the MonthView; now there can be multiple instances of a MonthView.
+  Added a new interface class, to allow ArchiveTreePanel to track a selected vs viewed date the same way as is done
+    in the main app panel, to affect the 5 panels that show date-related info.  Needs more work in ArchiveTreePanel.
 
 6 Jan 2020
   Starting view date for CNG panels viewed via archive is the date of the archive, not current date.  This covers

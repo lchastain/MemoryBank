@@ -31,7 +31,7 @@ public class YearView extends JPanel {
     private final JPanel yearPanel;
     private int theYear;            // numerous
     static DateTimeFormatter dtf;
-    private AppTreePanel appTreePanel = null;  // see 'setParent' - not all usages are for the 'real' AppTreePanel.
+    private TreePanel treePanel = null;  // see 'setParent' - not all usages are for a 'real' TreePanel.
     private static final Color hasDataColor = Color.blue;
     private static final Color noDataColor = Color.black;
     private static final Font hasDataFont = Font.decode("Dialog-bold-16");
@@ -42,6 +42,7 @@ public class YearView extends JPanel {
     private int intSelectionCount;
     private boolean alterButtonDepressed;
     private Depressed depressedThread;   // A Thread to keep responding to year up/down
+    private LocalDate archiveDate;
 
     private static final int borderWidth = 2;
     private static final LineBorder theBorder;
@@ -284,10 +285,14 @@ public class YearView extends JPanel {
                 if(intNumSelections > 0) {
                     // This is both a view-change and a selection.
                     setChoice(LocalDate.now());
-                    if(appTreePanel != null) appTreePanel.setSelectedDate(theChoice);
+                    if(treePanel != null) treePanel.setSelectedDate(theChoice);
                 } else {
                     // This is a view-change only.
-                    theYear = LocalDate.now().getYear();
+                    if(archiveDate == null) {
+                        theYear = LocalDate.now().getYear();
+                    } else {
+                        theYear = archiveDate.getYear();
+                    }
                     recalc(theYear);
                 }
             }
@@ -303,8 +308,8 @@ public class YearView extends JPanel {
         // Update the Year info
         titleLabel.setText("Year " + theYear);
         yearTextField.setText(String.valueOf(theYear));
-        if(appTreePanel != null) {
-            appTreePanel.setViewedDate(theYear);
+        if(treePanel != null) {
+            treePanel.setViewedDate(theYear);
         }
 
         // Look for new day data, for color/font setting.
@@ -322,8 +327,20 @@ public class YearView extends JPanel {
         } else {
             choiceLabel.setText(dtf.format(theChoice) + " ");
         }
-        todayButton.setEnabled(!(year == LocalDate.now().getYear()));
+        if(archiveDate == null) {
+            todayButton.setEnabled(!(year == LocalDate.now().getYear()));
+        } else {
+            todayButton.setEnabled(!(year == archiveDate.getYear()));
+        }
     } // end recalc
+
+
+    void setArchiveDate(LocalDate theArchiveDate) {
+        archiveDate = theArchiveDate;
+        setChoice(theArchiveDate); // To get the right choiceLabel
+        setView(theArchiveDate); // To show the right Year
+    }
+
 
     public void setChoice(LocalDate theNewChoice) {
         // This must be done at a higher level than MonthCanvas recalc (where it may be turned back on) because
@@ -346,8 +363,8 @@ public class YearView extends JPanel {
         intNumSelections = numSelections;
     } // end setDialog
 
-    void setParent(AppTreePanel atp) {
-        appTreePanel = atp;
+    void setParent(TreePanel atp) {
+        treePanel = atp;
     }
 
     void setView(LocalDate viewDate) {
@@ -381,10 +398,11 @@ public class YearView extends JPanel {
             tempLabel.setOpaque(true);
             tempLabel.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
-                    if (appTreePanel == null) return;
+                    if (treePanel == null) return;
                     myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
-                    appTreePanel.setViewedDate(myDate, ChronoUnit.MONTHS);
-                    appTreePanel.showMonthView();
+                    if(archiveDate != null && myDate.isAfter(archiveDate)) myDate = archiveDate;
+                    treePanel.setViewedDate(myDate, ChronoUnit.MONTHS);
+                    treePanel.showMonthView();
                 } // end mousePressed
             });//end addMouseListener
             monthHeader.add(tempLabel);
@@ -399,9 +417,9 @@ public class YearView extends JPanel {
                 tempLabel.setBackground(Color.gray);
                 tempLabel.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
-                        if (appTreePanel == null) return;
+                        if (treePanel == null) return;
                         myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
-                        appTreePanel.showWeek(myDate);
+                        treePanel.showWeek(myDate);
                     } // end mousePressed
                 });//end addMouseListener
                 weekdayNameHeader.add(tempLabel);
@@ -592,9 +610,15 @@ public class YearView extends JPanel {
                     return;
                 } // end if this is a dialog
 
-                if (appTreePanel == null) return;
-                appTreePanel.setSelectedDate(theChoice);
-                if (e.getClickCount() == 2) appTreePanel.showDay();
+                if (treePanel == null) return;
+                treePanel.setSelectedDate(theChoice);
+                if (e.getClickCount() == 2) {
+                    if(archiveDate != null && theChoice.isAfter(archiveDate)) {
+                        theChoice = archiveDate;
+                        treePanel.setSelectedDate(theChoice);
+                    }
+                    treePanel.showDay();
+                }
             } // end if/else
         } // end mousePressed
 

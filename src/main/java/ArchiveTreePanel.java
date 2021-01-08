@@ -28,7 +28,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 
-public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
+public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     private static final Logger log = LoggerFactory.getLogger(ArchiveTreePanel.class);
 
@@ -62,6 +62,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
 
     // Predefined Tree Paths to 'leaf' nodes.
     TreePath dayNotesPath;
+    private TreePath weekViewPath;
     TreePath monthNotesPath;
     TreePath yearNotesPath;
     TreePath yearViewPath;
@@ -278,6 +279,7 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
 
         leaf = new DefaultMutableTreeNode("Week View");
         branch.add(leaf);
+        weekViewPath = new TreePath(pathToRoot);
         //---------------------------------------------------
 
         //---------------------------------------------------
@@ -354,6 +356,19 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
     } // end createTree
 
 
+    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+        viewedDate = theNewDate;
+        viewedDateGranularity = theGranularity;
+    }
+
+    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+        viewedDate = theNewDate;
+        viewedDateGranularity = theGranularity;
+    }
+
+
     // Make a Consolidated View group from all the currently selected Event Groups.
     @SuppressWarnings({"rawtypes"})
     private EventNoteGroupPanel getConsolidatedView() {
@@ -423,25 +438,29 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
     } // end resetTreeState
 
 
-    void setSelectedDate(LocalDate theSelection) {
+    @Override
+    public void setSelectedDate(LocalDate theSelection) {
         selectedDate = theSelection;
         viewedDate = theSelection;
         viewedDateGranularity = ChronoUnit.DAYS;
     }
 
-    void setViewedDate(int theYear) {
+    @Override
+    public  void setViewedDate(int theYear) {
         viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
         viewedDateGranularity = ChronoUnit.YEARS;
     }
 
-    void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
+    @Override
+    public void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
         viewedDate = theViewedDate;
         viewedDateGranularity = theGranularity;
     }
 
 
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
-    void showDay() {
+    @Override
+    public void showDay() {
         MemoryBank.debug("showDay called.");
         theTree.setSelectionPath(dayNotesPath);
     } // end showDay
@@ -475,6 +494,31 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
             MemoryBank.debug(ioe.getMessage());
         } // end try/catch
     } // end showHelp
+
+
+    // Called from YearView - a click on a Month name
+    @Override
+    public void showMonthView() {
+        MemoryBank.debug("showMonthView called.");
+        theTree.setSelectionPath(monthViewPath);
+    } // end showMonthView
+
+
+    @Override
+    public void showWeek(LocalDate theWeekToShow) {
+        MemoryBank.debug("showWeek called.");
+        // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
+        // There IS not actually a view to show, here.  The rightPane is
+        // just loaded with the text, 'Week View'.  Therefore when this node is selected directly
+        // on the tree, it does not come here but just shows the text of the request that it does
+        // not know how to handle.
+
+        //viewedDate = theMonthToShow; // NOT NEEDED until we have a week view to show.
+        //viewedDateGranularity = ChronoUnit.WEEKS;
+        // At that time you will also need to add handling to the selection changed area.
+
+        theTree.setSelectionPath(weekViewPath);
+    } // end showWeek
 
 
     // This method will either show or hide a small modal
@@ -677,7 +721,8 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
         } else if (theNodeString.equals("Year View")) {
             if (theYearView == null) {
                 theYearView = new YearView(viewedDate);
-//                theYearView.setParent(this);
+                theYearView.setArchiveDate(theArchiveDate);
+                theYearView.setParent(this);
             } else {
                 theYearView.setChoice(selectedDate); // To get the right choiceLabel
                 theYearView.setView(viewedDate); // To show the right Year
@@ -702,8 +747,8 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
                 // This results in a one-time-only double 'set' of the day but is needed so that the various
                 // DayCanvases are ready to properly show icons.  (This appears to also prevent the problem
                 // from appearing in the final (empty) DayCanvases of the MonthCanvas grid (not sure why).
-                theMonthView.setChoice(selectedDate); // This sets the 'choice' label and day highlight, if appropriate.
-//                theMonthView.setParent(this);
+                theMonthView.setArchiveDate(theArchiveDate);
+                theMonthView.setParent(this);
             } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
                 theMonthView.setChoice(selectedDate);
             }
@@ -727,18 +772,34 @@ public class ArchiveTreePanel extends JPanel implements TreeSelectionListener {
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroupPanel();
                 theAppDays.setArchiveDate(theArchiveDate);
+                theAppDays.setAlteredDateListener(this); // unlike the one in AppTreePanel, this does not ever change.
+            } else {
+                theAppDays.setDate(selectedDate);
+                setViewedDate(selectedDate, ChronoUnit.DAYS);
             }
             rightPane.setViewportView(theAppDays.theBasePanel);
         } else if (theNodeString.equals("Month Notes")) {
+            if (viewedDateGranularity == ChronoUnit.YEARS) {
+                viewedDate = selectedDate;
+            }
+            viewedDateGranularity = ChronoUnit.MONTHS;
+
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
                 theAppMonths.setArchiveDate(theArchiveDate);
+                theAppMonths.setAlteredDateListener(this); // unlike the one in AppTreePanel, this does not ever change.
+            } else {
+                theAppMonths.setDate(viewedDate);
             }
             rightPane.setViewportView(theAppMonths.theBasePanel);
         } else if (theNodeString.equals("Year Notes")) {
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroupPanel();
                 theAppYears.setArchiveDate(theArchiveDate);
+                theAppYears.setAlteredDateListener(this); // unlike the one in AppTreePanel, this does not ever change.
+            } else {
+                viewedDateGranularity = ChronoUnit.YEARS;
+                theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
             }
             rightPane.setViewportView(theAppYears.theBasePanel);
         } else {

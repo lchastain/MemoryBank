@@ -31,7 +31,7 @@ import java.util.*;
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 
-public class AppTreePanel extends JPanel implements TreeSelectionListener, AlteredDateListener {
+public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
     static AppMenuBar appMenuBar;
@@ -1221,18 +1221,21 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
         } // end for
     }// end searchDataFile
 
-    void setSelectedDate(LocalDate theSelection) {
+    @Override
+    public void setSelectedDate(LocalDate theSelection) {
         selectedDate = theSelection;
         viewedDate = theSelection;
         viewedDateGranularity = ChronoUnit.DAYS;
     }
 
-    void setViewedDate(int theYear) {
+    @Override
+    public void setViewedDate(int theYear) {
         viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
         viewedDateGranularity = ChronoUnit.YEARS;
     }
 
-    void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
+    @Override
+    public void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
         viewedDate = theViewedDate;
         viewedDateGranularity = theGranularity;
     }
@@ -1414,7 +1417,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
 
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
-    void showDay() {
+    @Override
+    public void showDay() {
         MemoryBank.debug("showDay called.");
         theTree.setSelectionPath(dayNotesPath);
     } // end showDay
@@ -1495,7 +1499,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
 
     // Called from YearView - a click on a Month name
-    void showMonthView() {
+    @Override
+    public void showMonthView() {
         MemoryBank.debug("showMonthView called.");
         theTree.setSelectionPath(monthViewPath);
     } // end showMonthView
@@ -1576,7 +1581,8 @@ public class AppTreePanel extends JPanel implements TreeSelectionListener, Alter
 
     } // end showToday
 
-    void showWeek(LocalDate theMonthToShow) {
+    @Override
+    public void showWeek(LocalDate theWeekToShow) {
         MemoryBank.debug("showWeek called.");
         // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
         // There IS not actually a view to show, here.  The rightPane is

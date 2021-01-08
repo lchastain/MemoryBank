@@ -18,33 +18,32 @@ public class MonthView extends JLayeredPane {
     private static final long serialVersionUID = -1L;
     // As a container, this class has only two items:
     //   a MonthCanvas (this one is quite complex) and a JLabel (shows the current date selection).
-    //
     //   Because the container has no layout manager, the Bounds
     //   of both items must be set explicitly.
 
     // No need to have more than one of the vars below (so static),
     // but need them to be visible to more than one method here.
-    private static final String[] dayNames;
-    private static final JPanel monthGrid;
-    static DateTimeFormatter dtf;
     private static LocalDate theChoice;
     private static final Color hasDataColor = Color.blue;
     private static final Color noDataColor = Color.black;
     private static final Font hasDataFont = Font.decode("Dialog-bold-20");
     private static final Font noDataFont = Font.decode("Dialog-bold-16");
-    static LocalDate displayedMonth;  // Of course it also holds a year and date
 
     // Variables needed by more than one method -
+    static DateTimeFormatter dtf;
+    static LocalDate displayedMonth;  // Of course it also holds a year and date
     private DayCanvas activeDayCanvas;   // recalc, event handling
     private final MonthCanvas monthCanvas;
     private final JLabel choiceLabel;
     private final int heightOffset = 0;
-    private AppTreePanel appTreePanel = null;
+    private TreePanel treePanel = null;
     private boolean[][] hasDataArray;  // for a year.  index 0 = month, index 1 = days, values have data True or False
     private final Dimension minSize;
-
     private static final int borderWidth = 2;
     private static final LineBorder theBorder;
+    private final String[] dayNames;
+    private final JPanel monthGrid;
+    private LocalDate archiveDate;
 
     // Directly accessed by Tests  // TODO - but not yet.  Needed for mouseListener tests, like already seen for YearView.
     LabelButton yearMinus;
@@ -55,13 +54,6 @@ public class MonthView extends JLayeredPane {
 
     static {
         theBorder = new LineBorder(Color.black, borderWidth);
-
-        // Initialize day of week names.
-        dayNames = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday",
-                "Thursday", "Friday", "Saturday"};
-
-        // Create a grid for the days (6 rows, 7 columns).
-        monthGrid = new JPanel(new GridLayout(6, dayNames.length));
 
         dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         theChoice = null;
@@ -74,6 +66,13 @@ public class MonthView extends JLayeredPane {
     MonthView(LocalDate initialChoice) {
         displayedMonth = initialChoice;
         theChoice = initialChoice;
+
+        // Initialize day of week names.
+        dayNames = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday"};
+
+        // Create a grid for the days (6 rows, 7 columns).
+        monthGrid = new JPanel(new GridLayout(6, dayNames.length));
 
         minSize = new Dimension(480, 200);  // 450
         // The values of minSize were derived simply by T&E.
@@ -183,7 +182,7 @@ public class MonthView extends JLayeredPane {
                     // the MonthView is displayed but other .gif files displayed ok with only this:
                     //          returnArray[index] = new AppIcon(iconFileString).getImage();
                     // And - other file types may react differently.  This flush is needed in conjuction with a double
-                    //   load of the initial month to be shown; that is done in AppTreePanel.treeSelectionChanged().
+                    //   load of the initial month to be shown; that is done in treePanel.treeSelectionChanged().
                     returnArray[index] = theImage;
                 } // end if
 
@@ -238,6 +237,12 @@ public class MonthView extends JLayeredPane {
     }
 
 
+    void setArchiveDate(LocalDate theArchiveDate) {
+        archiveDate = theArchiveDate;
+        setChoice(theArchiveDate); // This sets the 'choice' label and day highlight, if appropriate.
+    }
+
+
     public void setChoice(LocalDate theNewChoice) {
         // Was tempted (for better performance) to avoid the recalc at the end, if the new choice was still on the same
         // month as the previous choice, but that doesn't work here - while 'away', new notes (with icons) might have
@@ -287,8 +292,8 @@ public class MonthView extends JLayeredPane {
         choiceLabel.setBounds(x, y, width, height);
     } // end setLabelBounds
 
-    void setParent(AppTreePanel atp) {
-        appTreePanel = atp;
+    void setParent(TreePanel atp) {
+        treePanel = atp;
     }
 
     //--------------------------------------------------
@@ -317,10 +322,16 @@ public class MonthView extends JLayeredPane {
 
                     if (buttonText.equals("Y-")) displayedMonth = displayedMonth.minusMonths(12);
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
-                    if (buttonText.equals("T")) displayedMonth = LocalDate.now();
+                    if (buttonText.equals("T")) {
+                        if(archiveDate == null) {
+                            displayedMonth = LocalDate.now();
+                        } else {
+                            displayedMonth = archiveDate;
+                        }
+                    }
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
                     if (buttonText.equals("Y+")) displayedMonth = displayedMonth.plusMonths(12);
-                    if(appTreePanel != null) appTreePanel.setViewedDate(displayedMonth, ChronoUnit.MONTHS);
+                    if(treePanel != null) treePanel.setViewedDate(displayedMonth, ChronoUnit.MONTHS);
 
                     // If we have scrolled into a new year, we need to update the 'hasData' info.
                     if (currentYear != displayedMonth.getYear()) {
@@ -375,10 +386,10 @@ public class MonthView extends JLayeredPane {
                 l = new JLabel(dayName, JLabel.CENTER);
                 l.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
-                        if (appTreePanel == null) return;
+                        if (treePanel == null) return;
                         // When WeekView is implemented, redo this similarly to how MonthView does.
                         // for now, showWeek is dateless.
-                        appTreePanel.showWeek(LocalDate.now());
+                        treePanel.showWeek(LocalDate.now());
                     } // end mousePressed
                 });//end addMouseListener
                 l.setForeground(Color.white);
@@ -451,7 +462,12 @@ public class MonthView extends JLayeredPane {
                 // If this is true then we went into next month.
                 if (displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
 
-                todayButton.setEnabled(!(displayedMonth.equals(LocalDate.now())));
+                if(archiveDate == null) {
+                    todayButton.setEnabled(!(displayedMonth.equals(LocalDate.now())));
+                } else {
+                    todayButton.setEnabled(!(displayedMonth.equals(archiveDate)));
+                }
+
             } // end for i
         } // end recalc
     } // end class MonthCanvas
@@ -553,14 +569,20 @@ public class MonthView extends JLayeredPane {
 
         public void mousePressed(MouseEvent e) {
             theChoice = myDate;
-            if(appTreePanel != null) {
-                appTreePanel.setSelectedDate(theChoice);
+            if(treePanel != null) {
+                treePanel.setSelectedDate(theChoice);
             }
             activeDayCanvas.reset();
             highlight();
             activeDayCanvas = this;
-            if (appTreePanel == null) return;
-            if (e.getClickCount() == 2) appTreePanel.showDay();
+            if (treePanel == null) return;
+            if (e.getClickCount() == 2) {
+                if (archiveDate != null && theChoice.isAfter(archiveDate)) {
+                    theChoice = archiveDate;
+                    treePanel.setSelectedDate(theChoice);
+                }
+                treePanel.showDay();
+            }
         } // end mousePressed
 
         public void mouseReleased(MouseEvent e) {
