@@ -11,15 +11,11 @@ Priorities:
 Current/Next:
 
 Issues, Ideas, Analyses, Problems:
-        New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
-          after the fact).  How to dovetail with Goals?  When it used to be a Goal?
-        Numbered list - but is there any need to be different than a Todo?  If it becomes a separate list type, can
-          consider removing the ability to rename 'Priority'
-        Past Events -
-            Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
-            or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
-        SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
-            But it IS ready, activated from the title label.  Make it work from here, too.
+    New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
+      after the fact).  How to dovetail with Goals?  When it used to be a Goal?
+    Past Events -
+        Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
+        or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
 
 New:
 
@@ -33,14 +29,17 @@ New:
         to the last Search Result that was viewed in the main tree, if any.  The archive tree properly continues
         to show the Search Results throughout, so the menu item on the other tree is superfluous and should
         never appear.  Thought is needed here to decide what behavior in each case is really desired.
-            I do like the view happening on the main app, but menu management needs tweaking.  But
-            could also just constrain the view from an archive, TO the archive, but without a 'Go Back'.
+            I do like the view happening on the main app, but menu management becomes too problematic.
+            Could also just constrain the view from an archive, TO the archive, but without a 'Go Back'.
                 (unless you want to 'listen' to the backspace?)
     OK - fixed all that, by constraining 'Found In' to only affect the TreePanel that it comes from.  In the case
       of the archives it is true that there is no 'Go Back', but the need for that seems like an edge case that
       can be overlooked, for now.  Not going to listen for the backspace; it would not be user-intuitive even if
       it could be implemented.  Users who look at 'Found In' from archived search results will just have to find
-      their own way back to the last active node on the archive tree.
+      their own way back to the last active node on the archive tree, or choose a new one or just close the archive.
+    SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
+        But it IS ready, activated from the title label.  Make it work from here, too.
+        Did that.  Now handling the Search Results 'Review...' menu option, works same as the Title mouse click.
 
 8 Jan 2021
     Worked in ArchiveTreePanel to allow YearView and MonthView transitions to Day (and from YearView to MonthView

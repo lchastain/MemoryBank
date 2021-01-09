@@ -895,7 +895,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
         else if (what.equals("Remove")) doRemoveArchive();
-        else if (what.equals("Review...")) System.out.println("Review was selected.  It aint reddy yet."); // SCR00084
+        else if (what.equals("Review...")) ((SearchResultGroupPanel) theNoteGroupPanel).doReview();
         else if (what.equals("Save")) theNoteGroupPanel.refresh();
         else if (what.startsWith("Save As")) saveGroupAs();
         else if (what.equals("Undo Delete")) {
