@@ -40,6 +40,10 @@ New:
     SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
         But it IS ready, activated from the title label.  Make it work from here, too.
         Did that.  Now handling the Search Results 'Review...' menu option, works same as the Title mouse click.
+    New issue: Placement of tooltips - now too high.  What happened?
+      Researched this and the answer is: nothing happened; the placement was geared towards todo lists, and I saw
+      this problem on DayNotes.  So DayNotes are taller, and need a different placement.  Fixed it so that now, the
+      placement method will 'ask' the invoking component for the size to be used.
 
 8 Jan 2021
     Worked in ArchiveTreePanel to allow YearView and MonthView transitions to Day (and from YearView to MonthView

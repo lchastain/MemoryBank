@@ -476,15 +476,24 @@ public class NoteComponent extends JPanel {
             return d;
         } // end getPreferredSize
 
-        // This provides a constant location for the tooltip, so that the
-        // extended note editor (if/when it pops up) will cover it entirely.
-        // But also - just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
+        // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
+        //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
         //   move the pointer into the tooltip text area, and that causes the tooltip to go away.
-        // Important:  If font sizes change then this behavior may break.  Probably not
-        //    hardened in the face of different L&Fs; optimized for Windows Classic.
+        // Important:  Probably not hardened in the face of different L&Fs; optimized for Windows Classic.
+        // Also: a 'fast' mouse move from within the bounds of the NoteComponent into the popped-up tooltip
+        //    can evade the mouseExited event as the cursor crosses the 6-pixel gap, in which case the
+        //    tooltip stays up much longer.  But we can live with that.
         @Override
         public Point getToolTipLocation(MouseEvent e) {
-            return new Point(10, 30);
+            int offsetY = 30; // Good enough for most components.
+            Object object = e.getSource();
+            try {
+                JComponent component = (JComponent) object;
+                //Rectangle rectangle = component.getBounds();
+                offsetY = component.getBounds().height + 6;
+            } catch (Exception ignore){}
+
+            return new Point(10, offsetY);
         }
 
 
