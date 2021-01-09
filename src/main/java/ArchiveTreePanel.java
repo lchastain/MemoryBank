@@ -470,17 +470,15 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     // of the group when the data was found, so the note(s) in this group that met the search criteria may not still
     // be here or may not still meet that criteria.  And it is possible that the
     // group itself has gone away.  If the group cannot be shown then nothing happens.
-    void showFoundIn(SearchResultData srd) {
+    @Override
+    public void showFoundIn(SearchResultData srd) {
         if(srd.foundIn == null) return;
         NoteGroupPanel thePanel = srd.foundIn.getNoteGroupPanel();
         thePanel.setEditable(false);
 
-        // Preserve the selection path, for 'goBack'
-        // set GoBack to visible
-        // if goback, set goback to not visible
-
+        // Whatever view we are about to switch to - is 'disconnected' from the tree, so clear tree selection.
         theTree.clearSelection();
-//        appMenuBar.manageMenus("Viewing FoundIn");
+
         rightPane.setViewportView(thePanel.theBasePanel);
     }
 
@@ -698,6 +696,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
                 // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
                 // then we don't want one at all.
                 searchResultGroupPanel = new SearchResultGroupPanel(groupInfo);
+                searchResultGroupPanel.treePanel = this;
             }
 
             showWorkingDialog(false);

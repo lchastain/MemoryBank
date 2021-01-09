@@ -35,6 +35,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Container for a paging control
     NotePager theNotePager;
 
+    TreePanel treePanel; // Optional pointer back to the tree selection panel (main, or an archive)
+    // Currently only used by SearchResultComponent 'Found In' button handler, set after construction of SRG panels.
+
     // Private members
     private int intHighestNoteComponentIndex;
     private JScrollPane jsp;

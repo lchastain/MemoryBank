@@ -50,6 +50,8 @@ Reviewing
       as the archive date is not surpassed.
     If no further data in a given direction, the date will advance anyway (by one increment) but of course will
       only show an empty panel.
+  Search Results - No difference for the main panel, but without a menu bar.  The 'Found In' link will still work
+    but in that case there is no 'Go Back' option.
 
 
 

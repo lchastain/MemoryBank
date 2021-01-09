@@ -1469,7 +1469,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // of the group when the data was found, so the note(s) in this group that met the search criteria may not still
     // be here or may not still meet that criteria.  And it is possible that the
     // group itself has gone away.  If the group cannot be shown then nothing happens.
-    void showFoundIn(SearchResultData srd) {
+    @Override
+    public void showFoundIn(SearchResultData srd) {
         if(srd.foundIn == null) return;
         NoteGroupPanel thePanel = srd.foundIn.getNoteGroupPanel();
         thePanel.setEditable(false);
@@ -1910,6 +1911,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 closeGroup(); // File is already gone; this just removes the tree node.
             } else {
                 theNoteGroupPanel = searchResultGroupPanel;
+                searchResultGroupPanel.treePanel = this;
                 rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
             } // end if
         } else if (theNodeString.equals("Year View")) {

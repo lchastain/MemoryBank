@@ -11,6 +11,8 @@ public interface TreePanel {
 
     void showDay();
 
+    void showFoundIn(SearchResultData searchResultData);
+
     void showWeek(LocalDate theWeekToShow);
 
     void showMonthView();

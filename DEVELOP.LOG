@@ -20,28 +20,35 @@ Issues, Ideas, Analyses, Problems:
             or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
         SearchResults menu item:  Review - does not do anything, except say that it is not yet ready.
             But it IS ready, activated from the title label.  Make it work from here, too.
-        Viewing 'Found In' from archived Search Results - shows the NoteGroup back on the main AppTreePanel.  This
-            can be problematic when main tree selections occur after that and then a different Found In is invoked
-            on the archive, because the 'Go Back' menu item can be restored on the main tree.  It then 'goes back'
-            to the last Search Result that was viewed in the main tree, if any.  The archive tree properly continues
-            to show the Search Results throughout, so the menu item on the other tree is superfluous and should
-            never appear.  Thought is needed here to decide what behavior in each case is really desired.
-                I do like the view happening on the main app, but menu management needs tweaking.  But
-                could also just constrain the view from an archive, TO the archive, but without a 'Go Back'.
-                    (unless you want to 'listen' to the backspace?)
 
 New:
 
-8 Jan 2020
+
+
+=====================================================================================================
+9 Jan 2021
+    Viewing 'Found In' from archived Search Results - shows the NoteGroup back on the main AppTreePanel.  This
+        can be problematic when main tree selections occur after that and then a different Found In is invoked
+        on the archive, because the 'Go Back' menu item can be restored on the main tree.  It then 'goes back'
+        to the last Search Result that was viewed in the main tree, if any.  The archive tree properly continues
+        to show the Search Results throughout, so the menu item on the other tree is superfluous and should
+        never appear.  Thought is needed here to decide what behavior in each case is really desired.
+            I do like the view happening on the main app, but menu management needs tweaking.  But
+            could also just constrain the view from an archive, TO the archive, but without a 'Go Back'.
+                (unless you want to 'listen' to the backspace?)
+    OK - fixed all that, by constraining 'Found In' to only affect the TreePanel that it comes from.  In the case
+      of the archives it is true that there is no 'Go Back', but the need for that seems like an edge case that
+      can be overlooked, for now.  Not going to listen for the backspace; it would not be user-intuitive even if
+      it could be implemented.  Users who look at 'Found In' from archived search results will just have to find
+      their own way back to the last active node on the archive tree.
+
+8 Jan 2021
     Worked in ArchiveTreePanel to allow YearView and MonthView transitions to Day (and from YearView to MonthView
       and handling the 'T' navigation on the Views when the panel is invoked from an archive.
     All transitons use the same date-checks as the prev/next changes, for archives.  Attempts to navigate past the
       archive date will result in a date selection of the date of the archive.
 
-
-
-=====================================================================================================
-7 Jan 2020
+7 Jan 2021
   Finished up with the next/prev data file methodology; it came out pretty clean, after the initial slow start.
     Happy with the end result, both for normal (editable) ops and for Archive viewing.  Will check in and pub.
   Next:  need some burn-in time.  May add a test, as part of that.  And there is the MonthView problem(s).
@@ -49,7 +56,7 @@ New:
   Added a new interface class, to allow ArchiveTreePanel to track a selected vs viewed date the same way as is done
     in the main app panel, to affect the 5 panels that show date-related info.  Needs more work in ArchiveTreePanel.
 
-6 Jan 2020
+6 Jan 2021
   Starting view date for CNG panels viewed via archive is the date of the archive, not current date.  This covers
     the 'T' button, as well.
   Continuing work on SCR00022 - the algorithm for finding the next file with data is not nearly as easy as I stated
@@ -58,7 +65,7 @@ New:
     much simpler year-based filtering approach that only goes down one directory level and should be much faster when
     done.
 
-4 Jan 2020
+4 Jan 2021
   Now that archiving has taken shape and it is NOT just a flag in MemoryBank, have removed that flag and its usages.
     The 'saveAs' variant for Events now no longer keeps the original file; it was the only usage of this feature that
     was not just a placeholder; now works identically to the one in TodoNoteGroupPanel.
@@ -75,10 +82,10 @@ New:
     as an implementation of the 'getNextDateWithData' method of the NoteGroupDataAccessor interface (that I initially
     put into the higher-level interface, which led to this discussion).
 
-3 Jan 2020
+3 Jan 2021
   Added handling for closing open archives when the archive is deleted.
 
-2 Jan 2020
+2 Jan 2021
   The archive view of To Do Lists and Search Results is now done (with a leftover issue when viewing Found In).
   Tool tip display delay change is needed to be set sooner than in the NoteComponent constructor - move it.
     Did that - moved to MemoryBank.main, and this is also better because it only happens once for the entire app,

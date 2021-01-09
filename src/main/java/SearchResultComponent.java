@@ -242,10 +242,6 @@ public class SearchResultComponent extends NoteComponent {
             setText("");
         }
 
-//        public boolean isFocusPainted() {
-//            return false;
-//        }
-
         public boolean isFocusable() {
             return false;
         }
@@ -271,21 +267,19 @@ public class SearchResultComponent extends NoteComponent {
         //---------------------------------------------------------
         public void mouseClicked(MouseEvent e) {
             AppUtil.localDebug(true);
-            AppTreePanel.theInstance.showFoundIn(mySearchResultData);
+            myNoteGroup.treePanel.showFoundIn(mySearchResultData);
             AppUtil.localDebug(false);
         } // end mouseClicked
 
         public void mouseEntered(MouseEvent e) {
-            // System.out.println(e);
             if (!mySearchResultData.hasText()) return;
 
             String s;
-            s = "Click here to go to the editable original source";
+            s = "Click here to go to the original source";
             myNoteGroup.setStatusMessage(s);
         }
 
         public void mouseExited(MouseEvent e) {
-            // System.out.println(e);
             rightClicked = false;
             leftClicked = false;
             myNoteGroup.setStatusMessage(" ");
@@ -293,9 +287,6 @@ public class SearchResultComponent extends NoteComponent {
 
         public void mousePressed(MouseEvent e) {
             setActive();
-
-            // System.out.println(e);
-
             if (e.isMetaDown()) {
                 rightClicked = true;
                 leftClicked = false;
