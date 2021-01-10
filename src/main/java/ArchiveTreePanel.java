@@ -8,7 +8,6 @@
 // MenuBar events        - actionPerformed() --> handleMenuBar().
 // Tree Selection events - valueChanged() --> treeSelectionChanged() in a new thread.
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +21,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.UUID;
-import java.util.Vector;
 
 
 public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
@@ -367,51 +363,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         viewedDate = theNewDate;
         viewedDateGranularity = theGranularity;
     }
-
-
-    // Make a Consolidated View group from all the currently selected Event Groups.
-    @SuppressWarnings({"rawtypes"})
-    private EventNoteGroupPanel getConsolidatedView() {
-        // First, get all the nodes that are currently under Upcoming Events.
-        DefaultMutableTreeNode eventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
-        Enumeration e = eventsNode.breadthFirstEnumeration();
-        String theNodeName;
-        EventNoteGroupPanel theBigGroup = null;
-        Vector<NoteData> groupDataVector;
-        LinkedHashSet<NoteData> theUniqueSet = null;
-        while (e.hasMoreElements()) { // A bit of unintentional mis-direction, here.
-            // The first node that we get this way - is the expandable node itself - Upcoming Events.
-            DefaultMutableTreeNode eventNode = (DefaultMutableTreeNode) e.nextElement();
-            // So we don't actually use it.
-            if (theBigGroup == null) {
-                // Instead, we instantiate a new (empty) EventNoteGroup, that will be used to show scheduled events.
-                theBigGroup = new EventNoteGroupPanel("Scheduled Events");
-                theBigGroup.setEditable(false);
-                continue;
-            }
-            // Then we can look at merging any possible child nodes into the CV group.
-            theNodeName = eventNode.toString();
-            String theFilename = NoteGroupFile.makeFullFilename(DataArea.UPCOMING_EVENTS.getAreaName(), theNodeName);
-            MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
-            Object[] theData = NoteGroupFile.loadFileData(theFilename);
-            BaseData.loading = true; // We don't want to affect the lastModDates!
-            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
-            });
-            BaseData.loading = false; // Restore normal lastModDate updating.
-
-            if (theUniqueSet == null) {
-                theUniqueSet = new LinkedHashSet<>(groupDataVector);
-            } else {
-                theUniqueSet.addAll(groupDataVector);
-            }
-        }
-        if (theUniqueSet == null) return null;
-        groupDataVector = new Vector<>(theUniqueSet);
-        theBigGroup.setEditable(false);
-        theBigGroup.showGroupData(groupDataVector);
-        theBigGroup.doSort();
-        return theBigGroup;
-    } // end getConsolidatedView
 
 
     public JTree getTree() {

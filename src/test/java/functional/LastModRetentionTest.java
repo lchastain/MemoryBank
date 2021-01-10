@@ -62,7 +62,7 @@ class LastModRetentionTest {
     void testEventNoteGroupPanel() {
         // These two Strings came from the known persisted test data.
         String zdtLastModGroup = "2020-10-18T16:39:47.296+04:00[Europe/Samara]";
-        String zdtLastModNote = "2020-10-17T11:12:45.718+04:00[Europe/Samara]";
+        String zdtLastModNote = "2020-10-18T08:11:29.641+04:00[Europe/Samara]";
 
         // Load the Panel under test.
         EventNoteGroupPanel noteGroupPanel = new EventNoteGroupPanel("Reverse Links");

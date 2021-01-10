@@ -9,6 +9,7 @@ Priorities:
 
 
 Current/Next:
+    Burn-in, thinking about next task....
 
 Issues, Ideas, Analyses, Problems:
     New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
@@ -22,6 +23,14 @@ New:
 
 
 =====================================================================================================
+10 Jan 2021
+  From the app wishlist:  Event sorting by Start Date - not working.
+    But sometimes it does.  Needs research, probably a fix, and probably a Test.
+    Researched, and saw that it was only working IF events were also aged.  Simple fix was to move the sort
+      outside of the 'aged?' condition.  So - no additional testing, for now, but two existing tests needed updating
+      because they checked the dates of notes that were now moved, due to the sort.  The updated tests are therefore
+      also now testing the 'sort'.
+
 9 Jan 2021
     Viewing 'Found In' from archived Search Results - shows the NoteGroup back on the main AppTreePanel.  This
         can be problematic when main tree selections occur after that and then a different Found In is invoked

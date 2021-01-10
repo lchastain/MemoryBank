@@ -52,6 +52,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end static section
 
 
+    // Only Archived event groups come directly here.  Normal access comes via the other constructor,
+    //   which will age and sort.
     public EventNoteGroupPanel(GroupInfo groupInfo) {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
@@ -85,8 +87,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             // removed.  We show that by saving the altered data and then reloading it.
             preClosePanel();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
-            doSort();
         } // end if
+        doSort(); // needed whether events were aged off, or not.
     }// end constructor
 
 
@@ -229,16 +231,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end dateSelected
 
 
-    //---------------------------------------------------------
-    // Method Name: doSort
-    //
-    // Sorting is done ascending only, with unsortables
-    //   collected at the 'bottom' of the list.  Note that
-    //   preSort() is not needed; this method is only called
-    //   from refresh(), where a preClosePanel() is done, which
-    //   calls the saveGroup(), which calls unloadNotesPanel(),
-    //   which is what happens during a preSort().
-    //---------------------------------------------------------
+    // Sorting is done ascending only, with unsortables placed at the 'bottom' of the list.
     void doSort() {
         EventNoteData ndNoteData1, ndNoteData2;
         LocalDate d1, d2;
@@ -364,10 +357,10 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             // removed.  We show that by saving the altered data and then reloading it.
             preClosePanel();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
-            doSort();  // This action could change the current selection  -
-            showComponent(null, false); // so unselect, if not already.
         } // end if
 
+        doSort();  // This action could change the current selection  -
+        showComponent(null, false); // so unselect, if not already.
     } // end refresh
 
 
