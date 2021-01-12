@@ -267,7 +267,9 @@ public class SearchResultComponent extends NoteComponent {
         //---------------------------------------------------------
         public void mouseClicked(MouseEvent e) {
             AppUtil.localDebug(true);
-            myNoteGroup.treePanel.showFoundIn(mySearchResultData);
+            if(mySearchResultData.foundIn != null) {
+                myNoteGroup.treePanel.showFoundIn(mySearchResultData);
+            }
             AppUtil.localDebug(false);
         } // end mouseClicked
 
