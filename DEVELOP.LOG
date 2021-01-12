@@ -30,6 +30,19 @@ New:
     StringUtils in each area that is constructing GroupInfo instances, and also added bounding by File.separatorChar so
     that groups with their parent embedded in their name do not foul up the works.  The getGroupInfoFromFile method is
     now much more robust and reliable.
+  Problem with deleting Search Results from menu - view did not change, group not removed, etc.
+    Fixed this by moving the call to restore the listener.
+  Suspect that a deleted group remains in a keeper.  This can be a problem for renaming and other operations that
+    allow for cross-threading after this initial problem has occurred.  Hard to track down; need a new
+    viewer, of 'keepers', similar to the NoteGroup viewers.  Then can verify that groups get removed.  Add it.
+  Ok, did that, and used it to verify the problem.  Then fixed the problem by adding a reference to a Panel's keeper,
+    to the Panel.  It gets set when the group is added to the keeper, and unset when removed.  And now - deleteGroup
+    will use that reference to call 'remove', which takes it out of the keeper.  Problems solved, and now I have yet
+    another troubleshooting tool in my kit.
+
+11 Jan 2021
+    Reworked the wishlist.doc file with answers, updated remaining issues and removed the original as WAY obe.  The
+      current wishlist ToDo List and the SCRs will suffice.
 
 10 Jan 2021
   From the app wishlist:  Event sorting by Start Date - not working.

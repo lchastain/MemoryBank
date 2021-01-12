@@ -355,11 +355,16 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // Get the parent of the node to be removed -
         DefaultMutableTreeNode theParent = (DefaultMutableTreeNode) node.getParent();
 
-        // Remove this node from the tree but do not let the removal result in the need to
-        // process another tree selection event (the 'event' is selection being set to null).
+        // Do not let the impending removal result in the need to process another tree selection event.
+        //    (The 'event' is that the current selection is being set to null).
         theTree.removeTreeSelectionListener(this);
+
+        // Remove this node from the tree.
         if(theParent == null) node.removeFromParent(); // theParent can be null during testing...
         else theParent.remove(node); // but otherwise this is the better method to use.
+
+        // Restore the tree selection listening.
+        theTree.addTreeSelectionListener(this);
 
         // Redisplay the branch that had the removal (but not if it was the 'trunk')
         if(theParent != null && !theParent.toString().equals("App")) {
@@ -372,8 +377,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             updateTreeState(true); // Needed now, in case there is a new link target selection.
         }
 
-        // Restore the tree selection listening.
-        theTree.addTreeSelectionListener(this);
     } // end closeGroup
 
 
@@ -561,10 +564,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return newRoot;
     }
 
-    // Delete the data file for this group.
-    // This method is provided as a more direct route to file deletion than going thru
+    // Delete the data for this group.
+    // This method is provided as a more direct route to deletion than going thru
     // the BranchHelper.  This section of the code is similar to what is done there,
-    // except that we don't remove it from the DataGroupKeeper.  This will allow for
+    // except that we keep a reference to the deleted group.  This will allow for
     // an 'undo', if desired.
     private void deleteGroup() {
         // They get one warning..
@@ -577,6 +580,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         if (!doDelete) return;
 
         // Preserve the reference to the group to be deleted.
+        // This may be used if there is an 'undo' of the delete.
         deletedNoteGroupPanel = theNoteGroupPanel;
 
         // Now we need to close the group.
@@ -586,8 +590,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         deletedNoteGroupPanel.myNoteGroup.deleteNoteGroup();
 
         // Now make sure that the group will not be saved upon app exit.
-        // That could happen because it is still being held in its DataGroupKeeper.
+        // That could happen if it is still being held in its DataGroupKeeper.
+        // But that is unlikely, given that after this we will remove it from its keeper.
         deletedNoteGroupPanel.setGroupChanged(false);
+
+        // Now - remove it from its keeper.  This will avoid any rename collision if
+        // some other group takes this one's name after it was deleted but this group was
+        // still being held in a keeper.
+        theNoteGroupPanel.myKeeper.remove(theNoteGroupPanel.getGroupName());
 
         // And finally, give the user an 'undo' capability.  This will be a one-time,
         //   one file only option.  Upon deletion they will have gone back to the
@@ -889,6 +899,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         else if (what.equals("Review Mode")) toggleReview();
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
+        else if (what.equals("Show Keepers")) showKeepers();
         else if (what.equals("Delete")) deleteGroup();
         else if (what.equals("Search...")) doSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroupPanel) theNoteGroupPanel).setOptions();
@@ -1498,6 +1509,79 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         } // end try/catch
     } // end showHelp
 
+
+    void showKeepers() {
+        Object theMessage;
+        JScrollPane jScrollPane = new JScrollPane();
+        JTextArea jTextArea = new JTextArea();
+
+        String aLine;
+        int i;
+        ArrayList theNames;
+        int keptGoals = theGoalsKeeper.size();
+        int keptEvents = theEventListKeeper.size();
+        int keptTodoLists = theTodoListKeeper.size();
+        int keptSearches = theSearchResultsKeeper.size();
+
+        if(theAppDays != null) {
+            aLine = "theAppDays:  " + theAppDays.getGroupName();
+        } else {
+            aLine = "theAppDays: null";
+        }
+        jTextArea.append(aLine);
+
+        if(theAppMonths != null) {
+            aLine = "\ntheAppMonths:  " + theAppMonths.getGroupName();
+        } else {
+            aLine = "\ntheAppMonths: null";
+        }
+        jTextArea.append(aLine);
+
+        if(theAppYears != null) {
+            aLine = "\ntheAppYears:  " + theAppYears.getGroupName();
+        } else {
+            aLine = "\ntheAppYears: null";
+        }
+        jTextArea.append(aLine);
+        jTextArea.append("\n"); // Spacer
+
+        aLine = "\ntheGoalsKeeper: " + keptGoals + "\n";
+        jTextArea.append(aLine);
+        theNames = theGoalsKeeper.getNames();
+        for(Object anObject: theNames) {
+            aLine = "   " + anObject + "\n";
+            jTextArea.append(aLine);
+        }
+
+        aLine = "\ntheEventListKeeper: " + keptEvents + "\n";
+        jTextArea.append(aLine);
+        theNames = theEventListKeeper.getNames();
+        for(Object anObject: theNames) {
+            aLine = "   " + anObject + "\n";
+            jTextArea.append(aLine);
+        }
+
+        aLine = "\ntheTodoListKeeper: " + keptTodoLists + "\n";
+        jTextArea.append(aLine);
+        theNames = theTodoListKeeper.getNames();
+        for(Object anObject: theNames) {
+            aLine = "   " + anObject + "\n";
+            jTextArea.append(aLine);
+        }
+
+        aLine = "\ntheSearchResultsKeeper: " + keptSearches + "\n";
+        jTextArea.append(aLine);
+        theNames = theSearchResultsKeeper.getNames();
+        for(Object anObject: theNames) {
+            aLine = "   " + anObject + "\n";
+            jTextArea.append(aLine);
+        }
+
+        jScrollPane.setViewportView(jTextArea);
+        jScrollPane.setPreferredSize(new Dimension(600, 500));
+        theMessage = jScrollPane;
+        optionPane.showMessageDialog(this, theMessage, "Viewing Current NoteGroup", PLAIN_MESSAGE);
+    }
 
     // Called from YearView - a click on a Month name
     @Override

@@ -38,6 +38,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     TreePanel treePanel; // Optional pointer back to the tree selection panel (main, or an archive)
     // Currently only used by SearchResultComponent 'Found In' button handler, set after construction of SRG panels.
 
+    NoteGroupPanelKeeper myKeeper; // A pointer to this Panel's keeper, used during deleteGroup.
+
     // Private members
     private int intHighestNoteComponentIndex;
     private JScrollPane jsp;

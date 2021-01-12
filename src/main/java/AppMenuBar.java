@@ -32,6 +32,7 @@ public class AppMenuBar extends JMenuBar{
         fileMenu.add(new JMenuItem("Archive..."));
         fileMenu.add(new JMenuItem("Show Scheduled Events"));
         fileMenu.add(new JMenuItem("Show Current NoteGroup"));
+        fileMenu.add(new JMenuItem("Show Keepers"));
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Vector;
 
 /*
@@ -21,7 +22,10 @@ public class NoteGroupPanelKeeper {
         theNoteGroups = new Vector<>();
     }
 
-    public void add(NoteGroupPanel tng) { theNoteGroups.add(tng); }
+    public void add(NoteGroupPanel tng) {
+        theNoteGroups.add(tng);
+        tng.myKeeper = this;
+    }
 
     public NoteGroupPanel get(String aListName) {
         // Search the Vector for the list.
@@ -34,6 +38,14 @@ public class NoteGroupPanelKeeper {
         return null;
     }
 
+    ArrayList getNames() {
+        ArrayList<String> theList = new ArrayList<>();
+        for(NoteGroupPanel noteGroupPanel: theNoteGroups) {
+            theList.add(noteGroupPanel.myNoteGroup.getGroupProperties().getGroupName());
+        }
+        return theList;
+    }
+
     // Scan the vector looking for the indicated group and if found, remove.
     //----------------------------------------------------------------
     public void remove(String aListName) {
@@ -41,7 +53,6 @@ public class NoteGroupPanelKeeper {
 
         // Search the Vector for the group.
         for (NoteGroupPanel noteGroup : theNoteGroups) {
-//            String tngName = noteGroup.prettyName();
             String tngName = noteGroup.myNoteGroup.getGroupProperties().getGroupName();
             if (aListName.equals(tngName)) {
                 theGroup = noteGroup;
@@ -55,6 +66,7 @@ public class NoteGroupPanelKeeper {
         if (theGroup != null) {
             MemoryBank.debug("  Removing " + aListName + " from the NoteGroupKeeper");
             theNoteGroups.removeElement(theGroup);
+            theGroup.myKeeper = null; // This may be overkill, now that it's removed.  But just in case...
         } else {
             MemoryBank.debug("  Unable to remove " + aListName + "; it was not found in the NoteGroupKeeper");
         } // end if
