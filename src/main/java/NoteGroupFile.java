@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.io.*;
@@ -690,7 +691,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static GroupInfo getGroupInfoFromFile(File theFile) {
         GroupInfo theAnsr = new GroupInfo();
         String theFullFilename = theFile.toString();
-        if(theFullFilename.contains(DataArea.CALENDARS.getAreaName())) {
+        if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.CALENDARS.getAreaName() + File.separatorChar)) {
             String nameOnly = theFile.getName();
             GroupType groupType = GroupType.NOTES;
 
@@ -703,16 +704,16 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             LocalDate theDate = getDateFromFilename(theFile);
             String theName = CalendarNoteGroup.getGroupNameForDate(theDate, groupType);
             theAnsr.setGroupName(theName);
-        } else if(theFullFilename.contains(DataArea.TODO_LISTS.getAreaName())) {
+        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.TODO_LISTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.TODO_LIST;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(theFullFilename.contains(DataArea.SEARCH_RESULTS.getAreaName())) {
+        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.SEARCH_RESULTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(theFullFilename.contains(DataArea.GOALS.getAreaName())) {
+        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.GOALS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.GOALS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(theFullFilename.contains(DataArea.UPCOMING_EVENTS.getAreaName())) {
+        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.EVENTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else {

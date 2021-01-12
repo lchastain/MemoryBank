@@ -2,11 +2,20 @@ Removing a SearchResultNode can come from either a SearchResult 'Close' operatio
 of a node that has no corresponding data file.
 
 
-When viewing the Panel that contains a search result (Found In) - the panel that is invoked shall be
-  non-editable, and the menu bar will have a 'Go Back' option, to switch back to the Search Results
+When viewing the Panel that contains a search result (user clicks on the 'Found In' value) - the panel that is
+  invoked shall be non-editable, and the menu bar will have a 'Go Back' option, to switch back to the Search Results
   list.  Non-editable because the operation is intended to be a review, not a back door shortcut to
-  an editing session.  Too many ways to do the same thing can be confusing for the users; only the
+  an editing session (too many ways to do the same thing can be confusing for the users); only the
   front-door view of a Note should be editable.
+  Other reasons:  We do not want to allow the impression that changing the source of the result will have
+  any effect at all on the SearchResult that it came from, since that result is a snapshot of the note at
+  the time the search was conducted; there is no 'live' connection to it.  The Group that is shown may no
+  longer have the search result, or the note that it came from may have been altered enough that it no longer
+  meets the search criteria.
+  If for some reason the entire 'Found In' group is not available, a 'new' one (empty, of course) is constructed
+    and displayed.  Not much help but it will have the correct title and no content, to show that the requested
+    group is no longer there.  Then the user may use the 'Go Back' menu item, or any other navigation control on
+    the app tree.
 
 closeSearchResult
   removeSearchNode

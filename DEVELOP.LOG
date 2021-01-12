@@ -23,6 +23,14 @@ New:
 
 
 =====================================================================================================
+12 Jan 2021
+  Problem found:  New Searches 'Found In' appears to be null for non-calendar groups.  This is a regression.
+  Researched, found this is (currently) only happening for To Do lists, and it is because of the new Data Area handling
+    that allows the path to be spelled with 'Do' vs 'do' - a case sensitivity issue.  Resolved this with a call to the
+    StringUtils in each area that is constructing GroupInfo instances, and also added bounding by File.separatorChar so
+    that groups with their parent embedded in their name do not foul up the works.  The getGroupInfoFromFile method is
+    now much more robust and reliable.
+
 10 Jan 2021
   From the app wishlist:  Event sorting by Start Date - not working.
     But sometimes it does.  Needs research, probably a fix, and probably a Test.
@@ -30,6 +38,10 @@ New:
       outside of the 'aged?' condition.  So - no additional testing, for now, but two existing tests needed updating
       because they checked the dates of notes that were now moved, due to the sort.  The updated tests are therefore
       also now testing the 'sort'.
+  Further research into possible Event aging/sorting problems:  The 'Daylight Savings Time Starts' event from last
+    October was not going away, even though it had no recurrence.  Turns out this is proper behavior because there
+    was no 'end' date or time entered, so it was considered to still be ongoing, and only 'done' events are aged off.
+    No problem here, then.
 
 9 Jan 2021
     Viewing 'Found In' from archived Search Results - shows the NoteGroup back on the main AppTreePanel.  This
