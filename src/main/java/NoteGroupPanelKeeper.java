@@ -38,7 +38,7 @@ public class NoteGroupPanelKeeper {
         return null;
     }
 
-    ArrayList getNames() {
+    ArrayList<String> getNames() {
         ArrayList<String> theList = new ArrayList<>();
         for(NoteGroupPanel noteGroupPanel: theNoteGroups) {
             theList.add(noteGroupPanel.myNoteGroup.getGroupProperties().getGroupName());

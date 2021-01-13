@@ -1516,8 +1516,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         JTextArea jTextArea = new JTextArea();
 
         String aLine;
-        int i;
-        ArrayList theNames;
+        ArrayList<String> theNames;
         int keptGoals = theGoalsKeeper.size();
         int keptEvents = theEventListKeeper.size();
         int keptTodoLists = theTodoListKeeper.size();
