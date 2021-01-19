@@ -47,10 +47,12 @@ public class FileDataAccessor implements DataAccessor {
 
         File[] theFiles = theSourceDir.listFiles();
 
-        for (File aFile : theFiles) {
-            GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
-            if (MemoryBank.appOpts.active(groupInfo.groupType, groupInfo.getGroupName())) {
-                FileUtils.copyFileToDirectory(aFile, theDestDir);
+        if(theFiles != null) {
+            for (File aFile : theFiles) {
+                GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+                if (MemoryBank.appOpts.active(groupInfo.groupType, groupInfo.getGroupName())) {
+                    FileUtils.copyFileToDirectory(aFile, theDestDir);
+                }
             }
         }
     }
@@ -75,7 +77,10 @@ public class FileDataAccessor implements DataAccessor {
 
         // Copy the appOpts and active NoteGroups into the archive -
         try {
-            FileUtils.copyFileToDirectory(new File(basePath + "AppOpts.json"), archiveRepo);
+            File theAppOpts = new File(basePath + "AppOpts.json");
+            if(theAppOpts.exists()) { // It may not, if a bozo new user decides to Archive as their first action.
+                FileUtils.copyFileToDirectory(theAppOpts, archiveRepo);
+            }
 
             // Copy the active notegroups into the archive
             archiveGroupType(archiveRepo, GroupType.GOALS);
@@ -89,7 +94,7 @@ public class FileDataAccessor implements DataAccessor {
             //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.todoListGroupAreaPath), archiveRepo);
             //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.searchResultGroupAreaPath), archiveRepo);
         } catch (Exception e) {
-            System.out.println("Archiving error: " + e.getMessage());
+            System.out.println("Archiving error: " + e.toString());
             return false;
         }
         return true;

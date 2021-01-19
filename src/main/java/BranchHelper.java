@@ -164,13 +164,13 @@ public class BranchHelper implements BranchHelperInterface {
                             "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
                 }
 
-                // The end result of a 'No' will be that the leaves will have already been
-                // removed from the branch but they will still be available for reselection
-                // in the list of choices during future branch edit sessions.
                 if (!doDelete) continue;
+                // The end result of a 'No' to the delete confirmation will be that the leaf or leaves will have
+                // already been removed from the branch but they will still be available for reselection
+                // in the list of choices during future branch edit sessions.
 
                 // Delete the file -
-                String deleteFile =  NoteGroupFile.makeFullFilename(theArea.toString(), nodeChange.nodeName);
+                String deleteFile =  NoteGroupFile.makeFullFilename(theArea.getAreaName(), nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.
@@ -191,8 +191,8 @@ public class BranchHelper implements BranchHelperInterface {
         } // end if
 
         // Accept all Branch structure changes.
-        // We saved this for last, in case the error message above kicked in and the user
-        // wants to compare the original branch with the one shown in the editor.
+        // We saved this for last, in case the error message above kicked in and the user would want
+        // to compare the original branch with the one shown in the editor before we make changes.
         theRoot.remove(theIndex);
         theRoot.insert(mtn, theIndex); // Goes back to the same place.
         theTreeModel.nodeStructureChanged(mtn); // Localized; the node does not 'collapse'.
@@ -207,12 +207,12 @@ public class BranchHelper implements BranchHelperInterface {
         // and choices as the starting point, and 'Cancel' would have no effect until they have
         // made more changes.
         if(null != AppTreePanel.theInstance) { // It may be null if we got here from a Test.
-            // IF an 'undo deletion' menu option was being shown and was NOT used, then the
-            // action of the user clicking on the 'Apply' button needs to take away that menu option.
-            // That will happen when the menus are re-managed upon showing the About panel, and
-            // it will also happen with any other Tree selection, after the call to
-            // showRestoreOption() below sets the flag to false.
             AppTreePanel.appMenuBar.showRestoreOption(false);
+            // IF an 'undo deletion' menu option was being shown and was NOT used, then the
+            // action of the user clicking on the 'Apply' button as they have done here needs
+            // to take away that menu option.  That will happen when the menus are re-managed
+            // upon showing the About panel, and it will also happen with any other Tree
+            // selection now that the call to showRestoreOption() has set the flag to false.
             AppTreePanel.theInstance.showAbout();
         }
         return true;

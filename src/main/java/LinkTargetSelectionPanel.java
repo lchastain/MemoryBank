@@ -494,7 +494,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
             // the same as their selection; we will have to catch that one after this panel closes.
             // Although - we could trap a CLOSING event, and check/prevent it then.  but that's more work; not
             //   sure how to do that when it is a JOptionPane; not gonna doit.
-            if(selectedTargetGroupPanel.myNoteGroup.myProperties.instanceId.toString().equals(sourceGroupProperties.instanceId.toString())) {
+            GroupProperties groupProperties = selectedTargetGroupPanel.myNoteGroup.myProperties;
+            if(groupProperties != null && groupProperties.instanceId.toString().equals(sourceGroupProperties.instanceId.toString())) {
                 String ems = "You cannot make a link to the same group!";
                 JOptionPane.showMessageDialog(this,
                         ems, "Error", JOptionPane.ERROR_MESSAGE);
@@ -506,8 +507,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     } // end treeSelectionChanged
 
     // The TreeSelectionListener method.  It does not get called unless the selection
-    // event actually does represent a change from the current selection.  This
-    // includes deselecting, but in that case 'newPath' is null.
+    // event actually does represent a change from the current selection.  A deselection
+    // sends a 'null' as the new path.
     @Override
     public void valueChanged(TreeSelectionEvent e) {
         TreePath newPath = e.getNewLeadSelectionPath();

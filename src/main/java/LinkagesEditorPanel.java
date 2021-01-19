@@ -120,6 +120,8 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
 
 
     // Define the listener for the 'Add New Link' clickable label.
+    // Extra care has been added to handle linking to a partially defined new group - it may not yet have GroupProperties
+    //   but in that case it should at least still have a GroupInfo, so GroupInfo is referenced as a backup data source.
     void makeActionListener() {
         addButtonActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
@@ -154,12 +156,15 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                     // Disallow a same-group link targetselection.  The LinkTargetSelectionPanel will have
                     // already stopped this for notes within CalendarNoteGroups and all other group types,
                     // but not for a CalendarNoteGroup-only selection.
-                    String groupId = linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.getGroupProperties().instanceId.toString();
-                    if(groupId.equals(sourceGroupProperties.instanceId.toString())) {
-                        String ems = "You cannot make a link to the same group!";
-                        JOptionPane.showMessageDialog(addLinkButton,
-                                ems, "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
+                    GroupProperties groupProperties = linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.getGroupProperties();
+                    if(groupProperties != null) {
+                        String groupId = groupProperties.instanceId.toString();
+                        if (groupId.equals(sourceGroupProperties.instanceId.toString())) {
+                            String ems = "You cannot make a link to the same group!";
+                            JOptionPane.showMessageDialog(addLinkButton,
+                                    ems, "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                     }
 
                     // First - capture any link type or ordering changes in the existing list.
@@ -170,8 +175,13 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
                     deleteCheckedLinks = true;
 
                     // Get the Group and Note selections
-//                    GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroup.myNoteGroup.getGroupProperties();
-                    GroupInfo selectedGroupInfo = new GroupInfo(linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.getGroupProperties());
+                    GroupProperties selectedGroupProperties = linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.getGroupProperties();
+                    GroupInfo selectedGroupInfo;
+                    if(selectedGroupProperties != null) {
+                        selectedGroupInfo = new GroupInfo(selectedGroupProperties);
+                    } else {
+                        selectedGroupInfo = linkTargetSelectionPanel.selectedTargetGroupPanel.myNoteGroup.myGroupInfo;
+                    }
                     NoteData selectedNoteData = linkTargetSelectionPanel.selectedNoteData;
 
                     LinkedEntityData linkedEntityData;

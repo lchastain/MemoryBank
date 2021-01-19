@@ -11,18 +11,49 @@ Priorities:
 Current/Next:
     Burn-in, thinking about next task....
 
+    Remove the extra-added handling for no properties; Properties are now available on every NoteGroup.  This will
+        all turn up in pre-checkin code reviews; revert.
+
+
 Issues, Ideas, Analyses, Problems:
     New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
       after the fact).  How to dovetail with Goals?  When it used to be a Goal?
     Past Events -
         Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
         or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
+    Add a note to an archive?  A one-liner possibly as a NoteData / NoteComponent, where the first column is the
+      archive name, second column the NoteComponent.  Lets the user describe the snapshot in some way.
 
 New:
 
-
+18 Jan 2021
+  Working on behaviors for freshly deleted or newly created but not yet saved groups - aftermath, and on restart - what
+    if anything is selected on the tree, what menus are available, what viewport shows.
+    Restart with an unsaved, not-really-there group - get no previous selection, shows the About graphic.
 
 =====================================================================================================
+16 Jan 2021
+  Finished the alternate behaviors and Tree visual effects for adding the first new group or removing the last one,
+    to include handling of the search results as well.  These newly added groups had never been previously tested
+    with linkages and  this proved to be a problem in that they lost their Properties due to having no file to load
+    in.  Had to change the load code, to reinitialize properties prior to a load, but not null them out entirely.
+    This seems to be the full resolution to SCR000123, plus a bit more as relates to linking.
+
+15 Jan 2021
+  Fixed archiving for a brand-new user; some 'copy' sources were not there, causing null exceptions.  Now, a brand-new
+    user MAY make an archive, although it is a stretch to see how it could be useful other than to mark the starting
+    date of app use.
+  Now working on 'no branch editor until groups for it exist'.  SCR00123.  Folding in this behavior:
+    Decided: once a 'Search Results' appears on the tree, you do not take it away during that session when the last one
+    is deleted.  If the branch is clicked when there are none (due to deletes), the action is to call up a new search
+    dialog.  But if they quit after the deletion and then restart, the branch will not be there.  Search Results is
+    the only branch that might not appear; the others will start out as a leaf, and may go back to one but they will
+    never 'not be there'.  When these other types have no group, they go directly to 'add new'.
+
+13 Jan 2021
+  Problem: deleting search results from the branch editor - says files cannot be removed.  The tree is trimmed, though.
+    Fixed - regression/fallout from using DataArea name vs path.
+
 12 Jan 2021
   Problem found:  New Searches 'Found In' appears to be null for non-calendar groups.  This is a regression.
   Researched, found this is (currently) only happening for To Do lists, and it is because of the new Data Area handling
@@ -34,7 +65,7 @@ New:
     Fixed this by moving the call to restore the listener.
   Suspect that a deleted group remains in a keeper.  This can be a problem for renaming and other operations that
     allow for cross-threading after this initial problem has occurred.  Hard to track down; need a new
-    viewer, of 'keepers', similar to the NoteGroup viewers.  Then can verify that groups get removed.  Add it.
+    viewer, of 'keepers', similar to the NoteGroup viewer.  Then can verify that groups get removed.  Add it.
   Ok, did that, and used it to verify the problem.  Then fixed the problem by adding a reference to a Panel's keeper,
     to the Panel.  It gets set when the group is added to the keeper, and unset when removed.  And now - deleteGroup
     will use that reference to call 'remove', which takes it out of the keeper.  Problems solved, and now I have yet
@@ -42,7 +73,7 @@ New:
 
 11 Jan 2021
     Reworked the wishlist.doc file with answers, updated remaining issues and removed the original as WAY obe.  The
-      current wishlist ToDo List and the SCRs will suffice.
+      current wishlist ToDo List and the SCRs now cover any requests that are still valid.
 
 10 Jan 2021
   From the app wishlist:  Event sorting by Start Date - not working.

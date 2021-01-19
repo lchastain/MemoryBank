@@ -263,6 +263,7 @@ public class AppMenuBar extends JMenuBar{
 
     void showRestoreOption(boolean showIt) {
         showDeleteUndo = showIt;
+        deletedMenu.setVisible(showDeleteUndo);
     }
 
 } // end class AppMenuBar

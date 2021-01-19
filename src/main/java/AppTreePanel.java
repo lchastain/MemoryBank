@@ -202,7 +202,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // The new group is not actually instantiated here; that happens when it is selected.
     @SuppressWarnings("rawtypes")  // For the xlint warning about Enumeration, (much farther) below.
     private void addNewGroup() {
-        String newName;
+        String newName = null;
 
         // Initialize the following local variables, otherwise IJ complains.
         String prompt;
@@ -244,9 +244,17 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 return;
         }
 
-        // Get user entry of a name for the new group.
-        newName = JOptionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
-        MemoryBank.debug("Name chosen for new group: " + newName);
+        if(restoringPreviousSelection) {
+            // In this case we are coming from a restart where a non-existent group was previously selected but
+            // neither it nor any others are in this Category, now, so we landed on the Branch but at app startup
+            // we didn't want to come here - so leave, quietly.
+            // The node will have already been deselected, but now we need to wipe any extra menu -
+            appMenuBar.manageMenus("No Selection");
+        } else {
+            // Get user entry of a name for the new group.
+            newName = JOptionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
+            MemoryBank.debug("Name chosen for new group: " + newName);
+        }
         if (newName == null) return;      // No user entry; dialog was Cancelled.
 
         // Here is where we might have done some grooming of the input, to possibly deconflict user input from the
@@ -303,6 +311,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             MemoryBank.debug("Getting a new group from the factory.");
             theGroup = GroupPanelFactory.loadOrMakePanel(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
+            if(theGroup.myNoteGroup.getGroupProperties() == null) {
+                theGroup.myNoteGroup.makeGroupProperties();
+            }
             theNoteGroupPanelKeeper.add(theGroup);
             // The new group will be saved by preClose().
         }
@@ -314,7 +325,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
 
     // Adds a search result branch to the tree.
-    private void addSearchResult(String searchResultName) {
+    private void addSearchResultToBranch(String searchResultName) {
         // Remove the tree selection listener while we
         //   rebuild this portion of the tree.
         theTree.removeTreeSelectionListener(this);
@@ -324,8 +335,23 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         DefaultMutableTreeNode tmpNode;
         tmpNode = new DefaultMutableTreeNode(searchResultName, false);
 
-        // Add to the tree under the Search Results branch
-        DefaultMutableTreeNode nodeSearchResults = BranchHelperInterface.getNodeByName(theRootNode, "Search Results");
+        // Get the Search Results branch
+        DefaultMutableTreeNode nodeSearchResults = BranchHelperInterface.getNodeByName(theRootNode, DataArea.SEARCH_RESULTS.toString());
+
+        // Search Results branch may not be there, if this is the first search result.  Add it, if needed.
+        if(nodeSearchResults == null) {  // No branch editor until after there is at least one search result.
+            int currentSelection = theTree.getMaxSelectionRow(); // Remember current selection.
+            nodeSearchResults = new DefaultMutableTreeNode(DataArea.SEARCH_RESULTS.toString(), true);
+            theRootNode.add(nodeSearchResults);
+            TreeNode[] pathToRoot = nodeSearchResults.getPath();
+            searchresultsPath = new TreePath(pathToRoot);
+
+            treeModel.nodeStructureChanged(theRootNode);
+            resetTreeState();
+            theTree.clearSelection();
+            theTree.setSelectionRow(currentSelection);
+        }
+
         nodeSearchResults.add(tmpNode);
         treeModel.nodeStructureChanged(nodeSearchResults);
 
@@ -333,7 +359,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         TreeNode[] pathToRoot = tmpNode.getPath();
         theTree.addTreeSelectionListener(this);
         theTree.setSelectionPath(new TreePath(pathToRoot));
-    } // end addSearchResult
+    } // end addSearchResultToBranch
 
 
     //-------------------------------------------------------
@@ -363,19 +389,24 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         if(theParent == null) node.removeFromParent(); // theParent can be null during testing...
         else theParent.remove(node); // but otherwise this is the better method to use.
 
-        // Restore the tree selection listening.
-        theTree.addTreeSelectionListener(this);
-
         // Redisplay the branch that had the removal (but not if it was the 'trunk')
-        if(theParent != null && !theParent.toString().equals("App")) {
+        if (theParent != null && !theParent.toString().equals("App")) {
             treeModel.nodeStructureChanged(theParent);
 
+            // Older approach, when there was only one possible action when selecting the parent:
             // Select the parent branch.
-            TreeNode[] pathToRoot = theParent.getPath();
-            theTree.setSelectionPath(new TreePath(pathToRoot));
+//            TreeNode[] pathToRoot = theParent.getPath();
+//            theTree.setSelectionPath(new TreePath(pathToRoot));
 
-            updateTreeState(true); // Needed now, in case there is a new link target selection.
+            // Now, when there are two different possibilities to handling the branch selection, and because
+            // this group closure may be happening either automatically at app restart or due to user action,
+            // we don't want to dictate a default action for what happens next; just let the user decide.
+            // So for that, we need to clear the tree selection AND the display.
+            showAbout(); // This also clears the selection and updates the option lists.
+            updateTreeState(false); // Needed again after showAbout, to clear a possible 'about toggle'
         }
+        // Restore the tree selection listening.
+        theTree.addTreeSelectionListener(this);
 
     } // end closeGroup
 
@@ -502,11 +533,36 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //---------------------------------------------------
         // Search Results
         //---------------------------------------------------
-        branch = new DefaultMutableTreeNode("Search Results", true);
-        trunk.add(branch);
-        pathToRoot = branch.getPath();
-        searchresultsPath = new TreePath(pathToRoot);
         theSearchResultsKeeper = new NoteGroupPanelKeeper();
+        BranchHelper sbh = new BranchHelper(new JTree(), theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
+        int resultCount = sbh.getChoices().size(); // Choices array list can be empty but not null.
+        if(resultCount > 0) {  // No branch editor until after there is at least one search result.
+            branch = new DefaultMutableTreeNode("Search Results", true);
+            trunk.add(branch);
+            pathToRoot = branch.getPath();
+            searchresultsPath = new TreePath(pathToRoot);
+        }
+
+// Tree trunk change examples and getting them to show properly -
+// Currently not needed; but this approach keeps coming up before we find better solutions.
+//   This is the 2nd or third time now.  So while this is a crappy place to keep this example,
+//   it is still better than not having one at all.
+//        updateTreeState();
+//        // Preserve the current tree selection
+//        int currentSelection = theTree.getMaxSelectionRow();
+          // When the affected row is not zero, this could be more difficult.
+          // Preserved the current selection above, because the 'insert' could increase it by one.
+//        // ---------------------------
+//        theRootNode.insert(new DefaultMutableTreeNode("Archive"), 0); // ADD
+//        currentSelection += 1;
+//        // ---------------------------
+//        theRootNode.remove(0);  // REPLACE
+//        theRootNode.insert(new DefaultMutableTreeNode("Archives"), 0);
+//        // ---------------------------
+//        theTreeModel.nodeStructureChanged(theRootNode);
+//        resetTreeState();
+//        theTree.clearSelection();
+//        theTree.setSelectionRow(currentSelection);
 
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
@@ -564,17 +620,20 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return newRoot;
     }
 
-    // Delete the data for this group.
+    // Delete the data for this group.  (called from a menu bar action)
     // This method is provided as a more direct route to deletion than going thru
     // the BranchHelper.  This section of the code is similar to what is done there,
     // except that we keep a reference to the deleted group.  This will allow for
-    // an 'undo', if desired.
+    // an 'undo', if desired.  This is possible because here we only delete one,
+    // whereas the     editor has the capability to delete several at the same time.
     private void deleteGroup() {
         // They get one warning..
         String deleteWarning;
         boolean doDelete;
-        deleteWarning = "Are you sure?" + System.lineSeparator();
-        deleteWarning += "This deletion may be undone (via the menu option) but only while still on this Editor.";
+        deleteWarning = "   Are you sure?" + System.lineSeparator();
+        deleteWarning += "This deletion may be undone (via a menu option) but only if it is done soon," + System.lineSeparator();
+        deleteWarning += "before almost all other actions.  If the deletion is undone it will reappear" + System.lineSeparator();
+        deleteWarning += "temporarily and can be restored to the tree via the Branch Editor.";
         doDelete = optionPane.showConfirmDialog(theTree, deleteWarning,
                 "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
         if (!doDelete) return;
@@ -599,10 +658,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // still being held in a keeper.
         theNoteGroupPanel.myKeeper.remove(theNoteGroupPanel.getGroupName());
 
-        // And finally, give the user an 'undo' capability.  This will be a one-time,
-        //   one file only option.  Upon deletion they will have gone back to the
-        //   Branch Editor.  If they then apply other actions on the Editor, or go on
-        //   to some other list, the 'undo' menu option goes away.
+        // And finally, give the user an 'undo' capability.  This will be a one-time, one group
+        //   only option.  After the 'close' above, they will have gone back to the 'About' graphic.
+        //   If they then go on to some other list, the 'undo' menu option goes away.
         appMenuBar.showRestoreOption(true);
         appMenuBar.manageMenus(appMenuBar.getCurrentContext());
     }// end deleteGroup
@@ -760,7 +818,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theResultsGroup.saveNoteGroup();
 
         // Make a new tree node for these results.
-        addSearchResult(resultsName);
+        addSearchResultToBranch(resultsName);
 
         searching = false;
         showWorkingDialog(false);
@@ -912,11 +970,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         else if (what.equals("Undo Delete")) {
             appMenuBar.manageMenus(appMenuBar.getCurrentContext());
             deletedNoteGroupPanel.setGroupChanged(true);
-            deletedNoteGroupPanel.preClosePanel();
+            deletedNoteGroupPanel.preClosePanel(); // saves it, possibly for the first time.
+            deletedNoteGroupPanel.myKeeper.add(deletedNoteGroupPanel); // a bit circular, but necessary.
+            rightPane.setViewportView(deletedNoteGroupPanel.theBasePanel);
             System.out.println("Did it.");
             deletedNoteGroupPanel = null;
             appMenuBar.showRestoreOption(false);
-            treeSelectionChanged(theTree.getSelectionPath()); // Reload the branch editor, to show the 'new' file.
+
+            //treeSelectionChanged(theTree.getSelectionPath()); // Reload the branch editor, to show the 'new' file.
         }
         else if (what.equals("View")) doViewArchive(selectedArchiveNode.toString());
         else if (what.equals("Icon Manager...")) {
@@ -1272,11 +1333,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         JViewport viewport = rightPane.getViewport();
         JComponent theContent = (JComponent) viewport.getView();
 
-        if (node == null && aboutPanel == theContent) { // This means we can toggle back to a previous tree selection.
+        boolean toggle = (!restoringPreviousSelection && node == null & aboutPanel == theContent);
+        if (toggle) { // This means we can go back to a previous tree selection.
             // Reset tree to the state it was in before.
             restoringPreviousSelection = true;
+            if (appOpts.goalsExpanded) theTree.expandPath(goalsPath);
+            else theTree.collapsePath(goalsPath);
             if (appOpts.eventsExpanded) theTree.expandPath(eventsPath);
-            else theTree.collapsePath(viewsPath);
+            else theTree.collapsePath(eventsPath);
             if (appOpts.viewsExpanded) theTree.expandPath(viewsPath);
             else theTree.collapsePath(viewsPath);
             if (appOpts.notesExpanded) theTree.expandPath(notesPath);
@@ -1716,6 +1780,16 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end showWorkingDialog
 
 
+    // The static menu item applies to all three CalendarNoteGroup types.
+    private void toggleReview() {
+        boolean reviewMode = false;
+        if(AppMenuBar.reviewMode.isSelected()) reviewMode = true;
+        if(theAppDays != null) theAppDays.reviewMode = reviewMode;
+        if(theAppMonths != null) theAppMonths.reviewMode = reviewMode;
+        if(theAppYears != null) theAppYears.reviewMode = reviewMode;
+    }
+
+
     void treeSelectionChanged(TreePath newPath) {
         if (newPath == null) return;
         // You know how some animals will still move or twitch a bit after death?
@@ -1781,28 +1855,65 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         if ( isArchives ) {
             showArchives();
         } else if (isGoalsBranch) {  // Edit the Goals parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
             selectionContext = "Goals Branch Editor";
-            rightPane.setViewportView(tbe);
+            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
+            int resultCount = tbh.getChoices().size(); // Choices array list can be empty but not null.
+            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
+                TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
+                rightPane.setViewportView(tbe);
+            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
+                showWorkingDialog(false);
+                theTree.clearSelection(); // This one cannot be restored upon app restart.
+                appMenuBar.manageMenus("Goals Branch Editor");
+                // (menus will get managed again at the end of this long 'if/else' structure, but
+                //   in this case it needed to happen right now, before our next line).
+                addNewGroup();
+            }
         } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
-            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", selectedNode, tbh);
             selectionContext = "Upcoming Events Branch Editor";
-            rightPane.setViewportView(tbe);
+            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
+            int resultCount = tbh.getChoices().size(); // Choices array list can be empty but not null.
+            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
+                TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", selectedNode, tbh);
+                rightPane.setViewportView(tbe);
+            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
+                showWorkingDialog(false);
+                theTree.clearSelection(); // This one cannot be restored upon app restart.
+                appMenuBar.manageMenus(selectionContext);
+                // (menus will get managed again at the end of this long 'if/else' structure, but
+                //   in this case it needed to happen right now, before our next line).
+                addNewGroup();
+            }
         } else if (isTodoBranch) {  // Edit the Todo parent branch
             // To Do List management - select, deselect, rename, reorder, remove
             // The 'tree' may change often.  We instantiate a new helper
             // and editor each time, to be sure all are in sync.
-            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", selectedNode, tbh);
             selectionContext = "To Do Lists Branch Editor";
-            rightPane.setViewportView(tbe);
+            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
+            int resultCount = tbh.getChoices().size(); // Choices array list can be empty but not null.
+            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
+                TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", selectedNode, tbh);
+                rightPane.setViewportView(tbe);
+            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
+                showWorkingDialog(false);
+                theTree.clearSelection(); // This one cannot be restored upon app restart.
+                appMenuBar.manageMenus(selectionContext);
+                // (menus will get managed again at the end of this long 'if/else' structure, but
+                //   in this case it needed to happen right now, before our next line).
+                addNewGroup();
+            }
         } else if (isSearchBranch) {  // Edit the Search parent branch
-            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-            TreeBranchEditor tbe = new TreeBranchEditor("Search Results", selectedNode, sbh);
             selectionContext = "Search Results Branch Editor";
-            rightPane.setViewportView(tbe);
+            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
+            int resultCount = sbh.getChoices().size(); // Choices array list can be empty but not null.
+            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
+                TreeBranchEditor tbe = new TreeBranchEditor("Search Results", selectedNode, sbh);
+                rightPane.setViewportView(tbe);
+            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
+                showWorkingDialog(false);
+                theTree.clearSelection(); // This one cannot be restored upon app restart.
+                doSearch();
+            }
         } else if (!selectedNode.isLeaf()) {  // Looking at other expandable nodes
             JTree jt = new JTree(selectedNode); // Show as a tree but no editing.
             jt.setShowsRootHandles(true);
@@ -1847,7 +1958,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                             "Data not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
-                closeGroup(); // File is already gone; this just removes the tree node.
+                closeGroup(); // Group is already gone; this just removes the tree node.
+                selectionContext = "No Selection";  // For manageMenus
             } else {
                 // There is only one menu, for ALL Goals.  It needs to be reset with every list change.
                 goalGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
@@ -1892,10 +2004,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                     JOptionPane.showMessageDialog(this,
                             "Cannot read in the Event group.\n" +
                                     "This group selection will be removed.",
-                            "File not accessible", JOptionPane.WARNING_MESSAGE);
+                            "Group not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
-                closeGroup(); // File is already gone; this just removes the tree node.
+                closeGroup(); // Group is already gone; this just removes the tree node.
+                selectionContext = "No Selection";  // For manageMenus
             } else {
                 // There is only one menu, for ALL event lists.  It needs to be reset with every list change.
                 eventNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
@@ -1943,7 +2056,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                             "List not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
-                closeGroup(); // File is already gone; this just removes the tree node.
+                closeGroup(); // Group is already gone; this just removes the tree node.
+                selectionContext = "No Selection";  // For manageMenus
             } else {
                 // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
                 todoNoteGroup.setListMenu(appMenuBar.getNodeMenu(selectionContext));
@@ -1991,7 +2105,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                             "Results not accessible", JOptionPane.WARNING_MESSAGE);
                 } // end if
 
-                closeGroup(); // File is already gone; this just removes the tree node.
+                closeGroup(); // Group is already gone; this just removes the tree node.
+                selectionContext = "No Selection";  // For manageMenus
             } else {
                 theNoteGroupPanel = searchResultGroupPanel;
                 searchResultGroupPanel.treePanel = this;
@@ -2024,7 +2139,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 theMonthView = new MonthView(LocalDate.of(2020, 3, 15));
                 // This results in a one-time-only double 'set' of the day but is needed so that the various
                 // DayCanvases are ready to properly show icons.  (This appears to also prevent the problem
-                // from appearing in the final (empty) DayCanvases of the MonthCanvas grid (not sure why).
+                // from appearing in the final (initially empty) DayCanvases of the MonthCanvas grid (not sure why).
                 theMonthView.setChoice(selectedDate); // This sets the 'choice' label and day highlight, if appropriate.
                 theMonthView.setParent(this);
             } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
@@ -2107,16 +2222,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end treeSelectionChanged
 
 
-    // The static menu item applies to all three CalendarNoteGroup types.
-    private void toggleReview() {
-        boolean reviewMode = false;
-        if(AppMenuBar.reviewMode.isSelected()) reviewMode = true;
-        if(theAppDays != null) theAppDays.reviewMode = reviewMode;
-        if(theAppMonths != null) theAppMonths.reviewMode = reviewMode;
-        if(theAppYears != null) theAppYears.reviewMode = reviewMode;
-    }
-
-
     //-------------------------------------------------
     // Method Name:  updateTreeState
     //
@@ -2195,7 +2300,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         int numResults;
         appOpts.searchResultList.clear();
 
-        numResults = theSearchNode.getChildCount();
+        numResults = theSearchNode == null ? 0 : theSearchNode.getChildCount();
         if (numResults > 0) {
             leafLink = theSearchNode.getFirstLeaf();
             while (numResults-- > 0) {

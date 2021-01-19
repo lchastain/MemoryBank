@@ -1,5 +1,12 @@
+When there are currently no previous Search Results, the application tree that is generated at startup
+  will have no 'Search Results' branch.  The branch is created when the first search result becomes
+  available (after a search has been performed).
+
+If all currently existing search results are deleted then the Search Results branch becomes a 'leaf',
+  and selection of that leaf will bring up a new search dialog.
+
 Removing a SearchResultNode can come from either a SearchResult 'Close' operation, or the selection
-of a node that has no corresponding data file.
+of a node that (somehow) has no corresponding group.
 
 
 When viewing the Panel that contains a search result (user clicks on the 'Found In' value) - the panel that is

@@ -149,8 +149,8 @@ public class SearchTest {
         dmtn = TestUtil.getTreeNodeForString(theRoot, "20140312131216");
         assertNull(dmtn);
 
-        // And that the tree selection switched up to 'Search Results'
-        assert theTree.getSelectionPath().getLastPathComponent().toString().equals("Search Results");
+        // And that the tree selection was cleared.
+        assert theTree.getMaxSelectionRow() == -1;
     }
 
 

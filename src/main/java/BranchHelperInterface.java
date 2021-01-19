@@ -168,8 +168,9 @@ public interface BranchHelperInterface {
         Enumeration bfe = theRoot.breadthFirstEnumeration();
 
         while (bfe.hasMoreElements()) {
-            dmtn = (DefaultMutableTreeNode) bfe.nextElement();
-            if (dmtn.toString().equals(theName)) {
+            DefaultMutableTreeNode nextNode = (DefaultMutableTreeNode) bfe.nextElement();
+            if (nextNode.toString().equals(theName)) {
+                dmtn = nextNode;
                 break;
             }
         }

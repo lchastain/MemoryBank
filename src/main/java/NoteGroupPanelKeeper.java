@@ -30,7 +30,13 @@ public class NoteGroupPanelKeeper {
     public NoteGroupPanel get(String aListName) {
         // Search the Vector for the list.
         for (NoteGroupPanel noteGroup : theNoteGroups) {
-            String tngName = noteGroup.myNoteGroup.getGroupProperties().getGroupName();
+            String tngName;
+            GroupProperties groupProperties = noteGroup.myNoteGroup.getGroupProperties();
+            if(groupProperties != null) {
+                tngName = groupProperties.getGroupName();
+            } else {
+                tngName = noteGroup.myNoteGroup.myGroupInfo.getGroupName();
+            }
             if (aListName.equals(tngName)) {
                 return noteGroup;
             } // end if
@@ -66,7 +72,8 @@ public class NoteGroupPanelKeeper {
         if (theGroup != null) {
             MemoryBank.debug("  Removing " + aListName + " from the NoteGroupKeeper");
             theNoteGroups.removeElement(theGroup);
-            theGroup.myKeeper = null; // This may be overkill, now that it's removed.  But just in case...
+//            theGroup.myKeeper = null; // This may be overkill, now that it's removed.  But just in case...
+// NO - we could need this if a deletion is undone.
         } else {
             MemoryBank.debug("  Unable to remove " + aListName + "; it was not found in the NoteGroupKeeper");
         } // end if

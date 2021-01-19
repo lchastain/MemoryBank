@@ -308,7 +308,14 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
     String getGroupName() {
-        return myNoteGroup.getGroupProperties().getGroupName();
+        GroupProperties groupProperties = myNoteGroup.getGroupProperties();
+        if(groupProperties != null) {
+            return groupProperties.getGroupName();
+        } else {
+            GroupInfo groupInfo = myNoteGroup.myGroupInfo;
+            if(groupInfo != null) return groupInfo.getGroupName();
+        }
+        return null;
     }
 
 

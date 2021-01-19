@@ -196,7 +196,10 @@ class NoteGroup implements LinkHolder {
         // Now get any pre-existing data members cleared out to make way for whatever came in (if anything) from the
         // data store.  This is important even when no new data came in, so there are no 'leftovers'.
         noteGroupDataVector.clear(); // Clear, for a zero-length, will be better than 'null'.
-        setGroupProperties(null); // If no persisted data came in then the calling context can set new properties.
+
+        // Reinitialize the properties as well; there may have been a name change.
+        makeGroupProperties(); // If persisted data came in then this will be overwritten, below.
+//        setGroupProperties(null); // If no persisted data came in then the calling context can set new properties.
 
         if(theData == null) return;
         // Not that uncommon; many CalendarNote groups will have no data to load.
