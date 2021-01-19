@@ -12,7 +12,6 @@ class ToggleAboutTest {
         // multiple JMenuItem listeners and not all of them would go away before
         // they were activated by other tests, causing much confusion.
         appTreePanel = new AppTreePanel(new JFrame(), new AppOptions());
-        appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
     }
 
     @BeforeEach
@@ -20,8 +19,8 @@ class ToggleAboutTest {
         // No significance to this value other than it needs to be a row that
         // we know for a fact will be there, even for a brand-new AppTreePanel.
         // In this case we've chosen a relatively low (safer) value, currently
-        // should be 'Notes', with the first two being singles, and 'Views' collapsed.
-        theSelectionRow = 3;
+        // should be 'Notes', with 0-Archives, 1-Goals (collapsed), 2-Events(collapsed), 3-Views (collapsed).
+        theSelectionRow = 4;
     }
 
     @AfterEach
@@ -40,7 +39,7 @@ class ToggleAboutTest {
     // back to the previous tree selection.
     @Test
 //    @Disabled
-    void testShowAboutToggle() {
+    void testShowAboutToggle() throws InterruptedException {
         JTree theTree = appTreePanel.getTree();
         int[] theRows;
 
@@ -57,7 +56,7 @@ class ToggleAboutTest {
         // in this file.  It also had different behaviors depending on whether it was a run or a
         // debug session, even when debug had no breakpoints.  So if you 'fix' it - be sure to
         // test with all variants of execution.
-//        Thread.sleep(100);
+        Thread.sleep(100);
 
         // Now we ensure that our setting 'took'.
         theRows = theTree.getSelectionRows(); // First reading
@@ -80,7 +79,9 @@ class ToggleAboutTest {
         // to the tree selection that was made earlier.
         theRows = theTree.getSelectionRows(); // Third reading
         assert theRows != null;
-        assert(theRows[0] == theSelectionRow);
+        //System.out.println(AppUtil.toJsonString(theRows));
+        //assert theRows.length <= 0 || (theRows[0] == theSelectionRow);
+        assert theRows[0] == theSelectionRow;
     }
 
 }

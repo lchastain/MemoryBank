@@ -1348,6 +1348,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             if (appOpts.todoListsExpanded) theTree.expandPath(todolistsPath);
             else theTree.collapsePath(todolistsPath);
             theTree.setSelectionRow(appOpts.theSelectionRow);
+            restoringPreviousSelection = false;
         } else {
             // Capture the current state; we may have to 'toggle' back to it.
             updateTreeState(true); // Now updating lists every time, due to link target selection.
