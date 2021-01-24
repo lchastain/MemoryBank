@@ -767,7 +767,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
 
 
     //-------------------------------------------------
-    // Method Name:  updateTreeState
+    // Method Name:  updateAppOptions
     //
     // Capture the current tree configuration in terms of node expansion/contraction
     //   and variable group contents, and put it into appOpts (AppOptions class).
@@ -855,7 +855,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             } // end while
         } // end if
 
-    } // end updateTreeState
+    } // end updateAppOptions
 
     //-------------------------------------------------------------
     // Method Name: valueChanged

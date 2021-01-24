@@ -44,7 +44,7 @@ public class DateTrackingTests {
 
         appTreePanel.optionPane = new TestUtil();
         theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
-        amb = AppTreePanel.appMenuBar;
+        amb = appTreePanel.getAppMenuBar();
     }
 
     @AfterAll

@@ -75,10 +75,10 @@ class PreserveExpansionStatesTest {
         // Get the TreePaths to the collapsible nodes
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        DefaultMutableTreeNode viewsNode = TestUtil.getTreeNodeForString(theRoot, viewsNodeName);
-        DefaultMutableTreeNode notesNode = TestUtil.getTreeNodeForString(theRoot, notesNodeName);
-        DefaultMutableTreeNode todolistsNode = TestUtil.getTreeNodeForString(theRoot, todolistsNodeName);
-        DefaultMutableTreeNode searchResultsNode = TestUtil.getTreeNodeForString(theRoot, searchesNodeName);
+        DefaultMutableTreeNode viewsNode = BranchHelperInterface.getNodeByName(theRoot, viewsNodeName);
+        DefaultMutableTreeNode notesNode = BranchHelperInterface.getNodeByName(theRoot, notesNodeName);
+        DefaultMutableTreeNode todolistsNode = BranchHelperInterface.getNodeByName(theRoot, todolistsNodeName);
+        DefaultMutableTreeNode searchResultsNode = BranchHelperInterface.getNodeByName(theRoot, searchesNodeName);
         TreePath viewsPath = AppUtil.getTreePath(viewsNode);
         TreePath notesPath = AppUtil.getTreePath(notesNode);
         TreePath todolistsPath = AppUtil.getTreePath(todolistsNode);
@@ -93,7 +93,7 @@ class PreserveExpansionStatesTest {
         theTree.collapsePath(searchesPath);
 
         // Get the tree state from the tree, and save it in the application options file.
-        atp.updateTreeState(false);
+        atp.updateAppOptions(false);
         AppOptions.saveOpts();
 
         // Load the file again -
@@ -116,10 +116,10 @@ class PreserveExpansionStatesTest {
         // Get the TreePath to the Search Results
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        DefaultMutableTreeNode viewsNode = TestUtil.getTreeNodeForString(theRoot, viewsNodeName);
-        DefaultMutableTreeNode notesNode = TestUtil.getTreeNodeForString(theRoot, notesNodeName);
-        DefaultMutableTreeNode todolistsNode = TestUtil.getTreeNodeForString(theRoot, todolistsNodeName);
-        DefaultMutableTreeNode searchResultsNode = TestUtil.getTreeNodeForString(theRoot, searchesNodeName);
+        DefaultMutableTreeNode viewsNode = BranchHelperInterface.getNodeByName(theRoot, viewsNodeName);
+        DefaultMutableTreeNode notesNode = BranchHelperInterface.getNodeByName(theRoot, notesNodeName);
+        DefaultMutableTreeNode todolistsNode = BranchHelperInterface.getNodeByName(theRoot, todolistsNodeName);
+        DefaultMutableTreeNode searchResultsNode = BranchHelperInterface.getNodeByName(theRoot, searchesNodeName);
         TreePath viewsPath = AppUtil.getTreePath(viewsNode);
         TreePath notesPath = AppUtil.getTreePath(notesNode);
         TreePath todolistsPath = AppUtil.getTreePath(todolistsNode);
@@ -134,7 +134,7 @@ class PreserveExpansionStatesTest {
         theTree.expandPath(searchesPath);
 
         // Get the tree state from the tree, and save it in the application options file.
-        atp.updateTreeState(false);
+        atp.updateAppOptions(false);
         AppOptions.saveOpts();
 
         // Load the file again -

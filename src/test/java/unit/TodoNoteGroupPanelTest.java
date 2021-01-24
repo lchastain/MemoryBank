@@ -37,7 +37,7 @@ class TodoNoteGroupPanelTest {
     void testSaveAs() {
         // New name accepted but it wasn't a change -
         String theNewName = "Get New Job";
-        testUtil.setTheAnswer(theNewName);
+        testUtil.setTheAnswerString(theNewName);
         testUtil.setNotifyCount(0); // arbitrary, just needs to be known.
         todoNoteGroup.saveAs();
         // Verify that the 'tell me the new name' dialog was shown.
@@ -45,7 +45,7 @@ class TodoNoteGroupPanelTest {
 
         // New name collision - it already exists.
         theNewName = "New Car Shopping";
-        testUtil.setTheAnswer(theNewName);
+        testUtil.setTheAnswerString(theNewName);
         testUtil.setNotifyCount(5); // arbitrary, just needs to be known.
         todoNoteGroup.saveAs();
         // Verify that two dialogs were shown.
@@ -53,7 +53,7 @@ class TodoNoteGroupPanelTest {
 
         // The Happy Path
         theNewName = "blarg";
-        testUtil.setTheAnswer(theNewName);
+        testUtil.setTheAnswerString(theNewName);
         todoNoteGroup.saveAs();
         Assertions.assertEquals(theNewName, todoNoteGroup.myNoteGroup.getGroupProperties().getGroupName());
         Assertions.assertTrue(todoNoteGroup.myNoteGroup.exists());
@@ -78,7 +78,7 @@ class TodoNoteGroupPanelTest {
         // Get the method from TodoOpts that the Notifier will call, to change the options.
         Method newMethod = TodoOpts.class.getDeclaredMethod("setNewProperties", TodoGroupProperties.class);
         testUtil.setTheMethod(newMethod);
-        testUtil.setParam1(tlp); // Provide the needed method parameter
+        testUtil.setTheMessage(tlp); // Provide the needed method parameter
 
         testUtil.setNotifyCount(0); // arbitrary, just needs to be known.
         todoNoteGroup.setOptions();
@@ -97,7 +97,7 @@ class TodoNoteGroupPanelTest {
     @Test
     void testMerge() {
         // Just the coverage -
-        testUtil.setTheAnswer("New Car Shopping");
+        testUtil.setTheAnswerString("New Car Shopping");
 //        todoNoteGroup.merge();
     }
 

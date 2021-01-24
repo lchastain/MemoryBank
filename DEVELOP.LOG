@@ -11,8 +11,6 @@ Priorities:
 Current/Next:
     Burn-in, thinking about next task....
 
-    Remove the extra-added handling for no properties; Properties are now available on every NoteGroup.  This will
-        all turn up in pre-checkin code reviews; revert.
 
 
 Issues, Ideas, Analyses, Problems:
@@ -26,12 +24,35 @@ Issues, Ideas, Analyses, Problems:
 
 New:
 
+
+
+    Remove the extra-added handling for no properties; Properties are now available on every NoteGroup.  This will
+        all turn up in pre-checkin code reviews; revert.
+
+=====================================================================================================
+24 Jan 2021
+  Finished writing the new BranchSelectionTests, and rehabilitated the earlier SearchTest.
+
+23 Jan 2021
+  Found a BIG problem with running tests, when I wanted to use a different test user (new.user); some of the tests
+    were using the test user, and redirecting userDataHome accesses to the wrong place.  Did not find a way to
+    deconflict after trying various ideas like static-to-instance variables, thread sleeps, etc.  So - gave in and
+    now using test.user like all the others (except for the ones that use 'null').  Some of the improvements can stay,
+    even though they did not fix this particular issue, which may be ok since each test that uses this area first
+    clears it out and then loads it up with what is needed.  So actually, I got forced into doing it the 'right' way,
+    but I do think I should be able to change it if I wanted to, although there isn't supposed to be any need for
+    that.  This came up during test dev for BranchSelectionTests, those are still ongoing..
+
+19 Jan 2021
+  The fixes up to this point are in, and existing tests repaired where needed, but now need to work on new tests for
+    all the behavior variants related to new/deleted groups with respect to selection of a Branch on the tree.  SCR123
+    will also cover this work, with a comprehensive list of expected behaviors to be tested.
+
 18 Jan 2021
   Working on behaviors for freshly deleted or newly created but not yet saved groups - aftermath, and on restart - what
     if anything is selected on the tree, what menus are available, what viewport shows.
     Restart with an unsaved, not-really-there group - get no previous selection, shows the About graphic.
 
-=====================================================================================================
 16 Jan 2021
   Finished the alternate behaviors and Tree visual effects for adding the first new group or removing the last one,
     to include handling of the search results as well.  These newly added groups had never been previously tested

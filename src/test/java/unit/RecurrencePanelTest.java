@@ -79,7 +79,7 @@ class RecurrencePanelTest {
         // that will then be queried back out by the production code.
         Method newMethod = YearView.class.getDeclaredMethod("setChoice", LocalDate.class);
         testUtil.setTheMethod(newMethod);
-        testUtil.setParam1(LocalDate.of(2205, 10, 20)); // Provide the needed method parameter
+        testUtil.setTheMessage(LocalDate.of(2205, 10, 20)); // Provide the needed method parameter
 
         // Construct a MouseEvent to emulate a mouse press on the 'Stop By' button.
         me = new MouseEvent(theRecurrencePanel.btnStopBy, MouseEvent.MOUSE_PRESSED, 0, 0, 18, 23, 0, false);

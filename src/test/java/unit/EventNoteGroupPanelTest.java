@@ -70,7 +70,7 @@ class EventNoteGroupPanelTest {
     @Test
     void testMerge() {
         // Just the coverage -
-        testUtil.setTheAnswer("appointments");
+        testUtil.setTheAnswerString("appointments");
 //        eventNoteGroup.merge();
     }
 

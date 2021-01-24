@@ -47,7 +47,7 @@ public class AppTreePanelTest {
 
         appTreePanel.optionPane = new TestUtil();
         theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
-        amb = AppTreePanel.appMenuBar;
+        amb = appTreePanel.getAppMenuBar();
 
         // No significance to this value other than it needs to be a row that
         // we know for a fact will be there, even for a brand-new AppTreePanel.

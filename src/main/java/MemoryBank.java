@@ -28,7 +28,7 @@ public class MemoryBank {
     static SubSystem system;
     static DataAccessor dataAccessor;
 
-    private static AppTreePanel appTreePanel;
+    static AppTreePanel appTreePanel;
     private static boolean timing;
     private static AppSplash splash;
     private static boolean logApplicationShowing;
@@ -181,7 +181,10 @@ public class MemoryBank {
             loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
             appIconFileName = "icon_not.gif";
         }
+        String traceString = Thread.currentThread().getStackTrace()[2].toString();
+        debug("Call to setUserDataHome, from: " + traceString);
         debug("Setting user data location to: " + loc);
+
 
         boolean goodUserDataLoc = true;
         f = new File(loc);

@@ -37,7 +37,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
     YearView yvDateChooser;
     private boolean blnDialogClosed; // Has an input dialog been properly dismissed?
     JDialog dialogWindow;
-    boolean doSearch;
     SearchPanelSettings searchPanelSettings;
     boolean editable;
     //-------------------------------------------------------------
@@ -97,7 +96,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
         yvDateChooser = new YearView(LocalDate.now());
 
-        doSearch = false; // A flag that can be used by tests.
         if(sps != null) {
             searchPanelSettings = sps;
             editable = false;
@@ -281,7 +279,10 @@ public class SearchPanel extends JPanel implements DocumentListener {
     boolean foundIt(NoteData nd) {
         // Remember that the Panel is for filtering OUT results; therefore
         //   the default is true (found), but if it fails even one test
-        //   then the return value will be false.
+        //   then the return value will be false.  If search text is not provided then
+        //   that is not a basis by which to reject an item, so it may pass.  If the
+        //   SearchPanel settings are all left at their defaults (with no search text
+        //   specified), then ALL notes will be 'found'.
 
         // Test the 'Last Mod' condition
         if (filterLastMod(nd.getLastModDate().toLocalDate())) return false;

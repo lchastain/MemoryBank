@@ -85,8 +85,8 @@ class ReverseLinkagesTest {
         // And these two lines are needed because these groups will not actually be found in 'real' data,
         //   so we inject them directly to the AppTreePanel, where it will appear that they have already
         //   been loaded.  Note that after this test runs, the groups WILL be in the (test) data.
-        AppTreePanel.theInstance.theGoalsKeeper.add(goalGroupPanel);
-        AppTreePanel.theInstance.theAppDays = dayNoteGroupPanel;
+        appTreePanel.theGoalsKeeper.add(goalGroupPanel);
+        appTreePanel.theAppDays = dayNoteGroupPanel;
 
         // Make a new Todo note and add it to a (fake new) TodoNoteGroup.
         // This note will be the source entity for the reverse links.

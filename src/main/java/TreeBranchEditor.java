@@ -112,9 +112,10 @@ public class TreeBranchEditor extends JPanel
         // The left side will always contain either the same elements or fewer, than the
         //   right.  Further, the ones on the left require less height.  So - you might
         //   think that there is no need to provide a separate scroller for the left side.
-        //   But that is wrong, in the case where the list of leaves is so long that you
-        //   could scroll to the bottom on the right side and if they scrolled together
-        //   you might not see ANY portion of the tree on the left.
+        //   But that is wrong, in the case where the list of leaves is so long that when
+        //   you scroll to the bottom of that list, if there was only one scroller that
+        //   also scrolled the tree then you might not see ANY portion of the tree on the
+        //   left side of the split pane.
         centerPanel.setLeftComponent(leftScroller);
         centerPanel.setRightComponent(rightScroller);
 
@@ -339,6 +340,9 @@ public class TreeBranchEditor extends JPanel
                 break;
             case "Delete":
                 // The action was a 'delete' button click, which is just a flag toggle in this context.
+                // The changeList will grow with each click of this button but due to the binary nature
+                //   of the state change, only the last one will 'count', when the changeList is finally
+                //   evaluated upon the user clicking 'Apply'.
                 theScrollPosition = rightScroller.getVerticalScrollBar().getValue();
                 if (removals.contains(theText)) {
                     removals.remove(theText);

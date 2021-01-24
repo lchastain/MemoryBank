@@ -34,7 +34,7 @@ import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
-    static AppMenuBar appMenuBar;
+    AppMenuBar appMenuBar;
     Map<String, JFrame> archiveWindows;
 
     private static final Logger log = LoggerFactory.getLogger(AppTreePanel.class);
@@ -252,7 +252,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             appMenuBar.manageMenus("No Selection");
         } else {
             // Get user entry of a name for the new group.
-            newName = JOptionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
+            newName = optionPane.showInputDialog(theTree, prompt, title, JOptionPane.QUESTION_MESSAGE);
             MemoryBank.debug("Name chosen for new group: " + newName);
         }
         if (newName == null) return;      // No user entry; dialog was Cancelled.
@@ -300,7 +300,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             // Update tree state.  This is needed now and not only at app shutdown, because there are some functions
             // (such as linking) that need for the appOpts to be up-to-date after a new group has been added.
-            updateTreeState(true);
+            updateAppOptions(true);
         }
 
         // Try to get this Group from the NoteGroupKeeper (the 'Add New' request might just be a back-door
@@ -320,6 +320,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         // Expand the parent node (if needed) and select the group.
         theTree.expandPath(groupParentPath);
+        updateAppOptions(true);
         theTree.setSelectionPath(groupParentPath.pathByAddingChild(theNewGroupNode));
     } // end addNewGroup
 
@@ -340,7 +341,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         // Search Results branch may not be there, if this is the first search result.  Add it, if needed.
         if(nodeSearchResults == null) {  // No branch editor until after there is at least one search result.
-            int currentSelection = theTree.getMaxSelectionRow(); // Remember current selection.
+//            int currentSelection = theTree.getMaxSelectionRow(); // Remember current selection.
             nodeSearchResults = new DefaultMutableTreeNode(DataArea.SEARCH_RESULTS.toString(), true);
             theRootNode.add(nodeSearchResults);
             TreeNode[] pathToRoot = nodeSearchResults.getPath();
@@ -348,8 +349,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             treeModel.nodeStructureChanged(theRootNode);
             resetTreeState();
-            theTree.clearSelection();
-            theTree.setSelectionRow(currentSelection);
+//            theTree.clearSelection();
+//            theTree.setSelectionRow(currentSelection);
         }
 
         nodeSearchResults.add(tmpNode);
@@ -359,6 +360,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         TreeNode[] pathToRoot = tmpNode.getPath();
         theTree.addTreeSelectionListener(this);
         theTree.setSelectionPath(new TreePath(pathToRoot));
+        updateAppOptions(true);
     } // end addSearchResultToBranch
 
 
@@ -403,7 +405,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             // we don't want to dictate a default action for what happens next; just let the user decide.
             // So for that, we need to clear the tree selection AND the display.
             showAbout(); // This also clears the selection and updates the option lists.
-            updateTreeState(false); // Needed again after showAbout, to clear a possible 'about toggle'
+            updateAppOptions(false); // Needed again after showAbout, to clear a possible 'about toggle'
         }
         // Restore the tree selection listening.
         theTree.addTreeSelectionListener(this);
@@ -547,7 +549,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 // Currently not needed; but this approach keeps coming up before we find better solutions.
 //   This is the 2nd or third time now.  So while this is a crappy place to keep this example,
 //   it is still better than not having one at all.
-//        updateTreeState();
+//        updateAppOptions();
 //        // Preserve the current tree selection
 //        int currentSelection = theTree.getMaxSelectionRow();
           // When the affected row is not zero, this could be more difficult.
@@ -620,13 +622,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return newRoot;
     }
 
-    // Delete the data for this group.  (called from a menu bar action)
+    // Delete the data for this group.  (called from a menu bar action, or a test)
     // This method is provided as a more direct route to deletion than going thru
     // the BranchHelper.  This section of the code is similar to what is done there,
     // except that we keep a reference to the deleted group.  This will allow for
     // an 'undo', if desired.  This is possible because here we only delete one,
     // whereas the     editor has the capability to delete several at the same time.
-    private void deleteGroup() {
+    void deleteGroup() {
         // They get one warning..
         String deleteWarning;
         boolean doDelete;
@@ -750,7 +752,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
 
-    private void doSearch() {
+    // Present the user with a dialog whereby they may specify the parameters of
+    // their search, then send those parameters to the 'doSearch' method.
+    private void prepareSearch() {
         searching = true;
         searchPanel = new SearchPanel();
         Frame theFrame = JOptionPane.getFrameForComponent(this);
@@ -759,7 +763,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         String string1 = "Search Now";
         String string2 = "Cancel";
         Object[] options = {string1, string2};
-        int choice = JOptionPane.showOptionDialog(theFrame,
+        int choice = optionPane.showOptionDialog(theFrame,
                 searchPanel,
                 "Search - Please specify the conditions for your quest",
                 JOptionPane.OK_CANCEL_OPTION,
@@ -769,12 +773,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 string1); //the title of the default button
 
         if (choice != JOptionPane.OK_OPTION) {
-            if (!searchPanel.doSearch) {
-                searching = false;
-                return;
-            }
-            // Tests might have set this flag directly, without going through the dialog.
-            searchPanel.doSearch = false; // Put this flag back to non-testing mode.
+            searching = false;
+            return;
         }
 
         if (!searchPanel.hasWhere()) {
@@ -786,17 +786,22 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             return;
         } // end if no search location was specified.
 
-        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
-
         // Make sure that the most recent changes, if any, will be included in the search.
         preClose();
 
+        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
+        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
+
+        doSearch(searchPanel.getSettings());
+    } // end prepareSearch
+
+
+    void doSearch(SearchPanelSettings searchPanelSettings) {
+        // We will display the results of the search, even if it finds nothing.
+        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(searchPanelSettings));
+
         // Now make a Vector that can collect the search results.
         foundDataVector = new Vector<>();
-
-        // We will display the results of the search, even if it finds nothing.
-        MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(searchPanel.getSettings()));
 
         // Now scan the user's data area for data files - we do a recursive
         //   directory search and each file is examined as soon as it is
@@ -810,24 +815,25 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         resultsName = NoteGroupFile.getTimestamp();
         SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupType.SEARCH_RESULTS));
         SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
-        searchResultGroupProperties.setSearchSettings(searchPanel.getSettings());
+        searchResultGroupProperties.setSearchSettings(searchPanelSettings);
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
 
         theResultsGroup.setNotes(foundDataVector);
-        // We allow the search to be saved without results because what was searched for, and when, is also important.
+        // We allow the search to be saved even without results because what was searched for, and when, is also important.
         theResultsGroup.saveNoteGroup();
 
-        // Make a new tree node for these results.
-        addSearchResultToBranch(resultsName);
-
+        // After-actions needed by prepareSearch
         searching = false;
         showWorkingDialog(false);
+
+        // Make (and select) a new tree node for these results.
+        addSearchResultToBranch(resultsName);
     } // end doSearch
 
 
     void doViewArchive(String archiveName) {
         MemoryBank.debug("Selected Archive: " + archiveName);
-        new ArchiveTreePanel(archiveName); // It shows itself; reference not needed.
+        new ArchiveTreePanel(archiveName); // It shows itself in a new window; a reference to it is not needed.
     } // end doViewArchive
 
 
@@ -874,6 +880,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theBigGroup.doSort();
         return theBigGroup;
     } // end getConsolidatedView
+
+
+    AppMenuBar getAppMenuBar() { return appMenuBar; }
 
 
     NoteGroupPanel getPanelFromKeeper(GroupInfo groupInfo) {
@@ -944,6 +953,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return theTree;
     }
 
+    // This is useful for tests; no so much for normal app operation.
+    JComponent getViewedComponent() {
+        JViewport viewport = rightPane.getViewport();
+        return (JComponent) viewport.getView();
+    }
+
+
     private void handleMenuBar(String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
@@ -959,7 +975,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
         else if (what.equals("Show Keepers")) showKeepers();
         else if (what.equals("Delete")) deleteGroup();
-        else if (what.equals("Search...")) doSearch();
+        else if (what.equals("Search...")) prepareSearch();
         else if (what.equals("Set Options...")) ((TodoNoteGroupPanel) theNoteGroupPanel).setOptions();
         else if (what.startsWith("Merge")) mergeGroup();
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
@@ -1022,7 +1038,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theTodoListKeeper.saveAll();
         theSearchResultsKeeper.saveAll(); // Needed when fixing data or after sorting.
 
-        updateTreeState(true); // Capture expansion states into appOpts
+        updateAppOptions(true); // Capture expansion states into appOpts
     } // end preClose
 
 
@@ -1177,19 +1193,19 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                     if (!searchPanel.searchGoals()) {
                         goLook = false;
                     } else {
-                        if(!MemoryBank.appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
+                        if(!appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
                     }
                 } else if (theFile1Name.startsWith("event_")) {
                     if (!searchPanel.searchEvents()) {
                         goLook = false;
                     } else {
-                        if(!MemoryBank.appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
+                        if(!appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
                     }
                 } else if (theFile1Name.startsWith("todo_")) {
                     if (!searchPanel.searchLists()) {
                         goLook = false;
                     } else {
-                        if(!MemoryBank.appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
+                        if(!appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
                     }
                 } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
                     if (!searchPanel.searchDays()) goLook = false;
@@ -1245,7 +1261,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     //
     // File-level (but not item-level) date filtering will
     //   have been done prior to this method being called.
-    // For item-level filtering is not done; date-filtering
+    // Item-level filtering is not done; date-filtering
     //   is done against Calendar notes, by using their
     //   filename, only.  Todo items will all just pass thru
     //   the filter so if not desired, don't search there.
@@ -1351,7 +1367,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             restoringPreviousSelection = false;
         } else {
             // Capture the current state; we may have to 'toggle' back to it.
-            updateTreeState(true); // Now updating lists every time, due to link target selection.
+            updateAppOptions(true); // Now updating lists every time, due to link target selection.
             theTree.clearSelection();
 
             // Show it.
@@ -1808,11 +1824,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //   normal tree selection events but also allows for 'phantom' selections; tree
         //   paths that were created and selected by code vs those that came from a user's
         //   mouse click event on an existing (visible and active) tree node.
-        if (selectedNode == null) return;
+        if (selectedNode == null) {
+            appMenuBar.manageMenus("No Selection");
+            return;
+        }
         selectedArchiveNode = null; // Clear any previous archive selection.
 
         // We have started to handle the change; now disallow
-        //   further input until we are finished.
+        //   further input by showing the modal 'working' dialog, until we are finished.
         theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
         if (!restoringPreviousSelection) showWorkingDialog(true);
 
@@ -1912,8 +1931,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 rightPane.setViewportView(tbe);
             } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
                 showWorkingDialog(false);
+                selectionContext = "No Selection";
                 theTree.clearSelection(); // This one cannot be restored upon app restart.
-                doSearch();
+                if(!restoringPreviousSelection) {
+                    // This can happen on an app restart where the previous session was left on an empty SearchResults
+                    //   node because the new search was cancelled.  Definitely a corner case.
+                    prepareSearch();
+                }
             }
         } else if (!selectedNode.isLeaf()) {  // Looking at other expandable nodes
             JTree jt = new JTree(selectedNode); // Show as a tree but no editing.
@@ -2080,7 +2104,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             if (searchResultGroupPanel == null) {
                 searchResultGroupPanel = (SearchResultGroupPanel) GroupPanelFactory.loadNoteGroupPanel(parentNodeName, theNodeString);
                 if (searchResultGroupPanel != null) {
-                    log.debug("Loaded " + theNodeString + " from filesystem");
+                    log.debug("Loaded " + theNodeString + " from the data repository");
                     theSearchResultsKeeper.add(searchResultGroupPanel);
                 }
             } else {
@@ -2224,12 +2248,12 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
 
     //-------------------------------------------------
-    // Method Name:  updateTreeState
+    // Method Name:  updateAppOptions
     //
     // Capture the current tree configuration in terms of node expansion/contraction
     //   and variable group contents, and put it into appOpts (AppOptions class).
     //-------------------------------------------------
-    void updateTreeState(boolean updateLists) {
+    void updateAppOptions(boolean updateLists) {
         appOpts.goalsExpanded = theTree.isExpanded(goalsPath);
         appOpts.eventsExpanded = theTree.isExpanded(eventsPath);
         appOpts.viewsExpanded = theTree.isExpanded(viewsPath);
@@ -2312,7 +2336,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             } // end while
         } // end if
 
-    } // end updateTreeState
+    } // end updateAppOptions
 
     //-------------------------------------------------------------
     // Method Name: valueChanged
