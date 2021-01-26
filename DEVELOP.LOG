@@ -25,10 +25,6 @@ Issues, Ideas, Analyses, Problems:
 New:
 
 
-
-    Remove the extra-added handling for no properties; Properties are now available on every NoteGroup.  This will
-        all turn up in pre-checkin code reviews; revert.
-
 =====================================================================================================
 24 Jan 2021
   Finished writing the new BranchSelectionTests, and rehabilitated the earlier SearchTest.
