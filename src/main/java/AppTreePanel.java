@@ -833,7 +833,12 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     void doViewArchive(String archiveName) {
         MemoryBank.debug("Selected Archive: " + archiveName);
-        new ArchiveTreePanel(archiveName); // It shows itself in a new window; a reference to it is not needed.
+
+        // Validate that this is a 'good' archive, before attempting to make a tree for it.
+        boolean goodArchive = ArchiveTreePanel.validateArchive(archiveName);
+
+        if(goodArchive) new ArchiveTreePanel(archiveName); // It shows itself in a new window; a reference to it is not needed.
+        else optionPane.showMessageDialog(theTree, "Archive not available!");
     } // end doViewArchive
 
 

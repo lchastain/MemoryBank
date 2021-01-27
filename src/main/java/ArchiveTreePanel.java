@@ -17,10 +17,11 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -77,8 +78,8 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         dataAccessor = MemoryBank.dataAccessor;
         archiveWindow = new JFrame("Archive: " + archiveName);
 
-        // This covers an edge case, where this archive is deleted from the AppTreePanel; this
-        // provides the handle that it needs to be able to close any open windows onto this archive.
+        // When this archive is being deleted from the AppTreePanel, this
+        // provides the handle that it needs to be able to close any open windows to this archive.
         String archiveKey = archiveName + " " + UUID.randomUUID();
         AppTreePanel.theInstance.archiveWindows.put(archiveKey, archiveWindow);
 
@@ -100,8 +101,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         //</editor-fold>
 
         optionPane = new Notifier() { }; // Uses all default methods.
-
-//        setOpaque(true);
 
         MemoryBank.update("Recreating the previous Tree configuration");
         createTree();  // Create the tree.
@@ -275,6 +274,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
 
         leaf = new DefaultMutableTreeNode("Week View");
         branch.add(leaf);
+        pathToRoot = leaf.getPath();
         weekViewPath = new TreePath(pathToRoot);
         //---------------------------------------------------
 
@@ -433,17 +433,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         rightPane.setViewportView(thePanel.theBasePanel);
     }
 
-    private void showHelp() {
-        //new Exception("Your help is showing").printStackTrace();
-        try {
-            String s = MemoryBank.logHome + File.separatorChar;
-            Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
-        } catch (IOException ioe) {
-            // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
-            MemoryBank.debug(ioe.getMessage());
-        } // end try/catch
-    } // end showHelp
-
 
     // Called from YearView - a click on a Month name
     @Override
@@ -456,10 +445,10 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     @Override
     public void showWeek(LocalDate theWeekToShow) {
         MemoryBank.debug("showWeek called.");
-        // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas.
+        // This method is called from external contexts such as MonthViewCanvas and YearViewCanvas and Tests.
         // There IS not actually a view to show, here.  The rightPane is
         // just loaded with the text, 'Week View'.  Therefore when this node is selected directly
-        // on the tree, it does not come here but just shows the text of the request that it does
+        // on the tree, it does not come here but just shows the text of a request that it does
         // not know how to handle.
 
         //viewedDate = theMonthToShow; // NOT NEEDED until we have a week view to show.
@@ -879,6 +868,19 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         }).start(); // Start the thread
 
     } // end valueChanged
+
+
+    static boolean validateArchive(String archiveName) {
+        // Get an Array of all the valid archive names
+        String[] theNames = MemoryBank.dataAccessor.getArchiveNames();
+        if(theNames == null) return false;
+
+        // Convert the String Array to List
+        List<String> list = Arrays.asList(theNames);
+
+        // And check to see if the input param is among them.
+        return list.contains(archiveName);
+    }
 
 } // end ArchiveTreePanel class
 

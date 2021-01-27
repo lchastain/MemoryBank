@@ -24,8 +24,11 @@ Issues, Ideas, Analyses, Problems:
 
 New:
 
-
 =====================================================================================================
+27 Jan 2021
+  Adding a new test class, for ArchiveTreePanel.  Needed to add bulletproofing for archive existence, and needed
+    to add an archive to the test data.
+
 24 Jan 2021
   Finished writing the new BranchSelectionTests, and rehabilitated the earlier SearchTest.
 

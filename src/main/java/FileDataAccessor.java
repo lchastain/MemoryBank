@@ -161,7 +161,6 @@ public class FileDataAccessor implements DataAccessor {
         String archiveDirectoryName = archiveFileFormat.format(theArchiveTimestamp);
 
         Exception e = null;
-//        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
         String filename = MemoryBank.userDataHome + File.separatorChar + DataArea.ARCHIVES.getAreaName();
         filename += File.separatorChar + archiveDirectoryName + File.separatorChar + "appOpts.json";
 

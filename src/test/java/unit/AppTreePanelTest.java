@@ -248,7 +248,7 @@ public class AppTreePanelTest {
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Month View");
-        System.out.println("End testShowMonth");
+        System.out.println("End testShowMonthView");
     }
 
     @Test
