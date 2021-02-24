@@ -6,11 +6,10 @@ Priorities:
     Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
       doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
       with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
+      Alternate name: timeline ?   This one could come with a chart...
 
 
 Current/Next:
-    Burn-in, thinking about next task....
-
 
 
 Issues, Ideas, Analyses, Problems:
@@ -19,12 +18,17 @@ Issues, Ideas, Analyses, Problems:
     Past Events -
         Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
         or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
-    Add a note to an archive?  A one-liner possibly as a NoteData / NoteComponent, where the first column is the
-      archive name, second column the NoteComponent.  Lets the user describe the snapshot in some way.
 
 New:
 
 =====================================================================================================
+24 Feb 2021
+  After about a month of burn-in and thinking about next task, don't really have anything motivational.  Reviewing
+    the outstanding issues, finding many that are obe or non-reproducible.  So - need to clear out all the too-vague
+    issues and then move on to something else entirely - thinking of going back to web work, specifically learning
+    how to host in the www, for real.  To do that, would first want to use the Flashcards project, which will need
+    a lot of local web-based prep work, including possible use of a database, WebSwing, and upgraded Java.
+
 27 Jan 2021
   Adding a new test class, for ArchiveTreePanel.  Needed to add bulletproofing for archive existence, and needed
     to add an archive to the test data.
@@ -36,7 +40,8 @@ New:
   Found a BIG problem with running tests, when I wanted to use a different test user (new.user); some of the tests
     were using the test user, and redirecting userDataHome accesses to the wrong place.  Did not find a way to
     deconflict after trying various ideas like static-to-instance variables, thread sleeps, etc.  So - gave in and
-    now using test.user like all the others (except for the ones that use 'null').  Some of the improvements can stay,
+    now using test.user in the new user test, same user as in all the other tests (except for the ones that use 'null').
+    Some of the improvements can stay,
     even though they did not fix this particular issue, which may be ok since each test that uses this area first
     clears it out and then loads it up with what is needed.  So actually, I got forced into doing it the 'right' way,
     but I do think I should be able to change it if I wanted to, although there isn't supposed to be any need for

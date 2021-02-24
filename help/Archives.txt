@@ -54,7 +54,6 @@ Reviewing
     but in that case there is no 'Go Back' option.
 
 
-
   Review Panels for all Calendar-type Notes can go from data-only dates, do not show empty date-data.  This is
     a wishlist/SCR00022 item.  Possibly different alterbuttons - without the larger jumps?
   To achieve the same data-review effect on 'live' Panels, the CalendarNoteGroup can have a 'Review Mode' menu item.
@@ -69,4 +68,10 @@ Deleting
   Closes the window(s) (if open), removes the repo, and refreshes the Archives list.
 
 
-
+An idea that was not implemented:
+  Add a note to an archive?  A one-liner possibly as a new NoteComponent, where the first column is the
+    archive name, second column the NoteTextField.  Lets the user describe the snapshot in some way.
+  This is a nice-to-have; quite a bit of work to implement and store/retrieve, and allow the user to alter if
+    desired - so currently it seems like too much trouble for too little value added.  Decided against it for
+    those reasons and also they can always make a separate list where previous archives can be described, if
+    the need is great enough.
