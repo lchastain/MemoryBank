@@ -222,10 +222,6 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end shiftUp
 
 
-    //------------------------------------------------------------------
-    // Method Name: swap
-    //
-    //------------------------------------------------------------------
     public void swap(DayNoteComponent dnc) {
         // Get a reference to the two data objects
         DayNoteData dnd1 = (DayNoteData) this.getNoteData();

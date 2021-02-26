@@ -327,6 +327,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     }
 
 
+    @Override
     public void shiftDown(int index) {
         if (index >= (getLastVisibleNoteIndex())) return;
 
@@ -340,6 +341,7 @@ public class LinkagesEditorPanel extends JPanel implements NoteComponentManager 
     } // end shiftDown
 
 
+    @Override
     public void shiftUp(int index) {
         // Prevent the first note on the page from shifting up.
         if (index == 0) return;

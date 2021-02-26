@@ -118,7 +118,6 @@ class DayNoteComponentTest {
         dayNoteComponent.setIcon(new AppIcon(testFile.getPath()));
     }
 
-
     // Gettin the coverage...
     @Test
     void testSetNoteData() {
@@ -128,12 +127,4 @@ class DayNoteComponentTest {
         dayNoteComponent.setNoteData(new EventNoteData());
     }
 
-//    @Test
-//    void shiftDown() {
-//    }
-//
-//    @Test
-//    void shiftUp() {
-//    }
-//
 }

@@ -22,12 +22,20 @@ Issues, Ideas, Analyses, Problems:
 New:
 
 =====================================================================================================
-24 Feb 2021
-  After about a month of burn-in and thinking about next task, don't really have anything motivational.  Reviewing
-    the outstanding issues, finding many that are obe or non-reproducible.  So - need to clear out all the too-vague
-    issues and then move on to something else entirely - thinking of going back to web work, specifically learning
-    how to host in the www, for real.  To do that, would first want to use the Flashcards project, which will need
-    a lot of local web-based prep work, including possible use of a database, WebSwing, and upgraded Java.
+25 Feb 2021 - Updated / groomed this file as well as some code comments and 3 To Do Lists related to app dev work.
+  Now moving on; this project is expected to go dormant for some time, but the app will be in use and any issues
+  will be noted, so will make a user data archive today.
+  0743 - It turns out that the older archived data that was kept in an app reference snapshot, is not readable by
+    that snapshot, so the wishlist item to merge it back in to live data - cannot be done (with that version).
+  But later - found the right version, got it running, and merged the data in.  Wow! it was the old tabbed-pane
+    version!  After that, got rid of all (most of) the old 'Archives' directories in the backup snapshots, so there
+    should be less confusion about the name conflict with the new folder of that name.
+
+24 Feb 2021 - After about a month of burn-in and thinking about next task, don't really have anything motivational.
+  Reviewing the outstanding issues, finding many that are obe or non-reproducible.  So - need to clear out all the
+  too-vague issues and then move on to something else entirely - thinking of going back to web work, specifically
+  learning how to host in the www, for real.  To do that, would first want to use the Flashcards project, which will
+  need a lot of local web-based prep work, including possible use of a database, WebSwing, and upgraded Java.
 
 27 Jan 2021
   Adding a new test class, for ArchiveTreePanel.  Needed to add bulletproofing for archive existence, and needed
