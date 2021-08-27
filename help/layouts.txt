@@ -52,7 +52,11 @@ GridLayout
         equal size. One, but not both, of rows and cols can be zero, which means that any number of objects in that
         dimension is not limited.
         (Used for MonthView, YearView, several other places)
-        It stretches its components
+        It stretches its components.
+        If the number of components added exceeds the column/row total, columns beyond the specified limit are added.
+        Setting the number of columns has no affect on the layout if the number of rows specified by a constructor or
+        by the setRows method is non-zero. In that case, the number of columns displayed in the layout is determined
+        by the total number of components and the number of rows specified.
 
 GridBagLayout
         This is the only one that allows you to set Insets.
@@ -69,6 +73,11 @@ SpringLayout
     SpringLayout is very low-level and as such you really should only use it with a GUI builder, rather than
     attempting to code a spring layout manager by hand.  (advice from the internet; not my own words).
 
+TableLayout
+    An older awt (not swing) package available from Oracle.  Very close to GridBagLayout but allows you to
+    set rows and columns and their sizes in its constructor.  Can be adapted to swing with minimal effort.
+    Allows for empty 'cells'.
+
 ========================================================================
 DndLayout
         My own, custom layout manager.
@@ -82,3 +91,11 @@ DndLayout
         It supports a 'Drag and Drop' feature, for column reordering.
            For the Dnd, you need some extra plumbing - see the Dnd-capable NoteGroups; those will have
            a 'header' row; a secondary class that implements a needed interface and gets them the rest of the way.
+
+ColumnPanel  (used in Flashcards)
+    Not in itself a Layout, but a Container/Panel that implements a specific GridBagLayout that has only one
+    column.  There is an 'addRow' method to use, whereby the content does not need to match the dimensions
+    of content in other rows.  GridBagConstraints are all defaulted but can be overridden if needed.
+
+
+

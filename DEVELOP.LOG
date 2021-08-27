@@ -22,6 +22,11 @@ Issues, Ideas, Analyses, Problems:
 New:
 
 =====================================================================================================
+
+27 Aug 2021 - Needed to go to Java 16 during the dev of LifoSort.  Now, looking at upgrading here as well.
+
+5 Mar 2021 - Updated Intellij 2020.2.3 (community Edition) to 2020.2.4
+
 25 Feb 2021 - Updated / groomed this file as well as some code comments and 3 To Do Lists related to app dev work.
   Now moving on; this project is expected to go dormant for some time, but the app will be in use and any issues
   will be noted, so will make a user data archive today.
