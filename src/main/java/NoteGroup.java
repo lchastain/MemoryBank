@@ -270,10 +270,9 @@ class NoteGroup implements LinkHolder {
     } // end setGroupChanged
 
 
-    public void setGroupProperties(GroupProperties groupProperties) {
-        myProperties = groupProperties;
-//        setGroupChanged(true);
-    }
+//    public void setGroupProperties(GroupProperties groupProperties) {
+//        myProperties = groupProperties;
+//    }
 
 
     // This method is called with the raw data that is the GroupProperties.
@@ -281,7 +280,11 @@ class NoteGroup implements LinkHolder {
     // so they can convert it to the correct child type.
     // This 'set' method should not affect the Last Mod date of the group.
     protected void setGroupProperties(Object propertiesObject) {
-        myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
+        if(propertiesObject instanceof GroupProperties) {
+            myProperties = (GroupProperties) propertiesObject;
+        } else {
+            myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
+        }
         //myGroupInfo = new GroupInfo(myProperties);  // Set GroupInfo per the data that came from storage.
         // If we do that ^^^ then when the file data does not match the tree node text, no (or wrong) data gets loaded.
         // But this all seems wrong; may want to re-enable that line...
@@ -299,18 +302,24 @@ class NoteGroup implements LinkHolder {
     // This method is called with the raw data that is the data Vector.
     // Child groups with notes that are children of NoteData should override.
     protected void setNotes(Object vectorObject) {
-        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() { });
-    }
-
-
-    public void setNotes(Vector<NoteData> incomingNotes) {
-        if(incomingNotes == null) {
+        if(vectorObject == null) {
             noteGroupDataVector.clear(); // null not allowed here.
+        } else if(vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
         } else {
-            noteGroupDataVector = incomingNotes;
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() {
+            });
         }
-//        setGroupChanged(true);
     }
+
+
+//    public void setNotes(Vector<NoteData> incomingNotes) {
+//        if(incomingNotes == null) {
+//            noteGroupDataVector.clear(); // null not allowed here.
+//        } else {
+//            noteGroupDataVector = incomingNotes;
+//        }
+//    }
 
 
 // Use this if working on serialization; otherwise leave disabled.

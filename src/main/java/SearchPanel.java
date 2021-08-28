@@ -976,8 +976,8 @@ public class SearchPanel extends JPanel implements DocumentListener {
         MouseAdapter ma2 = new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
                 boolean rightClick = false;
-                int m = me.getModifiers();
-                if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
+                int m = me.getModifiersEx();
+                if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
 
                 JRadioButton source = (JRadioButton) me.getSource();
                 if (!source.isSelected() && rightClick) return;

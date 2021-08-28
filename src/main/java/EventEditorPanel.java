@@ -171,13 +171,13 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     //   reason, so there is no need to check for one ...)
     //-----------------------------------------------------------
     private void handleDateTimeClicked(MouseEvent e) {
-        int m = e.getModifiers();
+        int m = e.getModifiersEx();
         Component source = (Component) e.getSource();
         String s = source.getName();
         boolean rightClick = false;
         String strTmp;
 
-        if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
+        if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
 
         // Get the initial values of the four main vars -
         LocalDate startDate = editedEventNoteData.getStartDate();
@@ -788,7 +788,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         Integer theValue;
         String theValueString = txtfDurationValue.getText();
         if(theValueString.equals("0") || theValueString.isEmpty()) theValue = null;
-        else theValue = new Integer(theValueString);
+        else theValue = Integer.parseInt(theValueString);
         Object theUnitsSelection = comboxDurationUnits.getSelectedItem();
         String theUnits;
         if(theUnitsSelection != null) theUnits = theUnitsSelection.toString();

@@ -12,6 +12,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.Vector;
 
 public class MonthView extends JLayeredPane {
@@ -127,8 +128,8 @@ public class MonthView extends JLayeredPane {
         // not have the desired Z-effect, and the choiceLabel
         // will fall behind the monthCanvas and appear to
         // not be showing.
-        add(monthCanvas, new Integer(0));
-        add(choiceLabel, new Integer(1));
+        add(monthCanvas, Integer.valueOf(0));
+        add(choiceLabel, Integer.valueOf(1));
 
         setView(initialChoice); // The choice will not always be the displayedMonth.
         MonthView.this.setLabelBounds(); // adjust the label.
@@ -323,11 +324,7 @@ public class MonthView extends JLayeredPane {
                     if (buttonText.equals("Y-")) displayedMonth = displayedMonth.minusMonths(12);
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
                     if (buttonText.equals("T")) {
-                        if(archiveDate == null) {
-                            displayedMonth = LocalDate.now();
-                        } else {
-                            displayedMonth = archiveDate;
-                        }
+                        displayedMonth = Objects.requireNonNullElseGet(archiveDate, LocalDate::now);
                     }
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
                     if (buttonText.equals("Y+")) displayedMonth = displayedMonth.plusMonths(12);
@@ -462,11 +459,7 @@ public class MonthView extends JLayeredPane {
                 // If this is true then we went into next month.
                 if (displayedMonth.getMonth() != tmpLocalDate.getMonth()) rollover = true;
 
-                if(archiveDate == null) {
-                    todayButton.setEnabled(!(displayedMonth.equals(LocalDate.now())));
-                } else {
-                    todayButton.setEnabled(!(displayedMonth.equals(archiveDate)));
-                }
+                todayButton.setEnabled(!(displayedMonth.equals(Objects.requireNonNullElseGet(archiveDate, LocalDate::now))));
 
             } // end for i
         } // end recalc

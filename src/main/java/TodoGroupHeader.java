@@ -292,7 +292,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
             if (e.isMetaDown()) {
                 doUserHeader();
             } else {
-                final int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
+                final int shiftPressed = e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK;
                 new Thread(new Runnable() {
                     public void run() {
                         doSorting(shiftPressed);

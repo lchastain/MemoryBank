@@ -507,7 +507,7 @@ public class NoteComponent extends JPanel {
                 NoteTextField theSource = (NoteTextField) lastMouseEnteredEvent.getSource();
                 // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
                 MouseEvent mouseExitedEvent = new MouseEvent(theSource, MouseEvent.MOUSE_EXITED,
-                        lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiers(),
+                        lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiersEx(),
                         -1, -1, lastMouseEnteredEvent.getClickCount(), false);
 
                 // Now get ALL the mouse listeners on that earlier note.
@@ -744,10 +744,10 @@ public class NoteComponent extends JPanel {
             }
 
             if (!this.isEditable()) return;
-            int m = e.getModifiers();
+            int m = e.getModifiersEx();
 
             // Single click, right mouse button.
-            if ((m & InputEvent.BUTTON3_MASK) != 0) {
+            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) {
                 // System.out.println("Right click on index " + index);
 
                 // In earlier Java versions (before 1.6), The rmb click

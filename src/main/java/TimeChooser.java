@@ -263,8 +263,8 @@ public class TimeChooser extends JPanel implements ActionListener {
             setBorder(down);
 
             // Determine whether it is the left or right mouse button.
-            int m = e.getModifiers();
-            if ((m & InputEvent.BUTTON3_MASK) != 0) direction = -1;
+            int m = e.getModifiersEx();
+            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) direction = -1;
             else direction = 1;
 
             // Since a Thread will die upon return from the run method,
@@ -285,7 +285,7 @@ public class TimeChooser extends JPanel implements ActionListener {
         private int delay = 300; // milliseconds
         private boolean iAmRunning;
         ChronoUnit timeField;
-        private int direction;
+        private final int direction;
 
         Depressed(ChronoUnit t, int d) {
             timeField = t;

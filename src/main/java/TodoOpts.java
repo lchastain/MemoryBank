@@ -48,7 +48,7 @@ public class TodoOpts extends JTabbedPane {
             digit = userInt.substring(1, 2);
             if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        todoGroupProperties.maxPriority = new Integer(userInt);
+        todoGroupProperties.maxPriority = Integer.parseInt(userInt);
 
         // Print panel
         todoGroupProperties.pHeader = pp.cb1.isSelected();
@@ -69,7 +69,7 @@ public class TodoOpts extends JTabbedPane {
             digit = userInt.substring(1, 2);
             if (!ints.contains(digit)) userInt = userInt.substring(0, 1);
         } // end if
-        todoGroupProperties.pCutoff = new Integer(userInt);
+        todoGroupProperties.pCutoff = Integer.parseInt(userInt);
 
         todoGroupProperties.lineSpace = pp.sp.getValue();
 

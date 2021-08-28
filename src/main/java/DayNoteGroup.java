@@ -10,7 +10,12 @@ public class DayNoteGroup extends CalendarNoteGroup {
 
     @Override
     protected void setNotes(Object vectorObject) {
-        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<DayNoteData>>() { });
+        if(vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
+        } else {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<DayNoteData>>() {
+            });
+        }
     }
 
 }

@@ -414,15 +414,12 @@ public class DayNoteComponent extends IconNoteComponent {
             DayNoteComponent.this.setActive();
             if (!initialized) return;
 
-            int m = e.getModifiers();
-            // Single click, right mouse button.
-            if ((m & InputEvent.BUTTON3_MASK) != 0) {
+            int m = e.getModifiersEx();
+            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // Click of right mouse button.
                 if (e.getClickCount() >= 2) return;
                 // Show the popup menu
                 showTimePopup(e);
-
-                // Double click, left mouse button.
-            } else if (e.getClickCount() == 2) {
+            } else if (e.getClickCount() == 2) { // Double click, left mouse button.
                 showTimeChooser(); // bring up a mouse-controlled time interface
 
             } else { // Single Left Mouse Button

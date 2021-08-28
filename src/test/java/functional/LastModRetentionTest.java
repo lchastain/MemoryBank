@@ -44,7 +44,7 @@ class LastModRetentionTest {
         // Since we haven't made any change, for this test only we need to call this NoteGroupPanel method
         //   directly, rather than via preClosePanel().
         goalGroupPanel.getPanelData();  // Pull the data out of the Panel and put it back into the NoteGroup.
-        // Operationally, getPanelData does not get called if the groupChanged flag is false.
+        // Note that operationally, getPanelData does not get called if the groupChanged flag is false.
 
         // Access the group (not the Panel) and snag the Last Mod dates for both the Group and its first note.
         GoalGroup theNoteGroup = (GoalGroup) goalGroupPanel.myNoteGroup;

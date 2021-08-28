@@ -58,7 +58,7 @@ C:\UberArchive\SHEBA\PRESERVED\Memory Bank Archives
 
 C:\Dropbox\Memory Bank Archives - Most recent archive snapshots; these may eventually merge in to the above repo.
     Memory Bank 2020_1121 - this is the repo for the final v0.4, described below.
-    Memory Bank 2021_0226 - this is the repo for a pre-final v0.5, described below.
+    Memory Bank 2021_0226 - this is the repo for a final v0.5, described below.
 
 
 C:\Users\Lee\workspace\Memory Bank - current development
@@ -110,8 +110,7 @@ Ver.    Notes
         Added a new debug dialog - 'View current NoteGroup' - allows view of the in-memory data (such as LMD)
         All Panels with a Calendar basis now have more/better date-changing controls (AlterButtons).
 
-        New version number, not final; this version will 'grow' for some time...
-0.5     26 Feb 2021   a pre-final v0.5
+0.5     26 Feb 2021   final v0.5
         The 'Found In' link is now fixed for all types, and when using it there is a new menu choice:  'Go Back'.
         Tooltips now stay up much longer, but go away upon typing or invoking the ExtendedNoteComponent editor.
         Now able to set a longer Goal title, and the Goal Plan, via the Title / ExtendedNoteComponent editor.
@@ -119,6 +118,13 @@ Ver.    Notes
         Search Panel settings now recallable and shown as Search Criteria, several other Search Issues resolved.
         Archiving is now implemented (for NoteGroups; no plans to do archiving of CNG notes)
         The 'Review' mode is working, for Calendar-based notes
+        Run this version with Java 8 and the 2.2.0 versions of the Jackson libraries: core, databind, annotations.
+
+        New version number, not final; this version may 'grow' for some time...
+        NOT YET ARCHIVED; this version in dev workspace only.
+0.6     28 Aug 2021   a pre-final v0.6
+        Upgraded Java from v8 to v16.  New Jackson jars (v2.9.0 for core, databind, annotations) as well.
+
 
 
 

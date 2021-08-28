@@ -25,7 +25,12 @@ public class TodoNoteGroup extends NoteGroup {
 
     @Override
     protected void setNotes(Object vectorObject) {
-        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<TodoNoteData>>() { });
+        if(vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
+        } else {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<TodoNoteData>>() {
+            });
+        }
     }
 
 }

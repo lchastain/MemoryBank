@@ -23,7 +23,30 @@ New:
 
 =====================================================================================================
 
+28 Aug 2021
+Upgraded scripts and shortcuts AND the version graphic.  Made the in-progress snapshot of v0.5 to be a final,
+and now v0.6+ will run under Java 16; v0.5 is for Java 8, but Java 16 can run it.  Committing change to this
+point.
+
 27 Aug 2021 - Needed to go to Java 16 during the dev of LifoSort.  Now, looking at upgrading here as well.
+First issue:  jackson libraries; I have both a 2.2.0 and a 2.9.0.  Appears the later one has not been in use, so
+moved the earlier ones (core, databind, annotations) out of the way, and got runtime issues; resolving.
+Two instances of overridden methods complaining because there were two different signatures but the one with my
+custom object was being interpreted as Object, so signatures were identical.  Solution in both setNotes and
+setGroupProperties was to combine the methods and use instanceOf to determine behavior.  Then there was some
+newly-illegal reflection from the jackson library to java.time, in working with LocalDate.  'fixed' this by
+adding an execution flag:  --add-opens java.base/java.time=ALL-UNNAMED.  And now, back up to the always-increasing
+priorityButton.  Working that next.  42 warnings in the build, 38 of which are in 'my' code.  Working them..
+----
+The event mask for the right button has changed, which caused the pributton problem.  Updated code, to fix.
+This was effectively the same problem for all other build warnings.
+----
+Tests also need the VM setting, to run without exceptions.  All but one are passing, and that one may just be
+data-related. ... No, it had to do with combining earlier setNotes methods; needed to handle the cases where
+overridden methods were setting the data type via the jackson type reference, when it wasn't actually needed
+because the Object was already a vector of the correct type.  Did that, now all 196 tests passing.
+It seems that the app has been updated, not to Java 10 (finally), but to Java 16!  Next step is to update the
+scripts and shortcuts, then could be done with this task.
 
 5 Mar 2021 - Updated Intellij 2020.2.3 (community Edition) to 2020.2.4
 

@@ -113,9 +113,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         MouseAdapter deselector = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 //System.out.println(e.toString());
-                int m = e.getModifiers();
+                int m = e.getModifiersEx();
                 boolean rightClick = false;
-                if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
+                if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
 
                 if (rightClick) {
                     theTree.collapsePath(theTree.getSelectionPath());

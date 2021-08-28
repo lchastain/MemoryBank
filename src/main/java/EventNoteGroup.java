@@ -10,7 +10,12 @@ public class EventNoteGroup extends NoteGroup {
 
     @Override
     protected void setNotes(Object vectorObject) {
-        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<EventNoteData>>() { });
+        if(vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
+        } else {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<EventNoteData>>() {
+            });
+        }
     }
 
 }

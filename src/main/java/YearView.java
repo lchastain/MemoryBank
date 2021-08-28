@@ -13,6 +13,7 @@ import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class YearView extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -288,11 +289,7 @@ public class YearView extends JPanel {
                     if(treePanel != null) treePanel.setSelectedDate(theChoice);
                 } else {
                     // This is a view-change only.
-                    if(archiveDate == null) {
-                        theYear = LocalDate.now().getYear();
-                    } else {
-                        theYear = archiveDate.getYear();
-                    }
+                    theYear = Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear();
                     recalc(theYear);
                 }
             }
@@ -327,11 +324,7 @@ public class YearView extends JPanel {
         } else {
             choiceLabel.setText(dtf.format(theChoice) + " ");
         }
-        if(archiveDate == null) {
-            todayButton.setEnabled(!(year == LocalDate.now().getYear()));
-        } else {
-            todayButton.setEnabled(!(year == archiveDate.getYear()));
-        }
+        todayButton.setEnabled(!(year == Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear()));
     } // end recalc
 
 
@@ -573,8 +566,8 @@ public class YearView extends JPanel {
             if (getText().equals("")) return; // ignore blank days
 
             boolean rightClick = false;
-            int m = e.getModifiers();
-            if ((m & InputEvent.BUTTON3_MASK) != 0) rightClick = true;
+            int m = e.getModifiersEx();
+            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
 
             if (rightClick) {
                 // Turn 'off' this DayLabel if it is right-clicked.

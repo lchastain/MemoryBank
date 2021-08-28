@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 import java.time.LocalDate;
 
@@ -501,7 +498,9 @@ public class TodoNoteComponent extends NoteComponent {
 
             // System.out.println(e);
 
-            if (e.isMetaDown()) {
+            int m = e.getModifiersEx();
+            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) {
+//            if (e.isMetaDown()) {
                 rightClicked = true;
                 leftClicked = false;
             } else {

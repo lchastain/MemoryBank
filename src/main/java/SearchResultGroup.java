@@ -21,7 +21,12 @@ public class SearchResultGroup extends NoteGroup {
 
     @Override
     protected void setNotes(Object vectorObject) {
-        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<SearchResultData>>() { });
+        if(vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
+        } else {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<SearchResultData>>() {
+            });
+        }
     }
 
 }

@@ -49,7 +49,7 @@ class EventDurationSettingTest {
 
         // Verify that the setting was accepted.  Subsequent tests in this
         // class will not need to keep repeating this check.
-        Assertions.assertEquals(new Integer(45), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(45), eventNoteData.getDurationValue());
     }
 
     // END_TIME is known.

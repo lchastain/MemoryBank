@@ -111,21 +111,21 @@ class EventDurationCalculationTest {
         eventNoteData.setEndTime(LocalTime.of(8, 47));
 
         // Verify a positive (12 minutes) duration.
-        Assertions.assertEquals(new Integer(12), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(12), eventNoteData.getDurationValue());
         Assertions.assertEquals("Minutes", eventNoteData.getDurationUnits());
 
         // Set the End time earlier than the start (indicates a > 1 day difference)
         eventNoteData.setEndTime(LocalTime.of(8, 27));
 
         // And verify that it was 'normalized' to less than one day difference.
-        Assertions.assertEquals(new Integer(1432), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(1432), eventNoteData.getDurationValue());
         Assertions.assertEquals("Minutes", eventNoteData.getDurationUnits());
 
         // Now set the End Time for a difference in whole hours.
         eventNoteData.setEndTime(LocalTime.of(11, 35));
 
         // And verify correct value and units.
-        Assertions.assertEquals(new Integer(3), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(3), eventNoteData.getDurationValue());
         Assertions.assertEquals("Hours", eventNoteData.getDurationUnits());
     }
 
@@ -135,27 +135,27 @@ class EventDurationCalculationTest {
         // Verify a 31 day difference, with no times
         eventNoteData.setStartDate(LocalDate.of(2017,6,6));
         eventNoteData.setEndDate(LocalDate.of(2017, 7,7));
-        Assertions.assertEquals(new Integer(31), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(31), eventNoteData.getDurationValue());
         Assertions.assertEquals("Days", eventNoteData.getDurationUnits());
 
         // Verify a 33 day difference, with both Dates and the End Time
         eventNoteData.setEndDate(LocalDate.of(2017, 7,9));
         eventNoteData.setEndTime(LocalTime.of(20,20));
-        Assertions.assertEquals(new Integer(33), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(33), eventNoteData.getDurationValue());
         Assertions.assertEquals("Days", eventNoteData.getDurationUnits());
         eventNoteData.setEndTime(null); // reset
 
         // Verify a 35 day difference --> 5 weeks, with both Dates and the Start Time
         eventNoteData.setEndDate(LocalDate.of(2017, 7,11));
         eventNoteData.setStartTime(LocalTime.of(20,20));
-        Assertions.assertEquals(new Integer(5), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(5), eventNoteData.getDurationValue());
         Assertions.assertEquals("Weeks", eventNoteData.getDurationUnits());
         eventNoteData.setStartTime(null); // reset
 
         // Test a HUGE difference -
         eventNoteData.setStartDate(LocalDate.of(1419,2,8));
         eventNoteData.setEndDate(LocalDate.of(2019, 10,20));
-        Assertions.assertEquals(new Integer(31342), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(31342), eventNoteData.getDurationValue());
         Assertions.assertEquals("Weeks", eventNoteData.getDurationUnits());
 
         // Test TOO huge of a difference -
@@ -172,25 +172,25 @@ class EventDurationCalculationTest {
         eventNoteData.setStartTime(LocalTime.of(8, 35));
         eventNoteData.setEndDate(LocalDate.of(2019, 3,5));
         eventNoteData.setEndTime(LocalTime.of(8, 47));
-        Assertions.assertEquals(new Integer(36012), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(36012), eventNoteData.getDurationValue());
         Assertions.assertEquals("Minutes", eventNoteData.getDurationUnits());
 
         // Hours
         eventNoteData.setEndDate(LocalDate.of(2019, 2,25));
         eventNoteData.setEndTime(LocalTime.of(10, 35));
-        Assertions.assertEquals(new Integer(410), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(410), eventNoteData.getDurationValue());
         Assertions.assertEquals("Hours", eventNoteData.getDurationUnits());
 
         // Days
         eventNoteData.setEndDate(LocalDate.of(2019, 2,25));
         eventNoteData.setEndTime(LocalTime.of(8, 35));
-        Assertions.assertEquals(new Integer(17), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(17), eventNoteData.getDurationValue());
         Assertions.assertEquals("Days", eventNoteData.getDurationUnits());
 
         // Weeks
         eventNoteData.setEndDate(LocalDate.of(2019, 3,29));
         eventNoteData.setEndTime(LocalTime.of(8, 35));
-        Assertions.assertEquals(new Integer(7), eventNoteData.getDurationValue());
+        Assertions.assertEquals(Integer.valueOf(7), eventNoteData.getDurationValue());
         Assertions.assertEquals("Weeks", eventNoteData.getDurationUnits());
     }
 }

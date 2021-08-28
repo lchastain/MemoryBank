@@ -1,6 +1,11 @@
 The 'about' graphic comes from help\logDesign.ppt - Open it with Microsoft Office PowerPoint 2013
 
 Find the page, update the version number and then save the grouped image as a .gif.
+   Select the graphic so that there is only one box around it.
+   Right-click on it, to bring up context menu.
+   Select from the menu:  Save as Picture...
+   Set the 'Save as Type' to gif, then save to desktop.
+
 But then you have a gif with a solid background.  To convert it to a transparent background,
 open the file with IrfanView and do a Save As...
     You get two popups; the main one has the file location, type and name, the smaller one has gif 
