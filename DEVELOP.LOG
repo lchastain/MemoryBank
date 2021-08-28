@@ -27,6 +27,12 @@ New:
 Upgraded scripts and shortcuts AND the version graphic.  Made the in-progress snapshot of v0.5 to be a final,
 and now v0.6+ will run under Java 16; v0.5 is for Java 8, but Java 16 can run it.  Committing change to this
 point.
+To fix a build warning:  Warning:(17, 5) Slf4j Logger is defined explicitly. Use Lombok @Slf4j annotation instead.
+Had to disable the inspection under 'Lombok'  ???   Research shows this is probably a later version, evolution
+of the slf4j library, but the suggested 'fix' introduces a harder error about not being able to find the
+'lombok' reference.  Tried searching for a .jar, no luck there, so - disabled the inspection, for now.
+No further work here planned but may generate new SCRs, ideas, etc, as I flesh out the Goals (data) for
+app and web dev.
 
 27 Aug 2021 - Needed to go to Java 16 during the dev of LifoSort.  Now, looking at upgrading here as well.
 First issue:  jackson libraries; I have both a 2.2.0 and a 2.9.0.  Appears the later one has not been in use, so
