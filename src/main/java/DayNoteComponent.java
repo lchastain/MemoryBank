@@ -415,7 +415,8 @@ public class DayNoteComponent extends IconNoteComponent {
             if (!initialized) return;
 
             int m = e.getModifiersEx();
-            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // Click of right mouse button.
+            if(e.getButton()==MouseEvent.BUTTON3) { // Click of right mouse button.
+//            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // This doesn't work in mouseClicked; only 'pressed'
                 if (e.getClickCount() >= 2) return;
                 // Show the popup menu
                 showTimePopup(e);

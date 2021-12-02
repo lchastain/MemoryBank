@@ -326,7 +326,8 @@ public abstract class IconNoteComponent extends NoteComponent {
             if (!initialized) return;
 
             int m = e.getModifiersEx();
-            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // Click of right mouse button.
+            //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // Click of right mouse button.
+            if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
                 if (e.getClickCount() >= 2) return; // Single right click only, not a double.
                 showIconPopup(e);  // Show the popup menu
             } else if (e.getClickCount() == 2) {  // Double left button click

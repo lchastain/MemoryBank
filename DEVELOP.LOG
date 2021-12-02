@@ -23,6 +23,12 @@ New:
 
 =====================================================================================================
 
+30 Aug 2021
+Problem from the upgrade:  A right-click on a note is not working.  The earlier check/test was for a mousePressed,
+but the recommended fix for the mask does not work in a 'clicked' due to timing.  The proper handling in a
+mouseClicked:  if(event.getButton()==MouseEvent.BUTTON3) - so, no getModifiersEx() is needed.  It works in the
+'pressed' method, but this is less verbose and more readable, and works in both methods.
+
 28 Aug 2021
 Upgraded scripts and shortcuts AND the version graphic.  Made the in-progress snapshot of v0.5 to be a final,
 and now v0.6+ will run under Java 16; v0.5 is for Java 8, but Java 16 can run it.  Committing change to this

@@ -11,7 +11,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
@@ -113,9 +112,9 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         MouseAdapter deselector = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 //System.out.println(e.toString());
-                int m = e.getModifiersEx();
                 boolean rightClick = false;
-                if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
+                if(e.getButton()==MouseEvent.BUTTON3) rightClick = true; // Click of right mouse button.
+                //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true; // This doesn't work in mouseClicked; only 'pressed'
 
                 if (rightClick) {
                     theTree.collapsePath(theTree.getSelectionPath());

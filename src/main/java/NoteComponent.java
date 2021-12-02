@@ -747,7 +747,7 @@ public class NoteComponent extends JPanel {
             int m = e.getModifiersEx();
 
             // Single click, right mouse button.
-            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) {
+            if(e.getButton()==MouseEvent.BUTTON3) {
                 // System.out.println("Right click on index " + index);
 
                 // In earlier Java versions (before 1.6), The rmb click

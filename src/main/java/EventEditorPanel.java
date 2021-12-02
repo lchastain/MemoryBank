@@ -177,7 +177,8 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         boolean rightClick = false;
         String strTmp;
 
-        if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
+        if(e.getButton() == MouseEvent.BUTTON3) rightClick = true;
+        //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
 
         // Get the initial values of the four main vars -
         LocalDate startDate = editedEventNoteData.getStartDate();
