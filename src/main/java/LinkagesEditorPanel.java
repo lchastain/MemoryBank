@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+// This class plagiarizes several aspects of a NoteGroupPanel, but does not extend it.   (maybe should?)
 public class LinkagesEditorPanel extends JPanel implements NoteComponentManager {
     static final long serialVersionUID = 1L;
     static Notifier optionPane;

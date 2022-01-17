@@ -19,6 +19,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
         setEditable(false); // Search Results are non-editable
+        setAppendable(false); // The user cannot directly add notes to this group.
 
         // The lines below may only be needed for older data.  May be able to remove, eventually.
         // ('older' == before the user was given the ability to review search panel settings)
@@ -349,31 +350,6 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         ((SearchResultGroupProperties) myNoteGroup.myProperties).columnOrder = listHeader.getColumnOrder();
     } // end saveProperties
 
-
-    public void shiftDown(int index) {
-//        if(!editable) return;  // Seems like a user SHOULD be able to sort their results.
-        if (index >= lastVisibleNoteIndex) return;
-        System.out.println("SRG Shifting note down");
-        SearchResultComponent src1, src2;
-        src1 = (SearchResultComponent) groupNotesListPanel.getComponent(index);
-        src2 = (SearchResultComponent) groupNotesListPanel.getComponent(index + 1);
-
-        src1.swap(src2);
-        src2.setActive();
-    } // end shiftDown
-
-
-    public void shiftUp(int index) {
-//        if(!editable) return;
-        if (index == 0) return;
-        System.out.println("SRG Shifting note up");
-        SearchResultComponent src1, src2;
-        src1 = (SearchResultComponent) groupNotesListPanel.getComponent(index);
-        src2 = (SearchResultComponent) groupNotesListPanel.getComponent(index - 1);
-
-        src1.swap(src2);
-        src2.setActive();
-    } // end shiftUp
 
     // Originally this 'sort' method was cloned from a class where it was possible that
     // the items being sorted might not actually have a value in the field they were being sorted

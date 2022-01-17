@@ -4,8 +4,13 @@
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-// We don't want GroupInfo to come from BaseData, yet GroupProperties needs to, so -
-// GroupProperties do not extend GroupInfo; the needed members are present in both.
+// We don't want GroupInfo to come from BaseData, yet GroupProperties needs the same info and does need to come
+//   from DaseData, so GroupProperties encapsulates the GroupInfo members rather than extending it.
+// Encapsulating the members vs encapsulating the GroupInfo itself - this happened during the course of data
+//   persistence evolution and by the time it all settled there was too much data already preserved, to try to shoehorn
+//   the two items into a single class, so they are just left out on their own, apparently as duplicated info but they
+//   are kept in sync with their corresponding GroupInfo object.
+// Data and Object rehabilitation at some future point - is an option.
 
 public class GroupProperties extends BaseData {
     GroupType groupType;     // Says what kind of group this is.
@@ -29,6 +34,7 @@ public class GroupProperties extends BaseData {
         groupName = theCopy.groupName;
         groupType = theCopy.groupType;
         linkTargets = (LinkTargets) theCopy.linkTargets.clone();
+        simpleName = theCopy.simpleName;
     } // end of the copy constructor
 
 

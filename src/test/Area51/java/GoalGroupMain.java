@@ -29,7 +29,7 @@ public class GoalGroupMain {
 
         testFrame.getContentPane().add(theGoalGroup.theBasePanel, "Center");
         testFrame.pack();
-        testFrame.setSize(new Dimension(540, 450));
+        testFrame.setSize(new Dimension(680, 600));
         testFrame.setVisible(true);
         testFrame.setLocationRelativeTo(null);
     }

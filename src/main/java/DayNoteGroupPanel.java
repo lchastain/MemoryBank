@@ -244,32 +244,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     } // end setDefaultIcon
 
 
-    public void shiftDown(int index) {
-        if(!getEditable()) return;
-        if (index >= (lastVisibleNoteIndex - 1)) return;
-        MemoryBank.debug("Day Shifting note down");
-        DayNoteComponent dnc1, dnc2;
-        dnc1 = (DayNoteComponent) groupNotesListPanel.getComponent(index);
-        dnc2 = (DayNoteComponent) groupNotesListPanel.getComponent(index + 1);
-
-        dnc1.swap(dnc2);
-        dnc2.setActive();
-    } // end shiftDown
-
-
-    public void shiftUp(int index) {
-        if(!getEditable()) return;
-        if (index == 0 || index == lastVisibleNoteIndex) return;
-        System.out.println("Day Shifting note up");
-        DayNoteComponent dnc1, dnc2;
-        dnc1 = (DayNoteComponent) groupNotesListPanel.getComponent(index);
-        dnc2 = (DayNoteComponent) groupNotesListPanel.getComponent(index - 1);
-
-        dnc1.swap(dnc2);
-        dnc2.setActive();
-    } // end shiftUp
-
-
     //--------------------------------------------------------------
     // Method Name: toggleMilitary
     //

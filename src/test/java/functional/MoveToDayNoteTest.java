@@ -101,7 +101,7 @@ public class MoveToDayNoteTest {
         TodoNoteData todoNoteData3 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData3.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        appTreePanel.theAppDays.addNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
+        appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
         jMenuItem.doClick(); // This saves 'selectedDate' before adding our latest note to it, then saves it again.
 
         //  4. Move to selected date while appDays is showing some other day (without unsaved changes) in AppTreePanel
@@ -130,7 +130,7 @@ public class MoveToDayNoteTest {
         TodoNoteData todoNoteData5 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData5.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        appTreePanel.theAppDays.addNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
+        appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
         jMenuItem.doClick();
         appTreePanel.theAppDays.preClosePanel(); // And now save the group for that other day.
 
@@ -188,7 +188,7 @@ public class MoveToDayNoteTest {
         //  3. Move to today while appDays is showing today (with unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(3);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        appTreePanel.theAppDays.addNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
+        appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
         jMenuItem.doClick(); // This saves 'today' before adding our latest note to it, then saves it again.
 
         //  4. Move to today while appDays is showing some other day (without unsaved changes) in AppTreePanel
@@ -213,7 +213,7 @@ public class MoveToDayNoteTest {
         //  5. Move to today while appDays is showing some other day (with unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(5);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        appTreePanel.theAppDays.addNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
+        appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
         jMenuItem.doClick();
         appTreePanel.theAppDays.preClosePanel(); // And now save the group for that other day.
 

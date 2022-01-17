@@ -122,7 +122,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
                     String dayName = CalendarNoteGroup.getGroupNameForDate(eventStartDate, GroupType.DAY_NOTES);
                     GroupInfo dayGroupInfo = new GroupInfo(dayName, GroupType.DAY_NOTES);
                     DayNoteGroup dayNoteGroup = new DayNoteGroup(dayGroupInfo);
-                    dayNoteGroup.addNote(dnd);
+                    dayNoteGroup.appendNote(dnd);
                     dayNoteGroup.saveNoteGroup();
 
                     // I don't see any Exception handling going on here - what gives?
@@ -225,7 +225,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             //   then set the start, then set that duration ?
 
             // System.out.println(d);
-            eventNoteComponent.setEventNoteData(end);
+            eventNoteComponent.setNoteData(end);
             theHeader.setEventSummary(end.getSummary());
         }
     } // end dateSelected

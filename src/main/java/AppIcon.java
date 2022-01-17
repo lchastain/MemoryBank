@@ -43,7 +43,7 @@ public class AppIcon extends ImageIcon {
         // compatibility (even though we only expect to serve from one type of OS).
         char sep = File.separatorChar;
         if (sep != '/') filename = filename.replace(sep, '/');
-        MemoryBank.debug("  Full icon filename: " + filename);
+        if(!filename.equals(a_filename)) MemoryBank.debug("  Full icon filename: " + filename);
 
         if (filename.endsWith(".ico")) {
             try {

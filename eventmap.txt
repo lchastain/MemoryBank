@@ -49,7 +49,7 @@ To-do Lists:
 
  2. Event: 'Move To Selected Date' selection on the Text popup menu
     Handler: TodoNoteComponent$PopHandler.actionPerformed
-    Expected Action: A call to moveIt which calls NoteGroupPanel.addNote
+    Expected Action: A call to moveIt which calls appendNote
 
 
 Upcoming Events:

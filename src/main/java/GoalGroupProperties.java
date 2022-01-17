@@ -17,7 +17,6 @@
 //   during serialization that was seen by LinkData would be here as well, so just like with that one,
 //   it would need to be overloaded and ignored.
 
-
 public class GoalGroupProperties extends GroupProperties {
     // From BaseData this class gets its ID and Last Mod Date.
     String longTitle;  // A single line of text, may be more descriptive of the goal than its title alone.

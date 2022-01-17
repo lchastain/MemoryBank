@@ -1302,9 +1302,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 // Make new search result data for this find.
                 SearchResultData srd = new SearchResultData(vectorItem);
 
-                // The copy constructor used above will preserve the
-                //   dateLastMod of the original note.  Members specific
-                //   to a SearchResultData must be set explicitly.
+                // The copy constructor used above will preserve the dateLastMod of the original note.
                 srd.foundIn = foundIn; // No need to 'copy' foundIn; in this case it can be reused.
 
                 // Add this search result data to our findings.

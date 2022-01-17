@@ -14,7 +14,6 @@ import java.time.LocalDate;
 public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
     static String userInfo;
-    static String defaultPlanText;
 
     JLabel titleLabel;
     private ThreeMonthColumn tmc;  // For Date selection
@@ -38,7 +37,6 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 //        userInfo += "(in order when appropriate), without specifics as to how they will be accomplished.  ";
 //        userInfo += "The tasks needed to complete each milestone should go to a To Do List and those ";
 //        userInfo += "To Do List items (or any other type of note) can then be linked back to this Goal.";
-        defaultPlanText = userInfo;
 
     } // end static
 

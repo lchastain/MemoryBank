@@ -20,12 +20,13 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     static Notifier optionPane;
     static String ems;     // Error Message String
     NoteGroup myNoteGroup; // Group onto which this Panel provides a window.
-    JPanel theBasePanel;   // We could 'absorb' this member, if this class would extend a JPanel.
+    JComponent theBasePanel;   // JComponent vs JPanel, allows more flexibility.
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
 
     String defaultSubject;
     private boolean editable;
+    private boolean appendable;
     int lastVisibleNoteIndex = 0;
     int pageSize;
 
@@ -66,8 +67,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // If you have a group that you got from a Panel, adding the note to it via the panel is needed so that it
     // gets picked up when the group saves, since the Panel save operation updates the Vector from its content
     // prior to saving the data.
-    void addNote(NoteData noteData) {
-        myNoteGroup.addNote(noteData); // This adds the note to the data Vector.
+    void appendNote(NoteData noteData) {
+        myNoteGroup.appendNote(noteData); // This adds the note to the data Vector.
         theNotePager.reset(1); // Recalculate the number of pages; the addition may have caused a page rollover.
         loadPage(theNotePager.getHighestPage()); // Page to the end, to show the new note.
     }
@@ -142,6 +143,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             } // end getPreferredSize
         };
         editable = true;
+        appendable = true;
         intHighestNoteComponentIndex = pageSize - 1;
 
         jsp = new JScrollPane() {
@@ -198,7 +200,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         // A variant of JOptionPane, for testing.
         optionPane = new Notifier() {
         }; // Uses all default methods.
-    }
+    } // end buildNotesPanel
 
 
     // Clear all notes (which may span more than one page) and the interface.
@@ -304,16 +306,18 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         return lastVisibleNoteIndex;
     }
 
-    boolean getEditable() { return editable; }
+    boolean getEditable() {
+        return editable;
+    }
 
     // The (simple) name of the group (as seen as a node in the tree except for CalendarNoteGroup types)
     String getGroupName() {
         GroupProperties groupProperties = myNoteGroup.getGroupProperties();
-        if(groupProperties != null) {
+        if (groupProperties != null) {
             return groupProperties.getGroupName();
         } else {
             GroupInfo groupInfo = myNoteGroup.myGroupInfo;
-            if(groupInfo != null) return groupInfo.getGroupName();
+            if (groupInfo != null) return groupInfo.getGroupName();
         }
         return null;
     }
@@ -383,11 +387,15 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
         AppTreePanel.theInstance.getTree().clearSelection();
         AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
+    } // end groupLinkages
+
+    void setAppendable(boolean b) {
+        appendable = b;
     }
 
     // This method enables or disables every NoteComponent in the Panel.
     void setEditable(boolean b) {
-        if(editable != b) {
+        if (editable != b) {
             editable = b;
             loadPage(theNotePager.getCurrentPage());
         }
@@ -500,7 +508,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             }
         } // end for
 
-        if (editable) activateNextNote(lastVisibleNoteIndex);
+        if (appendable) activateNextNote(lastVisibleNoteIndex);
         MemoryBank.debug("lastVisibleNoteIndex is " + lastVisibleNoteIndex);
 
         // Each of the 'setNoteData' calls above would have set this to true, but this method may
@@ -552,7 +560,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
         // Without this condition, the existing unchanged data might get written out to the data store
         //   and that might overwrite changes that had been made and were already persisted outside of a Panel.
-        if(myNoteGroup.groupChanged) {
+        if (myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
             myNoteGroup.saveNoteGroup();
         }
@@ -592,7 +600,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     @Override
     public void setStatusMessage(String s) {
-        if(editable) {
+        if (editable) {
             lblStatusMessage.setText("  " + s);
             lblStatusMessage.invalidate();
             theBasePanel.validate();
@@ -600,34 +608,25 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end setStatusMessage
 
 
-    // The shift methods here can be made to work for ANY NoteGroup.
-    //  currently, they work for groups with or without paging, that
-    //  allow a note to be added.  Still need to incorporate the logic
-    //  from the commented-out methods below, to support SearchResultGroup,
-    //  which is currently written separately in a non-generic manner for
-    //  a group that does NOT allow a note to be added.
-    // Work needed in each group to use these vs their own:  Revise
-    //   their NoteComponent swap methods override the base class vs
-    //   the overload that they are doing now (change the parameter to
-    //   a NoteComponent but leave the cast to child class).
+    // The shift methods here will work for ANY NoteGroup, regardless of child type and with
+    //  or without paging.  Parameter is the 'index' of the component in the Panel.
     public void shiftDown(int index) {
-//        if(!editable) return;
-        // Prevent the next-to-last note from shifting
-        //   down, if it is on the last page (because the note below,
-        //   that it would swap with, is not initialized).
-        if (index == (lastVisibleNoteIndex - 1)) {
-            if (theNotePager.getCurrentPage() == theNotePager.getHighestPage()) return;
-        } // end if
-
-        // Prevent the last note on the page from shifting
-        //   down, if it is on the last page (because there is nowhere to go).
-        if (index == lastVisibleNoteIndex) {
-            if (theNotePager.getCurrentPage() == theNotePager.getHighestPage()) return;
-            else {      // allow for paging, later
-                //System.out.println("Shifting down across a page boundary - NOT.");
-                return;
-            } // end if/else
-        } // end if - if this is the last visible note
+        // Prevent the last visible note from shifting down (ie, swapping with nothing).
+        //   Complicating this is the possibility that there are multiple pages,
+        //   and the group may or may not be appendable.
+        if (appendable) {
+            if (index == (lastVisibleNoteIndex - 1)) {
+                if (theNotePager.getCurrentPage() == theNotePager.getHighestPage()) return;
+            } // end if
+        } else { // If not appendable then the last visible note has data.
+            if (index == lastVisibleNoteIndex) {
+                if (theNotePager.getCurrentPage() == theNotePager.getHighestPage()) return;
+                else {      // allow for paging later.  The Panel only holds one page, at most.
+                    //System.out.println("Shifting down across a page boundary - NOT.");
+                    return;
+                } // end if/else
+            } // end if - if this is the last visible note
+        }
 
         // System.out.println("Shifting note down");
         NoteComponent nc1, nc2;
@@ -640,7 +639,11 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
 
     public void shiftUp(int index) {
-//        if(!editable) return;
+        // Don't allow the last visible (empty) note to swap 'up'.
+        if (appendable) {
+            if (index == lastVisibleNoteIndex) return;
+        }
+
         // Prevent the first note on the page from shifting up.
         if (index == 0) {
             if (theNotePager.getCurrentPage() == 1) return;
@@ -659,46 +662,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         nc2.setActive();
     } // end shiftUp
 
-// May be possible to have ALL NoteGroup shift methods here.
-//   leave the copy below until determined/done.
-
-
-//  public void shiftDown(int index) {
-//    if(addNoteAllowed) {
-//      if(index >= (lastVisibleNoteIndex - 1)) return;
-//    } else {
-//      if(index > (lastVisibleNoteIndex - 1)) return;
-//    } // end if
-//    
-//     System.out.println("Shifting note down");
-//    NoteComponent nc1, nc2;
-//    nc1 = (NoteComponent) groupNotesListPanel.getComponent(index);
-//    nc2 = (NoteComponent) groupNotesListPanel.getComponent(index+1);
-//    
-//    nc1.swap(nc2);
-//    nc2.setActive();
-//  } // end shiftDown
-//
-//
-//  public void shiftUp(int index) {
-//    if(addNoteAllowed) {
-//      if(index == 0 || index == lastVisibleNoteIndex) return;
-//    } else {
-//      if(index == 0) return;
-//    } // end if
-//    
-//     System.out.println("Shifting note up");
-//    NoteComponent nc1, nc2;
-//    nc1 = (NoteComponent) groupNotesListPanel.getComponent(index);
-//    nc2 = (NoteComponent) groupNotesListPanel.getComponent(index-1);
-//    
-//    nc1.swap(nc2);
-//    nc2.setActive();
-//  } // end shiftUp
-
 
     void sortLastMod(int direction) {
-
         // Preserve current interface changes before sorting.
         unloadNotesPanel(theNotePager.getCurrentPage());
 
@@ -806,10 +771,20 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end updateGroup
 
 
+    // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).
+    // If you have a group that you got from a Panel, adding the note to it via the panel is needed so that it
+    // gets picked up when the group saves, since the Panel save operation updates the Vector from its content
+    // prior to saving the data.
+    void prependNote(NoteData noteData) {
+        myNoteGroup.prependNote(noteData); // This adds the note to the start of the data Vector.
+        theNotePager.reset(1); // Recalculate the number of pages; the addition may have caused a page rollover.
+        loadPage(1); // Page to the start of the notes, to show the one that was just inserted.
+    }
+
     // Called by AppTreePanel in response to user selection of the menu item to save the group.
-    protected void refresh() {
+    protected void refresh() { // So maybe this isn't the best most representative name...
         preClosePanel();     // Save any in-progress changes
-        updateGroup();  // Reload the interface - this removes 'gaps'.
+        updateGroup();  // Reload the interface - this removes 'gaps', which is the 'refresh' part of it.
     }
 
 
@@ -860,7 +835,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Although the boolean currently exactly matches the 'groupChanged' variable, taking it as an input
     // parameter allows it to be based on other criteria (at some future point.  I know, yagni).
     protected void adjustMenuItems(boolean b) {
-        if(myListMenu == null) return; // Too soon.  Come back later.
+        if (myListMenu == null) return; // Too soon.  Come back later.
         MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
 
         // And now we adjust the Menu -

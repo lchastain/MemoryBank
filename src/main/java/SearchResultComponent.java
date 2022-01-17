@@ -155,22 +155,15 @@ public class SearchResultComponent extends NoteComponent {
     } // end resetPanelStatusMessage
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // Overrides the base class
-    //----------------------------------------------------------
+    @Override
     public void setNoteData(NoteData newNoteData) {
-        setNoteData((SearchResultData) newNoteData);
+        // Other NoteComponent children will handle additonal types due to the editability of their notes
+        //   and group, but those kinds of changes are not allowed here so no castability check is needed.
+        setSearchResultData((SearchResultData) newNoteData);
     } // end setNoteData
 
 
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // Called by a NoteGroup during a load or a shift up/down.
-    //----------------------------------------------------------
-    public void setNoteData(SearchResultData newNoteData) {
+    private void setSearchResultData(SearchResultData newNoteData) {
         mySearchResultData = newNoteData;
         initialized = true;
 
@@ -178,19 +171,16 @@ public class SearchResultComponent extends NoteComponent {
         resetComponent();
 
         setNoteChanged();
-    } // end setNoteData
+    } // end setSearchResultData
 
 
-    //------------------------------------------------------------------
-    // Method Name: swap
-    //
-    //------------------------------------------------------------------
-    public void swap(SearchResultComponent src) {
+    @Override
+    public void swap(NoteComponent src) {
         // Get a reference to the two data objects
         SearchResultData srd1 = (SearchResultData) this.getNoteData();
         SearchResultData srd2 = (SearchResultData) src.getNoteData();
 
-        // Note: getNoteData and setNoteData are working with references
+        // Note: getNoteData and setSearchResultData are working with references
         //   to data objects.  If you 'get' data into a local variable
         //   and then later clear the component, you have also just
         //   cleared the data in your local variable because you never had
@@ -204,7 +194,7 @@ public class SearchResultComponent extends NoteComponent {
         else src.setNoteData(srd1);
 
         if (srd2 == null) this.clear();
-        else this.setNoteData(srd2);
+        else this.setSearchResultData(srd2);
 
         System.out.println("SearchResultComponent.swap");
 

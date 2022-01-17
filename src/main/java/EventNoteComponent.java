@@ -68,7 +68,7 @@ public class EventNoteComponent extends IconNoteComponent {
     } // end setNoteData
 
 
-    void setEventNoteData(EventNoteData newNoteData) {
+    private void setEventNoteData(EventNoteData newNoteData) {
         myEventNoteData = newNoteData;
 
         // update visual components without updating the 'lastModDate'

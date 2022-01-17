@@ -206,7 +206,7 @@ public class TodoNoteComponent extends NoteComponent {
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
         String groupName = CalendarNoteGroup.getGroupNameForDate(theTodoDate, GroupType.DAY_NOTES);
         NoteGroup theGroup = new GroupInfo(groupName, GroupType.DAY_NOTES).getNoteGroup();
-        theGroup.addNote(dnd);
+        theGroup.appendNote(dnd);
 
         // Save the updated DayNoteGroup and clear our note line.
         theGroup.saveNoteGroup();
@@ -340,7 +340,7 @@ public class TodoNoteComponent extends NoteComponent {
         //   to data objects.  If you 'get' data from the NoteComponent
         //   into a local variable and then later clear the component, you have
         //   also just cleared the data in your local variable because you never
-        //   had a separatate copy of the data object, just the reference to it.
+        //   had a separate copy of the data object, just the reference to it.
 
         // So - copy the data objects.
         if (tnd1 != null) tnd1 = new TodoNoteData(tnd1);

@@ -222,7 +222,7 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end shiftUp
 
 
-    public void swap(DayNoteComponent dnc) {
+    public void swap(NoteComponent dnc) {
         // Get a reference to the two data objects
         DayNoteData dnd1 = (DayNoteData) this.getNoteData();
         DayNoteData dnd2 = (DayNoteData) dnc.getNoteData();
@@ -238,10 +238,10 @@ public class DayNoteComponent extends IconNoteComponent {
         if (dnd2 != null) dnd2 = new DayNoteData(dnd2);
 
         if (dnd1 == null) dnc.clear();
-        else dnc.setDayNoteData(dnd1);
+        else dnc.setNoteData(dnd1);
 
         if (dnd2 == null) this.clear();
-        else this.setDayNoteData(dnd2);
+        else this.setNoteData(dnd2);
 
         myManager.setGroupChanged(true);
     } // end swap

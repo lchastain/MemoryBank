@@ -8,6 +8,6 @@ public interface NoteComponentManager {
     default int getLastVisibleNoteIndex() { return 0; }
     default void setGroupChanged(boolean b) {}
     default void setStatusMessage(String s) {}
-    default void shiftDown(int index) {}
-    default void shiftUp(int index) {}
+    void shiftDown(int index);
+    void shiftUp(int index);
 }

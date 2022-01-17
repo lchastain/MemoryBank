@@ -225,7 +225,7 @@ public class BranchSelectionTests {
         Assertions.assertTrue(appTreePanel.getTheNoteGroup() instanceof GoalGroupPanel);
 
         // Add a note and save the group, so that we will have a persisted group later, in test #9
-        appTreePanel.getTheNoteGroup().myNoteGroup.addNote(new NoteData("this is it."));
+        appTreePanel.getTheNoteGroup().myNoteGroup.appendNote(new NoteData("this is it."));
         appTreePanel.getTheNoteGroup().myNoteGroup.saveNoteGroup();
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.
@@ -253,7 +253,7 @@ public class BranchSelectionTests {
         Assertions.assertTrue(appTreePanel.getTheNoteGroup() instanceof EventNoteGroupPanel);
 
         // Add a note and save the group, so that we will have a persisted group later, in test #10
-        appTreePanel.getTheNoteGroup().myNoteGroup.addNote(new NoteData("this is it."));
+        appTreePanel.getTheNoteGroup().myNoteGroup.appendNote(new NoteData("this is it."));
         appTreePanel.getTheNoteGroup().myNoteGroup.saveNoteGroup();
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.
@@ -282,7 +282,7 @@ public class BranchSelectionTests {
         Assertions.assertTrue(appTreePanel.getTheNoteGroup() instanceof TodoNoteGroupPanel);
 
         // Add a note and save the group, so that we will have a persisted group later, in test #11
-        appTreePanel.getTheNoteGroup().myNoteGroup.addNote(new NoteData("this is it."));
+        appTreePanel.getTheNoteGroup().myNoteGroup.appendNote(new NoteData("this is it."));
         appTreePanel.getTheNoteGroup().myNoteGroup.saveNoteGroup();
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.

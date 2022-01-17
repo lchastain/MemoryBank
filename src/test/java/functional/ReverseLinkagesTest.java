@@ -77,7 +77,7 @@ class ReverseLinkagesTest {
         // Put a note into the DayNote Group (it gets saved later)
         NoteData dayNoteData = new DayNoteData();
         dayNoteData.noteString = "day note";
-        dayNoteGroupPanel.myNoteGroup.addNote(dayNoteData);
+        dayNoteGroupPanel.myNoteGroup.appendNote(dayNoteData);
 //        dayNoteGroupPanel.setPanelData(dayNoteGroupPanel.getTheData());
         dayNoteGroupPanel.myNoteGroup.setNotes(dayNoteGroupPanel.myNoteGroup.getTheData()[1]);
         dayNoteGroupPanel.loadPage(1);
@@ -98,7 +98,7 @@ class ReverseLinkagesTest {
         todoNoteData.noteString = "Links from a TodoNote.";
 //        NoteGroup todoNoteGroup = new TodoNoteGroupPanel("Nada");
         NoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Nada");
-        todoNoteGroupPanel.myNoteGroup.addNote(todoNoteData);
+        todoNoteGroupPanel.myNoteGroup.appendNote(todoNoteData);
 
         // Create two (valid) links.  We want the loop for adding a reverse link to run twice.
         // Remember that the owner/source of the links is not held in the link data itself, but

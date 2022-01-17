@@ -77,6 +77,9 @@ class GroupInfo {
                 case EVENTS:
                     theNoteGroup = new EventNoteGroup(this);
                     break;
+                case LOG:
+                    theNoteGroup = new LogGroup(this);
+                    break;
                 case GOALS:
                     theNoteGroup = new GoalGroup(this);
                     break;

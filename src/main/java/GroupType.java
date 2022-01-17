@@ -5,6 +5,7 @@ enum GroupType {
     MONTH_NOTES("Month Note"),
     YEAR_NOTES("Year Note"),
     GOALS("Goal"),
+    LOG("Log"),
     EVENTS("Event"),
     TODO_LIST("To Do List"),
     SEARCH_RESULTS("Search Result"),

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 // the editor panel code and not directly, as we do here.
 
 class LinkNoteComponentTest extends LinkHelper implements NoteComponentManager {
+    public void shiftDown(int index)  {}
+    public void shiftUp(int index) {}
 
     @Test
     void testLinkGoalGroup() {

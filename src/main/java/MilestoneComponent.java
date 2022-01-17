@@ -194,7 +194,7 @@ public class MilestoneComponent extends NoteComponent {
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
         String groupName = CalendarNoteGroup.getGroupNameForDate(theTodoDate, GroupType.DAY_NOTES);
         NoteGroup theGroup = new GroupInfo(groupName, GroupType.DAY_NOTES).getNoteGroup();
-        theGroup.addNote(dnd);
+        theGroup.appendNote(dnd);
 
         // Save the updated DayNoteGroup and clear our note line.
         theGroup.saveNoteGroup();

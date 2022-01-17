@@ -72,7 +72,7 @@ class NoteGroup implements LinkHolder {
 
     @SuppressWarnings("unchecked")
     // A NoteData or any one of its children can be sent here.
-    void addNote(NoteData noteData) {
+    void appendNote(NoteData noteData) {
         noteGroupDataVector.add(noteData);
         noteData.setMyNoteGroup(this);
         setGroupChanged(true);
@@ -144,15 +144,16 @@ class NoteGroup implements LinkHolder {
 
 
     // All higher contexts that need this info are encouraged to use this getter to retrieve 'myProperties'.
-    // They may have direct access to 'myProperties', but this ensures uniform access, one-stop shopping.
+    // They may have direct access to 'myProperties', but this ensures uniform (debuggable) access, one-stop shopping.
     public GroupProperties getGroupProperties() {
         // If we loaded our properties member from a data store then we need to use that one.
         //   (it may already contain linkages).
         if(myProperties != null) return myProperties;
 
-        // But a CalendarNoteGroup has a different GroupProperties for every choice.  They can be set at construction
-        // but then they get nulled out when there is an attempt to load new data.  But if the specified data is not
-        // there, the properties remain null.  That is when this part is needed.
+        // But a CalendarNoteGroup has a different GroupProperties for every Date choice.  They can be set at
+        // construction but then they get nulled out when there is an attempt to load new data due to a change
+        // of selected Date.  But if there is no data for the specified new Date,
+        // the properties remain null.  That is when this part is needed.
         switch(myGroupInfo.groupType) {
             case DAY_NOTES:
                 setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.DAY_NOTES));
@@ -199,7 +200,6 @@ class NoteGroup implements LinkHolder {
 
         // Reinitialize the properties as well; there may have been a name change.
         makeGroupProperties(); // If persisted data came in then this will be overwritten, below.
-//        setGroupProperties(null); // If no persisted data came in then the calling context can set new properties.
 
         if(theData == null) return;
         // Not that uncommon; many CalendarNote groups will have no data to load.
@@ -242,6 +242,14 @@ class NoteGroup implements LinkHolder {
         return new GroupProperties(myGroupInfo.getGroupName(), myGroupInfo.groupType);
     }
 
+
+    @SuppressWarnings("unchecked")
+        // A NoteData or any one of its children can be sent here.
+    void prependNote(NoteData noteData) {
+        noteGroupDataVector.add(0, noteData);
+        noteData.setMyNoteGroup(this);
+        setGroupChanged(true);
+    }
 
     void saveNoteGroup() {
         groupDataAccessor.saveNoteGroupData(getTheData());

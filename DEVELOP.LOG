@@ -23,6 +23,61 @@ New:
 
 =====================================================================================================
 
+17 Jan 2022
+Began fixing the shift issues, got pulled back into the consolidation request which at first looked like it needed to
+be scrapped, then turned out to be a very workable solution, already in place for TodoNoteComponent, so went ahead and
+pulled in SearchResult and DayNote, removing shift methods from their panels.  In the proces, found and fixed a problem
+where an empty (last) todolist item could be shifted up.  Now only the base NoteGroup class has shift methods, although
+some NoteComponents also have them to handle date/time adjustments but not the primary 'swap' feature.
+
+15 Jan 2022 - (go to) Cottage day
+pre-travel:  Began working on the date-shift by shifted arrow keys.  Nothing accomplished post-travel or next day.
+Problems:  The shifted date is lost when shifting the note up, and shifting it down - does not happen.
+
+14 Jan 2022 - Deferred some major issues such as data load and getting to the tabbed pane by carving out the header
+info and going directly to the LogGroupPanel via its own driver.  Then, was able to refactor the addNote so that now
+a new note can be added to either the start or the end of a Panel.  New boolean: appendable, now breaks off some of
+the utility that was previously coming solely from 'editable'.  Now can finish up the panel and component, and next
+will be how to work it into a Goal (or other parent-type).
+
+12 Jan 2022 - Added a LogGroupProperties; part of data persistence and retrieval.
+
+11 Jan 2022
+The USB drive has been reformatted; 1.81 TB now available and this distraction has passed, I believe.  Meanwhile
+there has been a small bit of progress in that the 'log' part of a Goal has been carved out as a separate group
+type so it can be developed more quickly, and there is now something in place that can be fine-tuned, with an area51
+driver to get going without interactions with the rest of the app.  New classes - LogNoteData, LogNoteComponent,
+LogGroupPanel.  Continuing to work on L&F and behaviors.  At some point, will need to put both the Goal and its
+Log into a JTabbedPane and have that be the target of the right side of the app view.
+
+8 Jan 2022
+After xmas at the cottage - still looking for how to insert a JTabbedPane.  But for data - need a new LogNoteData
+that extends NoteData, and it will go to a separate data file named 'log_<goalname>.json'.  This will complicate things
+like renaming, deletions, save as, etc.  It's looking like the 'jsp' in the center panel should change to a JComponent
+in general and then it can be a JTabbedPane for a Goal.  Then both tabs of the Goal will have their own jsp and set
+of 'notes'.  How to add a log entry to the 'top'?  A separate 'north' line, that upon entry goes to the top of the
+list below.  After that, the list may be manually sorted.  Imagining a new NoteComponent, with a Date in the
+West and a Time in the East.
+0930 - Looked at a Section 4, 10th floor apartment alternative to the one in the Republic - it is better, all around.
+We are considering, will need to put down 50K RUB if we want to hold it.  Concerns about how to make a contract.
+------
+Then another distraction - the warning I've been seeing about a bad disk turns out to be (maybe) valid; I tried a
+reboot to try and fix it, but that resulted in update(s) being removed and the drive was lost altogether.  Eventually
+found that the loss was due to no access and was able to add myself; the drive came back but not with all its original
+content, so now begins a file backup/move so that the amount of loss can be assessed and the drive can be reformatted
+and (hopefully) put back into service.
+Messages (onscreen from Microsoft) about the update appear to accept responsibility for the initial problem; this is
+only comforting in the hope that it was a software and not hardware issue, and that the drive (and the other two) will
+be ok after this.
+
+6 Jan 2022
+After finding that I have been using DEVELOP.LOGs of various development projects to keep a kind of 'log' of dev work
+and distractions from that work, now realizing that such entries are fragmented across the various projects when
+really they should all be in one consolidated place - the appropriate Goal that is being affected.  This brings me
+back to revisit this app and find a way to add a 'log' to each Goal.  Working on that now.  First idea: make the
+view into a JTabbedPane with two tabs: Milestones (already done) and 'Log' - a new NoteGroup type that will have
+text lines with both a date and time, no icon.  The list will be auto-sorted in a most recent first ordering.
+
 30 Aug 2021
 Problem from the upgrade:  A right-click on a note is not working.  The earlier check/test was for a mousePressed,
 but the recommended fix for the mask does not work in a 'clicked' due to timing.  The proper handling in a
