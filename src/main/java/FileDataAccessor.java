@@ -34,6 +34,10 @@ public class FileDataAccessor implements DataAccessor {
                 theSourceDir = new File(NoteGroupFile.eventGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName());
                 break;
+            case LOG:
+                theSourceDir = new File(NoteGroupFile.logGroupAreaPath);
+                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.LOGS.getAreaName());
+                break;
             case TODO_LIST:
                 theSourceDir = new File(NoteGroupFile.todoListGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.TODO_LISTS.getAreaName());
@@ -71,6 +75,7 @@ public class FileDataAccessor implements DataAccessor {
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.GOALS.getAreaName()).mkdir()) return false;
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName()).mkdir())
             return false;
+        if (!new File(archiveRepoPath + File.separatorChar + DataArea.LOGS.getAreaName()).mkdir()) return false;
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.TODO_LISTS.getAreaName()).mkdir()) return false;
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName()).mkdir())
             return false;
@@ -85,6 +90,7 @@ public class FileDataAccessor implements DataAccessor {
             // Copy the active notegroups into the archive
             archiveGroupType(archiveRepo, GroupType.GOALS);
             archiveGroupType(archiveRepo, GroupType.EVENTS);
+            archiveGroupType(archiveRepo, GroupType.LOG);
             archiveGroupType(archiveRepo, GroupType.TODO_LIST);
             archiveGroupType(archiveRepo, GroupType.SEARCH_RESULTS);
 
@@ -113,6 +119,9 @@ public class FileDataAccessor implements DataAccessor {
                 break;
             case UPCOMING_EVENTS:
                 theAreaFullPath = NoteGroupFile.eventGroupAreaPath;
+                break;
+            case LOGS:
+                theAreaFullPath = NoteGroupFile.logGroupAreaPath;
                 break;
             case TODO_LISTS:
                 theAreaFullPath = NoteGroupFile.todoListGroupAreaPath;

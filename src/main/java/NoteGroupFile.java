@@ -18,6 +18,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static String eventGroupAreaPath;
     static String goalGroupAreaPath;
     static String searchResultGroupAreaPath;
+    static String logGroupAreaPath;
     static String todoListGroupAreaPath;
     String theAreaPath;
 
@@ -25,6 +26,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static String goalGroupFilePrefix;
     static String searchResultFilePrefix;
     static String todoListFilePrefix;
+    static String logFilePrefix;
     String thePrefix;
 
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
@@ -45,12 +47,14 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         eventGroupAreaPath = FileDataAccessor.basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
         goalGroupAreaPath = FileDataAccessor.basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
         searchResultGroupAreaPath = FileDataAccessor.basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
+        logGroupAreaPath = FileDataAccessor.basePath + DataArea.LOGS.getAreaName() + File.separatorChar;
         todoListGroupAreaPath = FileDataAccessor.basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
 
         eventGroupFilePrefix = "event_";
         goalGroupFilePrefix = "goal_";
         searchResultFilePrefix = "search_";
         todoListFilePrefix = "todo_";
+        logFilePrefix = "log_";
     }
 
 
@@ -64,7 +68,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         saveIsOngoing = false;
         failureReason = null;
 
-        // These defaults apply to CalendarNoteGroup types; if the type is different then they will be overridden, below.
+        // These defaults are used with CalendarNoteGroup types; if the type is different then they will be overridden, below.
         saveWithoutData = false;
         theAreaPath = calendarNoteGroupAreaPath;
         thePrefix = "";
@@ -93,6 +97,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 theAreaPath = todoListGroupAreaPath;
                 thePrefix = todoListFilePrefix;
                 saveWithoutData = true;
+                break;
+            case LOG:
+                theAreaPath = logGroupAreaPath;
+                thePrefix = logFilePrefix;
+                saveWithoutData = false;
                 break;
             case EVENTS:
                 theAreaPath = eventGroupAreaPath;
@@ -177,6 +186,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 filePrefix = goalGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
+            case GOAL_LOG:
+                areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
+                filePrefix = logFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
             case EVENTS:
                 areaPath = firstPart + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
                 filePrefix = eventGroupFilePrefix;
@@ -194,9 +208,19 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 theChoice =  CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "Y");
                 break;
+            case LOG:
+                areaPath = firstPart + DataArea.LOGS.getAreaName() + File.separatorChar;
+                filePrefix = logFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
             case TODO_LIST:
                 areaPath = firstPart + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
                 filePrefix = todoListFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case TODO_LOG:
+                areaPath = firstPart + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
+                filePrefix = logFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case SEARCH_RESULTS:
@@ -639,14 +663,29 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 prefix = goalGroupFilePrefix;
                 groupName = groupInfo.getGroupName();
                 break;
+            case GOAL_LOG:
+                areaName = "Goals";
+                prefix = logFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
             case EVENTS:
                 areaName = "UpcomingEvents";
                 prefix = eventGroupFilePrefix;
                 groupName = groupInfo.getGroupName();
                 break;
+            case LOG:
+                areaName = "Logs";
+                prefix = logFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
             case TODO_LIST:
                 areaName = "ToDoLists";
                 prefix = todoListFilePrefix;
+                groupName = groupInfo.getGroupName();
+                break;
+            case TODO_LOG:
+                areaName = "ToDoLists";
+                prefix = logFilePrefix;
                 groupName = groupInfo.getGroupName();
                 break;
             case SEARCH_RESULTS:
@@ -784,7 +823,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // different name.  This can happen when filenames are constructed from timestamps (possily for archiving) and
         // also in support of a 'saveAs' operation.  In any case, we treat the separate groupFilename as the one that
         // was loaded, and as for the one to save to, we ask the implementing child class what name to use, and don't
-        // actually get into the data to see what file it thinks it should go to.
+        // actually get into the data to see what file it came from and thinks it should go back to.
 
         // Step 1 - Move the old file (if any) out of the way.
         // If we have a value in groupFilename at this point then it should mean that a file for it has been
@@ -804,7 +843,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // Here we use the GroupInfo we were constructed with to determine the name of the file to save to; it may be
         // different than the one we aready have (and theoretically not a match to the GroupInfo in the data either).
         setGroupFilename(getGroupFilename()); // Set it according to the getter.
-        MemoryBank.debug("  Saving NoteGroup data in " + groupInfo.getGroupName());
+        MemoryBank.debug("  Saving NoteGroup data in " + groupFilename);
 
         // Step 4 - Verify the path
         File f = new File(groupFilename);

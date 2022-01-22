@@ -27,7 +27,7 @@ public class DayNoteComponent extends IconNoteComponent {
         optionPane = new Notifier() { };
 
         //-----------------------------------
-        // Create the popup menus.
+        // Create the popup menu.
         //-----------------------------------
         timePopup = new JPopupMenu();
         timePopup.setFocusable(false);
@@ -256,9 +256,7 @@ public class DayNoteComponent extends IconNoteComponent {
 // Inner Classes -
 //---------------------------------------------------------
 
-    class NoteTimeLabel extends JLabel implements
-            ActionListener, MouseListener {
-
+    class NoteTimeLabel extends JLabel implements ActionListener, MouseListener {
         private static final long serialVersionUID = 1L;
 
         boolean isActive;

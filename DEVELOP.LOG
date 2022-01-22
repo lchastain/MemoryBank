@@ -7,9 +7,12 @@ Priorities:
       doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
       with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
       Alternate name: timeline ?   This one could come with a chart...
+    Consider making Calendar notes a single Panel, with tabs.
+
 
 
 Current/Next:
+    Log paging (and goal paging, if needed).
 
 
 Issues, Ideas, Analyses, Problems:
@@ -19,9 +22,44 @@ Issues, Ideas, Analyses, Problems:
         Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
         or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
 
+
 New:
 
 =====================================================================================================
+
+22 Jan 2022
+Changing the base panel to a JTabbedPane worked somewhat, but then NoteGroups did not show up.  Now trying to add a
+tabbed pane as the first line of the header, with no real content but a change there would swap out the displayed
+NoteGroup. ---- That seems to work, although the swap is between scrollpanes, not the groupNotesListPanel.  Not sure
+how this will work once a log goes beyond one page in length.  Need to add a pager to the LogGroupPanel (and also to
+the goal milestones), but next: tie in the Log persistence with the Goal persistence; new log notes not being saved.
+
+21 Jan 2022
+Yesterday was a bust due to late wakeup and early morning errand to sign paperwork for the Republic apartment purchase.
+But thoughts on the issues have led me to believe that Panels with a Log need to have their own GroupType, so that the
+LogPanel can construct (without related data) the needed header lines.  Then after the LogPanel is constructed, the
+parent Panel can make a call to it, to properly show the info in the LogPanel's header.  This appears to be a workable
+solution to an otherwise chicken/egg problem.  Also thought about having a parentless log show in the app tree under
+'Notes', and in that case it would need a BranchEditor, and possibly make a new CalendarNoteGroupPanel, where the
+existing 3 groups could condense into tabs to that panel.  Those tabs, and other Logs, could be enabled / hidden via
+that editor.
+--------------
+Working on implementation, now have a new idea: swap out/reuse the entire header component(s) from the Goal, when the
+log goes with a Goal.  Towards that, do not need to specify which log type is being constructed, BUT still need the
+two new group types because they will also control data locations.
+
+19 Jan 2022
+Finished (initial) log saving (parentless version).  But BIG discovery!: can 'remove' base class members from child
+classes by overloading them and then doing a @JsonIgnore on them.  In the saved data, these fields now not present!
+Also seeing that after doing a save, the load just automatically worked.
+--------------
+All other NoteGroup / Panel types have a constructor with a single String; trying to add another String to LogPanel
+in order to give it a 'parent' - is proving troublesome because the hierarchy does not support it and even after
+adding another param, then there is the problem of construction differences depending on which parent type, and
+needing to load info from that other file.
+
+18 Jan 2022
+Added the YearView date chooser to the component, to allow a further-away DateSelection.  Began work on saving.
 
 17 Jan 2022
 Began fixing the shift issues, got pulled back into the consolidation request which at first looked like it needed to

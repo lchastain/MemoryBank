@@ -49,8 +49,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     // A NoteGroupPanel is just the encapsulation of the central container panel and the methods that work on it,
     //   plus a bottom 'status' area for operational assistance messages to the user.
-    // As an abstract it cannot be instantiated.  The child classes have titles and other panels, and can set a
-    //   header on the central panel.
+    // As an abstract it cannot be instantiated.  The child classes can add the N,S,E, and W panels, and can set a
+    //   column header on the central panel.
     NoteGroupPanel() {
         this(PAGE_SIZE);
     } // end constructor 1
@@ -560,11 +560,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
         // Without this condition, the existing unchanged data might get written out to the data store
         //   and that might overwrite changes that had been made and were already persisted outside of a Panel.
+        //   An example of changes outside of a Panel:  a todo list item is moved to Today, which is already
+        //   open but was not viewed after the move.
         if (myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
             myNoteGroup.saveNoteGroup();
         }
-
     } // end preClosePanel
 
 

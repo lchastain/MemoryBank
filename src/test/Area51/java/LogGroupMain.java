@@ -3,18 +3,27 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class GoalGroupMain {
+public class LogGroupMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("lex@doughmain.net");
 
-        JFrame testFrame = new JFrame("Goal Panel Driver");
+        LogGroupPanel theLogNoteGroup;
+        JFrame testFrame = new JFrame();
 
-        GoalGroupPanel theGoalGroup = new GoalGroupPanel("Retire");
+        testFrame.setTitle("Parentless LogPanel Driver");
+        theLogNoteGroup = new LogGroupPanel("Wooden Events");
+
+//        testFrame.setTitle("LogPanel Driver for a To Do List");
+//        theLogNoteGroup = new LogGroupPanel(new GroupInfo("DoIT", GroupType.TODO_LOG));
+
+//        testFrame.setTitle("LogPanel Driver for a Goal");
+//        theLogNoteGroup = new LogGroupPanel(new GroupInfo("Retire", GroupType.GOAL_LOG));
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
+                theLogNoteGroup.preClosePanel();
                 System.exit(0);
             }
         });
@@ -25,9 +34,9 @@ public class GoalGroupMain {
             UIManager.setLookAndFeel(laf);
         } catch (Exception ignored) {
         }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(theGoalGroup.theBasePanel);
+        SwingUtilities.updateComponentTreeUI(theLogNoteGroup.theBasePanel);
 
-        testFrame.getContentPane().add(theGoalGroup.theBasePanel, "Center");
+        testFrame.getContentPane().add(theLogNoteGroup.theBasePanel, "Center");
         testFrame.pack();
         testFrame.setSize(new Dimension(680, 600));
         testFrame.setVisible(true);

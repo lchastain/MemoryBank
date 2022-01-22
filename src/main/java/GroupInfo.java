@@ -78,6 +78,8 @@ class GroupInfo {
                     theNoteGroup = new EventNoteGroup(this);
                     break;
                 case LOG:
+                case GOAL_LOG:
+                case TODO_LOG:
                     theNoteGroup = new LogGroup(this);
                     break;
                 case GOALS:

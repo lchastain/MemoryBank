@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 
 public class LogData extends NoteData {
@@ -11,6 +13,12 @@ public class LogData extends NoteData {
     //   is what is used here when creating the String that we ultimately persist (and is therefore guaranteed to be
     //   parseable when persisted data is reloaded).
     private String logDateString; // Defaults to 'today' but can be set/chosen later.
+
+    @JsonIgnore  // By ignoring this overloaded member from the base class, it is removed from data persistence.
+    LinkTargets linkTargets;
+
+    @JsonIgnore  // By ignoring this overloaded member from the base class, it is removed from data persistence.
+    String subjectString;
 
     // A 'time' member has been considered but not adopted, because Log entries will typically be tied to unique
     //   dates.  More than one per date is of course allowed, and the user may deal with this if needed by adding
@@ -27,6 +35,8 @@ public class LogData extends NoteData {
     public LogData(LogData lndCopy) {
         super(lndCopy);
         logDateString = lndCopy.logDateString;
+        linkTargets = lndCopy.linkTargets;
+        subjectString = lndCopy.subjectString;
     } // end constructor
 
     // Construct a LogData from a NoteData.
@@ -46,20 +56,19 @@ public class LogData extends NoteData {
     // This is provided as an alternative to calling a specific copy constructor, for when the exact type of NoteData
     // in the calling context was not known but the inheritance hierarchy has decided that it was a LogData.
     @Override
-    protected NoteData copy( ) {
+    protected NoteData copy() {
         return new LogData(this);
     }
 
 
-
     LocalDate getLogDate() {
-        if(logDateString == null) return null;
+        if (logDateString == null) return null;
         return LocalDate.parse(logDateString);
     }
 
 
     void setLogDate(LocalDate value) {
-        if(value == null) {
+        if (value == null) {
             logDateString = null;
         } else {
             logDateString = value.toString();

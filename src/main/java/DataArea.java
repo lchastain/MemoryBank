@@ -11,12 +11,15 @@ enum DataArea {
     ARCHIVES("Archives"),
     CALENDARS("Years"),
     GOALS("Goals"),
+    GOAL_LOG("Goals"),
     UPCOMING_EVENTS("Upcoming Events"),
     NOTES("Notes"),
     ICONS("icons"),
     APP_ICONS("icons"),
     IMAGES("images"),
+    LOGS("logs"),
     TODO_LISTS("To Do Lists"),
+    TODO_LOG("To Do Lists"),
     SEARCH_RESULTS("Search Results");
 
     private final String areaName;

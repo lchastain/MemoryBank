@@ -9,8 +9,10 @@ import java.time.format.DateTimeFormatter;
 
 public class LogNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
+
     private static final int LOGNOTEHEIGHT = 24;
     private final DateTimeFormatter dtf;
+    private static final YearView yvDateChooser;
 
     static Notifier optionPane;
 
@@ -18,34 +20,17 @@ public class LogNoteComponent extends NoteComponent {
     private LogData myLogData;
     private final NoteDateLabel noteDateLabel;
 
-    // Private static values that are accessed from multiple contexts.
-    private static final JMenuItem clearTimeMi;
-    private static final JMenuItem setTimeMi;
-    private static final JPopupMenu timePopup;
-
     static {
         // Normally just a wrapper for a JOptionPane, but tests may replace this
         // with their own instance, that would require no user interaction.
         optionPane = new Notifier() { };
 
-        //-----------------------------------
-        // Create the popup menus.
-        //-----------------------------------
-        timePopup = new JPopupMenu();
-        timePopup.setFocusable(false);
-
-        //--------------------------------------------
-        // Define the popup menu items for a LogNoteComponent
-        //--------------------------------------------
-        clearTimeMi = new JMenuItem("Clear Time");
-        timePopup.add(clearTimeMi);
-        setTimeMi = new JMenuItem("Set Time");
-        timePopup.add(setTimeMi);
+        yvDateChooser = new YearView();
     } // end static section
 
 
     LogNoteComponent(NoteGroupPanel ng, int i) {
-        super(ng, i);
+        super(ng, i); // ng comes into super() as a NoteComponentManager and is accessible via 'myManager'.
         index = i;
         dtf = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
@@ -171,6 +156,24 @@ public class LogNoteComponent extends NoteComponent {
     } // end setLogNoteData
 
 
+    private void showDateChooser() {
+        // Make a dialog window to choose a date from a Year.
+        Frame f = JOptionPane.getFrameForComponent(this);
+        JDialog tempwin = new JDialog(f, true);
+
+        tempwin.getContentPane().add(yvDateChooser, BorderLayout.CENTER);
+        tempwin.setTitle("Select a new date for this log entry.");
+        tempwin.setSize(yvDateChooser.getPreferredSize());
+        tempwin.setResizable(false);
+        yvDateChooser.setDialog(tempwin, 1);
+
+        // Center the dialog relative to the main frame.
+        tempwin.setLocationRelativeTo(f);
+
+        // Go modal -
+        tempwin.setVisible(true);
+    } // end showDateChooser
+
     @Override
     protected void shiftDown() {
         if (noteDateLabel.isActive) {
@@ -257,13 +260,18 @@ public class LogNoteComponent extends NoteComponent {
                     if (!initialized) return;
 
                     int m = e.getModifiersEx();
-                    if(e.getButton()==MouseEvent.BUTTON3) { // Click of right mouse button.
-                        if (e.getClickCount() >= 2) return;
-                        // Show the popup menu
-//                showTimePopup(e);
-                    } else if (e.getClickCount() == 2) { // Double click, left mouse button.
-//                showTimeChooser(); // bring up a mouse-controlled time interface
-
+                    if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
+                        if (e.getClickCount() >= 2) return;  // We don't handle a double click on this component.
+                        // Show the YearView data chooser
+                        yvDateChooser.setView(LocalDate.now()); // In case the current date is a null.
+                        yvDateChooser.setChoice(myLogData.getLogDate());
+                        showDateChooser();
+                        LocalDate newDate = yvDateChooser.getChoice();
+                        // Reselecting the same date has same effect as 'X'ing the dialog - no date change.
+                        // To clear a date:  right-click the current selection, then close the dialog.
+                        System.out.println("The date retrieved from the chooser: " + newDate);
+                        myLogData.setLogDate(newDate);
+                        resetDateLabel();
                     } else { // Single Left Mouse Button
                         if (isActive) {  // This implements a 'toggle'
                             setBorder(highBorder);
@@ -274,7 +282,7 @@ public class LogNoteComponent extends NoteComponent {
                             if (getText().trim().equals("")) {
                                 // This can happen if a previously initialized
                                 //   note has had its date cleared.
-//                        myTime = new Date();
+                                myLogData.setLogDate(LocalDate.now());
                                 LogNoteComponent.this.resetDateLabel();
                                 LogNoteComponent.this.setNoteChanged();
                             } // end if

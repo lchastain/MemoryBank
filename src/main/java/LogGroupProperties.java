@@ -17,9 +17,14 @@
 //   during serialization that was seen by LinkData would be here as well, so just like with that one,
 //   it would need to be overloaded and ignored.
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class LogGroupProperties extends GroupProperties {
     // From BaseData this class gets its ID and Last Mod Date.
-    GroupProperties parentGroupProperties;
+
+    @JsonIgnore  // By ignoring this overridden member from the base class, it is removed from data persistence.
+    LinkTargets linkTargets;
+
 
     static {
         MemoryBank.trace();
@@ -30,13 +35,11 @@ public class LogGroupProperties extends GroupProperties {
     // A stand-alone Log
     public LogGroupProperties(String groupName) {
         super(groupName, GroupType.LOG);
-        parentGroupProperties = null;
     }
 
     // A Log that is attached to some higher-level NoteGroup, such as a Goal.
-    public LogGroupProperties(String groupName, GroupProperties theParentProperties) {
+    public LogGroupProperties(String groupName, DataArea theDataArea) {
         super(groupName, GroupType.LOG);
-        parentGroupProperties = theParentProperties;
     }
 
 
