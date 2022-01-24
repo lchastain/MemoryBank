@@ -59,7 +59,7 @@ class NotePagerTest {
     // This test is only for coverage; not a lot else going on there; no further verification needed.
     @Test
     void testMouseMoves() {
-        todoNoteGroup = new TodoNoteGroupPanel("Long List", 10);
+        todoNoteGroup = new TodoNoteGroupPanel(new GroupInfo("Long List", GroupType.TODO_LIST), 10);
         NotePager notePager = todoNoteGroup.theNotePager;
         LabelButton leftAb = (LabelButton) notePager.getComponent(0);
         LabelButton middle = (LabelButton) notePager.getComponent(1);
@@ -80,7 +80,7 @@ class NotePagerTest {
 
     @Test
     void testMouseActions() {
-        todoNoteGroup = new TodoNoteGroupPanel("Long List", 10);
+        todoNoteGroup = new TodoNoteGroupPanel(new GroupInfo("Long List", GroupType.TODO_LIST), 10);
         NotePager notePager = todoNoteGroup.theNotePager;
         LabelButton leftAb = (LabelButton) notePager.getComponent(0);
         LabelButton middle = (LabelButton) notePager.getComponent(1);
@@ -104,7 +104,7 @@ class NotePagerTest {
 
     @Test
     void testGetHighestPage() {
-        todoNoteGroup = new TodoNoteGroupPanel("Long List", 10);
+        todoNoteGroup = new TodoNoteGroupPanel(new GroupInfo("Long List", GroupType.TODO_LIST), 10);
         int numPages = todoNoteGroup.theNotePager.getHighestPage();
         Assertions.assertEquals(3, numPages);
     }

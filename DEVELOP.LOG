@@ -12,7 +12,9 @@ Priorities:
 
 
 Current/Next:
-    Log paging (and goal paging, if needed).
+    Menu management for saving Goal after a Log entry / change.
+    Paging for Logs when tabbed.
+
 
 
 Issues, Ideas, Analyses, Problems:
@@ -27,12 +29,22 @@ New:
 
 =====================================================================================================
 
+24 Jan 2022
+Added a pager-control switch to track along with the tabs.
+
+23 Jan 2022
+Added a pager to both Goals and Logs.
+
 22 Jan 2022
 Changing the base panel to a JTabbedPane worked somewhat, but then NoteGroups did not show up.  Now trying to add a
 tabbed pane as the first line of the header, with no real content but a change there would swap out the displayed
 NoteGroup. ---- That seems to work, although the swap is between scrollpanes, not the groupNotesListPanel.  Not sure
 how this will work once a log goes beyond one page in length.  Need to add a pager to the LogGroupPanel (and also to
 the goal milestones), but next: tie in the Log persistence with the Goal persistence; new log notes not being saved.
+---------
+Made a workspace-area backup, then did a commit/make/pub with current code, because I want to start using the Log
+capability right away.  Current dev version is now the installed version as of today, but dev continues and
+installed ver should not change without significant highly-desired feature changes like that one.
 
 21 Jan 2022
 Yesterday was a bust due to late wakeup and early morning errand to sign paperwork for the Republic apartment purchase.

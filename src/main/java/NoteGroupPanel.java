@@ -197,7 +197,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         lblStatusMessage = new JLabel(s);
         theBasePanel.add(lblStatusMessage, BorderLayout.SOUTH);
 
-        // A variant of JOptionPane, for testing.
+        // A variant of JOptionPane, for testing.  Needs no user interaction.
         optionPane = new Notifier() {
         }; // Uses all default methods.
     } // end buildNotesPanel

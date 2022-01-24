@@ -124,8 +124,11 @@ Ver.    Notes
 
         New version number, not final; this version may 'grow' for some time...
         NOT YET ARCHIVED; this version in dev workspace only.
-0.6     28 Aug 2021   a pre-final v0.6
+0.6     30 Aug 2021   a pre-final v0.6
         Upgraded Java from v8 to v16.  New Jackson jars (v2.9.0 for core, databind, annotations) as well.
+0.6     22 Jan 2022   a pre-final v0.6
+        All file-based ops remain dereferenced as DataAccessor interface methods, but have given up (for now?)
+            on the idea of using a DB.
         Added a 'Log' notegroup, built it in to Goals, in a tabbed-pane.
 
 

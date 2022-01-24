@@ -13,7 +13,7 @@ public class LogGroupMain {
         JFrame testFrame = new JFrame();
 
         testFrame.setTitle("Parentless LogPanel Driver");
-        theLogNoteGroup = new LogGroupPanel("Wooden Events");
+        theLogNoteGroup = new LogGroupPanel(new GroupInfo("Wooden Events", GroupType.LOG), 8);
 
 //        testFrame.setTitle("LogPanel Driver for a To Do List");
 //        theLogNoteGroup = new LogGroupPanel(new GroupInfo("DoIT", GroupType.TODO_LOG));

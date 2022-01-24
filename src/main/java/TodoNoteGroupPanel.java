@@ -13,7 +13,7 @@ import java.util.Vector;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection {
     private static final Logger log = LoggerFactory.getLogger(TodoNoteGroupPanel.class);
-    private static final int PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_SIZE = 20;
 
     // Values used in sorting.
     private static final int TOP = 0;
@@ -24,20 +24,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     TodoGroupHeader listHeader;
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
-
-    public TodoNoteGroupPanel(String groupName) {
-        this(groupName, PAGE_SIZE);
-    }
-
-    public TodoNoteGroupPanel(String groupName, int pageSize) {
-        this(new GroupInfo(groupName, GroupType.TODO_LIST), pageSize);
-    } // end constructor
-
-
-    public TodoNoteGroupPanel(GroupInfo groupInfo) {
-        this(groupInfo, PAGE_SIZE);
-    }
-
 
     public TodoNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
@@ -59,6 +45,15 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         buildMyPanel(groupInfo.getGroupName());
         theNotePager.reset(1);
     } // end constructor
+
+
+    public TodoNoteGroupPanel(GroupInfo groupInfo) {
+        this(groupInfo, DEFAULT_PAGE_SIZE);
+    }
+
+    public TodoNoteGroupPanel(String groupName) {
+        this(new GroupInfo(groupName, GroupType.TODO_LIST), DEFAULT_PAGE_SIZE);
+    }
 
 
     private void buildMyPanel(String groupName) {

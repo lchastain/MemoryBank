@@ -53,7 +53,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         theNotePager.reset(1);
         buildPanelContent(); // Content other than the groupDataVector
-    }
+    } // end constructor
 
 
     SearchResultGroupPanel(String groupName) {

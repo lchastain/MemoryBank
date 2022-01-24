@@ -15,15 +15,17 @@ import java.time.LocalDate;
 
 public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
+    private static final int DEFAULT_PAGE_SIZE = 25;
     static String userInfo;
 
     JComponent theHeader;
     private ThreeMonthColumn tmc;  // For Date selection
     private MilestoneComponent milestoneComponent; // The currently selected one, tied to tmc.
-    LogGroupPanel theLogNoteGroup; // used by getPanelsForTabs and also by preClosePanel
+    LogGroupPanel theLogGroupPanel; // used by getPanelsForTabs and also by preClosePanel
     GoalGroupProperties groupProperties;
-    JComponent theGoalPanel;
-    JComponent theLogPanel;
+    JPanel headingRow1; // Need to reference this when switching tabs.
+    JComponent theGoalCenterPanel;
+    JComponent theLogCenterPanel;
     JComponent tmcPanel;  // Added or removed depending on Tab
 
 
@@ -38,28 +40,25 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     } // end static
 
 
-    public GoalGroupPanel(GroupInfo groupInfo) {
+    public GoalGroupPanel(GroupInfo groupInfo, int pageSize) {
+        super(pageSize);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
         if (groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
         loadNotesPanel();
 
         groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
-        getPanelsForTabs();
+//        getPanelsForTabs();
+
+        theNotePager.reset(1); // Without this, the pager appears and shows 'page 0 of 0'.
+        // But with it, if there are fewer than 2 pages, it remains non-visible.
 
         buildPanelContent(); // Content other than the groupDataVector
     } // end constructor
 
-    // The panels we want are most likely embedded in private JScrollPanes.  But this method can get them.
-    private void getPanelsForTabs() {
-        BorderLayout theGoalLayout = (BorderLayout) theBasePanel.getLayout();
-        theGoalPanel = (JComponent) theGoalLayout.getLayoutComponent(BorderLayout.CENTER);
-
-        theLogNoteGroup = new LogGroupPanel(new GroupInfo(getGroupName(), GroupType.GOAL_LOG));
-        BorderLayout theLogLayout = (BorderLayout) theLogNoteGroup.theBasePanel.getLayout();
-        theLogPanel = (JComponent) theLogLayout.getLayoutComponent(BorderLayout.CENTER);
+    public GoalGroupPanel(GroupInfo groupInfo) {
+        this(groupInfo, DEFAULT_PAGE_SIZE);
     }
-
 
     public GoalGroupPanel(String groupName) {
         this(new GroupInfo(groupName, GroupType.GOALS));
@@ -78,7 +77,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
 
         // The First Header Row -   Title
-        JPanel headingRow1 = new JPanel(new BorderLayout());
+        headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
         String goalName = myNoteGroup.myProperties.getGroupName();
         String goalPlan = groupProperties.goalPlan;
@@ -142,6 +141,12 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         });
         headingRow1.add(titleLabel, "Center");
 
+        // Set the pager's background to the same color as this row,
+        //   since other items on this row make the row slightly taller
+        //   than the pager control (pager goes to the top, background shows thru at the bottom).
+        theNotePager.setBackground(headingRow1.getBackground());
+        headingRow1.add(theNotePager, "East");
+
         // The Second Header Row -   Status dropdowns
         JPanel headingRow2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
@@ -193,11 +198,11 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         heading.add(headingRow2);  // Status Dropdowns
 
         // Now the tabbed pane part -
-        JTabbedPane theTabs = new JTabbedPane();
-        theTabs.addTab("Milestones", heading);
-        theTabs.addTab("Log", null);
+        JTabbedPane theTabbedPane = new JTabbedPane();
+        theTabbedPane.addTab("Milestones", heading);
+        theTabbedPane.addTab("Log", null);
 
-        theTabs.addChangeListener(new ChangeListener() {
+        theTabbedPane.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 JTabbedPane pane = (JTabbedPane) e.getSource();
@@ -205,14 +210,18 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
                 System.out.println(index);
                 switch(index) {
                     case 0:
-                        theBasePanel.remove(theLogPanel);
-                        theBasePanel.add(theGoalPanel, BorderLayout.CENTER);
+                        theBasePanel.remove(theLogCenterPanel);
+                        theBasePanel.add(theGoalCenterPanel, BorderLayout.CENTER);
                         theBasePanel.add(tmcPanel, BorderLayout.EAST);
+                        headingRow1.remove(theLogGroupPanel.theNotePager);
+                        headingRow1.add(theNotePager, BorderLayout.EAST);
                         break;
                     case 1:
-                        theBasePanel.remove(theGoalPanel);
+                        theBasePanel.remove(theGoalCenterPanel);
                         theBasePanel.remove(tmcPanel);
-                        theBasePanel.add(theLogPanel, BorderLayout.CENTER);
+                        theBasePanel.add(theLogCenterPanel, BorderLayout.CENTER);
+                        headingRow1.remove(theNotePager);
+                        headingRow1.add(theLogGroupPanel.theNotePager, BorderLayout.EAST);
                         break;
                 }
                 theBasePanel.validate();
@@ -220,7 +229,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
             }
         });
 
-        return theTabs;
+        return theTabbedPane;
     } // end buildHeader
 
 
@@ -229,6 +238,15 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     private void buildPanelContent() {
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
+
+        // Get the center component of this GoalGroupPanel (used when switching tabs)
+        BorderLayout theGoalLayout = (BorderLayout) theBasePanel.getLayout();
+        theGoalCenterPanel = (JComponent) theGoalLayout.getLayoutComponent(BorderLayout.CENTER);
+
+        // Make a LogGroupPanel and get its center component (used when switching tabs)
+        theLogGroupPanel = new LogGroupPanel(new GroupInfo(getGroupName(), GroupType.GOAL_LOG));
+        BorderLayout theLogLayout = (BorderLayout) theLogGroupPanel.theBasePanel.getLayout();
+        theLogCenterPanel = (JComponent) theLogLayout.getLayoutComponent(BorderLayout.CENTER);
 
         // Placed tmc in a panel with a FlowLayout, to prevent stretching.
         tmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -283,6 +301,18 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
     } // end getNoteComponent
 
 
+    // This method retrieves the private JScrollPanes from this GoalGroupPanel and its LogGroupPanel.
+    // Later, we use the tabs of a JTabbedPane to switch our basePanel's center content between them.
+    // The variables needed to be defined 'early', so that the tab changeListener can reference them.
+    private void getPanelsForTabs() {
+        BorderLayout theGoalLayout = (BorderLayout) theBasePanel.getLayout();
+        theGoalCenterPanel = (JComponent) theGoalLayout.getLayoutComponent(BorderLayout.CENTER);
+
+        theLogGroupPanel = new LogGroupPanel(new GroupInfo(getGroupName(), GroupType.GOAL_LOG));
+        BorderLayout theLogLayout = (BorderLayout) theLogGroupPanel.theBasePanel.getLayout();
+        theLogCenterPanel = (JComponent) theLogLayout.getLayoutComponent(BorderLayout.CENTER);
+    }
+
     ThreeMonthColumn getThreeMonthColumn() {
         return tmc;
     }
@@ -297,7 +327,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
     @Override
     void preClosePanel() {
-        theLogNoteGroup.preClosePanel();
+        theLogGroupPanel.preClosePanel();
         super.preClosePanel();
     }
 

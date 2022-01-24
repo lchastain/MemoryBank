@@ -11,10 +11,11 @@ public class GoalGroupMain {
 
         JFrame testFrame = new JFrame("Goal Panel Driver");
 
-        GoalGroupPanel theGoalGroup = new GoalGroupPanel("Retire");
+        GoalGroupPanel theGoalGroup = new GoalGroupPanel(new GroupInfo("Retire", GroupType.GOALS), 8);
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
+                theGoalGroup.preClosePanel();
                 System.exit(0);
             }
         });

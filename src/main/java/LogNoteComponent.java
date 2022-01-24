@@ -32,7 +32,7 @@ public class LogNoteComponent extends NoteComponent {
     LogNoteComponent(NoteGroupPanel ng, int i) {
         super(ng, i); // ng comes into super() as a NoteComponentManager and is accessible via 'myManager'.
         index = i;
-        dtf = DateTimeFormatter.ofPattern("dd MMM yyyy");
+        dtf = DateTimeFormatter.ofPattern("d MMM yyyy");
 
         //------------------
         // Graphical elements
@@ -271,6 +271,7 @@ public class LogNoteComponent extends NoteComponent {
                         // To clear a date:  right-click the current selection, then close the dialog.
                         System.out.println("The date retrieved from the chooser: " + newDate);
                         myLogData.setLogDate(newDate);
+                        myNoteGroupPanel.myNoteGroup.setGroupChanged(true);
                         resetDateLabel();
                     } else { // Single Left Mouse Button
                         if (isActive) {  // This implements a 'toggle'
