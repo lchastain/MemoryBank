@@ -349,4 +349,10 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
         } // end if
     } // end showComponent
 
+    @Override
+    public void updateGroup() {
+        theLogGroupPanel.updateGroup();
+        super.updateGroup();
+    }
+
 }
