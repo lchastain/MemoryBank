@@ -12,8 +12,6 @@ Priorities:
 
 
 Current/Next:
-    Menu management for saving Goal after a Log entry / change.
-    Paging for Logs when tabbed.
 
 
 
@@ -28,6 +26,9 @@ Issues, Ideas, Analyses, Problems:
 New:
 
 =====================================================================================================
+
+25 Jan 2022
+Now can save a Goal after only a change to Log.  New Override method of adjustMenuItems in the LogGroupPanel.
 
 24 Jan 2022
 Added a pager-control switch to track along with the tabs.

@@ -207,7 +207,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
             public void stateChanged(ChangeEvent e) {
                 JTabbedPane pane = (JTabbedPane) e.getSource();
                 int index = pane.getSelectedIndex();
-                System.out.println(index);
+                //System.out.println(index);
                 switch(index) {
                     case 0:
                         theBasePanel.remove(theLogCenterPanel);
@@ -245,6 +245,7 @@ public class GoalGroupPanel extends NoteGroupPanel implements DateSelection {
 
         // Make a LogGroupPanel and get its center component (used when switching tabs)
         theLogGroupPanel = new LogGroupPanel(new GroupInfo(getGroupName(), GroupType.GOAL_LOG));
+        theLogGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theLogLayout = (BorderLayout) theLogGroupPanel.theBasePanel.getLayout();
         theLogCenterPanel = (JComponent) theLogLayout.getLayoutComponent(BorderLayout.CENTER);
 

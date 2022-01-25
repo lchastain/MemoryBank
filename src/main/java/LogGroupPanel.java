@@ -11,6 +11,7 @@ public class LogGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(LogGroupPanel.class);
     private static final int DEFAULT_PAGE_SIZE = 25;
     LogGroupProperties groupProperties;
+    transient NoteGroupPanel parentNoteGroupPanel;
 
     public LogGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
@@ -20,7 +21,7 @@ public class LogGroupPanel extends NoteGroupPanel {
         setAppendable(false); // New notes for this panel will come in at the 'top'.
         loadNotesPanel();
 
-        // Get the group properties and set a 'parent' group, if there is one.
+        // Get the group properties.
         groupProperties = (LogGroupProperties) myNoteGroup.getGroupProperties();
 
         theNotePager.reset(1); // Without this, the pager appears and shows 'page 0 of 0'.
@@ -38,6 +39,15 @@ public class LogGroupPanel extends NoteGroupPanel {
         this(new GroupInfo(groupName, GroupType.LOG), DEFAULT_PAGE_SIZE);
     }
 
+
+    @Override
+    protected void adjustMenuItems(boolean b) {
+        super.adjustMenuItems(b);
+        if(parentNoteGroupPanel != null) {
+            MemoryBank.debug("LogGroupPanel.adjustMenuItems <" + b + ">");
+            parentNoteGroupPanel.adjustMenuItems(b);
+        }
+    }
 
     // Called from the constructor to create and place the visual components of the panel.
     @SuppressWarnings({"rawtypes"})
