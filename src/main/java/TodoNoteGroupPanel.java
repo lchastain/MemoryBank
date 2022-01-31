@@ -24,6 +24,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     TodoGroupHeader listHeader;
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
+    transient NoteGroupPanel parentNoteGroupPanel;
 
     public TodoNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
@@ -56,10 +57,19 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     }
 
 
+    @Override
+    protected void adjustMenuItems(boolean b) {
+        super.adjustMenuItems(b);
+        if(parentNoteGroupPanel != null) {
+            MemoryBank.debug("TodoNoteGroupPanel.adjustMenuItems <" + b + ">");
+            parentNoteGroupPanel.adjustMenuItems(b);
+        }
+    }
+
     private void buildMyPanel(String groupName) {
         log.debug("Building components for a TodoGroupPanel named: " + groupName);
 
-        tmc = new ThreeMonthColumn();
+        tmc = new ThreeMonthColumn(); // Will be garbage-collected, if we set a different one.
         tmc.setSubscriber(this);
 
         // Create the window title
@@ -466,12 +476,12 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     } // end setOptions
 
 
-    //--------------------------------------------------------------
-    // Method Name: showComponent
-    //
-    //  Several actions needed when a line has
-    //    either gone active or inactive.
-    //--------------------------------------------------------------
+    void setThreeMonthColumn(ThreeMonthColumn newTmc) {
+        tmc = newTmc;
+    }
+
+    //  Action needed when a line has either gone active
+    //    or inactive, called by the overridden noteActivated.
     void showComponent(TodoNoteComponent nc, boolean showit) {
         if (showit) {
             tNoteComponent = nc;

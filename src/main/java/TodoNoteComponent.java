@@ -38,12 +38,6 @@ public class TodoNoteComponent extends NoteComponent {
         miMoveToSelectedDate = contextMenu.add("Move To Selected Date");
         miMoveToSelectedDate.addActionListener(popHandler);
 
-        JMenuItem miCopyToAnotherList = contextMenu.add("Copy To Another List...");
-        miCopyToAnotherList.addActionListener(popHandler);
-
-        JMenuItem miMoveToAnotherList = contextMenu.add("Move To Another List...");
-        miMoveToAnotherList.addActionListener(popHandler);
-
         //------------------------
         // Make the status icons
         //------------------------
@@ -77,7 +71,6 @@ public class TodoNoteComponent extends NoteComponent {
         setLayout(new DndLayout());
 
         index = i;
-//        myNoteGroup = ng;
 
         pbThePriorityButton = new PriorityButton();
         sbTheStatusButton = new StatusButton();

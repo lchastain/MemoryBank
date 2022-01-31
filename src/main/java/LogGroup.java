@@ -29,7 +29,7 @@ public class LogGroup extends NoteGroup {
         if(vectorObject instanceof Vector) {
             noteGroupDataVector = (Vector) vectorObject;
         } else {
-            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<LogData>>() {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<LogNoteData>>() {
             });
         }
     }

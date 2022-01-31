@@ -2,7 +2,8 @@ The Memory Bank application is already archiving the notable aspects of one's li
   way of date-specific entries, but to go just a bit beyond that, this feature also preserves Goals, To Do Lists,
   and other notes in the same state that they were on the day that the archive was created.  Goals, notes and other
   lists will all evolve over time, but this feature allows one to look back and see them as they were on the date of
-  the archive.  Recommendation is to make an archive at least once a year, possibly on a birthday or anniversary.
+  the archive.  Recommendation to users is to make an archive at least once a year, possibly on a birthday or
+  anniversary.
 
 History / Background
  Initially the vision for an archive ability was that we would track every single change to the data that was made by

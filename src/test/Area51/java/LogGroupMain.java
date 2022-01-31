@@ -9,11 +9,11 @@ public class LogGroupMain {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("lex@doughmain.net");
 
-        LogGroupPanel theLogNoteGroup;
+        LogNoteGroupPanel theLogNoteGroup;
         JFrame testFrame = new JFrame();
 
         testFrame.setTitle("Parentless LogPanel Driver");
-        theLogNoteGroup = new LogGroupPanel(new GroupInfo("Wooden Events", GroupType.LOG), 8);
+        theLogNoteGroup = new LogNoteGroupPanel(new GroupInfo("Wooden Events", GroupType.LOG), 8);
 
 //        testFrame.setTitle("LogPanel Driver for a To Do List");
 //        theLogNoteGroup = new LogGroupPanel(new GroupInfo("DoIT", GroupType.TODO_LOG));
@@ -29,9 +29,11 @@ public class LogGroupMain {
         });
 
         // Needed to override the 'metal' L&F for Swing components.
+        String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+        System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
         String laf = UIManager.getSystemLookAndFeelClassName();
         try {
-            UIManager.setLookAndFeel(laf);
+            UIManager.setLookAndFeel(thePlaf);
         } catch (Exception ignored) {
         }    // end try/catch
         SwingUtilities.updateComponentTreeUI(theLogNoteGroup.theBasePanel);

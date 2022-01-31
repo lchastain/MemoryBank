@@ -652,7 +652,7 @@ public class NoteComponent extends JPanel {
         public void focusGained(FocusEvent e) {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
-            NoteComponent.this.scrollRectToVisible(getBounds());
+            NoteComponent.this.scrollRectToVisible(getBounds());  // Does this scroll text on the line, or the line in the scrollpane?
             if(mySelectionMonitor != null) mySelectionMonitor.noteSelected(getNoteData());
 
             // We occasionally get a null pointer exception at startup.

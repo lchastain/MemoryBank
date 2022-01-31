@@ -1,0 +1,29 @@
+This is a short list of the top-level features of the Memory Bank application.  Each feature 'name' should lead you
+to a more full-fledged document that describes the appearance and expected behaviors.
+
+Archives
+
+NoteGroupPanels:
+    GoalGroupPanel
+    EventNoteGroupPanel
+    DayNoteGroupPanel
+    MonthNoteGroupPanel
+    YearNoteGroupPanel
+    TodoNoteGroupPanel
+    SearchResultGroupPanel
+
+    The 'xGroupPanel' classes are the visualization of the NoteGroup classes with the same names (without the 'Panel').
+
+
+Side-by-side viewing of any two features is now possible via the use of Archives, since the Archive tree provides all
+the same options as one would get from the main app tree.
+
+
+
+
+
+
+
+
+
+

@@ -13,37 +13,20 @@ public class AppIcon extends ImageIcon {
 
     // Pass-thru constructor to ImageIcon.
     AppIcon() {
+        super();
         setDescription(""); // empty is ok, null is not.
     }
 
     AppIcon(String a_filename) {
         // Note: Do not construct with null - handle that case prior to coming here.
-        MemoryBank.debug("Constructing AppIcon: " + a_filename);
         Image myImage = null;
-        String filename = a_filename.toLowerCase(); // Not sure why I cared about this...
-
-        // If this icon is being constructed as a result of an iconChooser selection,
-        // then filename will be the full path to the icon file in Program Data.
-
-        // Planning note 11/30/2019:  A future rev of this app will allow users to manage/use their own
-        // icons, in a subdir (named myIcons?) in their user data directory.  Check there first and if not found
-        // then you can get it from the main loc.  If also not found there, issue a debug complaint but move on.
-        // The stored filenames can be the icon filenames, only (no leading 'icons\' should be needed).  This
-        // should allow a user to replace previously set library icons, IF they happen to name theirs with the same
-        // name (and extension).  Possibly on the library icons, provide a way to see the correct filename.
-
-        // The filename will only start with 'icons' when it is being reconstructed
-        // from saved user data.  So make the full path for it, by prefixing the
-        // program data location.
-        if (filename.indexOf("icons") == 0) {
-            filename = MemoryBank.logHome + File.separatorChar + filename;
-        } // end if
+        String filename = a_filename.toLowerCase(); // So the 'endsWith' condition has less to consider.
 
         // Convert file separator characters, if needed.  This makes for file system
         // compatibility (even though we only expect to serve from one type of OS).
         char sep = File.separatorChar;
         if (sep != '/') filename = filename.replace(sep, '/');
-        if(!filename.equals(a_filename)) MemoryBank.debug("  Full icon filename: " + filename);
+        //debug("  Full icon filename: " + filename);
 
         if (filename.endsWith(".ico")) {
             try {
@@ -58,7 +41,7 @@ public class AppIcon extends ImageIcon {
             } catch (IOException ioe) {
                 MemoryBank.debug(ioe.getMessage());
             }
-        } else {
+        } else { // This handles .png, .jpg, .gif
             myImage = Toolkit.getDefaultToolkit().getImage(filename);
         } // end if
 
@@ -72,18 +55,45 @@ public class AppIcon extends ImageIcon {
         if (myImage == null) return;
         loadImage(myImage);  // Order matters..
         setImage(myImage);
-        //MemoryBank.trace();
     } // end constructor
 
 
-    /*
-    public void paintIcon(Component c, Graphics g, int x, int y) {
-        super.paintIcon(c, g, x, y);
-    } // end paintIcon
-    */
+    public static void scaleIcon(AppIcon theIcon, int theWidth, int theHeight) {
+        Image tmpImg = theIcon.getImage();
+        tmpImg = tmpImg.getScaledInstance(theWidth, theHeight, Image.SCALE_SMOOTH);
+        theIcon.setImage(tmpImg);
+    }
 
 
     public static void scaleIcon(AppIcon theIcon) {
+        int theHeight, theWidth;
+
+        boolean scaleIt = false;
+
+        theWidth = theIcon.getIconWidth();
+        theHeight = theIcon.getIconHeight();
+
+        int theMax = Math.max(theWidth, theHeight);
+        if(theMax > 36) {
+            scaleIt = true;
+            if(theWidth == theMax) {
+                theHeight = (theHeight * 36) / theWidth;
+                theWidth = 36;
+            } else {
+                theWidth = (theWidth * 36) / theHeight;
+                theHeight = 36;
+            }
+        }
+
+        Image tmpImg = theIcon.getImage();
+        if (scaleIt) {
+            tmpImg = tmpImg.getScaledInstance(theWidth, theHeight, Image.SCALE_SMOOTH);
+        }
+
+        theIcon.setImage(tmpImg);
+    } // end scaleIcon
+
+    public static void scaleIcon0(AppIcon theIcon) {
         int theHeight, theWidth;
 
         boolean scaleIt = false;

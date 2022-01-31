@@ -103,10 +103,6 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end makeDataObject
 
 
-    //-------------------------------------------------------------------
-    // Method Name: noteActivated
-    //
-    //-------------------------------------------------------------------
     @Override
     protected void noteActivated(boolean noteIsActive) {
         if (!noteIsActive) {

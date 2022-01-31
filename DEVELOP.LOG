@@ -2,33 +2,63 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Priorities:
+    Document the usage and intent of major categories - (explain why historical past events have no place if they
+        did not occur in your own experience).
+            Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
+              doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
+              with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
+              Alternate name: timeline ?   This one could come with a chart...
+    Add icon to MonthNotes and YearNotes  ?
+    Bring in a GOAL_TODO type.
     Generic Notes - get these list-types away from being 'todo' lists.
-    Past Events - in groups like 'Eruptions', 'Elections', 'Assassinations', etc.  This feature is more for someone
-      doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
-      with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
-      Alternate name: timeline ?   This one could come with a chart...
-    Consider making Calendar notes a single Panel, with tabs.
 
+
+
+Problems:
+    Log is orphaned when a Goal is renamed.
+            This is true, but with yet another tab planned, want to wait to fix this so that the solution will include
+            the file that goes with the new tab(s), as well.
+
+Does UNDO also undo the Todo and Milestones?
 
 
 Current/Next:
+    Burn-in of the Log feature - use the app, note problems & enhancement requests.
+
+Check out archiving of new Goal & the other files
 
 
-
-Issues, Ideas, Analyses, Problems:
-    New (item/group/thing?) Accomplishments (from scratch, and/or when goals are completed, or even years
-      after the fact).  How to dovetail with Goals?  When it used to be a Goal?
+Issues, Analyses, Ideas :
     Past Events -
         Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
         or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
+    Consider making Calendar notes a single Panel, with tabs.
+    How much overhead is wasted by not using the icon that comes with IconNoteComponent?  Or is it just the mouseListener?
 
 
 New:
 
 =====================================================================================================
 
+31 Jan 2022
+Fixed the Goal save - now dropped all 'goal' notes but keep the properties.  The composite Goal panel is almost ready
+for prime-time; need to clean up code a bit, first.
+
+30 Jan 2022
+Did that.  Now working on the GoalPanel, to change it to a grouping of 3 composite tabs / panels.  The main work
+here is to bring in a ToDo list, and stop reading in 'goal' notes while keeping only the Properties.
+
+27 Jan 2022
+The concept of having multiple NoteGroups associated to a Goal - is making me think that it could be a NoteGroupGroup.
+Having the milestones as a core group and then trying to wrap a Log and a todo list - is more klunky than just having
+a Goal be a tabbed-pane manager of three different NoteGroups.
+----------
+Working now on making a new kind of MilestoneNoteComponent rather than piggybacking off of Todo.  Adding all the
+usual support classes, including a new main driver in the Panel class.  Identified some new icons that can be used.
+
 25 Jan 2022
 Now can save a Goal after only a change to Log.  New Override method of adjustMenuItems in the LogGroupPanel.
+Another new override: updateGroup, to implement an undo for a Goal Log.
 
 24 Jan 2022
 Added a pager-control switch to track along with the tabs.
@@ -685,7 +715,7 @@ scripts and shortcuts, then could be done with this task.
 5 Nov 2020
     The view shown for a FoundIn button will be non-editable.  This is because some groups will come from keepers
       and some will not, and any changes made should not be saved, so don't let the user think that they can make
-      changes in the first place.  Had to add 'setEditable' methods to TodoNoteComponent, MilestoneComponent,
+      changes in the first place.  Had to add 'setEditable' methods to TodoNoteComponent, MilestoneNoteComponent,
       IconNoteComponent, and DayNoteComponent members, to add or remove the mouseListener.  But all these
       sub-components already had a listener, that they got during construction, so removed that setting.  Some of
       the inner component setEditables will also check to see if there is already a MouseListener set.  Not sure
@@ -745,7 +775,7 @@ scripts and shortcuts, then could be done with this task.
     Repaired the EventNoteGroup.ageEvents (now using the new addNote method of NoteGroup), then repaired the
       EventAgingTest.  Removed addNote from NoteGroupFile and the NoteGroupDataAccessor interface.  The data
       accessor interface is now only a load and a save.
-    Gave the same moveToDayNote solution to MilestoneComponent, as was done for TodoNoteComponent.
+    Gave the same moveToDayNote solution to MilestoneNoteComponent, as was done for TodoNoteComponent.
     Restored the BranchHelpers.  Still highly file-centric, though.
     Had to restore the check for BaseData.loading.  Do not understand how this happens, but this is the fix.
     Check-in point.

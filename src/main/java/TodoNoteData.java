@@ -15,16 +15,16 @@ public class TodoNoteData extends NoteData {
     private int intPriority;
     private int intStatus;
 
-    @JsonIgnore
+    @JsonIgnore  // ignoring because no longer used.
     private String strLinkage;
 
-    @JsonIgnore
+    @JsonIgnore  // ignoring because no longer used.
     private String linkage;
 
-    @JsonIgnore
+    @JsonIgnore  // ignoring because no longer used.
     private int priority;
 
-    @JsonIgnore
+    @JsonIgnore  // ignoring because no longer used.
     private int status;
 
 
@@ -42,6 +42,11 @@ public class TodoNoteData extends NoteData {
         intStatus = tndCopy.intStatus;
         strLinkage = tndCopy.strLinkage;
         todoDateString = tndCopy.todoDateString;
+
+        // Remove these when possible; referencing here to clear IJ warnings
+        linkage = tndCopy.linkage;
+        priority = tndCopy.priority;
+        status = tndCopy.status;
     } // end constructor
 
     // Construct a TodoNoteData from a NoteData.
@@ -76,12 +81,12 @@ public class TodoNoteData extends NoteData {
         return LocalDate.parse(todoDateString);
     }
 
-    @JsonIgnore
+    @JsonIgnore // ignoring so that Jackson does not assume that there is a 'Priority'; it is 'intPriority'.
     public int getPriority() {
         return intPriority;
     }
 
-    @JsonIgnore
+    @JsonIgnore // ignoring so that Jackson does not assume that there is a 'Status'; it is 'intStatus'.
     public int getStatus() {
         return intStatus;
     }

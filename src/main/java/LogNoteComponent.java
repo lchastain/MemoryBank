@@ -17,7 +17,7 @@ public class LogNoteComponent extends NoteComponent {
     static Notifier optionPane;
 
     // The Members
-    private LogData myLogData;
+    private LogNoteData myLogNoteData;
     private final NoteDateLabel noteDateLabel;
 
     static {
@@ -59,7 +59,7 @@ public class LogNoteComponent extends NoteComponent {
     // Returns the data object that this component encapsulates and manages.
     @Override
     public NoteData getNoteData() {
-        return myLogData;
+        return myLogNoteData;
     } // end getNoteData
 
 
@@ -75,16 +75,15 @@ public class LogNoteComponent extends NoteComponent {
     protected void initialize() {
         super.initialize();
 
-        myLogData.setLogDate(LocalDate.now());
+        myLogNoteData.setLogDate(LocalDate.now());
 
-//        myLogNoteData.setTimeOfDayString(LocalTime.now().toString());
         resetDateLabel();
     } // end initialize
 
 
     @Override
     protected void makeDataObject() {
-        myLogData = new LogData();
+        myLogNoteData = new LogNoteData();
     } // end makeDataObject
 
 
@@ -108,7 +107,7 @@ public class LogNoteComponent extends NoteComponent {
     // This method is called when initializing the component or updating the date.
     void resetDateLabel() {
         if(!initialized) return;
-        LocalDate logDate = myLogData.getLogDate();
+        LocalDate logDate = myLogNoteData.getLogDate();
 
         if (logDate == null) {
             // The following statement could be needed if a LogNoteComponent had
@@ -134,26 +133,55 @@ public class LogNoteComponent extends NoteComponent {
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
     public void setNoteData(NoteData newNoteData) {
-        if (newNoteData instanceof LogData) {
+        if (newNoteData instanceof LogNoteData) {
             // It is already the right type, but cast is still needed because of this method's polymorphic signature.
-            setLogNoteData((LogData) newNoteData);
+            setLogNoteData((LogNoteData) newNoteData);
         } else { // Not 'my' type, but we can make it so (coming from a 'paste' operation).
             // But this one will get a default (today) date, since the base class does not have one.
-            setLogNoteData(new LogData(newNoteData));
+            setLogNoteData(new LogNoteData(newNoteData));
         }
 
     } // end setNoteData
 
 
     // Called by the overridden setNoteData (above) and the 'swap' method.
-    private void setLogNoteData(LogData newNoteData) {
-        myLogData = newNoteData;
+    private void setLogNoteData(LogNoteData newNoteData) {
+        myLogNoteData = newNoteData;
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
         resetComponent();
         setNoteChanged();
     } // end setLogNoteData
+
+
+    @Override
+    protected void shiftDown() {
+        if (noteDateLabel.isActive) {
+            // subtract one day
+            LocalDate ld = myLogNoteData.getLogDate();
+            ld = ld.minusDays(1);
+            myLogNoteData.setLogDate(ld);
+            resetDateLabel();
+            LogNoteComponent.this.setNoteChanged();
+        } else {
+            myManager.shiftDown(index);
+        } // end if
+    } // end shiftDown
+
+    @Override
+    protected void shiftUp() {
+        if (noteDateLabel.isActive) {
+            // add one day
+            LocalDate ld = myLogNoteData.getLogDate();
+            ld = ld.plusDays(1);
+            myLogNoteData.setLogDate(ld);
+            resetDateLabel();
+            LogNoteComponent.this.setNoteChanged();
+        } else {
+            myManager.shiftUp(index);
+        } // end if
+    } // end shiftUp
 
 
     private void showDateChooser() {
@@ -174,40 +202,12 @@ public class LogNoteComponent extends NoteComponent {
         tempwin.setVisible(true);
     } // end showDateChooser
 
-    @Override
-    protected void shiftDown() {
-        if (noteDateLabel.isActive) {
-            // subtract one day
-            LocalDate ld = myLogData.getLogDate();
-            ld = ld.minusDays(1);
-            myLogData.setLogDate(ld);
-            resetDateLabel();
-            LogNoteComponent.this.setNoteChanged();
-        } else {
-            myManager.shiftDown(index);
-        } // end if
-    } // end shiftDown
-
-    @Override
-    protected void shiftUp() {
-        if (noteDateLabel.isActive) {
-            // add one day
-            LocalDate ld = myLogData.getLogDate();
-            ld = ld.plusDays(1);
-            myLogData.setLogDate(ld);
-            resetDateLabel();
-            LogNoteComponent.this.setNoteChanged();
-        } else {
-            myManager.shiftUp(index);
-        } // end if
-    } // end shiftUp
-
 
     @Override
     public void swap(NoteComponent lnc) {
         // Get a reference to the two data objects
-        LogData lnd1 = (LogData) this.getNoteData();
-        LogData lnd2 = (LogData) lnc.getNoteData();
+        LogNoteData lnd1 = (LogNoteData) this.getNoteData();
+        LogNoteData lnd2 = (LogNoteData) lnc.getNoteData();
 
         // Note: getNoteData and setNoteData are working with references
         //   to data objects.  If you 'get' data into a local variable
@@ -216,8 +216,8 @@ public class LogNoteComponent extends NoteComponent {
         //   a separate copy of the data object, just the reference to it.
 
         // So - copy the data objects.
-        if (lnd1 != null) lnd1 = new LogData(lnd1);
-        if (lnd2 != null) lnd2 = new LogData(lnd2);
+        if (lnd1 != null) lnd1 = new LogNoteData(lnd1);
+        if (lnd2 != null) lnd2 = new LogNoteData(lnd2);
 
         if (lnd1 == null) lnc.clear();
         else lnc.setNoteData(lnd1);
@@ -238,7 +238,7 @@ public class LogNoteComponent extends NoteComponent {
 // Inner Classes -
 //---------------------------------------------------------
 
-    class NoteDateLabel extends JLabel implements ActionListener {
+    class NoteDateLabel extends JLabel {
         private static final long serialVersionUID = 1L;
 
         boolean isActive;
@@ -264,13 +264,13 @@ public class LogNoteComponent extends NoteComponent {
                         if (e.getClickCount() >= 2) return;  // We don't handle a double click on this component.
                         // Show the YearView data chooser
                         yvDateChooser.setView(LocalDate.now()); // In case the current date is a null.
-                        yvDateChooser.setChoice(myLogData.getLogDate());
+                        yvDateChooser.setChoice(myLogNoteData.getLogDate());
                         showDateChooser();
                         LocalDate newDate = yvDateChooser.getChoice();
                         // Reselecting the same date has same effect as 'X'ing the dialog - no date change.
                         // To clear a date:  right-click the current selection, then close the dialog.
                         System.out.println("The date retrieved from the chooser: " + newDate);
-                        myLogData.setLogDate(newDate);
+                        myLogNoteData.setLogDate(newDate);
                         myNoteGroupPanel.myNoteGroup.setGroupChanged(true);
                         resetDateLabel();
                     } else { // Single Left Mouse Button
@@ -283,7 +283,7 @@ public class LogNoteComponent extends NoteComponent {
                             if (getText().trim().equals("")) {
                                 // This can happen if a previously initialized
                                 //   note has had its date cleared.
-                                myLogData.setLogDate(LocalDate.now());
+                                myLogNoteData.setLogDate(LocalDate.now());
                                 LogNoteComponent.this.resetDateLabel();
                                 LogNoteComponent.this.setNoteChanged();
                             } // end if
@@ -300,14 +300,13 @@ public class LogNoteComponent extends NoteComponent {
             };
         } // end constructor
 
-
         // Clear both the visual and data elements of this Component
         private void clear() {
             setText("           ");  // enough room for 'dd MMM yyyy'
             setBorder(highBorder);
             isActive = false;
-            if(myLogData != null) {
-                myLogData.setLogDate(null);
+            if(myLogNoteData != null) {
+                myLogNoteData.setLogDate(null);
             }
         } // end clear
 
@@ -340,76 +339,6 @@ public class LogNoteComponent extends NoteComponent {
             setBorder(highBorder);
             isActive = false;
         } // end setInactive
-
-
-     // We will need a showDateChooser
-//        private void showTimeChooser() {
-//            LogNoteComponent.this.setBorder(redBorder);
-//
-//            Frame theFrame = JOptionPane.getFrameForComponent(this);
-//            String timeOfDayString = myLogNoteData.getTimeOfDayString();
-//
-//            LocalTime theTime;
-//            // The current time of the NoteData may not yet be set (ie, may be null).
-//            // But the timechooser expects to be initialized with some value (NOT null)
-//            // and since the user has invoked the chooser it makes more sense to
-//            // initialize it with the current time rather than try to start from a 'blank'
-//            // time that we know the user intends to change to something else, most likely
-//            // the current time, so why not start with that instead?  Anyway, it solves
-//            // the problem of how to initialize with a null - we just don't.  On the
-//            // other hand, though - if they clear it (which they can do from that UI)
-//            // then it can remain null.  Silly user.
-//            if(timeOfDayString != null) theTime = LocalTime.parse(timeOfDayString);
-//            else theTime = LocalTime.now();
-//
-//            TimeChooser tc = new TimeChooser(theTime);
-//            int result = optionPane.showConfirmDialog(
-//                    theFrame,                     // for modality
-//                    tc,                           // UI Object
-//                    "Set the time for this note", // pane title bar
-//                    JOptionPane.OK_CANCEL_OPTION, // Option type
-//                    JOptionPane.QUESTION_MESSAGE); // Message type
-//
-//            LogNoteComponent.this.setBorder(null);
-//            if (result != JOptionPane.OK_OPTION) return;
-//
-//            if (tc.getClearBoolean()) clear();
-//            else {
-//                myLogNoteData.setTimeOfDayString(tc.getChoice().toString());
-//                System.out.println("The time is: " + tc.getChoice());
-//                resetDateLabel();
-//            } // end if
-//            LogNoteComponent.this.setNoteChanged();
-//        } // end showTimeChooser
-
-
-        //---------------------------------------------------------
-        // Menu Item action handler for NoteDateLabel
-        //---------------------------------------------------------
-        public void actionPerformed(ActionEvent e) {
-            MemoryBank.debug("LogNoteComponent.NoteDateLabel.actionPerformed ActionEvent: " + e.toString());
-            JMenuItem jm = (JMenuItem) e.getSource();
-            String s = jm.getText();
-            switch (s) {
-                case "Clear Line":
-                    clear();
-                    break;
-                case "Clear Date":
-                    // Do not set logDateString to null; just clear the visual indicator.
-                    //  This leaves the note still initialized; critical to decisions
-                    //  made at load time.
-                    noteDateLabel.clear();
-                    break;
-//                case "Set Time":
-//                    noteTimeLabel.showTimeChooser();
-//                    break;
-                default:   // Nothing else expected so print it out -
-                    System.out.println(s);
-                    break;
-            }
-
-            setNoteChanged();
-        } // end actionPerformed
 
     } // end class NoteDateLabel
 

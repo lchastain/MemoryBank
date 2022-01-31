@@ -24,6 +24,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
     static String eventGroupFilePrefix;
     static String goalGroupFilePrefix;
+    static String milestoneGroupFilePrefix;
     static String searchResultFilePrefix;
     static String todoListFilePrefix;
     static String logFilePrefix;
@@ -52,6 +53,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
         eventGroupFilePrefix = "event_";
         goalGroupFilePrefix = "goal_";
+        milestoneGroupFilePrefix = "miles_";
         searchResultFilePrefix = "search_";
         todoListFilePrefix = "todo_";
         logFilePrefix = "log_";
@@ -112,6 +114,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 theAreaPath = goalGroupAreaPath;
                 thePrefix = goalGroupFilePrefix;
                 saveWithoutData = true;
+                break;
+            case MILESTONE:
+                theAreaPath = goalGroupAreaPath; // Unlike other Goal children, Milestones cannot stand alone.
+                thePrefix = milestoneGroupFilePrefix;
+                saveWithoutData = false;
                 break;
         }
         if(dateType != null) fileFilter = new CalendarNoteGroup.CalendarFileFilter(dateType);
@@ -186,9 +193,19 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 filePrefix = goalGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
+            case MILESTONE:
+                areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
+                filePrefix = milestoneGroupFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
             case GOAL_LOG:
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = logFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case GOAL_TODO:
+                areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
+                filePrefix = todoListFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case EVENTS:
@@ -638,68 +655,68 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         return filename.toString();
     }
 
-    // This should work but it could be cleaner, without the reachout for the CNG types.
+    // This should work but it could be cleaner, without the early returns for the CNG types.
     String makeFullFilename() {
         String areaName = "NoArea";    // If these turn up in the data, it's a problem.
         String prefix = "NoPrefix";    // But at least we'll know where to look.
-        String groupName = "NoGroup";
+        String groupName;
         LocalDate theDate;
 
         switch(groupInfo.groupType) {
-            case DAY_NOTES:
-                //areaName = "Years";
+            case DAY_NOTES:  // areaName = "Years";
                 theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 return makeFullFilename(theDate, "D");
-            case MONTH_NOTES:
-                //areaName = "Years";
+            case MONTH_NOTES:  // areaName = "Years";
                 theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 return makeFullFilename(theDate, "M");
-            case YEAR_NOTES:
-                //areaName = "Years";
+            case YEAR_NOTES:  // areaName = "Years";
                 theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 return makeFullFilename(theDate, "Y");
             case GOALS:
-                areaName = "Goals";
+                areaName = DataArea.GOALS.getAreaName();
                 prefix = goalGroupFilePrefix;
-                groupName = groupInfo.getGroupName();
                 break;
             case GOAL_LOG:
-                areaName = "Goals";
+                areaName = DataArea.GOALS.getAreaName();
                 prefix = logFilePrefix;
-                groupName = groupInfo.getGroupName();
+                break;
+            case GOAL_TODO:
+                areaName = DataArea.GOALS.getAreaName();
+                prefix = todoListFilePrefix;
+                break;
+            case MILESTONE:
+                areaName = DataArea.GOALS.getAreaName();
+                prefix = milestoneGroupFilePrefix;
                 break;
             case EVENTS:
-                areaName = "UpcomingEvents";
+                areaName = DataArea.UPCOMING_EVENTS.getAreaName();
                 prefix = eventGroupFilePrefix;
-                groupName = groupInfo.getGroupName();
                 break;
             case LOG:
-                areaName = "Logs";
+                areaName = DataArea.LOGS.getAreaName();
                 prefix = logFilePrefix;
-                groupName = groupInfo.getGroupName();
                 break;
             case TODO_LIST:
-                areaName = "ToDoLists";
+                areaName = DataArea.TODO_LISTS.getAreaName();
                 prefix = todoListFilePrefix;
-                groupName = groupInfo.getGroupName();
                 break;
             case TODO_LOG:
-                areaName = "ToDoLists";
+                areaName = DataArea.TODO_LISTS.getAreaName();
                 prefix = logFilePrefix;
-                groupName = groupInfo.getGroupName();
                 break;
             case SEARCH_RESULTS:
-                areaName = "SearchResults";
+                areaName = DataArea.SEARCH_RESULTS.getAreaName();
                 prefix = searchResultFilePrefix;
-                groupName = groupInfo.getGroupName();
                 break;
             default:
                 // The other types do not have associated File data.
         }
+        groupName = groupInfo.getGroupName();
         return FileDataAccessor.basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
 
 
+    // Called by contexts that do not already have a GroupInfo (add new, rename, etc)
     static String makeFullFilename(String areaName, String groupName) {
         String prefix = "";
         switch (areaName) {

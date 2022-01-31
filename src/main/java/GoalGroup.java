@@ -1,6 +1,4 @@
-import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.util.Vector;
 
 public class GoalGroup extends NoteGroup {
 
@@ -20,13 +18,8 @@ public class GoalGroup extends NoteGroup {
     }
 
     @Override
+    // In this case we do not have any notes to set.
     protected void setNotes(Object vectorObject) {
-        if(vectorObject instanceof Vector) {
-            noteGroupDataVector = (Vector) vectorObject;
-        } else {        // This type (todo, vs goal) will have to change, ultimately.  Need a round tuit.
-            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<TodoNoteData>>() {
-            });
-        }
     }
 
 }

@@ -56,7 +56,7 @@ public abstract class IconNoteComponent extends NoteComponent {
         super(ng, i);
         index = i;
 
-        myContainer = (IconKeeper) ng;
+            myContainer = (IconKeeper) ng;
 
         //------------------
         // Graphical elements

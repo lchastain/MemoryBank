@@ -72,6 +72,7 @@ class GroupInfo {
                     theNoteGroup = new SearchResultGroup(this);
                     break;
                 case TODO_LIST:
+                case GOAL_TODO:
                     theNoteGroup = new TodoNoteGroup(this);
                     break;
                 case EVENTS:
@@ -79,11 +80,14 @@ class GroupInfo {
                     break;
                 case LOG:
                 case GOAL_LOG:
-                case TODO_LOG:
+                case TODO_LOG:  // We don't have this, yet.
                     theNoteGroup = new LogGroup(this);
                     break;
                 case GOALS:
                     theNoteGroup = new GoalGroup(this);
+                    break;
+                case MILESTONE:
+                    theNoteGroup = new MilestoneNoteGroup(this);
                     break;
                 case DAY_NOTES:
                     theNoteGroup = new DayNoteGroup(this);

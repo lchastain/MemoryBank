@@ -2,7 +2,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
 
-public class LogData extends NoteData {
+public class LogNoteData extends NoteData {
 
     // We keep the Date as a String for more reliable persistence, because serialization of a LocalDate is problematic.
     // Then, we want to keep the date String private, without a direct setter or getter, because contexts that use
@@ -26,13 +26,13 @@ public class LogData extends NoteData {
     //   manual sorting, but for simplicity and uniformity, the time will not be handled as a discrete data item.
 
 
-    public LogData() {
+    public LogNoteData() {
         logDateString = LocalDate.now().toString();
     } // end constructor
 
 
     // The copy constructor (clone)
-    public LogData(LogData lndCopy) {
+    public LogNoteData(LogNoteData lndCopy) {
         super(lndCopy);
         logDateString = lndCopy.logDateString;
         linkTargets = lndCopy.linkTargets;
@@ -41,7 +41,7 @@ public class LogData extends NoteData {
 
     // Construct a LogData from a NoteData.
     // This is used when pasting Notes that were copied from NoteData interfaces.
-    public LogData(NoteData nd) {
+    public LogNoteData(NoteData nd) {
         super(nd);
         logDateString = LocalDate.now().toString();
     } // end constructor
@@ -57,7 +57,7 @@ public class LogData extends NoteData {
     // in the calling context was not known but the inheritance hierarchy has decided that it was a LogData.
     @Override
     protected NoteData copy() {
-        return new LogData(this);
+        return new LogNoteData(this);
     }
 
 

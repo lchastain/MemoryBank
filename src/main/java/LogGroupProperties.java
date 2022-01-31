@@ -37,10 +37,5 @@ public class LogGroupProperties extends GroupProperties {
         super(groupName, GroupType.LOG);
     }
 
-    // A Log that is attached to some higher-level NoteGroup, such as a Goal.
-    public LogGroupProperties(String groupName, DataArea theDataArea) {
-        super(groupName, GroupType.LOG);
-    }
-
 
 }

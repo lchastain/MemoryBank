@@ -7,13 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 
-public class LogGroupPanel extends NoteGroupPanel {
-    private static final Logger log = LoggerFactory.getLogger(LogGroupPanel.class);
+public class LogNoteGroupPanel extends NoteGroupPanel {
+    private static final Logger log = LoggerFactory.getLogger(LogNoteGroupPanel.class);
     private static final int DEFAULT_PAGE_SIZE = 25;
     LogGroupProperties groupProperties;
     transient NoteGroupPanel parentNoteGroupPanel;
 
-    public LogGroupPanel(GroupInfo groupInfo, int pageSize) {
+    public LogNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
@@ -31,11 +31,11 @@ public class LogGroupPanel extends NoteGroupPanel {
     } // end of the primary constructor
 
 
-    public LogGroupPanel(GroupInfo groupInfo) {
+    public LogNoteGroupPanel(GroupInfo groupInfo) {
         this(groupInfo, DEFAULT_PAGE_SIZE);
     }
 
-    public LogGroupPanel(String groupName) {
+    public LogNoteGroupPanel(String groupName) {
         this(new GroupInfo(groupName, GroupType.LOG), DEFAULT_PAGE_SIZE);
     }
 
@@ -93,7 +93,7 @@ public class LogGroupPanel extends NoteGroupPanel {
                 jtf.setText(null); // Clear the input field, make ready for the next entry.
 
                 // Make a new log entry from the user-entered text.
-                LogData logNoteData = new LogData();
+                LogNoteData logNoteData = new LogNoteData();
                 logNoteData.setNoteString(theEntry);
                 logNoteData.setLogDate(LocalDate.now());
 

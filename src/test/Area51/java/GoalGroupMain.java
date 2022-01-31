@@ -11,7 +11,7 @@ public class GoalGroupMain {
 
         JFrame testFrame = new JFrame("Goal Panel Driver");
 
-        GoalGroupPanel theGoalGroup = new GoalGroupPanel(new GroupInfo("Retire", GroupType.GOALS), 8);
+        GoalGroupPanel theGoalGroup = new GoalGroupPanel(new GroupInfo("Retire", GroupType.GOALS));
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
@@ -21,9 +21,11 @@ public class GoalGroupMain {
         });
 
         // Needed to override the 'metal' L&F for Swing components.
+        String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+        System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
         String laf = UIManager.getSystemLookAndFeelClassName();
         try {
-            UIManager.setLookAndFeel(laf);
+            UIManager.setLookAndFeel(thePlaf);
         } catch (Exception ignored) {
         }    // end try/catch
         SwingUtilities.updateComponentTreeUI(theGoalGroup.theBasePanel);
