@@ -314,6 +314,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             if(theGroup.myNoteGroup.getGroupProperties() == null) {
                 theGroup.myNoteGroup.makeGroupProperties();
             }
+            theGroup.setGroupChanged(true); // Needed for new Goals, if none others.
             theNoteGroupPanelKeeper.add(theGroup);
             // The new group will be saved by preClose().
         }
@@ -627,7 +628,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // the BranchHelper.  This section of the code is similar to what is done there,
     // except that we keep a reference to the deleted group.  This will allow for
     // an 'undo', if desired.  This is possible because here we only delete one,
-    // whereas the     editor has the capability to delete several at the same time.
+    // whereas the branch editor has the capability to delete several at the same time.
     void deleteGroup() {
         // They get one warning..
         String deleteWarning;
@@ -1125,6 +1126,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         String theContext = appMenuBar.getCurrentContext();
         switch (theContext) {
+            case "Goal":
+                success = ((GoalGroupPanel) theNoteGroupPanel).saveAs();
+                groupParentPath = goalsPath;
+                theNoteGroupPanelKeeper = theGoalsKeeper;
+                break;
             case "Upcoming Event":
                 success = ((EventNoteGroupPanel) theNoteGroupPanel).saveAs();
                 groupParentPath = eventsPath;
@@ -1144,9 +1150,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             // When the tree selection changes, any open NoteGroup is automatically saved,
             // and the tree selection will change automatically when we do the rename of
             // the leaf on the tree below.  But in this case we do not want that behavior,
-            // because we have already saved the file, milliseconds ago.  It wouldn't hurt
-            // to let it save again, but why allow it, when all it takes to stop it is:
-//            theNoteGroupPanel = null;
+            // because we have already saved the file with its new name, milliseconds ago.
+            // It wouldn't hurt to let it save again, but why allow it, when all it takes
+            // to stop it is:
+            theNoteGroupPanel = null;
 
             // Removal from the NoteGroupKeeper is needed, to force a file reload
             // during the rename of the leaf (below), because even though the saveAs

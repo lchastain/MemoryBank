@@ -40,6 +40,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Currently only used by SearchResultComponent 'Found In' button handler, set after construction of SRG panels.
 
     NoteGroupPanelKeeper myKeeper; // A pointer to this Panel's keeper, used during deleteGroup.
+    transient NoteGroupPanel parentNoteGroupPanel; // Helps with menu management.
 
     // Private members
     private int intHighestNoteComponentIndex;
@@ -236,6 +237,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         lastVisibleNoteIndex = -1; // This helps, when going to save (delete) an associated file.
     } // end clearPage
 
+    // Since Panels are not persisted, this does nothing in this base class.  Children, however, can
+    //   override it and take appropriate action(s) due to have their 'deleteNoteGroup' invoked.
+    void deletePanel() {}
 
     // Provides an interface for the modification of two members of the NoteData.
     //   Returns true if there was a change to either one; false otherwise.

@@ -93,7 +93,6 @@ public class ExtendedNoteComponent extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(body);
-//        this.add(scrollPane);   // disabled, suspected extraneous.  Otherwise re-enable and add a comment as to why.
 
         if (defaultSubject != null) {
             if (defaultSubject.equals("Goal Title")) {
@@ -102,13 +101,9 @@ public class ExtendedNoteComponent extends JPanel {
                 add(subjectComponent, "North");
             } else if (defaultSubject.equals("Search Info")) {
                 subjectComponent = new JTextField(32);
-//                int height = subjectComponent.getPreferredSize().height;
-//                subjectComponent.setMaximumSize(new Dimension(20, height));
-//                subjectComponent.setPreferredSize(new Dimension(20, height));
                 JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5, 0));
                 JLabel titleLabel = new JLabel("    Search Title: ");
                 titleLabel.setFont(Font.decode("Serif-bold-12"));
-//                titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
                 titlePanel.add(titleLabel);
                 titlePanel.add(subjectComponent);
                 subjectComponent.setFont(Font.decode("Serif-bold-12"));

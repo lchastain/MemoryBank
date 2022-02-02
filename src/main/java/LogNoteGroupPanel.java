@@ -11,7 +11,6 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(LogNoteGroupPanel.class);
     private static final int DEFAULT_PAGE_SIZE = 25;
     LogGroupProperties groupProperties;
-    transient NoteGroupPanel parentNoteGroupPanel;
 
     public LogNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
@@ -43,12 +42,13 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
     @Override
     protected void adjustMenuItems(boolean b) {
         super.adjustMenuItems(b);
+
+        // This NoteGroupPanel may be inside a collection of other Panels - update the parent, if there is one.
         if(parentNoteGroupPanel != null) {
-            MemoryBank.debug("LogGroupPanel.adjustMenuItems <" + b + ">");
+            MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
             parentNoteGroupPanel.adjustMenuItems(b);
         }
     }
-
     // Called from the constructor to create and place the visual components of the panel.
     @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {

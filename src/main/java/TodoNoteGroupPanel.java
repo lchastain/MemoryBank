@@ -24,7 +24,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     TodoGroupHeader listHeader;
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
-    transient NoteGroupPanel parentNoteGroupPanel;
 
     public TodoNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
@@ -60,6 +59,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     @Override
     protected void adjustMenuItems(boolean b) {
         super.adjustMenuItems(b);
+
+        // This NoteGroupPanel may be inside a collection of other Panels - update the parent, if there is one.
         if(parentNoteGroupPanel != null) {
             MemoryBank.debug("TodoNoteGroupPanel.adjustMenuItems <" + b + ">");
             parentNoteGroupPanel.adjustMenuItems(b);
@@ -428,15 +429,21 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
             return false;
         } // end if
 
-        // Now change the name and save.
+        // Now change the name, update Properties and the data accessor, and save.
         //------------------------------------
         log.debug("Saving " + oldName + " as " + newName);
+        GroupProperties myGroupProperties = myNoteGroup.getGroupProperties();
 
         // 'setGroupName' sets the name of the group, which translates into an
         // in-place change of the name of the list held by the TodoListKeeper.
         // Unfortunately, that list will still have the old title, so it still needs
-        // to be removed from the keeper.  The calling context will take care of that.
-        myNoteGroup.getGroupProperties().setGroupName(newName);
+        // to be removed from the keeper.  The calling context must take care of that.
+        myGroupProperties.setGroupName(newName);
+        GroupInfo myGroupInfo = new GroupInfo(myGroupProperties);
+
+        // The data accessor (constructed along with this Panel) has the old name; need to update.
+        myNoteGroup.groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(myGroupInfo);
+
         setGroupChanged(true);
         preClosePanel();
 

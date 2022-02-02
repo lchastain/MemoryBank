@@ -16,7 +16,13 @@ public interface LinkHolder {
 
         // Attach the reversed link to the original link target, and then re-persist its Group.
         if (otherEndNoteInfo != null) {
-            groupToSave.getLinkTargets(otherEndNoteInfo).add(reverseLinkedEntityData);
+            LinkTargets lt = groupToSave.getLinkTargets(otherEndNoteInfo);
+            // Goals have been revamped and now Milestones do not have LinkTargets, so there may
+            // not actually be a place to put this reverse link.  So we need to first ensure that
+            // lt is not null.  If it is, then reverseLinkedEntityData just falls on the floor but
+            // at least by checking for the null we don't throw an exception.
+            // TODO - Rethink ALL linkages, at some point a revision should not allow us to get this far in this case.
+            if(lt != null) lt.add(reverseLinkedEntityData);
         } else {
             groupToSave.getGroupProperties().linkTargets.add(reverseLinkedEntityData);
         }

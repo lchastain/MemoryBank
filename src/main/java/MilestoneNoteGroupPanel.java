@@ -14,7 +14,6 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel implements IconKeepe
     JComponent theHeader;
     private MilestoneNoteComponent milestoneNoteComponent; // The currently selected one.
     GroupProperties groupProperties;
-    transient NoteGroupPanel parentNoteGroupPanel;
 
 
     static {
@@ -51,6 +50,17 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel implements IconKeepe
         this(new GroupInfo(groupName, GroupType.MILESTONE));
     }
 
+
+    @Override
+    protected void adjustMenuItems(boolean b) {
+        super.adjustMenuItems(b);
+
+        // This NoteGroupPanel may be inside a collection of other Panels - update the parent, if there is one.
+        if(parentNoteGroupPanel != null) {
+            MemoryBank.debug("MilestoneNoteGroupPanel.adjustMenuItems <" + b + ">");
+            parentNoteGroupPanel.adjustMenuItems(b);
+        }
+    }
 
     @SuppressWarnings({"rawtypes"})
     JComponent buildHeader() {

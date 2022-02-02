@@ -10,7 +10,8 @@ public interface BranchHelperInterface {
     int MAX_FILENAME_LENGTH = 20; // Somewhat arbitrary, but helps with UI issues.
 
     // Called by the TreeBranchEditor to see if there is any objection to a rename
-    // of a node from or to the provided value.  If true, the rename goes thru. If
+    // of a node from or to the provided value.  If no objection then the return
+    // value is true and the rename goes thru. If
     // false, it simply discards the rename action.  If any user feedback is desired,
     // Your implementation can provide that before returning the boolean.
     default boolean allowRenameFrom(DefaultMutableTreeNode theNode) {

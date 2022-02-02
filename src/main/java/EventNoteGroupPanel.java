@@ -433,15 +433,21 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             return false;
         } // end if
 
-        // Now change the name and save.
+        // Now change the name, update Properties and the data accessor, and save.
         //------------------------------------
         log.debug("Saving " + oldName + " as " + newName);
+        GroupProperties myGroupProperties = myNoteGroup.getGroupProperties();
 
         // 'setGroupName' sets the name of the group, which translates into an
         // in-place change of the name of the list held by the EventListKeeper.
         // Unfortunately, that list will still have the old title, so it still needs
-        // to be removed from the keeper.  The calling context will take care of that.
-        myNoteGroup.getGroupProperties().setGroupName(newName);
+        // to be removed from the keeper.  The calling context (AppTreePanel) must take care of that.
+        myGroupProperties.setGroupName(newName);
+        GroupInfo myGroupInfo = new GroupInfo(myGroupProperties);
+
+        // The data accessor (constructed along with this Panel) has the old name; need to update.
+        myNoteGroup.groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(myGroupInfo);
+
         setGroupChanged(true);
         preClosePanel();
 

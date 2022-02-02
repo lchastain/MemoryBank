@@ -15,17 +15,18 @@ Priorities:
 
 
 Problems:
+    Check out archiving of new Goal & its sub-panels
+
     Log is orphaned when a Goal is renamed.
             This is true, but with yet another tab planned, want to wait to fix this so that the solution will include
             the file that goes with the new tab(s), as well.
 
-Does UNDO also undo the Todo and Milestones?
+    Deletion of Goal does not remove sub-panel files
+
 
 
 Current/Next:
     Burn-in of the Log feature - use the app, note problems & enhancement requests.
-
-Check out archiving of new Goal & the other files
 
 
 Issues, Analyses, Ideas :
@@ -39,6 +40,37 @@ Issues, Analyses, Ideas :
 New:
 
 =====================================================================================================
+
+2 Feb 2022
+Fixed the Save/Undo menu item enablement for Goal sub-panels.  Added the parent pointer to the base NoteGroupPanel.
+Fixed the SaveAs for Todo & Events, added for Goals.
+Removed menu items for Goals:  delete, clear all.  I noted the reasoning in a Log entry for the MB development
+goal and now see that many of the design-decision-type entries made here would be more appropriately kept there,
+instead.  Plan to do that, going forward (now that this app has advanced to the point where it can be used to
+do that).
+-----------------------------
+Looking at fixes in the branch management area for Goals now that it is a panel-manager more than it is a Panel
+itself, and see that there is a WHOLE lot of considerations to handle.... OR ... go on without addressing the
+remaining minor issues.  Yes, will just go on.  For orphaned sub-panels, can manually rename or delete for now.
+But even so, they don't bother you because they don't show up in the branch editor.  And - if you for some reason
+name a new Goal or rename an existing one, to the same name as the orphaned files - they just come on in, already
+populated.  The reverse of that is true for a fully populated one that gets renamed; his sub-panels go empty, but
+as stated earlier, that can be fixed with some manual file renaming.
+-----------------------------
+So what is the meaning of 'go on'?  I want to check in, pub, and adopt the current working into the production
+area, and start using Goals as they are newly intended.  After that, can go back and decide what to do with the
+branch editor and helper.  One of the complicating factors that stopped me right now is that there are not any
+Panel-specific BranchHelpers; they all get constructed with a GroupInfo and then they all work the same from that
+point on, except now we want Goal-specific behavior.  So current thought is to turn the Panels into Branch helpers
+by bringing the common code into NoteGroupPanel, and then it can implement the BranchHelperInterface.  And then,
+the GoalPanel can override where needed.
+Fixed:  Entry (or edit) of a Goal plan shows one long line in the tool tip, until saved and reloaded.
+
+1 Feb 2022
+Checked in, Fixed three broken tests which all point to needing a rethink on which Types need which capabilities;
+primarily Linking, Save As, Merge, etc.
+-------------------
+Adding SaveAs to Goals, found that it does not work for To Do (and probably not Events, either)
 
 31 Jan 2022
 Fixed the Goal save - now dropped all 'goal' notes but keep the properties.  The composite Goal panel is almost ready

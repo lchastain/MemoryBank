@@ -93,5 +93,4 @@ public class GoalGroupProperties extends GroupProperties {
         overallStatus = OverallStatus.ON_TRACK;
     }
 
-
 }

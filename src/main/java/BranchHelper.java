@@ -25,7 +25,7 @@ public class BranchHelper implements BranchHelperInterface {
     private String renameFrom;  // Used when deciding if special handling is needed.
     private String renameTo;    // Provides a way for us override the value.
     private final DataArea theArea;
-    private Notifier optionPane;  // for Testing
+    Notifier optionPane;  // for Testing
     private String thePrefix; // goal_, event_, todo_, search_
     String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
 
@@ -95,7 +95,7 @@ public class BranchHelper implements BranchHelperInterface {
     @Override
     public boolean deleteAllowed(String theSelection) {
         // This method previously had only one usage; disallowing the removal of the Event Consolidated List.
-        // However, since then I removed it myself, permananently.  But this mechanism of potentially disabling
+        // However, since then I removed that list myself, permananently.  But this mechanism of potentially disabling
         // the ability to remove a selection - seems highly likely to be needed again, so leaving it as a
         // placeholder / example.
 //        if(AREA_EVENT.equals(theAreaNodeName)) {
@@ -254,13 +254,6 @@ public class BranchHelper implements BranchHelperInterface {
     @Override
     public String getRenameToString() {
         return renameTo;
-    }
-
-
-    // Used by test methods
-    // BUT - later versions will just directly set it, no need for a test-only method.  Remove this when feasible.
-    public void setNotifier(Notifier newNotifier) {
-        optionPane = newNotifier;
     }
 
 } // end class BranchHelper

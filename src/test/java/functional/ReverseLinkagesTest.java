@@ -78,7 +78,6 @@ class ReverseLinkagesTest {
         NoteData dayNoteData = new DayNoteData();
         dayNoteData.noteString = "day note";
         dayNoteGroupPanel.myNoteGroup.appendNote(dayNoteData);
-//        dayNoteGroupPanel.setPanelData(dayNoteGroupPanel.getTheData());
         dayNoteGroupPanel.myNoteGroup.setNotes(dayNoteGroupPanel.myNoteGroup.getTheData()[1]);
         dayNoteGroupPanel.loadPage(1);
 
@@ -96,7 +95,6 @@ class ReverseLinkagesTest {
         //   the needs of the code under test.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";
-//        NoteGroup todoNoteGroup = new TodoNoteGroupPanel("Nada");
         NoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Nada");
         todoNoteGroupPanel.myNoteGroup.appendNote(todoNoteData);
 
@@ -116,9 +114,9 @@ class ReverseLinkagesTest {
         LinkTargets linkTargets = new LinkTargets();
         linkTargets.add(led1);
         linkTargets.add(led2);
-        //todoNoteData.linkTargets = linkTargets; // This is for completeness; wasn't necessary for this test.
+        // We don't need to actually set the todoNoteData's linkTargets in order to test the reverse link creation.
 
-        // Here it is -
+        // Here it is; not
         todoNoteData.addReverseLinks(linkTargets);
     }
 

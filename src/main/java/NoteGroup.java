@@ -127,6 +127,10 @@ class NoteGroup implements LinkHolder {
 
     void deleteNoteGroup() {
         groupDataAccessor.deleteNoteGroupData();
+        if(myNoteGroupPanel != null) {
+            // Let the Panel know that its data is being deleted.
+            myNoteGroupPanel.deletePanel();
+        }
     }
 
 
@@ -277,10 +281,6 @@ class NoteGroup implements LinkHolder {
         if(myProperties != null) myProperties.touchLastMod();
     } // end setGroupChanged
 
-
-//    public void setGroupProperties(GroupProperties groupProperties) {
-//        myProperties = groupProperties;
-//    }
 
 
     // This method is called with the raw data that is the GroupProperties.

@@ -50,7 +50,7 @@ class BranchHelperTest {
         JTree tree = new JTree(treeModel);
 
         searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-        searchBranchHelper.setNotifier(new TestUtil());
+        searchBranchHelper.optionPane = new TestUtil();
     }
 
     @AfterEach

@@ -46,15 +46,12 @@ class LastModRetentionTest {
         goalGroupPanel.getPanelData();  // Pull the data out of the Panel and put it back into the NoteGroup.
         // Note that operationally, getPanelData does not get called if the groupChanged flag is false.
 
-        // Access the group (not the Panel) and snag the Last Mod dates for both the Group and its first note.
+        // Access the group (not the Panel) and snag the Last Mod date of its properties.
         GoalGroup theNoteGroup = (GoalGroup) goalGroupPanel.myNoteGroup;
         String groupLastMod = theNoteGroup.getGroupProperties().zdtLastModString;
-        TodoNoteData todoNoteData = (TodoNoteData) theNoteGroup.noteGroupDataVector.elementAt(0);
-        String noteLastMod = todoNoteData.zdtLastModString;
 
         // Compare the expected info with the freshly loaded info.
         Assertions.assertEquals(zdtLastModGroup, groupLastMod);
-        Assertions.assertEquals(zdtLastModNote, noteLastMod);
     }
 
     // EventNoteGroupPanel
