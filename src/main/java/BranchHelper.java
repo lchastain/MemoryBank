@@ -76,7 +76,7 @@ public class BranchHelper implements BranchHelperInterface {
 
         // If renameTo is also our 'renameFrom' name then the whole thing is a no-op.
         // No need to put out a complaint about that; just return a false.  But if
-        // there is a difference in the casing then we will get past this check.
+        // the only difference is in the casing then we will get past this check.
         if (renameTo.equals(renameFrom)) return false;
 
         // It is important to check filename validity in the area where the new file would be created,

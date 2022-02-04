@@ -623,7 +623,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return newRoot;
     }
 
-    // Delete the data for this group.  (called from a menu bar action, or a test)
+    // Delete the data for the currently active group.  (called from a menu bar action, or a test)
     // This method is provided as a more direct route to deletion than going thru
     // the BranchHelper.  This section of the code is similar to what is done there,
     // except that we keep a reference to the deleted group.  This will allow for

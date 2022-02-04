@@ -192,8 +192,8 @@ public class TreeBranchEditor extends JPanel
         myBox.add(new JLabel(" "));
         myBox.add(new JLabel(" On the list:"));
         myBox.add(new JLabel(" Select and deselect nodes"));
-        myBox.add(new JLabel(" Recycle button to remove"));
-        myBox.add(new JLabel("  (only after 'Apply')"));
+//        myBox.add(new JLabel(" Recycle button to remove"));
+//        myBox.add(new JLabel("  (only after 'Apply')"));
         myBox.add(new JLabel(" "));
         myBox.add(new JLabel(" Click 'Apply' to accept your changes  "));
         myBox.add(new JLabel(" Click 'Cancel' to undo your changes  "));
@@ -221,7 +221,7 @@ public class TreeBranchEditor extends JPanel
         for (String theChoice : theChoices) {
             JCheckBox jcb = new JCheckBox(theChoice);
             if (leaves.contains(theChoice)) {
-            jcb.setSelected(true);
+                jcb.setSelected(true);
             } else if (branches.contains(theChoice)) {
                 jcb.setSelected(true);
                 jcb.setEnabled(false);
@@ -236,7 +236,7 @@ public class TreeBranchEditor extends JPanel
             oneLine.add(jcb, "West");
             JButton deleteButton = new JButton();
             deleteButton.setIcon(theTrash);
-            if(myHelper.deleteAllowed(theChoice)) {
+            if (myHelper.deleteAllowed(theChoice)) {
                 deleteButton.setName(theChoice);
                 deleteButton.setActionCommand("Delete");
                 deleteButton.addActionListener(this);
@@ -250,7 +250,15 @@ public class TreeBranchEditor extends JPanel
             // Do not allow a branch to be removed.
             if (branches.contains(theChoice)) deleteButton.setEnabled(false);
 
-            oneLine.add(deleteButton, "East");
+            // 4 Feb 2022 - Disabling the ability to delete from this editor; use the menubar for that.
+            // Reason:  Goals now has up to 4 associated files and the delete code here does not handle that case.
+            //  Do not want to add Goal-specific code to this editor because that would not be industry standard,
+            //  nor do I want to move the operations into the various Panels that use this editor and then have them
+            //  implement the interface with overrides (two reasons here), because that would be a lot of work for
+            //  just too little value-added, and secondly because what WAS working here was file-specific and since
+            //  then the rest of the app has migrated over to using a DataAccessor, to allow alternatives (like a
+            //  database) to solely filesystem-based operations.
+            //oneLine.add(deleteButton, "East");
             if (removals.contains(theChoice)) {
                 jcb.setEnabled(false);
                 deleteButton.setIcon(theSafe);
@@ -266,7 +274,7 @@ public class TreeBranchEditor extends JPanel
         }
         rightScroller.setViewportView(theChoicesPanel);
         rightScroller.getVerticalScrollBar().setValue(theScrollPosition);
-    }
+    } // end showChoices
 
 
     // A Listener for the checkboxes.
