@@ -4,17 +4,13 @@ import java.util.Vector;
 
 public class TodoNoteGroup extends NoteGroup {
 
-    TodoNoteGroup(String groupName) {
-        this(new GroupInfo(groupName, GroupType.TODO_LIST));
-    }
-
     TodoNoteGroup(GroupInfo groupInfo) {
         super(groupInfo); // this sets 'myGroupInfo', in the base.
     }
 
     @Override
     GroupProperties makeGroupProperties() {
-        return new TodoGroupProperties(myGroupInfo.getGroupName());
+        return new TodoGroupProperties(myGroupInfo);
     }
 
 

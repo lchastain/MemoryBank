@@ -33,8 +33,8 @@ public class TodoGroupProperties extends GroupProperties {
 
     private TodoGroupProperties() {} // Needed / used by Jackson.
 
-    public TodoGroupProperties(String groupName) { // Constructor with defaults
-        super(groupName, GroupType.TODO_LIST);
+    public TodoGroupProperties(GroupInfo groupInfo) { // Constructor with defaults
+        super(groupInfo.getGroupName(), groupInfo.groupType);
 
         showPriority = true;
         maxPriority = 20;
@@ -57,4 +57,8 @@ public class TodoGroupProperties extends GroupProperties {
         columnOrder = TodoNoteGroupPanel.INORDER;
     } // end constructor
 
-} // end TodoListProperties
+    public TodoGroupProperties(String groupName) { // Constructor with defaults
+        this(new GroupInfo(groupName, GroupType.TODO_LIST));
+    } // end constructor
+
+} // end TodoGroupProperties

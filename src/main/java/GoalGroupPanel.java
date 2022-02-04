@@ -277,10 +277,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
     @Override
     void deletePanel() {
         // This is for the member panels; the deletion of the Goal Panel will have already been done by now.
-        // Called from NoteGroup.deleteNoteGroup, except that for a Goal, there is currently no menu item
-        //   provided that would lead to here, because the primary plumbing also provides an 'undo', that
-        //   is not supported for Goal member panels.  So keeping this, but the way to delete a Goal along
-        //   with all its members must be via the BranchHelper and not here.  For now?
+        // Called from NoteGroup.deleteNoteGroup.
         theTodoNoteGroupPanel.myNoteGroup.deleteNoteGroup();
         theLogNoteGroupPanel.myNoteGroup.deleteNoteGroup();
         theMilestoneNoteGroupPanel.myNoteGroup.deleteNoteGroup();
@@ -360,32 +357,15 @@ public class GoalGroupPanel extends NoteGroupPanel {
         // abandon the effort, or they could choose a different
         // new name and try again.
         //--------------------------------------------------------------
-        String newFilename = NoteGroupFile.eventGroupAreaPath + NoteGroupFile.eventGroupFilePrefix + newName + ".json";
+        String newFilename = NoteGroupFile.goalGroupAreaPath + NoteGroupFile.goalGroupFilePrefix + newName + ".json";
         if ((new File(newFilename)).exists()) {
-            ems = "A group named " + newName + " already exists!\n";
+            ems = "A Goal named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
             optionPane.showMessageDialog(theFrame, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         } // end if
 
-        //------------------------------------
-//        log.debug("Saving " + oldName + " as " + newName);
-//
-//        myNoteGroup.getGroupProperties().setGroupName(newName);
-//        setGroupChanged(true);
-//
-//        // Also handle the rename for our encapsulated Groups.  The name validity checking that
-//        // was done for the Goal ~should~ be sufficient for all its members as well.
-//        theTodoNoteGroupPanel.myNoteGroup.getGroupProperties().setGroupName(newName);
-//        theTodoNoteGroupPanel.setGroupChanged(true);
-//        theLogNoteGroupPanel.myNoteGroup.getGroupProperties().setGroupName(newName);
-//        theLogNoteGroupPanel.setGroupChanged(true);
-//        theMilestoneNoteGroupPanel.myNoteGroup.getGroupProperties().setGroupName(newName);
-//        theMilestoneNoteGroupPanel.setGroupChanged(true);
-//        preClosePanel(); // This handles the save for all of them.
-//
-//        return true;
 
         // So if we got here then we have overcome any possible objections.
         // Now change the name, update Properties and the data accessors, and save.
@@ -396,7 +376,8 @@ public class GoalGroupPanel extends NoteGroupPanel {
         // 'setGroupName' sets the name of the group, which translates into an
         // in-place change of the name of the list held by the GoalListKeeper.
         // Unfortunately, that list will still have the old title, so it still needs
-        // to be removed from the keeper.  The calling context (AppTreePanel) must take care of that.
+        // to be removed from the keeper, to force a reload when re-accessed.
+        // The calling context (AppTreePanel) must take care of the removal.
         myGroupProperties.setGroupName(newName);
         GroupInfo myGroupInfo = new GroupInfo(myGroupProperties);
 
@@ -425,13 +406,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theMilestoneNoteGroupPanel.myNoteGroup.groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(milestoneGroupInfo);
         theMilestoneNoteGroupPanel.setGroupChanged(true);
         //--------------------------------------------------------------------------------------
-
         preClosePanel(); // This handles the save for all of them.
 
         return true;
-
-
-
     } // end saveAs
 
     @Override

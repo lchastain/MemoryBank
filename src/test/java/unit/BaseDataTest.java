@@ -37,7 +37,7 @@ class BaseDataTest {
         String instanceIdNote = "0c0ec15a-eeb0-4ee4-9267-3baf54b05ee4";
 
         // Load the group under test and snag the ID for both the Group and its first note.
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Preparations");
+        TodoNoteGroup todoNoteGroup = new TodoNoteGroup(new GroupInfo("Preparations", GroupType.TODO_LIST));
         UUID groupId = todoNoteGroup.getGroupProperties().instanceId;
         TodoNoteData todoNoteData = (TodoNoteData) todoNoteGroup.noteGroupDataVector.elementAt(0);
         UUID noteId = todoNoteData.instanceId;
@@ -56,7 +56,7 @@ class BaseDataTest {
         String zdtLastModNote = "2020-10-17T10:47:50.533+04:00[Europe/Samara]";
 
         // Load the group under test and snag the Last Mod dates for both the Group and its first note.
-        TodoNoteGroup todoNoteGroup = new TodoNoteGroup("Preparations");
+        TodoNoteGroup todoNoteGroup = new TodoNoteGroup(new GroupInfo("Preparations", GroupType.TODO_LIST));
         String groupLastMod = todoNoteGroup.getGroupProperties().zdtLastModString;
         TodoNoteData todoNoteData = (TodoNoteData) todoNoteGroup.noteGroupDataVector.elementAt(0);
         String noteLastMod = todoNoteData.zdtLastModString;

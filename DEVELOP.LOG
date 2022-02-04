@@ -8,8 +8,6 @@ Priorities:
               doing research and not so much for capturing events in their life.  Needs more thought as to how it folds in
               with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
               Alternate name: timeline ?   This one could come with a chart...
-    Add icon to MonthNotes and YearNotes  ?
-    Bring in a GOAL_TODO type.
     Generic Notes - get these list-types away from being 'todo' lists.
 
 
@@ -20,8 +18,6 @@ Problems:
     Log is orphaned when a Goal is renamed.
             This is true, but with yet another tab planned, want to wait to fix this so that the solution will include
             the file that goes with the new tab(s), as well.
-
-    Deletion of Goal does not remove sub-panel files
 
 
 
@@ -34,12 +30,27 @@ Issues, Analyses, Ideas :
         Of course could just be a given date in a Search, but that does not cover start/end times, or End Date,
         or a few other event-like things.  Each line in a group needs a 'go to day' or 'go to' type button.
     Consider making Calendar notes a single Panel, with tabs.
-    How much overhead is wasted by not using the icon that comes with IconNoteComponent?  Or is it just the mouseListener?
+    How much overhead is wasted by not using the icon that comes with IconNoteComponent?  Is it just the mouseListener?
+    Add icon to MonthNotes and YearNotes  ?
 
 
 New:
 
 =====================================================================================================
+
+3 Feb 2022
+Updated the in-production app, fixed Lee data - seems usable for now.  Next:  investigate usage of GOAL_TODO; the
+data just has TODO_LIST, so how are they getting stored into GOALs?  Ansr: this only happens for a new list; the
+type is fixed upon saving.  But went ahead and 'fixed' it anyway; the TodoProperties constructor needed to be
+reworked to accept a full GroupInfo, vs just the group name.  Then found that the full Goal delete is working after
+all; on the last checkin I decided to restore the menu items, and had forgotten that I had put in the plumbing to
+invoke a new delete that covers the panels.  Undo still has issues (as expected), but not a delete (from menubar).
+---
+Undo is partially working; it can undo the Goal file deletion
+and it puts the full goal (with all tabs) back into the view but does not add it back in to the app tree, and it does
+not restore the other 3 files.  This can be manually achieved by using the branch editor to bring back the goal even
+though it is already showing in the view, then make minor edits to all 3 panels, then a save will recreate the other
+missing files.
 
 2 Feb 2022
 Fixed the Save/Undo menu item enablement for Goal sub-panels.  Added the parent pointer to the base NoteGroupPanel.
