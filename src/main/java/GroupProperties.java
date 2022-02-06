@@ -2,8 +2,6 @@
 // In addition to the ID and LastModDate that it gets from BaseData, it holds
 //   a simple group name (String) and the type of group.
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 // We would have liked to have extended GroupInfo for this class but we also need to extend BaseData, that GroupInfo
 //   does not (because it doesn't want the members ID and last mod date).  Being limited to only one hierarchical
 //   parent, we chose BaseData, and for what we need from a GroupInfo - we just duplicate the type and name.
@@ -17,9 +15,6 @@ public class GroupProperties extends BaseData {
     GroupType groupType;     // Says what kind of group this is.
     private String groupName; // The name of the group, as shown in the Tree.
     LinkTargets linkTargets;
-
-    @JsonIgnore
-    private String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
 
     // This constructor is used by Jackson type conversion operations and child class constructors.
     GroupProperties() { }
@@ -35,7 +30,6 @@ public class GroupProperties extends BaseData {
         groupName = theCopy.groupName;
         groupType = theCopy.groupType;
         linkTargets = (LinkTargets) theCopy.linkTargets.clone();
-        simpleName = theCopy.simpleName;
     } // end of the copy constructor
 
 

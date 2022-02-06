@@ -1,5 +1,3 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.UUID;
 
 class NoteInfo {
@@ -11,14 +9,14 @@ class NoteInfo {
     //   that we might see them in previously persisted data, but 'ignore' them otherwise.
     //   This is so that they do not gum up the type conversions when this object gets deserialized.
     //--------------------------------------------------
-    @JsonIgnore
-    protected String zdtLastModString;
-
-    @JsonIgnore
-    protected UUID instanceId;
-
-    @JsonIgnore
-    protected String subjectString;
+//    @JsonIgnore
+//    protected String zdtLastModString;
+//
+//    @JsonIgnore
+//    protected UUID instanceId;
+//
+//    @JsonIgnore
+//    protected String subjectString;
     //--------------------------------------------------
 
 

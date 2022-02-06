@@ -10,8 +10,6 @@ Priorities:
               Alternate name: timeline ?   This one could come with a chart...
     Generic Notes - get these list-types away from being 'todo' lists.
 
-    Clear all @JsonIgnored data that is no longer there anyway, now that archives are cleared.
-
 
 
 Problems:
@@ -38,8 +36,8 @@ New:
 
 6 Feb 2022
 Fixed: Archived Goal picks up CURRENT sub-panels vs the (unexpectedly) archived ones.
-
-
+Removed all older archives and search results, due to removal of @JsonIgnore'd data members that are still out there
+but set to null.  Then had to fix remaining data AND test data.
 
 5 Feb 2022
 Tried to fix:  New Archives do not preserve Goal sub-panels.  But was surprised to see that in fact, yes they do.

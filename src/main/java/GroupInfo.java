@@ -2,8 +2,6 @@
 // In addition to the ID and LastModDate that it gets from BaseData, it holds
 //   a simple group name (String) and the type of group (enum).
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -12,24 +10,10 @@ import java.util.UUID;
 
 class GroupInfo {
 
-    UUID groupId; // The ID of the group that this info references
+    UUID groupId; // The ID of the group that this info references.  Can be null when not needed.
     GroupType groupType;     // Says what kind of group it is.  Values defined above.
     private String groupName; // The name of the group, as shown in the Tree.
     transient String archiveName; // The human-readable one, with colons in the time portion (or null).
-
-    // These members were previously defined here or inherited, but not now and so we need to acknowledge
-    //   that we might see them in previously persisted data, but 'ignore' them otherwise.
-    //   This is so that they do not gum up the type conversions when this object gets deserialized.
-    //--------------------------------------------------
-    @JsonIgnore
-    protected String zdtLastModString;
-
-    @JsonIgnore
-    protected UUID instanceId;
-
-    @JsonIgnore
-    protected String simpleName; // A previous version of 'groupName'.  Needs to be removed from all data.
-    //--------------------------------------------------
 
     public GroupInfo() { }
 

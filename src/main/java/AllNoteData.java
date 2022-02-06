@@ -15,7 +15,7 @@ import java.io.File;
 public class AllNoteData extends NoteData {
     // In addition to the fields that we get from a standard NoteData, we also include the
     // persisted data members from EVERY OTHER child class of NoteData.  It is not necessary
-    // to @JsonIgnore any of them; if a member is not in the data file it just deals with
+    // to 'JsonIgnore' any of them; if a member is not in the data file it just deals with
     // what IS there.  The problem, if there is one, would come from 'seeing' data that
     // it does not recognize, so these all need to be defined.
 
