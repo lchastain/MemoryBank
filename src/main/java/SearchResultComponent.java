@@ -116,7 +116,7 @@ public class SearchResultComponent extends NoteComponent {
         // may be @JsonIgnore'd and after another iteration of load/save fixing, could be removed altogether.
         File theFile = mySearchResultData.getFileFoundIn();
         if(theFile != null) {
-            GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFile(theFile);
+            GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFilePath(theFile);
             if(groupInfo.getGroupName() != null) { // If data is too whacked, we cannot 'fix' it.
                 mySearchResultData.foundIn = groupInfo;
                 mySearchResultData.setFileFoundIn(null);

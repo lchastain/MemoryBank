@@ -51,15 +51,18 @@ public class FileDataAccessor implements DataAccessor {
 
         File[] theFiles = theSourceDir.listFiles();
 
-        if(theFiles != null) {
+        if (theFiles != null) {
             for (File aFile : theFiles) {
-                GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+                GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFilePath(aFile);
+                // This GroupInfo will not be entirely accurate for sub-panels because the Type will be the type
+                //   of the parent panel, but that's exactly what we need for the condition below, and the
+                //   misrepresentation is not retained beyond this method.
                 if (MemoryBank.appOpts.active(groupInfo.groupType, groupInfo.getGroupName())) {
                     FileUtils.copyFileToDirectory(aFile, theDestDir);
                 }
             }
         }
-    }
+    } // end archiveGroupType
 
 
     @Override
@@ -83,7 +86,7 @@ public class FileDataAccessor implements DataAccessor {
         // Copy the appOpts and active NoteGroups into the archive -
         try {
             File theAppOpts = new File(basePath + "AppOpts.json");
-            if(theAppOpts.exists()) { // It may not, if a bozo new user decides to Archive as their first action.
+            if (theAppOpts.exists()) { // It may not, if a bozo new user decides to Archive as their first action.
                 FileUtils.copyFileToDirectory(theAppOpts, archiveRepo);
             }
 

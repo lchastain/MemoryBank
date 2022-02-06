@@ -18,7 +18,7 @@ enum DataArea {
     ICONS("icons"),
     APP_ICONS("icons"),
     IMAGES("images"),
-    LOGS("logs"),
+    LOGS("Logs"),
     TODO_LISTS("To Do Lists"),
     TODO_LOG("To Do Lists"),
     SEARCH_RESULTS("Search Results");

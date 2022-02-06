@@ -49,7 +49,7 @@ class NoteGroupFileTest {
         File[] theFiles = dataDir.listFiles();
         for(File aFile: theFiles) {
             System.out.println(aFile.toString());
-            groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+            groupInfo = NoteGroupFile.getGroupInfoFromFilePath(aFile);
             //System.out.println(groupInfo.toString());
             Assertions.assertTrue(groupInfo.getGroupName().endsWith("2019"));
         }
@@ -62,7 +62,7 @@ class NoteGroupFileTest {
         theFiles = dataDir.listFiles();
         for(File aFile: theFiles) {
             System.out.println(aFile.toString());
-            groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+            groupInfo = NoteGroupFile.getGroupInfoFromFilePath(aFile);
             //System.out.println(groupInfo.toString());
             assertSame(groupInfo.groupType, GroupType.EVENTS);
         }
@@ -75,7 +75,7 @@ class NoteGroupFileTest {
         theFiles = dataDir.listFiles();
         for(File aFile: theFiles) {
             System.out.println(aFile.toString());
-            groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+            groupInfo = NoteGroupFile.getGroupInfoFromFilePath(aFile);
             //System.out.println(groupInfo.toString());
             assertSame(groupInfo.groupType, GroupType.GOALS);
         }
@@ -88,7 +88,7 @@ class NoteGroupFileTest {
         theFiles = dataDir.listFiles();
         for(File aFile: theFiles) {
             System.out.println(aFile.toString());
-            groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+            groupInfo = NoteGroupFile.getGroupInfoFromFilePath(aFile);
             //System.out.println(groupInfo.toString());
             assertSame(groupInfo.groupType, GroupType.SEARCH_RESULTS);
         }
@@ -101,7 +101,7 @@ class NoteGroupFileTest {
         theFiles = dataDir.listFiles();
         for(File aFile: theFiles) {
             System.out.println(aFile.toString());
-            groupInfo = NoteGroupFile.getGroupInfoFromFile(aFile);
+            groupInfo = NoteGroupFile.getGroupInfoFromFilePath(aFile);
             //System.out.println(groupInfo.toString());
             assertSame(groupInfo.groupType, GroupType.TODO_LIST);
         }

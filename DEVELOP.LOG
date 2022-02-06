@@ -10,19 +10,17 @@ Priorities:
               Alternate name: timeline ?   This one could come with a chart...
     Generic Notes - get these list-types away from being 'todo' lists.
 
+    Clear all @JsonIgnored data that is no longer there anyway, now that archives are cleared.
+
 
 
 Problems:
-    Check out archiving of new Goal & its sub-panels
-
-    Log is orphaned when a Goal is renamed.
-            This is true, but with yet another tab planned, want to wait to fix this so that the solution will include
-            the file that goes with the new tab(s), as well.
-
+    Sub-panels are orphaned when a Goal is renamed.
+    Renaming (via the BranchHelper) does not use the DataAccessor.
 
 
 Current/Next:
-    Burn-in of the Log feature - use the app, note problems & enhancement requests.
+    Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
 
 
 Issues, Analyses, Ideas :
@@ -37,6 +35,18 @@ Issues, Analyses, Ideas :
 New:
 
 =====================================================================================================
+
+6 Feb 2022
+Fixed: Archived Goal picks up CURRENT sub-panels vs the (unexpectedly) archived ones.
+
+
+
+5 Feb 2022
+Tried to fix:  New Archives do not preserve Goal sub-panels.  But was surprised to see that in fact, yes they do.
+This is because the Group Type was inferred from the path when deciding to copy or not, so they actually did get
+picked up and copied into the archive.  What is NOT working is that viewing the archived Goal picks up CURRENT
+sub-panels vs the (unexpectedly) archived ones.  So - working on that, now.  Just need to set an archive name,
+probably.
 
 3 Feb 2022
 Updated the in-production app, fixed Lee data - seems usable for now.  Next:  investigate usage of GOAL_TODO; the

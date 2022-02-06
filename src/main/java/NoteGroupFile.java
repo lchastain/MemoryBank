@@ -740,11 +740,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     }
 
 
-    // The name of this method can be slightly misleading; we don't actually have to open the file in order to
+    // We don't actually have to open the file in order to
     // determine its GroupInfo; the answers can be gleaned solely from the path and name.  So we 'get' the
     // info from the object that is a File class, using methods other than opening and reading the file.  The
     // filesystem does not even need to contain such a file in order for this method to succeed.
-    static GroupInfo getGroupInfoFromFile(File theFile) {
+    static GroupInfo getGroupInfoFromFilePath(File theFile) {
         GroupInfo theAnsr = new GroupInfo();
         String theFullFilename = theFile.toString();
         if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.CALENDARS.getAreaName() + File.separatorChar)) {
@@ -774,7 +774,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else {
             // Return will be a GroupInfo with null for name & type.
-            System.out.println("NoteGroupFile.getGroupInfoFromFile: unrecognized filename: " + theFullFilename);
+            System.out.println("NoteGroupFile.getGroupInfoFromFilePath: unrecognized filename: " + theFullFilename);
         }
 
         return theAnsr;

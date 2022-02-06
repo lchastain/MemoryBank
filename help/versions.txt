@@ -59,6 +59,7 @@ C:\UberArchive\SHEBA\PRESERVED\Memory Bank Archives
 C:\Dropbox\Memory Bank Archives - Most recent archive snapshots; these may eventually merge in to the above repo.
     Memory Bank 2020_1121 - this is the repo for the final v0.4, described below.
     Memory Bank 2021_0226 - this is the repo for a final v0.5, described below.
+    Memory Bank 2021_0830 - this is the repo for a pre-final v0.6, described below.
 
 
 C:\Users\Lee\workspace\Memory Bank - current development
@@ -120,16 +121,13 @@ Ver.    Notes
         The 'Review' mode is working, for Calendar-based notes
         Run this version with Java 8 and the 2.2.0 versions of the Jackson libraries: core, databind, annotations.
 
-
-
-        New version number, not final; this version may 'grow' for some time...
-        NOT YET ARCHIVED; this version in dev workspace only.
 0.6     30 Aug 2021   a pre-final v0.6
         Upgraded Java from v8 to v16.  New Jackson jars (v2.9.0 for core, databind, annotations) as well.
-0.6     22 Jan 2022   a pre-final v0.6
-        All file-based ops remain dereferenced as DataAccessor interface methods, but have given up (for now?)
-            on the idea of using a DB.
-        Added a 'Log' notegroup, built it in to Goals, in a tabbed-pane.
+
+        NOT YET ARCHIVED; this version in dev workspace only.
+0.6     -ongoing-   a pre-final v0.6
+        Split Goals into a To Do List, a Log, and a list of Milestones, all shown in a tabbed-pane.
+        Older archives not compatible; clear out before going live with this version
 
 
 

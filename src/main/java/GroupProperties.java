@@ -4,8 +4,9 @@
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-// We don't want GroupInfo to come from BaseData, yet GroupProperties needs the same info and does need to come
-//   from DaseData, so GroupProperties encapsulates the GroupInfo members rather than extending it.
+// We would have liked to have extended GroupInfo for this class but we also need to extend BaseData, that GroupInfo
+//   does not (because it doesn't want the members ID and last mod date).  Being limited to only one hierarchical
+//   parent, we chose BaseData, and for what we need from a GroupInfo - we just duplicate the type and name.
 // Encapsulating the members vs encapsulating the GroupInfo itself - this happened during the course of data
 //   persistence evolution and by the time it all settled there was too much data already preserved, to try to shoehorn
 //   the two items into a single class, so they are just left out on their own, apparently as duplicated info but they

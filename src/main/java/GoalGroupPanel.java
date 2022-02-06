@@ -240,8 +240,11 @@ public class GoalGroupPanel extends NoteGroupPanel {
     // The view will be a Tabbed Pane, with the initial Tab showing a ToDo List.
     @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {
+        GroupInfo theGroupInfo;  // Support an archiveName, if there is one.
         // Make a TodoNoteGroupPanel and get its center component (used when switching tabs)
-        theTodoNoteGroupPanel = new TodoNoteGroupPanel(new GroupInfo(getGroupName(), GroupType.GOAL_TODO));
+        theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_TODO);
+        theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
+        theTodoNoteGroupPanel = new TodoNoteGroupPanel(theGroupInfo);
         theTodoNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theTodoLayout = (BorderLayout) theTodoNoteGroupPanel.theBasePanel.getLayout();
         theTodoCenterPanel = (JComponent) theTodoLayout.getLayoutComponent(BorderLayout.CENTER);
@@ -257,13 +260,17 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
 
         // Make a LogGroupPanel and get its center component (used when switching tabs)
-        theLogNoteGroupPanel = new LogNoteGroupPanel(new GroupInfo(getGroupName(), GroupType.GOAL_LOG));
+        theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_LOG);
+        theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
+        theLogNoteGroupPanel = new LogNoteGroupPanel(theGroupInfo);
         theLogNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theLogLayout = (BorderLayout) theLogNoteGroupPanel.theBasePanel.getLayout();
         theLogCenterPanel = (JComponent) theLogLayout.getLayoutComponent(BorderLayout.CENTER);
 
         // Make a MilestoneNoteGroupPanel and get its center component (used when switching tabs)
-        theMilestoneNoteGroupPanel = new MilestoneNoteGroupPanel(new GroupInfo(getGroupName(), GroupType.MILESTONE));
+        theGroupInfo = new GroupInfo(getGroupName(), GroupType.MILESTONE);
+        theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
+        theMilestoneNoteGroupPanel = new MilestoneNoteGroupPanel(theGroupInfo);
         theMilestoneNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theLayout = (BorderLayout) theMilestoneNoteGroupPanel.theBasePanel.getLayout();
         theMilestonesCenterPanel = (JComponent) theLayout.getLayoutComponent(BorderLayout.CENTER);

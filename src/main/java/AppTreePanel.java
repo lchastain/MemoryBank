@@ -1304,7 +1304,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 //   because search results are not intended to themselves be a part of the traceability chain,
                 //   and they cannot be linked to or from.  Currently, the method below does not read in the
                 //   data, so it cannot provide the groupId.
-                GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFile(dataFile);
+                GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFilePath(dataFile);
 
                 // Make new search result data for this find.
                 SearchResultData srd = new SearchResultData(vectorItem);
