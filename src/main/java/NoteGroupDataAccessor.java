@@ -7,15 +7,19 @@ public interface NoteGroupDataAccessor {
 
     void deleteNoteGroupData();
 
-    ArrayList getGroupNames();
+    boolean exists();
+
+    ArrayList getGroupNames(boolean filterInactive);
 
     LocalDate getNextDateWithData(LocalDate currentDate, ChronoUnit dateDelta, CalendarNoteGroup.Direction direction);
 
     Object[] loadNoteGroupData(GroupInfo groupInfo);
 
+    String getObjectionToRename(String theName);
+
     void saveNoteGroupData(Object[] theData);
 
-    boolean exists();
+    boolean renameNoteGroupData(DataArea theArea, String nodeName, String renamedTo);
 
     // void addNoteGroup(GroupInfo groupInfo)
 

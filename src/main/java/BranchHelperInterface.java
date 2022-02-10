@@ -1,13 +1,10 @@
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
 public interface BranchHelperInterface {
     StringBuilder ems = new StringBuilder();  // Error Message String
-    int MAX_FILENAME_LENGTH = 20; // Somewhat arbitrary, but helps with UI issues.
 
     // Called by the TreeBranchEditor to see if there is any objection to a rename
     // of a node from or to the provided value.  If no objection then the return
@@ -43,106 +40,106 @@ public interface BranchHelperInterface {
     // about the value so how far is 'not one step' (for now); this works.
     // But now - what about moving this one to FileGroup?  think about it.
     //-------------------------------------------------------------------
-    static String checkFilename(String theProposedName, String basePath) {
-        ems.setLength(0);
-
-        String testName = theProposedName.trim();
-
-        // Check for non-entry (or evaporation).
-        if (testName.isEmpty()) {
-            ems.append("No New List Name was supplied!");
-        }
-
-        // Refuse unwanted help.
-        if (testName.endsWith(".json")) {
-            ems.append("The name you supply cannot end in '.json'");
-        } // end if
-
-        // Check for legal max length.
-        // The input field used in this class would not allow this one, but
-        //   since this method is static and accepts input from outside
-        //   sources, this check should be done.
-        if (testName.length() > MAX_FILENAME_LENGTH) {
-            ems.append("The new name is limited to " + MAX_FILENAME_LENGTH + " characters");
-        } // end if
-
-        // If there have been any problems found up to this point then we don't want to
-        // continue checking, so return the answer now.
-        if (!ems.toString().isEmpty()) return ems.toString();
-
-        // Do we want to check to see if a file with this name already exists?
-        //   No.  The handler for the renaming event will disallow that particular
-        //   situation, so we don't need to repeat that logic here.  Likewise for
-        //   the 'Save As' logic.
-        //
-        //   As for the 'Add New...' functionality that is also a consumer of this
-        //   method, the AppTreePanel handles that situation by simply opening it, a
-        //   kind of back-door selection of the existing list.
-
-        // Note - I thought it would be a good idea to check for 'illegal'
-        //   characters in the filename, but when I started testing, the
-        //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
-        //   Of course there ARE illegal characters, and the ones above may
-        //   still be illegal on another OS.  So, the best way to
-        //   detect them is to try to create a file using the name we're
-        //   checking.  Any io error and we can fail this check.
-
-        // Now try to create the file, with an additional '.test' extension.  This will not
-        // conflict with any 'legal' existing file in the directory, so if there is any
-        // problem at all then we know it's a bad name.
-        String theFilename = basePath + testName + ".test";
-        File f = new File(theFilename);
-        MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
-        // This existence is not the same check as the one that we said would not be done; different extension.
-
-        // Now ensure that the container directory is already there.
-        boolean b;
-        b = f.mkdirs();
-
-        if(b) b = f.exists();
-        try { // If the File operations below generate any exceptions, it's a bad name.
-            // This first part & check are just to ensure that we do the rest of the test with
-            // a 'clean' slate and don't have 'leftovers' from some earlier attempt(s).
-            if (b) {
-                b = f.delete(); // This MIGHT throw an exception.
-                if(!b && f.exists()) {
-                    // It shouldn't have existed in the first place, and now it
-                    // refuses to be deleted.  This is enough cause for concern
-                    // to justify disallowing the new name.  No Exception was
-                    // thrown in this case but we will complain about it anyway -
-                    ems.append("A previous test file refuses to be deleted.");
-                }
-            } else {
-                b = f.createNewFile();
-                if(!b || !f.exists()) {
-                    // This probably would not happen since any name that does
-                    // not cause an Exception should result in a created file.
-                    // But it's less risky to just check for and handle it anyway.
-                    ems.append("Unable to create a test file with the proposed name");
-                } else {
-                    // Ok, so we just now created the test file, but did it really get the requested name?
-                    // This is not such an outlandish question - a filename with a colon in it CAN be created
-                    // but the Windows OS will just drop the colon and anything after it.  The createNewFile()
-                    // method appears to be much more permissive than the renameTo(), so we will now test the
-                    // rename as well, and we don't even have to try a different name.
-                    b = f.renameTo(new File(theFilename));
-                    if(!b) { // No Exception thrown, but no joy with the rename operation, either.
-                        ems.append("The proposed new name was rejected by the operating system!");
-                    }
-
-                    // Ok, so it was renamed to itself.  Now delete it, and verify that this was done as well.
-                    b = f.delete();
-                    if(!b || f.exists()) {
-                        ems.append("Unable to remove the test file with the proposed new name!");
-                    }
-                }
-            }
-        } catch (IOException | SecurityException e) {
-            ems.append(e.getMessage());
-        } // end try/catch
-
-        return ems.toString();
-    } // end checkFilename
+//    static String checkFilename(String theProposedName, String basePath) {
+//        ems.setLength(0);
+//
+//        String testName = theProposedName.trim();
+//
+//        // Check for non-entry (or evaporation).
+//        if (testName.isEmpty()) {
+//            ems.append("No New List Name was supplied!");
+//        }
+//
+//        // Refuse unwanted help.
+//        if (testName.endsWith(".json")) {
+//            ems.append("The name you supply cannot end in '.json'");
+//        } // end if
+//
+//        // Check for legal max length.
+//        // The input field used in this class would not allow this one, but
+//        //   since this method is static and accepts input from outside
+//        //   sources, this check should be done.
+//        if (testName.length() > MAX_FILENAME_LENGTH) {
+//            ems.append("The new name is limited to " + MAX_FILENAME_LENGTH + " characters");
+//        } // end if
+//
+//        // If there have been any problems found up to this point then we don't want to
+//        // continue checking, so return the answer now.
+//        if (!ems.toString().isEmpty()) return ems.toString();
+//
+//        // Do we want to check to see if a file with this name already exists?
+//        //   No.  The handler for the renaming event will disallow that particular
+//        //   situation, so we don't need to repeat that logic here.  Likewise for
+//        //   the 'Save As' logic.
+//        //
+//        //   As for the 'Add New...' functionality that is also a consumer of this
+//        //   method, the AppTreePanel handles that situation by simply opening it, a
+//        //   kind of back-door selection of the existing list.
+//
+//        // Note - I thought it would be a good idea to check for 'illegal'
+//        //   characters in the filename, but when I started testing, the
+//        //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
+//        //   Of course there ARE illegal characters, and the ones above may
+//        //   still be illegal on another OS.  So, the best way to
+//        //   detect them is to try to create a file using the name we're
+//        //   checking.  Any io error and we can fail this check.
+//
+//        // Now try to create the file, with an additional '.test' extension.  This will not
+//        // conflict with any 'legal' existing file in the directory, so if there is any
+//        // problem at all then we know it's a bad name.
+//        String theFilename = basePath + testName + ".test";
+//        File f = new File(theFilename);
+//        MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
+//        // This existence is not the same check as the one that we said would not be done; different extension.
+//
+//        // Now ensure that the container directory is already there.
+//        boolean b;
+//        b = f.mkdirs();
+//
+//        if(b) b = f.exists();
+//        try { // If the File operations below generate any exceptions, it's a bad name.
+//            // This first part & check are just to ensure that we do the rest of the test with
+//            // a 'clean' slate and don't have 'leftovers' from some earlier attempt(s).
+//            if (b) {
+//                b = f.delete(); // This MIGHT throw an exception.
+//                if(!b && f.exists()) {
+//                    // It shouldn't have existed in the first place, and now it
+//                    // refuses to be deleted.  This is enough cause for concern
+//                    // to justify disallowing the new name.  No Exception was
+//                    // thrown in this case but we will complain about it anyway -
+//                    ems.append("A previous test file refuses to be deleted.");
+//                }
+//            } else {
+//                b = f.createNewFile();
+//                if(!b || !f.exists()) {
+//                    // This probably would not happen since any name that does
+//                    // not cause an Exception should result in a created file.
+//                    // But it's less risky to just check for and handle it anyway.
+//                    ems.append("Unable to create a test file with the proposed name");
+//                } else {
+//                    // Ok, so we just now created the test file, but did it really get the requested name?
+//                    // This is not such an outlandish question - a filename with a colon in it CAN be created
+//                    // but the Windows OS will just drop the colon and anything after it.  The createNewFile()
+//                    // method appears to be much more permissive than the renameTo(), so we will now test the
+//                    // rename as well, and we don't even have to try a different name.
+//                    b = f.renameTo(new File(theFilename));
+//                    if(!b) { // No Exception thrown, but no joy with the rename operation, either.
+//                        ems.append("The proposed new name was rejected by the operating system!");
+//                    }
+//
+//                    // Ok, so it was renamed to itself.  Now delete it, and verify that this was done as well.
+//                    b = f.delete();
+//                    if(!b || f.exists()) {
+//                        ems.append("Unable to remove the test file with the proposed new name!");
+//                    }
+//                }
+//            }
+//        } catch (IOException | SecurityException e) {
+//            ems.append(e.getMessage());
+//        } // end try/catch
+//
+//        return ems.toString();
+//    } // end checkFilename
 
     // Called by the TreeBranchEditor to determine whether or not to provide a 'Delete'
     // button for a choice.  If false then the choice will have no Delete button.

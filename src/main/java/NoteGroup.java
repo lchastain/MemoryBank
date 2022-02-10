@@ -18,9 +18,10 @@ class NoteGroup implements LinkHolder {
 
     NoteGroupDataAccessor groupDataAccessor; // Provides a way to persist and retrieve the Group data
 
-    // Currently we don't save a NoteGroup, but we do save its relevant content.
-    // And since that is true, the use of transient or not - is meaningless.  But I'm using it anyway
-    // (in unexplained, inconsistent places) because things change.
+    // Currently we don't save a NoteGroup (but we do save its relevant content).
+    // And since that is true, the use of transient or not - is meaningless.
+    // But I'm using it anyway because things can change and it gives a more accurate description of the
+    //   usage of the data member.
     transient boolean groupChanged;  // Flag used to determine if saving data might be necessary.
 
     // This Vector holds the complete collection of group notes.
@@ -128,7 +129,9 @@ class NoteGroup implements LinkHolder {
     void deleteNoteGroup() {
         groupDataAccessor.deleteNoteGroupData();
         if(myNoteGroupPanel != null) {
-            // Let the Panel know that its data is being deleted.
+            // Let the Panel know that its data has been deleted.  For a standard Panel this is just a no-op
+            //  because it is going away, but Panels that are NoteGroup Groups will want to 'know' so they
+            //  can do a bit of cleanup before they disappear.
             myNoteGroupPanel.deletePanel();
         }
     }
@@ -143,7 +146,7 @@ class NoteGroup implements LinkHolder {
 
 
     ArrayList getGroupNames() {
-        return groupDataAccessor.getGroupNames();
+        return groupDataAccessor.getGroupNames(true);
     }
 
 
@@ -255,6 +258,17 @@ class NoteGroup implements LinkHolder {
         setGroupChanged(true);
     }
 
+    void renameNoteGroup(String renameTo) {
+        if(groupDataAccessor.renameNoteGroupData(DataArea.getAreaFromGroupType(myGroupInfo.groupType), myGroupInfo.getGroupName(), renameTo)) {
+            if (myNoteGroupPanel != null) {
+                // Let the Panel know that its NoteGroup has been renamed.  This will need to cascade through
+                //   to panel title and possibly other visual elements.  But there is no need to send the new
+                //   name; it already has it.
+                myNoteGroupPanel.renamePanel();
+            }
+        }
+    }
+
     void saveNoteGroup() {
         groupDataAccessor.saveNoteGroupData(getTheData());
         setGroupChanged(false); // The 'save' preserved all changes to this point (we hope), so we reset the flag.
@@ -319,7 +333,6 @@ class NoteGroup implements LinkHolder {
             });
         }
     }
-
 
 //    public void setNotes(Vector<NoteData> incomingNotes) {
 //        if(incomingNotes == null) {

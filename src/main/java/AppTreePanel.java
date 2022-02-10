@@ -286,7 +286,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 // Get this to be disassociated from NoteGroupFile; use the dataAccessorInterface and then move it -
             // Ensure that the new name meets our file-naming requirements.
             File aFile = new File(NoteGroupFile.makeFullFilename(areaName, newName));
-            String theComplaint = BranchHelperInterface.checkFilename(newName, aFile.getParent());
+            String theComplaint = NoteGroupFile.checkFilename(newName, aFile.getParent());
             if (!theComplaint.isEmpty()) {
                 optionPane.showMessageDialog(theTree, theComplaint,
                         "Error", JOptionPane.ERROR_MESSAGE);

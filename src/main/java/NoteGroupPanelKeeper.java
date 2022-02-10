@@ -72,10 +72,10 @@ public class NoteGroupPanelKeeper {
         if (theGroup != null) {
             MemoryBank.debug("  Removing " + aListName + " from the NoteGroupKeeper");
             theNoteGroups.removeElement(theGroup);
-//            theGroup.myKeeper = null; // This may be overkill, now that it's removed.  But just in case...
-// NO - we could need this if a deletion is undone.
+            // We don't want to null out the group's 'myKeeper';
+            //   we will need it if a deletion is undone.
         } else {
-            MemoryBank.debug("  Unable to remove " + aListName + "; it was not found in the NoteGroupKeeper");
+            MemoryBank.debug(aListName + " was not found in the NoteGroupKeeper");
         } // end if
     } // end remove
 

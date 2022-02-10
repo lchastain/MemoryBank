@@ -381,7 +381,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroupFile.todoListGroupAreaPath);
+        String theComplaint = NoteGroupFile.checkFilename(newName, NoteGroupFile.todoListGroupAreaPath);
         if (!theComplaint.isEmpty()) {
             JOptionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);

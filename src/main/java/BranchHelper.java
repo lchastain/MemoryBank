@@ -25,6 +25,7 @@ public class BranchHelper implements BranchHelperInterface {
     private String renameFrom;  // Used when deciding if special handling is needed.
     private String renameTo;    // Provides a way for us override the value.
     private final DataArea theArea;
+    private GroupType theType;
     Notifier optionPane;  // for Testing
     private String thePrefix; // goal_, event_, todo_, search_
     String theAreaNodeName; // Goals, Events, To Do Lists, Search Results
@@ -40,17 +41,20 @@ public class BranchHelper implements BranchHelperInterface {
         // This Helper is for one of these Branches -
         if (theArea.equals(DataArea.GOALS)) {
             thePrefix = "goal_";
+            theType = GroupType.GOALS;
         } else if (theArea.equals(DataArea.UPCOMING_EVENTS)) {
             thePrefix = "event_";
+            theType = GroupType.EVENTS;
         } else if (theArea.equals(DataArea.TODO_LISTS)) {
             thePrefix = "todo_";
+            theType = GroupType.TODO_LIST;
         } else if(theArea.equals(DataArea.SEARCH_RESULTS)) {
             thePrefix = "search_";
+            theType = GroupType.SEARCH_RESULTS;
         }
         assert thePrefix != null; // Doing it this way vs an 'else' section, we get full test coverage.
 
-        optionPane = new Notifier() {
-        }; // Uses all default methods.
+        optionPane = new Notifier() {}; // Uses all default methods.
 
         // Get the index of the tree node we're 'helping' (not the same as row number)
         theIndex = -1;
@@ -69,28 +73,28 @@ public class BranchHelper implements BranchHelperInterface {
         return true;
     }
 
-    // This is always called after a 'allowRenameFrom' call, which is where the 'renameFrom' var is set.
+    // This method is called from Tree operations and occurs before any rename is attempted.
+    // So if it passes at that time, the subsequent rename operation does not need to call here again.
     @Override
     public boolean allowRenameTo(String theName) {
         renameTo = theName.trim();
+        // This method is always called after a 'allowRenameFrom' call, which is where the 'renameFrom' var is set.
+        GroupInfo groupInfo = new GroupInfo(renameFrom, theType);
+        NoteGroup myNoteGroup = groupInfo.getNoteGroup();
 
-        // If renameTo is also our 'renameFrom' name then the whole thing is a no-op.
+        // If theName is the name we already have then the whole thing is a no-op.
         // No need to put out a complaint about that; just return a false.  But if
         // the only difference is in the casing then we will get past this check.
-        if (renameTo.equals(renameFrom)) return false;
+        if (theName.equals(groupInfo.getGroupName())) return false;
 
-        // It is important to check filename validity in the area where the new file would be created,
-        // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
-        // different area of the same filesystem.
-        File aFile = new File(NoteGroupFile.makeFullFilename(theArea.toString(), theName));
-        String theComplaint = BranchHelperInterface.checkFilename(theName, aFile.getParent());
-        if (!theComplaint.isEmpty()) {
-            optionPane.showMessageDialog(theTree, theComplaint,
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        return true;
-    }
+        String theComplaint = myNoteGroup.groupDataAccessor.getObjectionToRename(theName);
+        if (theComplaint.isEmpty()) return true;
+
+        optionPane.showMessageDialog(AppTreePanel.theInstance.getTree(), theComplaint,
+                "Error", JOptionPane.ERROR_MESSAGE);
+
+        return false;
+    } // end allowRenameTo
 
     @Override
     public boolean deleteAllowed(String theSelection) {
@@ -106,22 +110,25 @@ public class BranchHelper implements BranchHelperInterface {
 
     // This method is the handler for the 'Apply' button of the TreeBranchEditor.
     // For tree structure events, we don't address them individually but just accept
-    // them as a whole, by directly adopting the 'mtn' parameter as our new branch.
-    // But in addition to (possibly) having an effect on the final branch, the
-    // rename and delete actions from the editor imply changes to the filesystem
-    // and those directives are also handled here.  For these actions, we need to
-    // examine the 'changes' list.  But what happens if we cannot perform all the
-    // tasks from the list?  In that case, the branch may no longer accurately
-    // represent the true state of the group data files and the user will be informed.
+    //   them as a whole, by directly adopting the 'mtn' parameter as our new branch,
+    //   regardless of whether leaves have been moved around or not.
+    // That still leaves individual 'delete' and 'rename' actions to be handled here.
+    // Note that code remains to handle a 'delete', but we no longer provide a path
+    //   to do that from the editor.
+    // For 'delete' and 'rename' actions, we need to examine the 'changes' list.  If for some
+    //   reason we cannot perform all the tasks from the list, the final branch may no longer
+    //   accurately represent the true state of the group data stores.  The user will be
+    //   informed of issues but processing will continue, leaving the user to manually fix
+    //   any mismatch between the branch and the data store.
     @Override
     public boolean doApply(MutableTreeNode mtn, ArrayList<NodeChange> changes) {
         // 'theIndex' is the location of the branch that we will replace.  It is set
         // in the constructor here and it is NOT the same as the row of the tree so
         // it is not error-prone due to changes such as collapse/expand events or a
-        // new NoteGroup appearing above it.  But the line below is a 'just in case'.
+        // new NoteGroup appearing above it.  The line below is a 'just in case'.
         if (theIndex == -1) return false;
 
-        // Handle file renamings and deletions
+        // Handle leaf renamings and deletions
         String deleteWarning = null;
         boolean doDelete = false;
         ems.setLength(0);
@@ -129,32 +136,29 @@ public class BranchHelper implements BranchHelperInterface {
             MemoryBank.debug(nodeChange.toString());
             if (nodeChange.changeType == NodeChange.RENAMED) {
 
-                // Checking special cases where there is no corresponding file -
-                if(theAreaNodeName.equals("We no longer have such a case in any area, at this time.")) {
-                    if (nodeChange.nodeName.equals("a node with no associated file")) {
-                        // An exception to the norm - this one has no corresponding file.
-                        // < now do whatever change is needed instead of the file rename >
+                // Checking special cases where there is no corresponding data store -
+                // We no longer have such a case in any area, but we did at one time so keep this condition
+                //   until it is absolutely certain that it will not occur again.  'blarg123!' is just a placeholder.
+                if(theAreaNodeName.equals("blarg123!")) {
+                    if (nodeChange.nodeName.equals("a node with no associated data store")) {
+                        // An exception to the norm - this one has no corresponding data store.
+                        // This situation can occur because there is no way to disallow the rename attempt for one
+                        //   leaf while still allowing renames to others.  So we arrive here with a rename directive
+                        //   that we can just ignore, or take some other action.
+                        // < now do whatever change is needed instead of the rename >
                         continue;
                     }
                 }
 
                 // Now attempt the rename
-                String oldNamedFile = NoteGroupFile.makeFullFilename(theArea.getAreaName(), nodeChange.nodeName);
-                String newNamedFile = NoteGroupFile.makeFullFilename(theArea.getAreaName(), nodeChange.renamedTo);
-                MemoryBank.debug("Full name of original file: " + oldNamedFile);
-                File f = new File(oldNamedFile);
-
+                GroupInfo groupInfo = new GroupInfo(nodeChange.nodeName, theType);
+                NoteGroup myNoteGroup = groupInfo.getNoteGroup();
                 try {
-                    if (!f.renameTo(new File(newNamedFile))) {
-                        throw new Exception("Unable to rename " + nodeChange.nodeName + " to " + nodeChange.renamedTo);
-                    } else {
-                        // Remove the Panel from its keeper; now that it has a new name, this one would not be found anyway.
-                        theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
-                    } // end if
+                    myNoteGroup.renameNoteGroup(nodeChange.renamedTo);
+                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
                 } catch (Exception se) {
                     ems.append(se.getMessage()).append(System.lineSeparator());
                 } // end try/catch
-
             } else if (nodeChange.changeType == NodeChange.REMOVED) {
                 if (deleteWarning == null) {
                     deleteWarning = "Deletions of " + theAreaNodeName + " cannot be undone.";
@@ -219,11 +223,12 @@ public class BranchHelper implements BranchHelperInterface {
     }  // end doApply
 
 
+    // TODO - get this dereferenced to remove FILE ops.  The getGroupNames(false) in NoteGroupDataAccessor does the same thing.
     @Override
     public ArrayList<String> getChoices() {
         ArrayList<String> theChoices = new ArrayList<>();
 
-        // Get a list of <theNodeName> files in that area of the user's data directory.
+        // Get a list of <theNodeName> NoteGroups in that area of the user's data repo.
         File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + theArea.toString().replaceAll("\\s", ""));
         String[] theFileList = dataDir.list(
                 new FilenameFilter() {

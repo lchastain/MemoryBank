@@ -385,7 +385,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroupFile.eventGroupAreaPath);
+        String theComplaint = NoteGroupFile.checkFilename(newName, NoteGroupFile.eventGroupAreaPath);
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);

@@ -144,7 +144,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             } // end getPreferredSize
         };
         editable = true;
-        appendable = true;
+        setAppendable(true);
         intHighestNoteComponentIndex = pageSize - 1;
 
         jsp = new JScrollPane() {
@@ -238,7 +238,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end clearPage
 
     // Since Panels are not persisted, this does nothing in this base class.  Children, however, can
-    //   override it and take appropriate action(s) due to have their 'deleteNoteGroup' invoked.
+    //   override it and take appropriate action(s) due to having their 'deleteNoteGroup' invoked.
     void deletePanel() {}
 
     // Provides an interface for the modification of two members of the NoteData.
@@ -392,6 +392,11 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         AppTreePanel.theInstance.getTree().clearSelection();
         AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
     } // end groupLinkages
+
+    // This does nothing in this base class, because upon rename the entire group is reloaded and the reload will
+    //   set the new Panel title correctly.  Children, however, can override it and take appropriate action(s) due
+    //   to having their 'renameNoteGroup' invoked.
+    void renamePanel() {}
 
     void setAppendable(boolean b) {
         appendable = b;

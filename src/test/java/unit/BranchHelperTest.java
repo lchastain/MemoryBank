@@ -34,6 +34,10 @@ class BranchHelperTest {
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+
+        // The AppTreePanel is what creates the Tree for us.
+        // The tree is referenced by the error handling in the BranchHelper.
+        new AppTreePanel(new JFrame(), MemoryBank.appOpts);
     }
 
 
@@ -50,7 +54,7 @@ class BranchHelperTest {
         JTree tree = new JTree(treeModel);
 
         searchBranchHelper = new BranchHelper(tree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-        searchBranchHelper.optionPane = new TestUtil();
+        searchBranchHelper.optionPane = new TestUtil(); // still needed (temporary) for deletions...
     }
 
     @AfterEach
@@ -113,10 +117,8 @@ class BranchHelperTest {
         changeList.add(new NodeChange("20191029073938", "new name"));
         changeList.add(new NodeChange("20190927161325", NodeChange.REMOVED));
 
-        // This gets us the coverage; may still want to verify that changes were made,
+        // This gets us the coverage but you may still want to verify that changes were made,
         // to either the tree, the filesystem, or both.
-        // But may not want to spend cycles verifying filesystem changes, when that data
-        // storage methodology is not optimal and is under consideration for migration to a DB.
         searchBranchHelper.doApply(searches, changeList);
     }
 

@@ -38,6 +38,9 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     private ChronoUnit dateType;
     private CalendarNoteGroup.CalendarFileFilter fileFilter;
 
+    static StringBuilder ems = new StringBuilder();  // Error Message String
+    static int MAX_FILENAME_LENGTH = 20; // Somewhat arbitrary, but helps with UI issues.
+
     // This is the FULL filename, with storage specifier & path, prefix and extension.
     // Access it with getGroupFilename() & setGroupFilename().
     private String groupFilename;
@@ -121,8 +124,131 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 saveWithoutData = false;
                 break;
         }
-        if(dateType != null) fileFilter = new CalendarNoteGroup.CalendarFileFilter(dateType);
+        if (dateType != null) fileFilter = new CalendarNoteGroup.CalendarFileFilter(dateType);
     }
+
+    //-------------------------------------------------------------------
+    // Method Name:  checkFilename
+    //
+    // Check theProposedName for the following 'illegal' file naming conditions:
+    //   No entry, or whitespace only.
+    //   The name ends in '.json'.
+    //   The name contains more than MAX_FILENAME_LENGTH chars.
+    //   The filesystem refuses to create a file with this name.
+    //
+    // Return Value - A 'complaint' string if name is not valid,
+    //    otherwise an empty string.
+    //
+    // static rather than default due to external references, but all of
+    // those could easily be changed, except for TodoNoteGroup.saveAs;
+    // and moving it to here breaks too many other method calls from
+    // within that one to local methods in the TodoNoteGroup instance.
+    // Of course there could be solutions to that too, but how far down
+    // that road do we want to go, for what added value?  Don't know
+    // about the value so how far is 'not one step' (for now); this works.
+    // But now - what about moving this one to FileGroup?  think about it.
+    //-------------------------------------------------------------------
+    static String checkFilename(String theProposedName, String basePath) {
+        ems.setLength(0);
+
+        String testName = theProposedName.trim();
+
+        // Check for non-entry (or evaporation).
+        if (testName.isEmpty()) {
+            ems.append("No New List Name was supplied!");
+        }
+
+        // Refuse unwanted help.
+        if (testName.endsWith(".json")) {
+            ems.append("The name you supply cannot end in '.json'");
+        } // end if
+
+        // Check for legal max length.
+        // The input field used in this class would not allow this one, but
+        //   since this method is static and accepts input from outside
+        //   sources, this check should be done.
+        if (testName.length() > MAX_FILENAME_LENGTH) {
+            ems.append("The new name is limited to ").append(MAX_FILENAME_LENGTH).append(" characters");
+        } // end if
+
+        // If there have been any problems found up to this point then we don't want to
+        // continue checking, so return the answer now.
+        if (!ems.toString().isEmpty()) return ems.toString();
+
+        // Do we want to check to see if a file with this name already exists?
+        //   No.  The handler for the renaming event will disallow that particular
+        //   situation, so we don't need to repeat that logic here.  Likewise for
+        //   the 'Save As' logic.
+        //
+        //   As for the 'Add New...' functionality that is also a consumer of this
+        //   method, the AppTreePanel handles that situation by simply opening it, a
+        //   kind of back-door selection of the existing list.
+
+        // Note - I thought it would be a good idea to check for 'illegal'
+        //   characters in the filename, but when I started testing, the
+        //   Windows OS accepted %, -, $, ! and &; not sure what IS illegal.
+        //   Of course there ARE illegal characters, and the ones above may
+        //   still be illegal on another OS.  So, the best way to
+        //   detect them is to try to create a file using the name we're
+        //   checking.  Any io error and we can fail this check.
+
+        // Now try to create the file, with an additional '.test' extension.  This will not
+        // conflict with any 'legal' existing file in the directory, so if there is any
+        // problem at all then we know it's a bad name.
+        String theFilename = basePath + testName + ".test";
+        File f = new File(theFilename);
+        MemoryBank.debug("Name checking new file: " + f.getAbsolutePath());
+        // This existence is not the same check as the one that we said would not be done; different extension.
+
+        // Now ensure that the container directory is already there.
+        boolean b;
+        b = f.mkdirs();
+
+        if (b) b = f.exists();
+        try { // If the File operations below generate any exceptions, it's a bad name.
+            // This first part & check are just to ensure that we do the rest of the test with
+            // a 'clean' slate and don't have 'leftovers' from some earlier attempt(s).
+            if (b) {
+                b = f.delete(); // This MIGHT throw an exception.
+                if (!b && f.exists()) {
+                    // It shouldn't have existed in the first place, and now it
+                    // refuses to be deleted.  This is enough cause for concern
+                    // to justify disallowing the new name.  No Exception was
+                    // thrown in this case but we will complain about it anyway -
+                    ems.append("A previous test file refuses to be deleted.");
+                }
+            } else {
+                b = f.createNewFile();
+                if (!b || !f.exists()) {
+                    // This probably would not happen since any name that does
+                    // not cause an Exception should result in a created file.
+                    // But it's less risky to just check for and handle it anyway.
+                    ems.append("Unable to create a test file with the proposed name");
+                } else {
+                    // Ok, so we just now created the test file, but did it really get the requested name?
+                    // This is not such an outlandish question - a filename with a colon in it CAN be created
+                    // but the Windows OS will just drop the colon and anything after it.  The createNewFile()
+                    // method appears to be much more permissive than the renameTo(), so we will now test the
+                    // rename as well, and we don't even have to try a different name.
+                    b = f.renameTo(new File(theFilename));
+                    if (!b) { // No Exception thrown, but no joy with the rename operation, either.
+                        ems.append("The proposed new name was rejected by the operating system!");
+                    }
+
+                    // Ok, so it was renamed to itself.  Now delete it, and verify that this was done as well.
+                    b = f.delete();
+                    if (!b || f.exists()) {
+                        ems.append("Unable to remove the test file with the proposed new name!");
+                    }
+                }
+            }
+        } catch (IOException | SecurityException e) {
+            ems.append(e.getMessage());
+        } // end try/catch
+
+        return ems.toString();
+    } // end checkFilename
+
 
     protected boolean deleteFile(File f) {
         // There are a couple of cases where we could try to delete a file that is not there
@@ -147,16 +273,16 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     public void deleteNoteGroupData() {
         if (!groupFilename.isEmpty()) {
             MemoryBank.debug("NoteGroupFile.saveNoteGroupData: old filename = " + groupFilename);
-                File f = new File(groupFilename);
-                if(f.exists()) { // It must exist, for the delete to succeed.  If it already doesn't exist - we can live with that.
-                    // Deleting (or archiving, if ever implemented) as the first step of saving is necessary in case the
-                    // current change is to just delete the information; we might not have any data to save.
-                    if (!deleteFile(f)) { // If we continued after this then the save would fail; may as well stop now.
-                        failureReason = "Failed to delete " + groupFilename;
-                        System.out.println("Error - " + failureReason);
-                        saveIsOngoing = false;
-                    }
+            File f = new File(groupFilename);
+            if (f.exists()) { // It must exist, for the delete to succeed.  If it already doesn't exist - we can live with that.
+                // Deleting (or archiving, if ever implemented) as the first step of saving is necessary in case the
+                // current change is to just delete the information; we might not have any data to save.
+                if (!deleteFile(f)) { // If we continued after this then the save would fail; may as well stop now.
+                    failureReason = "Failed to delete " + groupFilename;
+                    System.out.println("Error - " + failureReason);
+                    saveIsOngoing = false;
                 }
+            }
         } // end if
     } // end deleteNoteGroupData
 
@@ -181,7 +307,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
         // Possible additional prefixing, for Archives.
         String firstPart = FileDataAccessor.basePath;
-        if(groupInfo.archiveName != null) {
+        if (groupInfo.archiveName != null) {
             String fixedName = groupInfo.getArchiveStorageName();
             firstPart += DataArea.ARCHIVES.getAreaName() + File.separatorChar;
             firstPart += fixedName + File.separatorChar;
@@ -218,11 +344,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 theFilename = foundFilename(theChoice, "D");
                 break;
             case MONTH_NOTES: // Example group name:  October 2020
-                theChoice =  CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "M");
                 break;
             case YEAR_NOTES: // Example group name:  2020
-                theChoice =  CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "Y");
                 break;
             case LOG:
@@ -247,7 +373,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 break;
         }
 
-        if(!theFilename.isEmpty() && new File(theFilename).exists()) {
+        if (!theFilename.isEmpty() && new File(theFilename).exists()) {
             foundName = theFilename;
         }
 
@@ -396,15 +522,23 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     } // end getDateFromFilename
 
 
-    // This method will return all active groups of the same type (not applicable to CalendarNote types).
-    // Note that the source group will also be the list, but the calling context can easily remove it from
+    // This method will return all groups of the same type (not applicable to CalendarNote types).
+    // Note that the invoking group will also be in the list, but the calling context can easily remove it from
     // the result, if needed.
     @Override
-    public ArrayList getGroupNames() {
+    public ArrayList getGroupNames(boolean filterInactive) {
         File dataDir = new File(theAreaPath);
 
         // Get the complete list of Group filenames.
-        String[] theFileList = dataDir.list();
+        String[] theFileList = dataDir.list(
+                new FilenameFilter() {
+                    // Although this filter does not account for directories, we know that the dataDir for the
+                    //  areas that we look in will not under normal program operation contain other directories.
+                    public boolean accept(File f, String s) {
+                        return s.startsWith(thePrefix);
+                    }
+                }
+        );
 
         // Filter and normalize the selections.
         // ie, drop the prefixes and file extensions, and exclude the non-active groups.
@@ -412,9 +546,10 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         if (theFileList != null) {
             for (String aName : theFileList) {
                 String theGroupName = getGroupNameFromFilename(aName);
-                if(MemoryBank.appOpts.active(groupInfo.groupType, theGroupName)) {
-                    theGroupNames.add(theGroupName);
+                if (filterInactive) {
+                    if (!MemoryBank.appOpts.active(groupInfo.groupType, theGroupName)) continue;
                 }
+                theGroupNames.add(theGroupName);
             } // end for i
         }
         return theGroupNames;
@@ -437,7 +572,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
         // Sort the Years according to the direction we will be searching.
         // But also - set a default return value in case nothing is found.
-        if(direction == CalendarNoteGroup.Direction.FORWARD) {
+        if (direction == CalendarNoteGroup.Direction.FORWARD) {
             Collections.sort(yearsList);
             returnDate = initialDate.plus(1, dateDelta);
         } else {  // direction == BACKWARD
@@ -446,22 +581,22 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         }
 
         // Cycle through the sorted directories -
-        for(File f: yearsList) {
+        for (File f : yearsList) {
             int dataYear = Integer.parseInt(f.getName());
 
             // Skip all Years that are in the 'wrong' direction from the initialDate
-            if(direction == CalendarNoteGroup.Direction.FORWARD) {
-                if(dataYear < initialYear) continue;
+            if (direction == CalendarNoteGroup.Direction.FORWARD) {
+                if (dataYear < initialYear) continue;
             } else {
-                if(dataYear > initialYear) continue;
+                if (dataYear > initialYear) continue;
             }
-            if(dateType == ChronoUnit.YEARS && dataYear == initialYear) continue;
+            if (dateType == ChronoUnit.YEARS && dataYear == initialYear) continue;
 
             // Now we can start looking in this Year for data -
             System.out.println("Looking in: " + f.getAbsolutePath());
 
             LocalDate theDate = getDataDate(f, returnDate, direction);
-            if(theDate != null) return theDate; // This will be the one we were looking for.
+            if (theDate != null) return theDate; // This will be the one we were looking for.
             // Otherwise, we keep looking as long as there are 'Year' directories remaining to be searched -
         }
 
@@ -472,32 +607,32 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     private LocalDate getDataDate(File yearDirectory, LocalDate initialDate, CalendarNoteGroup.Direction direction) {
         // Get a list of the right type of data files that are in the yearDirectory -
         File[] dataFiles = yearDirectory.listFiles(fileFilter);
-        if(dataFiles == null || dataFiles.length == 0) return null; // The null check covers possible I/O errors.
+        if (dataFiles == null || dataFiles.length == 0) return null; // The null check covers possible I/O errors.
 
         List<File> filesList = Arrays.asList(dataFiles);
 
         // Sort the data files according to the direction we will be searching.
-        if(direction == CalendarNoteGroup.Direction.FORWARD) {
+        if (direction == CalendarNoteGroup.Direction.FORWARD) {
             Collections.sort(filesList);
         } else {  // direction == BACKWARD
             filesList.sort(Collections.reverseOrder());
         }
 
-        for(File f: filesList) {
+        for (File f : filesList) {
             LocalDate aDate = getDateFromFilename(f);
             assert aDate != null;
             System.out.println("The date for " + f.getAbsolutePath() + " is " + aDate.toString());
 
-            if(direction == CalendarNoteGroup.Direction.FORWARD) {
-                if(aDate.isBefore(initialDate)) continue;
+            if (direction == CalendarNoteGroup.Direction.FORWARD) {
+                if (aDate.isBefore(initialDate)) continue;
             } else {
-                if(aDate.isAfter(initialDate)) continue;
+                if (aDate.isAfter(initialDate)) continue;
             }
 
             // Look into the file to see if it has significant content.
             Object[] theGroup = NoteGroupFile.loadFileData(f);
             boolean itHasData = false;
-            if(theGroup.length == 1) {
+            if (theGroup.length == 1) {
                 // It is not possible to have a length of one for DayNoteData, where the content is GroupProperties.
                 // When only linkages are present in DayNoteData, the file still contains a two-element array
                 // although the second element may be null.  So this is just older (pre linkages) data, and in
@@ -506,9 +641,9 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
                 // significant for purposes of this method; only the length of the second element (the ArrayList).
                 ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
-                if(arrayList.size() > 0) itHasData = true;
+                if (arrayList.size() > 0) itHasData = true;
             }
-            if(itHasData) return aDate;
+            if (itHasData) return aDate;
 
         }
         return null;
@@ -662,7 +797,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         String groupName;
         LocalDate theDate;
 
-        switch(groupInfo.groupType) {
+        switch (groupInfo.groupType) {
             case DAY_NOTES:  // areaName = "Years";
                 theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 return makeFullFilename(theDate, "D");
@@ -747,29 +882,29 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     static GroupInfo getGroupInfoFromFilePath(File theFile) {
         GroupInfo theAnsr = new GroupInfo();
         String theFullFilename = theFile.toString();
-        if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.CALENDARS.getAreaName() + File.separatorChar)) {
+        if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.CALENDARS.getAreaName() + File.separatorChar)) {
             String nameOnly = theFile.getName();
             GroupType groupType = GroupType.NOTES;
 
             // Ok, the use of magic numbers here is flaky; I will look for a better way.
-            if(nameOnly.length() == 25) groupType = GroupType.DAY_NOTES;
-            if(nameOnly.length() == 23) groupType = GroupType.MONTH_NOTES;
-            if(nameOnly.length() == 21) groupType = GroupType.YEAR_NOTES;
+            if (nameOnly.length() == 25) groupType = GroupType.DAY_NOTES;
+            if (nameOnly.length() == 23) groupType = GroupType.MONTH_NOTES;
+            if (nameOnly.length() == 21) groupType = GroupType.YEAR_NOTES;
             theAnsr.groupType = groupType;
 
             LocalDate theDate = getDateFromFilename(theFile);
             String theName = CalendarNoteGroup.getGroupNameForDate(theDate, groupType);
             theAnsr.setGroupName(theName);
-        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.TODO_LISTS.getAreaName() + File.separatorChar)) {
+        } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.TODO_LISTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.TODO_LIST;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar)) {
+        } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.SEARCH_RESULTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.GOALS.getAreaName() + File.separatorChar)) {
+        } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.GOALS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.GOALS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
-        } else if(StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar)) {
+        } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.EVENTS;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else {
@@ -781,7 +916,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     }
 
 
-        // A formatter for a String that is a filename specifier.  It strips
+    // A formatter for a String that is a filename specifier.  It strips
     //   away the File path, separators, prefix and ending, leaving only
     //   the base (pretty) name of the file.  It works left-to-right, as
     //   the input shrinks (in case that's important for you to know).
@@ -820,6 +955,26 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     } // end getGroupNameFromFilename
 
 
+    @Override
+    public String getObjectionToRename(String theName) {
+        // It is important to check filename validity in the area where the new file would be created,
+        // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
+        // different area of the same filesystem.
+        DataArea theArea = DataArea.getAreaFromGroupType(groupInfo.groupType);
+        File aFile = new File(NoteGroupFile.makeFullFilename(theArea.getAreaName(), theName));
+        return checkFilename(theName, aFile.getParent());
+    }
+
+    @Override
+    public boolean renameNoteGroupData(DataArea theArea, String nodeName, String renamedTo) {
+        String oldNamedFile = makeFullFilename(theArea.getAreaName(), nodeName);
+        String newNamedFile = makeFullFilename(theArea.getAreaName(), renamedTo);
+        MemoryBank.debug("Full name of original file: " + oldNamedFile);
+        File f = new File(oldNamedFile);
+        return f.renameTo(new File(newNamedFile));
+    }
+
+
     // To arrive at this point we have already ensured that either the data is entirely new or there has been
     // some change to it, so at least some of the processing here is known to be needed.
     // Steps:
@@ -848,10 +1003,10 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // In this case we can trust the 'legality' of the name and path; we just need to verify that the file exists
         // and if so, delete it so that it does not conflict when we save a new file with the updated info.
         deleteNoteGroupData();
-        if(!saveIsOngoing) return; // A problem in deleting might have derailed the save operation.
+        if (!saveIsOngoing) return; // A problem in deleting might have derailed the save operation.
 
         // Step 2 - Bail out early if there is no reason to create a file for this data.
-        if(theData == null && !saveWithoutData) {
+        if (theData == null && !saveWithoutData) {
             saveIsOngoing = false;
             return;
         }
@@ -908,7 +1063,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         saveIsOngoing = false;
     } // end saveNoteGroupData
 
-
     // Provides a way for a calling context to retrieve the most recent result.
     // If there was not a failure then this value will be null.
     String getFailureReason() {
@@ -919,7 +1073,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     // This method is used to obtain a filename for data that needs to be saved.  We cannot accept "" for an answer.
     private String getGroupFilename() {
         String s = groupInfo.groupType.toString();
-        if(s.endsWith("Note")) {  // This will cover the Calendar Note type groups.
+        if (s.endsWith("Note")) {  // This will cover the Calendar Note type groups.
             // Their filenames ends in a timestamp that changes with every save.  That timestamping
             // is the foundation of being able to archive earlier files, but the feature did not ever
             // get fully developed.  This handling variant for it remains here for now.
@@ -931,7 +1085,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         } // end if CalendarNoteGroup
 
         String foundName = foundFilename(); // Results of a search may be "".
-        if(!foundName.isEmpty()) {
+        if (!foundName.isEmpty()) {
             return foundName;
         } else {
             return makeFullFilename();
@@ -943,7 +1097,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
     // And otherwise we take the opportunity to 'trim' it.
     void setGroupFilename(String newName) {
         String newGroupName;
-        if(newName == null) newGroupName = "";
+        if (newName == null) newGroupName = "";
         else newGroupName = newName.trim();
         groupFilename = newGroupName;
     }
@@ -981,7 +1135,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             } // end try/catch
         } // end try/catch
     }
-
 
 
 }

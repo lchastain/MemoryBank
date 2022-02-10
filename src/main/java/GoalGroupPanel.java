@@ -325,7 +325,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = BranchHelperInterface.checkFilename(newName, NoteGroupFile.goalGroupAreaPath);
+        String theComplaint = NoteGroupFile.checkFilename(newName, NoteGroupFile.goalGroupAreaPath);
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);

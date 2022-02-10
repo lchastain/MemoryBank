@@ -29,6 +29,25 @@ enum DataArea {
         areaName = s;
     }
 
+    static DataArea getAreaFromGroupType(GroupType groupType) {
+        DataArea theArea = null;
+        switch(groupType) {
+            case GOALS:
+                theArea = DataArea.GOALS;
+                break;
+            case TODO_LIST:
+                theArea = DataArea.TODO_LISTS;
+                break;
+            case EVENTS:
+                theArea = DataArea.UPCOMING_EVENTS;
+                break;
+            case SEARCH_RESULTS:
+                theArea = DataArea.SEARCH_RESULTS;
+                break;
+        }
+        return theArea;
+    }
+
     // This is the name formatted for data storage (no spaces)
     String getAreaName() {
         return areaName.replaceAll("\\s", "");

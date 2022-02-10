@@ -77,7 +77,7 @@ public class TreeBranchEditorMain {
         TreeBranchEditor tbe = new TreeBranchEditor(null, dmtn, new EditorHelper());
 
         // Make the frame and add ourselves to it.
-        JFrame testFrame = new JFrame("TreeBranchEditorExample Test");
+        JFrame testFrame = new JFrame("TreeBranchEditor Driver");
         testFrame.getContentPane().add(tbe);
         testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
