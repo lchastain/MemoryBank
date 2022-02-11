@@ -9,9 +9,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
+import java.util.ArrayList;
 
 // This class is a grouping of three other panels - To Do, Log, and Milestones.
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class GoalGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
     static String userInfo;
@@ -307,11 +308,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
         super.preClosePanel();
     }
 
-    // Not an override; called from the app menu bar:
-    // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
+    // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
-    //-----------------------------------------------------------------
     boolean saveAs() {
         Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
 
@@ -325,7 +324,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = NoteGroupFile.checkFilename(newName, NoteGroupFile.goalGroupAreaPath);
+        String theComplaint = myNoteGroup.groupDataAccessor.getObjectionToName(newName);
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -343,29 +342,16 @@ public class GoalGroupPanel extends NoteGroupPanel {
             return false;
         } // end if
 
-        // Check to see if the destination file name already exists.
+        // Check to see if the destination NoteGroup already exists.
         // If so then complain and refuse to do the saveAs.
 
-        // Other applications might offer the option of overwriting
-        // the existing file.  This was considered and rejected
-        // because of the possibility of overwriting a file that
-        // is currently open.  We could check for that as well, but
-        // decided not to because - why should we go to heroic
-        // efforts to handle a user request where it seems like
-        // they may not understand what it is they are asking for?
-        // This is the same approach that was taken in the 'rename' handling.
-
-        // After we refuse the operation due to a preexisting destination
-        // file name the user has several recourses, depending on
-        // what it was they really wanted to do - they could delete
-        // the preexisting file or rename it, after which a second
-        // attempt at this operation would succeed, or they could
-        // realize that they had been having a senior moment and
-        // abandon the effort, or they could choose a different
-        // new name and try again.
-        //--------------------------------------------------------------
-        String newFilename = NoteGroupFile.goalGroupAreaPath + NoteGroupFile.goalGroupFilePrefix + newName + ".json";
-        if ((new File(newFilename)).exists()) {
+        // Other applications might offer the option of overwriting the existing data.  This was considered
+        // and rejected because of the possibility of overwriting data that is currently being shown in
+        // another panel.  We could check for that as well, but decided not to because - why should we go to
+        // heroic efforts to handle a user request where it seems like they may not understand what it is
+        // that they are asking for?  This is the same approach that was taken in the 'rename' handling.
+        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        if (groupNames.contains(newName)) {
             ems = "A Goal named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
             optionPane.showMessageDialog(theFrame, ems,
@@ -373,10 +359,13 @@ public class GoalGroupPanel extends NoteGroupPanel {
             return false;
         } // end if
 
+        // After we refuse to do the operation due to a preexisting destination NoteGroup with the same name,
+        // the user has several recourses, depending on what it was they really wanted to do - they could
+        // delete the preexisting NoteGroup or rename it, after which a second attempt at this operation
+        // would succeed, or they could realize that they had been having a senior moment and abandon the
+        // effort, or they could choose a different new name and try again.
 
-        // So if we got here then we have overcome any possible objections.
-        // Now change the name, update Properties and the data accessors, and save.
-        //------------------------------------
+        // So we got past the pre-existence check. Now change the name, update Properties and the data accessor.
         log.debug("Saving " + oldName + " as " + newName);
         GroupProperties myGroupProperties = myNoteGroup.getGroupProperties();
 

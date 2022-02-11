@@ -87,7 +87,7 @@ public class BranchHelper implements BranchHelperInterface {
         // the only difference is in the casing then we will get past this check.
         if (theName.equals(groupInfo.getGroupName())) return false;
 
-        String theComplaint = myNoteGroup.groupDataAccessor.getObjectionToRename(theName);
+        String theComplaint = myNoteGroup.groupDataAccessor.getObjectionToName(theName);
         if (theComplaint.isEmpty()) return true;
 
         optionPane.showMessageDialog(AppTreePanel.theInstance.getTree(), theComplaint,

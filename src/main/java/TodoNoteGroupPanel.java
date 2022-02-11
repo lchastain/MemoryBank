@@ -364,10 +364,9 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 //    } // end printList
 
 
-    // Called from the menu bar:
-    // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
+    // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
-    // then if ok, saves the file with that new name.
+    // then if ok, saves the file with that name.
     boolean saveAs() {
         Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
 
@@ -381,9 +380,9 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = NoteGroupFile.checkFilename(newName, NoteGroupFile.todoListGroupAreaPath);
+        String theComplaint = myNoteGroup.groupDataAccessor.getObjectionToName(newName);
         if (!theComplaint.isEmpty()) {
-            JOptionPane.showMessageDialog(theFrame, theComplaint,
+            optionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -399,35 +398,27 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
             return false;
         } // end if
 
-        // Check to see if the destination file name already exists.
+        // Check to see if the destination NoteGroup already exists.
         // If so then complain and refuse to do the saveAs.
 
-        // Other applications might offer the option of overwriting
-        // the existing file.  This was considered and rejected
-        // because of the possibility of overwriting a file that
-        // is currently open.  We could check for that as well, but
-        // decided not to because - why should we go to heroic
-        // efforts to handle a user request where it seems like
-        // they may not understand what it is they are asking for?
-        // This is the same approach that was taken in the 'rename' handling.
-
-        // After we refuse the operation due to a preexisting destination
-        // file name the user has several recourses, depending on
-        // what it was they really wanted to do - they could delete
-        // the preexisting file or rename it, after which a second
-        // attempt at this operation would succeed, or they could
-        // realize that they had been having a senior moment and
-        // abandon the effort, or they could choose a different
-        // new name and try again.
-        //--------------------------------------------------------------
-        String newFilename = NoteGroupFile.todoListGroupAreaPath + NoteGroupFile.todoListFilePrefix + newName + ".json";
-        if ((new File(newFilename)).exists()) {
-            ems = "A list named '" + newName + "' already exists!\n";
+        // Other applications might offer the option of overwriting the existing data.  This was considered
+        // and rejected because of the possibility of overwriting data that is currently being shown in
+        // another panel.  We could check for that as well, but decided not to because - why should we go to
+        // heroic efforts to handle a user request where it seems like they may not understand what it is
+        // that they are asking for?  This is the same approach that was taken in the 'rename' handling.
+        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        if(groupNames.contains(newName)) {
+            ems = "An To Do List named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
             optionPane.showMessageDialog(theFrame, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
-        } // end if
+            // After we refuse to do the operation due to a preexisting destination NoteGroup with the same name,
+            // the user has several recourses, depending on what it was they really wanted to do - they could
+            // delete the preexisting NoteGroup or rename it, after which a second attempt at this operation
+            // would succeed, or they could realize that they had been having a senior moment and abandon the
+            // effort, or they could choose a different new name and try again.
+        }
 
         // Now change the name, update Properties and the data accessor, and save.
         //------------------------------------

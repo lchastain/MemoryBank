@@ -32,7 +32,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     //------------------------------------------------------------------
     private static final EventNoteDefaults eventNoteDefaults;
     private static AppIcon defaultIcon;
-    static Notifier optionPane;
 
     private final ThreeMonthColumn tmc;
     private final EventHeader theHeader;
@@ -70,7 +69,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         pnl1.add(tmc);
         add(pnl1, BorderLayout.EAST);
 
-        optionPane = new Notifier() { }; // Uses all default methods.
         theNotePager.reset(1);
 
         if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
@@ -364,18 +362,13 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end refresh
 
 
-    //-----------------------------------------------------------------
-    // Method Name:  saveAs
-    //
-    // Called from the menu bar:
-    // AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
+    // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.
-    //-----------------------------------------------------------------
     boolean saveAs() {
         Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
 
-        String thePrompt = "Please enter the new group name";
+        String thePrompt = "Please enter the new Event group name";
         int q = JOptionPane.QUESTION_MESSAGE;
         String newName = optionPane.showInputDialog(theFrame, thePrompt, "Save As", q);
 
@@ -385,7 +378,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         newName = newName.trim(); // eliminate outer space.
 
         // Test new name validity.
-        String theComplaint = NoteGroupFile.checkFilename(newName, NoteGroupFile.eventGroupAreaPath);
+        String theComplaint = myNoteGroup.groupDataAccessor.getObjectionToName(newName);
         if (!theComplaint.isEmpty()) {
             optionPane.showMessageDialog(theFrame, theComplaint,
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -397,44 +390,35 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         // If the new name equals the old name, just do the save as the user
         //   has asked and don't tell them that they are an idiot.  But no
-        //   other actions on the filesystem or the tree will be taken.
+        //   other actions in the datastore or the tree will be taken.
         if (newName.equals(oldName)) {
             preClosePanel();
             return false;
         } // end if
 
-        // Check to see if the destination file name already exists.
+        // Check to see if the destination NoteGroup already exists.
         // If so then complain and refuse to do the saveAs.
 
-        // Other applications might offer the option of overwriting
-        // the existing file.  This was considered and rejected
-        // because of the possibility of overwriting a file that
-        // is currently open.  We could check for that as well, but
-        // decided not to because - why should we go to heroic
-        // efforts to handle a user request where it seems like
-        // they may not understand what it is they are asking for?
-        // This is the same approach that was taken in the 'rename' handling.
-
-        // After we refuse the operation due to a preexisting destination
-        // file name the user has several recourses, depending on
-        // what it was they really wanted to do - they could delete
-        // the preexisting file or rename it, after which a second
-        // attempt at this operation would succeed, or they could
-        // realize that they had been having a senior moment and
-        // abandon the effort, or they could choose a different
-        // new name and try again.
-        //--------------------------------------------------------------
-        String newFilename = NoteGroupFile.eventGroupAreaPath + NoteGroupFile.eventGroupFilePrefix + newName + ".json";
-        if ((new File(newFilename)).exists()) {
-            ems = "A group named " + newName + " already exists!\n";
+        // Other applications might offer the option of overwriting the existing data.  This was considered
+        // and rejected because of the possibility of overwriting data that is currently being shown in
+        // another panel.  We could check for that as well, but decided not to because - why should we go to
+        // heroic efforts to handle a user request where it seems like they may not understand what it is
+        // that they are asking for?  This is the same approach that was taken in the 'rename' handling.
+        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        if(groupNames.contains(newName)) {
+            ems = "An Event NoteGroup named " + newName + " already exists!\n";
             ems += "  operation cancelled.";
             optionPane.showMessageDialog(theFrame, ems,
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
-        } // end if
+        }
+        // After we refuse to do the operation due to a preexisting destination NoteGroup with the same name,
+        // the user has several recourses, depending on what it was they really wanted to do - they could
+        // delete the preexisting NoteGroup or rename it, after which a second attempt at this operation
+        // would succeed, or they could realize that they had been having a senior moment and abandon the
+        // effort, or they could choose a different new name and try again.
 
-        // Now change the name, update Properties and the data accessor, and save.
-        //------------------------------------
+        // So we got past the pre-existence check. Now change the name, update Properties and the data accessor.
         log.debug("Saving " + oldName + " as " + newName);
         GroupProperties myGroupProperties = myNoteGroup.getGroupProperties();
 
@@ -448,6 +432,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         // The data accessor (constructed along with this Panel) has the old name; need to update.
         myNoteGroup.groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(myGroupInfo);
 
+        // Save
         setGroupChanged(true);
         preClosePanel();
 

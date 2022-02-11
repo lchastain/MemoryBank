@@ -15,7 +15,7 @@ public interface NoteGroupDataAccessor {
 
     Object[] loadNoteGroupData(GroupInfo groupInfo);
 
-    String getObjectionToRename(String theName);
+    String getObjectionToName(String theName);
 
     void saveNoteGroupData(Object[] theData);
 

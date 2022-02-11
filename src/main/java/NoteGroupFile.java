@@ -956,13 +956,13 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
 
     @Override
-    public String getObjectionToRename(String theName) {
+    public String getObjectionToName(String theName) {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
         DataArea theArea = DataArea.getAreaFromGroupType(groupInfo.groupType);
         File aFile = new File(NoteGroupFile.makeFullFilename(theArea.getAreaName(), theName));
-        return checkFilename(theName, aFile.getParent());
+        return checkFilename(theName, aFile.getParent() + File.separatorChar);
     }
 
     @Override

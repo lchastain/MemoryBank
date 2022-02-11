@@ -9,18 +9,21 @@ Priorities:
               with a personal log type app.  For personal past events - do them here, or as a simple Calendar note, or ... ?
               Alternate name: timeline ?   This one could come with a chart...
     Generic Notes - get these list-types away from being 'todo' lists.
+    Make Logs into a top-level Branch
 
 
 Problems:
     Sub-panels are orphaned when a Goal is renamed.
-    Renaming (via the BranchHelper) does not use the DataAccessor.
+        need a renamePanel for Goal
 
 
 Current/Next:
     Complete the conversion of direct-to-file methods over to DataAccessor methods, implemented by the FileDataAccessor
+      Delete, merge, addNewGroup
     Add a Log to To Do Lists (compatible with older data)
     Update 'Show Current NoteGroup' to handle Goal subpanels
     Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
+    The Archive test leaves a window open
 
 
 Issues, Analyses, Ideas :
@@ -30,13 +33,21 @@ Issues, Analyses, Ideas :
     Consider making Calendar notes a single Panel, with tabs.
     How much overhead is wasted by not using the icon that comes with IconNoteComponent?  Is it just the mouseListener?
     Add icon to MonthNotes and YearNotes  ?
+    Consolidate saveAs methods now?  Now that we use a NoteGroupDataAccessor for that, 3 panels all do the same thing.
 
 
 New:
 
 =====================================================================================================
 
+11 Feb 2022
+Fixed:  saveAs ops still doing a direct checkFilename. Now they all use the NoteGroupDataAccessor.
+
+
 10 Feb 2022
+The file-based data storage portion of the 'renaming' op is now moved out of the BranchHelper, and the
+NoteGroupDataAccessor interface was expanded to access it in NoteGroupFile (although we have no other
+implementation of a NoteGroupDataAccessor).
 
 
 7 Feb 2022
