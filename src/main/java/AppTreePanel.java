@@ -199,7 +199,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end constructor for AppTreePanel
 
     // Decide which type of Group we are adding, get a name for it, and put it into the app tree.
-    // The new group is not actually instantiated here; that happens when it is selected.
+    // The new Panel is not actually instantiated here; that happens when it is selected.
     @SuppressWarnings("rawtypes")  // For the xlint warning about Enumeration, (much farther) below.
     private void addNewGroup() {
         String newName = null;
@@ -211,34 +211,34 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         NoteGroupPanelKeeper theNoteGroupPanelKeeper;
 
         String theContext = appMenuBar.getCurrentContext();
-        String areaName;
+        GroupType groupType;
         MemoryBank.debug("Adding new group in this context: " + theContext);
         switch (theContext) {
             case "Goal":
             case "Goals Branch Editor":
+                groupType = GroupType.GOALS;
                 prompt = "Enter a short name for the Goal\n";
                 prompt += "Ex: Graduate, Learn a Language, etc";
                 title = "Add a new Goal";
                 groupParentPath = goalsPath;
                 theNoteGroupPanelKeeper = theGoalsKeeper;
-                areaName = DataArea.GOALS.getAreaName();
                 break;
             case "Upcoming Event":
             case "Upcoming Events Branch Editor":
+                groupType = GroupType.EVENTS;
                 prompt = "Enter a name for the new Event category\n";
                 prompt += "Ex: meetings, appointments, birthdays, etc";
                 title = "Add a new Events category";
                 groupParentPath = eventsPath;
                 theNoteGroupPanelKeeper = theEventListKeeper;
-                areaName = DataArea.UPCOMING_EVENTS.getAreaName();
                 break;
             case "To Do List":
             case "To Do Lists Branch Editor":
+                groupType = GroupType.TODO_LIST;
                 prompt = "Enter a name for the new To Do List";
                 title = "Add a new To Do List";
                 groupParentPath = todolistsPath;
                 theNoteGroupPanelKeeper = theTodoListKeeper;
-                areaName = DataArea.TODO_LISTS.getAreaName();
                 break;
             default:
                 return;
@@ -246,8 +246,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         if(restoringPreviousSelection) {
             // In this case we are coming from a restart where a non-existent group was previously selected but
-            // neither it nor any others are in this Category, now, so we landed on the Branch but at app startup
-            // we didn't want to come here - so leave, quietly.
+            // neither it nor any others are in this Category, now, so we landed on the Branch but at app startup.
+            // We didn't want to come here - so leave, quietly.
             // The node will have already been deselected, but now we need to wipe any extra menu -
             appMenuBar.manageMenus("No Selection");
         } else {
@@ -276,17 +276,20 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             DefaultMutableTreeNode achild = (DefaultMutableTreeNode) children.nextElement();
             if (achild.toString().equals(newName)) {
                 theNewGroupNode = achild;
+                break;
             }
         }
-
-        // And now we know.  If the node did not already exist, we make it now.
-        if (theNewGroupNode == null) {  // Not already a node on the tree
+        if (theNewGroupNode == null) {  // Not already a node on the tree, so make one now.
             theNewGroupNode = new DefaultMutableTreeNode(newName, false);
 
-// Get this to be disassociated from NoteGroupFile; use the dataAccessorInterface and then move it -
+            // We will make a new NoteGroupPanel for this new group, eventually, but we need to get
+            //   the new group right now in order to check to see if the proposed name is acceptable.
+            // So - we make a group without a panel, so that we can get its NoteGroupDataAccessor.
+            GroupInfo groupInfo = new GroupInfo(newName, groupType);
+            NoteGroup theNewGroup = groupInfo.getNoteGroup();
+
             // Ensure that the new name meets our file-naming requirements.
-            File aFile = new File(NoteGroupFile.makeFullFilename(areaName, newName));
-            String theComplaint = NoteGroupFile.checkFilename(newName, aFile.getParent());
+            String theComplaint = theNewGroup.groupDataAccessor.getObjectionToName(newName);
             if (!theComplaint.isEmpty()) {
                 optionPane.showMessageDialog(theTree, theComplaint,
                         "Error", JOptionPane.ERROR_MESSAGE);

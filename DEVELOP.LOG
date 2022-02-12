@@ -19,7 +19,7 @@ Problems:
 
 Current/Next:
     Complete the conversion of direct-to-file methods over to DataAccessor methods, implemented by the FileDataAccessor
-      Delete, merge, addNewGroup
+      Delete, merge, icon creations
     Add a Log to To Do Lists (compatible with older data)
     Update 'Show Current NoteGroup' to handle Goal subpanels
     Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
@@ -33,22 +33,28 @@ Issues, Analyses, Ideas :
     Consider making Calendar notes a single Panel, with tabs.
     How much overhead is wasted by not using the icon that comes with IconNoteComponent?  Is it just the mouseListener?
     Add icon to MonthNotes and YearNotes  ?
-    Consolidate saveAs methods now?  Now that we use a NoteGroupDataAccessor for that, 3 panels all do the same thing.
+    Consolidate saveAs methods now?  Now that we use a NoteGroupDataAccessor for that, 3 panels all do the same thing,
+        with minor feedback differences.
 
 
 New:
 
 =====================================================================================================
 
+12 Feb 2022
+Changed addNewGroup to use dataAccessor vs direct to checkFilename().
+
 11 Feb 2022
 Fixed:  saveAs ops still doing a direct checkFilename. Now they all use the NoteGroupDataAccessor.
-
 
 10 Feb 2022
 The file-based data storage portion of the 'renaming' op is now moved out of the BranchHelper, and the
 NoteGroupDataAccessor interface was expanded to access it in NoteGroupFile (although we have no other
 implementation of a NoteGroupDataAccessor).
 
+9 Feb 2022
+System near-lockup due to updates.  Had to shut off by power switch, lost some MB personal data (not discovered
+until 12 Feb).
 
 7 Feb 2022
 Having updated much of the MB Dev Goal related to the dev work here, now ready to go back to work on porting File

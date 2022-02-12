@@ -97,11 +97,6 @@ public class FileDataAccessor implements DataAccessor {
             archiveGroupType(archiveRepo, GroupType.TODO_LIST);
             archiveGroupType(archiveRepo, GroupType.SEARCH_RESULTS);
 
-            // Leftover, from initial solution when ALL notegroups were being taken.  Just keep this for a little while...
-            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.goalGroupAreaPath), archiveRepo);
-            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.eventGroupAreaPath), archiveRepo);
-            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.todoListGroupAreaPath), archiveRepo);
-            //      FileUtils.copyDirectoryToDirectory(new File(NoteGroupFile.searchResultGroupAreaPath), archiveRepo);
         } catch (Exception e) {
             System.out.println("Archiving error: " + e.toString());
             return false;

@@ -4,7 +4,7 @@ import java.io.File;
 
 public class IconFileChooser extends JFileChooser {
     private static final long serialVersionUID = 1L;
-    static private FileFilter filter;
+    static private final FileFilter filter;
 
     /* A note about the support for .bmp formats - while it has been added to AppIcon,
     it seems that the two I tried were still unsupported (16-bit, compressed) and for

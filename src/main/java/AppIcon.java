@@ -51,7 +51,6 @@ public class AppIcon extends ImageIcon {
         // See also:  iconNoteComponent.mouseClicked and setIcon.
         setDescription(filename);
 
-        // Consider just ending at this point; could move the 'load and set' to the calling context.
         if (myImage == null) return;
         loadImage(myImage);  // Order matters..
         setImage(myImage);
