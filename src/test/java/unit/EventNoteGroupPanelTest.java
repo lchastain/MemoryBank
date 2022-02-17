@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -46,7 +47,7 @@ class EventNoteGroupPanelTest {
 
     @Test
     void testDefaultIcon() {
-        AppIcon theDefault = eventNoteGroup.getDefaultIcon();
+        ImageIcon theDefault = eventNoteGroup.getDefaultIcon();
         Assertions.assertNotNull(theDefault);
 
         // We are setting the one it already has, but this

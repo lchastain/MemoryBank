@@ -308,6 +308,13 @@ public class GoalGroupPanel extends NoteGroupPanel {
         super.preClosePanel();
     }
 
+    // A rename of the Goal Panel needs to cascade thru to its tabs.
+    void renamePanel(String renameTo) {
+        theTodoNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
+        theLogNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
+        theMilestoneNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
+    }
+
     // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
     // then if ok, saves the file with that name.

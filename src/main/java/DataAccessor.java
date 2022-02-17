@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.time.LocalDateTime;
 
 public interface DataAccessor {
@@ -19,12 +20,13 @@ public interface DataAccessor {
     }
     
     
-    boolean createArea(DataArea dataArea); // tie in usage of this with 'add new group'
+    boolean createArea(DataArea dataArea); // TODO tie in usage of this with 'add new group'
     boolean createArchive();
     default String getArchiveStorageName(String archiveName) {
         return archiveName; // Override this when the 'storage' name differs from the archive name.
     }
     String[] getArchiveNames();
+    ImageIcon getImageIcon(IconInfo iconInfo);
     AppOptions getArchiveOptions(String archiveName);
 
     // Convert the archive name into a LocalDateTime

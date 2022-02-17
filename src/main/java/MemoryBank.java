@@ -34,8 +34,8 @@ public class MemoryBank {
     private static boolean logApplicationShowing;
     private static final int[] percs = {20, 25, 45, 50, 60, 90, 100};
     private static int updateNum = 0;
-    private static String appIconFileName;
-
+    private static String appIconName;
+    private static String appIconFormat;
 
 
     static {
@@ -175,12 +175,13 @@ public class MemoryBank {
         String loc;
         if (f.exists()) { // A development directory; give the app a different icon.
             loc = currentDir + File.separatorChar + "appData" + File.separatorChar + userEmail;
-            appIconFileName = "notepad.gif";
+            appIconName = "notepad";
         } else { // Use the standard icon and location for user data.
             String userHome = System.getProperty("user.home"); // Home directory.
             loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
-            appIconFileName = "icon_not.gif";
+            appIconName = "icon_not";
         }
+        appIconFormat = "gif";
         String traceString = Thread.currentThread().getStackTrace()[2].toString();
         debug("Call to setUserDataHome, from: " + traceString);
         debug("Setting user data location to: " + loc);
@@ -367,8 +368,8 @@ public class MemoryBank {
         logFrame.getRootPane().setOpaque(false);
 
         // Use our own icon -
-        AppIcon theAppIcon = new AppIcon(logHome + File.separatorChar + "icons" + File.separatorChar + appIconFileName);
-        AppIcon.scaleIcon(theAppIcon);
+        ImageIcon theAppIcon = new IconInfo(DataArea.APP_ICONS, appIconName, appIconFormat).getImageIcon();
+        IconInfo.scaleIcon(theAppIcon);
         logFrame.setIconImage(theAppIcon.getImage());
 
         logFrame.addWindowListener(new WindowAdapter() {

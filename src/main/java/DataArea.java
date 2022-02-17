@@ -15,7 +15,7 @@ enum DataArea {
     UPCOMING_EVENTS("Upcoming Events"),
     MILESTONES("Goals"),
     NOTES("Notes"),
-    ICONS("icons"),
+    USER_ICONS("icons"),
     APP_ICONS("icons"),
     IMAGES("images"),
     LOGS("Logs"),
@@ -29,13 +29,18 @@ enum DataArea {
         areaName = s;
     }
 
+    // No longer needed or in use, but keep for a while...   17 Feb 2022
     static DataArea getAreaFromGroupType(GroupType groupType) {
         DataArea theArea = null;
         switch(groupType) {
             case GOALS:
+            case GOAL_LOG:
+            case GOAL_TODO:
+            case MILESTONE:
                 theArea = DataArea.GOALS;
                 break;
             case TODO_LIST:
+            case TODO_LOG:
                 theArea = DataArea.TODO_LISTS;
                 break;
             case EVENTS:

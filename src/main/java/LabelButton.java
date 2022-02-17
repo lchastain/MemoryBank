@@ -23,10 +23,10 @@ public class LabelButton extends JLabel {
     static final int DOWN = 'D';
     static final int LEFT = 'L';
     static final int RIGHT = 'R';
-    static AppIcon upIcon;
-    static AppIcon downIcon;
-    static AppIcon leftIcon;
-    static AppIcon rightIcon;
+    static ImageIcon upIcon;
+    static ImageIcon downIcon;
+    static ImageIcon leftIcon;
+    static ImageIcon rightIcon;
 
     private static MouseAdapter ma;
 
@@ -39,10 +39,10 @@ public class LabelButton extends JLabel {
     public String defaultLabel;
 
     static {
-        upIcon = new AppIcon("images/up.gif");
-        downIcon = new AppIcon("images/down.gif");
-        leftIcon = new AppIcon("images/left.gif");
-        rightIcon = new AppIcon("images/right.gif");
+        upIcon = new IconInfo(DataArea.IMAGES, "up", "gif" ).getImageIcon();
+        downIcon = new IconInfo(DataArea.IMAGES, "down", "gif" ).getImageIcon();
+        leftIcon = new IconInfo(DataArea.IMAGES, "left", "gif" ).getImageIcon();
+        rightIcon = new IconInfo(DataArea.IMAGES, "right", "gif" ).getImageIcon();
     }
 
     public LabelButton() {

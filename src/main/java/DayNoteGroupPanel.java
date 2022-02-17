@@ -11,7 +11,7 @@ import java.time.temporal.ChronoUnit;
 public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
 
-    private static AppIcon defaultIcon;
+    private static ImageIcon defaultIcon;
     static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
 
     static {
@@ -28,11 +28,11 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         } else if (dayNoteDefaults.defaultIconFileName.equals("")) {
             // It IS possible that the user wants no default icon.
             MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
-            defaultIcon = new AppIcon();
+            defaultIcon = new ImageIcon();
         } else {
             MemoryBank.debug("Default DayNoteComponent Icon: " + dayNoteDefaults.defaultIconFileName);
-            defaultIcon = new AppIcon(dayNoteDefaults.defaultIconFileName);
-            AppIcon.scaleIcon(defaultIcon);
+            defaultIcon = new ImageIcon(dayNoteDefaults.defaultIconFileName);
+            IconInfo.scaleIcon(defaultIcon);
         } // end if/else
 
         MemoryBank.trace();
@@ -101,7 +101,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     }// end buildMyPanel
 
 
-    public AppIcon getDefaultIcon() {
+    public ImageIcon getDefaultIcon() {
         return defaultIcon;
     }
 
@@ -235,7 +235,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
     // Called by the DayNoteComponent's
     //   popup menu handler for 'Set As Default'.
-    public void setDefaultIcon(AppIcon li) {
+    public void setDefaultIcon(ImageIcon li) {
         defaultIcon = li;
         dayNoteDefaults.defaultIconFileName = li.getDescription();
         setGroupChanged(true);

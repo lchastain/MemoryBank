@@ -13,6 +13,15 @@ public class GoalGroup extends NoteGroup {
 
 
     @Override
+    void renameNoteGroup(String renameTo) {
+        if(myNoteGroupPanel == null) {
+            // Need to have a GoalPanel with the original name, so that the rename can cascade thru to its tabs.
+            myNoteGroupPanel = new GoalGroupPanel(myGroupInfo.getGroupName());
+        }
+        super.renameNoteGroup(renameTo);
+    }
+
+    @Override
     protected void setGroupProperties(Object propertiesObject) {
         myProperties = AppUtil.mapper.convertValue(propertiesObject, GoalGroupProperties.class);
     }

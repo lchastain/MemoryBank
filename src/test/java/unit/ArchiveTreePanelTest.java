@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 public class ArchiveTreePanelTest {
     private static ArchiveTreePanel archiveTreePanel;
     private static JTree theTree;
+    static String archiveName;
 
     @BeforeAll
     static void meFirst() throws IOException {
@@ -46,7 +47,7 @@ public class ArchiveTreePanelTest {
         // If it is just not available for some reason, the options load will fail.
         // Having a good archive is a prerequisite to the tests here; we are not testing the 'bad archive'
         //   cases in this class.
-        String archiveName = "2021-01-27  8:24:33 AM";
+        archiveName = "2021-01-27  8:24:33 AM";
         archiveTreePanel = new ArchiveTreePanel(archiveName);
 
         archiveTreePanel.optionPane = new TestUtil();
@@ -58,6 +59,7 @@ public class ArchiveTreePanelTest {
     static void meLast() {
         theTree = null;
         archiveTreePanel = null;
+        AppTreePanel.theInstance.closeArchive(archiveName);
     }
 
     @Test

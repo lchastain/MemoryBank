@@ -16,12 +16,11 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -90,9 +89,8 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         theWorkingDialog = new JDialog(archiveWindow, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
-        String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
-        strWorkingIcon += "icons" + File.separatorChar + "animated" + File.separatorChar + "manrun.gif";
-        lbl.setIcon(new AppIcon(strWorkingIcon));
+        IconInfo iconInfo = new IconInfo(DataArea.APP_ICONS, "animated:manrun", "gif");
+        lbl.setIcon(iconInfo.getImageIcon());
         lbl.setVerticalTextPosition(JLabel.TOP);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
         theWorkingDialog.add(lbl);

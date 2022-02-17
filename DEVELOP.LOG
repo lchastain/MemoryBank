@@ -13,8 +13,6 @@ Priorities:
 
 
 Problems:
-    Sub-panels are orphaned when a Goal is renamed.
-        need a renamePanel for Goal
 
 
 Current/Next:
@@ -23,7 +21,6 @@ Current/Next:
     Add a Log to To Do Lists (compatible with older data)
     Update 'Show Current NoteGroup' to handle Goal subpanels
     Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
-    The Archive test leaves a window open
 
 
 Issues, Analyses, Ideas :
@@ -40,6 +37,30 @@ Issues, Analyses, Ideas :
 New:
 
 =====================================================================================================
+17 Feb 2022
+The Goal group overrides the NoteGroup.renameNoteGroup method now, to intercept and get the corresponding Panel.  It
+will either already have one, or will instantiate one from the existing file(s).  This ensures existence of all the
+subgroups, so more than half of the originally-envisioned tests are now not needed.  What it boils down to is two
+main tests; when a goal is open and when it is not, and both renaming paths appear to be working now.
+
+16 Feb 2022
+Removed AppIcon altogether.  Several ImageIcon instances are still being created with Filenames, outside of the
+  DataAccessor, but at least now I'm not propagating the offense; ultimately there was no need to extend an ImageIcon.
+Now closing the archivePanel when the test for it is done.
+Back to work on Goal renaming...
+
+15 Feb 2022
+Replacing AppIcon with ImageIcon (can just use it directly, instead of extending it).  Static scaling methods have
+moved to IconInfo.  Implemented a 'getImageIcon' method in IconInfo, that uses the DataAccessor rather than the direct-
+to-file approach that is in the AppIcon constructor.  When an ImageIcon is retrieved via an IconInfo, the file data
+accessor provides the extra help needed for ICO and BMP files, and the reading of all files is encapsulated within the
+FileDataAccessor.
+
+14 Feb 2022
+Found the jackson mapper setting to stop it from writing out null values.  !!!  This will condense and clean up
+  persisted data, significantly.  For now, just turned on the setting.  Nulls will stay in the data until re-saved.
+Spending a LOT of time on commenting about the new IconInfo class and its usage.  This comes from trying to get
+  icon loading to go thru a DataAccessor.
 
 12 Feb 2022
 Changed addNewGroup to use dataAccessor vs direct to checkFilename().

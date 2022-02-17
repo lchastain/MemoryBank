@@ -111,12 +111,12 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel implements IconKeepe
 
 
     @Override
-    public AppIcon getDefaultIcon() {
+    public ImageIcon getDefaultIcon() {
         return null;
     }
 
     @Override
-    public void setDefaultIcon(AppIcon li) {
+    public void setDefaultIcon(ImageIcon li) {
 
     }
 

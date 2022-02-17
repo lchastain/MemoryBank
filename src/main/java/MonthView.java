@@ -174,14 +174,13 @@ public class MonthView extends JLayeredPane {
                     // Possibly as a 'spacer'.
                     returnArray[index] = null;
                 } else {
-                    Image theImage =  new AppIcon(iconFileString).getImage();
+                    Image theImage =  new ImageIcon(iconFileString).getImage();
                     theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
                     // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
                     //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
                     //   day), then switch to the MonthView (to be contructed for the first time in your session).
                     // Adding a .flush() does fix the problem of some icons (answer_bad.gif) not showing the first time
-                    // the MonthView is displayed but other .gif files displayed ok with only this:
-                    //          returnArray[index] = new AppIcon(iconFileString).getImage();
+                    //   the MonthView is displayed but other .gif files didn't need it.
                     // And - other file types may react differently.  This flush is needed in conjuction with a double
                     //   load of the initial month to be shown; that is done in treePanel.treeSelectionChanged().
                     returnArray[index] = theImage;
@@ -585,7 +584,7 @@ public class MonthView extends JLayeredPane {
         public void update(LocalDate ld) {
             int thisDay = ld.getDayOfMonth();
             dayLabel.setText(String.valueOf(thisDay));
-            System.out.println("DayCanvas update was called " + dayLabel.getText());
+            //MemoryBank.debug("DayCanvas update was called " + dayLabel.getText());
 
             icon1.setImage(null);
             icon2.setImage(null);

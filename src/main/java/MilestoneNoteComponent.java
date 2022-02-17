@@ -18,7 +18,7 @@ public class MilestoneNoteComponent extends IconNoteComponent {
     private final MilestoneNoteComponent.NoteDateLabel noteDateLabel;
     private final IconButton theIconButton;
 
-    static AppIcon[] theIcons;
+    static ImageIcon[] theIcons;
 
     static {
         // Normally just a wrapper for a JOptionPane, but tests may replace this
@@ -35,15 +35,16 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         File milestoneIconDir = new File(iString);
         String[] theFileList = milestoneIconDir.list();
         Arrays.sort(theFileList); // So that the icon assigned to a note does not change arbitrarily.
-        theIcons = new AppIcon[theFileList.length+1];
+        theIcons = new ImageIcon[theFileList.length+1];
 
         theIcons[0] = null; // A 'blank' icon
         int index = 1;
         for(String filename: theFileList) {
             if(filename.endsWith(".txt")) continue;
             //System.out.println(filename);
-            AppIcon nextIcon = new AppIcon(iString + filename);
-            AppIcon.scaleIcon(nextIcon);
+//            ImageIcon nextIcon = new IconInfo(DataArea.APP_ICONS, filename);
+            ImageIcon nextIcon = new ImageIcon(iString + filename);
+            IconInfo.scaleIcon(nextIcon);
             theIcons[index++] = nextIcon;
         }
 

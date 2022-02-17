@@ -393,9 +393,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end groupLinkages
 
     // This does nothing in this base class, because upon rename the entire group is reloaded and the reload will
-    //   set the new Panel title correctly.  Children, however, can override it and take appropriate action(s) due
-    //   to having their 'renameNoteGroup' invoked.
-    void renamePanel() {}
+    //   set the new Panel title correctly.  Children, however, can override it and take any additional appropriate
+    //   action(s) that might be needed due to having had their 'renameNoteGroup' invoked.
+    void renamePanel(String renameTo) {}
 
     void setAppendable(boolean b) {
         appendable = b;

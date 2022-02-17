@@ -104,9 +104,12 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theWorkingDialog = new JDialog(aFrame, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
-        String strWorkingIcon = MemoryBank.logHome + File.separatorChar;
-        strWorkingIcon += "icons" + File.separatorChar + "animated" + File.separatorChar + "const_anim.gif";
-        lbl.setIcon(new AppIcon(strWorkingIcon));
+        IconInfo iconInfo = new IconInfo();
+        iconInfo.iconName = "animated:const_anim";
+        iconInfo.iconFormat = "gif";
+        iconInfo.dataArea = DataArea.APP_ICONS;
+
+        lbl.setIcon(iconInfo.getImageIcon());
         lbl.setVerticalTextPosition(JLabel.TOP);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
         theWorkingDialog.add(lbl);
@@ -114,8 +117,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         //</editor-fold>
 
-        optionPane = new Notifier() {
-        }; // Uses all default methods.
+        optionPane = new Notifier() { }; // Uses all default methods.
 
         //---------------------------------------------------
         // Create the menubar handler, but fire it from a
@@ -288,7 +290,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             GroupInfo groupInfo = new GroupInfo(newName, groupType);
             NoteGroup theNewGroup = groupInfo.getNoteGroup();
 
-            // Ensure that the new name meets our file-naming requirements.
+            // Ensure that there are no known problems with the new name.
             String theComplaint = theNewGroup.groupDataAccessor.getObjectionToName(newName);
             if (!theComplaint.isEmpty()) {
                 optionPane.showMessageDialog(theTree, theComplaint,
@@ -310,7 +312,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // selection rather than actually intending to make a new one).  If not found there then go ahead
         // and make a new one, and put it there.
         NoteGroupPanel theGroup = theNoteGroupPanelKeeper.get(newName);
-        if (theGroup == null) { // Not already loaded; construct one, whether there is a file for it or not.
+        if (theGroup == null) { // Not already loaded; construct one, whether there is pre-existing data for it or not.
             MemoryBank.debug("Getting a new group from the factory.");
             theGroup = GroupPanelFactory.loadOrMakePanel(theContext, newName);
             assert theGroup != null; // It won't be, but IJ needs to be sure.
@@ -331,12 +333,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     // Adds a search result branch to the tree.
     private void addSearchResultToBranch(String searchResultName) {
-        // Remove the tree selection listener while we
-        //   rebuild this portion of the tree.
+        // Remove the tree selection listener while we rebuild this portion of the tree.
         theTree.removeTreeSelectionListener(this);
 
-        // Make a new tree node for the result file whose path
-        //   is given in the input parameter
+        // Make a new tree node for the result data whose name is provided in the input parameter
         DefaultMutableTreeNode tmpNode;
         tmpNode = new DefaultMutableTreeNode(searchResultName, false);
 
@@ -416,6 +416,16 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     } // end closeGroup
 
+    void closeArchive(String archiveName) {
+        // Close any windows that are currently open for this Archive -
+        Set<String> setCodes = archiveWindows.keySet();
+        for (String code : setCodes) {
+            if (code.startsWith(archiveName)) {
+                JFrame theArchiveWindow = archiveWindows.get(code);
+                theArchiveWindow.setVisible(false);
+            }
+        }
+    }
 
     //-----------------------------------------------------------------
     // Method Name: createTree
@@ -573,8 +583,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
             for (int i = 0; i < appOpts.searchResultList.size(); i++) {
-                String searchResultFilename = appOpts.searchResultList.get(i);
-                branch.add(new DefaultMutableTreeNode(searchResultFilename, false));
+                String searchResultName = appOpts.searchResultList.get(i);
+                branch.add(new DefaultMutableTreeNode(searchResultName, false));
             }
         } // end if
 
@@ -726,18 +736,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // With correct menu management, we cannot arrive here without having a value in the selecteArchiveNode.
         if(selectedArchiveNode == null) return;
 
-        // Get the archive's name from the selected tree node.
+        // Get the archive's name from the selected tree node, then close it.
         String archiveName = selectedArchiveNode.toString();
-        System.out.println("Selected Archive: " + archiveName);
-
-        // Close any windows that are currently open for this Archive -
-        Set<String> setCodes = archiveWindows.keySet();
-        for (String code : setCodes) {
-            if (code.startsWith(archiveName)) {
-                JFrame theArchiveWindow = archiveWindows.get(code);
-                theArchiveWindow.setVisible(false);
-            }
-        }
+        MemoryBank.debug("Selected Archive: " + archiveName);
+        closeArchive(archiveName);
 
         // Convert the archive name into an archive date
         LocalDateTime localDateTime = MemoryBank.dataAccessor.getDateTimeForArchiveName(archiveName);
@@ -868,7 +870,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             }
             // Then we can look at merging any possible child nodes into the CV group.
             theNodeName = eventNode.toString();
-            String theFilename = NoteGroupFile.makeFullFilename(DataArea.UPCOMING_EVENTS.getAreaName(), theNodeName);
+            String theFilename = NoteGroupFile.makeFullFilename(GroupType.EVENTS, theNodeName);
             MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
             Object[] theData = NoteGroupFile.loadFileData(theFilename);
             BaseData.loading = true; // We don't want to affect the lastModDates!

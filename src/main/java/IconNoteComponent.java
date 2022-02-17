@@ -109,12 +109,8 @@ public abstract class IconNoteComponent extends NoteComponent {
         noteIcon.setEditable(b);
     }
 
-    //-----------------------------------------------------
-    // Method Name: setIcon
-    //
     // This is the NoteComponent (vs NoteIcon/JLabel) method.
-    //-----------------------------------------------------
-    public void setIcon(AppIcon theIcon) {
+    public void setIcon(ImageIcon theIcon) {
         // We don't want to save the name of the default icon, and it should have
         //   already been scaled by the container for which it is the default.
         // Otherwise, use the description as the icon's file name, and scale the icon.
@@ -122,19 +118,14 @@ public abstract class IconNoteComponent extends NoteComponent {
             String s = theIcon.getDescription();
             ((IconNoteData) getNoteData()).setIconFileString(s);
             noteIcon.theIconFile = s;
-            AppIcon.scaleIcon(theIcon);
+            IconInfo.scaleIcon(theIcon);
         } // end if
 
         noteIcon.setIcon(theIcon);
     } // end setIcon
 
 
-    //----------------------------------------------------------
-    // Method Name: resetComponent
-    //
-    // Called after a change to the encapsulated data, to show
-    //   the visual effects of the change.
-    //----------------------------------------------------------
+    // Called after a change to the encapsulated data, to show the visual effects of the change.
     protected void resetComponent() {
         super.resetComponent();
 
@@ -155,7 +146,7 @@ public abstract class IconNoteComponent extends NoteComponent {
             } // end if
 
             MemoryBank.debug("Setting icon to: " + infs);
-            setIcon(new AppIcon(infs));
+            setIcon(new ImageIcon(infs));
         } // end if
     } // end resetComponent
 
@@ -270,16 +261,15 @@ public abstract class IconNoteComponent extends NoteComponent {
                     myIconNoteData.setShowIconOnMonthBoolean(false);
                     break;
                 case "Set As Default":
-
                     // Get a reference to the icon.
-                    AppIcon tmpIcon;
-                    tmpIcon = (AppIcon) noteIcon.getIcon();
+                    ImageIcon tmpIcon;
+                    tmpIcon = (ImageIcon) noteIcon.getIcon();
 
                     // Set the description.
                     MemoryBank.dbg("The new default icon's description is: ");
                     if (tmpIcon == null) {
                         // The user is setting a 'blank' to be default.
-                        tmpIcon = new AppIcon();
+                        tmpIcon = new ImageIcon();
                         MemoryBank.debug("<blank>");
                     } else {
                         // The description did not come thru when
@@ -343,7 +333,7 @@ public abstract class IconNoteComponent extends NoteComponent {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     String iconFileName = iconChooser.getSelectedFile().getPath();
                     MemoryBank.debug("Chosen icon file: " + iconFileName);
-                    IconNoteComponent.this.setIcon(new AppIcon(iconFileName.toLowerCase()));
+                    IconNoteComponent.this.setIcon(new ImageIcon(iconFileName.toLowerCase()));
 
                     // Since an explicit Icon was chosen, default to showing on Month.
                     ((IconNoteData) getNoteData()).setShowIconOnMonthBoolean(true);

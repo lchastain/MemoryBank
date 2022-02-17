@@ -27,21 +27,16 @@ public class TreeBranchEditor extends JPanel
     private ArrayList<String> theChoices;
     private ArrayList<String> removals = new ArrayList<>();
     private BranchEditorModel bem;
-    static AppIcon theTrash;
-    static AppIcon theSafe;
+    static ImageIcon theTrash;
+    static ImageIcon theSafe;
     int theScrollPosition;
 
     static {
-        Image tmpImg;
-        theTrash = new AppIcon("images/waste.gif");
-        tmpImg = theTrash.getImage();
-        tmpImg = tmpImg.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-        theTrash.setImage(tmpImg);
+        theTrash = new IconInfo(DataArea.IMAGES, "waste", "gif").getImageIcon();
+        IconInfo.scaleIcon(theTrash, 32, 32);
 
-        theSafe = new AppIcon("images/safe1.ico");
-        tmpImg = theSafe.getImage();
-        tmpImg = tmpImg.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-        theSafe.setImage(tmpImg);
+        theSafe = new IconInfo(DataArea.IMAGES, "safe1", "ico").getImageIcon();
+        IconInfo.scaleIcon(theSafe, 32, 32);
     }
 
 

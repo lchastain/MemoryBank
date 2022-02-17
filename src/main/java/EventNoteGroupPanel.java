@@ -31,7 +31,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     //   filename comes from the eventNoteDefaults.
     //------------------------------------------------------------------
     private static final EventNoteDefaults eventNoteDefaults;
-    private static AppIcon defaultIcon;
+    private static ImageIcon defaultIcon;
 
     private final ThreeMonthColumn tmc;
     private final EventHeader theHeader;
@@ -42,11 +42,11 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         if (eventNoteDefaults.defaultIconFileName.equals("")) {
             MemoryBank.debug("Default EventNoteComponent Icon: <blank>");
-            defaultIcon = new AppIcon();
+            defaultIcon = new ImageIcon();
         } else {
             MemoryBank.debug("Default EventNoteComponent Icon: " + eventNoteDefaults.defaultIconFileName);
-            defaultIcon = new AppIcon(eventNoteDefaults.defaultIconFileName);
-           AppIcon.scaleIcon(defaultIcon);
+            defaultIcon = new ImageIcon(eventNoteDefaults.defaultIconFileName);
+           IconInfo.scaleIcon(defaultIcon);
         } // end if/else
     } // end static section
 
@@ -302,7 +302,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end editExtendedNoteComponent
 
 
-    public AppIcon getDefaultIcon() {
+    public ImageIcon getDefaultIcon() {
         return defaultIcon;
     }
 
@@ -445,7 +445,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // Called by the EventNoteComponent's
     // popup menu handler for 'Set As Default'.
     // ----------------------------------------------------
-    public void setDefaultIcon(AppIcon li) {
+    public void setDefaultIcon(ImageIcon li) {
         defaultIcon = li;
         eventNoteDefaults.defaultIconFileName = li.getDescription();
         eventNoteDefaults.save();

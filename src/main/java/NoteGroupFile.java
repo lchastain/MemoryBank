@@ -765,23 +765,62 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         //   array of one or two Objects that identify themselves as either a LinkedHashMap
         //   or an ArrayList (although I never said that they should be).
         return loadFileData(theFilename);
+    } // end loadNoteGroupData
+
+    String makeFullFilename() {
+        LocalDate theDate = null;
+        String dateType = null;
+
+        switch (groupInfo.groupType) {
+            case DAY_NOTES:
+                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                dateType = "D";
+                break;
+            case MONTH_NOTES:  // areaName = "Years";
+                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                dateType = "M";
+                break;
+            case YEAR_NOTES:  // areaName = "Years";
+                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                dateType = "Y";
+                break;
+            case GOALS:
+            case GOAL_LOG:
+            case GOAL_TODO:
+            case MILESTONE:
+            case EVENTS:
+            case LOG:
+            case TODO_LIST:
+            case TODO_LOG:
+            case SEARCH_RESULTS:
+                break;
+            default:
+                return null; // The other group types do not have associated File data.
+        }
+
+        if(theDate != null) {
+            return makeFullFilename(theDate, dateType);
+        } else {
+            return makeFullFilename(groupInfo.groupType, groupInfo.getGroupName());
+        }
     }
+
 
     // This method develops a variable filename that depends on the requested
     // noteType (one of Year, Month, or Date, specified by Y, M, or D).
     // Examples:  Y_timestamp, M03_timestamp, D0704_timestamp.
     // The numeric Year for these files is known by a parent directory.
     // Used in saving of Calendar-based data files.
-    static String makeFullFilename(LocalDate localDate, String noteType) {
+    static String makeFullFilename(LocalDate localDate, String dateType) {
         StringBuilder filename = new StringBuilder(calendarNoteGroupAreaPath);
         filename.append(localDate.getYear());
         filename.append(File.separatorChar);
-        filename.append(noteType);
+        filename.append(dateType);
 
-        if (!noteType.equals("Y")) {
+        if (!dateType.equals("Y")) {
             filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.MONTHS, '0'));
 
-            if (!noteType.equals("M")) {
+            if (!dateType.equals("M")) {
                 filename.append(getTimePartString(localDate.atTime(0, 0), ChronoUnit.DAYS, '0'));
             } // end if not a Month note
         } // end if not a Year note
@@ -790,23 +829,11 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         return filename.toString();
     }
 
-    // This should work but it could be cleaner, without the early returns for the CNG types.
-    String makeFullFilename() {
+    static String makeFullFilename(GroupType groupType, String groupName) {
         String areaName = "NoArea";    // If these turn up in the data, it's a problem.
         String prefix = "NoPrefix";    // But at least we'll know where to look.
-        String groupName;
-        LocalDate theDate;
 
-        switch (groupInfo.groupType) {
-            case DAY_NOTES:  // areaName = "Years";
-                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
-                return makeFullFilename(theDate, "D");
-            case MONTH_NOTES:  // areaName = "Years";
-                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
-                return makeFullFilename(theDate, "M");
-            case YEAR_NOTES:  // areaName = "Years";
-                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
-                return makeFullFilename(theDate, "Y");
+        switch (groupType) {
             case GOALS:
                 areaName = DataArea.GOALS.getAreaName();
                 prefix = goalGroupFilePrefix;
@@ -845,31 +872,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
                 break;
             default:
                 // The other types do not have associated File data.
-        }
-        groupName = groupInfo.getGroupName();
-        return FileDataAccessor.basePath + areaName + File.separatorChar + prefix + groupName + ".json";
-    }
-
-
-    // Called by contexts that do not already have a GroupInfo (add new, rename, etc)
-    static String makeFullFilename(String areaName, String groupName) {
-        String prefix = "";
-        switch (areaName) {
-            case "Goals":
-                prefix = goalGroupFilePrefix;
-                break;
-            case "Upcoming Events":
-            case "UpcomingEvents":
-                prefix = eventGroupFilePrefix;
-                break;
-            case "To Do Lists":
-            case "ToDoLists":
-                prefix = todoListFilePrefix;
-                break;
-            case "Search Results":
-            case "SearchResults":
-                prefix = searchResultFilePrefix;
-                break;
         }
         return FileDataAccessor.basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
@@ -960,20 +962,18 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        DataArea theArea = DataArea.getAreaFromGroupType(groupInfo.groupType);
-        File aFile = new File(NoteGroupFile.makeFullFilename(theArea.getAreaName(), theName));
+        File aFile = new File(NoteGroupFile.makeFullFilename(groupInfo.groupType, theName));
         return checkFilename(theName, aFile.getParent() + File.separatorChar);
     }
 
     @Override
-    public boolean renameNoteGroupData(DataArea theArea, String nodeName, String renamedTo) {
-        String oldNamedFile = makeFullFilename(theArea.getAreaName(), nodeName);
-        String newNamedFile = makeFullFilename(theArea.getAreaName(), renamedTo);
+    public boolean renameNoteGroupData(GroupType groupType, String nodeName, String renamedTo) {
+        String oldNamedFile = makeFullFilename(groupType, nodeName);
+        String newNamedFile = makeFullFilename(groupType, renamedTo);
         MemoryBank.debug("Full name of original file: " + oldNamedFile);
         File f = new File(oldNamedFile);
         return f.renameTo(new File(newNamedFile));
     }
-
 
     // To arrive at this point we have already ensured that either the data is entirely new or there has been
     // some change to it, so at least some of the processing here is known to be needed.

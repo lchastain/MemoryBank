@@ -1,11 +1,17 @@
+import net.sf.image4j.codec.bmp.BMPDecoder;
+import net.sf.image4j.codec.ico.ICODecoder;
 import org.apache.commons.io.FileUtils;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileDataAccessor implements DataAccessor {
     static String archiveAreaPath;
@@ -159,6 +165,58 @@ public class FileDataAccessor implements DataAccessor {
         }
         return theArchiveNames.toArray(new String[0]);
     }
+
+    @Override
+    public ImageIcon getImageIcon(IconInfo iconInfo) {
+        ImageIcon theImageIcon = null;
+        if(iconInfo.ready() ) {
+            String basePath = ""; // when dataArea is null we look in the current directory.
+            char c = File.separatorChar; // short, for better readability.
+            if (iconInfo.dataArea == DataArea.IMAGES) basePath = MemoryBank.logHome + c + "images" + c;
+            if (iconInfo.dataArea == DataArea.APP_ICONS) basePath = MemoryBank.logHome + c + "icons" + c;
+            if (iconInfo.dataArea == DataArea.USER_ICONS) basePath = MemoryBank.userDataHome + c + "icons" + c;
+
+            // Convert file separator characters, if needed.  This makes for file system
+            // compatibility (even though we only expect to run on one type of OS).
+            String replaceWith = String.valueOf(c);
+            if(replaceWith.equals("\\")) replaceWith = "\\\\"; // (we want backslashes, not escape chars).
+            String remainingPath = iconInfo.iconName.replaceAll(":", replaceWith);
+
+            String theFilename = basePath + remainingPath + "." + iconInfo.iconFormat;
+            MemoryBank.debug("  Full icon filename: " + theFilename);
+
+            Image theImage = null;
+            if (iconInfo.iconFormat.equalsIgnoreCase("ico")) {
+                try {
+                    List<BufferedImage> images = ICODecoder.read(new File(theFilename));
+                    theImage = images.get(0);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else if (iconInfo.iconFormat.equalsIgnoreCase("bmp")) {
+                try {
+                    theImage = BMPDecoder.read(new File(theFilename));
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else { // This handles .png, .jpg, .gif
+                theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
+            } // end if
+
+            if (theImage != null) {
+                theImageIcon = new ImageIcon();
+                theImageIcon.setImage(theImage);
+
+                // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app
+                //   when saving - this is tricky; the description is picked up by the iconNoteComponent when the rest
+                //   of the icon appears to come thru as null.  With the filename hiding in the place of the
+                //   description, we can restore it as needed.
+                // See also:  iconNoteComponent.mouseClicked and setIcon.
+                theImageIcon.setDescription(theFilename);
+            }
+        } // end if the IconInfo is 'ready'.
+        return theImageIcon;
+    } // end getImageIcon
 
 
     @Override  // The interface implementation

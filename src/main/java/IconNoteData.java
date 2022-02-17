@@ -13,7 +13,6 @@ class IconNoteData extends NoteData {
     } // end constructor
 
     // Construct an IconNoteData from a NoteData
-    // The result will just have the default icon.
     IconNoteData(NoteData nd) {
         super(nd);
     } // end constructor

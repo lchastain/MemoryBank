@@ -17,7 +17,7 @@ public class Area51 {
     // looks like all that is needed is a direct usage of JOptionPane.  argh!
     // This was while working to replace the filechooser in TodoNoteGroup used in merging.
     private void try1() {
-        AppIcon theIcon = new AppIcon("icons/acro.ico");
+        ImageIcon theIcon = new ImageIcon("icons/acro.ico");
 
         String[] nums = {
                 "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",

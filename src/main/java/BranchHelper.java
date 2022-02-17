@@ -174,7 +174,7 @@ public class BranchHelper implements BranchHelperInterface {
                 // in the list of choices during future branch edit sessions.
 
                 // Delete the file -
-                String deleteFile =  NoteGroupFile.makeFullFilename(theArea.getAreaName(), nodeChange.nodeName);
+                String deleteFile =  NoteGroupFile.makeFullFilename(theType, nodeChange.nodeName);
                 MemoryBank.debug("Deleting " + deleteFile);
                 try {
                     if (!(new File(deleteFile)).delete()) { // Delete the file.

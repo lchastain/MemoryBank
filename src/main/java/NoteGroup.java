@@ -259,12 +259,11 @@ class NoteGroup implements LinkHolder {
     }
 
     void renameNoteGroup(String renameTo) {
-        if(groupDataAccessor.renameNoteGroupData(DataArea.getAreaFromGroupType(myGroupInfo.groupType), myGroupInfo.getGroupName(), renameTo)) {
+        if(groupDataAccessor.renameNoteGroupData(myGroupInfo.groupType, myGroupInfo.getGroupName(), renameTo)) {
             if (myNoteGroupPanel != null) {
-                // Let the Panel know that its NoteGroup has been renamed.  This will need to cascade through
-                //   to panel title and possibly other visual elements.  But there is no need to send the new
-                //   name; it already has it.
-                myNoteGroupPanel.renamePanel();
+                // Let the Panel know that its NoteGroup data has been renamed.  This will need to cascade through
+                //   to panel title and possibly other visual elements.
+                myNoteGroupPanel.renamePanel(renameTo);
             }
         }
     }

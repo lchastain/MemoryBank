@@ -1,4 +1,6 @@
+import javax.swing.*;
+
 public interface IconKeeper {
-    AppIcon getDefaultIcon();
-    void setDefaultIcon(AppIcon li);
+    ImageIcon getDefaultIcon();
+    void setDefaultIcon(ImageIcon li);
 } // end iconKeeper

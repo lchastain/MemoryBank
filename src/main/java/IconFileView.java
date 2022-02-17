@@ -13,6 +13,7 @@ public class IconFileView extends FileView {
     //   the filesystem when displaying a file selection dialog for icon-type files.
 
     // We provide our own name specifier, to drop off the extension.
+    @Override
     public String getName(File f) {
         String s = f.getName();
         String name = s;
@@ -26,6 +27,7 @@ public class IconFileView extends FileView {
 
     // When we do not override, the System FileView for the chosen L&F will provide this
     // for us, but we just don't want it.
+    @Override
     public Boolean isTraversable(File f) {
         return null;
     }
@@ -43,6 +45,7 @@ public class IconFileView extends FileView {
 
     // This reads in each file and sends back an icon to be displayed in the file selector, vs the default
     //   which does not always do that for all the file types that we specify below.
+    @Override
     public Icon getIcon(File f) {
         String extension = getExtension(f);
         Icon icon = null; // Return type is an interface, not a class.
@@ -55,9 +58,9 @@ public class IconFileView extends FileView {
                     extension.equals("tiff") ||
                     extension.equals("tif") ||
                     extension.equals("ico") || extension.equals("png")) {
-                AppIcon ai = new AppIcon(f.getPath());
+                ImageIcon ai = new ImageIcon(f.getPath());
                 if (ai.getImage() != null) {
-                    AppIcon.scaleIcon(ai);
+                    IconInfo.scaleIcon(ai);
                     icon = ai;
                 }
             }

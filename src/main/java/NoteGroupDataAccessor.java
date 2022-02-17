@@ -19,7 +19,7 @@ public interface NoteGroupDataAccessor {
 
     void saveNoteGroupData(Object[] theData);
 
-    boolean renameNoteGroupData(DataArea theArea, String nodeName, String renamedTo);
+    boolean renameNoteGroupData(GroupType theType, String nodeName, String renamedTo);
 
     // void addNoteGroup(GroupInfo groupInfo)
 

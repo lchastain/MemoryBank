@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.text.WordUtils;
@@ -25,6 +26,7 @@ public class AppUtil {
     static {
         mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     } // end static
 
 

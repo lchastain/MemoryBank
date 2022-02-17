@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.*;
 
+import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 
@@ -29,7 +30,7 @@ class DayNoteGroupPanelTest {
 
     @Test
     void testDefaultIcon() {
-        AppIcon ai = dng.getDefaultIcon();
+        ImageIcon ai = dng.getDefaultIcon();
         Assertions.assertNotNull(ai);
         // We're just doing coverage here, for now.
         dng.setDefaultIcon(ai);

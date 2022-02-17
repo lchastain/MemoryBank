@@ -15,11 +15,11 @@ public class AppImageMain {
         // Construct a list of five images (although one is null) -
         String basePath = MemoryBank.logHome + File.separatorChar;
         Image[] images = new Image[]{
-                new AppIcon(basePath + "icons" + File.separatorChar + "icon_not.gif").getImage(),
+                new ImageIcon(basePath + "icons" + File.separatorChar + "icon_not.gif").getImage(),
                 new ImageIcon(basePath + "images" + File.separatorChar + "ABOUT.gif").getImage(),
                 null,
-                new AppIcon(basePath + "icons" + File.separatorChar + "acro.ico").getImage(),
-                new AppIcon(basePath + "icons" + File.separatorChar + "new8.gif").getImage()
+                new ImageIcon(basePath + "icons" + File.separatorChar + "acro.ico").getImage(),
+                new ImageIcon(basePath + "icons" + File.separatorChar + "new8.gif").getImage()
         };
 
         JFrame testFrame = new JFrame("AppImage Driver");

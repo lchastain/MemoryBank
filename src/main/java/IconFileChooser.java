@@ -6,12 +6,12 @@ public class IconFileChooser extends JFileChooser {
     private static final long serialVersionUID = 1L;
     static private final FileFilter filter;
 
-    /* A note about the support for .bmp formats - while it has been added to AppIcon,
+    /* A note about the support for .bmp formats - while it has been added to the FileDataAccessor,
     it seems that the two I tried were still unsupported (16-bit, compressed) and for
     the one that I found that was supported, scaling was required and after that it was
     not visible in the chooser, and upon selection it threw an exception with a long
-    stack trace that did not even trail back to Memory Bank source.  So for now -
-    the app will go without BMP icon images.
+    stack trace that did not even trail back to Memory Bank source.  BMP icons (like all of them,
+    actually - will need to be added / managed carefully.
      */
     static {
         filter = new FileFilter() {
@@ -25,6 +25,7 @@ public class IconFileChooser extends JFileChooser {
                         return extension.equals("tiff") ||
                                 extension.equals("tif") ||
                                 extension.equals("gif") ||
+                                extension.equals("bmp") ||
                                 extension.equals("jpeg") ||
                                 extension.equals("jpg") ||
                                 extension.equals("ico") ||

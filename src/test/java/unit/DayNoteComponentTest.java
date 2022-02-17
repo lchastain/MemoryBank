@@ -115,7 +115,7 @@ class DayNoteComponentTest {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 
-        dayNoteComponent.setIcon(new AppIcon(testFile.getPath()));
+        dayNoteComponent.setIcon(new ImageIcon(testFile.getPath()));
     }
 
     // Gettin the coverage...
