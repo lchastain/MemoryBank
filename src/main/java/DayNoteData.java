@@ -37,7 +37,7 @@ class DayNoteData extends IconNoteData {
         // Using the Event Start Time, if any -
         LocalTime lt = eventNoteData.getStartTime();
         if(lt == null) {
-            timeOfDayString = null;
+            timeOfDayString = ""; // null is no longer being saved as a value, but do not want the default (current time).
         } else {
             timeOfDayString = lt.toString();
         }
@@ -72,7 +72,7 @@ class DayNoteData extends IconNoteData {
         extendedNoteString = newExtText;
         iconFileString = TodoNoteComponent.getIconFilename(todoNoteData.getStatus());
         showIconOnMonthBoolean = false;
-        timeOfDayString = null;
+        timeOfDayString = ""; // null is no longer being saved as a value, but do not want the default (current time).
     } // end constructor
 
 

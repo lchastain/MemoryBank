@@ -56,27 +56,18 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end constructor
 
 
-    //-----------------------------------------------------------------
-    // Method Name: clear
-    //
     // Clears both the Graphical elements and the underlying data.
-    //-----------------------------------------------------------------
     protected void clear() {
         noteTimeLabel.clear();  // Clear the Time Label
         super.clear();
     } // end clear
 
 
-    //-----------------------------------------------------------------
-    // Method Name: getNoteData
-    //
-    // Returns the data object that this component encapsulates
-    //   and manages.
-    //-----------------------------------------------------------------
+    // Returns the data object that this component encapsulates and manages.
     @Override
     public NoteData getNoteData() {
         return myDayNoteData;
-    } // end getNoteData
+    }
 
     // Accessed by tests
     NoteTimeLabel getNoteTimeLabel() { return noteTimeLabel; }
@@ -181,7 +172,6 @@ public class DayNoteComponent extends IconNoteComponent {
     //----------------------------------------------------------
     private void setDayNoteData(DayNoteData newNoteData) {
         myDayNoteData = newNoteData;
-//        myTime = newNoteData.getTimeOfDayDate();
         MemoryBank.debug("My time: " + myDayNoteData.getTimeOfDayString());
 
         // update visual components...
@@ -268,7 +258,7 @@ public class DayNoteComponent extends IconNoteComponent {
             setText("     ");  // enough room for 'HH:MM'
             setBorder(highBorder);
             isActive = false;
-            if(myDayNoteData != null) myDayNoteData.setTimeOfDayString(null);
+            if(myDayNoteData != null) myDayNoteData.setTimeOfDayString("");
         } // end clear
 
         public Dimension getPreferredSize() {
