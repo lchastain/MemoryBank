@@ -15,12 +15,17 @@ Priorities:
 Problems:
 
 
+
 Current/Next:
     Complete the conversion of direct-to-file methods over to DataAccessor methods, implemented by the FileDataAccessor
-      Delete, merge, icon creations
+      Delete, merge, ImageIcon creations, Icon selections.  End result should be No File imports outside of accessors.
+    Implement Goal 'clear all' - send the directive to the correct subpanel.
     Add a Log to To Do Lists (compatible with older data)
     Update 'Show Current NoteGroup' to handle Goal subpanels
     Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
+
+Tests Needed:
+    Goal:    SaveAs, Delete, Rename, Undo Delete
 
 
 Issues, Analyses, Ideas :
@@ -37,11 +42,28 @@ Issues, Analyses, Ideas :
 New:
 
 =====================================================================================================
+
+25 Feb 2022
+Fixed this problem:
+    Event aging (birthdays, Sergei, 2/21 - aged out to day but made a secondary (older) file.  This was because the
+      group was already open and had new, unsaved notes.  The shown file is the one that was already in its keeper, and
+      it gets a later timestamp as soon as you leave because of saving the unsaved changes.  Only the latest file is
+      shown, so the one that has the aged-out event is skipped over and that event-to-note is effectively lost.
+    The Todolist move-to-day didn't have the issue; needed to wire in the GroupInfo.getNoteGroup() which first looks
+      in appTreePanel's keeper for the group, after having set the right group name.  The old way just made a new
+      group with the right name, but a newer name was made later when saving the other changes.  Now, the open group
+      is retrieved and added-to, but then also saved at that point.
+23 Feb 2022
+Fixed this problem:
+  A 'no time' on a day note (moved from todo list) shows as current time.
+    and when explicitly cleared, current time comes back next time you look.  It keeps changing...
+  Caused by the new approach to not saving nulls; a 'no time' data was a null; now it must be empty.
+
 17 Feb 2022
 The Goal group overrides the NoteGroup.renameNoteGroup method now, to intercept and get the corresponding Panel.  It
 will either already have one, or will instantiate one from the existing file(s).  This ensures existence of all the
 subgroups, so more than half of the originally-envisioned tests are now not needed.  What it boils down to is two
-main tests; when a goal is open and when it is not, and both renaming paths appear to be working now.
+main tests; renaming when a goal is open and when it is not, and both paths appear to be working now.  Pub'd.
 
 16 Feb 2022
 Removed AppIcon altogether.  Several ImageIcon instances are still being created with Filenames, outside of the

@@ -119,13 +119,14 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
                     LocalDate eventStartDate = tempNoteData.getStartDate();
                     String dayName = CalendarNoteGroup.getGroupNameForDate(eventStartDate, GroupType.DAY_NOTES);
                     GroupInfo dayGroupInfo = new GroupInfo(dayName, GroupType.DAY_NOTES);
-                    DayNoteGroup dayNoteGroup = new DayNoteGroup(dayGroupInfo);
+                    // Get the right group even if it is already open, with unsaved changes -
+                    NoteGroup dayNoteGroup = dayGroupInfo.getNoteGroup();
                     dayNoteGroup.appendNote(dnd);
                     dayNoteGroup.saveNoteGroup();
 
                     // I don't see any Exception handling going on here - what gives?
-                    // This aging event is one of potentially several, and one of the times that several of them could
-                    //   occur is at app startup while the 'always on top' splash screen is displayed.  It is
+                    // This aging event is one of potentially several in the group, and one of the times that this
+                    //   could occur is at app startup while the 'always on top' splash screen is displayed.  It is
                     //   definitely NOT a good time to stop at each problem and complain to the user with an error
                     //   dialog that they must review and dismiss.  Also, there is not a lot that could go wrong.
                 } // end if retain note
