@@ -571,6 +571,11 @@ public class NoteComponent extends JPanel {
             setToolTipText(strToolTip);
         } // end resetToolTip
 
+        @Override
+        public void setText(String s) {
+            super.setText(s);
+            setCaretPosition(0); // Do not leave notes scrolled horizontally.
+        }
 
         private void setTextColor() {
             NoteData nd = getNoteData();

@@ -1540,7 +1540,25 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             JTextArea jTextArea = new JTextArea();
             String groupChangedString = "\"groupChanged\" : " + theNoteGroupPanel.myNoteGroup.groupChanged + ",\n";
             jTextArea.append(groupChangedString);
-            Object[] theData = theNoteGroupPanel.myNoteGroup.getTheData();
+            Object[] theData;
+            if(theNoteGroupPanel instanceof GoalGroupPanel) { // Show the correct sub-panel (tab)
+                GoalGroupPanel goalGroupPanel = (GoalGroupPanel) theNoteGroupPanel;
+                switch (goalGroupPanel.currentTabType) {
+                    case TODO:  // To Do List
+                        theData = goalGroupPanel.theTodoNoteGroupPanel.myNoteGroup.getTheData();
+                        break;
+                    case LOG: // Log Entries
+                        theData = goalGroupPanel.theLogNoteGroupPanel.myNoteGroup.getTheData();
+                        break;
+                    case MILES: // Milestones
+                        theData = goalGroupPanel.theMilestoneNoteGroupPanel.myNoteGroup.getTheData();
+                        break;
+                    default:  // We don't expect this one to be used, but this is 'safer' than going with a null.
+                        theData = goalGroupPanel.myNoteGroup.getTheData();
+                }
+            } else {
+                theData = theNoteGroupPanel.myNoteGroup.getTheData();
+            }
             jTextArea.append(AppUtil.toJsonString(theData));
             jScrollPane.setViewportView(jTextArea);
             jScrollPane.setPreferredSize(new Dimension(600, 500));
