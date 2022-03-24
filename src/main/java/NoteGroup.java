@@ -199,7 +199,7 @@ class NoteGroup implements LinkHolder {
 
     void loadNoteGroup() {
         // First, load the raw data (if any) for the group.  If not then theData remains null.
-        Object[] theData = groupDataAccessor.loadNoteGroupData(myGroupInfo);
+        Object[] theData = groupDataAccessor.loadNoteGroupData();
 
         // Now get any pre-existing data members cleared out to make way for whatever came in (if anything) from the
         // data store.  This is important even when no new data came in, so there are no 'leftovers'.

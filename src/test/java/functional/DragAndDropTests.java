@@ -34,6 +34,7 @@ public class DragAndDropTests {
 
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
         File testDataLoc = new File(MemoryBank.userDataHome);

@@ -26,6 +26,7 @@ public class BranchSelectionTests {
 
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
         File testDataLoc = new File(MemoryBank.userDataHome);
@@ -113,7 +114,7 @@ public class BranchSelectionTests {
         DefaultMutableTreeNode dmtn;
         int theIndex;
         appTreePanel.restoringPreviousSelection = true; // This helps keep the thread count down.
-        appTreePanel.doSearch(new SearchPanelSettings());
+        appTreePanel.doSearch(new SearchPanel());
 
         // Verify that after the above search, we now have a Search Results branch and a
         //   Search Result leaf under it, and that leaf is the current selection.

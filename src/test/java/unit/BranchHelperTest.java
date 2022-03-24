@@ -25,6 +25,7 @@ class BranchHelperTest {
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         FileUtils.cleanDirectory(testData);
 
         // Retrieve a fresh set of test data from test resources

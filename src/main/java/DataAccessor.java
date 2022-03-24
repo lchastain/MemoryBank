@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.time.LocalDateTime;
+import java.util.Vector;
 
 public interface DataAccessor {
 
@@ -25,6 +26,8 @@ public interface DataAccessor {
     default String getArchiveStorageName(String archiveName) {
         return archiveName; // Override this when the 'storage' name differs from the archive name.
     }
+    AppOptions getAppOptions();
+
     String[] getArchiveNames();
     ImageIcon getImageIcon(IconInfo iconInfo);
     AppOptions getArchiveOptions(String archiveName);
@@ -44,4 +47,6 @@ public interface DataAccessor {
     }
 
     boolean removeArchive(LocalDateTime localDateTime);
+    void saveAppOptions();
+    Vector<NoteData> scanData(SearchPanel searchPanel);
 }

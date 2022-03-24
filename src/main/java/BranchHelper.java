@@ -134,6 +134,7 @@ public class BranchHelper implements BranchHelperInterface {
         ems.setLength(0);
         for (NodeChange nodeChange : changes) {
             MemoryBank.debug(nodeChange.toString());
+            GroupInfo groupInfo = new GroupInfo(nodeChange.nodeName, theType);
             if (nodeChange.changeType == NodeChange.RENAMED) {
 
                 // Checking special cases where there is no corresponding data store -
@@ -151,7 +152,6 @@ public class BranchHelper implements BranchHelperInterface {
                 }
 
                 // Now attempt the rename
-                GroupInfo groupInfo = new GroupInfo(nodeChange.nodeName, theType);
                 NoteGroup myNoteGroup = groupInfo.getNoteGroup();
                 try {
                     myNoteGroup.renameNoteGroup(nodeChange.renamedTo);
@@ -173,17 +173,20 @@ public class BranchHelper implements BranchHelperInterface {
                 // already been removed from the branch but they will still be available for reselection
                 // in the list of choices during future branch edit sessions.
 
-                // Delete the file -
-                String deleteFile =  NoteGroupFile.makeFullFilename(theType, nodeChange.nodeName);
-                MemoryBank.debug("Deleting " + deleteFile);
-                try {
-                    if (!(new File(deleteFile)).delete()) { // Delete the file.
-                        throw new Exception("Unable to delete " + nodeChange.nodeName);
-                    } // end if
-                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
-                } catch (Exception se) {
-                    ems.append(se.getMessage()).append(System.lineSeparator());
-                } // end try/catch
+                // Delete the group -
+//                String deleteFile =  NoteGroupFile.makeFullFilename(theType, nodeChange.nodeName);
+//                MemoryBank.debug("Deleting " + deleteFile);
+//                try {
+//                    if (!(new File(deleteFile)).delete()) { // Delete the file.
+//                        throw new Exception("Unable to delete " + nodeChange.nodeName);
+//                    } // end if
+//                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
+//                } catch (Exception se) {
+//                    ems.append(se.getMessage()).append(System.lineSeparator());
+//                } // end try/catch
+
+                MemoryBank.dataAccessor.getNoteGroupDataAccessor(groupInfo).deleteNoteGroupData();
+                theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
             }
         }  // end for each change
 

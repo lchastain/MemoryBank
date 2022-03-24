@@ -15,6 +15,7 @@ class DayNoteGroupPanelTest {
     @BeforeEach
     void setUp() {
         MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         dng = new DayNoteGroupPanel();
     }
 

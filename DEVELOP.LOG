@@ -2,6 +2,7 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
+    a goal move from todolist to day - may not be setting the groupchanged flag; Save option not enabled.
 
 
 Current/Next:
@@ -14,6 +15,24 @@ Tests Needed:
     Goal:    SaveAs, Delete, Rename, Undo Delete
 
 =====================================================================================================
+
+24 Mar 2022
+Changed makeFullFilename from static to an instance method, and simplified NoteGroupDataAccessor.loadNoteGroupData so
+ that it is no longer static, so does not need a GroupInfo param.  This was all in support of moving static calls to
+ makeFullFilename out of AppTreePanel and BranchHelper and instead using the NoteGroupDataAccessor to get the
+ Consolidated View or to delete a NoteGroup, all part of the work towards getting direct File operations to be
+ encapsulated by the FileDataAccessor.  NoteGroupFile now extends FileDataAccessor, primarily so that it has access
+ to the now-not-static 'basePath' data member.
+
+
+23 Mar 2022
+Moved app options load and save into the DataAccessor (FileDataAccessor).
+Moved file-based search ops out of AppTreePanel and into the FileDataAccessor.
+Now the DataAccessor call that is made from AppTreePanel is scanData(SearchPanel).
+
+More distractions - another round of video downloads after upgrading Hulu to include Disney and no commercials,
+and multiple Netflix series putting out new seasons.  Also, $$ exchanges to pay for the new apartment and a
+loss of motivation for this or any other project, possibly related to current world situation.
 
 7 Mar 2022 - back from recent distractions:  residency permit, health policy, video downloads.
 Fixed this:  Reset the text on a Note to be left justified upon redisplay.

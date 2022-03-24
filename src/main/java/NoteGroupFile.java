@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("rawtypes")
-class NoteGroupFile implements NoteGroupDataAccessor {
+class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
     static String calendarNoteGroupAreaPath;
     static String eventGroupAreaPath;
     static String goalGroupAreaPath;
@@ -47,13 +47,6 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
 
     static {
-        calendarNoteGroupAreaPath = FileDataAccessor.basePath + DataArea.CALENDARS.getAreaName() + File.separatorChar;
-        eventGroupAreaPath = FileDataAccessor.basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
-        goalGroupAreaPath = FileDataAccessor.basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
-        searchResultGroupAreaPath = FileDataAccessor.basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
-        logGroupAreaPath = FileDataAccessor.basePath + DataArea.LOGS.getAreaName() + File.separatorChar;
-        todoListGroupAreaPath = FileDataAccessor.basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
-
         eventGroupFilePrefix = "event_";
         goalGroupFilePrefix = "goal_";
         milestoneGroupFilePrefix = "miles_";
@@ -65,6 +58,13 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
     NoteGroupFile(GroupInfo groupInfo) {
         this.groupInfo = groupInfo;
+
+        calendarNoteGroupAreaPath = basePath + DataArea.CALENDARS.getAreaName() + File.separatorChar;
+        eventGroupAreaPath = basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
+        goalGroupAreaPath = basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
+        searchResultGroupAreaPath = basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
+        logGroupAreaPath = basePath + DataArea.LOGS.getAreaName() + File.separatorChar;
+        todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
 
         // No need to have a filename hanging around until we actually use it.
         // First real need is to capture it once a file is loaded.
@@ -298,7 +298,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
     // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
     // where the data for the group is persisted.  If no file exists, the return string is empty ("").
-    static String foundFilename(GroupInfo groupInfo) {
+    String foundFilename(GroupInfo groupInfo) {
         String theFilename = "";
         String foundName = "";
         String areaPath;
@@ -306,7 +306,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         LocalDate theChoice;
 
         // Possible additional prefixing, for Archives.
-        String firstPart = FileDataAccessor.basePath;
+        String firstPart = basePath;
         if (groupInfo.archiveName != null) {
             String fixedName = groupInfo.getArchiveStorageName();
             firstPart += DataArea.ARCHIVES.getAreaName() + File.separatorChar;
@@ -739,7 +739,8 @@ class NoteGroupFile implements NoteGroupDataAccessor {
 
 
     @Override // The NoteGroupDataAccessor method implementation.
-    public Object[] loadNoteGroupData(GroupInfo groupInfo) {
+//    public Object[] loadNoteGroupData(GroupInfo groupInfo) {
+    public Object[] loadNoteGroupData() {
         // Get the Filename for the GroupInfo.  Refresh it
         //   just prior to loading the group rather than earlier, because the Panel content may
         //   have changed so that the file to load now is not the same as it was at group construction;
@@ -829,7 +830,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         return filename.toString();
     }
 
-    static String makeFullFilename(GroupType groupType, String groupName) {
+    String makeFullFilename(GroupType groupType, String groupName) {
         String areaName = "NoArea";    // If these turn up in the data, it's a problem.
         String prefix = "NoPrefix";    // But at least we'll know where to look.
 
@@ -873,7 +874,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
             default:
                 // The other types do not have associated File data.
         }
-        return FileDataAccessor.basePath + areaName + File.separatorChar + prefix + groupName + ".json";
+        return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }
 
 
@@ -962,7 +963,7 @@ class NoteGroupFile implements NoteGroupDataAccessor {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        File aFile = new File(NoteGroupFile.makeFullFilename(groupInfo.groupType, theName));
+        File aFile = new File(makeFullFilename(groupInfo.groupType, theName));
         return checkFilename(theName, aFile.getParent() + File.separatorChar);
     }
 

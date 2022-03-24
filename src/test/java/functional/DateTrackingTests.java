@@ -27,6 +27,7 @@ public class DateTrackingTests {
 
         // Remove any pre-existing Test data
         File testDataLoc = new File(MemoryBank.userDataHome);
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         try {
             FileUtils.cleanDirectory(testDataLoc);
         } catch (Exception e) {

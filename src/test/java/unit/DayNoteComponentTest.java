@@ -17,6 +17,7 @@ class DayNoteComponentTest {
     void setUp() {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         dayNoteGroup = new DayNoteGroupPanel();
         dayNoteComponent = new DayNoteComponent(dayNoteGroup, 0);
         dayNoteComponent.initialize();

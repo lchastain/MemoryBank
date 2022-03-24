@@ -20,10 +20,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -60,7 +58,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     YearNoteGroupPanel theAppYears;
     MonthView theMonthView;
     YearView theYearView;
-    private Vector<NoteData> foundDataVector;  // Search results
     NoteGroupPanelKeeper theGoalsKeeper;          // keeper of all loaded Goals.
     NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
     NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
@@ -701,7 +698,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             System.out.println("\nCreating an archive: \n");
             // Save anything that is currently in progress.
             preClose();
-            AppOptions.saveOpts();
+            MemoryBank.dataAccessor.saveAppOptions();
 
             // Preserve the current tree selection
             int currentSelection = theTree.getMaxSelectionRow();
@@ -798,23 +795,15 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
         showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
 
-        doSearch(searchPanel.getSettings());
+        doSearch(searchPanel);
     } // end prepareSearch
 
 
-    void doSearch(SearchPanelSettings searchPanelSettings) {
+    void doSearch(SearchPanel searchPanel) {
         // We will display the results of the search, even if it finds nothing.
+        SearchPanelSettings searchPanelSettings = searchPanel.getSettings();
         MemoryBank.debug("Running a Search with these settings: " + AppUtil.toJsonString(searchPanelSettings));
-
-        // Now make a Vector that can collect the search results.
-        foundDataVector = new Vector<>();
-
-        // Now scan the user's data area for data files - we do a recursive
-        //   directory search and each file is examined as soon as it is
-        //   found, provided that it passes the file-level filters.
-        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
-        File f = new File(MemoryBank.userDataHome);
-        scanDataDir(f, 0); // Indirectly fills the foundDataVector
+        Vector<NoteData> foundDataVector = MemoryBank.dataAccessor.scanData(searchPanel);
 
         // Make a unique name for the results
         String resultsName;
@@ -870,9 +859,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             }
             // Then we can look at merging any possible child nodes into the CV group.
             theNodeName = eventNode.toString();
-            String theFilename = NoteGroupFile.makeFullFilename(GroupType.EVENTS, theNodeName);
-            MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
-            Object[] theData = NoteGroupFile.loadFileData(theFilename);
+//            String theFilename = NoteGroupFile.makeFullFilename(GroupType.EVENTS, theNodeName);
+//            MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
+//            Object[] theData = NoteGroupFile.loadFileData(theFilename);
+
+            GroupInfo theGroupInfo = new GroupInfo(theNodeName, GroupType.EVENTS);
+            Object[] theData = MemoryBank.dataAccessor.getNoteGroupDataAccessor(theGroupInfo).loadNoteGroupData();
+
             BaseData.loading = true; // We don't want to affect the lastModDates!
             groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
             });
@@ -1178,152 +1171,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end saveGroupAs
 
 
-    // This method scans a directory for data files.  If it finds a directory rather than a file,
-    //   it will recursively call itself for that directory.
-    //
-    // The SearchPanel interface follows a 'filter out' plan.  To support that, this method starts
-    //   with the idea that ALL files will be searched and then considers the filters, to eliminate
-    //   candidate files.  If a file is not eliminated after the filters have been considered, the
-    //   search method is called for that file.
-    private void scanDataDir(File theDir, int level) {
-        MemoryBank.dbg("Scanning " + theDir.getName());
-
-        File[] theFiles = theDir.listFiles();
-        assert theFiles != null;
-        int howmany = theFiles.length;
-        MemoryBank.debug("\t\tFound " + howmany + " data files");
-        boolean goLook;
-        LocalDate dateNoteDate;
-        MemoryBank.debug("Level " + level);
-
-        for (File theFile : theFiles) {
-            String theFile1Name = theFile.getName();
-            if (theFile.isDirectory()) {
-                if (theFile1Name.equals("Archives")) continue;
-                if (theFile1Name.equals("icons")) continue;
-                if (theFile1Name.equals("SearchResults")) continue;
-                scanDataDir(theFile, level + 1);
-            } else {
-                goLook = true;
-                String theGroupName = NoteGroupFile.getGroupNameFromFilename(theFile1Name);
-                if (theFile1Name.startsWith("goal_")) {
-                    if (!searchPanel.searchGoals()) {
-                        goLook = false;
-                    } else {
-                        if(!appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
-                    }
-                } else if (theFile1Name.startsWith("event_")) {
-                    if (!searchPanel.searchEvents()) {
-                        goLook = false;
-                    } else {
-                        if(!appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
-                    }
-                } else if (theFile1Name.startsWith("todo_")) {
-                    if (!searchPanel.searchLists()) {
-                        goLook = false;
-                    } else {
-                        if(!appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
-                    }
-                } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
-                    if (!searchPanel.searchDays()) goLook = false;
-                } else if ((theFile1Name.startsWith("M")) && (level > 0)) {
-                    if (!searchPanel.searchMonths()) goLook = false;
-                } else if ((theFile1Name.startsWith("Y")) && (level > 0)) {
-                    if (!searchPanel.searchYears()) goLook = false;
-                } else { // Any other file type not covered above.
-                    // This includes search results (for now - SCR0073)
-                    goLook = false;
-                } // end if / else if
-
-                // Check the Note date, possibly filter out based on 'when'.
-
-                if (goLook) {
-                    if(searchPanel.getWhenSetting() != -1) {
-                        // This section is only needed if the user has specified a date in the search.
-                        dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
-                        if (dateNoteDate != null) {
-                            if (searchPanel.filterWhen(dateNoteDate)) goLook = false;
-                        } // end if
-                    }
-                } // end if
-
-
-                // The Last Modified date of the FILE is not necessarily the same as the Note, but
-                //   it CAN be considered when looking for a last mod AFTER a certain date, because
-                //   the last mod to ANY note in the file CANNOT be later than the last mod to the
-                //   file itself.  Of course this depends on having no outside mods to the filesystem
-                //   but we assume that because this is either a dev system (and we trust all devs :)
-                //   or the app is being served from a server where only admins have access (and we
-                //   trust all admins, of course).
-                if (goLook) {
-                    if(searchPanel.getLastModSetting() != -1) {
-                        // This section is only needed if the user has specified a date in the search.
-                        LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
-                        if (searchPanel.getLastModSetting() == SearchPanel.AFTER) {
-                            if (searchPanel.filterLastMod(dateLastMod)) goLook = false;
-                        } // end if
-                    }
-                } // end if
-
-                if (goLook) {
-                    searchDataFile(theFile);
-                } // end if
-            } // end if
-        }//end for i
-    }//end scanDataDir
-
-
-    //---------------------------------------------------------
-    // Method Name: searchDataFile
-    //
-    // File-level (but not item-level) date filtering will
-    //   have been done prior to this method being called.
-    // Item-level filtering is not done; date-filtering
-    //   is done against Calendar notes, by using their
-    //   filename, only.  Todo items will all just pass thru
-    //   the filter so if not desired, don't search there.
-    //---------------------------------------------------------
-    private void searchDataFile(File dataFile) {
-        //MemoryBank.debug("Searching: " + dataFile.getName());  // This one is a bit too verbose.
-        Vector<AllNoteData> searchDataVector = null;
-
-        // Load the file
-        Object[] theGroupData = NoteGroupFile.loadFileData(dataFile);
-        if (theGroupData != null && theGroupData[theGroupData.length - 1] != null) {
-            // During a search these notes would not be re-preserved anyway, but the reason we care is that
-            // the search parameters may have specified a date-specific search; we don't want all Last Mod
-            // dates to get updated to this moment and thereby muck up the search results.
-            BaseData.loading = true;
-            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
-            BaseData.loading = false;
-        }
-        if (searchDataVector == null) return;
-
-        // Now get on with the search -
-        for (AllNoteData vectorItem : searchDataVector) {
-
-            // If we find what we're looking for in/about this note -
-            if (searchPanel.foundIt(vectorItem)) {
-                // Get the 'foundIn' info -
-                // Although this is actually a GroupInfo, we do not need to populate the foundIn.groupId
-                //   because search results are not intended to themselves be a part of the traceability chain,
-                //   and they cannot be linked to or from.  Currently, the method below does not read in the
-                //   data, so it cannot provide the groupId.
-                GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFilePath(dataFile);
-
-                // Make new search result data for this find.
-                SearchResultData srd = new SearchResultData(vectorItem);
-
-                // The copy constructor used above will preserve the dateLastMod of the original note.
-                srd.foundIn = foundIn; // No need to 'copy' foundIn; in this case it can be reused.
-
-                // Add this search result data to our findings.
-                foundDataVector.add(srd);
-
-            } // end if
-        } // end for
-    }// end searchDataFile
-
     @Override
     public void setSelectedDate(LocalDate theSelection) {
         selectedDate = theSelection;
@@ -1453,7 +1300,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             for (String aName : archiveNames) {
                 //jScrollPane.add(new Label(aName));
-                DefaultMutableTreeNode aNode = new DefaultMutableTreeNode(aName);
                 archiveTreeRootNode.add(new DefaultMutableTreeNode(aName));
             }
             // Create a default model based on the archive node, and create the tree from that model.

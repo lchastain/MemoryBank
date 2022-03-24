@@ -13,7 +13,7 @@ public interface NoteGroupDataAccessor {
 
     LocalDate getNextDateWithData(LocalDate currentDate, ChronoUnit dateDelta, CalendarNoteGroup.Direction direction);
 
-    Object[] loadNoteGroupData(GroupInfo groupInfo);
+    Object[] loadNoteGroupData();
 
     String getObjectionToName(String theName);
 

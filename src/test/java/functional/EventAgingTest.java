@@ -16,6 +16,7 @@ class EventAgingTest {
     static void setup() {
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         MemoryBank.debug = true;
 
         // Remove any pre-existing Test data

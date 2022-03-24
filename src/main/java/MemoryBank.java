@@ -167,6 +167,7 @@ public class MemoryBank {
     } // end setProgramDataLocation
 
 
+    // Note: the DataAccessor has not yet been set, at the point in time when this method is called.
     public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
         String currentDir = System.getProperty("user.dir");
@@ -237,13 +238,6 @@ public class MemoryBank {
             System.exit(0);
         } // end if
 
-        // Set the type of Data Accessor that this app will use.
-        // The parameter can eventually come from a configuration setting that can be read either from the filesystem
-        // or from a database; the source of the configuration values does not dictate how the rest of the app must
-        // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
-        // allow easier access and alteration by support personnel (once we get support personnel).
-        // This setting should be made AFTER the static vars that it relies on (such as userDataHome) are set.
-        dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
     } // end setUserDataHome
 
 
@@ -353,8 +347,16 @@ public class MemoryBank {
 
         setUserDataHome(userEmail);
 
+        // Set the type of Data Accessor that this app will use.
+        // The parameter can eventually come from a configuration setting that can be read either from the filesystem
+        // or from a database; the source of the configuration values does not dictate how the rest of the app must
+        // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
+        // allow easier access and alteration by support personnel (once we get support personnel).
+        // This setting should be made AFTER the static vars that are referenced (such as userDataHome) are set.
+        dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
-        AppOptions.loadOpts();  // Load the user settings - will not exist for new user but if available, can override defaults.
+        appOpts = dataAccessor.getAppOptions(); // Load the user settings - if available, will override defaults.
+        if(appOpts == null) appOpts = new AppOptions(); // In case of an uloadable file; not the same as not present.
         // New attributes to store and retrieve (future work):
         // size of main frame         - only if it makes sense after the future sizing work is done.
         // location of main frame     - only if it makes sense after the future sizing work is done.

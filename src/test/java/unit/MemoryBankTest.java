@@ -44,6 +44,7 @@ class MemoryBankTest {
     @Test
     void testLoadOpts() {
         MemoryBank.setUserDataHome(null);
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         AppOptions.loadOpts(); // Outputs an expected stacktrace.
     }
 
