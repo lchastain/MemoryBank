@@ -1,19 +1,15 @@
 
 /*
- A pairing of a TextArea that contains a 'note', with
- a ComboBox that shows the note's 'Subject'.  Subjects are loaded
- and managed at this level, although they can be set from a calling
- context, to any value including one not in the list.
+ A pairing of a TextArea that contains a 'note', with a ComboBox that shows the note's 'Subject'.
+ Subjects can be set to any string value, including one not in the list.
 */
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Vector;
 
 public class ExtendedNoteComponent extends JPanel {
@@ -31,7 +27,6 @@ public class ExtendedNoteComponent extends JPanel {
     private Vector<String> subjects;
     private String mySubject;
     private final String theDefaultSubject;
-    private String subjectsFilename;
 
     // This flag is reset to false when subjects are saved.
     private boolean subjectsChanged = false;
@@ -108,19 +103,9 @@ public class ExtendedNoteComponent extends JPanel {
                 titlePanel.add(subjectComponent);
                 subjectComponent.setFont(Font.decode("Serif-bold-12"));
                 add(titlePanel, "North");
-            } else {
-                // Develop the file name of the Subjects from the default
-                //   subject that was the input parameter, by adding the
-                //   word 'Subjects' after the first space, if any.
-                subjects = new Vector<>(6, 1);
-                int space = defaultSubject.indexOf(" ");
-                String s;
-                if (space > -1) s = defaultSubject.substring(0, space);
-                else s = defaultSubject;
-                s += "Subjects.json";
-                subjectsFilename = MemoryBank.userDataHome + File.separatorChar + s;
+            } else { // Get the candidate Subjects, possibly just a default list.
+                subjects = MemoryBank.dataAccessor.loadSubjects(defaultSubject);
 
-                loadSubjects(); // There may or may not be any.
                 subjectChooser = new JComboBox<>(subjects);
                 subjectChooser.setEditable(true);
                 subjectChooser.setFont(Font.decode("Serif-bold-12"));
@@ -139,12 +124,13 @@ public class ExtendedNoteComponent extends JPanel {
 
 
     void addSubject(String s) {
-        MemoryBank.debug("Adding subject: [" + s + "]");
         //------------------------------------------------------------------
         // Do not want to add the subject to the file in these cases.
         //------------------------------------------------------------------
         if (s.equals("")) return;
         if (s.equals(theDefaultSubject)) return;
+
+        MemoryBank.debug("Adding subject: [" + s + "]");
 
         //------------------------------------------------------------------
         // Check to see if this subject is already first in the list -
@@ -254,47 +240,14 @@ public class ExtendedNoteComponent extends JPanel {
     } // end setSubject
 
 
-    // This could be made static, IF you made 'subjects' into a return value.
-    private void loadSubjects() {
-        Exception e = null;
-
-        try {
-            String text = FileUtils.readFileToString(new File(subjectsFilename), StandardCharsets.UTF_8.name());
-            Object theObject;
-            theObject = AppUtil.mapper.readValue(text, Object.class);
-            subjects = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<String>>() { });
-            System.out.println("Subjects from JSON file: " + AppUtil.toJsonString(subjects));
-        } catch (FileNotFoundException fnfe) {
-            // not a problem; use defaults.
-            MemoryBank.debug("Subjects not found.  Will create a new list, if needed.");
-        } catch (IOException ioe) {
-            e = ioe;
-            e.printStackTrace();
-        }
-
-        if (e != null) {
-            String ems = "Error in loading " + subjectsFilename + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\noperation failed; using default values.";
-            MemoryBank.debug(ems);
-        } // end if
-    } // end loadSubjects
-
-    // This needs to be called from a higher context
+    // This is called by preClosePanel() when the panel closes.
+    // There should only ever be one unsaved Panel (with the same defaultSubject) at a time.
     void saveSubjects() {
         MemoryBank.debug("Saving subjects: " + subjectsChanged);
-        if (!subjectsChanged) return;
-        MemoryBank.debug("Saving subject data in " + subjectsFilename);
-
-        try (FileWriter writer = new FileWriter(subjectsFilename);
-             BufferedWriter bw = new BufferedWriter(writer)) {
-            bw.write(AppUtil.toJsonString(subjects));
-            bw.flush();
-        } catch (IOException ioe) {
-            String ems = ioe.getMessage();
-            ems = ems + "\nSubjects save operation aborted.";
-            MemoryBank.debug(ems);
-        } // end try/catch
+        if(subjectsChanged) {
+            MemoryBank.dataAccessor.saveSubjects(theDefaultSubject, subjects);
+            subjectsChanged = false;
+        }
     } // end saveSubjects
 
 } // end class ExtendedNoteComponent

@@ -20,7 +20,7 @@ public class MemoryBank {
     static boolean event;
     static boolean init;
     static String userDataHome; // User data top-level directory 'mbankData'
-    static String logHome;  // For finding icons & images
+    static String mbHome;  // Memory Bank program data location, for finding images & more
     static AppOptions appOpts;     // saved/loaded
     static NoteData clipboardNote;
     static JFrame logFrame;
@@ -55,7 +55,7 @@ public class MemoryBank {
         if (init) System.out.println("Initialization trace printouts on.");
         if (timing) System.out.println("Timing printouts on.");
 
-        setProgramDataLocation();  // logHome is set here.
+        setProgramDataLocation();  // mbHome is set here.
 
         appOpts = new AppOptions(); // Start with default values.
 
@@ -136,34 +136,37 @@ public class MemoryBank {
     } // end event
 
 
-    // Set the filesystem location for program data - 'logHome'.
-    // Look first in the current directory.  This allows the program data to come
-    // from a development location.  If not found then set it explicitly to the default
-    // location but test that it is valid, by checking for the 'icons' subdirectory.
+    // Set the location for program data - 'mbHome'.
+    // Program data is not subject to the same constraints as is the user data; there is no requirement
+    //   to use a data accessor to get to it; there is only one choice: the local filesystem, so the
+    //   direct use of classes from java.io.File in this method - is allowed.
+    // Look first in the current directory.  This allows the program data to come from a development location.
+    //   If not found then set it explicitly to the default location.
+    // In either case, test that it is valid, by checking for the 'images' subdirectory.
     private static void setProgramDataLocation() {
         String currentDir = System.getProperty("user.dir");
         debug("The current working directory is: " + currentDir);
+        //System.out.println("Program Files is at: " + System.getenv("ProgramFiles"));
 
         // Program data - icons, images, etc, the same for every user.
         File f = new File("images"); // Look first in current dir.
         if (f.exists()) {  // This logic is far from infallible...
-            logHome = currentDir;
-            debug("MemoryBank Home = " + logHome);
-        } else {
-            // Explicitly setting logHome for now.
-            logHome = "C:\\Program Files\\Memory Bank"; // need to use System calls here, vs hard-coded C:\
-            debug("EXPLICIT MemoryBank Home = " + logHome);
+            mbHome = currentDir;
+        } else { // Explicitly setting mbHome for now.
+            String homeBase = System.getenv("ProgramFiles");
+            mbHome = homeBase + File.separatorChar + "Memory Bank";
 
-            // But test to see if we have images available at that location -
-            f = new File(logHome + File.separatorChar + "images");
+            // Test to see if we have images available at that location -
+            f = new File(mbHome + File.separatorChar + "images");
             if (!f.exists()) {
                 String s = ("Cannot find program data!");
-                s += "\nThe MemoryBank program will terminate now.";
+                s += "\nThe Memory Bank program will terminate now.";
                 JOptionPane.showMessageDialog(logFrame, s, "Error!",
                         JOptionPane.ERROR_MESSAGE);
                 System.exit(1);  // Abby Normal exit.
             } // end if
         } // end if
+        debug("MemoryBank Home = " + mbHome);
     } // end setProgramDataLocation
 
 
@@ -294,7 +297,7 @@ public class MemoryBank {
         //---------------------------------------------------------------
         // Splash Screen
         //---------------------------------------------------------------
-        ImageIcon myImage = new ImageIcon(logHome + "/images/ABOUT.gif");
+        ImageIcon myImage = new ImageIcon(mbHome + "/images/ABOUT.gif");
         splash = new AppSplash(myImage);
         splash.setVisible(true);
         logApplicationShowing = false;
@@ -348,11 +351,12 @@ public class MemoryBank {
         setUserDataHome(userEmail);
 
         // Set the type of Data Accessor that this app will use.
-        // The parameter can eventually come from a configuration setting that can be read either from the filesystem
-        // or from a database; the source of the configuration values does not dictate how the rest of the app must
-        // operate from that point on.  But a configuration 'file' feels like a more preferred option, to
+        // The parameter can eventually come from a configuration setting; the source of the configuration values
+        //   does not dictate how the rest of the app must operate from that point on.
+        // But a configuration 'file' feels like a more preferred option, to
         // allow easier access and alteration by support personnel (once we get support personnel).
-        // This setting should be made AFTER the static vars that are referenced (such as userDataHome) are set.
+        // The Data Accessors must have access to certain static vars (such as userDataHome),
+        // so this setting should be made AFTER those vars are set.
         dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         appOpts = dataAccessor.getAppOptions(); // Load the user settings - if available, will override defaults.

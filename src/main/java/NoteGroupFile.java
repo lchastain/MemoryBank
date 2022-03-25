@@ -739,7 +739,6 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
 
 
     @Override // The NoteGroupDataAccessor method implementation.
-//    public Object[] loadNoteGroupData(GroupInfo groupInfo) {
     public Object[] loadNoteGroupData() {
         // Get the Filename for the GroupInfo.  Refresh it
         //   just prior to loading the group rather than earlier, because the Panel content may
@@ -1137,5 +1136,4 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         } // end try/catch
     }
 
-
-}
+} // end NoteGroupFile class

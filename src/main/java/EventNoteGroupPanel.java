@@ -71,6 +71,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         theNotePager.reset(1);
 
+        setDefaultSubject("Upcoming Event");
         if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
     }
 

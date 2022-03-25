@@ -46,6 +46,9 @@ public interface DataAccessor {
         }
     }
 
+    Vector<String> loadSubjects(String defaultSubject);
+    boolean saveSubjects(String defaultSubject, Vector<String> subjects);
+
     boolean removeArchive(LocalDateTime localDateTime);
     void saveAppOptions();
     Vector<NoteData> scanData(SearchPanel searchPanel);

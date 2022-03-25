@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     LocalDate theChoice;   // Holds the date of the group that the Panel is currently displaying.
@@ -28,17 +29,17 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         // But we do know that it will be some format of 'today'.
         switch(groupType) { // This Panel should not be constructed with any other types.
             case YEAR_NOTES:
-                super.setDefaultSubject("Year Note");
+                setDefaultSubject("Year Note");
                 dateDelta = ChronoUnit.YEARS;
                 dtf = DateTimeFormatter.ofPattern("yyyy");
                 break;
             case MONTH_NOTES:
-                super.setDefaultSubject("Month Note");
+                setDefaultSubject("Month Note");
                 dateDelta = ChronoUnit.MONTHS;
                 dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
                 break;
             case DAY_NOTES:
-                super.setDefaultSubject("Day Note");
+                setDefaultSubject("Day Note");
                 dateDelta = ChronoUnit.DAYS;
                 dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
                 break;
@@ -183,11 +184,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         super.updateGroup();
         String today;
 
-        if(archiveDate != null) {
-            today = dtf.format(archiveDate);
-        } else {
-            today = dtf.format(LocalDate.now());
-        }
+        today = dtf.format(Objects.requireNonNullElseGet(archiveDate, LocalDate::now));
         todayButton.setEnabled(!getTitle().equals(today));
 
         updateHeader();

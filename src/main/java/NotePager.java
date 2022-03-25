@@ -28,7 +28,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
 
         // Make a path to the images for the Alter Buttons
         char c = java.io.File.separatorChar;
-        String iString = MemoryBank.logHome + c + "images" + c;
+        String iString = MemoryBank.mbHome + c + "images" + c;
 
         LabelButton leftAb = new LabelButton();
         leftAb.setName("leftAb");

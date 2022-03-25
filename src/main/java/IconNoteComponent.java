@@ -47,7 +47,7 @@ public abstract class IconNoteComponent extends NoteComponent {
         iconPopup.add(blankMi);
 
         // Initialize the Icon file chooser
-        iconChooser = new IconFileChooser(MemoryBank.logHome + File.separatorChar + "icons");
+        iconChooser = new IconFileChooser(MemoryBank.mbHome + File.separatorChar + "icons");
 
     } // end static section
 

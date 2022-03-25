@@ -16,6 +16,13 @@ Tests Needed:
 
 =====================================================================================================
 
+25 Mar 2022
+Moved Subjects loads and saves into the FileDataAccessor.  Also it seems that for UpcomingEvents, subjects were not
+being saved because the defaultSubject had never been set.  Fixed that, then added a clause to the node change handler
+in AppTreePanel, to invoke the subjects save if there had been a change.  This fixed a problem where a subject could
+be added while in one NoteGroup but did not show up in a different NoteGroup of the same type, when changing tree
+nodes.  Now checking in; all tests passing.
+
 24 Mar 2022
 Changed makeFullFilename from static to an instance method, and simplified NoteGroupDataAccessor.loadNoteGroupData so
  that it is no longer static, so does not need a GroupInfo param.  This was all in support of moving static calls to
@@ -23,7 +30,7 @@ Changed makeFullFilename from static to an instance method, and simplified NoteG
  Consolidated View or to delete a NoteGroup, all part of the work towards getting direct File operations to be
  encapsulated by the FileDataAccessor.  NoteGroupFile now extends FileDataAccessor, primarily so that it has access
  to the now-not-static 'basePath' data member.
-
+Renamed logHome to mbHome (lots of changes, for that).
 
 23 Mar 2022
 Moved app options load and save into the DataAccessor (FileDataAccessor).

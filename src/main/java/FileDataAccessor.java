@@ -143,7 +143,7 @@ public class FileDataAccessor implements DataAccessor {
                 theAreaFullPath = NoteGroupFile.searchResultGroupAreaPath;
                 break;
             default:
-                theAreaFullPath = MemoryBank.logHome;
+                theAreaFullPath = MemoryBank.mbHome;
                 break;
         }
         File f = new File(theAreaFullPath);
@@ -200,8 +200,8 @@ public class FileDataAccessor implements DataAccessor {
         if(iconInfo.ready() ) {
             String basePath = ""; // when dataArea is null we look in the current directory.
             char c = File.separatorChar; // short, for better readability.
-            if (iconInfo.dataArea == DataArea.IMAGES) basePath = MemoryBank.logHome + c + "images" + c;
-            if (iconInfo.dataArea == DataArea.APP_ICONS) basePath = MemoryBank.logHome + c + "icons" + c;
+            if (iconInfo.dataArea == DataArea.IMAGES) basePath = MemoryBank.mbHome + c + "images" + c;
+            if (iconInfo.dataArea == DataArea.APP_ICONS) basePath = MemoryBank.mbHome + c + "icons" + c;
             if (iconInfo.dataArea == DataArea.USER_ICONS) basePath = MemoryBank.userDataHome + c + "icons" + c;
 
             // Convert file separator characters, if needed.  This makes for file system
@@ -299,6 +299,51 @@ public class FileDataAccessor implements DataAccessor {
     }
 
     @Override
+    public Vector<String> loadSubjects(String defaultSubject) {
+        // This is the default list that they will get, if the load operation does not succeed.
+        Vector<String> subjects = new Vector<>(6, 1);
+
+        String subjectsFilename = makeSubjectFilename(defaultSubject);
+        Exception e = null;
+        try {
+            String text = FileUtils.readFileToString(new File(subjectsFilename), StandardCharsets.UTF_8.name());
+            Object theObject;
+            theObject = AppUtil.mapper.readValue(text, Object.class);
+            subjects = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<String>>() { });
+            System.out.println("Subjects from JSON file: " + AppUtil.toJsonString(subjects));
+        } catch (FileNotFoundException fnfe) {
+            // not a problem; use defaults.
+            MemoryBank.debug("Subjects file not found.  Returning the default list.");
+        } catch (IOException ioe) {
+            e = ioe;
+            e.printStackTrace();
+        }
+
+        if (e != null) {
+            String ems = "Error in loading " + subjectsFilename + " !\n";
+            ems = ems + e.toString();
+            ems = ems + "\noperation failed; using default values.";
+            MemoryBank.debug(ems);
+        } // end if
+
+        return subjects;
+    }
+
+    // Develop the file name of the Subjects file from the default
+    //   subject that is the input parameter, by adding the
+    //   text 'Subjects.json' after the first space, if any.
+    private String makeSubjectFilename(String defaultSubject) {
+        String subjectsFilename;
+        int space = defaultSubject.indexOf(" ");
+        String s;
+        if (space > -1) s = defaultSubject.substring(0, space);
+        else s = defaultSubject;
+        s += "Subjects.json";
+        subjectsFilename = MemoryBank.userDataHome + File.separatorChar + s;
+        return subjectsFilename;
+    }
+
+    @Override
     public boolean removeArchive(LocalDateTime localDateTime) {
         String archiveFileName = archiveFileFormat.format(localDateTime);
         MemoryBank.debug("Removing archive: " + archiveFileName);
@@ -343,6 +388,26 @@ public class FileDataAccessor implements DataAccessor {
             // Yes, even though the parent was null.
         } // end try/catch
     } // end saveOpts
+
+    @Override
+    public boolean saveSubjects(String defaultSubject, Vector<String> subjects) {
+        boolean didIt = false;
+        String subjectsFilename = makeSubjectFilename(defaultSubject);
+        MemoryBank.debug("Saving subject data in " + subjectsFilename);
+
+        try (FileWriter writer = new FileWriter(subjectsFilename);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+            bw.write(AppUtil.toJsonString(subjects));
+            bw.flush();
+            didIt = true;
+        } catch (IOException ioe) {
+            String ems = ioe.getMessage();
+            ems = ems + "\nSubjects save operation aborted.";
+            MemoryBank.debug(ems);
+        } // end try/catch
+
+        return didIt;
+    }// end saveSubjects
 
     @Override
     public Vector<NoteData> scanData(SearchPanel searchPanel) {

@@ -111,7 +111,7 @@ public class TodoNoteComponent extends NoteComponent {
 
     static String getIconFilename(int status) {
         char c = File.separatorChar;
-        String iString = MemoryBank.logHome + c + "icons" + c;
+        String iString = MemoryBank.mbHome + c + "icons" + c;
 
         switch (status) {
             case TodoNoteData.TODO_COMPLETED:

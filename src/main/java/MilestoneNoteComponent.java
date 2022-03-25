@@ -31,7 +31,7 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         // Make the milestone icons
         //---------------------------
         char c = File.separatorChar;
-        String iString = MemoryBank.logHome + c + "icons" + c + "Milestones" + c;
+        String iString = MemoryBank.mbHome + c + "icons" + c + "Milestones" + c;
         File milestoneIconDir = new File(iString);
         String[] theFileList = milestoneIconDir.list();
         Arrays.sort(theFileList); // So that the icon assigned to a note does not change arbitrarily.

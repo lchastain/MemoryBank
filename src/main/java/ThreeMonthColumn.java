@@ -196,7 +196,7 @@ public class ThreeMonthColumn extends JPanel {
 
             // Create the Alter Buttons
             char c = java.io.File.separatorChar;
-            String iString = MemoryBank.logHome + c + "images" + c;
+            String iString = MemoryBank.mbHome + c + "images" + c;
 
             downAb = new LabelButton("", LabelButton.DOWN);
             downAb.addMouseListener(ma);

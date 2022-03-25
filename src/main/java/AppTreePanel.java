@@ -149,7 +149,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         JScrollPane treeView = new JScrollPane(theTree);
 
         // Create the viewing pane and start with the 'about' graphic.
-        AppImage abbowt = new AppImage(MemoryBank.logHome + "/images/ABOUT.gif");
+        AppImage abbowt = new AppImage(MemoryBank.mbHome + "/images/ABOUT.gif");
         aboutPanel = new JPanel(new GridBagLayout());
         aboutPanel.add(abbowt); // Nested the image in a panel with a flexible layout, for centering.
         rightPane = new JScrollPane(aboutPanel);
@@ -859,10 +859,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             }
             // Then we can look at merging any possible child nodes into the CV group.
             theNodeName = eventNode.toString();
-//            String theFilename = NoteGroupFile.makeFullFilename(GroupType.EVENTS, theNodeName);
-//            MemoryBank.debug("Node: " + theNodeName + "  File: " + theFilename);
-//            Object[] theData = NoteGroupFile.loadFileData(theFilename);
-
             GroupInfo theGroupInfo = new GroupInfo(theNodeName, GroupType.EVENTS);
             Object[] theData = MemoryBank.dataAccessor.getNoteGroupDataAccessor(theGroupInfo).loadNoteGroupData();
 
@@ -1461,7 +1457,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private void showHelp() {
         //new Exception("Your help is showing").printStackTrace();
         try {
-            String s = MemoryBank.logHome + File.separatorChar;
+            String s = MemoryBank.mbHome + File.separatorChar;
             Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
         } catch (IOException ioe) {
             // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
@@ -1718,10 +1714,17 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // Single-selection mode; Max == Min; take either one.
         appOpts.theSelectionRow = theTree.getMaxSelectionRow();
 
-        // If there was a NoteGroup open prior to this tree selection change then update its data now.
-        // But we don't just automatically save it; it has to have undergone one or more changes.
+        // If there was a NoteGroup open prior to this tree selection change, AND if it has changes in its
+        //   interface but not in its underlying data then update that underlying data now.
+        // Saving of the updated NoteGroup data will come later.
         if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
             theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
+
+            // If the extendedNoteComponent of the open group had been edited then there may have been a Subjects
+            //   change.  If so then those changes may be saved right now.
+            if(theNoteGroupPanel.extendedNoteComponent != null) {
+                theNoteGroupPanel.extendedNoteComponent.saveSubjects(); // This is a no-op if there was no change.
+            }
         } // end if
 
         // Get the string for the selected node.

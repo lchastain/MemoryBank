@@ -13,7 +13,7 @@ public class AppImageMain {
         AppImage li = new AppImage();
 
         // Construct a list of five images (although one is null) -
-        String basePath = MemoryBank.logHome + File.separatorChar;
+        String basePath = MemoryBank.mbHome + File.separatorChar;
         Image[] images = new Image[]{
                 new ImageIcon(basePath + "icons" + File.separatorChar + "icon_not.gif").getImage(),
                 new ImageIcon(basePath + "images" + File.separatorChar + "ABOUT.gif").getImage(),

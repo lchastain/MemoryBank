@@ -10,7 +10,7 @@ public class Locations {
 
     Vector<String> shortNames;
 
-    // Expectation is that additional members may be needed.
+    // Expectation is that additional data members may be needed.
     // It will be better to add them at that time rather than
     // making placeholders for them now, because additions do
     // not cause JSON deserialization issues, whereas renames
@@ -26,7 +26,6 @@ public class Locations {
         shortNames.add("Work");
         shortNames.add("Home");
         shortNames.add("Office");
-        shortNames.add("1600 Pennsylvania Avenue NW, Washington, DC 20500");
     }
 
     void add(String s) {
