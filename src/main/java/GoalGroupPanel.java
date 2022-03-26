@@ -410,7 +410,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         // another panel.  We could check for that as well, but decided not to because - why should we go to
         // heroic efforts to handle a user request where it seems like they may not understand what it is
         // that they are asking for?  This is the same approach that was taken in the 'rename' handling.
-        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        ArrayList<String> groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.GOALS, true);
         if (groupNames.contains(newName)) {
             ems = "A Goal named " + newName + " already exists!\n";
             ems += "  operation cancelled.";

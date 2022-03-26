@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public interface DataAccessor {
@@ -34,6 +35,8 @@ public interface DataAccessor {
 
     // Convert the archive name into a LocalDateTime
     LocalDateTime getDateTimeForArchiveName(String archiveName);
+
+    ArrayList getGroupNames(GroupType groupType, boolean filterInactive);
 
     NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo);
 

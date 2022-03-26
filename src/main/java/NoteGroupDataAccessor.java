@@ -1,6 +1,5 @@
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 
 @SuppressWarnings("rawtypes")
 public interface NoteGroupDataAccessor {
@@ -9,11 +8,13 @@ public interface NoteGroupDataAccessor {
 
     boolean exists();
 
-    ArrayList getGroupNames(boolean filterInactive);
+//    ArrayList getGroupNames(GroupType groupType);
+//    ArrayList getGroupNames(boolean filterInactive);
 
     LocalDate getNextDateWithData(LocalDate currentDate, ChronoUnit dateDelta, CalendarNoteGroup.Direction direction);
 
-    Object[] loadNoteGroupData();
+    Object[] loadNoteGroupData(); // Calls the other one with a GroupInfo that is held in the implementation.
+    Object[] loadNoteGroupData(GroupInfo groupInfo); // The param supports this accessor loading Other groups.
 
     String getObjectionToName(String theName);
 

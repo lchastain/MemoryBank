@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -125,8 +124,9 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     } // end checkColumnOrder
 
 
-    private File chooseMergeFile() {
-        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+    private GroupInfo chooseMergeGroup() {
+        GroupInfo theChoice = null;
+        ArrayList<String> groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.TODO_LIST, true);
         groupNames.remove(getGroupName()); // Remove ourselves from consideration.
 
         // Convert to an Object array so the JOptionPane static method can present a selection list.
@@ -139,13 +139,38 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         //   either your initial selection or the first choice selected.  BUT if the number of choices is more
         //   than 20, there is no dropdown control; you see a scrollable list instead, with no preselected choice.
         //   This is built-in Swing behavior, not my doing.
-        Object theChoice = optionPane.showInputDialog(theBasePanel, message,
+        String theGroupName = optionPane.showInputDialog(theBasePanel, message,
                 title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
 
-        System.out.println("The choice is: " + theChoice);
-        if (theChoice == null) return null;
-        return new File(NoteGroupFile.todoListGroupAreaPath + "todo_" + theChoice + ".json");
-    } // end chooseMergeFile
+        System.out.println("The choice is: " + theGroupName);
+        if (theGroupName != null) {
+            theChoice = new GroupInfo(theGroupName, GroupType.TODO_LIST);
+        }
+        return theChoice;
+    } // end chooseMergeGroup
+
+
+//    private File chooseMergeFile() {
+//        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+//        groupNames.remove(getGroupName()); // Remove ourselves from consideration.
+//
+//        // Convert to an Object array so the JOptionPane static method can present a selection list.
+//        Object[] theNames = new String[groupNames.size()];
+//        theNames = groupNames.toArray(theNames);
+//
+//        String message = "Choose a list to merge with " + getGroupName();
+//        String title = "Merge TodoLists";
+//        // Important issue here!  The selection list is presented as an initially closed combobox dropdown with
+//        //   either your initial selection or the first choice selected.  BUT if the number of choices is more
+//        //   than 20, there is no dropdown control; you see a scrollable list instead, with no preselected choice.
+//        //   This is built-in Swing behavior, not my doing.
+//        Object theChoice = optionPane.showInputDialog(theBasePanel, message,
+//                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
+//
+//        System.out.println("The choice is: " + theChoice);
+//        if (theChoice == null) return null;
+//        return new File(NoteGroupFile.todoListGroupAreaPath + "todo_" + theChoice + ".json");
+//    } // end chooseMergeFile
 
 
     // Interface to the Three Month Calendar; called by the tmc.
@@ -205,11 +230,11 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
     @SuppressWarnings({"unchecked"})
     public void merge() {
-        File mergeFile = chooseMergeFile();
-        if (mergeFile == null) return;
+        GroupInfo groupInfo = chooseMergeGroup();
+        if (groupInfo == null) return;
 
-        // Load the file to merge in -
-        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
+        // Load the group to merge in -
+        Object[] theGroup = myNoteGroup.groupDataAccessor.loadNoteGroupData(groupInfo);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
 
         Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
@@ -406,7 +431,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         // another panel.  We could check for that as well, but decided not to because - why should we go to
         // heroic efforts to handle a user request where it seems like they may not understand what it is
         // that they are asking for?  This is the same approach that was taken in the 'rename' handling.
-        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        ArrayList<String> groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.TODO_LIST, false);
         if(groupNames.contains(newName)) {
             ems = "An To Do List named " + newName + " already exists!\n";
             ems += "  operation cancelled.";

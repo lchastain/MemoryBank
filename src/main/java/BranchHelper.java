@@ -10,8 +10,6 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 
 public class BranchHelper implements BranchHelperInterface {
@@ -174,17 +172,6 @@ public class BranchHelper implements BranchHelperInterface {
                 // in the list of choices during future branch edit sessions.
 
                 // Delete the group -
-//                String deleteFile =  NoteGroupFile.makeFullFilename(theType, nodeChange.nodeName);
-//                MemoryBank.debug("Deleting " + deleteFile);
-//                try {
-//                    if (!(new File(deleteFile)).delete()) { // Delete the file.
-//                        throw new Exception("Unable to delete " + nodeChange.nodeName);
-//                    } // end if
-//                    theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
-//                } catch (Exception se) {
-//                    ems.append(se.getMessage()).append(System.lineSeparator());
-//                } // end try/catch
-
                 MemoryBank.dataAccessor.getNoteGroupDataAccessor(groupInfo).deleteNoteGroupData();
                 theNoteGroupPanelKeeper.remove(nodeChange.nodeName);
             }
@@ -226,37 +213,9 @@ public class BranchHelper implements BranchHelperInterface {
     }  // end doApply
 
 
-    // TODO - get this dereferenced to remove FILE ops.  The getGroupNames(false) in NoteGroupDataAccessor does the same thing.
     @Override
-    public ArrayList<String> getChoices() {
-        ArrayList<String> theChoices = new ArrayList<>();
-
-        // Get a list of <theNodeName> NoteGroups in that area of the user's data repo.
-        File dataDir = new File(MemoryBank.userDataHome + File.separatorChar + theArea.toString().replaceAll("\\s", ""));
-        String[] theFileList = dataDir.list(
-                new FilenameFilter() {
-                    // Although this filter does not account for directories, it is
-                    // known that the dataDir will not under normal program
-                    // operation contain directories (except for the Calendar notes).
-                    public boolean accept(File f, String s) {
-                        return s.startsWith(thePrefix);
-                    }
-                }
-        );
-
-        // Create the list of files.
-        if (theFileList != null) {
-            log.debug("Number of " + theAreaNodeName + " files found: " + theFileList.length);
-            int theDot;
-            String theFile;
-            for (String afile : theFileList) {
-                theDot = afile.lastIndexOf(".json");
-                theFile = afile.substring(thePrefix.length(), theDot); // start after the prefix
-
-                theChoices.add(theFile);
-            } // end for
-        }
-        return theChoices;
+    public ArrayList getChoices() {
+        return MemoryBank.dataAccessor.getGroupNames(theType, false);
     }
 
     @Override

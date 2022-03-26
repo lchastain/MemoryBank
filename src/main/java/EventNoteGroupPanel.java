@@ -2,17 +2,13 @@
 
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Vector;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, DateSelection {
@@ -165,29 +161,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end ageEvents
 
 
-    private File chooseMergeFile() {
-        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
-        groupNames.remove(getGroupName()); // Remove ourselves from consideration.
-
-        // Convert to an Object array so the JOptionPane static method can present a selection list.
-        Object[] theNames = new String[groupNames.size()];
-        theNames = groupNames.toArray(theNames);
-
-        String message = "Choose an Event group to merge with " + getGroupName();
-        String title = "Merge Event Groups";
-        // Important issue here!  The selection list is presented as an initially closed combobox dropdown with
-        //   either your initial selection or the first choice selected.  BUT if the number of choices is more
-        //   than 20, there is no dropdown control; you see a scrollable list instead, with no preselected choice.
-        //   This is built-in Swing behavior, not my doing.
-        Object theChoice = optionPane.showInputDialog(theBasePanel, message,
-                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
-
-        System.out.println("The choice is: " + theChoice);
-        if (theChoice == null) return null;
-        return new File(NoteGroupFile.todoListGroupAreaPath + "todo_" + theChoice + ".json");
-    } // end chooseMergeFile
-
-
     // Interface to the Three Month Calendar; called by the tmc.
     @Override // Implementation of the DateSelection interface
     public void dateSelected(LocalDate selectedDate) {
@@ -321,33 +294,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end makeNewNote
 
 
-    @SuppressWarnings({"unchecked"})
-    public void merge() {
-        File mergeFile = chooseMergeFile();
-        if (mergeFile == null) return;
-
-        // Load the file to merge in -
-        Object[] theGroup = NoteGroupFile.loadFileData(mergeFile);
-        //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
-
-        Vector<EventNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[theGroup.length - 1], new TypeReference<Vector<EventNoteData>>() {  });
-
-        // Create a 'set', to contain only unique items from both lists.
-        LinkedHashSet<EventNoteData> theUniqueSet = new LinkedHashSet<EventNoteData>(myNoteGroup.noteGroupDataVector);
-        theUniqueSet.addAll(mergeVector);
-
-        // Make a new Vector from the unique set, and set our group data to the new merged data vector.
-        Vector mergedVector = new Vector<>(theUniqueSet);
-        showGroupData(mergedVector);
-        setGroupChanged(true);
-    } // end merge
-
-    //----------------------------------------------------------------------
-    // Method Name: refresh
-    //
-    // Called in response to a click on the 'Save' menu item.
-    //----------------------------------------------------------------------
     @Override
+    // Called in response to a click on the 'Save' menu item.
     public void refresh() {
         preClosePanel();     // Save changes
         updateGroup();
@@ -406,7 +354,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         // another panel.  We could check for that as well, but decided not to because - why should we go to
         // heroic efforts to handle a user request where it seems like they may not understand what it is
         // that they are asking for?  This is the same approach that was taken in the 'rename' handling.
-        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
+        ArrayList<String> groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.EVENTS, false);
+
         if(groupNames.contains(newName)) {
             ems = "An Event NoteGroup named " + newName + " already exists!\n";
             ems += "  operation cancelled.";

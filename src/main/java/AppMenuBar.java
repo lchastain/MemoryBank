@@ -61,7 +61,6 @@ public class AppMenuBar extends JMenuBar{
         eventsMenu.add(new JMenuItem("Close"));
         eventsMenu.add(new JMenuItem("Linkages..."));
         eventsMenu.add(new JMenuItem("Add New..."));
-        eventsMenu.add(new JMenuItem("Merge..."));
         eventsMenu.add(new JMenuItem("Save"));
         eventsMenu.add(new JMenuItem("Save As..."));
         eventsMenu.add(new JMenuItem("Clear All"));

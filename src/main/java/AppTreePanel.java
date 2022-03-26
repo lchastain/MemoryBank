@@ -547,8 +547,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // Search Results
         //---------------------------------------------------
         theSearchResultsKeeper = new NoteGroupPanelKeeper();
-        BranchHelper sbh = new BranchHelper(new JTree(), theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-        int resultCount = sbh.getChoices().size(); // Choices array list can be empty but not null.
+//        BranchHelper sbh = new BranchHelper(new JTree(), theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
+//        int resultCount = sbh.getChoices().size(); // Choices array list can be empty but not null.
+        ArrayList groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.EVENTS, false);
+        int resultCount = groupNames.size(); // groupNames array list can be empty but not null.
         if(resultCount > 0) {  // No branch editor until after there is at least one search result.
             branch = new DefaultMutableTreeNode("Search Results", true);
             trunk.add(branch);
@@ -1015,13 +1017,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private void mergeGroup() {
         preClose(); // Close everything that might be open.
         String theContext = appMenuBar.getCurrentContext();
-        switch (theContext) {
-            case "Upcoming Event":
-                ((EventNoteGroupPanel) theNoteGroupPanel).merge();
-                break;
-            case "To Do List":
-                ((TodoNoteGroupPanel) theNoteGroupPanel).merge();
-                break;
+        if ("To Do List".equals(theContext)) {
+            ((TodoNoteGroupPanel) theNoteGroupPanel).merge();
         }
     } // end mergeGroup
 

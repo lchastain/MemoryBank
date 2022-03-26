@@ -22,6 +22,22 @@ public class FileDataAccessor implements DataAccessor {
     static DateTimeFormatter archiveFileFormat;
     static DateTimeFormatter archiveNameFormat;
     String basePath;
+    String theAreaPath;
+    String thePrefix;
+
+    static String calendarNoteGroupAreaPath;
+    static String eventGroupAreaPath;
+    static String goalGroupAreaPath;
+    static String searchResultGroupAreaPath;
+    static String logGroupAreaPath;
+    static String todoListGroupAreaPath;
+    static String eventGroupFilePrefix;
+    static String goalGroupFilePrefix;
+    static String milestoneGroupFilePrefix;
+    static String searchResultFilePrefix;
+    static String todoListFilePrefix;
+    static String logFilePrefix;
+
 
     Vector<NoteData> foundDataVector;
 
@@ -29,11 +45,25 @@ public class FileDataAccessor implements DataAccessor {
     static {
         archiveFileFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
         archiveNameFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd  h:mm:ss a");
+
+        eventGroupFilePrefix = "event_";
+        goalGroupFilePrefix = "goal_";
+        milestoneGroupFilePrefix = "miles_";
+        searchResultFilePrefix = "search_";
+        todoListFilePrefix = "todo_";
+        logFilePrefix = "log_";
     }
 
     FileDataAccessor() {
         basePath = MemoryBank.userDataHome + File.separatorChar;
         archiveAreaPath = basePath + "Archives";
+
+        calendarNoteGroupAreaPath = basePath + DataArea.CALENDARS.getAreaName() + File.separatorChar;
+        eventGroupAreaPath = basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
+        goalGroupAreaPath = basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
+        searchResultGroupAreaPath = basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
+        logGroupAreaPath = basePath + DataArea.LOGS.getAreaName() + File.separatorChar;
+        todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
     }
 
     static void archiveGroupType(File archiveRepo, GroupType groupType) throws IOException {
@@ -198,11 +228,11 @@ public class FileDataAccessor implements DataAccessor {
     public ImageIcon getImageIcon(IconInfo iconInfo) {
         ImageIcon theImageIcon = null;
         if(iconInfo.ready() ) {
-            String basePath = ""; // when dataArea is null we look in the current directory.
+            String baseIconPath = ""; // when dataArea is null we look in the current directory.
             char c = File.separatorChar; // short, for better readability.
-            if (iconInfo.dataArea == DataArea.IMAGES) basePath = MemoryBank.mbHome + c + "images" + c;
-            if (iconInfo.dataArea == DataArea.APP_ICONS) basePath = MemoryBank.mbHome + c + "icons" + c;
-            if (iconInfo.dataArea == DataArea.USER_ICONS) basePath = MemoryBank.userDataHome + c + "icons" + c;
+            if (iconInfo.dataArea == DataArea.IMAGES) baseIconPath = MemoryBank.mbHome + c + "images" + c;
+            if (iconInfo.dataArea == DataArea.APP_ICONS) baseIconPath = MemoryBank.mbHome + c + "icons" + c;
+            if (iconInfo.dataArea == DataArea.USER_ICONS) baseIconPath = MemoryBank.userDataHome + c + "icons" + c;
 
             // Convert file separator characters, if needed.  This makes for file system
             // compatibility (even though we only expect to run on one type of OS).
@@ -210,7 +240,7 @@ public class FileDataAccessor implements DataAccessor {
             if(replaceWith.equals("\\")) replaceWith = "\\\\"; // (we want backslashes, not escape chars).
             String remainingPath = iconInfo.iconName.replaceAll(":", replaceWith);
 
-            String theFilename = basePath + remainingPath + "." + iconInfo.iconFormat;
+            String theFilename = baseIconPath + remainingPath + "." + iconInfo.iconFormat;
             MemoryBank.debug("  Full icon filename: " + theFilename);
 
             Image theImage = null;
@@ -292,6 +322,66 @@ public class FileDataAccessor implements DataAccessor {
         if (archiveName == null) return null;
         return LocalDateTime.parse(archiveName, archiveNameFormat);
     }
+
+    // This method will return all groups of the same type (not applicable to CalendarNote types).
+    // Note that the invoking group will also be in the list, but the calling context can easily remove it from
+    // the result, if needed.
+    @Override
+    public ArrayList getGroupNames(GroupType groupType, boolean filterInactive) {
+            // Which type of accessor is used to retrieve the names is a bit constrained by the fact that we currently
+            //   only have one type of accessor.  Therefore, unlike the 'getDataAccessor' method that tries to make you
+            //   believe that it is so versatile, here we just go directly to the FileDataAccessor.
+
+        switch (groupType) {
+            case SEARCH_RESULTS:
+                theAreaPath = searchResultGroupAreaPath;
+                thePrefix = searchResultFilePrefix;
+                break;
+            case TODO_LIST:
+                theAreaPath = todoListGroupAreaPath;
+                thePrefix = todoListFilePrefix;
+                break;
+            case LOG:
+                theAreaPath = logGroupAreaPath;
+                thePrefix = logFilePrefix;
+                break;
+            case EVENTS:
+                theAreaPath = eventGroupAreaPath;
+                thePrefix = eventGroupFilePrefix;
+                break;
+            case GOALS:
+                theAreaPath = goalGroupAreaPath;
+                thePrefix = goalGroupFilePrefix;
+                break;
+        }
+
+        File dataDir = new File(theAreaPath);
+
+        // Get the complete list of Group filenames.
+        String[] theFileList = dataDir.list(
+                new FilenameFilter() {
+                    // Although this filter does not account for directories, we know that the dataDir for the
+                    //  areas that we look in will not under normal program operation contain other directories.
+                    public boolean accept(File f, String s) {
+                        return s.startsWith(thePrefix);
+                    }
+                }
+        );
+
+        // Filter and normalize the selections.
+        // ie, drop the prefixes and file extensions, and exclude the non-active groups.
+        ArrayList<String> theGroupNames = new ArrayList<>();
+        if (theFileList != null) {
+            for (String aName : theFileList) {
+                String theGroupName = NoteGroupFile.getGroupNameFromFilename(aName);
+                if (filterInactive) {
+                    if (!MemoryBank.appOpts.active(groupType, theGroupName)) continue;
+                }
+                theGroupNames.add(theGroupName);
+            } // end for i
+        }
+        return theGroupNames;
+    } // end getGroupNames
 
     @Override
     public NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo) {

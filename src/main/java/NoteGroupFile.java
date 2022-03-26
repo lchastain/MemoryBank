@@ -12,27 +12,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+// Name is short but should be: NoteGroupFileDataAccessor.
 @SuppressWarnings("rawtypes")
 class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
-    static String calendarNoteGroupAreaPath;
-    static String eventGroupAreaPath;
-    static String goalGroupAreaPath;
-    static String searchResultGroupAreaPath;
-    static String logGroupAreaPath;
-    static String todoListGroupAreaPath;
-    String theAreaPath;
-
-    static String eventGroupFilePrefix;
-    static String goalGroupFilePrefix;
-    static String milestoneGroupFilePrefix;
-    static String searchResultFilePrefix;
-    static String todoListFilePrefix;
-    static String logFilePrefix;
-    String thePrefix;
-
     boolean saveWithoutData;  // This can allow for empty search results, brand new TodoLists, etc.
     boolean saveIsOngoing; // A 'state' flag used by getGroupFilename (for now; other uses are possible).
-    GroupInfo groupInfo;
+    GroupInfo myGroupInfo;
 
     private String failureReason; // Various file access failure reasons, or null.
     private ChronoUnit dateType;
@@ -45,26 +30,9 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
     // Access it with getGroupFilename() & setGroupFilename().
     private String groupFilename;
 
-
-    static {
-        eventGroupFilePrefix = "event_";
-        goalGroupFilePrefix = "goal_";
-        milestoneGroupFilePrefix = "miles_";
-        searchResultFilePrefix = "search_";
-        todoListFilePrefix = "todo_";
-        logFilePrefix = "log_";
-    }
-
-
     NoteGroupFile(GroupInfo groupInfo) {
-        this.groupInfo = groupInfo;
-
-        calendarNoteGroupAreaPath = basePath + DataArea.CALENDARS.getAreaName() + File.separatorChar;
-        eventGroupAreaPath = basePath + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
-        goalGroupAreaPath = basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
-        searchResultGroupAreaPath = basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
-        logGroupAreaPath = basePath + DataArea.LOGS.getAreaName() + File.separatorChar;
-        todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
+        super();
+        myGroupInfo = groupInfo;
 
         // No need to have a filename hanging around until we actually use it.
         // First real need is to capture it once a file is loaded.
@@ -94,33 +62,21 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
                 dateType = ChronoUnit.YEARS;
                 break;
             case SEARCH_RESULTS:
-                theAreaPath = searchResultGroupAreaPath;
-                thePrefix = searchResultFilePrefix;
                 saveWithoutData = true;
                 break;
             case TODO_LIST:
-                theAreaPath = todoListGroupAreaPath;
-                thePrefix = todoListFilePrefix;
                 saveWithoutData = true;
                 break;
             case LOG:
-                theAreaPath = logGroupAreaPath;
-                thePrefix = logFilePrefix;
                 saveWithoutData = false;
                 break;
             case EVENTS:
-                theAreaPath = eventGroupAreaPath;
-                thePrefix = eventGroupFilePrefix;
                 saveWithoutData = true;
                 break;
             case GOALS:
-                theAreaPath = goalGroupAreaPath;
-                thePrefix = goalGroupFilePrefix;
                 saveWithoutData = true;
                 break;
             case MILESTONE:
-                theAreaPath = goalGroupAreaPath; // Unlike other Goal children, Milestones cannot stand alone.
-                thePrefix = milestoneGroupFilePrefix;
                 saveWithoutData = false;
                 break;
         }
@@ -293,7 +249,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
     }
 
     String foundFilename() {
-        return foundFilename(groupInfo);
+        return foundFilename(myGroupInfo);
     }
 
     // Given a GroupInfo, this method will return the full name and path (if it exists) of the file
@@ -522,40 +478,6 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
     } // end getDateFromFilename
 
 
-    // This method will return all groups of the same type (not applicable to CalendarNote types).
-    // Note that the invoking group will also be in the list, but the calling context can easily remove it from
-    // the result, if needed.
-    @Override
-    public ArrayList getGroupNames(boolean filterInactive) {
-        File dataDir = new File(theAreaPath);
-
-        // Get the complete list of Group filenames.
-        String[] theFileList = dataDir.list(
-                new FilenameFilter() {
-                    // Although this filter does not account for directories, we know that the dataDir for the
-                    //  areas that we look in will not under normal program operation contain other directories.
-                    public boolean accept(File f, String s) {
-                        return s.startsWith(thePrefix);
-                    }
-                }
-        );
-
-        // Filter and normalize the selections.
-        // ie, drop the prefixes and file extensions, and exclude the non-active groups.
-        ArrayList<String> theGroupNames = new ArrayList<>();
-        if (theFileList != null) {
-            for (String aName : theFileList) {
-                String theGroupName = getGroupNameFromFilename(aName);
-                if (filterInactive) {
-                    if (!MemoryBank.appOpts.active(groupInfo.groupType, theGroupName)) continue;
-                }
-                theGroupNames.add(theGroupName);
-            } // end for i
-        }
-        return theGroupNames;
-    } // end getGroupNames
-
-
     // This method searches the repository for the next data file in the indicated direction.
     // If it finds one, it returns the associated date.  If there are no more data files in
     // that direction then it simply returns the next date in that direction.
@@ -740,6 +662,12 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
 
     @Override // The NoteGroupDataAccessor method implementation.
     public Object[] loadNoteGroupData() {
+        return loadNoteGroupData(myGroupInfo);
+    }
+
+
+    @Override // The NoteGroupDataAccessor method implementation.
+    public Object[] loadNoteGroupData(GroupInfo groupInfo) {
         // Get the Filename for the GroupInfo.  Refresh it
         //   just prior to loading the group rather than earlier, because the Panel content may
         //   have changed so that the file to load now is not the same as it was at group construction;
@@ -750,7 +678,11 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         // We need to retain the filename for this group, even if no file was found.
         // This will be needed during the save operation, to let us know if a pre-existing
         // file should be removed before we save.
-        setGroupFilename(theFilename);
+        if(myGroupInfo == groupInfo) {
+            // The condition is needed for when this accessor is used to load some 'other' group of the same type,
+            //   for example during a Merge operation; we don't want our own filename to change to that one.
+            setGroupFilename(theFilename);
+        }
 
         if (theFilename.isEmpty()) {
             MemoryBank.debug("No file was found for: " + groupInfo.getGroupName());
@@ -771,17 +703,17 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         LocalDate theDate = null;
         String dateType = null;
 
-        switch (groupInfo.groupType) {
+        switch (myGroupInfo.groupType) {
             case DAY_NOTES:
-                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                theDate = CalendarNoteGroup.getDateFromGroupName(myGroupInfo);
                 dateType = "D";
                 break;
             case MONTH_NOTES:  // areaName = "Years";
-                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                theDate = CalendarNoteGroup.getDateFromGroupName(myGroupInfo);
                 dateType = "M";
                 break;
             case YEAR_NOTES:  // areaName = "Years";
-                theDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
+                theDate = CalendarNoteGroup.getDateFromGroupName(myGroupInfo);
                 dateType = "Y";
                 break;
             case GOALS:
@@ -801,7 +733,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         if(theDate != null) {
             return makeFullFilename(theDate, dateType);
         } else {
-            return makeFullFilename(groupInfo.groupType, groupInfo.getGroupName());
+            return makeFullFilename(myGroupInfo.groupType, myGroupInfo.getGroupName());
         }
     }
 
@@ -962,7 +894,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         // It is important to check filename validity in the area where the new file would be created,
         // so that any possible Security Exception is seen.  Those Exceptions may not be seen in a
         // different area of the same filesystem.
-        File aFile = new File(makeFullFilename(groupInfo.groupType, theName));
+        File aFile = new File(makeFullFilename(myGroupInfo.groupType, theName));
         return checkFilename(theName, aFile.getParent() + File.separatorChar);
     }
 
@@ -1072,7 +1004,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
 
     // This method is used to obtain a filename for data that needs to be saved.  We cannot accept "" for an answer.
     private String getGroupFilename() {
-        String s = groupInfo.groupType.toString();
+        String s = myGroupInfo.groupType.toString();
         if (s.endsWith("Note")) {  // This will cover the Calendar Note type groups.
             // Their filenames ends in a timestamp that changes with every save.  That timestamping
             // is the foundation of being able to archive earlier files, but the feature did not ever
