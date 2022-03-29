@@ -8,9 +8,6 @@ public interface NoteGroupDataAccessor {
 
     boolean exists();
 
-//    ArrayList getGroupNames(GroupType groupType);
-//    ArrayList getGroupNames(boolean filterInactive);
-
     LocalDate getNextDateWithData(LocalDate currentDate, ChronoUnit dateDelta, CalendarNoteGroup.Direction direction);
 
     Object[] loadNoteGroupData(); // Calls the other one with a GroupInfo that is held in the implementation.

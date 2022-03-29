@@ -20,7 +20,6 @@ import java.util.List;
 public class AppUtil {
     static ObjectMapper mapper;
 
-    private static Boolean blnGlobalArchive;
     private static Boolean blnGlobalDebug; // initially null
 
     static {
@@ -29,58 +28,6 @@ public class AppUtil {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     } // end static
 
-
-    // Put this in a 'view' base class....
-    @SuppressWarnings("rawtypes")
-    static boolean[][] findDataDays(int year) {
-        boolean[][] hasDataArray = new boolean[12][31];
-        // Will need to normalize the month integers from 0-11 to 1-12
-        // and the day integers from 0-30 to 1-31
-
-        // System.out.println("Searching for data in the year: " + year);
-//        String FileName = CalendarNoteGroup.basePath() + year;
-        String FileName = NoteGroupFile.calendarNoteGroupAreaPath + year;
-        MemoryBank.debug("Looking in " + FileName);
-
-        String[] foundFiles = null;
-
-        File f = new File(FileName);
-        if (f.exists()) {
-            if (f.isDirectory()) {
-                foundFiles = f.list(new logFileFilter("D"));
-            } // end if directory
-        } // end if exists
-
-        if (foundFiles == null)
-            return hasDataArray;
-        int month, day;
-
-        // System.out.println("Found:");
-        for (String foundFile : foundFiles) {
-            month = Integer.parseInt(foundFile.substring(1, 3));
-            day = Integer.parseInt(foundFile.substring(3, 5));
-            // System.out.println(" " + foundFiles[i]);
-            // System.out.println("\tMonth: " + month + "\tDay: " + day);
-            Object[] theGroup = NoteGroupFile.loadFileData(FileName + File.separatorChar + foundFile);
-
-            // Look into the file to see if it has significant content.
-            boolean itHasData = false;
-            if(theGroup.length == 1) {
-                // It is not possible to have a length of one for DayNoteData, where the content is GroupProperties.
-                // When only linkages are present in DayNoteData, the file still contains a two-element array
-                // although the second element may be null.  So this is just older (pre linkages) data, and in
-                // that case it is significant since we didn't ever save 'empty\ days.
-                itHasData = true;  // and DayNoteData did not get saved, if no notes.
-            } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
-                // significant for purposes of this method; only the length of the second element (the ArrayList).
-                ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
-                if(arrayList.size() > 0) itHasData = true;
-            }
-            if(itHasData) hasDataArray[month - 1][day - 1] = true;
-        } // end for each foundFile
-
-        return hasDataArray;
-    } // end findDataDays
 
     // -------------------------------------------------------------
     // Method Name: getTooltipString

@@ -2,6 +2,7 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
+    Loss of the .ico format icons
     a goal move from todolist to day - may not be setting the groupchanged flag; Save option not enabled.
 
 
@@ -16,10 +17,39 @@ Tests Needed:
 
 =====================================================================================================
 
+29 Mar 2022
+The use by this app of the Description on an ImageIcon appears to be a way to preserve the icon filename as the icon
+  is selected for use in the IconNoteComponent.  Description is then extracted out when setting the icon on the
+  IconNoteComponent, in order to get the IconInfo (previously iconFileString) for its IconNoteData.  But it also
+  appeared to be getting used by the 'iconFile' data member from the inner NoteIcon, when in reality that only applied
+  to the default icon and that could have just as easily been left as null, to achieve the same effect.  With the one
+  'iconFile' data member removed from the inner NoteIcon class, it was left as a simple JLabel (with extensive
+  interface implementations and settings, but not enough to justify a new class, inner or not).  The iconFile may have
+  started out being more ambitious but then got short-circuited at some point, and that went unnoticed till now.  At
+  any rate, with this understanding replaced the inner class with a new JLabel data member, and gave it the same
+  listeners and made the needed customizations.
+Now doing a code checkin ahead of next steps towards converting the iconFileString to an IconInfo.
+
+
+28 Mar 2022
+Working on morphing the iconFileString into an IconInfo (not so simple).
+why do we need the Description?  What would be lost if we don't have it?
+
+27 Mar 2022
+Moved file-based operations for findDataDays and getIconArray (from AppUtil, Month & Year views) to FileDataAccessor.
+Looking at moving DayNoteDefaults and EventNoteDefaults into AppOptions (total 3 items; better approach than trying
+  to upkeep these as full classes with their own persistence requirements).  But in looking into that, found that the
+  icons (for .ico types) have been broken since the removal of AppIcon; the chooser and the IconNoteComponent are not
+  using the DataAccessor methodology of retrieving the images.  Working that now...
+And in working that, need to resolve the iconFileString into an IconInfo that points to the proper icons location, and
+  found that the copying of the chosen icon to the user's data area was dropped, (per a design decision made while
+  analyzing SCR 00079 back on 18 Nov 2019) and the user icons area was just left in place.  So - will need to remove
+  that (the directory and all its content, thereby removing the distraction).
+
 26 Mar 2022
 Removed Merge for Upcoming Events, removed direct file statements from the Merge for To Do lists.
 Removed direct file statements from the BranchHelper (getChoices, now calls a new DataAccessor method).
-
+Checked in.
 
 25 Mar 2022
 Moved Subjects loads and saves into the FileDataAccessor.  Also it seems that for UpcomingEvents, subjects were not

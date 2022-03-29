@@ -310,7 +310,7 @@ public class YearView extends JPanel {
         }
 
         // Look for new day data, for color/font setting.
-        hasDataArray = AppUtil.findDataDays(year);
+        hasDataArray = MemoryBank.dataAccessor.findDataDays(year);
 
         LocalDate tmpLocalDate = LocalDate.of(year, 1, 1);
         for (int i = 0; i < 12; i++) {

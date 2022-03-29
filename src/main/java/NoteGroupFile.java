@@ -41,13 +41,11 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         saveIsOngoing = false;
         failureReason = null;
 
-        // These defaults are used with CalendarNoteGroup types; if the type is different then they will be overridden, below.
+        // Default
         saveWithoutData = false;
-        theAreaPath = calendarNoteGroupAreaPath;
-        thePrefix = "";
 
-        // Only the Calendar-type groups do not need to be saved when they have no data.
-        // The others - saving them creates a placeholder for a new group where notes will
+        // Calendar-type groups do not need to be saved when they have no data.
+        // Some of the others - saving them creates a placeholder for a new group where notes will
         //   be added subsequently, and/or they have extended properties that should be
         //   preserved even though there are no notes to go along with them, such as the
         //   search panel settings of a SearchResultGroup.
@@ -338,16 +336,13 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
 
 
     // Given a LocalDate and a type of note to look for ("D", "M", or "Y", this method
-    // will return the appropriate filename if a file exists for the indicated timeframe.
+    // will return the appropriate filename if a file exists for the indicated Date/Type.
     // If no file exists, the return string is empty ("").
     static String foundFilename(LocalDate theDate, String dateType) {
         String[] foundFiles = null;
         String lookfor = dateType;
         String fileName = calendarNoteGroupAreaPath;
         fileName += String.valueOf(theDate.getYear());
-//        StringBuilder fileName = new StringBuilder(CalendarNoteGroupPanel.areaPath); // May want to use a StringBuilder here, instead.
-//        fileName.append(String.valueOf(theDate.getYear()));
-
 
         // System.out.println("Looking in " + fileName);
         File f = new File(fileName);
@@ -487,7 +482,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         int initialYear = initialDate.getYear();
 
         // Get a list of all Years (directories) where the user has data
-        // Potential issue here if we're not looking into a directory, but we know that we are.
+        // Potential issue here if we're not looking into a directory (but we know that we are).
         // And if the directory is empty?  Not too much of a problem; it will still 'sort', and then we don't iterate.
         File theYears = new File(calendarNoteGroupAreaPath); // All directories here, with 4-digit numerical names.
         List<File> yearsList = Arrays.asList(theYears.listFiles());

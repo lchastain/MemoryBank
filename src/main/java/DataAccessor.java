@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -24,12 +25,16 @@ public interface DataAccessor {
     
     boolean createArea(DataArea dataArea); // TODO tie in usage of this with 'add new group'
     boolean createArchive();
+    boolean[][] findDataDays(int year);
+
     default String getArchiveStorageName(String archiveName) {
         return archiveName; // Override this when the 'storage' name differs from the archive name.
     }
     AppOptions getAppOptions();
 
     String[] getArchiveNames();
+    Image[] getIconArray(int year, int month, int day);
+    IconInfo getIconInfoForDescription(String description);
     ImageIcon getImageIcon(IconInfo iconInfo);
     AppOptions getArchiveOptions(String archiveName);
 

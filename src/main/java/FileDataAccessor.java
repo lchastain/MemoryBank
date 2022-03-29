@@ -188,6 +188,57 @@ public class FileDataAccessor implements DataAccessor {
         return archiveFileFormat.format(localDateTime);
     }
 
+    //      @SuppressWarnings("rawtypes")
+    @Override
+    public boolean[][] findDataDays(int year) {
+        boolean[][] hasDataArray = new boolean[12][31];
+        // Will need to normalize the month integers from 0-11 to 1-12
+        // and the day integers from 0-30 to 1-31
+
+        // System.out.println("Searching for data in the year: " + year);
+        String FileName = calendarNoteGroupAreaPath + year;
+        MemoryBank.debug("Looking in " + FileName);
+
+        String[] foundFiles = null;
+
+        File f = new File(FileName);
+        if (f.exists()) {
+            if (f.isDirectory()) {
+                foundFiles = f.list(new AppUtil.logFileFilter("D"));
+            } // end if directory
+        } // end if exists
+
+        if (foundFiles == null)
+            return hasDataArray;
+        int month, day;
+
+        // System.out.println("Found:");
+        for (String foundFile : foundFiles) {
+            month = Integer.parseInt(foundFile.substring(1, 3));
+            day = Integer.parseInt(foundFile.substring(3, 5));
+            // System.out.println(" " + foundFiles[i]);
+            // System.out.println("\tMonth: " + month + "\tDay: " + day);
+            Object[] theGroup = NoteGroupFile.loadFileData(FileName + File.separatorChar + foundFile);
+
+            // Look into the file to see if it has significant content.
+            boolean itHasData = false;
+            if(theGroup.length == 1) {
+                // It is not possible to have a length of one for DayNoteData, where the content is GroupProperties.
+                // When only linkages are present in DayNoteData, the file still contains a two-element array
+                // although the second element may be null.  So this is just older (pre linkages) data, and in
+                // that case it is significant since we didn't ever save 'empty' days.
+                itHasData = true;  // and DayNoteData did not get saved, if no notes.
+            } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
+                // significant for purposes of this method; only the length of the second element (the ArrayList).
+                ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
+                if(arrayList.size() > 0) itHasData = true;
+            }
+            if(itHasData) hasDataArray[month - 1][day - 1] = true;
+        } // end for each foundFile
+
+        return hasDataArray;
+    } // end findDataDays
+
     @Override
     public AppOptions getAppOptions() {
         AppOptions appOptions = null;
@@ -209,6 +260,42 @@ public class FileDataAccessor implements DataAccessor {
 
 
     @Override  // The interface implementation
+    public AppOptions getArchiveOptions(String archiveName) {
+        AppOptions appOptions = null;
+        LocalDateTime theArchiveTimestamp = LocalDateTime.parse(archiveName, archiveNameFormat);
+        String archiveDirectoryName = archiveFileFormat.format(theArchiveTimestamp);
+
+        Exception e = null;
+        String filename = MemoryBank.userDataHome + File.separatorChar + DataArea.ARCHIVES.getAreaName();
+        filename += File.separatorChar + archiveDirectoryName + File.separatorChar + "appOpts.json";
+
+        try {
+            String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
+            appOptions = AppUtil.mapper.readValue(text, AppOptions.class);
+            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
+        } catch (Exception anyException) {
+            e = anyException;
+        }
+
+        if (e != null) {
+            e.printStackTrace();
+            String ems = "Error in loading " + filename + " !\n";
+            ems = ems + e.toString();
+            ems = ems + "\nReview the stack trace.";
+            MemoryBank.debug(ems);
+        } // end if
+
+        // Archives do not themselves have Archives; therefore the row that was preserved in these options will
+        // be off by one because the Archive Tree does not have that leaf (row).  Fix that, before returning.
+        if (appOptions != null) {
+            appOptions.theSelectionRow -= 1;
+        }
+
+        return appOptions;
+    }
+
+
+    @Override  // The interface implementation
     public String[] getArchiveNames() {
         String[] theFileNames;
         ArrayList<String> theArchiveNames = new ArrayList<>();
@@ -223,6 +310,74 @@ public class FileDataAccessor implements DataAccessor {
         }
         return theArchiveNames.toArray(new String[0]);
     }
+
+    // Returns an array of 5 LogIcons that are read from a file
+    //   of data for the specified day.  There may be one or more
+    //   null placeholders in the array.
+    @Override
+    public Image[] getIconArray(int year, int month, int day) {
+        LocalDate ld = LocalDate.of(year, month, day);
+
+        String theFilename = NoteGroupFile.foundFilename(ld, "D");
+        if (!new File(theFilename).exists()) return null;
+
+        MemoryBank.debug("Loading: " + theFilename);
+        // There is a data file, so there will be 'something' to load.
+        Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
+
+        // If we have only loaded GroupProperties but no accompanying data, then bail out now.
+        Object theObject = theDayGroup[theDayGroup.length-1];
+        String theClass = theObject.getClass().getName();
+        System.out.println("The DayGroup class type is: " + theClass);
+        if(!theClass.equals("java.util.ArrayList")) return null;
+
+        // The loaded data is a Vector of DayNoteData.
+        // Not currently worried about the 'loading' boolean, since MonthView does not re-persist the data.
+        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<DayNoteData>>() { });
+
+        Image[] returnArray = new Image[5];
+        int index = 0;
+        String iconFileString;
+        for (DayNoteData tempDayData : theDayNotes) {
+            if (tempDayData.getShowIconOnMonthBoolean()) {
+                iconFileString = tempDayData.getIconFileString();
+                if (iconFileString == null) { // Then show the default icon
+                    iconFileString = DayNoteGroupPanel.dayNoteDefaults.defaultIconFileName;
+                } // end if
+
+                if (iconFileString.equals("")) {
+                    // Show this 'blank' on the month.
+                    // Possibly as a 'spacer'.
+                    returnArray[index] = null;
+                } else {
+                    Image theImage =  new ImageIcon(iconFileString).getImage();
+                    theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
+                    // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
+                    //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
+                    //   day), then switch to the MonthView (to be contructed for the first time in your session).
+                    // Adding a .flush() does fix the problem of some icons (answer_bad.gif) not showing the first time
+                    //   the MonthView is displayed but other .gif files didn't need it.
+                    // And - other file types may react differently.  This flush is needed in conjuction with a double
+                    //   load of the initial month to be shown; that is done in treePanel.treeSelectionChanged().
+                    returnArray[index] = theImage;
+                } // end if
+
+                index++;
+                MemoryBank.debug("MonthView - Set icon " + index);
+                if (index > 4) break;
+            } // end if
+        }
+
+        //System.out.println("getIconArray: " + Arrays.toString(returnArray));
+        return returnArray;
+    } // end getIconArray
+
+
+    @Override
+    public IconInfo getIconInfoForDescription(String description) {
+        return new IconInfo();
+    }
+
 
     @Override
     public ImageIcon getImageIcon(IconInfo iconInfo) {
@@ -265,53 +420,15 @@ public class FileDataAccessor implements DataAccessor {
                 theImageIcon = new ImageIcon();
                 theImageIcon.setImage(theImage);
 
-                // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app
-                //   when saving - this is tricky; the description is picked up by the iconNoteComponent when the rest
-                //   of the icon appears to come thru as null.  With the filename hiding in the place of the
-                //   description, we can restore it as needed.
-                // See also:  iconNoteComponent.mouseClicked and setIcon.
+                // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
+                //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
+                //   With the filename hiding in the place of the description, we can update the
+                //   associated IconNoteData with the chosen IconInfo, and later restore the icon from that.
                 theImageIcon.setDescription(theFilename);
             }
         } // end if the IconInfo is 'ready'.
         return theImageIcon;
     } // end getImageIcon
-
-
-    @Override  // The interface implementation
-    public AppOptions getArchiveOptions(String archiveName) {
-        AppOptions appOptions = null;
-        LocalDateTime theArchiveTimestamp = LocalDateTime.parse(archiveName, archiveNameFormat);
-        String archiveDirectoryName = archiveFileFormat.format(theArchiveTimestamp);
-
-        Exception e = null;
-        String filename = MemoryBank.userDataHome + File.separatorChar + DataArea.ARCHIVES.getAreaName();
-        filename += File.separatorChar + archiveDirectoryName + File.separatorChar + "appOpts.json";
-
-        try {
-            String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
-            appOptions = AppUtil.mapper.readValue(text, AppOptions.class);
-            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
-        } catch (Exception anyException) {
-            e = anyException;
-        }
-
-        if (e != null) {
-            e.printStackTrace();
-            String ems = "Error in loading " + filename + " !\n";
-            ems = ems + e.toString();
-            ems = ems + "\nReview the stack trace.";
-            MemoryBank.debug(ems);
-        } // end if
-
-        // Archives do not themselves have Archives; therefore the row that was preserved in these options will
-        // be off by one because the Archive Tree does not have that leaf (row).  Fix that, before returning.
-        if (appOptions != null) {
-            appOptions.theSelectionRow -= 1;
-        }
-
-        return appOptions;
-    }
-
 
     // The archive name cannot be used directly as a directory name due to the presence
     //   of the colons in the time portion.  So, we need to parse the archive name with

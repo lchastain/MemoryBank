@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class MilestoneNoteGroupPanel extends NoteGroupPanel implements IconKeeper {
+public class MilestoneNoteGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(MilestoneNoteGroupPanel.class);
     private static final int DEFAULT_PAGE_SIZE = 25;
     static String userInfo;
@@ -109,16 +109,6 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel implements IconKeepe
         return noteComponent;
     } // end makeNewNote
 
-
-    @Override
-    public ImageIcon getDefaultIcon() {
-        return null;
-    }
-
-    @Override
-    public void setDefaultIcon(ImageIcon li) {
-
-    }
 
     public static void main(String[] args) {
         MemoryBank.debug = true;

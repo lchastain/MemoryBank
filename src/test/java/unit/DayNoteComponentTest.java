@@ -57,15 +57,6 @@ class DayNoteComponentTest {
         dayNoteComponent.clear();
     }
 
-    // This is actually a test of the abstract IconNoteComponent.
-    @Test
-    void testHandleIconPopup() {
-        ActionEvent ae1 = new ActionEvent(IconNoteComponent.sadMi, 0, "");
-        ActionEvent ae2 = new ActionEvent(IconNoteComponent.blankMi, 0, "");
-        dayNoteComponent.noteIcon.actionPerformed(ae1);
-        dayNoteComponent.noteIcon.actionPerformed(ae2);
-    }
-
     @Test
     void testMouseListener() {
         DayNoteComponent.NoteTimeLabel noteTimeLabel = dayNoteComponent.getNoteTimeLabel();
@@ -104,7 +95,7 @@ class DayNoteComponentTest {
         testFrame.setLocationRelativeTo(null);
         testFrame.setVisible(true);
         MouseEvent me = new MouseEvent(pressMe, 1,1,1,1,1,1,true, 1);
-        dayNoteComponent.noteIcon.showIconPopup(me);
+        dayNoteComponent.showIconPopup(me);
         try {
             Thread.sleep(100);
         } catch (InterruptedException ignore) {}

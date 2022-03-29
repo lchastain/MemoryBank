@@ -76,13 +76,18 @@ class AppOptions {
         return false;
     }
 
+    //=================================================================================================================
+    // Below are two static methods that simply make a call to a static method in the app main -
+    // They have evolved from code that originally did all the work here, to now de-referenced one-liners.
+    // But the code that uses them (admittedly mostly tests) is more readable and more easily maintained by leaving
+    //  these methods in place and with their simpler signatures, as opposed to refactoring the calling contexts to
+    //  make the static calls directly.
+    //=================================================================================================================
     static void loadOpts() {
-        // TODO - change usages of this method (mostly by tests) to direct assignment of static var, then remove this method.
         MemoryBank.appOpts = MemoryBank.dataAccessor.getAppOptions();
     } // end loadOpts
 
     static void saveOpts() {
-        // TODO - change usages of this method (mostly by tests) to direct invocation of the static method, then remove this method.
         MemoryBank.dataAccessor.saveAppOptions();
     } // end saveOpts
 } // end class AppOptions

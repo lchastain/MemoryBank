@@ -22,7 +22,6 @@ public class BranchHelper implements BranchHelperInterface {
     private int theIndex;  // keeps track of which row of the tree we're on.
     private String renameFrom;  // Used when deciding if special handling is needed.
     private String renameTo;    // Provides a way for us override the value.
-    private final DataArea theArea;
     private GroupType theType;
     Notifier optionPane;  // for Testing
     private String thePrefix; // goal_, event_, todo_, search_
@@ -33,20 +32,19 @@ public class BranchHelper implements BranchHelperInterface {
         theNoteGroupPanelKeeper = noteGroupPanelKeeper;
         theTreeModel = (DefaultTreeModel) theTree.getModel();
         theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
-        theArea = areaName;
-        theAreaNodeName = theArea.toString();
+        theAreaNodeName = areaName.toString();
 
         // This Helper is for one of these Branches -
-        if (theArea.equals(DataArea.GOALS)) {
+        if (areaName.equals(DataArea.GOALS)) {
             thePrefix = "goal_";
             theType = GroupType.GOALS;
-        } else if (theArea.equals(DataArea.UPCOMING_EVENTS)) {
+        } else if (areaName.equals(DataArea.UPCOMING_EVENTS)) {
             thePrefix = "event_";
             theType = GroupType.EVENTS;
-        } else if (theArea.equals(DataArea.TODO_LISTS)) {
+        } else if (areaName.equals(DataArea.TODO_LISTS)) {
             thePrefix = "todo_";
             theType = GroupType.TODO_LIST;
-        } else if(theArea.equals(DataArea.SEARCH_RESULTS)) {
+        } else if(areaName.equals(DataArea.SEARCH_RESULTS)) {
             thePrefix = "search_";
             theType = GroupType.SEARCH_RESULTS;
         }

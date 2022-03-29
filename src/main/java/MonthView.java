@@ -1,19 +1,16 @@
 /* User interface to choose a Date from a view of a Month.
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
-import java.util.Vector;
 
 public class MonthView extends JLayeredPane {
     private static final long serialVersionUID = -1L;
@@ -136,67 +133,6 @@ public class MonthView extends JLayeredPane {
     } // end constructor
 
 
-    // Returns an array of 5 LogIcons that are read from a file
-    //   of data for the specified day.  There may be one or more
-    //   null placeholders in the array.
-    private Image[] getIconArray(int year, int month, int day) {
-        LocalDate ld = LocalDate.of(year, month, day);
-
-        String theFilename = NoteGroupFile.foundFilename(ld, "D");
-        if (!new File(theFilename).exists()) return null;
-
-        MemoryBank.debug("Loading: " + theFilename);
-        // There is a data file, so there will be 'something' to load.
-        Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
-
-        // If we have only loaded GroupProperties but no accompanying data, then bail out now.
-        Object theObject = theDayGroup[theDayGroup.length-1];
-        String theClass = theObject.getClass().getName();
-        System.out.println("The DayGroup class type is: " + theClass);
-        if(!theClass.equals("java.util.ArrayList")) return null;
-
-        // The loaded data is a Vector of DayNoteData.
-        // Not currently worried about the 'loading' boolean, since MonthView does not re-persist the data.
-        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<DayNoteData>>() { });
-
-        Image[] returnArray = new Image[5];
-        int index = 0;
-        String iconFileString;
-        for (DayNoteData tempDayData : theDayNotes) {
-            if (tempDayData.getShowIconOnMonthBoolean()) {
-                iconFileString = tempDayData.getIconFileString();
-                if (iconFileString == null) { // Then show the default icon
-                    iconFileString = DayNoteGroupPanel.dayNoteDefaults.defaultIconFileName;
-                } // end if
-
-                if (iconFileString.equals("")) {
-                    // Show this 'blank' on the month.
-                    // Possibly as a 'spacer'.
-                    returnArray[index] = null;
-                } else {
-                    Image theImage =  new ImageIcon(iconFileString).getImage();
-                    theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
-                    // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
-                    //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
-                    //   day), then switch to the MonthView (to be contructed for the first time in your session).
-                    // Adding a .flush() does fix the problem of some icons (answer_bad.gif) not showing the first time
-                    //   the MonthView is displayed but other .gif files didn't need it.
-                    // And - other file types may react differently.  This flush is needed in conjuction with a double
-                    //   load of the initial month to be shown; that is done in treePanel.treeSelectionChanged().
-                    returnArray[index] = theImage;
-                } // end if
-
-                index++;
-                MemoryBank.debug("MonthView - Set icon " + index);
-                if (index > 4) break;
-            } // end if
-        }
-
-        //System.out.println("getIconArray: " + Arrays.toString(returnArray));
-        return returnArray;
-    } // end getIconArray
-
-
     //-------------------------------------------------------------------
     // Method Name:  getPreferredSize
     //
@@ -258,7 +194,7 @@ public class MonthView extends JLayeredPane {
 
         // Accept the new value (other than null)
         theChoice = theNewChoice;
-        hasDataArray = AppUtil.findDataDays(theChoice.getYear());
+        hasDataArray = MemoryBank.dataAccessor.findDataDays(theChoice.getYear());
         displayedMonth = theChoice;
         setChoiceLabel();
 
@@ -274,7 +210,7 @@ public class MonthView extends JLayeredPane {
     public void setView(LocalDate theNewMonthToView) {
         activeDayCanvas.reset(); // Turn off any previous highlighting.
 
-        hasDataArray = AppUtil.findDataDays(theNewMonthToView.getYear());
+        hasDataArray = MemoryBank.dataAccessor.findDataDays(theNewMonthToView.getYear());
         displayedMonth = theNewMonthToView;
         monthCanvas.recalc(); // only way to find the day object
     } // end setView
@@ -297,7 +233,7 @@ public class MonthView extends JLayeredPane {
     }
 
     //--------------------------------------------------
-    // Additional classes (same file but not inner)
+    // Additional inner classes
     //--------------------------------------------------
 
     class MonthCanvas extends JPanel {
@@ -310,7 +246,7 @@ public class MonthView extends JLayeredPane {
 
             // Difference between this mouse handler and the one for YearView:  this one is a one-time click, whereas
             //  the one in YearView may be held depressed and the increment/decrement will continue.  We don't want
-            //  that same behavior here for months, because of the every-12-month rollover to a new year.
+            //  that same behavior here for months, because it will rollover to a new year in 11 or fewer iterations.
             MouseAdapter ma = new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     LabelButton source = (LabelButton) e.getSource();
@@ -331,7 +267,7 @@ public class MonthView extends JLayeredPane {
 
                     // If we have scrolled into a new year, we need to update the 'hasData' info.
                     if (currentYear != displayedMonth.getYear()) {
-                        hasDataArray = AppUtil.findDataDays(displayedMonth.getYear());
+                        hasDataArray = MemoryBank.dataAccessor.findDataDays(displayedMonth.getYear());
                     } // end if
                     monthCanvas.recalc();
                 } // end mouseClicked
@@ -464,9 +400,7 @@ public class MonthView extends JLayeredPane {
         } // end recalc
     } // end class MonthCanvas
 
-    //============================================================
-    // Description:  Representation of a Day in a month 'view'
-    //============================================================
+    // Representation of a Day in a month 'view'
     public class DayCanvas extends JPanel implements MouseListener {
         private static final long serialVersionUID = 1L;
 
@@ -582,6 +516,8 @@ public class MonthView extends JLayeredPane {
         //---------------------------------------------------------
 
         public void update(LocalDate ld) {
+            int thisYear = displayedMonth.getYear();
+            int thisMonth = displayedMonth.getMonthValue();
             int thisDay = ld.getDayOfMonth();
             dayLabel.setText(String.valueOf(thisDay));
             //MemoryBank.debug("DayCanvas update was called " + dayLabel.getText());
@@ -595,8 +531,7 @@ public class MonthView extends JLayeredPane {
             if (hasDataArray[displayedMonth.getMonthValue() - 1][thisDay - 1]) {
                 offFont = hasDataFont;
                 offColor = hasDataColor;
-                Image[] thisDayIcons =
-                        getIconArray(displayedMonth.getYear(), displayedMonth.getMonthValue(), thisDay);
+                Image[] thisDayIcons = MemoryBank.dataAccessor.getIconArray(thisYear, thisMonth, thisDay);
                 if (thisDayIcons != null) {
                     icon1.setImage(thisDayIcons[0]);
                     icon2.setImage(thisDayIcons[1]);

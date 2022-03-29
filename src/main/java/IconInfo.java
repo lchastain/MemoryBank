@@ -33,22 +33,29 @@ public class IconInfo {
     //   files to the best wording you can fit into the relatively few characters of a filename.
 
     // Idea - that a possible 'icon editor' could be quickly stood up as a NoteGroup that creates an IconNoteComponent
-    //   for every icon that it finds in the filesystem, to include adding a hierarchy to the app tree.  Possibly
-    //   with a BranchHelper, too.  Wild!
+    //   for every icon that it finds in the filesystem, to include adding a hierarchy to the app tree, if subdirectories
+    //   are found.  Possibly with a BranchHelper, too.  Wild!
 
-    DataArea dataArea;   // Is this an App icon, a User icon, or an image ?
+    DataArea dataArea;  // Is this an App icon, a User icon, or an image ?  (Currently there ARE no user icons)
     String iconName;
     String iconFormat;
+    boolean showIconOnMonthView;
 
     IconInfo() {
         // Data members may be set directly.
         // A null or empty dataArea can be interpreted as a 'default' area.  DataAccessors will determine a value.
+        showIconOnMonthView = false;
     }
 
     IconInfo(DataArea area, String name, String format) {
+        this(area, name, format, false);
+    }
+
+    IconInfo(DataArea area, String name, String format, boolean showIt) {
         dataArea = area;
         iconName = name;
         iconFormat = format;
+        showIconOnMonthView = showIt;
     }
 
     @JsonIgnore // do not let Jackson think that there is an 'imageIcon' data member.
