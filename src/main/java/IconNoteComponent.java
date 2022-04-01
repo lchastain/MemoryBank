@@ -3,8 +3,10 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public abstract class IconNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
@@ -18,7 +20,6 @@ public abstract class IconNoteComponent extends NoteComponent {
     MouseListener mouseListener;
 
     // Private static values that are accessed from multiple contexts.
-    private static final IconFileChooser iconChooser;
     private static final JCheckBoxMenuItem siombMi;
     static JMenuItem sadMi;
     private static final JMenuItem resetMi;
@@ -47,10 +48,6 @@ public abstract class IconNoteComponent extends NoteComponent {
         iconPopup.add(resetMi);
         blankMi = new JMenuItem("Blank Icon");
         iconPopup.add(blankMi);
-
-        // Initialize the Icon file chooser
-        iconChooser = new IconFileChooser(MemoryBank.mbHome + File.separatorChar + "icons");
-
     } // end static section
 
 
@@ -167,24 +164,19 @@ public abstract class IconNoteComponent extends NoteComponent {
                 } else if (e.getClickCount() == 2) {  // Double left button click
                     System.out.print(""); // Don't care.
                 } else { // Single Left Mouse Button
-                    // Some of the method calls below use the full
-                    //   scope - without it, the method would only apply to
-                    //   this inner component and not the overall one.
-                    IconNoteComponent.this.setBorder(redBorder);
-                    IconNoteComponent.this.repaint();
+                    setBorder(redBorder);
+                    repaint();
 
-                    int returnVal = iconChooser.showDialog(theIconLabel, "Set Icon");
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        String iconFileName = iconChooser.getSelectedFile().getPath();
-                        MemoryBank.debug("Chosen icon file: " + iconFileName);
-                        IconNoteComponent.this.setIcon(new ImageIcon(iconFileName.toLowerCase()));
+                    String theIconDescription = MemoryBank.dataAccessor.chooseIcon();
 
-                        // Since an explicit Icon was chosen, default to showing on Month.
-                        ((IconNoteData) getNoteData()).setShowIconOnMonthBoolean(true);
+                    if(theIconDescription != null) {
+                        IconNoteData myIconNoteData = ((IconNoteData) getNoteData());
+                        myIconNoteData.iconFileString = theIconDescription;
+                        myIconNoteData.setShowIconOnMonthBoolean(true);
+                        setIcon(myIconNoteData.getImageIcon());
                         setNoteChanged();
-                    } // end if
-
-                    IconNoteComponent.this.setBorder(null);
+                    }
+                    setBorder(null);  // This is the highlight of the full component, not the icon.
                 } // end if/else if
             } // end mouseClicked
 
@@ -260,17 +252,14 @@ public abstract class IconNoteComponent extends NoteComponent {
         // Luckily, if mouseListener is not currently a MouseListener then the next line is a silent no-op,
         // and otherwise it does what we've asked.
         else removeMouseListener(mouseListener);
-
-
-
     }
 
-    // This is the IconNoteComponent (vs NoteIcon/JLabel) method.
+    // This is the IconNoteComponent (vs JLabel) method.
     public void setIcon(ImageIcon theIcon) {
         // The default icon should have already been scaled by the container for which it is the default.
         // Otherwise, scale the icon.
         if ((theIcon != myIconKeeper.getDefaultIcon()) && (theIcon != null)) {
-            String s = theIcon.getDescription();  // Description was set in getImageIcon()
+            String s = theIcon.getDescription();  // Description was set in the DataAccessor's getImageIcon()
             // Make an IconInfo here?
             ((IconNoteData) getNoteData()).setIconFileString(s);
             IconInfo.scaleIcon(theIcon);
@@ -330,32 +319,73 @@ public abstract class IconNoteComponent extends NoteComponent {
     // Called after a change to the encapsulated data, to show the visual effects of the change.
     protected void resetComponent() {
         super.resetComponent();
-
         IconNoteData iconNoteData = (IconNoteData) getNoteData();
+        ImageIcon theIcon = null;
 
-        String infs = ((IconNoteData) getNoteData()).getIconFileString();
+        String infs = iconNoteData.getIconFileString();
         // The NoteData.iconFileString may be null if it was never
         // before set.  This is what allows it to go to the 'default'
-        // icon, and if the default icon is later changed, theIconLabel
+        // icon, and if the default icon is later changed, noteIcon
         // will automatically change to the new appearance.
-        // But if it was explicitly cleared, it will be "" and will not
+        // If it was explicitly cleared, it will be "" and will not
         // be affected by changes to the default.
         if (infs == null) {
-           // MemoryBank.debug("IconNoteComponent resetComponent:  Icon string null - using default");
+            // MemoryBank.debug("IconNoteComponent resetComponent:  Icon string null - using default");
             if(myIconKeeper != null) {
-                setIcon(myIconKeeper.getDefaultIcon());
+                theIcon = myIconKeeper.getDefaultIcon();
             }
         } else {
             if (infs.trim().equals("")) {
                 MemoryBank.debug("IconNoteComponent resetComponent:  Icon string empty - showing blank icon");
-                return;
+            } else {
+                MemoryBank.debug("Setting icon to: " + infs);
+                theIcon = iconNoteData.getImageIcon();
             } // end if
-
-            MemoryBank.debug("Setting icon to: " + infs);
-            setIcon(new ImageIcon(infs));
-//            setIcon(iconNoteData.iconInfo.getImageIcon());
-
         } // end if
+
+        if(theIcon == null) return;
+        setIcon(theIcon);
     } // end resetComponent
+
+//    // Called after a change to the encapsulated data, to show the visual effects of the change.
+//    protected void resetComponent() {
+//        super.resetComponent();
+//
+//        IconNoteData iconNoteData = (IconNoteData) getNoteData();
+//
+//        IconInfo iconInfo = iconNoteData.iconInfo;
+//        String infs = iconNoteData.getIconFileString();
+//
+//        // The NoteData.iconFileString may be null if it was never
+//        // before set.  This is what allows it to go to the 'default'
+//        // icon, and if the default icon is later changed, theIconLabel
+//        // will automatically change to the new appearance.
+//        // But if it was explicitly cleared, it will be "" and will not
+//        // be affected by changes to the default.
+//
+//        ImageIcon theIcon = null;
+//
+//        if(iconInfo == null && infs == null) {
+//           // MemoryBank.debug("IconNoteComponent resetComponent:  IconInfo is null - using default");
+//            if(myIconKeeper != null) {
+//                theIcon = myIconKeeper.getDefaultIcon();
+////                setIcon(myIconKeeper.getDefaultIcon());
+//            }
+//        } else if(iconInfo != null) {
+//            theIcon = iconInfo.getImageIcon();
+//        } else { // infs is not null but iconInfo was.  Must use infs to make an IconInfo, then.
+////            if (infs.trim().equals("")) { // An explicit 'blank' icon
+////                MemoryBank.debug("IconNoteComponent resetComponent:  Icon string empty - showing blank icon");
+////            } else {
+//                MemoryBank.debug("Setting icon to: " + infs);
+//                iconInfo = MemoryBank.dataAccessor.getIconInfoForDescription(infs);
+//                //theIcon = new ImageIcon(infs);
+//            if(iconInfo != null) theIcon = iconInfo.getImageIcon();
+////            } // end if
+//
+//        } // end if
+//        if(theIcon == null) return;
+//        setIcon(theIcon);
+//    } // end resetComponent
 
 } // end class IconNoteComponent

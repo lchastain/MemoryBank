@@ -40,6 +40,8 @@ public class FileDataAccessor implements DataAccessor {
 
 
     Vector<NoteData> foundDataVector;
+    static String iconBase;
+    static IconFileChooser iconFileChooser;
 
 
     static {
@@ -52,6 +54,9 @@ public class FileDataAccessor implements DataAccessor {
         searchResultFilePrefix = "search_";
         todoListFilePrefix = "todo_";
         logFilePrefix = "log_";
+
+        iconBase = MemoryBank.mbHome + File.separatorChar + "icons" + File.separatorChar;
+        iconFileChooser = new IconFileChooser(iconBase);
     }
 
     FileDataAccessor() {
@@ -222,7 +227,7 @@ public class FileDataAccessor implements DataAccessor {
 
             // Look into the file to see if it has significant content.
             boolean itHasData = false;
-            if(theGroup.length == 1) {
+            if (theGroup.length == 1) {
                 // It is not possible to have a length of one for DayNoteData, where the content is GroupProperties.
                 // When only linkages are present in DayNoteData, the file still contains a two-element array
                 // although the second element may be null.  So this is just older (pre linkages) data, and in
@@ -231,9 +236,9 @@ public class FileDataAccessor implements DataAccessor {
             } else { // new structure; element zero is a GroupProperties.  But nothing from the Properties is
                 // significant for purposes of this method; only the length of the second element (the ArrayList).
                 ArrayList arrayList = AppUtil.mapper.convertValue(theGroup[1], ArrayList.class);
-                if(arrayList.size() > 0) itHasData = true;
+                if (arrayList.size() > 0) itHasData = true;
             }
-            if(itHasData) hasDataArray[month - 1][day - 1] = true;
+            if (itHasData) hasDataArray[month - 1][day - 1] = true;
         } // end for each foundFile
 
         return hasDataArray;
@@ -326,10 +331,10 @@ public class FileDataAccessor implements DataAccessor {
         Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
 
         // If we have only loaded GroupProperties but no accompanying data, then bail out now.
-        Object theObject = theDayGroup[theDayGroup.length-1];
+        Object theObject = theDayGroup[theDayGroup.length - 1];
         String theClass = theObject.getClass().getName();
         System.out.println("The DayGroup class type is: " + theClass);
-        if(!theClass.equals("java.util.ArrayList")) return null;
+        if (!theClass.equals("java.util.ArrayList")) return null;
 
         // The loaded data is a Vector of DayNoteData.
         // Not currently worried about the 'loading' boolean, since MonthView does not re-persist the data.
@@ -350,7 +355,7 @@ public class FileDataAccessor implements DataAccessor {
                     // Possibly as a 'spacer'.
                     returnArray[index] = null;
                 } else {
-                    Image theImage =  new ImageIcon(iconFileString).getImage();
+                    Image theImage = new ImageIcon(iconFileString).getImage();
                     theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
                     // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
                     //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
@@ -372,17 +377,24 @@ public class FileDataAccessor implements DataAccessor {
         return returnArray;
     } // end getIconArray
 
-
-    @Override
-    public IconInfo getIconInfoForDescription(String description) {
-        return new IconInfo();
+    // At this point this is just a selection operation and the return value is not yet an image, just (some of?)
+    // its metadata built into a String.  When the actual image is retrieved by getImageIcon (based on info from this
+    // String), THAT is where the description is set.
+    public String chooseIcon() {
+        String iconFileName = null;
+        int returnVal = iconFileChooser.showDialog(null, "Set Icon");
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            iconFileName = iconFileChooser.getSelectedFile().getAbsolutePath();
+            MemoryBank.debug("Chosen icon file: " + iconFileName);
+        }
+        return iconFileName;
     }
 
 
     @Override
     public ImageIcon getImageIcon(IconInfo iconInfo) {
         ImageIcon theImageIcon = null;
-        if(iconInfo.ready() ) {
+        if (iconInfo.ready()) {
             String baseIconPath = ""; // when dataArea is null we look in the current directory.
             char c = File.separatorChar; // short, for better readability.
             if (iconInfo.dataArea == DataArea.IMAGES) baseIconPath = MemoryBank.mbHome + c + "images" + c;
@@ -392,11 +404,11 @@ public class FileDataAccessor implements DataAccessor {
             // Convert file separator characters, if needed.  This makes for file system
             // compatibility (even though we only expect to run on one type of OS).
             String replaceWith = String.valueOf(c);
-            if(replaceWith.equals("\\")) replaceWith = "\\\\"; // (we want backslashes, not escape chars).
+            if (replaceWith.equals("\\")) replaceWith = "\\\\"; // (we want backslashes, not escape chars).
             String remainingPath = iconInfo.iconName.replaceAll(":", replaceWith);
 
             String theFilename = baseIconPath + remainingPath + "." + iconInfo.iconFormat;
-            MemoryBank.debug("  Full icon filename: " + theFilename);
+            //MemoryBank.debug("Full icon filename: " + theFilename);
 
             Image theImage = null;
             if (iconInfo.iconFormat.equalsIgnoreCase("ico")) {
@@ -420,15 +432,60 @@ public class FileDataAccessor implements DataAccessor {
                 theImageIcon = new ImageIcon();
                 theImageIcon.setImage(theImage);
 
+                //===================================== IMPORTANT !!! ================================================
                 // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
                 //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
-                //   With the filename hiding in the place of the description, we can update the
-                //   associated IconNoteData with the chosen IconInfo, and later restore the icon from that.
+                //   With the filename hiding in the place of the description, we can update the associated
+                //   IconNoteData, and later restore the image from that.
                 theImageIcon.setDescription(theFilename);
             }
         } // end if the IconInfo is 'ready'.
         return theImageIcon;
     } // end getImageIcon
+
+    @Override
+    public ImageIcon getImageIcon(IconNoteData iconNoteData) {
+        ImageIcon theImageIcon = null;
+
+        if (iconNoteData.iconFileString != null) {
+            String theFilename = iconNoteData.iconFileString.toLowerCase();
+            //MemoryBank.debug("Full icon filename: " + theFilename);
+            if (new File(theFilename).exists()) {
+
+                Image theImage = null;
+                if (theFilename.endsWith(".ico")) {
+                    try {
+                        List<BufferedImage> images = ICODecoder.read(new File(theFilename));
+                        theImage = images.get(0);
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                } else if (theFilename.endsWith(".bmp")) {
+                    try {
+                        theImage = BMPDecoder.read(new File(theFilename));
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                } else { // This handles .png, .jpg, .gif
+                    theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
+                } // end if
+
+                if (theImage != null) {
+                    theImageIcon = new ImageIcon();
+                    theImageIcon.setImage(theImage);
+
+                    //=============== IMPORTANT !!! =====================================================================
+                    // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
+                    //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
+                    //   With the filename hiding in the place of the description, we can update the associated
+                    //   IconNoteData, and later restore the image from that.
+                    theImageIcon.setDescription(theFilename);
+                }
+            } // end if the IconInfo is 'ready'.
+        }
+        return theImageIcon;
+    } // end getImageIcon
+
 
     // The archive name cannot be used directly as a directory name due to the presence
     //   of the colons in the time portion.  So, we need to parse the archive name with
@@ -445,9 +502,9 @@ public class FileDataAccessor implements DataAccessor {
     // the result, if needed.
     @Override
     public ArrayList getGroupNames(GroupType groupType, boolean filterInactive) {
-            // Which type of accessor is used to retrieve the names is a bit constrained by the fact that we currently
-            //   only have one type of accessor.  Therefore, unlike the 'getDataAccessor' method that tries to make you
-            //   believe that it is so versatile, here we just go directly to the FileDataAccessor.
+        // Which type of accessor is used to retrieve the names is a bit constrained by the fact that we currently
+        //   only have one type of accessor.  Therefore, unlike the 'getDataAccessor' method that tries to make you
+        //   believe that it is so versatile, here we just go directly to the FileDataAccessor.
 
         switch (groupType) {
             case SEARCH_RESULTS:
@@ -663,19 +720,19 @@ public class FileDataAccessor implements DataAccessor {
                     if (!searchPanel.searchGoals()) {
                         goLook = false;
                     } else {
-                        if(!MemoryBank.appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
+                        if (!MemoryBank.appOpts.active(GroupType.GOALS, theGroupName)) goLook = false;
                     }
                 } else if (theFile1Name.startsWith("event_")) {
                     if (!searchPanel.searchEvents()) {
                         goLook = false;
                     } else {
-                        if(!MemoryBank.appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
+                        if (!MemoryBank.appOpts.active(GroupType.EVENTS, theGroupName)) goLook = false;
                     }
                 } else if (theFile1Name.startsWith("todo_")) {
                     if (!searchPanel.searchLists()) {
                         goLook = false;
                     } else {
-                        if(!MemoryBank.appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
+                        if (!MemoryBank.appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
                     }
                 } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
                     if (!searchPanel.searchDays()) goLook = false;
@@ -691,7 +748,7 @@ public class FileDataAccessor implements DataAccessor {
                 // Check the Note date, possibly filter out based on 'when'.
 
                 if (goLook) {
-                    if(searchPanel.getWhenSetting() != -1) {
+                    if (searchPanel.getWhenSetting() != -1) {
                         // This section is only needed if the user has specified a date in the search.
                         dateNoteDate = NoteGroupFile.getDateFromFilename(theFile);
                         if (dateNoteDate != null) {
@@ -709,7 +766,7 @@ public class FileDataAccessor implements DataAccessor {
                 //   or the app is being served from a server where only admins have access (and we
                 //   trust all admins, of course).
                 if (goLook) {
-                    if(searchPanel.getLastModSetting() != -1) {
+                    if (searchPanel.getLastModSetting() != -1) {
                         // This section is only needed if the user has specified a date in the search.
                         LocalDate dateLastMod = Instant.ofEpochMilli(theFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
                         if (searchPanel.getLastModSetting() == SearchPanel.AFTER) {
@@ -776,8 +833,6 @@ public class FileDataAccessor implements DataAccessor {
             } // end if
         } // end for
     }// end searchDataFile
-
-
 
 
 }

@@ -17,6 +17,13 @@ Tests Needed:
 
 =====================================================================================================
 
+1 Apr 2022
+Icons of type ico have been restored, to both the notes and the icon chooser.  Lots of time needed to sort out the
+issues between an app-loaded icon and one that goes with IconNoteData, finally landed on having two separate classes
+and the IconInfo is removed now from the IconNoteData, never having really been there long enough to be persisted into
+my data.  Checked in.
+
+
 29 Mar 2022
 The use by this app of the Description on an ImageIcon appears to be a way to preserve the icon filename as the icon
   is selected for use in the IconNoteComponent.  Description is then extracted out when setting the icon on the
@@ -29,7 +36,6 @@ The use by this app of the Description on an ImageIcon appears to be a way to pr
   any rate, with this understanding replaced the inner class with a new JLabel data member, and gave it the same
   listeners and made the needed customizations.
 Now doing a code checkin ahead of next steps towards converting the iconFileString to an IconInfo.
-
 
 28 Mar 2022
 Working on morphing the iconFileString into an IconInfo (not so simple).

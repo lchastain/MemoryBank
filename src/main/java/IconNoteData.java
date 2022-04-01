@@ -1,8 +1,9 @@
-class IconNoteData extends NoteData {
-    IconInfo iconInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-    // These two members have been merged into the IconInfo; to be kept until all already-persisted data is 'fixed'.
-    String iconFileString;
+import javax.swing.*;
+
+class IconNoteData extends NoteData {
+    String iconFileString;  // The 'description' of the icon
     boolean showIconOnMonthBoolean;
 
     IconNoteData() { } // end constructor
@@ -11,7 +12,6 @@ class IconNoteData extends NoteData {
     IconNoteData(IconNoteData ind) {
         super(ind);
 
-        iconInfo = ind.iconInfo;
         iconFileString = ind.iconFileString;
         showIconOnMonthBoolean = ind.showIconOnMonthBoolean;
     } // end constructor
@@ -30,6 +30,12 @@ class IconNoteData extends NoteData {
 
     public String getIconFileString() {
         return iconFileString;
+    }
+
+    // do not let Jackson think that there is an 'imageIcon' data member.
+    @JsonIgnore
+    ImageIcon getImageIcon() {
+        return MemoryBank.dataAccessor.getImageIcon(this);
     }
 
     boolean getShowIconOnMonthBoolean() {

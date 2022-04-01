@@ -1,11 +1,9 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.swing.*;
 import java.awt.*;
 
-// This class is the 'handle' by which icon images may be acquired by the app.  It is needed as a replacement
-//  for the 'iconFileString' of IconNoteData, to remove the filesystem path and filename while still
-//   supplying all the info needed for a DataAccessor to retrieve the indicated icon.
+// This class is a 'handle' by which icon images may be acquired by the app.  It is needed as an alternative
+//  to the 'iconFileString' of IconNoteData, that does not have the filesystem path and filename but still
+//  supplies all the info needed for a DataAccessor to retrieve the indicated icon.
 public class IconInfo {
     // Discussion:
     // An icon can be stored / retrieved in a variety of ways - via a data stream, a file, database query, and
@@ -27,7 +25,7 @@ public class IconInfo {
     //   explicit separately moderated list of them.  This means that there is no place where additional helpful or
     //   descriptive info per icon could be stored, nor is there any way to enter that info in the first place, since
     //   we currently have no 'icon editor'.  So, the idea of the IconInfo having a field of 'iconDescription' that
-    //   might have been used in an icon selection dialog - is thrown out.  Besides, the IconInfo class is not used
+    //   might have been used in an icon selection dialog - is not possible.  Besides, the IconInfo class is not used
     //   in the selection operation; it is only used in the saving and loading of the icons.  Currently the
     //   only recourse you have for seeing a description at the time of icon selection is to rename the actual
     //   files to the best wording you can fit into the relatively few characters of a filename.
@@ -39,26 +37,19 @@ public class IconInfo {
     DataArea dataArea;  // Is this an App icon, a User icon, or an image ?  (Currently there ARE no user icons)
     String iconName;
     String iconFormat;
-    boolean showIconOnMonthView;
 
     IconInfo() {
         // Data members may be set directly.
         // A null or empty dataArea can be interpreted as a 'default' area.  DataAccessors will determine a value.
-        showIconOnMonthView = false;
     }
+
 
     IconInfo(DataArea area, String name, String format) {
-        this(area, name, format, false);
-    }
-
-    IconInfo(DataArea area, String name, String format, boolean showIt) {
         dataArea = area;
         iconName = name;
         iconFormat = format;
-        showIconOnMonthView = showIt;
     }
 
-    @JsonIgnore // do not let Jackson think that there is an 'imageIcon' data member.
     ImageIcon getImageIcon() {
         return MemoryBank.dataAccessor.getImageIcon(this);
     }
@@ -76,7 +67,6 @@ public class IconInfo {
         tmpImg = tmpImg.getScaledInstance(theWidth, theHeight, Image.SCALE_SMOOTH);
         theIcon.setImage(tmpImg);
     }
-
 
     // Scale the icon to a proportional dimension where the larger of width vs length is a set limit (36).
     public static void scaleIcon(ImageIcon theIcon) {

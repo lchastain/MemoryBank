@@ -43,26 +43,61 @@ public class IconFileView extends FileView {
     public String getDescription(File f) { return null; }
     public String getTypeDescription(File f) { return null; }
 
-    // This reads in each file and sends back an icon to be displayed in the file selector, vs the default
+    // This method reads in each file and sends back an icon to be displayed in the file selector, vs the default
     //   which does not always do that for all the file types that we specify below.
+    // But this overridden method is called by the system with many other files that are not icons, so the extension
+    //   is used to recognize icon files vs other types, and this method will only handle those that it recognizes.
     @Override
-    public Icon getIcon(File f) {
-        String extension = getExtension(f);
-        Icon icon = null; // Return type is an interface, not a class.
+    public Icon getIcon(File f) { // Note that the return type is an interface, not a class.
+        String theFullFilename = f.getAbsolutePath();
+        String iconFileName = f.getName();
+        String[] nameParts = iconFileName.split("\\.");
 
-        // System.out.println("Path is: " + f.getTreePath());
-        if (extension != null) {
-            if (extension.equals("jpeg") ||
-                    extension.equals("jpg") ||
-                    extension.equals("gif") ||
-                    extension.equals("tiff") ||
-                    extension.equals("tif") ||
-                    extension.equals("ico") || extension.equals("png")) {
-                ImageIcon ai = new ImageIcon(f.getPath());
-                if (ai.getImage() != null) {
-                    IconInfo.scaleIcon(ai);
-                    icon = ai;
-                }
+        ImageIcon icon = null;
+
+        System.out.println("File is: " + f.getAbsolutePath());
+        if (nameParts.length >= 2) {
+            String extension = nameParts[1].toLowerCase();
+
+            switch (extension) {
+                case "jpeg":
+                case "jpg":
+                case "tiff":
+                case "tif":
+                case "png":
+                    icon = new ImageIcon(f.getPath());
+                    if (icon.getImage() != null) IconInfo.scaleIcon(icon);
+                    break;
+                case "gif":  // Animated gifs appear as blanks in the IconFileChooser and the IconNoteComponent, but
+                    // they can still work correctly in the MonthView.  Looking for a solution, found this:
+                    // https://stackoverflow.com/questions/2935232/show-animated-gif which suggests that they would
+                    // work better if loaded from a URL vs a File, but my own test does not support that; it works
+                    // identically to an image that was loaded via a File.
+                    // The getResource method that is used to make a URL will look for the files in same folder (or
+                    // package if you are runnng from a jar), but that is not workable when running from an IDE that
+                    // regularly rebuilds its output directory.  So - I put one animated gif into the production area
+                    // (C:\Users\Lee\workspace\Memory Bank\out\production\MemoryBank)
+                    // for a test, and was able to make a good URL, and the image did appear to load via the ImageIcon
+                    // constructor, although it still did not display in the FileChooser or the IconNoteComponent.
+                    // So for now we will stick with what has been at least partially working, which is the same as
+                    // most of the others, including the non-animated gifs.
+                    icon = new ImageIcon(f.getPath());
+                    if (icon.getImage() != null) {  // Same as above but with alternative code, to keep IJ quiet.
+                        IconInfo.scaleIcon(icon);
+                    }
+                    break;
+                case "bmp": // bmp still having issues; the decoder throws an exception in some (most?) cases.
+                    break;
+                case "ico":
+                    // It would have been better to use an IconInfo here rather than an IconNoteData, but we
+                    // already have a full filename, and I never did write a method to parse it up into the
+                    // discrete members needed by the IconInfo; this is the only place it would have been used.
+                    IconNoteData ind = new IconNoteData();
+
+                    ind.setIconFileString(f.getAbsolutePath());
+                    icon = ind.getImageIcon();
+                    if (icon.getImage() != null) IconInfo.scaleIcon(icon);
+                    break;
             }
         } // end if extension not null
         return icon;

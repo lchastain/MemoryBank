@@ -21,8 +21,9 @@ public interface DataAccessor {
             return display;
         }
     }
-    
-    
+
+
+    String chooseIcon();
     boolean createArea(DataArea dataArea); // TODO tie in usage of this with 'add new group'
     boolean createArchive();
     boolean[][] findDataDays(int year);
@@ -34,8 +35,8 @@ public interface DataAccessor {
 
     String[] getArchiveNames();
     Image[] getIconArray(int year, int month, int day);
-    IconInfo getIconInfoForDescription(String description);
     ImageIcon getImageIcon(IconInfo iconInfo);
+    ImageIcon getImageIcon(IconNoteData iconNoteData);
     AppOptions getArchiveOptions(String archiveName);
 
     // Convert the archive name into a LocalDateTime

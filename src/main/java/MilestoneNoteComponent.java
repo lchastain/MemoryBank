@@ -30,6 +30,8 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         //---------------------------
         // Make the milestone icons
         //---------------------------
+        //IconInfo iconInfo = new IconInfo(DataArea.APP_ICONS);
+        //theIcons = theIcons.getIcons();
         char c = File.separatorChar;
         String iString = MemoryBank.mbHome + c + "icons" + c + "Milestones" + c;
         File milestoneIconDir = new File(iString);
