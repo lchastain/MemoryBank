@@ -25,11 +25,22 @@ class AppOptions {
     boolean searchesExpanded;
     String theSelection;
     int theSelectionRow;
+    IconInfo defaultDayNoteIconInfo;
+    String defaultDayNoteIconDescription;
+    IconInfo defaultEventNoteIconInfo;
+    String defaultEventNoteIconDescription;
+    TimeFormat timeFormat;
     Vector<String> goalsList;
     Vector<String> eventsList;
     Vector<String> tasksList;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
+
+    enum TimeFormat {
+        CIVILIAN,  // 12-hour clock
+        MILITARY   // 24-hour-clock
+    }
+    
 
     AppOptions() {
         goalsExpanded = false;
@@ -44,6 +55,11 @@ class AppOptions {
         eventsList = new Vector<>(0, 1);
         tasksList = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
+        defaultDayNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "icon_not", "gif");
+        defaultDayNoteIconDescription = null;
+        defaultEventNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "reminder", "gif");
+        defaultEventNoteIconDescription = null;
+        timeFormat = TimeFormat.CIVILIAN;
     } // end constructor
 
     boolean active(GroupType groupType, String groupName) {
@@ -90,4 +106,18 @@ class AppOptions {
     static void saveOpts() {
         MemoryBank.dataAccessor.saveAppOptions();
     } // end saveOpts
+
+    // Used by the Jackson mapper, upon data load and conversion of json to an object of this class.
+    void setDefaultDayNoteIconDescription(String s) {
+        if(s == null || s.isEmpty()) return;
+        defaultDayNoteIconDescription = s;
+        defaultDayNoteIconInfo = null;
+    }
+
+    // Used by the Jackson mapper, upon data load and conversion of json to an object of this class.
+    void setDefaultEventNoteIconDescription(String s) {
+        if(s == null || s.isEmpty()) return;
+        defaultEventNoteIconDescription = s;
+        defaultEventNoteIconInfo = null;
+    }
 } // end class AppOptions

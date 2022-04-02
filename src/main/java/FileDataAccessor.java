@@ -347,7 +347,7 @@ public class FileDataAccessor implements DataAccessor {
             if (tempDayData.getShowIconOnMonthBoolean()) {
                 iconFileString = tempDayData.getIconFileString();
                 if (iconFileString == null) { // Then show the default icon
-                    iconFileString = DayNoteGroupPanel.dayNoteDefaults.defaultIconFileName;
+                    iconFileString = DayNoteGroupPanel.defaultIcon.getDescription();
                 } // end if
 
                 if (iconFileString.equals("")) {

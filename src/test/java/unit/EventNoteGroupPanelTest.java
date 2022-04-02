@@ -56,12 +56,6 @@ class EventNoteGroupPanelTest {
         eventNoteGroup.setDefaultIcon(theDefault);
     }
 
-//    @Test
-//    void testGetGroupFilename() {
-//        String theFileName = eventNoteGroup.getGroupFilename();
-//        Assertions.assertNotNull(theFileName);
-//    }
-
     @Test
     void testEditExtendedNoteComponent() {
         EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroup.getNoteComponent(2);

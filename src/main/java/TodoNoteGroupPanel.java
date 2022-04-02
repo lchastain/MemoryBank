@@ -150,29 +150,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     } // end chooseMergeGroup
 
 
-//    private File chooseMergeFile() {
-//        ArrayList<String> groupNames = myNoteGroup.getGroupNames();
-//        groupNames.remove(getGroupName()); // Remove ourselves from consideration.
-//
-//        // Convert to an Object array so the JOptionPane static method can present a selection list.
-//        Object[] theNames = new String[groupNames.size()];
-//        theNames = groupNames.toArray(theNames);
-//
-//        String message = "Choose a list to merge with " + getGroupName();
-//        String title = "Merge TodoLists";
-//        // Important issue here!  The selection list is presented as an initially closed combobox dropdown with
-//        //   either your initial selection or the first choice selected.  BUT if the number of choices is more
-//        //   than 20, there is no dropdown control; you see a scrollable list instead, with no preselected choice.
-//        //   This is built-in Swing behavior, not my doing.
-//        Object theChoice = optionPane.showInputDialog(theBasePanel, message,
-//                title, JOptionPane.PLAIN_MESSAGE, null, theNames, null);
-//
-//        System.out.println("The choice is: " + theChoice);
-//        if (theChoice == null) return null;
-//        return new File(NoteGroupFile.todoListGroupAreaPath + "todo_" + theChoice + ".json");
-//    } // end chooseMergeFile
-
-
     // Interface to the Three Month Calendar; called by the tmc.
     @Override // Implementation of the DateSelection interface
     public void dateSelected(LocalDate ld) {

@@ -11,8 +11,8 @@ import java.time.temporal.ChronoUnit;
 public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
 
-    private static ImageIcon defaultIcon;
-    static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
+    static ImageIcon defaultIcon;
+//    static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
 
     static {
         // Because the parent NoteGroup class is where all NoteComponents get
@@ -21,19 +21,26 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         //   constructor is called.  This is why we need to
         //   assign it during the static section of this class.
         //------------------------------------------------------------------
-        dayNoteDefaults = DayNoteDefaults.load(); // This may provide a different default icon.
-        if(dayNoteDefaults.defaultIconFileName == null) {
-            // Something wrong; just make a new one; it will not be null.
-            dayNoteDefaults = new DayNoteDefaults();
-        } else if (dayNoteDefaults.defaultIconFileName.equals("")) {
-            // It IS possible that the user wants no default icon.
-            MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
-            defaultIcon = new ImageIcon();
+//        dayNoteDefaults = DayNoteDefaults.load(); // This may provide a different default icon.
+//        if(dayNoteDefaults.defaultIconFileName == null) {
+//            // Something wrong; just make a new one; it will not be null.
+//            dayNoteDefaults = new DayNoteDefaults();
+//        } else if (dayNoteDefaults.defaultIconFileName.equals("")) {
+//            // It IS possible that the user wants no default icon.
+//            MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
+//            defaultIcon = new ImageIcon();
+//        } else {
+//            MemoryBank.debug("Default DayNoteComponent Icon: " + dayNoteDefaults.defaultIconFileName);
+//            defaultIcon = new ImageIcon(dayNoteDefaults.defaultIconFileName);
+//            IconInfo.scaleIcon(defaultIcon);
+//        } // end if/else
+        if(MemoryBank.appOpts.defaultDayNoteIconInfo == null) {
+            IconNoteData ind = new IconNoteData();
+            ind.setIconFileString(MemoryBank.appOpts.defaultDayNoteIconDescription);
+            defaultIcon = ind.getImageIcon();
         } else {
-            MemoryBank.debug("Default DayNoteComponent Icon: " + dayNoteDefaults.defaultIconFileName);
-            defaultIcon = new ImageIcon(dayNoteDefaults.defaultIconFileName);
-            IconInfo.scaleIcon(defaultIcon);
-        } // end if/else
+            defaultIcon = MemoryBank.appOpts.defaultDayNoteIconInfo.getImageIcon();
+        }
 
         MemoryBank.trace();
     } // end of the static section
@@ -88,7 +95,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         heading.add(p0, "West");
         heading.add(panelTitleLabel, "Center");
 
-        if (dayNoteDefaults.military) {
+        if (MemoryBank.appOpts.timeFormat == AppOptions.TimeFormat.MILITARY) {
             timeFormatButton.setText("12");
             timeFormatButton.setName("12");
         }
@@ -226,18 +233,12 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     //---------------------------------------------------------
     //</editor-fold>
 
-    @Override
-    protected void preClosePanel() {
-        dayNoteDefaults.save();
-        super.preClosePanel();
-    }
-
-
     // Called by the DayNoteComponent's
     //   popup menu handler for 'Set As Default'.
     public void setDefaultIcon(ImageIcon li) {
         defaultIcon = li;
-        dayNoteDefaults.defaultIconFileName = li.getDescription();
+        MemoryBank.appOpts.defaultDayNoteIconInfo = null;
+        MemoryBank.appOpts.defaultDayNoteIconDescription = li.getDescription();
         setGroupChanged(true);
         preClosePanel();
         updateGroup();
@@ -250,7 +251,11 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     // This is called from the 12/24 button
     //--------------------------------------------------------------
     private void toggleMilitary() {
-        dayNoteDefaults.military = !dayNoteDefaults.military;
+        if(MemoryBank.appOpts.timeFormat == AppOptions.TimeFormat.MILITARY) {
+            MemoryBank.appOpts.timeFormat = AppOptions.TimeFormat.CIVILIAN;
+        } else {
+            MemoryBank.appOpts.timeFormat = AppOptions.TimeFormat.MILITARY;
+        }
         // Need to reprint all time labels -
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             getNoteComponent(i).resetTimeLabel();

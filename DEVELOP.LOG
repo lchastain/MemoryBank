@@ -17,12 +17,21 @@ Tests Needed:
 
 =====================================================================================================
 
+2 Apr 2022
+Removed DayNoteDefaults and EventNoteDefaults, after moving their data members into the AppOptions.  Several related
+code refactorings, including the reduction of test numbers in recent days from 196 to 193.  Will need to take a new
+look at test coverage, soon.  (unwanted) File references remain in only two files now.  (MilestoneNoteComponent and
+Locations).  Checking in now, though.
+
 1 Apr 2022
 Icons of type ico have been restored, to both the notes and the icon chooser.  Lots of time needed to sort out the
-issues between an app-loaded icon and one that goes with IconNoteData, finally landed on having two separate classes
-and the IconInfo is removed now from the IconNoteData, never having really been there long enough to be persisted into
-my data.  Checked in.
-
+  issues between an app-loaded icon and one that goes with IconNoteData, finally landed on having a separate class
+  for each of the two types of usage.  The IconInfo is removed now from the IconNoteData, never having really been
+  there long enough to be persisted into my data.  Checked in.
+Back to the work started on the 27th - no longer looking to remove the IconNoteData.iconFileString, because with the
+  two different classes that can create an icon, the file path no longer needs to be explicitly constructed and set by
+  the code, meaning no File references remain and that part of the effort can be considered to be completed.  That just
+  leaves the NoteDefault classes to be absorbed by AppOptions; getting back to that now.
 
 29 Mar 2022
 The use by this app of the Description on an ImageIcon appears to be a way to preserve the icon filename as the icon

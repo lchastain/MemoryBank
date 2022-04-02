@@ -14,7 +14,7 @@ public class TimeChooserMain {
 
         Frame tcFrame = new Frame("TimeChooser Driver");
 
-        DayNoteGroupPanel.dayNoteDefaults.military = true;  // Change this,  to test.
+        MemoryBank.appOpts.timeFormat = AppOptions.TimeFormat.MILITARY; // Change this,  to test.
         TimeChooser timeChooser = new TimeChooser();
 
         tcFrame.addWindowListener(new WindowAdapter() {

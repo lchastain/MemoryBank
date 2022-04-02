@@ -136,7 +136,7 @@ public class AppUtil {
         int theHours = Integer.parseInt(hoursString);
         String minutesString = timeOfDayString.substring(3, 5);
 
-        if (DayNoteGroupPanel.dayNoteDefaults.military) {
+        if (MemoryBank.appOpts.timeFormat == AppOptions.TimeFormat.MILITARY) {
             // drop out the colon and take just hours and minutes.
             theString = hoursString + minutesString;
         } else {  // Normalize to a 12-hour clock

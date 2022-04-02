@@ -32,7 +32,7 @@ public class NoteGroupPanelKeeper {
         for (NoteGroupPanel noteGroup : theNoteGroups) {
             String tngName;
             GroupProperties groupProperties = noteGroup.myNoteGroup.getGroupProperties();
-            if(groupProperties != null) {
+            if (groupProperties != null) {
                 tngName = groupProperties.getGroupName();
             } else {
                 tngName = noteGroup.myNoteGroup.myGroupInfo.getGroupName();
@@ -46,14 +46,13 @@ public class NoteGroupPanelKeeper {
 
     ArrayList<String> getNames() {
         ArrayList<String> theList = new ArrayList<>();
-        for(NoteGroupPanel noteGroupPanel: theNoteGroups) {
+        for (NoteGroupPanel noteGroupPanel : theNoteGroups) {
             theList.add(noteGroupPanel.myNoteGroup.getGroupProperties().getGroupName());
         }
         return theList;
     }
 
     // Scan the vector looking for the indicated group and if found, remove.
-    //----------------------------------------------------------------
     public void remove(String aListName) {
         NoteGroupPanel theGroup = null; // Keep a temporary reference
 
@@ -79,8 +78,28 @@ public class NoteGroupPanelKeeper {
         } // end if
     } // end remove
 
+    // Scan the vector and remove all but the one indicated.
+    public void removeOthers(String aListName) {
+        NoteGroupPanel theGroup = null; // Keep a temporary reference
+
+        // Search the Vector for the group.
+        for (NoteGroupPanel noteGroup : theNoteGroups) {
+            String tngName = noteGroup.myNoteGroup.getGroupProperties().getGroupName();
+            if (aListName.equals(tngName)) {
+                theGroup = noteGroup;
+                // Note: cannot remove from within this loop;
+                // ConcurrentModificationException.
+                break;
+            } // end if
+        } // end for
+
+        if(theGroup == null) return; // Don't remove any, if the one indicated will not remain.
+        theNoteGroups.clear();
+        theNoteGroups.add(theGroup);
+    } // end removeOthers
+
     void saveAll() {
-        for(NoteGroupPanel aNoteGroup: theNoteGroups) {
+        for (NoteGroupPanel aNoteGroup : theNoteGroups) {
             aNoteGroup.preClosePanel();
         }
     }

@@ -1,6 +1,5 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,18 +37,20 @@ public class BadFileTests {
     // The exceptions for these classes are caught and handled; we're just causing them now to get the coverage
     // but the tests do not need to 'see' the exceptions, and they will not, since they are being handled.
 
-    @Test
-    void testDayNoteDefaults() {
-        DayNoteDefaults dayNoteDefaults = new DayNoteDefaults();
-        DayNoteDefaults.load();
-        dayNoteDefaults.save();
-    }
+    // Note 2 Apr 2022 - no longer have 'xNoteDefaults' - make some new tests here, or throw this file out altogether.
 
-    @Test
-    void testEventNoteDefaults() {
-        EventNoteDefaults eventNoteDefaults = new EventNoteDefaults();
-        EventNoteDefaults.load();
-        eventNoteDefaults.save();
-    }
+//    @Test
+//    void testDayNoteDefaults() {
+//        DayNoteDefaults dayNoteDefaults = new DayNoteDefaults();
+//        DayNoteDefaults.load();
+//        dayNoteDefaults.save();
+//    }
+//
+//    @Test
+//    void testEventNoteDefaults() {
+//        EventNoteDefaults eventNoteDefaults = new EventNoteDefaults();
+//        EventNoteDefaults.load();
+//        eventNoteDefaults.save();
+//    }
 
 }
