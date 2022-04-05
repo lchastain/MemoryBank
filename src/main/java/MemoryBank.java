@@ -154,10 +154,10 @@ public class MemoryBank {
             mbHome = currentDir;
         } else { // Explicitly setting mbHome for now.
             String homeBase = System.getenv("ProgramFiles");
-            mbHome = homeBase + File.separatorChar + "Memory Bank";
+            mbHome = homeBase + "/Memory Bank";
 
             // Test to see if we have images available at that location -
-            f = new File(mbHome + File.separatorChar + "images");
+            f = new File(mbHome + "/images");
             if (!f.exists()) {
                 String s = ("Cannot find program data!");
                 s += "\nThe Memory Bank program will terminate now.";
@@ -173,16 +173,18 @@ public class MemoryBank {
     // Note: the DataAccessor has not yet been set, at the point in time when this method is called.
     public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
+
+        // First - look for the top-level directory containing data for all users.
         String currentDir = System.getProperty("user.dir");
         debug("The current working directory is: " + currentDir);
         File f = new File("appData"); // Look first in current dir.
         String loc;
         if (f.exists()) { // A development directory; give the app a different icon.
-            loc = currentDir + File.separatorChar + "appData" + File.separatorChar + userEmail;
+            loc = currentDir + "/appData/" + userEmail;
             appIconName = "notepad";
         } else { // Use the standard icon and location for user data.
             String userHome = System.getProperty("user.home"); // Home directory.
-            loc = userHome + File.separatorChar + "mbankData" + File.separatorChar + userEmail;
+            loc = userHome + "/mbankData/" + userEmail;
             appIconName = "icon_not";
         }
         appIconFormat = "gif";
@@ -190,7 +192,7 @@ public class MemoryBank {
         debug("Call to setUserDataHome, from: " + traceString);
         debug("Setting user data location to: " + loc);
 
-
+        // Next - look for the data for this specific user.
         boolean goodUserDataLoc = true;
         f = new File(loc);
         if (f.exists()) {
@@ -383,7 +385,7 @@ public class MemoryBank {
                 system.exit(0);
             }
         });
-        // This is so that our own handler (logPreClose) can collect and save all changes.
+        // This is so that our own handler (the logPreClose Thread, below) can collect and save all changes.
         // Don't worry, the window still closes.
         logFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         //--------------------------------------

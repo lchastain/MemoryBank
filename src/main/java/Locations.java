@@ -1,11 +1,6 @@
-import org.apache.commons.io.FileUtils;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 public class Locations {
-    private static String locationsFilename = "Locations.json";
     private static final int maxLocations = 20;
 
     Vector<String> shortNames;
@@ -59,38 +54,10 @@ public class Locations {
 
 
     public static Locations load() {
-        String fileName = MemoryBank.userDataHome + File.separatorChar + locationsFilename;
-        Exception e = null;
-
-        try {
-            String text = FileUtils.readFileToString(new File(fileName), StandardCharsets.UTF_8.name());
-            Locations fromFile = AppUtil.mapper.readValue(text, Locations.class);
-            System.out.println("Locations from JSON file: " + AppUtil.toJsonString(fromFile));
-            return fromFile;
-        } catch (Exception ignore) {
-        }  // not a big problem; use defaults.  When trying to cause Exceptions for Testing by making
-        // 'bad' filenames, found that none get through the FileUtils; the only Exception I could get
-        // was FileNotFound, and that one is effectively 'allowed' anyway, so stopped trying to handle
-        // any of them and just take any unhappy path as needing the default handling.
-        MemoryBank.debug("Locations not found; using defaults");
-        return new Locations();
+        return MemoryBank.dataAccessor.loadLocations();
     }
 
     public boolean save() {
-        String fileName = MemoryBank.userDataHome + File.separatorChar + locationsFilename;
-        MemoryBank.debug("Saving Locations in " + fileName);
-
-        try (FileWriter writer = new FileWriter(fileName);
-             BufferedWriter bw = new BufferedWriter(writer)) {
-            bw.write(AppUtil.toJsonString(this));
-            bw.flush();
-        } catch (IOException ioe) {
-            String ems = ioe.getMessage();
-            ems = ems + "\nLocations save operation aborted.";
-            MemoryBank.debug(ems);
-            return false;
-        } // end try/catch
-
-        return true;
+        return MemoryBank.dataAccessor.saveLocations(this);
     }
 }

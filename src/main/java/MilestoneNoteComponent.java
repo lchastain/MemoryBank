@@ -1,10 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 
 public class MilestoneNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
@@ -27,28 +27,8 @@ public class MilestoneNoteComponent extends IconNoteComponent {
 
         yvDateChooser = new YearView(); // Used by showDateChooser()
 
-        //---------------------------
         // Make the milestone icons
-        //---------------------------
-        //IconInfo iconInfo = new IconInfo(DataArea.APP_ICONS);
-        //theIcons = theIcons.getIcons();
-        char c = File.separatorChar;
-        String iString = MemoryBank.mbHome + c + "icons" + c + "Milestones" + c;
-        File milestoneIconDir = new File(iString);
-        String[] theFileList = milestoneIconDir.list();
-        Arrays.sort(theFileList); // So that the icon assigned to a note does not change arbitrarily.
-        theIcons = new ImageIcon[theFileList.length+1];
-
-        theIcons[0] = null; // A 'blank' icon
-        int index = 1;
-        for(String filename: theFileList) {
-            if(filename.endsWith(".txt")) continue;
-            //System.out.println(filename);
-//            ImageIcon nextIcon = new IconInfo(DataArea.APP_ICONS, filename);
-            ImageIcon nextIcon = new ImageIcon(iString + filename);
-            IconInfo.scaleIcon(nextIcon);
-            theIcons[index++] = nextIcon;
-        }
+        theIcons = MemoryBank.dataAccessor.getImageIcons(DataArea.APP_ICONS, "Milestones");
 
     } // end static section
 

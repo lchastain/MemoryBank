@@ -70,7 +70,7 @@ class DayNoteData extends IconNoteData {
 
         // Make the remaining DayNoteData assignments
         extendedNoteString = newExtText;
-        iconFileString = TodoNoteComponent.getIconFilename(todoNoteData.getStatus());
+        iconFileString = TodoNoteComponent.getIconDescriptionForStatus(todoNoteData.getStatus());
         showIconOnMonthBoolean = false;
         timeOfDayString = ""; // null is no longer being saved as a value, but do not want the default (current time).
     } // end constructor

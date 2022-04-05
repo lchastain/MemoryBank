@@ -18,7 +18,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -1454,7 +1453,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private void showHelp() {
         //new Exception("Your help is showing").printStackTrace();
         try {
-            String s = MemoryBank.mbHome + File.separatorChar;
+            String s = MemoryBank.mbHome + "/";
             Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
         } catch (IOException ioe) {
             // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.

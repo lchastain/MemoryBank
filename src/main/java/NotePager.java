@@ -26,14 +26,16 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         myNoteGroupPanel = ng;
         currentPageNumber = 1;
 
-        // Make a path to the images for the Alter Buttons
-        char c = java.io.File.separatorChar;
-        String iString = MemoryBank.mbHome + c + "images" + c;
+        // Make images for the Alter Buttons
+        IconInfo iconInfo = new IconInfo();
+        iconInfo.dataArea = DataArea.IMAGES;
+        iconInfo.iconFormat = "gif";
 
         LabelButton leftAb = new LabelButton();
         leftAb.setName("leftAb");
         leftAb.addMouseListener(this);
-        leftAb.setIcon(new ImageIcon(iString + "left.gif"));
+        iconInfo.iconName = "left";
+        leftAb.setIcon(iconInfo.getImageIcon());
         leftAb.setPreferredSize(new Dimension(24, 24));
 
         lbCurrentPage = new LabelButton();
@@ -66,7 +68,8 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         LabelButton rightAb = new LabelButton();
         rightAb.setName("rightAb");
         rightAb.addMouseListener(this);
-        rightAb.setIcon(new ImageIcon(iString + "right.gif"));
+        iconInfo.iconName = "right";
+        rightAb.setIcon(iconInfo.getImageIcon());
         rightAb.setPreferredSize(new Dimension(24, 24));
 
         add(leftAb);

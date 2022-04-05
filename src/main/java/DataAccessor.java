@@ -37,6 +37,8 @@ public interface DataAccessor {
     Image[] getIconArray(int year, int month, int day);
     ImageIcon getImageIcon(IconInfo iconInfo);
     ImageIcon getImageIcon(IconNoteData iconNoteData);
+    ImageIcon[] getImageIcons(DataArea dataArea, String lowerPath);
+
     AppOptions getArchiveOptions(String archiveName);
 
     // Convert the archive name into a LocalDateTime
@@ -55,7 +57,9 @@ public interface DataAccessor {
         }
     }
 
+    Locations loadLocations();
     Vector<String> loadSubjects(String defaultSubject);
+    boolean saveLocations(Locations theLocations);
     boolean saveSubjects(String defaultSubject, Vector<String> subjects);
 
     boolean removeArchive(LocalDateTime localDateTime);

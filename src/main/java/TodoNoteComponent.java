@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.time.LocalDate;
 
 public class TodoNoteComponent extends NoteComponent {
@@ -41,26 +40,24 @@ public class TodoNoteComponent extends NoteComponent {
         //------------------------
         // Make the status icons
         //------------------------
-        Image tmp;
-        tmp = new ImageIcon(getIconFilename(1)).getImage();
-        tmp = tmp.getScaledInstance(24, 20, Image.SCALE_SMOOTH);
-        todo_done = new ImageIcon(tmp);
+        IconInfo iconInfo = new IconInfo();
+        iconInfo.dataArea = DataArea.APP_ICONS;
+        iconInfo.iconFormat = "gif";
 
-        tmp = new ImageIcon(getIconFilename(2)).getImage();
-        tmp = tmp.getScaledInstance(24, 20, Image.SCALE_SMOOTH);
-        todo_inprog = new ImageIcon(tmp);
+        iconInfo.iconName = "button06_yes";
+        todo_done = iconInfo.getImageIcon(24, 20);
 
-        tmp = new ImageIcon(getIconFilename(3)).getImage();
-        tmp = tmp.getScaledInstance(24, 20, Image.SCALE_SMOOTH);
-        todo_wait = new ImageIcon(tmp);
+        iconInfo.iconName = "constru3";
+        todo_inprog = iconInfo.getImageIcon(24, 20);
 
-        tmp = new ImageIcon(getIconFilename(4)).getImage();
-        tmp = tmp.getScaledInstance(24, 20, Image.SCALE_SMOOTH);
-        todo_query = new ImageIcon(tmp);
+        iconInfo.iconName = "watch1b";
+        todo_wait = iconInfo.getImageIcon(24, 20);
 
-        tmp = new ImageIcon(getIconFilename(5)).getImage();
-        tmp = tmp.getScaledInstance(24, 20, Image.SCALE_SMOOTH);
-        todo_obe = new ImageIcon(tmp);
+        iconInfo.iconName = "button06_query";
+        todo_query = iconInfo.getImageIcon(24, 20);
+
+        iconInfo.iconName = "button06_no";
+        todo_obe = iconInfo.getImageIcon(24, 20);
 
     } // end static section
 
@@ -105,29 +102,28 @@ public class TodoNoteComponent extends NoteComponent {
         ((TodoNoteGroupPanel) myNoteGroupPanel).getThreeMonthColumn().setChoice(null);
 
         super.clear(); // This also sets the component 'initialized' to false.
-        // And it leaves a 'gap' but we like that so no refresh here.
+        // And it leaves a 'gap' in the Panel but we like that, so no refresh here.
     } // end clear
 
 
-    static String getIconFilename(int status) {
-        char c = File.separatorChar;
-        String iString = MemoryBank.mbHome + c + "icons" + c;
+    static String getIconDescriptionForStatus(int status) {
+        String iString;
 
         switch (status) {
             case TodoNoteData.TODO_COMPLETED:
-                iString += "button06_yes.gif";
+                iString = todo_done.getDescription();
                 break;
             case TodoNoteData.TODO_INPROG:
-                iString += "constru3.gif";
+                iString = todo_inprog.getDescription();
                 break;
             case TodoNoteData.TODO_WAITING:
-                iString += "watch1b.gif";
+                iString = todo_wait.getDescription();
                 break;
             case TodoNoteData.TODO_QUERY:
-                iString += "button06_query.gif";
+                iString = todo_query.getDescription();
                 break;
             case TodoNoteData.TODO_OBE:
-                iString += "button06_no.gif";
+                iString = todo_obe.getDescription();
                 break;
             case TodoNoteData.TODO_STARTED:
             default:
@@ -135,7 +131,7 @@ public class TodoNoteComponent extends NoteComponent {
                 break;
         } // end switch
         return iString;
-    } // end getIconFilename
+    } // end getIconDescriptionForStatus
 
 
     // Why is this override needed ???   It is, but why?

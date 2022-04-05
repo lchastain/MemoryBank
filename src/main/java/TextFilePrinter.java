@@ -10,7 +10,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
@@ -230,7 +229,12 @@ class TextFilePrinter extends Dialog implements
     //   prefix and/or '.dump', if present.
     public String prettyName(String s) {
         int i;
-        char slash = File.separatorChar;
+
+        // Changes made here for the file-specific code dereferencing refactoring effort.
+        // But this class is not currently in use (5 Apr 2022); more refactoring here is probably needed but
+        //   not worth the effort while its future is TBD.
+        // char slash = File.separatorChar;
+        String slash = "\\\\";
 
         i = s.lastIndexOf(slash);
         if (i != -1) {

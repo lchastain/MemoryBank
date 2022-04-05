@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -37,6 +38,8 @@ public class FileDataAccessor implements DataAccessor {
     static String searchResultFilePrefix;
     static String todoListFilePrefix;
     static String logFilePrefix;
+    static String locationsFilename;
+
 
 
     Vector<NoteData> foundDataVector;
@@ -54,6 +57,8 @@ public class FileDataAccessor implements DataAccessor {
         searchResultFilePrefix = "search_";
         todoListFilePrefix = "todo_";
         logFilePrefix = "log_";
+
+        locationsFilename = "Locations.json";
 
         iconBase = MemoryBank.mbHome + File.separatorChar + "icons" + File.separatorChar;
         iconFileChooser = new IconFileChooser(iconBase);
@@ -443,6 +448,7 @@ public class FileDataAccessor implements DataAccessor {
         return theImageIcon;
     } // end getImageIcon
 
+
     @Override
     public ImageIcon getImageIcon(IconNoteData iconNoteData) {
         ImageIcon theImageIcon = null;
@@ -485,6 +491,43 @@ public class FileDataAccessor implements DataAccessor {
         }
         return theImageIcon;
     } // end getImageIcon
+
+
+    @Override
+    // Usage of this is currently limited to MilestoneNoteComponents.  It relies on the icon files being numbered
+    //   (hence the sorting) and also having a readme file (which is ignored and becomes a 'blank' that enters into
+    //   the rotation after the initial null is 'scrolled' away, so that a blank remains as an option.  Not very
+    //   reusable at this point; refactor will probably be needed if another usage is implemented.
+    public ImageIcon[] getImageIcons(DataArea dataArea, String lowerPath) {
+        ImageIcon[] theIcons;
+        String dirPath;
+
+        if(lowerPath != null && !lowerPath.trim().isEmpty()) {
+            // lowerPath may have colons in it, in place of path separator chars if it goes deeper than one level.
+            String replaceWith = String.valueOf(File.separatorChar);
+            if (replaceWith.equals("\\")) replaceWith = "\\\\"; // (Windows-specific; we don't want escape chars).
+            String lowerIconDirPath = lowerPath.replaceAll(":", replaceWith);
+            dirPath = dataArea + "/" + lowerIconDirPath + "/";
+        } else { // For the current single usage case, this section is never entered.
+            dirPath = dataArea.toString() + "/";
+        }
+
+        File iconDir = new File(dirPath);
+        String[] theFileList = iconDir.list();
+        Arrays.sort(theFileList); // So that the icon order does not change arbitrarily.
+        theIcons = new ImageIcon[theFileList.length];
+
+        theIcons[0] = null; // A 'blank' icon
+        int index = 1;
+        for(String filename: theFileList) {
+            if(filename.endsWith(".txt")) continue; // Allows for the icon directory to have a 'readme'.
+            //System.out.println(filename);
+            ImageIcon nextIcon = new ImageIcon(dirPath + filename);
+            IconInfo.scaleIcon(nextIcon);
+            theIcons[index++] = nextIcon;
+        }
+        return theIcons;
+    }
 
 
     // The archive name cannot be used directly as a directory name due to the presence
@@ -560,6 +603,25 @@ public class FileDataAccessor implements DataAccessor {
     @Override
     public NoteGroupDataAccessor getNoteGroupDataAccessor(GroupInfo groupInfo) {
         return new NoteGroupFile(groupInfo);
+    }
+
+    @Override
+    public Locations loadLocations() {
+        String fileName = MemoryBank.userDataHome + File.separatorChar + locationsFilename;
+        Exception e = null;
+
+        try {
+            String text = FileUtils.readFileToString(new File(fileName), StandardCharsets.UTF_8.name());
+            Locations fromFile = AppUtil.mapper.readValue(text, Locations.class);
+            System.out.println("Locations from JSON file: " + AppUtil.toJsonString(fromFile));
+            return fromFile;
+        } catch (Exception ignore) {
+        }  // not a big problem; use defaults.  When trying to cause Exceptions for Testing by making
+        // 'bad' filenames, found that none get through the FileUtils; the only Exception I could get
+        // was FileNotFound, and that one is effectively 'allowed' anyway, so stopped trying to handle
+        // any of them and just take any unhappy path as needing the default handling.
+        MemoryBank.debug("Locations not found; using defaults");
+        return new Locations();
     }
 
     @Override
@@ -652,6 +714,25 @@ public class FileDataAccessor implements DataAccessor {
             // Yes, even though the parent was null.
         } // end try/catch
     } // end saveOpts
+
+    @Override
+    public boolean saveLocations(Locations theLocations) {
+        String fileName = MemoryBank.userDataHome + File.separatorChar + locationsFilename;
+        MemoryBank.debug("Saving Locations in " + fileName);
+
+        try (FileWriter writer = new FileWriter(fileName);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+            bw.write(AppUtil.toJsonString(theLocations));
+            bw.flush();
+        } catch (IOException ioe) {
+            String ems = ioe.getMessage();
+            ems = ems + "\nLocations save operation aborted.";
+            MemoryBank.debug(ems);
+            return false;
+        } // end try/catch
+
+        return true;
+    }
 
     @Override
     public boolean saveSubjects(String defaultSubject, Vector<String> subjects) {

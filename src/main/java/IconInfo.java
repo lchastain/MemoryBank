@@ -54,6 +54,12 @@ public class IconInfo {
         return MemoryBank.dataAccessor.getImageIcon(this);
     }
 
+    ImageIcon getImageIcon(int width, int height) {
+        ImageIcon imageIcon = MemoryBank.dataAccessor.getImageIcon(this);
+        scaleIcon(imageIcon, width, height);
+        return imageIcon;
+    }
+
     boolean ready() {
         boolean theAnser = true;
         if(iconName == null || iconName.isEmpty()) theAnser = false;

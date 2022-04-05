@@ -2,7 +2,6 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
-    Loss of the .ico format icons
     a goal move from todolist to day - may not be setting the groupchanged flag; Save option not enabled.
 
 
@@ -17,11 +16,28 @@ Tests Needed:
 
 =====================================================================================================
 
+5 Apr 2022
+Finished dereferencing the Milestone icons.  Eight files remain with a File import; most are valid and the ones that
+  are not, do not rise to the level of needing further attention.  There are now no improper instances of the separator
+  char or of a File constructor, so this effort is deemed to be successfully concluded.  Checking in.
+
+4 Apr 2022
+After much thought, finally decided to keep the Locations, making them accessible the same way we now get Subjects
+  although this is a separate self-referencing class whereas Subjects is just a Vector.  Now they also are acquired
+  and saved via the DataAccessor.
+MemoryBank.java has two areas that use direct-to-file code; setting program data loc and setting user data loc.  Have
+  decided that these are to be allowed.  And there is no usage there of the File.separatorChar, because Java
+  knows that a separation is needed for the forward slash, and code works fine without being more generic to allow
+  for the windows-specific character.  This leaves only the MilestoneNoteComponent icons needing refactoring.
+
 2 Apr 2022
 Removed DayNoteDefaults and EventNoteDefaults, after moving their data members into the AppOptions.  Several related
-code refactorings, including the reduction of test numbers in recent days from 196 to 193.  Will need to take a new
-look at test coverage, soon.  (unwanted) File references remain in only two files now.  (MilestoneNoteComponent and
-Locations).  Checking in now, though.
+  code refactorings, including the reduction of test numbers in recent days from 196 to 193.  Will need to take a new
+  look at test coverage, soon.  (unwanted) File references remain in only two files now.  (MilestoneNoteComponent and
+  Locations).  Checking in now, though.
+After move to cottage - continued with removing File.separatorChar from TodoNoteComponent, NotePager, others.  Also
+  changed some path-building lines to use the simple forward slash, which Java knows how to interpret and does not need
+  to be fed the windows-specific path separator char.  But not a lot more progress than that.
 
 1 Apr 2022
 Icons of type ico have been restored, to both the notes and the icon chooser.  Lots of time needed to sort out the

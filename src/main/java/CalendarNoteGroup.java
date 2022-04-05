@@ -81,6 +81,4 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         } // end accept
     } // end class calendarFileFilter
 
-
-
 }
