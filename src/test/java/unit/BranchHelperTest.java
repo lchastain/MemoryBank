@@ -31,6 +31,7 @@ class BranchHelperTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
@@ -38,7 +39,7 @@ class BranchHelperTest {
 
         // The AppTreePanel is what creates the Tree for us.
         // The tree is referenced by the error handling in the BranchHelper.
-        new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        AppTreePanel atp = TestUtil.getTheAppTreePanel();
     }
 
 

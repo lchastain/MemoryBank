@@ -3,21 +3,28 @@ import org.junit.jupiter.api.*;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Enumeration;
+import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AppTreePanelTest {
     private static AppTreePanel appTreePanel;
     private static JTree theTree;
     private static int theSelectionRow;
-    private static AppMenuBar amb;
+    private static TestUtil testUtil;
 
     @BeforeAll
     static void meFirst() throws IOException {
         System.out.println("AppTreePanel Test");
         MemoryBank.debug = true;
+        AppTreePanel.theInstance = null; // Ensure that we get the right one.
 
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
@@ -27,13 +34,14 @@ public class AppTreePanelTest {
         File testData = new File(MemoryBank.userDataHome);
         try {
             FileUtils.cleanDirectory(testData);
-        } catch (Exception ignore){
+        } catch (Exception ignore) {
             System.out.println("Was unable to clean the test.user@lcware.net directory!");
         }
 
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
@@ -43,12 +51,12 @@ public class AppTreePanelTest {
         // multiple JMenuItem listeners with each new atp, and each test ran so
         // fast that not all of the listeners would have gone
         // away before they were activated by other tests, causing some confusion.
-        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
 
-        appTreePanel.optionPane = new TestUtil();
+        testUtil = new TestUtil();
+        appTreePanel.optionPane = testUtil;
         theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
-        amb = appTreePanel.getAppMenuBar();
 
         // No significance to this value other than it needs to be a row that
         // we know for a fact will be there, even for a brand-new AppTreePanel.
@@ -57,20 +65,25 @@ public class AppTreePanelTest {
         theSelectionRow = 3;
     }
 
-//    @AfterEach
-//    void tearDown() throws InterruptedException {
-//        // These tests drive the app faster than it would go if it was only under user control.
-//        Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
-//    }
+    @BeforeEach
+    void beforeEach() {
+        appTreePanel.optionPane = testUtil;
+    }
+
+    @AfterEach
+    void tearDown() throws InterruptedException {
+        // These tests drive the app faster than it would go if it was only under user control.
+        Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
+    }
 
     @AfterAll
     static void meLast() {
         theTree = null;
-        amb = null;
         appTreePanel = null;
     }
 
     @Test
+    @Order(1)
     void testDeepClone() {
         theTree.setSelectionRow(theSelectionRow);
         TreePath treePath = theTree.getSelectionPath();
@@ -89,6 +102,7 @@ public class AppTreePanelTest {
     // Future dev on the tree MAY offer other cases where the
     // selection is null and if so, this could need rework.
     @Test
+    @Order(2)
     void testShowAbout() {
         JTree theTree = appTreePanel.getTree();
         int[] theRows;
@@ -99,7 +113,7 @@ public class AppTreePanelTest {
         // Now we ensure that our setting 'took'.
         theRows = theTree.getSelectionRows(); // First reading
         assert theRows != null;
-        assert(theRows[0] == theSelectionRow);
+        assert (theRows[0] == theSelectionRow);
 
         // Ok, now show the About graphic
         appTreePanel.showAbout();
@@ -107,11 +121,12 @@ public class AppTreePanelTest {
         // And verify that we no longer have a tree selection.
         theRows = theTree.getSelectionRows(); // Second reading
         assert theRows != null;
-        assert(theRows.length == 0);
+        assert (theRows.length == 0);
     }
 
 
     @Test
+    @Order(3)
     void testShowDay() {
         appTreePanel.showDay();
         TreePath tp = theTree.getSelectionPath();
@@ -120,6 +135,7 @@ public class AppTreePanelTest {
     }
 
     @Test
+    @Order(4)
     void testShowFoundIn() throws Exception {
         SearchResultData mySrd = new SearchResultData(new NoteData());
         mySrd.setFileFoundIn(new File("2008/Y_20190301095623"));
@@ -141,10 +157,10 @@ public class AppTreePanelTest {
     // by the local getMenuItem function, so that it can be 'clicked'.
     //@Test
     public void showMenus() {
-        int numMenus = amb.getMenuCount();
+        int numMenus = appTreePanel.getAppMenuBar().getMenuCount();
         MemoryBank.debug("Number of menus found: " + numMenus);
         for (int i = 0; i < numMenus; i++) {
-            JMenu jm = amb.getMenu(i);
+            JMenu jm = appTreePanel.getAppMenuBar().getMenu(i);
             if (jm == null) continue;
             System.out.println("Menu: " + jm.getText());
 
@@ -162,17 +178,17 @@ public class AppTreePanelTest {
         JMenu jm;
         JMenuItem jmi = null;
 
-        int numMenus = amb.getMenuCount();
+        int numMenus = appTreePanel.getAppMenuBar().getMenuCount();
         for (int i = 0; i < numMenus; i++) {
-            jm = amb.getMenu(i);
+            jm = appTreePanel.getAppMenuBar().getMenu(i);
             if (jm == null) continue;
             //System.out.println("Menu: " + jm.getText());
-            if(jm.getText().equals(menu)) {
+            if (jm.getText().equals(menu)) {
                 for (int j = 0; j < jm.getItemCount(); j++) {
                     jmi = jm.getItem(j);
                     if (jmi == null) continue; // Separator
                     //System.out.println("    Menu Item text: " + jmi.getText());
-                    if(jmi.getText().equals(text)) return jmi;
+                    if (jmi.getText().equals(text)) return jmi;
                 } // end for j
             }
         } // end for i
@@ -195,6 +211,7 @@ public class AppTreePanelTest {
     // be useful in other contexts.
     @Test
 //    @Disabled
+    @Order(5)
     void testShowHelp() {
         JMenuItem jmi = getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
@@ -240,6 +257,7 @@ public class AppTreePanelTest {
     }
 
     @Test
+    @Order(6)
     void testShowMonth() {
         // For the test user there is icon data in this month.
         LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
@@ -253,6 +271,7 @@ public class AppTreePanelTest {
     }
 
     @Test
+    @Order(7)
     void testShowToday() {
         // Cover all the switch cases.  This will also exercise the 'set' methods
         // within each specified NoteGroup.
@@ -283,6 +302,7 @@ public class AppTreePanelTest {
     }
 
     @Test
+    @Order(8)
     void testShowWeek() {
         appTreePanel.showWeek(LocalDate.now());
         TreePath tp = theTree.getSelectionPath();
@@ -291,4 +311,93 @@ public class AppTreePanelTest {
         System.out.println("End testShowWeek");
     }
 
+    @Test
+    @Order(9)
+    void testCreateArchive() {
+        appTreePanel.dateDecremented(LocalDate.now(), ChronoUnit.DAYS);
+        appTreePanel.dateIncremented(LocalDate.now(), ChronoUnit.DAYS);
+
+        // The 'show' tests can hose the menus during testing, so this is needed to restore them.
+        appTreePanel.appMenuBar.manageMenus("No Selection");
+
+        JMenuItem jmi = getMenuItem("App", "Archive...");
+        jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
+    }
+
+    @Test
+    @Order(10)
+    void testAddNew() {
+        appTreePanel.appMenuBar.manageMenus("To Do List");
+        appTreePanel.restoringPreviousSelection = false; // not this time...
+        JMenuItem jmi = getMenuItem("To Do List", "Add New...");
+        jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
+        appTreePanel.restoringPreviousSelection = true; // put it back.
+    }
+
+    @Test
+    @Order(11)
+    void testGroupSaveAs() throws Exception {
+        // First, Load a current list
+        DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        DefaultMutableTreeNode dmtn = getTreeNodeForString(theRoot, "Get New Job");
+        Assertions.assertNotNull(dmtn);
+        TreePath tp = AppUtil.getTreePath(dmtn);
+        Assertions.assertNotNull(tp);
+        theTree.setSelectionPath(tp);
+        Thread.sleep(800);  // Allow the change time to bake in, and reset the app menus.
+
+        appTreePanel.appMenuBar.manageMenus("To Do List");
+        JMenuItem jmi = getMenuItem("To Do List", "Save As...");
+        testUtil.setTheAnswerString("Get New Joke");
+        jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
+
+        // Need to make an active notegroup before this will work.
+        appTreePanel.deleteGroup();
+    }
+
+    @Test
+    @Order(12)
+    void testCloseSearchResult() throws Exception {
+        // First, select a known search result (we know the content of our test data)
+        String theSearchResult = "20201107080423";
+        DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
+        DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
+        DefaultMutableTreeNode dmtn = getTreeNodeForString(theRoot, theSearchResult);
+        Assertions.assertNotNull(dmtn);
+        TreePath tp = AppUtil.getTreePath(dmtn);
+        Assertions.assertNotNull(tp);
+        theTree.setSelectionPath(tp);
+        Thread.sleep(200);
+        assert Objects.requireNonNull(theTree.getSelectionPath()).getLastPathComponent().toString().equals(theSearchResult);
+
+        // Now close it.
+        appTreePanel.closeGroup();
+
+        // And verify that it is gone from the tree
+        dmtn = getTreeNodeForString(theRoot, theSearchResult);
+        assertNull(dmtn);
+
+        // And that the tree selection is now null.
+        // Previously it went up to 'Search Results' but that puts unnecessary work onto the branch helper;
+        //   if the user used a menu item to close this result but now they also really want to see it has
+        //   been deselected in the branch editor, then they just need to go there via their own action.
+        assert theTree.getSelectionPath() == null;
+    }
+
+    @SuppressWarnings("rawtypes")
+    static DefaultMutableTreeNode getTreeNodeForString(DefaultMutableTreeNode theRoot, String theString) {
+        DefaultMutableTreeNode dmtn = null;
+        DefaultMutableTreeNode nextNode;
+        Enumeration bfe = theRoot.breadthFirstEnumeration();
+
+        while (bfe.hasMoreElements()) {
+            nextNode = (DefaultMutableTreeNode) bfe.nextElement();
+            if (nextNode.toString().equals(theString)) {
+                dmtn = nextNode;
+                break;
+            }
+        }
+        return dmtn;
+    }
 }

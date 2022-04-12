@@ -7,6 +7,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 //@Disabled("Looking for a rogue 'working' dialog")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NoteGroupPanelKeeperTest {
     TodoNoteGroupPanel theNoteGroup1;
     TodoNoteGroupPanel theNoteGroup2;
@@ -28,6 +29,7 @@ class NoteGroupPanelKeeperTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
     }
 

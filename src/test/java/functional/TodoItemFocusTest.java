@@ -29,6 +29,7 @@ public class TodoItemFocusTest {
         // This test user has a rich set of data, includes Search Results and Todo Lists
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
@@ -63,9 +64,9 @@ public class TodoItemFocusTest {
             e.printStackTrace();
         }
 
-//        // Some earlier test occasionally leaves this up and when that happens it still shows by the time we get to
-//        // this test, when running the full test suite.  And the fact that it is showing is not just an
-//        // annoyance; it steals focus and causes this test to fail.  So this will work, until the rogue is found.
+        // When running the full test suite -
+        // Some earlier test(s) occasionally leave the 'working' dialog up and if still up when we get to
+        // this test, it steals focus and causes this test to fail.  So this will work, until the rogue is found.
 //        AppTreePanel.showWorkingDialog(false);
 
         // Put the focus on a note -

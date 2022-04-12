@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     private ThreeMonthColumn tmc;  // For Date selection
     private TodoNoteComponent tNoteComponent;
 
-    public TodoNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
+    public TodoNoteGroupPanel(@NotNull GroupInfo groupInfo, int pageSize) {
         super(pageSize);
 
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.

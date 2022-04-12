@@ -23,6 +23,7 @@ public class BranchSelectionTests {
     @BeforeAll
     static void meFirst() {
         MemoryBank.debug = true;
+        AppTreePanel.theInstance = null;
 
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
@@ -41,11 +42,14 @@ public class BranchSelectionTests {
         // fast that not all of the listeners would have gone
         // away before they were activated by other tests, causing some confusion.
         MemoryBank.appOpts = new AppOptions(); // Default starting point for a new user.
-        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        AppTreePanel.theInstance = null;
+        appTreePanel = TestUtil.getTheAppTreePanel();
         appTreePanel.restoringPreviousSelection = true; // This helps keep the thread count down.
 
-        notifier = new TestUtil();
-        appTreePanel.optionPane = notifier;
+//        notifier = new TestUtil();
+//        appTreePanel.optionPane = notifier;
+        notifier = (TestUtil) appTreePanel.optionPane;
+
         theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
         rootNode = (DefaultMutableTreeNode) theTree.getModel().getRoot();
     } // end BeforeAll method meFirst()

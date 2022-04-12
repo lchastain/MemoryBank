@@ -36,7 +36,6 @@
   "subjectString" : null,
   "extendedNoteString" : "",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Friday, February 1, 2008"
@@ -48,7 +47,6 @@
   "subjectString" : "Work Note",
   "extendedNoteString" : "Stock clerk at Primatech Paper.  ",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Wednesday, February 6, 2008"
@@ -60,7 +58,6 @@
   "subjectString" : "Work Note",
   "extendedNoteString" : "Every other Friday.",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Friday, February 29, 2008"
@@ -72,7 +69,6 @@
   "subjectString" : null,
   "extendedNoteString" : "Security here is crazy!  I came in just a bit early and I guess the guard wasn't expecting anyone at that time.  I almost got shot!!  ",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, March 3, 2008"
@@ -84,7 +80,6 @@
   "subjectString" : "Work Note",
   "extendedNoteString" : "I hadn't seen any sign of it myself, but a friend who knows where I work showed me a news story from a couple years back, about some strange goings on at this company.  Will have to keep an eye out.",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Wednesday, March 5, 2008"
@@ -96,7 +91,6 @@
   "subjectString" : "Work Note",
   "extendedNoteString" : "Every other Friday.",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Friday, March 14, 2008"
@@ -108,7 +102,6 @@
   "subjectString" : "Work Note",
   "extendedNoteString" : "Every other Friday.",
   "linkTargets" : [ ],
-  "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Friday, March 28, 2008"

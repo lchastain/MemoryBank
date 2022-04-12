@@ -42,6 +42,7 @@ public class MoveToDayNoteTest {
         // Retrieve the test data for this class from test resources.
         String fileName = "MoveToDayNoteTest";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
     }
@@ -49,7 +50,7 @@ public class MoveToDayNoteTest {
     @BeforeEach
     void setUp() {
         jFrame = new JFrame("MoveToDayNoteTest");
-        appTreePanel = new AppTreePanel(jFrame, MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
         unsavedNoteData = new DayNoteData();
         unsavedNoteData.setNoteString("Look at me!  I am unsaved!");
     }

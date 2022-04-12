@@ -45,6 +45,7 @@ class PreserveExpansionStatesTest {
         // This test user has a rich set of data, includes Search Results and Todo Lists
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
@@ -70,7 +71,8 @@ class PreserveExpansionStatesTest {
     @Test
     void testCollapsedNodesPreserved() {
         // The AppTreePanel is what creates the Tree for us.
-        atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        AppTreePanel.theInstance = null;
+        atp = TestUtil.getTheAppTreePanel();
         theTree = atp.getTree();
 
         // Get the TreePaths to the collapsible nodes

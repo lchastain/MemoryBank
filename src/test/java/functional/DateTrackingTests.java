@@ -16,7 +16,7 @@ public class DateTrackingTests {
     private static AppTreePanel appTreePanel;
     private static JTree theTree;
     private static AppMenuBar amb;
-    private LocalDate today = LocalDate.now();
+    private final LocalDate today = LocalDate.now();
 
     @BeforeAll
     static void meFirst() {
@@ -38,7 +38,7 @@ public class DateTrackingTests {
         // multiple JMenuItem listeners each time, and each test ran so
         // fast that not all of the listeners would have gone
         // away before they were activated by other tests, causing some confusion.
-        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
 
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
         // Note that it does not (currently) ever get un-set by the AppTreePanel itself.

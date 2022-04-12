@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 class TestUtil implements Notifier, SubSystem {
     private String theAnswerString;
@@ -9,6 +10,7 @@ class TestUtil implements Notifier, SubSystem {
     private int notifyCount;
     private Method theMethod;
     private Object theMessage;
+    private AppTreePanel theAppTreePanel;
 
     TestUtil() {
         theAnswerString = "No comment";
@@ -22,6 +24,15 @@ class TestUtil implements Notifier, SubSystem {
     @Override
     public void exit(int status) {
         System.out.println("System.exit(" + status + ") was called!");
+    }
+
+    // There should only ever be ONE AppTreePanel in a JVM.
+    static AppTreePanel getTheAppTreePanel() {
+        return Objects.requireNonNullElseGet(AppTreePanel.theInstance, () -> {
+            AppTreePanel atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+            atp.optionPane = new TestUtil();
+            return atp;
+        });
     }
 
 
@@ -72,7 +83,7 @@ class TestUtil implements Notifier, SubSystem {
     }
 
     @Override
-    public String showInputDialog(Component parentComponent, Object message, String title, int messageType) {
+    public String showInputDialog(Component parentComponent, Object message, String title, int messageType) throws HeadlessException {
         notifyCount++;
         System.out.println("(Input dialog) " + title + ":  " + message);
         System.out.println("  using supplied answer: " + theAnswerString);

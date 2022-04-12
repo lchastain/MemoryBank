@@ -1,42 +1,8 @@
-import java.time.LocalDate;
+
 
 // This Factory has methods to construct and return Panels of supported NoteGroup types.
 
 class GroupPanelFactory {
-
-    static NoteGroupPanel loadNoteGroupPanel(GroupInfo groupInfo) {
-        String parentNodeString = "Nada";
-        CalendarNoteGroupPanel calendarNoteGroupPanel = null;
-        switch(groupInfo.groupType) {
-            case YEAR_NOTES:
-                calendarNoteGroupPanel = new YearNoteGroupPanel();
-                break;
-            case MONTH_NOTES:
-                calendarNoteGroupPanel = new MonthNoteGroupPanel();
-                break;
-            case DAY_NOTES:
-                calendarNoteGroupPanel = new DayNoteGroupPanel();
-                break;
-            case TODO_LIST:
-                parentNodeString = "To Do Lists";
-                break;
-            case EVENTS:
-                parentNodeString = "Upcoming Events";
-                break;
-            case GOALS:
-                parentNodeString = "Goals";
-                break;
-            case SEARCH_RESULTS:
-                parentNodeString = "Search Results";
-                break;
-        }
-        if(calendarNoteGroupPanel != null) {
-            LocalDate localDate = CalendarNoteGroup.getDateFromGroupName(groupInfo);
-            calendarNoteGroupPanel.setDate(localDate);
-            return calendarNoteGroupPanel;
-        }
-        return loadNoteGroupPanel(parentNodeString, groupInfo.getGroupName());
-    }
 
 
     // This method will return the requested Panel only if it was previously

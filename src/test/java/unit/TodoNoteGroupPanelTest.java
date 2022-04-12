@@ -25,6 +25,7 @@ class TodoNoteGroupPanelTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
@@ -99,7 +100,7 @@ class TodoNoteGroupPanelTest {
     void testMerge() {
         // Just the coverage -
         testUtil.setTheAnswerString("New Car Shopping");
-//        todoNoteGroup.merge();
+        todoNoteGroup.merge();
     }
 
     @Test
@@ -123,4 +124,4 @@ class TodoNoteGroupPanelTest {
         todoNoteGroup.sortPriority(NoteGroupPanel.DESCENDING);
     }
 
-}
+ }

@@ -36,7 +36,6 @@
   "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
   "instanceId" : "d8f6312e-bd90-4325-bde3-3643dcf618f6",
   "noteString" : "Update LinkedIn Profile",
-  "subjectString" : null,
   "extendedNoteString" : "",
   "linkTargets" : [ ],
   "todoDateString" : null,
@@ -46,10 +45,8 @@
   "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
   "instanceId" : "a2d56d6c-8d0d-4435-819e-b6d686f34c9b",
   "noteString" : "Contact previous co-workers and managers",
-  "subjectString" : null,
   "extendedNoteString" : "",
   "linkTargets" : [ ],
-  "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
 }, {
@@ -59,7 +56,6 @@
   "subjectString" : null,
   "extendedNoteString" : "",
   "linkTargets" : [ ],
-  "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 4
 }, {
@@ -76,7 +72,6 @@
   "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
   "instanceId" : "0c5a4e47-b27f-4d60-8b30-d1d3344fe143",
   "noteString" : "Relocate?",
-  "subjectString" : null,
   "extendedNoteString" : "I would go to Derry, or Castle Rock - seems I remember reading good things about those places.",
   "linkTargets" : [ ],
   "todoDateString" : null,
@@ -86,10 +81,8 @@
   "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
   "instanceId" : "575253e4-5c65-4a0f-9063-04d5c8be2653",
   "noteString" : "Online Searches",
-  "subjectString" : null,
   "extendedNoteString" : "",
   "linkTargets" : [ ],
-  "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
 } ] ]

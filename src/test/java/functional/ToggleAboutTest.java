@@ -8,10 +8,14 @@ class ToggleAboutTest {
 
     @BeforeAll
     static void meFirst() {
+        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+
         // The problem with just having this in the BeforeEach was that we started
         // multiple JMenuItem listeners and not all of them would go away before
         // they were activated by other tests, causing much confusion.
-        appTreePanel = new AppTreePanel(new JFrame(), new AppOptions());
+        AppTreePanel.theInstance = null;  // Ensure we get a new one.
+        appTreePanel = TestUtil.getTheAppTreePanel();
     }
 
     @BeforeEach

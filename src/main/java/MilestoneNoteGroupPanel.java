@@ -3,8 +3,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class MilestoneNoteGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(MilestoneNoteGroupPanel.class);
@@ -44,10 +42,6 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
     public MilestoneNoteGroupPanel(GroupInfo groupInfo) {
         this(groupInfo, DEFAULT_PAGE_SIZE);
-    }
-
-    public MilestoneNoteGroupPanel(String groupName) {
-        this(new GroupInfo(groupName, GroupType.MILESTONE));
     }
 
 
@@ -110,38 +104,38 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
     } // end makeNewNote
 
 
-    public static void main(String[] args) {
-        MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("lex@doughmain.net");
-
-        MilestoneNoteGroupPanel theNoteGroupPanel;
-        JFrame testFrame = new JFrame();
-
-        testFrame.setTitle("Parentless MilestoneNoteGroupPanel Driver");
-        theNoteGroupPanel = new MilestoneNoteGroupPanel(new GroupInfo("Retire", GroupType.MILESTONE), 8);
-
-        testFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                theNoteGroupPanel.preClosePanel();
-                System.exit(0);
-            }
-        });
-
-        // Needed to override the 'metal' L&F for Swing components.
-        String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
-        System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
-        String laf = UIManager.getSystemLookAndFeelClassName();
-        try {
-            UIManager.setLookAndFeel(thePlaf);
-        } catch (Exception ignored) {
-        }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(theNoteGroupPanel.theBasePanel);
-
-        testFrame.getContentPane().add(theNoteGroupPanel.theBasePanel, "Center");
-        testFrame.pack();
-        testFrame.setSize(new Dimension(680, 600));
-        testFrame.setVisible(true);
-        testFrame.setLocationRelativeTo(null);
-    }
+//    public static void main(String[] args) {
+//        MemoryBank.debug = true;
+//        MemoryBank.setUserDataHome("lex@doughmain.net");
+//
+//        MilestoneNoteGroupPanel theNoteGroupPanel;
+//        JFrame testFrame = new JFrame();
+//
+//        testFrame.setTitle("Parentless MilestoneNoteGroupPanel Driver");
+//        theNoteGroupPanel = new MilestoneNoteGroupPanel(new GroupInfo("Retire", GroupType.MILESTONE), 8);
+//
+//        testFrame.addWindowListener(new WindowAdapter() {
+//            public void windowClosing(WindowEvent we) {
+//                theNoteGroupPanel.preClosePanel();
+//                System.exit(0);
+//            }
+//        });
+//
+//        // Needed to override the 'metal' L&F for Swing components.
+//        String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+//        System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
+//        String laf = UIManager.getSystemLookAndFeelClassName();
+//        try {
+//            UIManager.setLookAndFeel(thePlaf);
+//        } catch (Exception ignored) {
+//        }    // end try/catch
+//        SwingUtilities.updateComponentTreeUI(theNoteGroupPanel.theBasePanel);
+//
+//        testFrame.getContentPane().add(theNoteGroupPanel.theBasePanel, "Center");
+//        testFrame.pack();
+//        testFrame.setSize(new Dimension(680, 600));
+//        testFrame.setVisible(true);
+//        testFrame.setLocationRelativeTo(null);
+//    }
 
 }

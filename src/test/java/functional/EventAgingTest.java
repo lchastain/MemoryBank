@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ class EventAgingTest {
         } catch (Exception e) {
             System.out.println("ignored Exception: " + e.getMessage());
         }
-        appTreePanel = new AppTreePanel(new JFrame("Event Aging Test"), MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
     }
 
     @AfterAll
@@ -44,6 +43,7 @@ class EventAgingTest {
         File newname = new File(NoteGroupFile.eventGroupAreaPath + "event_holidays.json");
         String fileName = "EventAgingTest/Age4Times&End.json";
         File testFile = FileUtils.toFile(EventNoteGroupPanel.class.getResource(fileName));
+        assert testFile != null;
         FileUtils.copyFile(testFile, newname);
 
         // the setup - After our BeforeAll there should be no Day data, at all.  Verify this, to some extent.

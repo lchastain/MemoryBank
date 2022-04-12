@@ -160,16 +160,12 @@ public class TodoNoteComponent extends NoteComponent {
         super.noteActivated(blnIAmOn);
     }
 
-    //--------------------------------------------------------------------------
-    // Method Name: moveToDayNote
-    //
     // Move the TodoNoteData to a Day Note.  This happens with Events as well,
     //   but here it is done at the individual Component level whereas Events
     //   are aged as a group and more than one might be affected with different
-    //   effects on the visible interface, so the group 'refresh' is needed there
-    //   and it is not possible to leave a gap because the entire list gets reloaded.
-    //   But here - we just leave a gap.
-    //--------------------------------------------------------------------------
+    //   effects on the visible interface, so a group 'refresh' is needed there
+    //   after the move and it is not possible to leave a gap because the entire
+    //   list gets reloaded.  But for a TodoNoteGroupPanel - we just leave a gap.
     private void moveToDayNote(boolean useSelectedDate) {
         // TodoNoteData items have a 'slot' for a Subject, but no UI to set one.  So
         // now as it goes over to a DayNote, the Subject will be the name of the list
@@ -184,7 +180,7 @@ public class TodoNoteComponent extends NoteComponent {
             MemoryBank.debug("Moving TodoNote to specified date: " + moveToDate.toString());
         } else {
             LocalDate today = LocalDate.now();
-            MemoryBank.debug("Moving TodoNote to Today: " + today.toString());
+            MemoryBank.debug("Moving TodoNote to Today: " + today);
             myTodoNoteData.setTodoDate(LocalDate.now());
         }
 

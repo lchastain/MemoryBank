@@ -9,6 +9,7 @@
 // Tree Selection events - valueChanged() --> treeSelectionChanged() in a new thread.
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,11 +89,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     boolean restoringPreviousSelection;
     boolean searching;
 
-    public AppTreePanel(JFrame aFrame, AppOptions appOpts) {
+    public AppTreePanel(@NotNull JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
         appMenuBar = new AppMenuBar();
         aFrame.setJMenuBar(appMenuBar);
-        theInstance = this; // This works because we will always only have one AppTreePanel in this app.
+
+        // This works because we will always only have one AppTreePanel in this app.
+        theInstance = this;
+
         this.appOpts = appOpts;
         archiveWindows = new HashMap<>();
 
@@ -546,8 +550,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // Search Results
         //---------------------------------------------------
         theSearchResultsKeeper = new NoteGroupPanelKeeper();
-//        BranchHelper sbh = new BranchHelper(new JTree(), theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-//        int resultCount = sbh.getChoices().size(); // Choices array list can be empty but not null.
         ArrayList groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.EVENTS, false);
         int resultCount = groupNames.size(); // groupNames array list can be empty but not null.
         if(resultCount > 0) {  // No branch editor until after there is at least one search result.
@@ -688,7 +690,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
               theMessage += "these earlier versions which can sometimes help when reviewed at a\n";
               theMessage += "later date when you are wondering - 'what was going on back then?'";
 
-        int choice = JOptionPane.showConfirmDialog(
+        int choice = optionPane.showConfirmDialog(
                 this,
                 theMessage,
                 "Create a new Archive ?", // pane title bar
@@ -961,7 +963,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
 
-    private void handleMenuBar(String what) {
+    private void handleMenuBar(@NotNull String what) {
         if (what.equals("Exit")) System.exit(0);
         else if (what.equals("About")) showAbout();
         else if (what.equals("Archive...")) doCreateArchive();
@@ -1043,7 +1045,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // TreeBranchEditor.  It operates only on the tree and not with
     // any corresponding files; you must do that separately.
     // See the 'Save As...' methodology for a good example.
-    private void renameTreeBranchLeaf(DefaultMutableTreeNode theBranch, String oldname, String newname) {
+    private void renameTreeBranchLeaf(@NotNull DefaultMutableTreeNode theBranch, String oldname, String newname) {
         boolean changeWasMade = false;
         DefaultTreeModel tm = (DefaultTreeModel) theTree.getModel();
 
@@ -1614,7 +1616,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // and get back to a 'normal' view.  There was a previous version here, where we had kept the earlier
         // Panel so we could toggle back to it, but dropped that feature - too cute, and not that helpful.
         theTree.clearSelection();
-
     } // end showToday
 
     @Override
@@ -1630,6 +1631,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //viewedDateGranularity = ChronoUnit.WEEKS;
         // At that time you will also need to add handling to the selection changed area.
 
+        // But if we came here via a mouse click on some view then all we need to do is set
+        //   the tree's path correctly.
         theTree.setSelectionPath(weekViewPath);
     } // end showWeek
 
@@ -1670,8 +1673,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     // The static menu item applies to all three CalendarNoteGroup types.
     private void toggleReview() {
-        boolean reviewMode = false;
-        if(AppMenuBar.reviewMode.isSelected()) reviewMode = true;
+        boolean reviewMode = AppMenuBar.reviewMode.isSelected();
         if(theAppDays != null) theAppDays.reviewMode = reviewMode;
         if(theAppMonths != null) theAppMonths.reviewMode = reviewMode;
         if(theAppYears != null) theAppYears.reviewMode = reviewMode;

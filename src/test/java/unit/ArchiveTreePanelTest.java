@@ -36,13 +36,14 @@ public class ArchiveTreePanelTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(ArchiveTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
 
         // We need an AppTreePanel instance -
-        new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        AppTreePanel appTreePanel = TestUtil.getTheAppTreePanel();
 
         // If this is not a 'good' archive name, we will see a failure to parse it into a LocalDate.
         // If it is just not available for some reason, the options load will fail.

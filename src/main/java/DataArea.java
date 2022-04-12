@@ -29,30 +29,6 @@ enum DataArea {
         areaName = s;
     }
 
-    // No longer needed or in use, but keep for a while...   17 Feb 2022
-    static DataArea getAreaFromGroupType(GroupType groupType) {
-        DataArea theArea = null;
-        switch(groupType) {
-            case GOALS:
-            case GOAL_LOG:
-            case GOAL_TODO:
-            case MILESTONE:
-                theArea = DataArea.GOALS;
-                break;
-            case TODO_LIST:
-            case TODO_LOG:
-                theArea = DataArea.TODO_LISTS;
-                break;
-            case EVENTS:
-                theArea = DataArea.UPCOMING_EVENTS;
-                break;
-            case SEARCH_RESULTS:
-                theArea = DataArea.SEARCH_RESULTS;
-                break;
-        }
-        return theArea;
-    }
-
     // This is the name formatted for data storage (no spaces)
     String getAreaName() {
         return areaName.replaceAll("\\s", "");

@@ -35,6 +35,7 @@ public class SearchTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
@@ -44,7 +45,7 @@ public class SearchTest {
         // multiple JMenuItem listeners with each new atp, and each test ran so
         // fast that not all of the listeners would have gone
         // away before they were activated by other tests, causing some confusion.
-        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
 
         appTreePanel.optionPane = new TestUtil();

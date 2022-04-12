@@ -3,7 +3,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -40,12 +39,13 @@ class ReverseLinkagesTest {
         // class is expecting these notes to be present, so that the test can set links on them.
         String fileName = "setup@testing.com";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
 
-        appTreePanel = new AppTreePanel(new JFrame("Reverse Linkages Test"), MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
     }
 
     @AfterAll

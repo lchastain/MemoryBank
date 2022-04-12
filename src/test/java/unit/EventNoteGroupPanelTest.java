@@ -28,6 +28,7 @@ class EventNoteGroupPanelTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         eventNoteGroup = new EventNoteGroupPanel("holidays");
@@ -41,7 +42,7 @@ class EventNoteGroupPanelTest {
     }
 
 
-        @Test
+    @Test
     void testDateSelected() {
         eventNoteGroup.dateSelected(LocalDate.now());
     }

@@ -34,13 +34,14 @@ class CollapseChangesTest {
         // This test user has a rich set of data, includes Search Results and Todo Lists
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
 
         // The AppTreePanel is what creates the Tree for us.
-        appTreePanel = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        appTreePanel = TestUtil.getTheAppTreePanel();
     }
 
 
