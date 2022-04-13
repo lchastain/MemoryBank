@@ -11,6 +11,7 @@ import java.time.LocalDate;
 // date for it is selected on the Three Month Column.  That was the problem
 // that was originally reported via SCR0001.
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TodoItemFocusTest {
     private static TodoNoteGroupPanel todoNoteGroup;
     private static JFrame theFrame;

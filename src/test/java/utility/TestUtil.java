@@ -28,11 +28,10 @@ class TestUtil implements Notifier, SubSystem {
 
     // There should only ever be ONE AppTreePanel in a JVM.
     static AppTreePanel getTheAppTreePanel() {
-        return Objects.requireNonNullElseGet(AppTreePanel.theInstance, () -> {
-            AppTreePanel atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
-            atp.optionPane = new TestUtil();
-            return atp;
-        });
+        AppTreePanel atp;
+        atp = Objects.requireNonNullElseGet(AppTreePanel.theInstance, () -> new AppTreePanel(new JFrame(), MemoryBank.appOpts));
+        atp.optionPane = new TestUtil(); // If the instance comes from here, its Notifier must be the TestUtil.
+        return atp;
     }
 
 

@@ -12,6 +12,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import java.util.ArrayList;
 
+@SuppressWarnings("rawtypes")
 public class BranchHelper implements BranchHelperInterface {
     private static final Logger log = LoggerFactory.getLogger(BranchHelper.class);
 

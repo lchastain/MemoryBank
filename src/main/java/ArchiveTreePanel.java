@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-
 public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     private static final Logger log = LoggerFactory.getLogger(ArchiveTreePanel.class);
@@ -195,7 +194,8 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             TreeNode[] pathToRoot = theParent.getPath();
             theTree.setSelectionPath(new TreePath(pathToRoot));
 
-            updateTreeState(true); // Needed now, in case there is a new link target selection.
+            boolean updateLists = true; // If inline, IJ complains about the method not ever having another value.
+            updateTreeState(updateLists); // Needed now, in case there is a new link target selection.
         }
 
         // Restore the tree selection listening.

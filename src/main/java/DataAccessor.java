@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Vector;
 
+@SuppressWarnings("rawtypes")
 public interface DataAccessor {
 
     enum AccessType {

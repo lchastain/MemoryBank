@@ -113,7 +113,8 @@ class PreserveExpansionStatesTest {
     @Test
     void testExpandedNodesPreserved() {
         // The AppTreePanel is what creates the Tree for us.
-        atp = new AppTreePanel(new JFrame(), MemoryBank.appOpts);
+        AppTreePanel.theInstance = null;  // Force a tree rebuild based on new AppOptions.
+        atp = TestUtil.getTheAppTreePanel();
         theTree = atp.getTree();
 
         // Get the TreePath to the Search Results

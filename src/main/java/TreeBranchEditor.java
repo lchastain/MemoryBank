@@ -13,6 +13,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+@SuppressWarnings("unchecked")
 public class TreeBranchEditor extends JPanel
         implements ItemListener, ActionListener, TreeModelListener {
     static final long serialVersionUID = 1L;

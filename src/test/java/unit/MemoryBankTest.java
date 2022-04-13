@@ -25,8 +25,10 @@ class MemoryBankTest {
 
         // Retrieve a fresh set of test data from test resources
         File testBadResource = FileUtils.toFile(MemoryBank.class.getResource("null"));
+        assert testBadResource != null;
         FileUtils.copyDirectory(testBadResource, testBadData);
         File testGoodResource = FileUtils.toFile(MemoryBank.class.getResource("jondo.nonamus@lcware.net"));
+        assert testGoodResource != null;
         FileUtils.copyDirectory(testGoodResource, testGoodData);
 
         TestUtil tu = new TestUtil();

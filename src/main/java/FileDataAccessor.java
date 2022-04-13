@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+@SuppressWarnings("rawtypes")
 public class FileDataAccessor implements DataAccessor {
     static String archiveAreaPath;
     static DateTimeFormatter archiveFileFormat;
@@ -153,7 +154,7 @@ public class FileDataAccessor implements DataAccessor {
             archiveGroupType(archiveRepo, GroupType.SEARCH_RESULTS);
 
         } catch (Exception e) {
-            System.out.println("Archiving error: " + e.toString());
+            System.out.println("Archiving error: " + e);
             return false;
         }
         return true;
@@ -290,7 +291,7 @@ public class FileDataAccessor implements DataAccessor {
         if (e != null) {
             e.printStackTrace();
             String ems = "Error in loading " + filename + " !\n";
-            ems = ems + e.toString();
+            ems = ems + e;
             ems = ems + "\nReview the stack trace.";
             MemoryBank.debug(ems);
         } // end if
@@ -514,6 +515,7 @@ public class FileDataAccessor implements DataAccessor {
 
         File iconDir = new File(dirPath);
         String[] theFileList = iconDir.list();
+        assert theFileList != null;
         Arrays.sort(theFileList); // So that the icon order does not change arbitrarily.
         theIcons = new ImageIcon[theFileList.length];
 
@@ -647,7 +649,7 @@ public class FileDataAccessor implements DataAccessor {
 
         if (e != null) {
             String ems = "Error in loading " + subjectsFilename + " !\n";
-            ems = ems + e.toString();
+            ems = ems + e;
             ems = ems + "\noperation failed; using default values.";
             MemoryBank.debug(ems);
         } // end if

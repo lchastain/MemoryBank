@@ -3,6 +3,7 @@ import javax.swing.tree.MutableTreeNode;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+@SuppressWarnings("rawtypes")
 public interface BranchHelperInterface {
     StringBuilder ems = new StringBuilder();  // Error Message String
 

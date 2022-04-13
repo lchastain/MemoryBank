@@ -16,9 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AppTreePanelTest {
     private static AppTreePanel appTreePanel;
-    private static JTree theTree;
     private static int theSelectionRow;
-    private static TestUtil testUtil;
 
     @BeforeAll
     static void meFirst() throws IOException {
@@ -54,10 +52,6 @@ public class AppTreePanelTest {
         appTreePanel = TestUtil.getTheAppTreePanel();
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
 
-        testUtil = new TestUtil();
-        appTreePanel.optionPane = testUtil;
-        theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
-
         // No significance to this value other than it needs to be a row that
         // we know for a fact will be there, even for a brand-new AppTreePanel.
         // In this case we've chosen a relatively low (safer) value, currently
@@ -65,26 +59,21 @@ public class AppTreePanelTest {
         theSelectionRow = 3;
     }
 
-    @BeforeEach
-    void beforeEach() {
-        appTreePanel.optionPane = testUtil;
-    }
-
     @AfterEach
     void tearDown() throws InterruptedException {
         // These tests drive the app faster than it would go if it was only under user control.
-        Thread.sleep(700); // Otherwise we see NullPointerExceptions after tests pass.
+        Thread.sleep(500); // Otherwise we see NullPointerExceptions after tests pass.
     }
 
     @AfterAll
     static void meLast() {
-        theTree = null;
         appTreePanel = null;
     }
 
     @Test
     @Order(1)
     void testDeepClone() {
+        JTree theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
         theTree.setSelectionRow(theSelectionRow);
         TreePath treePath = theTree.getSelectionPath();
         Assertions.assertNotNull(treePath);
@@ -129,6 +118,7 @@ public class AppTreePanelTest {
     @Order(3)
     void testShowDay() {
         appTreePanel.showDay();
+        JTree theTree = appTreePanel.getTree();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Day Notes");
@@ -264,6 +254,7 @@ public class AppTreePanelTest {
 
         appTreePanel.setViewedDate(theMonthToShow, ChronoUnit.MONTHS);
         appTreePanel.showMonthView();
+        JTree theTree = appTreePanel.getTree();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Month View");
@@ -275,6 +266,7 @@ public class AppTreePanelTest {
     void testShowToday() {
         // Cover all the switch cases.  This will also exercise the 'set' methods
         // within each specified NoteGroup.
+        JTree theTree = appTreePanel.getTree();
         theTree.setSelectionPath(appTreePanel.yearViewPath);
         appTreePanel.setViewedDate(2019); // This is NOT today.
         appTreePanel.showToday();
@@ -305,6 +297,7 @@ public class AppTreePanelTest {
     @Order(8)
     void testShowWeek() {
         appTreePanel.showWeek(LocalDate.now());
+        JTree theTree = appTreePanel.getTree();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Week View");
@@ -338,6 +331,7 @@ public class AppTreePanelTest {
     @Order(11)
     void testGroupSaveAs() throws Exception {
         // First, Load a current list
+        JTree theTree = appTreePanel.getTree();
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode dmtn = getTreeNodeForString(theRoot, "Get New Job");
@@ -349,6 +343,7 @@ public class AppTreePanelTest {
 
         appTreePanel.appMenuBar.manageMenus("To Do List");
         JMenuItem jmi = getMenuItem("To Do List", "Save As...");
+        TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
         testUtil.setTheAnswerString("Get New Joke");
         jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
 
@@ -361,6 +356,7 @@ public class AppTreePanelTest {
     void testCloseSearchResult() throws Exception {
         // First, select a known search result (we know the content of our test data)
         String theSearchResult = "20201107080423";
+        JTree theTree = appTreePanel.getTree();
         DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
         DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode) theTreeModel.getRoot();
         DefaultMutableTreeNode dmtn = getTreeNodeForString(theRoot, theSearchResult);

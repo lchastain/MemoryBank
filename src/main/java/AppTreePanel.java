@@ -29,6 +29,7 @@ import java.util.*;
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 
+@SuppressWarnings("rawtypes")
 public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
     static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.

@@ -198,8 +198,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         lblStatusMessage = new JLabel(s);
         theBasePanel.add(lblStatusMessage, BorderLayout.SOUTH);
 
-        // A variant of JOptionPane, for testing.  Needs no user interaction.
-        optionPane = new Notifier() { }; // Uses all default methods.
+        // Use the Notifier from the AppTreePanel, if available.  Otherwise make one now.
+        if(AppTreePanel.theInstance != null) optionPane = AppTreePanel.theInstance.optionPane;
+        else optionPane = new Notifier() { }; // Uses all default methods.
     } // end buildNotesPanel
 
 
@@ -448,7 +449,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
         if (e != null) {
             ems = "NoteGroupPanel loadNotesPanel: Error in loading the interface for " + getGroupName() + " !\n";
-            ems = ems + e.toString();  // e.getMessage() just says 'null'; not good enough.
+            ems = ems + e;  // e.getMessage() just says 'null'; not good enough.
             ems = ems + "\nLoad Notes Panel operation aborted.";
             System.out.println("ems = " + ems);
             optionPane.showMessageDialog(JOptionPane.getFrameForComponent(theBasePanel),
