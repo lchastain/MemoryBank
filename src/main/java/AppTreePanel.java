@@ -52,6 +52,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private TreePath searchresultsPath;
 
     static JDialog theWorkingDialog;
+    JDialog theEventsDialog;
     private NoteGroupPanel theNoteGroupPanel; // A reference to the current selection
     private NoteGroupPanel deletedNoteGroupPanel;
     DayNoteGroupPanel theAppDays;
@@ -1409,25 +1410,23 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
     void showEvents() {
-        JDialog dialogWindow;
-
         EventNoteGroupPanel theBigPicture = getConsolidatedView();
         if (theBigPicture == null) return;
 
         // Make a dialog window.
         // A dialog is preferred to the JOptionPane.showMessageDialog, because it is easier to control
         // the size, and we need no additional buttons.
-        dialogWindow = new JDialog((Frame) null, true);
-        dialogWindow.getContentPane().add(theBigPicture.theBasePanel, BorderLayout.CENTER);
+        theEventsDialog = new JDialog((Frame) null, true);
+        theEventsDialog.getContentPane().add(theBigPicture.theBasePanel, BorderLayout.CENTER);
 //        dialogWindow.setTitle("Scheduled Events");
-        dialogWindow.setSize(680, 580);
-        dialogWindow.setResizable(false);
+        theEventsDialog.setSize(680, 580);
+        theEventsDialog.setResizable(false);
 
         // Center the dialog.
-        dialogWindow.setLocationRelativeTo(MemoryBank.logFrame);
+        theEventsDialog.setLocationRelativeTo(MemoryBank.logFrame);
 
         // Go modal -
-        dialogWindow.setVisible(true);
+        theEventsDialog.setVisible(true);
     } // end showEvents
 
 

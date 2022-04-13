@@ -12,8 +12,8 @@ public class RecurrencePanel extends JPanel implements
 
     private static DateTimeFormatter dtf;
 
-    private int intPreferredWidth;    // See note in constructor.
-    private int intPreferredHeight;   // See note in constructor.
+    private final int intPreferredWidth;    // See note in constructor.
+    private final int intPreferredHeight;   // See note in constructor.
     private LocalDate dateStart;  // Used in itemStateChanged and recalcEnd
     private LocalDate dateStopBy;
     private int intStopAfter;
@@ -785,8 +785,7 @@ public class RecurrencePanel extends JPanel implements
 
 
     static boolean isWeekday(LocalDate theDay) {
-        boolean result = true;
-        if (theDay.getDayOfWeek() == DayOfWeek.SATURDAY) result = false;
+        boolean result = theDay.getDayOfWeek() != DayOfWeek.SATURDAY;
         if (theDay.getDayOfWeek() == DayOfWeek.SUNDAY) result = false;
 
         return result;
@@ -1453,8 +1452,7 @@ public class RecurrencePanel extends JPanel implements
             comboxYear.addItem(strDate + " in " + strMonth);
 
             // Is this a weekday or weekend day?
-            boolean blnWeekday = true;
-            if (tmpDate.getDayOfWeek() == DayOfWeek.SATURDAY) blnWeekday = false;
+            boolean blnWeekday = tmpDate.getDayOfWeek() != DayOfWeek.SATURDAY;
             if (tmpDate.getDayOfWeek() == DayOfWeek.SUNDAY) blnWeekday = false;
 
             // Is this the last day (of its kind) this month?

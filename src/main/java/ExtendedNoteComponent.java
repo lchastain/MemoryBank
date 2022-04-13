@@ -245,8 +245,8 @@ public class ExtendedNoteComponent extends JPanel {
     void saveSubjects() {
         MemoryBank.debug("Saving subjects: " + subjectsChanged);
         if(subjectsChanged) {
-            MemoryBank.dataAccessor.saveSubjects(theDefaultSubject, subjects);
-            subjectsChanged = false;
+            boolean b = MemoryBank.dataAccessor.saveSubjects(theDefaultSubject, subjects);
+            if(b) subjectsChanged = false;
         }
     } // end saveSubjects
 

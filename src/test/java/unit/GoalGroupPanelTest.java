@@ -1,16 +1,13 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 
-class EventNoteGroupPanelTest {
-    private static EventNoteGroupPanel eventNoteGroup;
+class GoalGroupPanelTest {
+    private static GoalGroupPanel goalGroup;
     static TestUtil testUtil;
 
     @BeforeAll
@@ -31,9 +28,9 @@ class EventNoteGroupPanelTest {
         assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
-        eventNoteGroup = new EventNoteGroupPanel("holidays");
+        goalGroup = new GoalGroupPanel("Graduate");
         testUtil = new TestUtil();
-        EventNoteGroupPanel.optionPane = testUtil;
+        GoalGroupPanel.optionPane = testUtil;
     }
 
     @AfterAll
@@ -43,25 +40,25 @@ class EventNoteGroupPanelTest {
 
 
     @Test
-    void testDateSelected() {
-        eventNoteGroup.dateSelected(LocalDate.now());
-    }
+    public void coverageTest() {
+        goalGroup.preClosePanel();
+        goalGroup.prependNote(new LogNoteData());
+        goalGroup.clearAllNotes();
+        goalGroup.renamePanel("Dominate");
+        goalGroup.saveAs();
 
-    @Test
-    void testDefaultIcon() {
-        ImageIcon theDefault = eventNoteGroup.getDefaultIcon();
-        Assertions.assertNotNull(theDefault);
-
-        // We are setting the one it already has, but this
-        // still exercises the code and gets the coverage.
-        eventNoteGroup.setDefaultIcon(theDefault);
-    }
-
-    @Test
-    void testEditExtendedNoteComponent() {
-        EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroup.getNoteComponent(2);
-        EventNoteData eventNoteData = (EventNoteData) eventNoteComponent.getNoteData();
-        eventNoteGroup.editExtendedNoteComponent(eventNoteData);
+        // Off-the-rails tests, to get NoteGroup coverage in places that are
+        //   otherwise inappropriate to this class test.
+        goalGroup.myNoteGroup.setNotes(null);
+        goalGroup.myNoteGroup.myProperties = null;
+        goalGroup.myNoteGroup.myGroupInfo = new GroupInfo("badName", GroupType.DAY_NOTES);
+        goalGroup.myNoteGroup.getGroupProperties();
+        goalGroup.myNoteGroup.myProperties = null;
+        goalGroup.myNoteGroup.myGroupInfo = new GroupInfo("badName", GroupType.MONTH_NOTES);
+        goalGroup.myNoteGroup.getGroupProperties();
+        goalGroup.myNoteGroup.myProperties = null;
+        goalGroup.myNoteGroup.myGroupInfo = new GroupInfo("badName", GroupType.YEAR_NOTES);
+        goalGroup.myNoteGroup.getGroupProperties();
     }
 
 }

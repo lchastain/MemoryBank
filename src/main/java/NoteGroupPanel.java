@@ -198,9 +198,13 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         lblStatusMessage = new JLabel(s);
         theBasePanel.add(lblStatusMessage, BorderLayout.SOUTH);
 
-        // Use the Notifier from the AppTreePanel, if available.  Otherwise make one now.
-        if(AppTreePanel.theInstance != null) optionPane = AppTreePanel.theInstance.optionPane;
-        else optionPane = new Notifier() { }; // Uses all default methods.
+        // Use the Notifier from the AppTreePanel.  Under normal operating conditions,
+        //   no NoteGroupPanel would ever be constructed directly, without the AppTreePanel.
+        // As for non-normal - sometimes a Panel might come with its own 'main', to quickly
+        //   stand up the panel in its own container during initial development, and such
+        //   a main might be retained in case it would be needed later for faster troubleshooting.
+        assert AppTreePanel.theInstance != null;
+        optionPane = AppTreePanel.theInstance.optionPane;
     } // end buildNotesPanel
 
 

@@ -208,7 +208,7 @@ public class FileDataAccessor implements DataAccessor {
 
         // System.out.println("Searching for data in the year: " + year);
         String FileName = calendarNoteGroupAreaPath + year;
-        MemoryBank.debug("Looking in " + FileName);
+        //MemoryBank.debug("Looking in " + FileName);
 
         String[] foundFiles = null;
 
@@ -395,7 +395,6 @@ public class FileDataAccessor implements DataAccessor {
         }
         return iconFileName;
     }
-
 
     @Override
     public ImageIcon getImageIcon(IconInfo iconInfo) {

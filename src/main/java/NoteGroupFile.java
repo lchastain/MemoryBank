@@ -7,10 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 // Name is short but should be: NoteGroupFileDataAccessor.
 @SuppressWarnings("rawtypes")
@@ -403,9 +400,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         // Initial format checking -
         if (!strTheName.contains("_"))
             return null;
-        boolean badName = true;
-        if (strTheName.startsWith("D"))
-            badName = false;
+        boolean badName = !strTheName.startsWith("D");
         if (strTheName.startsWith("M"))
             badName = false;
         if (strTheName.startsWith("Y"))
@@ -485,7 +480,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         // Potential issue here if we're not looking into a directory (but we know that we are).
         // And if the directory is empty?  Not too much of a problem; it will still 'sort', and then we don't iterate.
         File theYears = new File(calendarNoteGroupAreaPath); // All directories here, with 4-digit numerical names.
-        List<File> yearsList = Arrays.asList(theYears.listFiles());
+        List<File> yearsList = Arrays.asList(Objects.requireNonNull(theYears.listFiles()));
 
         // Sort the Years according to the direction we will be searching.
         // But also - set a default return value in case nothing is found.
@@ -538,7 +533,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         for (File f : filesList) {
             LocalDate aDate = getDateFromFilename(f);
             assert aDate != null;
-            System.out.println("The date for " + f.getAbsolutePath() + " is " + aDate.toString());
+            //System.out.println("The date for " + f.getAbsolutePath() + " is " + aDate.toString());
 
             if (direction == CalendarNoteGroup.Direction.FORWARD) {
                 if (aDate.isBefore(initialDate)) continue;

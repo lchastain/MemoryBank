@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AppTreePanelTest {
     private static AppTreePanel appTreePanel;
     private static int theSelectionRow;
@@ -341,6 +343,9 @@ public class AppTreePanelTest {
         theTree.setSelectionPath(tp);
         Thread.sleep(800);  // Allow the change time to bake in, and reset the app menus.
 
+        // A side-activity; checks off another method test.
+        appTreePanel.showCurrentNoteGroup();
+
         appTreePanel.appMenuBar.manageMenus("To Do List");
         JMenuItem jmi = getMenuItem("To Do List", "Save As...");
         TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
@@ -379,6 +384,34 @@ public class AppTreePanelTest {
         //   if the user used a menu item to close this result but now they also really want to see it has
         //   been deselected in the branch editor, then they just need to go there via their own action.
         assert theTree.getSelectionPath() == null;
+    }
+
+    @Test
+    @Order(13)
+    void testShowEvents() {
+        // We need to start a 'window close' thread that will kick in only AFTER we have shown the Events.
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(1500);
+                    WindowEvent we = new WindowEvent(appTreePanel.theEventsDialog, WindowEvent.WINDOW_CLOSING);
+                    appTreePanel.theEventsDialog.dispatchEvent(we);
+                } catch (InterruptedException ignore) { }
+            }
+        }).start(); // Start the thread
+        appTreePanel.showEvents();
+    }
+
+    @Test
+    @Order(14)
+    // This one tests the 'no current group' path; the 'good' paths may be getting tested elsewhere.
+    void testShowCurrentGroup() {
+        appTreePanel.showArchives();
+
+        JTree theTree = appTreePanel.getTree();
+        theTree.setSelectionRow(0);
+
+        appTreePanel.showCurrentNoteGroup();
     }
 
     @SuppressWarnings("rawtypes")

@@ -185,7 +185,8 @@ public class BranchSelectionTests {
         // The handler for selecting the Search Results branch should kick off a new search, with a call to
         //   appTreePanel.prepareSearch(), which uses the Notifier to present the SearchPanel to the user.
         //   So first we pre-set the notifier to cancel the search, then Select the Search Results branch.
-        notifier.setTheAnswerInt(JOptionPane.CANCEL_OPTION);
+        int theAnsr = JOptionPane.CANCEL_OPTION;
+        notifier.setTheAnswerInt(theAnsr);
         appTreePanel.restoringPreviousSelection = false; // We WANT it to present the Search Panel.
         theTree.setSelectionPath(new TreePath(pathToRoot));
         // But doing it this way, it happens in a separate thread, so we need to give it some time to show the dialog.
