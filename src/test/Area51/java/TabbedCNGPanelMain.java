@@ -3,21 +3,24 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class GoalGroupMain {
+// This 'main' for the class must reside in the test area, to grant it access to the TestUtil,
+//   which is needed to instantiate an AppTreePanel, which is used by the NoteGroupPanels.
+public class TabbedCNGPanelMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("lex@doughmain.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        JFrame testFrame = new JFrame("Tabbed Calendar Note Group Panel Driver");
+
+        // We don't use the AppTreePanel directly from here, but needs to have been instantiated
+        // because the Panels wrapped by the TabbedCalendarNoteGroupPanel will need it.
         TestUtil.getTheAppTreePanel();
 
-        JFrame testFrame = new JFrame("Goal Panel Driver");
-
-        GoalGroupPanel theGoalGroup = new GoalGroupPanel(new GroupInfo("Retire", GroupType.GOALS));
+        TabbedCalendarNoteGroupPanel tcngPanel = new TabbedCalendarNoteGroupPanel();
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                theGoalGroup.preClosePanel();
                 System.exit(0);
             }
         });
@@ -25,18 +28,17 @@ public class GoalGroupMain {
         // Needed to override the 'metal' L&F for Swing components.
         String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
         System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
-        String laf = UIManager.getSystemLookAndFeelClassName();
+        //String laf = UIManager.getSystemLookAndFeelClassName();
         try {
             UIManager.setLookAndFeel(thePlaf);
         } catch (Exception ignored) {
         }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(theGoalGroup.theBasePanel);
+        SwingUtilities.updateComponentTreeUI(tcngPanel.theBasePanel);
 
-        testFrame.getContentPane().add(theGoalGroup.theBasePanel, "Center");
+        testFrame.getContentPane().add(tcngPanel.theBasePanel, "Center");
         testFrame.pack();
         testFrame.setSize(new Dimension(680, 600));
         testFrame.setVisible(true);
         testFrame.setLocationRelativeTo(null);
     }
-
 }

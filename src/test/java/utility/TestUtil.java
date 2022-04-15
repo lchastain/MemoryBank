@@ -27,6 +27,8 @@ class TestUtil implements Notifier, SubSystem {
     }
 
     // There should only ever be ONE AppTreePanel in a JVM.
+    // With so many tests needing instances of the AppTreePanel, this method is needed as a gatekeeper
+    //   to ensure that there is always only one instance of the AppTreePanel at a time.
     static AppTreePanel getTheAppTreePanel() {
         AppTreePanel atp;
         atp = Objects.requireNonNullElseGet(AppTreePanel.theInstance, () -> new AppTreePanel(new JFrame(), MemoryBank.appOpts));

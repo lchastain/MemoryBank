@@ -20,7 +20,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     static Notifier optionPane;
     static String ems;     // Error Message String
     NoteGroup myNoteGroup; // Group onto which this Panel provides a window.
-    JComponent theBasePanel;   // JComponent vs JPanel, allows more flexibility.
+    JComponent theBasePanel;   // JComponent vs JPanel, still a container but allows more flexibility.
     ExtendedNoteComponent extendedNoteComponent;
     JMenu myListMenu; // Child classes each have their own menu
 
@@ -129,7 +129,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         theBasePanel.add(component, object);
     }
 
-
     void buildNotesPanel() {
         theBasePanel = new JPanel(new BorderLayout()) {
             private static final long serialVersionUID = 1L;
@@ -199,10 +198,19 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         theBasePanel.add(lblStatusMessage, BorderLayout.SOUTH);
 
         // Use the Notifier from the AppTreePanel.  Under normal operating conditions,
-        //   no NoteGroupPanel would ever be constructed directly, without the AppTreePanel.
-        // As for non-normal - sometimes a Panel might come with its own 'main', to quickly
-        //   stand up the panel in its own container during initial development, and such
-        //   a main might be retained in case it would be needed later for faster troubleshooting.
+        //   no NoteGroupPanel would ever be constructed directly, without the AppTreePanel
+        //   having been instantiated first.  We use the assertion to aid with code coverage,
+        //   because it will at least show partial coverage but if it was replaced by an 'if'
+        //   statement, the false branch would be flagged as having never been taken.
+        //
+        // As for non-normal, and the main reason we use the assertion vs just boldly going ahead
+        //   with the optionPane assignment, sometimes there will be a test class (usually needed during
+        //   initial development) that quickly stands up the NoteGroupPanel in its own container.
+        //   Such a class might be retained (in a separate 'test' area) in case it would be needed later
+        //   for faster troubleshooting or some follow-on T&E / R&D, and failing the assertion, if that
+        //   happens, is just a less hostile reminder to the developer that they first need to ensure
+        //   that the AppTreePanel has been instantiated so that the assignment does not fail due
+        //   to a null handle of theInstance.
         assert AppTreePanel.theInstance != null;
         optionPane = AppTreePanel.theInstance.optionPane;
     } // end buildNotesPanel

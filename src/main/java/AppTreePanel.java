@@ -77,6 +77,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private DefaultMutableTreeNode selectedArchiveNode;
 
     // Predefined Tree Paths to 'leaf' nodes.
+    TreePath calendarNotesPath;
     TreePath dayNotesPath;
     TreePath monthNotesPath;
     TreePath yearNotesPath;
@@ -96,7 +97,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         appMenuBar = new AppMenuBar();
         aFrame.setJMenuBar(appMenuBar);
 
-        // This works because we will always only have one AppTreePanel in this app.
+        // Give full package-level access to this instance, by providing a static handle to it.
+        // This works because we will always only have one instance of the AppTreePanel class in this app.
         theInstance = this;
 
         this.appOpts = appOpts;
@@ -517,6 +519,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         trunk.add(branch);
         pathToRoot = branch.getPath();
         notesPath = new TreePath(pathToRoot);
+
+        leaf = new DefaultMutableTreeNode("Calendar Notes");
+        branch.add(leaf);
+        pathToRoot = leaf.getPath();
+        calendarNotesPath = new TreePath(pathToRoot);
 
         leaf = new DefaultMutableTreeNode("Day Notes");
         branch.add(leaf);
@@ -1385,7 +1392,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             Object[] theData;
             if(theNoteGroupPanel instanceof GoalGroupPanel) { // Show the correct sub-panel (tab)
                 GoalGroupPanel goalGroupPanel = (GoalGroupPanel) theNoteGroupPanel;
-                switch (goalGroupPanel.currentTabType) {
+                switch (goalGroupPanel.currentGoalTabType) {
                     case TODO:  // To Do List
                         theData = goalGroupPanel.theTodoNoteGroupPanel.myNoteGroup.getTheData();
                         break;

@@ -7,7 +7,9 @@ public class MonthNoteGroupMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("g01@doughmain.net");
+        MemoryBank.setUserDataHome("lex@doughmain.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         JFrame testFrame = new JFrame("MonthNoteGroup Driver");
 

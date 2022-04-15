@@ -29,9 +29,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
     TodoNoteGroupPanel theTodoNoteGroupPanel;
     LogNoteGroupPanel theLogNoteGroupPanel;
     MilestoneNoteGroupPanel theMilestoneNoteGroupPanel;
-    TabType currentTabType;
+    GoalTabType currentGoalTabType;
 
-    public enum TabType {
+    public enum GoalTabType {
         TODO(0),
         LOG(1),
         MILES(2);
@@ -39,18 +39,18 @@ public class GoalGroupPanel extends NoteGroupPanel {
         private final int value;
         private static final Map map = new HashMap<>();
 
-        TabType(int value) {
+        GoalTabType(int value) {
             this.value = value;
         }
 
         static {
-            for (TabType pageType : TabType.values()) {
+            for (GoalTabType pageType : GoalTabType.values()) {
                 map.put(pageType.value, pageType);
             }
         }
 
-        public static TabType valueOf(int pageType) {
-            return (TabType) map.get(pageType);
+        public static GoalTabType valueOf(int pageType) {
+            return (GoalTabType) map.get(pageType);
         }
 
         public int getValue() {
@@ -73,7 +73,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         super();
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
-        currentTabType = TabType.TODO;
+        currentGoalTabType = GoalTabType.TODO;
 
         groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
 
@@ -227,9 +227,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
             public void stateChanged(ChangeEvent e) {
                 JTabbedPane pane = (JTabbedPane) e.getSource();
                 int index = pane.getSelectedIndex();
-                currentTabType = TabType.valueOf(index);
+                currentGoalTabType = GoalTabType.valueOf(index);
                 //System.out.println(index);
-                switch (currentTabType) {
+                switch (currentGoalTabType) {
                     case TODO:  // To Do List
                         theBasePanel.remove(theLogCenterPanel);
                         theBasePanel.remove(theMilestonesCenterPanel);
@@ -318,7 +318,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
     // This still leaves the GroupProperties.
     @Override
     void clearAllNotes() {
-        switch (currentTabType) {
+        switch (currentGoalTabType) {
             case TODO:  // To Do List
                 theTodoNoteGroupPanel.clearAllNotes();
                 break;
@@ -332,7 +332,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
                 super.clearAllNotes();
         }
     } // end clearAllNotes
-
 
 
     @Override
@@ -361,8 +360,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
         super.preClosePanel();
     }
 
-    // A rename of the Goal Panel needs to cascade thru to its tabs.
+    @Override
     void renamePanel(String renameTo) {
+        // A rename of the Goal Panel needs to cascade thru to its tabs.
         theTodoNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
         theLogNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
         theMilestoneNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
