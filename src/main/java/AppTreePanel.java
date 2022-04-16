@@ -767,50 +767,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
 
-    // Present the user with a dialog whereby they may specify the parameters of
-    // their search, then send those parameters to the 'doSearch' method.
-    private void prepareSearch() {
-        searching = true;
-        searchPanel = new SearchPanel();
-        Frame theFrame = JOptionPane.getFrameForComponent(this);
-
-        // Now display the search dialog.
-        String string1 = "Search Now";
-        String string2 = "Cancel";
-        Object[] options = {string1, string2};
-        int choice = optionPane.showOptionDialog(theFrame,
-                searchPanel,
-                "Search - Please specify the conditions for your quest",
-                JOptionPane.OK_CANCEL_OPTION,
-                PLAIN_MESSAGE,
-                null,     //don't use a custom Icon
-                options,  //the titles of buttons
-                string1); //the title of the default button
-
-        if (choice != JOptionPane.OK_OPTION) {
-            searching = false;
-            return;
-        }
-
-        if (!searchPanel.hasWhere()) {
-            JOptionPane.showMessageDialog(this,
-                    " No location to search was chosen!",
-                    "Search conditions specification error",
-                    JOptionPane.ERROR_MESSAGE);
-            searching = false;
-            return;
-        } // end if no search location was specified.
-
-        // Make sure that the most recent changes, if any, will be included in the search.
-        preClose();
-
-        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
-        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
-
-        doSearch(searchPanel);
-    } // end prepareSearch
-
-
     void doSearch(SearchPanel searchPanel) {
         // We will display the results of the search, even if it finds nothing.
         SearchPanelSettings searchPanelSettings = searchPanel.getSettings();
@@ -1047,6 +1003,50 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         updateAppOptions(true); // Capture expansion states into appOpts
     } // end preClose
+
+
+    // Present the user with a dialog whereby they may specify the parameters of
+    // their search, then send those parameters to the 'doSearch' method.
+    private void prepareSearch() {
+        searching = true;
+        searchPanel = new SearchPanel();
+        Frame theFrame = JOptionPane.getFrameForComponent(this);
+
+        // Now display the search dialog.
+        String string1 = "Search Now";
+        String string2 = "Cancel";
+        Object[] options = {string1, string2};
+        int choice = optionPane.showOptionDialog(theFrame,
+                searchPanel,
+                "Search - Please specify the conditions for your quest",
+                JOptionPane.OK_CANCEL_OPTION,
+                PLAIN_MESSAGE,
+                null,     //don't use a custom Icon
+                options,  //the titles of buttons
+                string1); //the title of the default button
+
+        if (choice != JOptionPane.OK_OPTION) {
+            searching = false;
+            return;
+        }
+
+        if (!searchPanel.hasWhere()) {
+            JOptionPane.showMessageDialog(this,
+                    " No location to search was chosen!",
+                    "Search conditions specification error",
+                    JOptionPane.ERROR_MESSAGE);
+            searching = false;
+            return;
+        } // end if no search location was specified.
+
+        // Make sure that the most recent changes, if any, will be included in the search.
+        preClose();
+
+        theWorkingDialog.setLocationRelativeTo(rightPane); // This can be needed if windowed app has moved from center screen.
+        showWorkingDialog(true); // Show the 'Working...' dialog; it's in a separate thread so we can keep going here...
+
+        doSearch(searchPanel);
+    } // end prepareSearch
 
 
     // Call this method to do a 'programmatic' rename of a node
@@ -1372,13 +1372,58 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end showArchives
 
 
-    // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
-    @Override
-    public void showDay() {
-        MemoryBank.debug("showDay called.");
-        theTree.setSelectionPath(dayNotesPath);
-    } // end showDay
+    // Called from treeSelectionChanged, to handle different node selections that require the same set of actions.
+    private String showBranch(DefaultMutableTreeNode selectedNode) {
+        String theNodeString = selectedNode.toString(); // Get the string for the selected node.
+        String menuContext = "No Selection";
+        BranchHelper branchHelper = null;
 
+        switch (theNodeString) {
+            case "Goals":
+                menuContext = "Goals Branch Editor";
+                branchHelper = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
+                break;
+            case "Upcoming Events":
+                menuContext = "Upcoming Events Branch Editor";
+                branchHelper = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
+                break;
+            case "Notes":
+                break;
+            case "To Do Lists":
+                menuContext = "To Do Lists Branch Editor";
+                branchHelper = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
+                break;
+            case "Search Results":
+                menuContext = "Search Results Branch Editor";
+                branchHelper = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
+                break;
+        }
+        if(branchHelper != null) {
+            int resultCount = branchHelper.getChoices().size(); // Choices array list can be empty but not null.
+            if (resultCount > 0) {  // No branch editor until after there is at least one NoteGroup.
+                TreeBranchEditor tbe = new TreeBranchEditor(theNodeString, selectedNode, branchHelper);
+                rightPane.setViewportView(tbe);
+            } else { // In this case the tree selection event implies that a new group should be added.
+                showWorkingDialog(false);
+                theTree.clearSelection(); // This one cannot be restored upon app restart.
+                appMenuBar.manageMenus(menuContext);
+                // (menus will get managed again before the return from treeSelectionChanged, but
+                //   in this case it needs to happen right now, before our next line).
+                addNewGroup();
+                // Note about differences for SearchResults:  addNewGroup has no handling for it; it will just return.
+                // An earlier version here instead went into a new search if this was a 'restoring selection' case,
+                // which could only have happened if a new search had been started and then was abandoned upon app
+                // termination.  The design decision now is that there is no need to handle such a corner case; allow
+                // the group to be removed due to not being found when the app is restarted, which might be days or
+                // weeks later.  It will be up to the user at that time to decide to perform another search, or not.
+            }
+        } else { // Any other top-level branch that does not (yet?) have its own editor.
+            JTree jt = new JTree(selectedNode); // Show as a tree but no editing.
+            jt.setShowsRootHandles(true);
+            rightPane.setViewportView(jt);
+        }
+        return menuContext;
+    } // end showBranch
 
     void showCurrentNoteGroup() {
         Object theMessage;
@@ -1415,6 +1460,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         }
         optionPane.showMessageDialog(this, theMessage, "Viewing Current NoteGroup", PLAIN_MESSAGE);
     }
+
+    // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
+    @Override
+    public void showDay() {
+        MemoryBank.debug("showDay called.");
+        theTree.setSelectionPath(dayNotesPath);
+    } // end showDay
+
 
     void showEvents() {
         EventNoteGroupPanel theBigPicture = getConsolidatedView();
@@ -1678,7 +1731,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end showWorkingDialog
 
 
-    // The static menu item applies to all three CalendarNoteGroup types.
+    // The static menu item whose handler calls this, will affect all three CalendarNoteGroup types.
     private void toggleReview() {
         boolean reviewMode = AppMenuBar.reviewMode.isSelected();
         if(theAppDays != null) theAppDays.reviewMode = reviewMode;
@@ -1687,31 +1740,24 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
 
+    // Note that for changes that are code-generated vs a response to user action, we don't come here directly
+    //   but can get here by constructing a valid TreePath and then calling setSelectionPath() on the JTree.
     void treeSelectionChanged(TreePath newPath) {
+        selectedArchiveNode = null; // Clear any previous archive selection.
+
         if (newPath == null) return;
         // You know how some animals will still move or twitch a bit after death?
         // The explanation is that their central nervous system is still sending
         // (random) signals as it shuts down, and there is enough of their body
         // still in working order well enough to react somewhat to those signals.
-        // This app is similar in that some of the tests for it will run and then
-        // end so quickly that some of the threads here have not finished their
-        // processing.  The above line helps with that; otherwise we see null
-        // exceptions on the 'node = ' line directly below, AFTER the test has passed.
+        // This app is similar in that tests for it can run and complete so
+        // quickly that some execution paths here have not finished their
+        // processing due to having been started in a separate thread.
+        // When that happens we can see null exceptions on some subsequent lines,
+        // AFTER tests have passed.  The above line eliminates those twitches.
 
-        // Obtain a reference to the new selection.
-        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
-        // This is better than 'theTree.getLastSelectedPathComponent()' because it works for
-        //   normal tree selection events but also allows for 'phantom' selections; tree
-        //   paths that were created and selected by code vs those that came from a user's
-        //   mouse click event on an existing (visible and active) tree node.
-        if (selectedNode == null) {
-            appMenuBar.manageMenus("No Selection");
-            return;
-        }
-        selectedArchiveNode = null; // Clear any previous archive selection.
-
-        // We have started to handle the change; now disallow
-        //   further input by showing the modal 'working' dialog, until we are finished.
+        // We have started to handle the change; now disallow further input by showing
+        // the modal 'working' dialog, until we are finished.
         theWorkingDialog.setLocationRelativeTo(rightPane); // Re-center before showing.
         if (!restoringPreviousSelection) showWorkingDialog(true);
 
@@ -1732,14 +1778,22 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             }
         } // end if
 
+        // Obtain a reference to the new selection.
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
+        // This is better than 'theTree.getLastSelectedPathComponent()' because it works for
+        //   normal tree selection events but also allows for 'phantom' selections; tree
+        //   paths that were created and selected by code vs those that came from a user's
+        //   mouse click event on an existing (visible and active) tree node.  And it will
+        //   never be null because newPath is a non-null TreePath.
+
         // Get the string for the selected node.
         String theNodeString = selectedNode.toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
         appOpts.theSelection = theNodeString; // Not used, but helpful during a visual review of the persisted options.
-        String selectionContext = theNodeString;  // used in menu management; this default value may change, below.
+        String selectionContext = theNodeString;  // for menu management; this default value changes in most cases, below.
 
-        // Get the name of the node's parent.  Thanks to the way we have created the tree and
-        // the unselectability of the tree root, we never expect the parent path to be null.
+        // Get the name of the node's parent.  Thanks to the way we have displayed the tree and
+        // the unselect-ability of the tree root, we never expect the parent path to be null.
         String parentNodeName = newPath.getParentPath().getLastPathComponent().toString();
 
         //-----------------------------------------------------
@@ -1751,86 +1805,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //-----------------------------------------------------
         boolean isTopLevel = parentNodeName.equals("App");
         boolean isArchives = isTopLevel && theNodeString.equals(DataArea.ARCHIVES.toString());
-        boolean isGoalsBranch = isTopLevel && theNodeString.equals(DataArea.GOALS.toString());
-        boolean isEventsBranch = isTopLevel && theNodeString.equals(DataArea.UPCOMING_EVENTS.toString());
-        boolean isTodoBranch = isTopLevel && theNodeString.equals(DataArea.TODO_LISTS.toString());
-        boolean isSearchBranch = isTopLevel && theNodeString.equals(DataArea.SEARCH_RESULTS.toString());
 
         theNoteGroupPanel = null; // initialize
 
         //<editor-fold desc="Actions Depending on the selection">
-        if ( isArchives ) {
-            showArchives();
-        } else if (isGoalsBranch) {  // Edit the Goals parent branch
-            selectionContext = "Goals Branch Editor";
-            BranchHelper tbh = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
-            int resultCount = tbh.getChoices().size(); // Choices array list can be empty but not null.
-            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
-                TreeBranchEditor tbe = new TreeBranchEditor("Goals", selectedNode, tbh);
-                rightPane.setViewportView(tbe);
-            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
-                showWorkingDialog(false);
-                theTree.clearSelection(); // This one cannot be restored upon app restart.
-                appMenuBar.manageMenus("Goals Branch Editor");
-                // (menus will get managed again at the end of this long 'if/else' structure, but
-                //   in this case it needed to happen right now, before our next line).
-                addNewGroup();
-            }
-        } else if (isEventsBranch) {  // Edit the Upcoming Events parent branch
-            selectionContext = "Upcoming Events Branch Editor";
-            BranchHelper tbh = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
-            int resultCount = tbh.getChoices().size(); // Choices array list can be empty but not null.
-            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
-                TreeBranchEditor tbe = new TreeBranchEditor("Upcoming Events", selectedNode, tbh);
-                rightPane.setViewportView(tbe);
-            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
-                showWorkingDialog(false);
-                theTree.clearSelection(); // This one cannot be restored upon app restart.
-                appMenuBar.manageMenus(selectionContext);
-                // (menus will get managed again at the end of this long 'if/else' structure, but
-                //   in this case it needed to happen right now, before our next line).
-                addNewGroup();
-            }
-        } else if (isTodoBranch) {  // Edit the Todo parent branch
-            // To Do List management - select, deselect, rename, reorder, remove
-            // The 'tree' may change often.  We instantiate a new helper
-            // and editor each time, to be sure all are in sync.
-            selectionContext = "To Do Lists Branch Editor";
-            BranchHelper tbh = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
-            int resultCount = tbh.getChoices().size(); // Choices array list can be empty but not null.
-            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
-                TreeBranchEditor tbe = new TreeBranchEditor("To Do Lists", selectedNode, tbh);
-                rightPane.setViewportView(tbe);
-            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
-                showWorkingDialog(false);
-                theTree.clearSelection(); // This one cannot be restored upon app restart.
-                appMenuBar.manageMenus(selectionContext);
-                // (menus will get managed again at the end of this long 'if/else' structure, but
-                //   in this case it needed to happen right now, before our next line).
-                addNewGroup();
-            }
-        } else if (isSearchBranch) {  // Edit the Search parent branch
-            selectionContext = "Search Results Branch Editor";
-            BranchHelper sbh = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-            int resultCount = sbh.getChoices().size(); // Choices array list can be empty but not null.
-            if(resultCount > 0) {  // No branch editor until after there is at least one Goal.
-                TreeBranchEditor tbe = new TreeBranchEditor("Search Results", selectedNode, sbh);
-                rightPane.setViewportView(tbe);
-            } else { // In this case we switch from handling tree selection events to (pseudo) menu bar item handling.
-                showWorkingDialog(false);
-                selectionContext = "No Selection";
-                theTree.clearSelection(); // This one cannot be restored upon app restart.
-                if(!restoringPreviousSelection) {
-                    // This can happen on an app restart where the previous session was left on an empty SearchResults
-                    //   node because the new search was cancelled.  Definitely a corner case.
-                    prepareSearch();
-                }
-            }
-        } else if (!selectedNode.isLeaf()) {  // Looking at other expandable nodes
-            JTree jt = new JTree(selectedNode); // Show as a tree but no editing.
-            jt.setShowsRootHandles(true);
-            rightPane.setViewportView(jt);
-        } else if (parentNodeName.equals("Goals")) { // Selection of a Goal
+        if ( isArchives ) showArchives();  // The only leaf at the top level of the tree.
+        else if (isTopLevel) selectionContext = showBranch(selectedNode); // Edit the indicated branch
+        else if (parentNodeName.equals("Goals")) { // Selection of a Goal
             selectionContext = "Goal";  // For manageMenus
             GoalGroupPanel goalGroup;
 
@@ -1853,13 +1834,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             if (goalGroup == null) {
                 // We just tried to retrieve it or to load it, so if it is STILL null
-                //   then we take it to mean that the file is effectively not there.
+                //   then we take it to mean that the data is effectively not there.
 
                 // We can show a notice about what went wrong and what we're
                 // going to do about it, but that will only be helpful if
                 // the user had just asked to see the selection, and NOT
                 // in the case where this situation arose during a program
-                // restart where the missing file just happens to be
+                // restart where the missing data just happens to be
                 // the last selection that had been made during a previous run,
                 // and now it is being restored, possibly several days later.
                 if (!restoringPreviousSelection) { // We are here due to a recent user action.
@@ -2121,8 +2102,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             viewedDateGranularity = ChronoUnit.YEARS;
             rightPane.setViewportView(theAppYears.theBasePanel);
         } else {
-            // Any other as-yet unhandled node on the tree.
-            // Currently - just Week View
+            // Any other as-yet unhandled node on the tree, (a placeholder) such as 'Week View'
             JPanel jp = new JPanel(new GridBagLayout());
             jp.add(new JLabel(theNodeString));
             rightPane.setViewportView(jp);
@@ -2132,7 +2112,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         appMenuBar.manageMenus(selectionContext);
         showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
-
 
     //-------------------------------------------------
     // Method Name:  updateAppOptions
@@ -2225,36 +2204,31 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     } // end updateAppOptions
 
-    //-------------------------------------------------------------
-    // Method Name: valueChanged
-    //
-    // Required by TreeSelectionListener interface.
-    //
-    // We handle this event by starting a separate new thread so we can
-    //   quickly return from here.  Otherwise, the 'working' dialog
-    //   would never update until after all actions had completed,
-    //   and that defeats its entire purpose.
-    //-------------------------------------------------------------
+    @Override // implementation of the method in the TreeSelectionListener interface.
     public void valueChanged(TreeSelectionEvent e) {
         // This event-handling method is called due to user action to change the selection
-        // and would not run if the current selection was simply being rehandled.  So - this
+        // and does not get called if there is no change.  So - this
         // is the best place to accept that an offer to undo a deletion has been abandoned.
         appMenuBar.showRestoreOption(false);
-        appMenuBar.requestFocus(); // Do not start out with a note already selected.
+        appMenuBar.requestFocus(); // Do not start out with any note already selected.
 
         final TreePath newPath = e.getNewLeadSelectionPath();
         if (restoringPreviousSelection) {
-            // We don't need to handle this event from a separate
-            //   thread because we don't need the 'working' dialog
-            //   when restoring a previous selection because the
-            //   corresponding file, if any, would have already
+            // We don't need to handle this event from a separate thread.
+            // This is because when restoring a previous selection, the response
+            //   should be much faster since any stored data has already
             //   been accessed and loaded.  Although there is one
             //   exception to that, at program restart but in that
             //   case we have the splash screen and main progress bar.
             treeSelectionChanged(newPath);
         } else {
             // This is a user-directed selection;
-            //   handle from a separate thread.
+            // We handle this event by starting a separate new thread so we can
+            //   quickly return from here to the 'main' JVM thread.  Otherwise,
+            //   the 'working' dialog that is displayed during the treeSelectionChanged
+            //   method would never update until after all actions had completed,
+            //   and that defeats its entire purpose.  But be aware that this methodology
+            //   can derail breakpoint debugging, especially during test runs.
             new Thread(new Runnable() {
                 public void run() {
                     // AppUtil.localDebug(true);
