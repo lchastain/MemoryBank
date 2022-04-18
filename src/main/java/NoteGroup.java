@@ -277,7 +277,7 @@ class NoteGroup implements LinkHolder {
         //   act accordingly, maybe with another param to this method.  not all operations come directly here; there
         //   is also the preClose code for Panels that calls this one, and that one could also be auto or user directed.
         //
-        // But at least when errors are encountered they are trapped and printed to the screen.
+        // But at least when errors are encountered they are trapped and printed to the console.
         // Status is set at various points; calling contexts that 'care' about the status should check it and adjust
         // their operations according those status values.
     }
@@ -287,7 +287,6 @@ class NoteGroup implements LinkHolder {
         groupChanged = b;
         if(myProperties != null) myProperties.touchLastMod();
     } // end setGroupChanged
-
 
 
     // This method is called with the raw data that is the GroupProperties.
@@ -304,7 +303,6 @@ class NoteGroup implements LinkHolder {
         // If we do that ^^^ then when the file data does not match the tree node text, no (or wrong) data gets loaded.
         // But this all seems wrong; may want to re-enable that line...
     }
-
 
 
     // Learned how to do this (convert an ArrayList element that is a LinkedHashMap, to a Vector of NoteData),
@@ -326,21 +324,4 @@ class NoteGroup implements LinkHolder {
             });
         }
     }
-
-//    public void setNotes(Vector<NoteData> incomingNotes) {
-//        if(incomingNotes == null) {
-//            noteGroupDataVector.clear(); // null not allowed here.
-//        } else {
-//            noteGroupDataVector = incomingNotes;
-//        }
-//    }
-
-
-// Use this if working on serialization; otherwise leave disabled.
-//    public static void main(String[] args) {
-//        NoteGroup noteGroup = new NoteGroup();
-//        System.out.println(AppUtil.toJsonString(noteGroup));
-//
-//    }
-
 }

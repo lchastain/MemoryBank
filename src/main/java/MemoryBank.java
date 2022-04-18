@@ -411,7 +411,7 @@ public class MemoryBank {
         //---------------------------------------------------------------------
         Thread logPreClose = new Thread(new Runnable() {
             public void run() {
-                appTreePanel.preClose();
+                appTreePanel.preClose(); // Preserve all changes across all open Panels.
                 AppOptions.saveOpts();
             } // end run
         });

@@ -23,6 +23,7 @@ class AppOptions {
     boolean notesExpanded;
     boolean todoListsExpanded;
     boolean searchesExpanded;
+    boolean groupCalendarNotes;
     String theSelection;
     int theSelectionRow;
     IconInfo defaultDayNoteIconInfo;
@@ -49,6 +50,7 @@ class AppOptions {
         notesExpanded = false;
         todoListsExpanded = false;
         searchesExpanded = false;
+        groupCalendarNotes = false;
         theSelection = null;
         theSelectionRow = -1;
         goalsList = new Vector<>(0, 1);

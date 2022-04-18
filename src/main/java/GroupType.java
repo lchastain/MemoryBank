@@ -1,6 +1,7 @@
 enum GroupType {
 
     NOTES("Note"),
+    CALENDAR_NOTES("Calendar Notes"),
     DAY_NOTES("Day Note"),
     MONTH_NOTES("Month Note"),
     YEAR_NOTES("Year Note"),

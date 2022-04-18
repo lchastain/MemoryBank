@@ -45,9 +45,6 @@ public class BranchSelectionTests {
         AppTreePanel.theInstance = null;
         appTreePanel = TestUtil.getTheAppTreePanel();
         appTreePanel.restoringPreviousSelection = true; // This helps keep the thread count down.
-
-//        notifier = new TestUtil();
-//        appTreePanel.optionPane = notifier;
         notifier = (TestUtil) appTreePanel.optionPane;
 
         theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
@@ -174,6 +171,8 @@ public class BranchSelectionTests {
     }
 
     // 5.  When the 'Search Results' node is a leaf, selection will lead to a new Search.
+    //     But this is a bit of a corner case, in that we can only have a Search Results leaf
+    //     as a result of deleting all other Search Results so that there is no Editor for the branch.
     @Test
     @Order(5)
     void testDoSearchFromLeaf() throws InterruptedException {

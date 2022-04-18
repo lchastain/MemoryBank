@@ -159,11 +159,11 @@ public class YearView extends JPanel {
                 super.keyTyped(evt);
                 char theChar = evt.getKeyChar();
 
-                if(theChar == KeyEvent.VK_ENTER) {
+                if (theChar == KeyEvent.VK_ENTER) {
                     String theEntry = yearTextField.getText();
-                    if(!theEntry.isEmpty()) {
+                    if (!theEntry.isEmpty()) {
                         theYear = Integer.parseInt(yearTextField.getText());
-                        if(theYear <= 0) theYear = 1; // Entry limited to 4 digits, but they can still be flaky.
+                        if (theYear <= 0) theYear = 1; // Entry limited to 4 digits, but they can still be flaky.
                         recalc(theYear);
                     }
                     transferFocusUpCycle(); // Otherwise it holds on, and key mappings don't work no mo.
@@ -175,13 +175,13 @@ public class YearView extends JPanel {
                 }
 
                 // Disallow non-numerics
-                if(theChar < '0') evt.consume();
-                if(theChar > '9') evt.consume();
+                if (theChar < '0') evt.consume();
+                if (theChar > '9') evt.consume();
 
                 // Allow highlighted digits to be replaced
                 int sStart = yearTextField.getSelectionStart();
                 int sEnd = yearTextField.getSelectionEnd();
-                if(sEnd - sStart > 0) return;
+                if (sEnd - sStart > 0) return;
 
                 // Allow up to 4 digits
                 if (yearTextField.getText().length() >= 4) evt.consume();
@@ -189,7 +189,7 @@ public class YearView extends JPanel {
         });
         JLabel label4year = new JLabel("Year:");
         label4year.setFont(Font.decode("Serif-bold-20"));
-        titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,4,0));
+        titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
         titlePanel.add(label4year);
         titlePanel.add(yearTextField);
 
@@ -221,11 +221,11 @@ public class YearView extends JPanel {
         recalc(theYear);
 
         // Add key bindings to react to arrow keys
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),"upYear");
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),"upYear");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "upYear");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "upYear");
         getActionMap().put("upYear", new UpAction("upYear"));
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),"downYear");
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),"downYear");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "downYear");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "downYear");
         getActionMap().put("downYear", new DownAction("downYear"));
 
     } // end constructor
@@ -272,8 +272,9 @@ public class YearView extends JPanel {
         return -1;
     }
 
-    int getYear() { return theYear; }
-
+    int getYear() {
+        return theYear;
+    }
 
     LabelButton makeAlterButton(String theText) {
         // Only the 'today' button needs handling; the others will have their own.
@@ -281,12 +282,12 @@ public class YearView extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 LabelButton source = (LabelButton) e.getSource();
-                if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
+                if (!source.isEnabled()) return; // It's not really a button; we need to check this first.
 
-                if(intNumSelections > 0) {
+                if (intNumSelections > 0) {
                     // This is both a view-change and a selection.
                     setChoice(LocalDate.now());
-                    if(treePanel != null) treePanel.setSelectedDate(theChoice);
+                    if (treePanel != null) treePanel.setSelectedDate(theChoice);
                 } else {
                     // This is a view-change only.
                     theYear = Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear();
@@ -295,7 +296,7 @@ public class YearView extends JPanel {
             }
         };
         LabelButton theButton = new LabelButton(theText);
-        if(theText.equals("T")) theButton.addMouseListener(mouseAdapter);
+        if (theText.equals("T")) theButton.addMouseListener(mouseAdapter);
         theButton.setPreferredSize(new Dimension(28, 28));
         theButton.setFont(Font.decode("Dialog-bold-14"));
         return theButton;
@@ -305,7 +306,7 @@ public class YearView extends JPanel {
         // Update the Year info
         titleLabel.setText("Year " + theYear);
         yearTextField.setText(String.valueOf(theYear));
-        if(treePanel != null) {
+        if (treePanel != null) {
             treePanel.setViewedDate(theYear);
         }
 
@@ -393,7 +394,7 @@ public class YearView extends JPanel {
                 public void mousePressed(MouseEvent e) {
                     if (treePanel == null) return;
                     myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
-                    if(archiveDate != null && myDate.isAfter(archiveDate)) myDate = archiveDate;
+                    if (archiveDate != null && myDate.isAfter(archiveDate)) myDate = archiveDate;
                     treePanel.setViewedDate(myDate, ChronoUnit.MONTHS);
                     treePanel.showMonthView();
                 } // end mousePressed
@@ -606,7 +607,7 @@ public class YearView extends JPanel {
                 if (treePanel == null) return;
                 treePanel.setSelectedDate(theChoice);
                 if (e.getClickCount() == 2) {
-                    if(archiveDate != null && theChoice.isAfter(archiveDate)) {
+                    if (archiveDate != null && theChoice.isAfter(archiveDate)) {
                         theChoice = archiveDate;
                         treePanel.setSelectedDate(theChoice);
                     }
@@ -636,8 +637,8 @@ public class YearView extends JPanel {
             while (iAmRunning) {
 
                 theYear += direction;
-                if(theYear > 9999) theYear = 1;
-                if(theYear < 1) theYear = 9999;
+                if (theYear > 9999) theYear = 1;
+                if (theYear < 1) theYear = 9999;
                 recalc(theYear);
 
                 try {
@@ -654,38 +655,34 @@ public class YearView extends JPanel {
         }
     } // end class Depressed
 
-    public class UpAction extends AbstractAction
-    {
+    public class UpAction extends AbstractAction {
         private static final long serialVersionUID = 1L;
 
-        public UpAction(String name)
-        {
+        public UpAction(String name) {
             super(name);
             putValue(SHORT_DESCRIPTION, "Increase the year");
         }
 
-        public void actionPerformed(ActionEvent e)
-        {
+        @Override
+        public void actionPerformed(ActionEvent e) {
             theYear += 1;
-            if(theYear > 9999) theYear = 1;
+            if (theYear > 9999) theYear = 1;
             recalc(theYear);
         }
     }
 
-    public class DownAction extends AbstractAction
-    {
+    public class DownAction extends AbstractAction {
         private static final long serialVersionUID = 1L;
 
-        public DownAction(String name)
-        {
+        public DownAction(String name) {
             super(name);
             putValue(SHORT_DESCRIPTION, "Decrease the year");
         }
 
-        public void actionPerformed(ActionEvent e)
-        {
+        @Override
+        public void actionPerformed(ActionEvent e) {
             theYear -= 1;
-            if(theYear < 1) theYear = 9999;
+            if (theYear < 1) theYear = 9999;
             recalc(theYear);
         }
     }

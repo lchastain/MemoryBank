@@ -1,11 +1,9 @@
 /*
-  The primary control for the Memory Bank application; provides a menubar at
-  the top, a 'tree' control on the left, and a viewing pane on the right
- */
+  This is a ghost of the AppTreePanel; used only to show read-only archived NoteGroups.
+*/
 
 // Quick-reference notes:
 // 
-// MenuBar events        - actionPerformed() --> handleMenuBar().
 // Tree Selection events - valueChanged() --> treeSelectionChanged() in a new thread.
 
 import org.slf4j.Logger;
@@ -145,13 +143,14 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         viewedDate = selectedDate;
         viewedDateGranularity = ChronoUnit.DAYS;
 
-        // Restore the last selection.
-        MemoryBank.update("Restoring the previous selection");
-        // If there is a previous selection -
-        if (appOpts.theSelectionRow >= 0) theTree.setSelectionRow(appOpts.theSelectionRow);
-        // There are a few cases where there would be no previous selection.
-        // Ex: Showing the About graphic, First-time-ever for this user, lost or corrupted AppOptions.
-        // In these cases leave as-is and the view will go to the About graphic.
+        // Do not try to restore the last selection.   (appOpts.theSelectionRow)
+        // Given that this is an archive that is being reviewed days, weeks or months later, knowing the last
+        //   tree selection that the user made before making this archive is going to have questionable value.
+        //   But disallowing the reselection avoids a potential problem due to archive trees not being an
+        //   exact image of the 'live' tree; there could be differences in row counts due to newly-introduced
+        //   grouping options.
+        // The view will go to the About graphic, and this has the added benefit of making it that much clearer
+        //  that the user is viewing archived (not current) data.
 
         // I'm a self-starter!
         archiveWindow.getContentPane().add(this);
@@ -362,7 +361,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         viewedDateGranularity = theGranularity;
     }
 
-
     public JTree getTree() {
         return theTree;
     }
@@ -546,8 +544,8 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             showWorkingDialog(false);
 
             if (goalGroupPanel == null) {
-                // We just tried to load it, so if it still null then we take it to mean that the file is
-                // not there.  So we show a notice about that, before we remove this leaf from any
+                // We just tried to load it, so if it is still null then we take it to mean that the file
+                // is not there.  So we show a notice about that, before we remove this leaf from any
                 // further user attempts to retrieve it.
                 JOptionPane.showMessageDialog(this,
                         "Cannot read in the Goal.\n" +
@@ -748,7 +746,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         } // end if/else if
         //</editor-fold>
 
-//        appMenuBar.manageMenus(selectionContext);
         showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
 

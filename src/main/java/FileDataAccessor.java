@@ -297,7 +297,10 @@ public class FileDataAccessor implements DataAccessor {
         } // end if
 
         // Archives do not themselves have Archives; therefore the row that was preserved in these options will
-        // be off by one because the Archive Tree does not have that leaf (row).  Fix that, before returning.
+        //   be off by one because the Archive Tree does not have that leaf (row).  We fix that, before returning.
+        // Update 17 Apr 2022 - now this int is not being used at all by an archive, due to additional potential
+        //   row number changes due to the new ability to collapse the Calendar Notes.  But we leave this adjustment
+        //   in place anyway, for now.
         if (appOptions != null) {
             appOptions.theSelectionRow -= 1;
         }

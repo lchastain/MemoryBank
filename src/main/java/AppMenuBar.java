@@ -1,8 +1,11 @@
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
-public class AppMenuBar extends JMenuBar{
+public class AppMenuBar extends JMenuBar {
     static final long serialVersionUID = 1L; // JMenuBar wants this but we will not serialize.
+
+    // Checkbox menu item for app-level option:
+    static JCheckBoxMenuItem groupCalendarNotes;
 
     // Menus
     //-------------------------------------------------
@@ -27,9 +30,13 @@ public class AppMenuBar extends JMenuBar{
     static final JCheckBoxMenuItem reviewMode = new JCheckBoxMenuItem("Review Mode");
 
     static {
+        groupCalendarNotes = new JCheckBoxMenuItem("Group Calendar Notes");
+        groupCalendarNotes.setState(MemoryBank.appOpts.groupCalendarNotes);
+
         fileMenu = new JMenu("App");
         fileMenu.add(new JMenuItem("Search..."));
         fileMenu.add(new JMenuItem("Archive..."));
+        fileMenu.add(groupCalendarNotes); // "Group Calendar Notes"
         fileMenu.add(new JMenuItem("Show Scheduled Events"));
         fileMenu.add(new JMenuItem("Show Current NoteGroup"));
         fileMenu.add(new JMenuItem("Show Keepers"));
@@ -123,11 +130,12 @@ public class AppMenuBar extends JMenuBar{
     }
 
 
+    // Add a handler to all menu items.
     void addHandler(ActionListener actionListener) {
         //---------------------------------------------------------
         // Note - if you need cascading menus in the future, use
         //   the recursive version of this as implemented in
-        //   // Add the above handler to all menu items.LogPane.java, a now archived predecessor to AppTreePanel.
+        //   LogPane.java, a now archived predecessor to AppTreePanel.
         //---------------------------------------------------------
         int numMenus = getMenuCount();
         // MemoryBank.debug("Number of menus found: " + numMenus);
@@ -159,6 +167,7 @@ public class AppMenuBar extends JMenuBar{
             case "Week View":
                 theMenu = viewsMenu;
                 break;
+            case "Calendar Notes":
             case "Day Notes":
             case "Month Notes":
             case "Year Notes":
@@ -221,9 +230,10 @@ public class AppMenuBar extends JMenuBar{
             case "Week View":
                 viewsMenu.setVisible(true);
                 break;
-            case "Day Notes":  // Day Notes
-            case "Month Notes":  // Month Notes
-            case "Year Notes":  // Year Notes
+            case "Calendar Notes":
+            case "Day Notes":
+            case "Month Notes":
+            case "Year Notes":
                 notesMenu.setVisible(true);
                 break;
             case "Search Result":  // Search Results

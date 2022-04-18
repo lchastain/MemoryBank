@@ -106,6 +106,7 @@ public abstract class IconNoteComponent extends NoteComponent {
                     case "Reset Icon":
                         myIconNoteData.setIconFileString(null);
                         myIconNoteData.setShowIconOnMonthBoolean(false);
+                        assert myIconKeeper != null;
                         setIcon(myIconKeeper.getDefaultIcon());
                         break;
                     case "Blank Icon":
@@ -120,6 +121,7 @@ public abstract class IconNoteComponent extends NoteComponent {
 
                         // Set the new default icon and tell the container to update,
                         //   which will reload all visual components.
+                        assert myIconKeeper != null;
                         myIconKeeper.setDefaultIcon(tmpIcon);
 
                         // Adjust underlying data.
