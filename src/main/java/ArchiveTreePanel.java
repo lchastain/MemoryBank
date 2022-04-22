@@ -47,7 +47,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     YearView theYearView;
     private final JSplitPane splitPane;
 
-    private LocalDate selectedDate;  // The selected date
+    private final LocalDate selectedDate;  // The selected date
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
     private ChronoUnit viewedDateGranularity;
 
@@ -349,22 +349,30 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     } // end createTree
 
 
-    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+    // TODO This may need some work; review workings of the now-disabled earlier methods.
+    @Override
+    public void dateChanged(LocalDate fromDate, LocalDate theNewDate) {
         viewedDate = theNewDate;
-        viewedDateGranularity = theGranularity;
     }
 
-    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
-        viewedDate = theNewDate;
-        viewedDateGranularity = theGranularity;
-    }
+//    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+//        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+//        viewedDate = theNewDate;
+//        viewedDateGranularity = theGranularity;
+//    }
+//
+//    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+//        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+//        viewedDate = theNewDate;
+//        viewedDateGranularity = theGranularity;
+//    }
 
     public JTree getTree() {
         return theTree;
     }
 
+    @Override
+    public LocalDate getViewedDate() { return viewedDate; }
 
     // Call this method after changes have been made to the tree, to
     //   cause a repaint.  The first line below does that all by itself,
@@ -385,23 +393,23 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     } // end resetTreeState
 
 
-    @Override
-    public void setSelectedDate(LocalDate theSelection) {
-        selectedDate = theSelection;
-        viewedDate = theSelection;
-        viewedDateGranularity = ChronoUnit.DAYS;
-    }
+//    @Override
+//    public void setSelectedDate(LocalDate theSelection) {
+//        selectedDate = theSelection;
+//        viewedDate = theSelection;
+//        viewedDateGranularity = ChronoUnit.DAYS;
+//    }
 
     @Override
     public  void setViewedDate(int theYear) {
         viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
-        viewedDateGranularity = ChronoUnit.YEARS;
+//        viewedDateGranularity = ChronoUnit.YEARS;
     }
 
     @Override
-    public void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
+    public void setViewedDate(LocalDate theViewedDate) {
         viewedDate = theViewedDate;
-        viewedDateGranularity = theGranularity;
+//        viewedDateGranularity = theGranularity;
     }
 
 
@@ -707,10 +715,10 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             if (theAppDays == null) {
                 theAppDays = new DayNoteGroupPanel();
                 theAppDays.setArchiveDate(theArchiveDate);
-                theAppDays.setAlteredDateListener(this); // unlike the one in AppTreePanel, this does not ever change.
+                theAppDays.setAlteredDateListener(this);
             } else {
                 theAppDays.setDate(selectedDate);
-                setViewedDate(selectedDate, ChronoUnit.DAYS);
+                setViewedDate(selectedDate);
             }
             rightPane.setViewportView(theAppDays.theBasePanel);
         } else if (theNodeString.equals("Month Notes")) {
@@ -722,7 +730,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             if (theAppMonths == null) {
                 theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
                 theAppMonths.setArchiveDate(theArchiveDate);
-                theAppMonths.setAlteredDateListener(this); // unlike the one in AppTreePanel, this does not ever change.
+                theAppMonths.setAlteredDateListener(this);
             } else {
                 theAppMonths.setDate(viewedDate);
             }
@@ -731,10 +739,10 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             if (theAppYears == null) {
                 theAppYears = new YearNoteGroupPanel();
                 theAppYears.setArchiveDate(theArchiveDate);
-                theAppYears.setAlteredDateListener(this); // unlike the one in AppTreePanel, this does not ever change.
+                theAppYears.setAlteredDateListener(this);
             } else {
                 viewedDateGranularity = ChronoUnit.YEARS;
-                theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
+                theAppYears.setDate(viewedDate);
             }
             rightPane.setViewportView(theAppYears.theBasePanel);
         } else {

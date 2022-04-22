@@ -9,7 +9,6 @@ import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 public class ArchiveTreePanelTest {
     private static ArchiveTreePanel archiveTreePanel;
@@ -94,7 +93,7 @@ public class ArchiveTreePanelTest {
         // For the test user there is icon data in this month.
         LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
 
-        archiveTreePanel.setViewedDate(theMonthToShow, ChronoUnit.MONTHS);
+        archiveTreePanel.setViewedDate(theMonthToShow);
         archiveTreePanel.showMonthView();
         TreePath tp = theTree.getSelectionPath();
         Assertions.assertNotNull(tp);

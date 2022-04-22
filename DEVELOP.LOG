@@ -2,19 +2,87 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
-    a goal move from todolist to day - may not be setting the groupchanged flag; Save option not enabled.
+    Date-related Panels, after being left up overnight, have the wrong 'Today' button handling.
 
 
 Current/Next:
-    Complete the conversion of direct-to-file methods over to DataAccessor methods.
-      Delete, merge, ImageIcon creations, Icon selections.  End result should be No File imports outside of accessors.
-    Add a Log to To Do Lists (compatible with older data)
-    Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
-
-Tests Needed:
-    Goal:    SaveAs, Delete, Rename, Undo Delete
+    Menu Management for both tabbed groups, and date tracking for the calendar-type tabbed group.
+    Add icons to Month and Year Notes
 
 =====================================================================================================
+
+22 Apr 2022
+Finished with date tracking and tests, checking in.  But wait - where is DEVELOP.LOG, in the changes list?  It is not
+only gone, but I can't get IJ to even 'see' it, and it is not marked as an excluded file, at least not from the
+project perspective.  Where it WAS excluded: File/Settings/File Types, Ignored File and Folders tab.  I had done that
+back on the 7th or so, while looking for a way to get IJ to stop 'helping' me when I type here, given that this is my
+own free text and not some code where it needs to make suggestions.  Anyway, that worked but then its tab went
+yellow and I allowed that, thinking it was a small price and not realizing that now the GIT management was also gone.
+So the yellow means that you have a file open in the editor that is not part of your project.  So I un-excluded it and
+now it's back to usable, and behold - no typing help, either.  Not sure if this is temporary or permanent, due to going
+away and coming back, or some other setting I made in the meanwhile, or some other setting I made while trying to bring
+it back.  So now just keeping a wary eye on it and hoping it continues to behave.
+
+21 Apr 2022
+Reworking date tracking and tests, now that there is no selectedDate.  Removed most functionality from the 'Today'
+menu item; all date-related panels now have a 'T' button, and the display of the formatted textual string is all
+that remains (but not that important).
+
+20 Apr 2022
+Have experienced some fallout after removing date granularity tracking; still need to use it, but it can be
+limited to the methods associated with keeping Panels in sync.  Still working it in conjunction with menu management
+but the date-sync appears to be ok.  This is all stand-alone only; will go back to working with the grouped tabs,
+once no issues remain with the ungrouped.
+
+19 Apr 2022
+Continuing the thrashing of yes/no regarding having the TabbedCalendarNoteGroupPanel being its own class, as well
+as back and forth on the question of whether or not it should extend a NoteGroupPanel.  It seems that within the
+AppTreePanel, menu management and data persistence will be better served if it IS a NoteGroupPanel, even though
+there would be no (single) NoteGroup behind it.  Now back to yes, NoteGroupPanel.  Will try to get that coded
+and working; the biggest issue is the change over of containers when the JCheckBoxMenuItem is toggled.
+
+18 Apr 2022
+Fixed the showDay links from Year and Month views to grouped Calendar Notes.  But the date-change behavior does not
+match the behavior of the stand-alone panels; it is in fact better.  Now considering dropping the 'selectedDate'
+and date granularity concepts from the AppTreePanel; the grouped ones work very well without, and the stand alone ones
+can be made to work the same way.  May rename the concept of a 'choice' coming from CalendarNoteGroup panels.
+
+17 Apr 2022
+Success with adding the tabbed calendar panel to the tree, but the value of having Days out on their own cannot be
+dismissed, either.  Now, want to try to keep supporting both, with a JCheckboxMenuItem on the App menu for
+'Group Calendar Notes', which will trigger a switch between the two since it doesn't make sense to try to
+show both at the same time, even though that does seem supportable.  If the tabbed approach is to be kept, it
+still needs work on tab selection when going from Year or Month Views to specific Day Notes, vs the current way that
+it just goes directly to the indicated panel after setting the date.
+
+15 Apr 2022
+Made a consolidated / tabbed Panel for the CalendarNotes.  Currently standalone, next will be to pull it into
+the AppTreePanel, and may need to revisit the view vs choice logic.  Had lost sight of the fact that the
+basePanel of a NoteGroup is NOT the same thing as its CenterPanel, AND that all notegroup containers are now
+JComponents, which makes this effort (so far) much easier as far as adding tabs to a JTabbedPane.
+
+13 Apr 2022
+...and the work spanned several days.  Distractions and procrastination yes, but the main thing was the AppTreePanel
+tests (a few of them are new) that kept causing a failure of the TodoItem focus test later on.  Finally tracked it
+down to the NoteGroupPanel, using its own Notifier.  Lots of changes that were kept, along the way.  Now - there is
+once again 100% class coverage, and 71% of all lines, in 200 tests.  Stopping this effort here, with a check-in.
+
+8 Apr 2022
+Now there are 8 classes without 100% coverage; working those.
+
+7 Apr 2022
+Updating to 2021.3.3, in hope that 'show tests' now works for coverage.
+And it does, but I lost a lot of IJ configuration, most painful was the background coloring.  Got it back to
+  an acceptable point (02FFEA) but don't think it is exactly the same.
+To change the editor background color in newer versions (after 2017) of Intellij Idea go to Settings > Editor >
+  Color Scheme > General/Text and then on the right side list expand Text and click on "Default text" then click on
+  the color hex code to get the color wheel.
+
+6 Apr 2022
+This problem:  a goal move from todolist to day - may not be setting the groupchanged flag; Save option not enabled.
+  was not repeatable, so not fixed.  Decided not to: Add a Log to To Do Lists.
+  Now dropping:  Burn-in / use of the new GoalGroupPanel - use the app, note problems & enhancement requests.
+    because it seems to have been working well enough that no new issues have arisen for a while.
 
 5 Apr 2022
 Finished dereferencing the Milestone icons.  Eight files remain with a File import; most are valid and the ones that

@@ -8,7 +8,6 @@ import javax.swing.tree.TreePath;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.Objects;
 
@@ -254,45 +253,13 @@ public class AppTreePanelTest {
         // For the test user there is icon data in this month.
         LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
 
-        appTreePanel.setViewedDate(theMonthToShow, ChronoUnit.MONTHS);
+        appTreePanel.setViewedDate(theMonthToShow);
         appTreePanel.showMonthView();
         JTree theTree = appTreePanel.getTree();
         TreePath tp = theTree.getSelectionPath();
         assert tp != null;
         assert tp.getLastPathComponent().toString().equals("Month View");
         System.out.println("End testShowMonthView");
-    }
-
-    @Test
-    @Order(7)
-    void testShowToday() {
-        // Cover all the switch cases.  This will also exercise the 'set' methods
-        // within each specified NoteGroup.
-        JTree theTree = appTreePanel.getTree();
-        theTree.setSelectionPath(appTreePanel.yearViewPath);
-        appTreePanel.setViewedDate(2019); // This is NOT today.
-        appTreePanel.showToday();
-
-        theTree.setSelectionPath(appTreePanel.monthViewPath);
-        appTreePanel.setViewedDate(2019); // This is NOT today.
-        appTreePanel.showToday();
-
-        theTree.setSelectionPath(appTreePanel.dayNotesPath);
-        appTreePanel.setViewedDate(2019); // This is NOT today.
-        appTreePanel.showToday();
-
-        theTree.setSelectionPath(appTreePanel.monthNotesPath);
-        appTreePanel.theAppMonths.setDate(LocalDate.of(2019, 7, 15));
-        appTreePanel.setViewedDate(2019); // This is NOT today.
-        appTreePanel.showToday();
-
-        theTree.setSelectionPath(appTreePanel.yearNotesPath);
-        appTreePanel.theAppYears.setDate(LocalDate.of(2019, 7, 15));
-        appTreePanel.setViewedDate(2019); // This is NOT today.
-        appTreePanel.showToday();
-
-        // And once more, to cover the 'already' path.
-        appTreePanel.showToday();
     }
 
     @Test
@@ -309,8 +276,8 @@ public class AppTreePanelTest {
     @Test
     @Order(9)
     void testCreateArchive() {
-        appTreePanel.dateDecremented(LocalDate.now(), ChronoUnit.DAYS);
-        appTreePanel.dateIncremented(LocalDate.now(), ChronoUnit.DAYS);
+//        appTreePanel.dateDecremented(LocalDate.now(), ChronoUnit.DAYS);
+//        appTreePanel.dateIncremented(LocalDate.now(), ChronoUnit.DAYS);
 
         // The 'show' tests can hose the menus during testing, so this is needed to restore them.
         appTreePanel.appMenuBar.manageMenus("No Selection");

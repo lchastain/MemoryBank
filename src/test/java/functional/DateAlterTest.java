@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 // The purpose of this testing is to verify that data and Panels for Calendar-type Groups are cleared out
 //   when the date changes, and the appropriate new data is loaded in, when found.
@@ -32,6 +33,7 @@ class DateAlterTest {
         // Retrieve the test data for this class from test resources.
         String fileName = "setup@testing.com";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
     }
 
@@ -56,7 +58,7 @@ class DateAlterTest {
         Assertions.assertEquals("Thursday, March 15, 2018", noteGroupPanel.getTitle());
 
         // 1.  Change from Panel without data to one with data:  15 Mar 2018 --> 14 Mar 2018
-        noteGroupPanel.setOneBack();
+        noteGroupPanel.setOneBack(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Wednesday, March 14, 2018", noteGroupPanel.getTitle());
@@ -68,13 +70,13 @@ class DateAlterTest {
         Assertions.assertEquals("date changes", theNoteData.noteString);
 
         // Now we skip one (also has data but that shouldn't matter)
-        noteGroupPanel.setOneBack();
+        noteGroupPanel.setOneBack(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Tuesday, March 13, 2018", noteGroupPanel.getTitle());
 
         // 2.  Change from Panel with data to another with data: 13 Mar 2018 --> 12 Mar 2018
-        noteGroupPanel.setOneBack();
+        noteGroupPanel.setOneBack(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Monday, March 12, 2018", noteGroupPanel.getTitle());
@@ -84,7 +86,7 @@ class DateAlterTest {
         //System.out.println("[" + theNoteData.noteString + "]");
 
         // 3.  Change from Panel with data to one without data:  12 Mar 2018 --> 11 Mar 2018
-        noteGroupPanel.setOneBack();
+        noteGroupPanel.setOneBack(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Sunday, March 11, 2018", noteGroupPanel.getTitle());
@@ -92,7 +94,7 @@ class DateAlterTest {
         Assertions.assertEquals(0, groupSize);
 
         // 4.  Change from Panel without data to another without data: 11 Mar 2018 --> 10 Mar 2018
-        noteGroupPanel.setOneBack();
+        noteGroupPanel.setOneBack(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Saturday, March 10, 2018", noteGroupPanel.getTitle());
@@ -121,7 +123,7 @@ class DateAlterTest {
         Assertions.assertEquals("Sunday, March 11, 2018", noteGroupPanel.getTitle());
 
         // 1.  Change from Panel without data to one with data:  15 Mar 2018 --> 14 Mar 2018
-        noteGroupPanel.setOneForward();
+        noteGroupPanel.setOneForward(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Monday, March 12, 2018", noteGroupPanel.getTitle());
@@ -133,13 +135,13 @@ class DateAlterTest {
         Assertions.assertEquals("increases and decreases", theNoteData.noteString);
 
         // Now we skip one (also has data but that shouldn't matter)
-        noteGroupPanel.setOneForward();
+        noteGroupPanel.setOneForward(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Tuesday, March 13, 2018", noteGroupPanel.getTitle());
 
         // 2.  Change from Panel with data to another with data: 13 Mar 2018 --> 12 Mar 2018
-        noteGroupPanel.setOneForward();
+        noteGroupPanel.setOneForward(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Wednesday, March 14, 2018", noteGroupPanel.getTitle());
@@ -149,7 +151,7 @@ class DateAlterTest {
         //System.out.println("[" + theNoteData.noteString + "]");
 
         // 3.  Change from Panel with data to one without data:  12 Mar 2018 --> 11 Mar 2018
-        noteGroupPanel.setOneForward();
+        noteGroupPanel.setOneForward(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Thursday, March 15, 2018", noteGroupPanel.getTitle());
@@ -157,7 +159,7 @@ class DateAlterTest {
         Assertions.assertEquals(0, groupSize);
 
         // 4.  Change from Panel without data to another without data: 15 Mar 2018 --> 16 Mar 2018
-        noteGroupPanel.setOneForward();
+        noteGroupPanel.setOneForward(ChronoUnit.DAYS);
         noteGroupPanel.updateGroup();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Friday, March 16, 2018", noteGroupPanel.getTitle());

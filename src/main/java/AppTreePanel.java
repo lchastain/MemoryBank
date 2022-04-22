@@ -1,8 +1,6 @@
-/*
-  The primary control for the Memory Bank application; provides a menubar at
-  the top, a 'tree' control on the left, and a viewing pane on the right
- */
-
+//  The primary control for the Memory Bank application; provides a menubar at
+//  the top, a 'tree' control on the left, and a viewing pane on the right
+//
 // Quick-reference notes:
 // 
 // MenuBar events        - actionPerformed() --> handleMenuBar().
@@ -22,6 +20,7 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -70,9 +69,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private final JSplitPane splitPane;
     private TreePath theWayBack;
 
-    private LocalDate selectedDate;  // The selected date
+//    private LocalDate selectedDate;  // The selected date
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
-    private ChronoUnit viewedDateGranularity;
+//    private ChronoUnit viewedDateGranularity;
 
     private DefaultMutableTreeNode theRootNode;
     private DefaultMutableTreeNode theNotesNode;
@@ -188,9 +187,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         add(splitPane);
 
         // Initialize Dates
-        selectedDate = LocalDate.now();
-        viewedDate = selectedDate;
-        viewedDateGranularity = ChronoUnit.DAYS;
+//        selectedDate = LocalDate.now();
+//        viewedDate = selectedDate;
+        viewedDate = LocalDate.now(); // This should never be null.
+//        viewedDateGranularity = ChronoUnit.DAYS;
 
         // Restore the last selection that was made in the previous session.
         MemoryBank.update("Restoring the previous selection");
@@ -438,6 +438,20 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         }
     }
 
+    // Construct (or re-construct) the three date-based Panels.  One or more may have already been
+    //   instantiated, but now we need to ensure that we have all three.
+    private void constructCalendarNotes() {
+        // Don't worry; there will be no loss of data or settings in the case where
+        //   these had been previously constructed earlier in this same session.
+        //   (which could have occurred for various reasons).
+        theAppDays = new DayNoteGroupPanel();
+        theAppDays.setAlteredDateListener(this);
+        theAppMonths = new MonthNoteGroupPanel();
+        theAppMonths.setAlteredDateListener(this);
+        theAppYears = new YearNoteGroupPanel();
+        theAppYears.setAlteredDateListener(this);
+    }
+
     //-----------------------------------------------------------------
     // Method Name: createTree
     //
@@ -606,18 +620,57 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theTree.setShowsRootHandles(true);
     } // end createTree
 
-    @Override // AlteredDateListener method
-    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
+    @Override // AlteredDateListener method (invoked when CalendarNoteGroupPanels are grouped in a JTabbedPane)
+    public void dateChanged(LocalDate fromDate, LocalDate theNewDate) {
+        Month fromMonth;
+        int fromYear;
+        Month newMonth;
+        int newYear;
         viewedDate = theNewDate;
-        viewedDateGranularity = theGranularity;
-    }
 
-    @Override // AlteredDateListener method
-    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
-        viewedDate = theNewDate;
-        viewedDateGranularity = theGranularity;
+        // This interface method will only be invoked by an active CalendarNoteGroupPanel.
+        CalendarNoteGroupPanel cng = (CalendarNoteGroupPanel) theNoteGroupPanel;
+
+        // To keep all the CalendarNoteGroupPanels 'in sync', we may need to set new dates on
+        //   the other Note Panels besides the one that had the change.
+        // We need to know which Panel we're coming from, to determine which other Panels will
+        //   need the new date.  The Panel's granularity will tell us which one it is.
+        ChronoUnit theGranularity = cng.dateGranularity;
+
+        // We do not just go ahead and set the other panels without regard to whether or not there was a significant-
+        //   enough date change, because doing so will cause them to first save their current state and that will
+        //   cause some of their menu items to become disabled, with no reason apparent to the user.
+        switch (theGranularity) {
+            case DAYS: // This change comes from the DayNoteGroupPanel
+                fromMonth = fromDate.getMonth();
+                fromYear = fromDate.getYear();
+                newMonth = viewedDate.getMonth();
+                newYear = viewedDate.getYear();
+
+                if(theAppMonths != null) {
+                    if ((fromMonth != newMonth) || (fromYear != newYear)) theAppMonths.setDate(viewedDate);
+                }
+                if(theAppYears != null) {
+                    if (fromYear != newYear) theAppYears.setDate(viewedDate);
+                }
+                break;
+            case MONTHS:
+                // A change of the month will definitely require a new Day setting.
+                if(theAppDays != null) theAppDays.setDate(viewedDate);
+
+                // But a year - maybe not.
+                if(theAppYears != null) {
+                    fromYear = fromDate.getYear();
+                    newYear = viewedDate.getYear();
+                    if (fromYear != newYear) theAppYears.setDate(viewedDate);
+                }
+                break;
+            case YEARS: // This change comes from the YearNoteGroupPanel
+                // A change of the year will definitely affect both viewed Day
+                //   and the viewed Month (same day/month, but in a different year).
+                if(theAppDays != null) theAppDays.setDate(viewedDate);
+                if(theAppMonths != null) theAppMonths.setDate(viewedDate);
+        }
     }
 
 
@@ -906,7 +959,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
     // Used by Test
-    NoteGroupPanel getTheNoteGroup() {
+    NoteGroupPanel getTheNoteGroupPanel() {
         return theNoteGroupPanel;
     }
 
@@ -920,6 +973,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return (JComponent) viewport.getView();
     }
 
+    @Override
+    public LocalDate getViewedDate() { return viewedDate; }
+
     // This is a toggle; either we will group them or ungroup them, depending on the
     //   state of the menu item.  It might have been nicer to send the item's state
     //   as a boolean param, but this is called by the generic handler, and it does
@@ -932,19 +988,18 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // That said, it IS a toggle and so the expectation is that there will always be a change.
 
         // Tree trunk changes and getting them to show properly -
-        // Preserve the current tree selection
         theTree.expandPath(notesPath); // Whether it already is, or not.
 
         // The leaves in question will always be the first children of the 'Notes' branch.
         if (doit) { // Directive is to group the nodes.  This means they aren't grouped, currently.
-            theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
+//            theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
             // Remove Day, Month, and Year note group leaves, and add one leaf for Calendar Notes.
             theNotesNode.remove(2);
             theNotesNode.remove(1);
             theNotesNode.remove(0); // Could have just used this index three times, but this is less cryptic.
             theNotesNode.insert(new DefaultMutableTreeNode("Calendar Notes"), 0);
         } else {
-            theTabbedCalendarNoteGroupPanel = null;
+//            theTabbedCalendarNoteGroupPanel = null;
             // Remove the Calendar Notes leaf, and add Day, Month, and Year note group leaves
             theNotesNode.remove(0);
             theNotesNode.insert(new DefaultMutableTreeNode("Day Notes"), 0);
@@ -1204,23 +1259,23 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end saveGroupAs
 
 
-    @Override
-    public void setSelectedDate(LocalDate theSelection) {
-        selectedDate = theSelection;
-        viewedDate = theSelection;
-        viewedDateGranularity = ChronoUnit.DAYS;
-    }
+//    @Override
+//    public void setSelectedDate(LocalDate theSelection) {
+//        selectedDate = theSelection;
+//        viewedDate = theSelection;
+//        viewedDateGranularity = ChronoUnit.DAYS;
+//    }
 
     @Override // Implementation of the TreePanel interface method
     public void setViewedDate(int theYear) {
         viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
-        viewedDateGranularity = ChronoUnit.YEARS;
+//        viewedDateGranularity = ChronoUnit.YEARS;
     }
 
     @Override // Implementation of the TreePanel interface method
-    public void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity) {
+    public void setViewedDate(LocalDate theViewedDate) {
         viewedDate = theViewedDate;
-        viewedDateGranularity = theGranularity;
+//        viewedDateGranularity = theGranularity;
     }
 
     // This method will put the 'About' graphic into the right
@@ -1495,10 +1550,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
     @Override
     public void showDay() {
-        MemoryBank.debug("showDay called.");
+        MemoryBank.debug("showDay called.  viewedDate = " + viewedDate.toString());
         if(appOpts.groupCalendarNotes) {
             // Cause a re-construct when selected, which will make it 'land' on the Day tab.
-            theTabbedCalendarNoteGroupPanel = null;
+// TODO           theTabbedCalendarNoteGroupPanel = null;  NO - just set it to index zero, if non-null.  Otherwise it will
+            // go there when constructed.
             theTree.setSelectionPath(calendarNotesPath);
         } else {
             theTree.setSelectionPath(dayNotesPath);
@@ -1548,15 +1604,16 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             closeGroup(); // Group is already gone; this just removes the tree node.
             menuContext = "No Selection";  // For manageMenus
         } else {
-            // There is only one menu, for ALL event lists.  It needs to be reset with every list change.
-            eventNoteGroup.setListMenu(appMenuBar.getNodeMenu(menuContext));
+            // There is only one menu, for ALL event lists.  It needs to be readjusted every time we view a list.
+//            eventNoteGroup.adjustMenuItems(eventNoteGroup.myNoteGroup.groupChanged);
 
             theNoteGroupPanel = eventNoteGroup;
             rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
         } // end if
         return menuContext;
-    }
+    } // end showEvent
 
+    // This is for the consolidated view, not a single Upcoming Event list, which is 'showEvent()'.
     void showEvents() {
         EventNoteGroupPanel theBigPicture = getConsolidatedView();
         if (theBigPicture == null) return;
@@ -1644,8 +1701,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             closeGroup(); // Group is already gone; this just removes the tree node.
             menuContext = "No Selection";  // For manageMenus
         } else {
-            // There is only one menu, for ALL Goals.  It needs to be reset with every list change.
-            goalGroup.setListMenu(appMenuBar.getNodeMenu(menuContext));
+            // There is only one menu, for ALL Goals.  It needs to be readjusted every time we view a list.
+//            goalGroup.adjustMenuItems(goalGroup.myNoteGroup.groupChanged);
 
             theNoteGroupPanel = goalGroup;
             rightPane.setViewportView(goalGroup.theBasePanel);
@@ -1744,80 +1801,20 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theTree.setSelectionPath(monthViewPath);
     } // end showMonthView
 
-
-    //--------------------------------------------------------
-    // Method Name:  showToday
-    //
     // Note that this method is NOT called for the 'T' button; only from the Menu.
-    //
-    // If the current tree view is one of the ones that are
-    // date-based and the date they are centered on is NOT
-    // today, then this method will change the date of that
-    // view to today.
-    //
-    // If the view is NOT date-based, it will change to a
-    // textual representation of today's date.  The value
-    // of this variation is questionable but it remains
-    // below and can be enabled by placing a 'Today' on a
-    // non-date-based group's menubar (currently that menu
-    // choice is not present for a non date-centered view).
-    //
-    // If the view is date-based and the selected date is
-    // already today, the user is shown the textual panel
-    // that is described above.
-    //--------------------------------------------------------
+    // The view will change to a textual representation of today's date.
+    // The value of this feature is questionable but it remains below for now.
     void showToday() {
-        // The most recent changes to currently-open Calendar panels (if any), will be preserved
-        // when their 'setDate' method makes a call to its specific preClosePanel method.
-
-        // Get the current tree selection
-        TreePath tp = theTree.getSelectionPath();
-
-        if (tp == null) return; // Tree selection was cleared?
-        // If the 'big' Today is already showing then there is no current tree selection.
-
-        String theCurrentView = tp.getLastPathComponent().toString();
-        MemoryBank.debug("AppTreePanel.showToday() - current path: " + theCurrentView);
-
-        if (viewedDate.equals(LocalDate.now())) {
-            theCurrentView = "Today";
-        } else {
-            setSelectedDate(LocalDate.now());
-        }
-
-        switch (theCurrentView) {
-            case "Year View":
-                theYearView.setChoice(selectedDate);
-                return;
-            case "Month View":
-                theMonthView.setChoice(selectedDate);
-                return;
-            case "Day Notes": // For Day notes, the choice is not separate of the view.
-                theAppDays.setDate(selectedDate);
-                return;
-            case "Month Notes":
-                theAppMonths.setDate(selectedDate);
-                return;
-            case "Year Notes":
-                theAppYears.setDate(selectedDate);
-                return;
-        }
-
-        // If we got thru to here, it means that we were already
-        //   displaying today's date when the user requested us
-        //   to do so.    So - we do it bigger -
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         JLabel dayTitle = new JLabel();
         dayTitle.setHorizontalAlignment(JLabel.CENTER);
         dayTitle.setForeground(Color.blue);
         dayTitle.setFont(Font.decode("Serif-bold-24"));
-        dayTitle.setText(dtf.format(selectedDate));
+        dayTitle.setText(dtf.format(LocalDate.now()));
         rightPane.setViewportView(dayTitle);
         appMenuBar.manageMenus("Today"); // This will get the default / unhandled case.
 
-        // Clear the current tree selection, so they can select it again
-        // and get back to a 'normal' view.  There was a previous version here, where we had kept the earlier
-        // Panel so we could toggle back to it, but dropped that feature - too cute, and not that helpful.
+        // Clear the current tree selection.
         theTree.clearSelection();
     } // end showToday
 
@@ -1885,7 +1882,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     // Note that for changes that are code-generated vs a response to user action, we don't come here directly
     //   but can get here by constructing a valid TreePath and then calling setSelectionPath() on the JTree.
-    void treeSelectionChanged(TreePath newPath) {
+    private void treeSelectionChanged(TreePath newPath) {
         selectedArchiveNode = null; // Clear any previous archive selection.
 
         if (newPath == null) return;
@@ -1909,8 +1906,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         appOpts.theSelectionRow = theTree.getMaxSelectionRow();
 
         // If there was a NoteGroup open prior to this tree selection change, AND if it has changes in its
-        //   interface but not in its underlying data then update that underlying data now.
-        // Saving of the updated NoteGroup data will come later.
+        //   interface but not in its underlying data then update that underlying data (in memory) now.
+        // But actual saving of the updated NoteGroup data will come later.
         if (theNoteGroupPanel != null && theNoteGroupPanel.myNoteGroup.groupChanged) {
             theNoteGroupPanel.unloadNotesPanel(theNoteGroupPanel.theNotePager.getCurrentPage());
 
@@ -1921,7 +1918,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             }
         } // end if
 
-        // Obtain a reference to the new selection.
+        // Obtain a reference to the new Tree Node selection.
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
         // This is better than 'theTree.getLastSelectedPathComponent()' because it works for
         //   normal tree selection events but also allows for 'phantom' selections; tree
@@ -1933,7 +1930,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         String theNodeString = selectedNode.toString();
         MemoryBank.debug("New tree selection: " + theNodeString);
         appOpts.theSelection = theNodeString; // Not used, but helpful during a visual review of the persisted options.
-        String selectionContext = theNodeString;  // for menu management; this default value changes in most cases, below.
+        String menuContext = theNodeString;  // for menu management; this default value changes in most cases, below.
 
         // Get the name of the node's parent.  Thanks to the way we have displayed the tree and
         // the unselect-ability of the tree root, we never expect the parent path to be null.
@@ -1954,27 +1951,68 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //<editor-fold desc="Actions Depending on the selection">
         //==========================================================================================================
         if (isArchives) showArchives();  // This is the only leaf that comes from the root of the tree.
-        else if (isTopLevel) selectionContext = showBranch(selectedNode); // Edit the indicated branch
-        else if (parentNodeName.equals("Goals")) selectionContext = showGoal(selectedNode);  // Selection of a Goal
-        else if (parentNodeName.equals("Upcoming Events")) selectionContext = showEvent(selectedNode);
-        else if (parentNodeName.equals("To Do Lists")) selectionContext = showTodoList(selectedNode);
-        else if (parentNodeName.equals("Search Results")) selectionContext = showSearchResult(selectedNode);
-        else if (theNodeString.equals("Year View")) {
+        else if (isTopLevel) menuContext = showBranch(selectedNode); // Edit the indicated branch
+        else if (parentNodeName.equals("Goals")) menuContext = showGoal(selectedNode);  // Selection of a Goal
+        else if (parentNodeName.equals("Upcoming Events")) menuContext = showEvent(selectedNode);
+        else if (parentNodeName.equals("To Do Lists")) menuContext = showTodoList(selectedNode);
+        else if (parentNodeName.equals("Search Results")) menuContext = showSearchResult(selectedNode);
+        else if (theNodeString.equals("Calendar Notes")) showCalendarNotes();
+        else if (theNodeString.equals("Day Notes")) {
+            if(theTabbedCalendarNoteGroupPanel != null) theTabbedCalendarNoteGroupPanel = null;
+            if (theAppDays == null) {
+                theAppDays = new DayNoteGroupPanel(); // AlteredDateListener is only needed when grouped.
+            } else { // Previously constructed, possibly for link selection, so ensure that it is editable.
+                log.debug("Using the previously constructed 'theAppDays' for " + theNodeString);
+                if (!theAppDays.getEditable()) theAppDays.setEditable(true);
+            }
+            // Setting the date here will cause a group save if there are unsaved changes, and we don't want
+            //   that in the case where there has been no change to the viewed date and the user is not yet
+            //   ready to save their work and might still undo.
+            if (!theAppDays.getTitle().equals(theAppDays.getTitle(viewedDate))) {
+                theAppDays.setDate(viewedDate);
+            }
+            theNoteGroupPanel = theAppDays;
+            rightPane.setViewportView(theAppDays.theBasePanel);
+        } else if (theNodeString.equals("Month Notes")) {
+            if(theTabbedCalendarNoteGroupPanel != null) theTabbedCalendarNoteGroupPanel = null;
+            if (theAppMonths == null) {
+                theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
+            } else { // Previously constructed, possibly for link selection.  Ensure that it is editable.
+                log.debug("Using the previously constructed 'theAppMonths' for " + theNodeString);
+                if (!theAppMonths.getEditable()) theAppMonths.setEditable(true);
+            }
+            // Setting the date here will cause a group save if there are unsaved changes, and we don't want
+            //   that in the case where there has been no change to the viewed date and the user is not yet
+            //   ready to save their work and might still undo.
+            if (!theAppMonths.getTitle().equals(theAppMonths.getTitle(viewedDate))) {
+                theAppMonths.setDate(viewedDate);
+            }
+            theNoteGroupPanel = theAppMonths;
+            rightPane.setViewportView(theAppMonths.theBasePanel);
+        } else if (theNodeString.equals("Year Notes")) {
+            if(theTabbedCalendarNoteGroupPanel != null) theTabbedCalendarNoteGroupPanel = null;
+            if (theAppYears == null) {
+                theAppYears = new YearNoteGroupPanel();
+            } else { // Previously constructed, possibly for link selection.  Ensure that it is editable.
+                log.debug("Using the previously constructed 'theAppYears' for " + theNodeString);
+                if (!theAppYears.getEditable()) theAppYears.setEditable(true);
+            }
+            // Setting the date here will cause a group save if there are unsaved changes, and we don't want
+            //   that in the case where there has been no change to the viewed date and the user is not yet
+            //   ready to save their work and might still undo.
+            if (!theAppYears.getTitle().equals(theAppYears.getTitle(viewedDate))) {
+                theAppYears.setDate(viewedDate);
+            }
+            theNoteGroupPanel = theAppYears;
+            rightPane.setViewportView(theAppYears.theBasePanel);
+        } else if (theNodeString.equals("Year View")) {
             if (theYearView == null) {
                 theYearView = new YearView(viewedDate);
                 theYearView.setParent(this);
-            } else {
-                theYearView.setChoice(selectedDate); // To get the right choiceLabel
+            } else { // The YearView was previously constructed.
+//                theYearView.setChoice(viewedDate); // To get the right choiceLabel
                 theYearView.setView(viewedDate); // To show the right Year
             } // end if
-
-            // The choice and view settings, whether they happened during construction or
-            // via the 'else' branch, do not get reflected back to here, so if there was
-            // no change to the view while the panel was active then the viewed date
-            // granularity that we had going in, can remain unchanged after we come back
-            // out.  If there WAS a view change then the granularity would have gone to
-            // YEARS at that time.
-
             rightPane.setViewportView(theYearView);
         } else if (theNodeString.equals("Month View")) {
             // Capture new icons, if any.
@@ -1983,91 +2021,18 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             if (theMonthView == null) {
                 // Construct with a date where the Month (with 31 days) starts on a Sunday, part of the cure for:
                 //   SCR00035 - MonthView does not show all icons for a day.  (see also the note in MonthView)
-                theMonthView = new MonthView(LocalDate.of(2020, 3, 15));
-                // This results in a one-time-only double 'set' of the day but is needed so that the various
-                // DayCanvases are ready to properly show icons.  (This appears to also prevent the problem
-                // from appearing in the final (initially empty) DayCanvases of the MonthCanvas grid (not sure why).
-                theMonthView.setChoice(selectedDate); // This sets the 'choice' label and day highlight, if appropriate.
+//                theMonthView = new MonthView(LocalDate.of(1900, 7, 15));
+                theMonthView = new MonthView(viewedDate);
+//                 This results in a one-time-only double 'set' of the view but is needed so that the various
+//                 DayCanvases are ready to properly show icons.  (This appears to also prevent the problem from
+//                 appearing in the 11 initially unused DayCanvases at the end of the MonthCanvas grid (not sure why).
+//                theMonthView.setChoice(viewedDate); // This sets the 'choice' label and day highlight, if appropriate.
                 theMonthView.setParent(this);
-            } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
-                theMonthView.setChoice(selectedDate);
+            } else {  // The MonthView was previously constructed.
+                theMonthView.setChoice(viewedDate);
             }
-
-            // If the Selected date is not the same as the Viewed date, decide which one should be shown.
-            // When they differ it will be due to the user having adjusted the view
-            // while on a different date-related panel, without making a selection there
-            // before coming here.  So if the user was 'looking' at a different time
-            // period on that other panel and then came here, we should continue to
-            // show them that same time period here, as long as it was the same (or better) granularity.
-            // But with only three granularity settings (currently) and DAYS keeps its Selected
-            // in sync with its Viewed, currently the only possibility where this happens is
-            // when coming here from MonthNotes (but that could change with future enhancements).
-            if (!selectedDate.isEqual(viewedDate)) {
-                if (viewedDateGranularity != ChronoUnit.YEARS) {
-                    theMonthView.setView(viewedDate);
-                }
-            }
+//            theMonthView.setView(viewedDate); // To show the right Month
             rightPane.setViewportView(theMonthView);
-        } else if (theNodeString.equals("Calendar Notes")) {
-            if (theTabbedCalendarNoteGroupPanel == null) {
-                theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
-            }
-            // After these initial settings, the AlteredDateListener will keep the panels in sync.
-            theAppDays = theTabbedCalendarNoteGroupPanel.theDayNoteGroupPanel;
-            theAppDays.setDate(selectedDate);
-            setViewedDate(selectedDate, ChronoUnit.DAYS);
-            theAppMonths = theTabbedCalendarNoteGroupPanel.theMonthNoteGroupPanel;
-            theAppMonths.setDate(viewedDate);
-            theAppYears = theTabbedCalendarNoteGroupPanel.theYearNoteGroupPanel;
-            theAppYears.setDate(viewedDate);
-            rightPane.setViewportView(theTabbedCalendarNoteGroupPanel.theBasePanel);
-        } else if (theNodeString.equals("Day Notes")) {
-            if (theAppDays == null) {
-                theAppDays = new DayNoteGroupPanel();
-                theAppDays.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Previously constructed.  Ensure that it is editable.
-                log.debug("Using the previously constructed 'theAppDays' for " + theNodeString);
-                if (!theAppDays.getEditable()) theAppDays.setEditable(true);
-            }
-
-            theAppDays.setAlteredDateListener(this); // needed for both new and pre-existing.
-            theNoteGroupPanel = theAppDays;
-            theAppDays.setDate(selectedDate);
-
-            setViewedDate(selectedDate, ChronoUnit.DAYS);
-            rightPane.setViewportView(theAppDays.theBasePanel);
-        } else if (theNodeString.equals("Month Notes")) {
-            if (viewedDateGranularity == ChronoUnit.YEARS) {
-                viewedDate = selectedDate;
-            }
-            viewedDateGranularity = ChronoUnit.MONTHS;
-
-            if (theAppMonths == null) {
-                theAppMonths = new MonthNoteGroupPanel(); // Takes current date as default initial 'choice'.
-                theAppMonths.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Previously constructed.  Ensure that it is editable.
-                log.debug("Using the previously constructed 'theAppMonths' for " + theNodeString);
-                if (!theAppMonths.getEditable()) theAppMonths.setEditable(true);
-            }
-
-            theAppMonths.setAlteredDateListener(this); // needed for both new and pre-existing.
-            theNoteGroupPanel = theAppMonths;
-            theAppMonths.setDate(viewedDate);
-            rightPane.setViewportView(theAppMonths.theBasePanel);
-        } else if (theNodeString.equals("Year Notes")) {
-            if (theAppYears == null) {
-                theAppYears = new YearNoteGroupPanel();
-                theAppYears.setListMenu(appMenuBar.getNodeMenu(selectionContext));
-            } else { // Previously constructed.  Ensure that it is editable.
-                log.debug("Using the previously constructed 'theAppYears' for " + theNodeString);
-                if (!theAppYears.getEditable()) theAppYears.setEditable(true);
-            }
-
-            theAppYears.setAlteredDateListener(this); // needed for both new and pre-existing.
-            theNoteGroupPanel = theAppYears;
-            theAppYears.setDate(viewedDate); // possibly a wrong-named method.  setView ?
-            viewedDateGranularity = ChronoUnit.YEARS;
-            rightPane.setViewportView(theAppYears.theBasePanel);
         } else {
             // Any other as-yet unhandled node on the tree, (a placeholder) such as 'Week View'
             JPanel jp = new JPanel(new GridBagLayout());
@@ -2077,9 +2042,45 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //==========================================================================================================
         //</editor-fold>
 
-        appMenuBar.manageMenus(selectionContext);
+        appMenuBar.manageMenus(menuContext);
+
+        if(theNoteGroupPanel != null) { // Not all tree nodes come with a NoteGroup.
+            // With each Group type sharing the same static menu, we need to ensure that menu items are correctly
+            //   enabled or disabled upon a change from one group another (especially when they are the same type).
+            theNoteGroupPanel.adjustMenuItems(theNoteGroupPanel.myNoteGroup.groupChanged);
+        }
+
         showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
+
+    private void showCalendarNotes() {
+        if (theTabbedCalendarNoteGroupPanel == null) {
+            constructCalendarNotes(); // Whether they need it or not.
+            theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
+        }
+        // After this initial date setting, the AlteredDateListener will keep the panels in sync.
+        theAppDays.setDate(viewedDate);
+        theAppMonths.setDate(viewedDate);
+        theAppYears.setDate(viewedDate);
+
+        theNoteGroupPanel = theTabbedCalendarNoteGroupPanel;
+        rightPane.setViewportView(theTabbedCalendarNoteGroupPanel.theBasePanel);
+
+        int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();
+        switch (index) {
+            case 0:
+                theNoteGroupPanel = theAppDays;
+                break;
+            case 1:
+                theNoteGroupPanel = theAppMonths;
+                break;
+            case 2:
+                theNoteGroupPanel = theAppYears;
+                break;
+        }
+        // There is only one menu, for ALL Calendar Note lists.  It needs to be readjusted every time we view a list.
+//        theNoteGroupPanel.adjustMenuItems(theNoteGroupPanel.myNoteGroup.groupChanged);
+    } // end showCalendarNotes
 
     private String showSearchResult(DefaultMutableTreeNode selectedNode) {
         String theNodeString = selectedNode.toString(); // Get the string for the selected node.
@@ -2174,8 +2175,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             closeGroup(); // Group is already gone; this just removes the tree node.
             menuContext = "No Selection";  // For manageMenus
         } else {
-            // There is only one menu, for ALL todo lists.  It needs to be reset with every list change.
-            todoNoteGroup.setListMenu(appMenuBar.getNodeMenu(menuContext));
+            // There is only one menu, for ALL todo lists.  It needs to be readjusted every time we view a list.
+//            todoNoteGroup.adjustMenuItems(todoNoteGroup.myNoteGroup.groupChanged);
 
             theNoteGroupPanel = todoNoteGroup;
             rightPane.setViewportView(theNoteGroupPanel.theBasePanel);

@@ -57,8 +57,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end static section
 
 
-    // Only Archived event groups come directly here.  Normal access comes via the other constructor,
-    //   which will age and sort.
+    // Only Archived event groups use this constructor.
+    // Normal access comes via the other constructor, which will age and sort.
     public EventNoteGroupPanel(GroupInfo groupInfo) {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
@@ -92,8 +92,15 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
             // removed.  We show that by saving the altered data and then reloading it.
             preClosePanel();    // Save the new states of 'aged' events.
             updateGroup(); // Reload the group (visually removes aged-off items, if any)
+
+            // But also - any of the aged-off events may have moved to the date that is currently being displayed
+            // in the DayNoteGroupPanel, and that Panel may already be preserved in its keeper for redisplay but that
+            // instance of the DayNoteGroup does not have the new addition(s).  So - un-keep it, to force a reload of
+            // the possibly updated data if/when it is eventually redisplayed.
+            AppTreePanel.theInstance.theAppDays = null;
         } // end if
         doSort(); // needed whether events were aged off, or not.
+        setListMenu(AppMenuBar.getNodeMenu("Upcoming Event"));
     }// end constructor
 
 
@@ -131,7 +138,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
                     dayNoteGroup.appendNote(dnd);
                     dayNoteGroup.saveNoteGroup();
 
-                    // I don't see any Exception handling going on here - what gives?
+                    // FAQ:  I don't see any Exception handling going on here - what gives?
                     // This aging event is one of potentially several in the group, and one of the times that this
                     //   could occur is at app startup while the 'always on top' splash screen is displayed.  It is
                     //   definitely NOT a good time to stop at each problem and complain to the user with an error

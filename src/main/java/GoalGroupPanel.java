@@ -78,6 +78,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
 
         buildPanelContent(); // Content other than the groupDataVector
+        setListMenu(AppMenuBar.getNodeMenu("Goal"));
     } // end constructor
 
 

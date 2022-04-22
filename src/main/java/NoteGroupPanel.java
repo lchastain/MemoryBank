@@ -199,19 +199,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
         // Use the Notifier from the AppTreePanel.  Under normal operating conditions,
         //   no NoteGroupPanel would ever be constructed directly, without the AppTreePanel
-        //   having been instantiated first.  We use the assertion to aid with code coverage,
-        //   because it will at least show partial coverage but if it was replaced by an 'if'
-        //   statement, the false branch would be flagged as having never been taken.
-        //
-        // As for non-normal, and the main reason we use the assertion vs just boldly going ahead
-        //   with the optionPane assignment, sometimes there will be a test class (usually needed during
-        //   initial development) that quickly stands up the NoteGroupPanel in its own container.
-        //   Such a class might be retained (in a separate 'test' area) in case it would be needed later
-        //   for faster troubleshooting or some follow-on T&E / R&D, and failing the assertion, if that
-        //   happens, is just a less hostile reminder to the developer that they first need to ensure
-        //   that the AppTreePanel has been instantiated so that the assignment does not fail due
-        //   to a null handle of theInstance.
-        assert AppTreePanel.theInstance != null;
+        //   having been instantiated first.
+        // As for non-normal, sometimes there will be a test class (usually needed during
+        //   initial development) that quickly stands up a NoteGroupPanel in its own container.
+        //   Although it may not need an AppTreePanel instance in that case, the assignment
+        //   below will require it to get one.  The TestUtil can provide that, in a way that
+        //   does not violate our requirement that 'there can be only one'.
         optionPane = AppTreePanel.theInstance.optionPane;
     } // end buildNotesPanel
 
@@ -405,9 +398,10 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
     } // end groupLinkages
 
-    // This does nothing in this base class, because upon rename the entire group is reloaded and the reload will
-    //   set the new Panel title correctly.  Children, however, can override it and take any additional appropriate
-    //   action(s) that might be needed due to having had their 'renameNoteGroup' invoked.
+    // This does nothing in this base class, because not all children will support a rename operation.
+    //   As for fixing the title, upon a rename the entire group is reloaded and the reload will set the
+    //   new Panel title correctly.  Children, however, can override this method and take any additional
+    //   appropriate action(s) that might be needed due to having had their 'renameNoteGroup' invoked.
     void renamePanel(String renameTo) {}
 
     void setAppendable(boolean b) {
@@ -852,10 +846,10 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end class NoteStringComparator
 
 
-    // Used to enable or disable the 'undo' and 'save' menu items.  Called once when the
-    // list menu is initially set and then later called repeatedly for every 'setGroupChanged'.
-    // Although the boolean currently exactly matches the 'groupChanged' variable, taking it as an input
-    // parameter allows it to be based on other criteria (at some future point.  I know, yagni).
+    // Used to enable or disable the 'undo' and 'save' menu items, called from 'setGroupChanged'.
+    // Although the boolean param matches the 'groupChanged' variable in most cases, there are
+    // some instances where the child Panel is not tracking that state, but it still has a
+    // menu that needs adjustment.  So, enablement comes in as an input param.
     protected void adjustMenuItems(boolean b) {
         if (myListMenu == null) return; // Too soon.  Come back later.
         MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
@@ -870,10 +864,13 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Not all NoteGroups need to manage enablement of items in their menu but those
     // that do, all do the same things.  If this ever branches out into different
     // actions and/or menu items then they can override this and/or adjustMenuItems.
-    void setListMenu(JMenu listMenu) {
+    protected void setListMenu(JMenu listMenu) {
         MemoryBank.debug("NoteGroupPanel.setListMenu: " + listMenu.getText());
         myListMenu = listMenu;
-        adjustMenuItems(myNoteGroup.groupChanged); // set enabled state for 'undo' and 'save'.
+
+        // This method (setListMenu) is called only once per each NoteGroupPanel; the 'adjustment' below
+        //   is an initialization step but will need to be repeated every time the group data changes.
+        adjustMenuItems(false); // Other calls will use a variable but 'false' is the proper initial value.
     }
 
 

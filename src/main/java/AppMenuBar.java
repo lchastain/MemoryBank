@@ -157,9 +157,9 @@ public class AppMenuBar extends JMenuBar {
         return theCurrentContext;
     }
 
-    // Get the additional menu that is appropriate for the selected tree node.
+    // Get the menu that is appropriate for the selected tree node.
     // This is NOT the main handler; just answers the 'what menu was this?' question.
-    JMenu getNodeMenu(String selectionContext) {
+    static JMenu getNodeMenu(String selectionContext) {
         JMenu theMenu;
         switch (selectionContext) {
             case "Year View":

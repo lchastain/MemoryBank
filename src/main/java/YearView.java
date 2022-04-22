@@ -12,7 +12,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class YearView extends JPanel {
@@ -32,6 +31,7 @@ public class YearView extends JPanel {
     private final JPanel yearPanel;
     private int theYear;            // numerous
     static DateTimeFormatter dtf;
+    LocalDate displayedYear;  // Of course it holds more than just the Year.
     private TreePanel treePanel = null;  // see 'setParent' - not all usages are for a 'real' TreePanel.
     private static final Color hasDataColor = Color.blue;
     private static final Color noDataColor = Color.black;
@@ -75,7 +75,6 @@ public class YearView extends JPanel {
     }
 
     YearView(LocalDate initial) {
-        //  @SuppressWarnings("MagicConstant")
         super(new BorderLayout());
         dateSelectionDialog = null;
         choice2 = null;
@@ -84,7 +83,8 @@ public class YearView extends JPanel {
         setBorder(theBorder);
 
         theChoice = initial;
-        theYear = initial.getYear();
+        displayedYear = initial;
+        theYear = displayedYear.getYear();
 
         // This MouseAdapter allows that the buttons may be held depressed, and the indicated action
         //   will repeat until the button is released.  This is an acknowledgement that the desired
@@ -121,6 +121,26 @@ public class YearView extends JPanel {
         prev.addMouseListener(alterButtonHandler);
 
         todayButton = makeAlterButton("T");
+        // Only the 'T' (today) button gets this handling; the others will have the alterButtonHandler.
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                LabelButton source = (LabelButton) e.getSource();
+                if (!source.isEnabled()) return; // It's not really a button; we need to check this first.
+
+                if (intNumSelections > 0) {
+                    // This is both a view-change and a selection.
+                    setChoice(LocalDate.now());
+                    if (treePanel != null) treePanel.setViewedDate(theChoice);
+                } else {
+                    // This is a view-change only.
+                    theYear = Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear();
+                    if (treePanel != null) treePanel.setViewedDate(LocalDate.now());
+                    recalc(theYear);
+                }
+            }
+        };
+        todayButton.addMouseListener(mouseAdapter);
 
         next = makeAlterButton("+");
         next.setIcon(LabelButton.rightIcon);
@@ -277,26 +297,7 @@ public class YearView extends JPanel {
     }
 
     LabelButton makeAlterButton(String theText) {
-        // Only the 'today' button needs handling; the others will have their own.
-        MouseAdapter mouseAdapter = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                LabelButton source = (LabelButton) e.getSource();
-                if (!source.isEnabled()) return; // It's not really a button; we need to check this first.
-
-                if (intNumSelections > 0) {
-                    // This is both a view-change and a selection.
-                    setChoice(LocalDate.now());
-                    if (treePanel != null) treePanel.setSelectedDate(theChoice);
-                } else {
-                    // This is a view-change only.
-                    theYear = Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear();
-                    recalc(theYear);
-                }
-            }
-        };
         LabelButton theButton = new LabelButton(theText);
-        if (theText.equals("T")) theButton.addMouseListener(mouseAdapter);
         theButton.setPreferredSize(new Dimension(28, 28));
         theButton.setFont(Font.decode("Dialog-bold-14"));
         return theButton;
@@ -337,9 +338,10 @@ public class YearView extends JPanel {
 
 
     public void setChoice(LocalDate theNewChoice) {
-        // This must be done at a higher level than MonthCanvas recalc (where it may be turned back on) because
-        // that recalc will happen for all 12 months of any given year, not just the year/month with the active day.
         if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
+        // It is more efficient to do the above de-highlighting here rather than in the MonthCanvas recalc
+        // because that recalc will happen for all 12 months of any given year, not just the one
+        // containing the previous active day.
 
         // When this panel is used as a dialog, a null setting of the choice is allowed.
         theChoice = theNewChoice;
@@ -362,6 +364,7 @@ public class YearView extends JPanel {
     }
 
     void setView(LocalDate viewDate) {
+        displayedYear = viewDate;
         if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
         theYear = viewDate.getYear();
         recalc(theYear);
@@ -390,12 +393,12 @@ public class YearView extends JPanel {
             tempLabel.setBackground(Color.blue);
             tempLabel.setForeground(Color.white);
             tempLabel.setOpaque(true);
-            tempLabel.addMouseListener(new MouseAdapter() {
+            tempLabel.addMouseListener(new MouseAdapter() { // Respond to a click on the Month name.
                 public void mousePressed(MouseEvent e) {
                     if (treePanel == null) return;
-                    myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
+                    myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), treePanel.getViewedDate().getDayOfMonth());
                     if (archiveDate != null && myDate.isAfter(archiveDate)) myDate = archiveDate;
-                    treePanel.setViewedDate(myDate, ChronoUnit.MONTHS);
+                    treePanel.setViewedDate(myDate);
                     treePanel.showMonthView();
                 } // end mousePressed
             });//end addMouseListener
@@ -409,10 +412,11 @@ public class YearView extends JPanel {
                 tempLabel = new JLabel(dayName, JLabel.CENTER);
                 tempLabel.setForeground(Color.white);
                 tempLabel.setBackground(Color.gray);
-                tempLabel.addMouseListener(new MouseAdapter() {
+                tempLabel.addMouseListener(new MouseAdapter() { // Respond to a click on the Weekdays line
                     public void mousePressed(MouseEvent e) {
                         if (treePanel == null) return;
                         myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), 1);
+                        // More needed here if/when a week view is ever provided; similar to the section above, for Month.
                         treePanel.showWeek(myDate);
                     } // end mousePressed
                 });//end addMouseListener
@@ -605,11 +609,10 @@ public class YearView extends JPanel {
                 } // end if this is a dialog
 
                 if (treePanel == null) return;
-                treePanel.setSelectedDate(theChoice);
+                treePanel.setViewedDate(theChoice);
                 if (e.getClickCount() == 2) {
                     if (archiveDate != null && theChoice.isAfter(archiveDate)) {
                         theChoice = archiveDate;
-                        treePanel.setSelectedDate(theChoice);
                     }
                     treePanel.showDay();
                 }

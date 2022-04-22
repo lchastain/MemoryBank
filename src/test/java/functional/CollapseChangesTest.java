@@ -75,7 +75,7 @@ class CollapseChangesTest {
         }
 
         // Get the corresponding TodoNoteGroup
-        TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) appTreePanel.getTheNoteGroup();
+        TodoNoteGroupPanel todoNoteGroup = (TodoNoteGroupPanel) appTreePanel.getTheNoteGroupPanel();
 
         // Make an edit to the list
         TodoNoteComponent todoNoteComponent3 = todoNoteGroup.getNoteComponent(3);

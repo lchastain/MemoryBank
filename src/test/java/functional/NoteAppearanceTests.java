@@ -20,7 +20,7 @@ import java.io.IOException;
 // Not (yet?) tested:
 //--------------------
 // Component shift up/down
-// Loading a group smaller then the one it just had
+// Loading a group smaller than the one it just had
 // Merging
 // Gap elimination
 
@@ -43,6 +43,7 @@ public class NoteAppearanceTests {
         // Retrieve the test data for this class from test resources.
         String fileName = "NoteAppearanceTest";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Needed ancillary class
@@ -73,7 +74,7 @@ public class NoteAppearanceTests {
         //-------------------------------------------------------------------------------------------------------------
 
         // Test condition 2:  Disabled menu items
-        JMenu theMenu = appMenuBar.getNodeMenu("Upcoming Event");
+        JMenu theMenu = AppMenuBar.getNodeMenu("Upcoming Event");
         eventNoteGroup.setListMenu(theMenu);
         JMenuItem theUndo = AppUtil.getMenuItem(theMenu, "Undo All");
         Assertions.assertFalse(theUndo.isEnabled());
@@ -144,7 +145,7 @@ public class NoteAppearanceTests {
         //-------------------------------------------------------------------------------------------------------------
 
         // Test condition 2:  Disabled menu items
-        JMenu theMenu = appMenuBar.getNodeMenu("To Do List");
+        JMenu theMenu = AppMenuBar.getNodeMenu("To Do List");
         todoNoteGroup.setListMenu(theMenu);
         JMenuItem theUndo = AppUtil.getMenuItem(theMenu, "Undo All");
         Assertions.assertFalse(theUndo.isEnabled());

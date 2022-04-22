@@ -1,74 +1,47 @@
-This doc is needed in order to set down the expected behaviors of certain panels with respect to dates.
-
-There are two date 'flavors' to consider:
-    Selected Date - What specific date has been selected.  There will always be one; defaults to current date.
-    Viewed Date - What date is being shown (and to what granularity - day,month,year); defaults to current date.
-
-These two dates are defined and managed in AppTreePanel.  It will always have definitions for them; no nulls.
-
-When a date selection is made it also sets the viewed date to the same value.
-
-Viewed dates will only differ from selected dates when a date-related panel changes its content without
-    having made a selection (if a date selection was even possible from the given panel).
-
-Of the five date-related panels, a date selection can only occur from these three:
-    Day Notes - whatever date is shown IS the selection (and therefore also the Viewed Date).
-    Year View - only if the user clicks on a specific date.  Clicking on a specific month (its name) switches to that view.
-    Month View - only if the user clicks on a specific date
-
-All five panels can alter the Viewed Date via the controls on their interfaces
+This doc is needed in order to set down the expected behaviors of panels with respect to dates.
 
 
-1.  Day Notes
-    When this node becomes active, the day that it shows will be the currently Selected Date.
-    At the same time the Viewed Date is set to the Selected Date, with DAYS granularity.
-    If the day is changed, Selected Date and Viewed Date track along with it.
-        (not happening...)
+There are five date-related Panels to consider, where a date is shown:
+    Day Notes
+    Month Notes
+    Year Notes
+    Month View
+    Year View
 
-2.  Year Notes
-    When this node becomes active, the year shown is the year from the Viewed Date, and its granularity becomes YEARS,
-        even if it was previously finer.  This is needed to ensure that the correct date is shown in whatever panel
-        becomes active after this one, especially if no action is taken while here.  The very act of switching to a
-        year view will have changed the granularity.
-    A new Year may be viewed in this panel.  If it is, the Viewed Date is set to the new year.
+And the AppTreePanel coordinates date changes by maintaining a 'viewedDate' tracking variable that is a LocalDate
+that is initialized to 'now()' upon session start.
 
-3.  Month Notes
-    When this node becomes active, the month shown is determined in this order of preference:
-        1.  The month from the Viewed Date
-            In many cases this will also be the Selected Date.  When it isn't, we would rather show the Viewed Date,
-               unless the user had been viewing years in which case we cannot get down to month granularity.
-        2.  The month from the Selected Date
-    Then the granularity of the viewed date is set to MONTHS.
-    A new month may be viewed in this panel.  If it is, the Viewed Date is set to the new month.
+All date-related panels, both the Notes and the Views, should be showing the viewedDate, that is set on them
+by AppTreePanel prior to their display.
 
-4.  Year View
-    When this node becomes active, the year shown is the year from the Viewed Date, and its granularity becomes YEARS,
-        even if it was previously finer.  This is needed to ensure that the correct date is shown in whatever panel
-        becomes active after this one, especially if no action is taken while here.  The very act of switching to a
-        year view will have changed the granularity.
-    A new Selected Date may be chosen from this panel.  If it is, the settings in AppTreePanel are updated, with the
-        Viewed Date being set to the same value, with granularity of DAYS.
-    A new year may be viewed in this panel.  If it is, the Viewed Date is set to the new year,
-        with a granularity of YEARS.
-    The settings described above each happen immediately upon the respective changes, so they are not in conflict;
-        in terms of the granularity of the viewed date, the last change 'wins'.
+When a Panel does not have a date granularity down to the level of the specific day of the viewedDate, it still uses
+that date to show its content because the viewedDate will include the time period that the panel needs to display.
 
-5.  Month View
-    When this node becomes active, the month shown is determined in this order of preference:
-        1.  the month from the Viewed Date (only if granularity is MONTHS)
-        2.  the month from the Selected Date (so that the selected day is highlighted)
-    Then the granularity of the viewed date is set to MONTHS.
-    A new Selected Date may be chosen from this panel.  If it is, the settings in AppTreePanel are updated, with the
-        Viewed Date being set to the same value, with granularity of DAYS.
-    A new month may be viewed in this panel.  If it is, the Viewed Date is set to the new month,
-        with a granularity of MONTHS.
-    The settings described above each happen immediately upon the respective changes, so they are not in conflict;
-        in terms of the granularity of the viewed date, the last change 'wins'.
+Only 'View' panels have a selected date concept, and that setting comes from the View panel itself, upon mouse-click
+on the specific day to be selected.  There is no requirement that the selection on the YearView be the same as the
+selection on the MonthView, and neither selection has an effect on AppTreePanel's viewedDate, but logically that date
+would already be within the same Month & Year since no selection is possible unless the date to be selected is also
+already visible on the Panel.  Selected dates will default to current date, and upon a change will have no effect on
+any other panel.  But there IS an exception - when the selection is made by a double-click on a specific date, the
+AppTreePanel's viewedDate WILL change to that date (a delta of no more than 31 days).
+
+The change of the viewedDate on any one panel will reflect back to AppTreePanel and therefore will have the same effect
+on all other date-related panels (not an immediate effect, but when they are viewed).
+
+All five panels can alter the AppTreePanel's Viewed Date via the arrow controls or the 'T' button in their header.
+The 'T' button is a shortcut to setting the panel to 'Today' (it sets the viewedDate to LocalDate.now).
+
+The 'Today' main menu item does not alter the Viewed Date; it is a simple textual display of the current date.
+
+===================================================================================================================
+Test Plan:
+
+1.  Start the app (AppTreePanel)
+    Show each of the five date-related panels and verify that their dates are the same, 'today'.
+
+2.  Set a known viewed date in the AppTreePanel, then show each panel and verify its shown date.
 
 
-When 'Today' is invoked while any one of the five panels is active, the Selected Date is immediately set to 'today'
-    and the panel content is updated to match.  However, if the panel was already showing this info then instead it
-    will switch to a textual representation of the date, only, with no node selected on the tree.  Select a new node
-    to continue (or select the same one to get back to the panel you were on).
+
 
 

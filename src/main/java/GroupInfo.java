@@ -24,8 +24,6 @@ class GroupInfo {
         archiveName = null;
     }
 
-    // This particular constructor is used by LinkedEntityData to populate its member
-    //   'targetGroupInfo' when a new link is created, after having chosen a link target.
     GroupInfo(GroupProperties groupProperties) {
         groupId = groupProperties.instanceId;
         groupName = groupProperties.getGroupName();
@@ -85,7 +83,7 @@ class GroupInfo {
 
         // If we have a groupId then we only want theNoteGroup if the ID matches.
         // If the ID does not match then return null but if we don't have an ID
-        // then we can return the loaded or new NoteGroup.
+        // to match with then we can return the loaded or new NoteGroup.
         if(groupId != null) {
             if(!groupId.toString().equals(theNoteGroup.getGroupProperties().instanceId.toString())) {
                 theNoteGroup = null;

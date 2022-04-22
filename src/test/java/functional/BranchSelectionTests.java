@@ -227,11 +227,11 @@ public class BranchSelectionTests {
         Thread.sleep(1000);
 
         // Now we need to verify that we have 'landed' on a new Goal
-        Assertions.assertTrue(appTreePanel.getTheNoteGroup() instanceof GoalGroupPanel);
+        Assertions.assertTrue(appTreePanel.getTheNoteGroupPanel() instanceof GoalGroupPanel);
 
         // Add a note and save the group, so that we will have a persisted group later, in test #9
-        appTreePanel.getTheNoteGroup().myNoteGroup.appendNote(new NoteData("this is it."));
-        appTreePanel.getTheNoteGroup().myNoteGroup.saveNoteGroup();
+        appTreePanel.getTheNoteGroupPanel().myNoteGroup.appendNote(new NoteData("this is it."));
+        appTreePanel.getTheNoteGroupPanel().myNoteGroup.saveNoteGroup();
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.
         AppOptions.saveOpts();  // (preClose, at the AppTreePanel level - doesn't save opts).
@@ -255,11 +255,11 @@ public class BranchSelectionTests {
         Thread.sleep(1000);
 
         // Now we need to verify that we have 'landed' on a new Event
-        Assertions.assertTrue(appTreePanel.getTheNoteGroup() instanceof EventNoteGroupPanel);
+        Assertions.assertTrue(appTreePanel.getTheNoteGroupPanel() instanceof EventNoteGroupPanel);
 
         // Add a note and save the group, so that we will have a persisted group later, in test #10
-        appTreePanel.getTheNoteGroup().myNoteGroup.appendNote(new NoteData("this is it."));
-        appTreePanel.getTheNoteGroup().myNoteGroup.saveNoteGroup();
+        appTreePanel.getTheNoteGroupPanel().myNoteGroup.appendNote(new NoteData("this is it."));
+        appTreePanel.getTheNoteGroupPanel().myNoteGroup.saveNoteGroup();
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.
         AppOptions.saveOpts();  // (preClose, at the AppTreePanel level - doesn't save opts).
@@ -284,11 +284,11 @@ public class BranchSelectionTests {
         Thread.sleep(1000);
 
         // Now we need to verify that we have 'landed' on a new To Do List
-        Assertions.assertTrue(appTreePanel.getTheNoteGroup() instanceof TodoNoteGroupPanel);
+        Assertions.assertTrue(appTreePanel.getTheNoteGroupPanel() instanceof TodoNoteGroupPanel);
 
         // Add a note and save the group, so that we will have a persisted group later, in test #11
-        appTreePanel.getTheNoteGroup().myNoteGroup.appendNote(new NoteData("this is it."));
-        appTreePanel.getTheNoteGroup().myNoteGroup.saveNoteGroup();
+        appTreePanel.getTheNoteGroupPanel().myNoteGroup.appendNote(new NoteData("this is it."));
+        appTreePanel.getTheNoteGroupPanel().myNoteGroup.saveNoteGroup();
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.
         AppOptions.saveOpts();  // (preClose, at the AppTreePanel level - doesn't save opts).

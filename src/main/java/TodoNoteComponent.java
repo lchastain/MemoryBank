@@ -187,15 +187,29 @@ public class TodoNoteComponent extends NoteComponent {
         // Convert the item to a DayNoteData, using the TodoNoteData-flavored constructor.
         DayNoteData dnd = new DayNoteData(myTodoNoteData);
 
-        // Use the date to get the right group, then add the note to it.
+        // Use the date to get the right DayNoteGroup, then add the note to it.
         LocalDate theTodoDate = myTodoNoteData.getTodoDate();
         String groupName = CalendarNoteGroup.getGroupNameForDate(theTodoDate, GroupType.DAY_NOTES);
         NoteGroup theGroup = new GroupInfo(groupName, GroupType.DAY_NOTES).getNoteGroup();
         theGroup.appendNote(dnd);
 
-        // Save the updated DayNoteGroup and clear our note line.
+        // Save the updated DayNoteGroup.  This is done outside of any Panel.
         theGroup.saveNoteGroup();
-        clear();  // This creates a 'gap'.
+
+        // If the day we have moved to was already being shown in the DayNoteGroupPanel then any unsaved
+        // changes that it might have had, were preserved when the group was retrieved.  However, there
+        // would not have been a panel reload of that Day, so we should remove the Panel from its keeper
+        // in order to force a reload of the data if/when "Day Notes" is reselected.
+        if(AppTreePanel.theInstance.theAppDays != null) {
+            DayNoteGroupPanel theAppDays = AppTreePanel.theInstance.theAppDays;
+            LocalDate theDayNoteDate = theAppDays.getDate();
+            if (theAppDays.getTitle(theDayNoteDate).equals(theAppDays.getTitle(theTodoDate))) {
+                // Delete the Panel from its keeper.
+                AppTreePanel.theInstance.theAppDays = null;
+            }
+        }
+
+        clear();  // Clear our note line.  This creates a 'gap'.
     } // end moveToDayNote
 
 
@@ -714,10 +728,3 @@ public class TodoNoteComponent extends NoteComponent {
     } // end class PopHandler
 
 } // end class TodoNoteComponent
-
-
-//Embedded Data class
-//-------------------------------------------------------------------
-
-
-

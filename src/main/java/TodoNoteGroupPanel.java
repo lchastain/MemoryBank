@@ -44,6 +44,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
         buildMyPanel(groupInfo.getGroupName());
         theNotePager.reset(1);
+        setListMenu(AppMenuBar.getNodeMenu("To Do List"));
     } // end constructor
 
 

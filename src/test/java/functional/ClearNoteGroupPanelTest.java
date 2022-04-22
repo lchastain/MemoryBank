@@ -27,7 +27,7 @@ class ClearNoteGroupPanelTest {
         // Ok, that was the setup; now run the test.
 
         mng.clearAllNotes();
-        Assertions.assertEquals(theDate, mng.getChoice());
+        Assertions.assertEquals(theDate, mng.getDate());
         theInfo = mng.getCondensedInfo();
         Assertions.assertEquals(0, theInfo.size());
     }

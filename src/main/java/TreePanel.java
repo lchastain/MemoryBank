@@ -1,13 +1,13 @@
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 public interface TreePanel {
 
-    void setSelectedDate(LocalDate theSelection);
+//    void setSelectedDate(LocalDate theSelection);
+    LocalDate getViewedDate();
 
     void setViewedDate(int theYear);
 
-    void setViewedDate(LocalDate theViewedDate, ChronoUnit theGranularity);
+    void setViewedDate(LocalDate theViewedDate);
 
     void showDay();
 

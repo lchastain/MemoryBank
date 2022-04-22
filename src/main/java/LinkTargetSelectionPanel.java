@@ -14,7 +14,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 // This panel has a BorderLayout with only the NORTH and CENTER having content.  The NORTH component provides info
 // about the source of the link and the CENTER component is a JSplitPane with highly variable content.  The left side
@@ -112,11 +111,7 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         MouseAdapter deselector = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 //System.out.println(e.toString());
-                boolean rightClick = false;
-                if(e.getButton()==MouseEvent.BUTTON3) rightClick = true; // Click of right mouse button.
-                //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true; // This doesn't work in mouseClicked; only 'pressed'
-
-                if (rightClick) {
+                if (e.getButton() == MouseEvent.BUTTON3) {  // Right click
                     theTree.collapsePath(theTree.getSelectionPath());
                     theTree.clearSelection();
                 }
@@ -198,13 +193,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
         theTree.addMouseListener(deselector);
     } // end createTree
 
-
-    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-        selectedNoteData = null;
-        resetTargetSelectionLabel();
-    }
-
-    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
+    @Override
+    public void dateChanged(LocalDate fromDate, LocalDate theNewDate) {
         selectedNoteData = null;
         resetTargetSelectionLabel();
     }

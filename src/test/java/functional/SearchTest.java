@@ -91,7 +91,7 @@ public class SearchTest {
 
         // At current writing, the 'found' results is 139 and will probably climb higher,
         // over time so here we just check that some large number of records has been found.
-        Assertions.assertTrue(appTreePanel.getTheNoteGroup().myNoteGroup.noteGroupDataVector.size() > 100);
+        Assertions.assertTrue(appTreePanel.getTheNoteGroupPanel().myNoteGroup.noteGroupDataVector.size() > 100);
 
         // This is useful if running as the user after this test has completed, to see how the tree looks now.
         AppOptions.saveOpts();  // (preClose, at the AppTreePanel level - doesn't save opts).

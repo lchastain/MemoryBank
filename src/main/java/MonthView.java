@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class MonthView extends JLayeredPane {
@@ -29,7 +28,7 @@ public class MonthView extends JLayeredPane {
 
     // Variables needed by more than one method -
     static DateTimeFormatter dtf;
-    static LocalDate displayedMonth;  // Of course it also holds a year and date
+    LocalDate displayedMonth;  // Of course it also holds a year and date
     private DayCanvas activeDayCanvas;   // recalc, event handling
     private final MonthCanvas monthCanvas;
     private final JLabel choiceLabel;
@@ -43,7 +42,7 @@ public class MonthView extends JLayeredPane {
     private final JPanel monthGrid;
     private LocalDate archiveDate;
 
-    // Directly accessed by Tests  // TODO - but not yet.  Needed for mouseListener tests, like already seen for YearView.
+    // Directly accessed by Tests  // TODO - but not yet.  Will be needed for mouseListener tests, like already seen for YearView.
     LabelButton yearMinus;
     LabelButton prev;
     LabelButton todayButton;
@@ -57,13 +56,14 @@ public class MonthView extends JLayeredPane {
         theChoice = null;
     } // end static
 
-    MonthView() {
-        this(LocalDate.now());
-    }
-
     MonthView(LocalDate initialChoice) {
-        displayedMonth = initialChoice;
         theChoice = initialChoice;
+
+//        displayedMonth = initialChoice;
+
+        // Construct with a date where the Month (with 31 days) starts on a Sunday, part of the cure for:
+        //   SCR00035 - MonthView does not show all icons for a day.
+        displayedMonth = LocalDate.of(1900, 7, 15);
 
         // Initialize day of week names.
         dayNames = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday",
@@ -260,10 +260,11 @@ public class MonthView extends JLayeredPane {
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
                     if (buttonText.equals("T")) {
                         displayedMonth = Objects.requireNonNullElseGet(archiveDate, LocalDate::now);
+                        treePanel.setViewedDate(displayedMonth);
                     }
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
                     if (buttonText.equals("Y+")) displayedMonth = displayedMonth.plusMonths(12);
-                    if(treePanel != null) treePanel.setViewedDate(displayedMonth, ChronoUnit.MONTHS);
+                    if(treePanel != null) treePanel.setViewedDate(displayedMonth);
 
                     // If we have scrolled into a new year, we need to update the 'hasData' info.
                     if (currentYear != displayedMonth.getYear()) {
@@ -495,17 +496,14 @@ public class MonthView extends JLayeredPane {
 
         public void mousePressed(MouseEvent e) {
             theChoice = myDate;
-            if(treePanel != null) {
-                treePanel.setSelectedDate(theChoice);
-            }
             activeDayCanvas.reset();
             highlight();
             activeDayCanvas = this;
             if (treePanel == null) return;
+            treePanel.setViewedDate(theChoice);
             if (e.getClickCount() == 2) {
                 if (archiveDate != null && theChoice.isAfter(archiveDate)) {
                     theChoice = archiveDate;
-                    treePanel.setSelectedDate(theChoice);
                 }
                 treePanel.showDay();
             }

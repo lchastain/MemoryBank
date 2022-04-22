@@ -70,30 +70,24 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
         // to be true but if none are then we just ignore the action.
         switch (s) {
             case "D-":
-                setDateDelta(ChronoUnit.DECADES);
-                setOneBack();
-                setDateDelta(ChronoUnit.YEARS);
+                setOneBack(ChronoUnit.DECADES);
                 break;
             case "-":
-                setOneBack();
+                setOneBack(ChronoUnit.YEARS);
                 break;
             case "T":
-                // Change to 'today' without affecting theChoice.
-                // This is preferred when this navigation control is used while 'Viewing FoundIn'.
-                // And in that case AppTreePanel.theInstance.showToday() would not work anyway, since
-                //   there would be no active selection on the Tree.  This is in alignment with the
-                //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
-                //   which DOES affect theChoice.
+                LocalDate fromDate = theDate;
+
                 if(archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
+
+                AppTreePanel.theInstance.dateChanged(fromDate, theDate);
                 break;
             case "+":
-                setOneForward();
+                setOneForward(ChronoUnit.YEARS);
                 break;
             case "D+":
-                setDateDelta(ChronoUnit.DECADES);
-                setOneForward();
-                setDateDelta(ChronoUnit.YEARS);
+                setOneForward(ChronoUnit.DECADES);
                 break;
         }
 

@@ -15,7 +15,7 @@ public class YearNoteGroupMain {
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                System.out.println("MonthNoteGroup selection choice is: " + yng.getChoice());
+                System.out.println("MonthNoteGroup selection choice is: " + yng.getDate());
                 System.exit(0);
             }
         });

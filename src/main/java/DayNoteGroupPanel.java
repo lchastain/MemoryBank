@@ -135,40 +135,30 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
         switch (s) {
             case "Y-":
-                setDateDelta(ChronoUnit.YEARS);
-                setOneBack();
-                setDateDelta(ChronoUnit.DAYS);
+                setOneBack(ChronoUnit.YEARS);
                 break;
             case "M-":
-                setDateDelta(ChronoUnit.MONTHS);
-                setOneBack();
-                setDateDelta(ChronoUnit.DAYS);
+                setOneBack(ChronoUnit.MONTHS);
                 break;
             case "-":
-                setOneBack();
+                setOneBack(ChronoUnit.DAYS);
                 break;
             case "T":
-                // Change to 'today' without affecting theChoice.
-                // This is preferred when this navigation control is used while 'Viewing FoundIn'.
-                // And in that case AppTreePanel.theInstance.showToday() would not work anyway, since
-                //   there would be no active selection on the Tree.  This is in alignment with the
-                //   other usages of AlterButtons, vs the behavior you get from the 'Today' menu item,
-                //   which DOES affect theChoice.
+                LocalDate fromDate = theDate;
+
                 if(archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
+
+                AppTreePanel.theInstance.dateChanged(fromDate, theDate);
                 break;
             case "+":
-                setOneForward();
+                setOneForward(ChronoUnit.DAYS);
                 break;
             case "M+":
-                setDateDelta(ChronoUnit.MONTHS);
-                setOneForward();
-                setDateDelta(ChronoUnit.DAYS);
+                setOneForward(ChronoUnit.MONTHS);
                 break;
             case "Y+":
-                setDateDelta(ChronoUnit.YEARS);
-                setOneForward();
-                setDateDelta(ChronoUnit.DAYS);
+                setOneForward(ChronoUnit.YEARS);
                 break;
             case "12":
                 toggleMilitary();

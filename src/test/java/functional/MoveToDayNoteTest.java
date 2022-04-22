@@ -74,7 +74,7 @@ public class MoveToDayNoteTest {
 
         // Get the Todo List we will be moving 'from', and get the menu item so we can click it.
         TodoNoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Ten Things To Do");
-        JMenuItem jMenuItem = TodoNoteComponent.miMoveToSelectedDate;
+        JMenuItem miMoveToSelectedDate = TodoNoteComponent.miMoveToSelectedDate;
         TodoNoteComponent todoNoteComponent;
 
         //  1. Move to selected date while AppTreePanel has not yet displayed appDays
@@ -82,37 +82,37 @@ public class MoveToDayNoteTest {
         TodoNoteData todoNoteData1 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData1.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        jMenuItem.doClick();
+        miMoveToSelectedDate.doClick();
 
         // Construct theAppDays, give it to appTreePanel and set it to the selected date.
         appTreePanel.theAppDays = new DayNoteGroupPanel(); // it will default to 'today'.
         appTreePanel.theAppDays.setDate(selectedDate); // This sets the right day and loads up the one note we've added.
 
-        //  2. Move to selected date while that date (without unsaved changes) is in appDays
+        //  2. Move to selected date while that date is in appDays (without unsaved changes)
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(2);
         TodoNoteData todoNoteData2 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData2.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        jMenuItem.doClick();
+        miMoveToSelectedDate.doClick();
 
-        // Get theAppDays to reload its day data, to pick up the latest new note.
-        appTreePanel.theAppDays.setDate(selectedDate);
-
-        //  3. Move to selected date while that date (with unsaved changes) is in appDays
+        //  3. Move to selected date while that date is in appDays (with unsaved changes)
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(3);
         TodoNoteData todoNoteData3 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData3.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
+        appTreePanel.theAppDays = new DayNoteGroupPanel(); // Reacquire theAppDays.
+        appTreePanel.theAppDays.setDate(selectedDate); // This sets the right day.
         appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
-        jMenuItem.doClick(); // This saves 'selectedDate' before adding our latest note to it, then saves it again.
+        miMoveToSelectedDate.doClick(); // This saves 'selectedDate' before adding our latest note to it, then saves it again.
 
         //  4. Move to selected date while appDays is showing some other day (without unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(4);
         TodoNoteData todoNoteData4 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData4.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
+        appTreePanel.theAppDays = new DayNoteGroupPanel(); // Reacquire theAppDays.
         appTreePanel.theAppDays.setDate(theOtherDate); // 'test' consequences here!  See below.
-        jMenuItem.doClick();
+        miMoveToSelectedDate.doClick();
 
         // The 'test' consequence noted above is that when a 'setDate' is called on a CNG type Panel, it does an
         // updateGroup() which first does a clearPage(), which clears the Notes on that page so they can be reused
@@ -127,16 +127,16 @@ public class MoveToDayNoteTest {
         // got cleared, and reset its text before using it again.  It would have been simpler to just have a second
         // NoteData... why didn't I do that?  Stubborn.  Trying harder.  Round peg, square hole - made it work!
 
-        //  5. Move to selected date while appDays is showing some other day (with unsaved changes) in AppTreePanel
+        //  5. Move to selected date while appDays is showing some other day (Today, with unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(5);
         TodoNoteData todoNoteData5 = (TodoNoteData) todoNoteComponent.getNoteData();
         todoNoteData5.setTodoDate(selectedDate);
         NoteComponent.theNoteComponent = todoNoteComponent;
         appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
-        jMenuItem.doClick();
-        appTreePanel.theAppDays.preClosePanel(); // And now save the group for that other day.
+        miMoveToSelectedDate.doClick(); // This one should not cause theAppDays to go null.
+        appTreePanel.theAppDays.preClosePanel(); // And now save the group for Today.
 
-        // If we got down to this point then it's already very good, with no Exceptions and quite
+        // If we got down to this point then there have been no Exceptions and quite
         //    a lot of functionality was covered.  And now here's what we need to look for, to go
         //    beyond coverage only and 'done without error' to 'done correctly'.
         // 1.  Verify that the data repo for 'today' has a list of six notes.
@@ -168,13 +168,13 @@ public class MoveToDayNoteTest {
 
         // Get the Todo List we will be moving 'from', and get the menu item so we can click it.
         TodoNoteGroupPanel todoNoteGroupPanel = new TodoNoteGroupPanel("Get New Job");
-        JMenuItem jMenuItem = TodoNoteComponent.miMoveToToday;
+        JMenuItem miMoveToToday = TodoNoteComponent.miMoveToToday;
         TodoNoteComponent todoNoteComponent;
 
         //  1. Move to today while AppTreePanel has not yet displayed appDays
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(1);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        jMenuItem.doClick();
+        miMoveToToday.doClick();
 
         // Construct theAppDays and give it to appTreePanel
         appTreePanel.theAppDays = new DayNoteGroupPanel(); // it will default to 'today'.
@@ -182,22 +182,21 @@ public class MoveToDayNoteTest {
         //  2. Move to today while appDays is showing today (without unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(2);
         NoteComponent.theNoteComponent = todoNoteComponent;
-        jMenuItem.doClick();
-
-        // Get theAppDays to reload its day data, to pick up the latest new note.
-        appTreePanel.theAppDays.setDate(LocalDate.now());
+        miMoveToToday.doClick(); // After the move, theAppDays is set to null, to force a reload if reselected.
 
         //  3. Move to today while appDays is showing today (with unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(3);
         NoteComponent.theNoteComponent = todoNoteComponent;
+        appTreePanel.theAppDays = new DayNoteGroupPanel(); // Get theAppDays again, so we can a a note to 'Today'.
         appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
-        jMenuItem.doClick(); // This saves 'today' before adding our latest note to it, then saves it again.
+        miMoveToToday.doClick(); // This saves 'today' before adding our latest note to it, then saves it again.
 
         //  4. Move to today while appDays is showing some other day (without unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(4);
         NoteComponent.theNoteComponent = todoNoteComponent;
+        appTreePanel.theAppDays = new DayNoteGroupPanel(); // Get theAppDays again, so we can give it a new date.
         appTreePanel.theAppDays.setDate(theOtherDate); // 'test' consequences here!  See below.
-        jMenuItem.doClick();
+        miMoveToToday.doClick();
 
         // The 'test' consequence noted above is that when a 'setDate' is called on a CNG type Panel, it does an
         // updateGroup() which first does a clearPage(), which clears the Notes on that page so they can be reused
@@ -215,17 +214,19 @@ public class MoveToDayNoteTest {
         //  5. Move to today while appDays is showing some other day (with unsaved changes) in AppTreePanel
         todoNoteComponent = todoNoteGroupPanel.getNoteComponent(5);
         NoteComponent.theNoteComponent = todoNoteComponent;
+        appTreePanel.theAppDays = new DayNoteGroupPanel(); // Get theAppDays again, so we can give it a new date.
+        appTreePanel.theAppDays.setDate(theOtherDate); // back to that other date.
         appTreePanel.theAppDays.appendNote(unsavedNoteData); // Add a note to theAppDays (without saving the group)
-        jMenuItem.doClick();
+        miMoveToToday.doClick(); // This one should not cause theAppDays to go null.
         appTreePanel.theAppDays.preClosePanel(); // And now save the group for that other day.
 
-        // If we got down to this point then it's already very good, with no Exceptions and quite
+        // If we got down to this point then there have been no Exceptions and quite
         //    a lot of functionality was covered.  And now here's what we need to look for, to go
         //    beyond coverage only and 'done without error' to 'done correctly'.
         // 1.  Verify that the data repo for 'today' has a list of six notes.
         // 2.  Verify that the data repo for 'theOtherDate' has a list of one note
 
-        // Load the NoteGroups directly, do not get via a Panel.
+        // Load the NoteGroups directly; do not get via a Panel.
         String theName = CalendarNoteGroup.getGroupNameForDate(LocalDate.now(), GroupType.DAY_NOTES);
         GroupInfo groupInfo = new GroupInfo(theName, GroupType.DAY_NOTES);
         NoteGroup noteGroup = new DayNoteGroup(groupInfo);

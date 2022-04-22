@@ -5,18 +5,20 @@ import javax.swing.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.temporal.ChronoUnit;
 
-// Test the ability of the AppTreePanel to correctly manage the Selected Date and the Viewed Date
-//   in the face of panel constructions and revisitations, date selections, and date viewings in
-//   several different combinations.
+// Test the ability of the AppTreePanel to correctly manage the Viewed Date
+//   in the face of panel constructions and re-visitations, date selections, and date viewings in
+//   several combinations.
 
-@SuppressWarnings("BusyWait")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DateTrackingTests {
     private static AppTreePanel appTreePanel;
     private static JTree theTree;
-    private static AppMenuBar amb;
-    private final LocalDate today = LocalDate.now();
+    LocalDate thePanelDate;
+
+    // Remember to clear the tree selection, if you want to try more than one viewedDate
+    //   after another, on the same panel.
 
     @BeforeAll
     static void meFirst() {
@@ -35,159 +37,89 @@ public class DateTrackingTests {
         }
 
         // The problem with just having this in the BeforeEach was that we started
-        // multiple JMenuItem listeners each time, and each test ran so
-        // fast that not all of the listeners would have gone
-        // away before they were activated by other tests, causing some confusion.
+        // multiple JMenuItem listeners each time, and each test ran so fast that
+        // not all of the listeners would have gone away before they were activated
+        // by other tests in the suite, causing some confusion.
         appTreePanel = TestUtil.getTheAppTreePanel();
 
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
-        // Note that it does not (currently) ever get un-set by the AppTreePanel itself.
-
         appTreePanel.optionPane = new TestUtil();
-        theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
-        amb = appTreePanel.getAppMenuBar();
+        theTree = appTreePanel.getTree(); // Usage here means no coverage test needed for getTree().
     }
 
     @AfterAll
     static void meLast() {
         theTree = null;
-        amb = null;
-        //appTreePanel.restoringPreviousSelection = false;
         appTreePanel = null;
     }
 
-    // This multi-step test comes close to the one that is written (textually) in SCR0106.  But this one starts with
-    // a known date which is not going to be the 'current' date.  This is better because the default of new panels is
-    // to use current date, and we want to see proper handling of selected and viewed dates without getting lucky by
-    // having one or both be the default and therefore already properly set.
+    // See the 'Date Tracking.txt' doc for a full explanation of the Testing.
+
+    // Start up each of the date-related panels, and verify all dates are 'Today'.
+    //     (This is not that much of a test; more like baseline setting).
     @Test
-    void testDateManagement() throws InterruptedException {
-        LocalDate theChoice;
+    @Order(1)
+    void testInitialDates() {
+        LocalDate today = LocalDate.now();
 
-        // 1.  Start up a YearView with a known date.  This will cause it to
-        //     use it as both the selected date and the viewed date.
-        LocalDate knownDate = LocalDate.of(today.getYear(), Month.JULY, 15);
-        appTreePanel.setSelectedDate(knownDate);
+        // YearView - today
         theTree.setSelectionPath(appTreePanel.yearViewPath);
+        thePanelDate = appTreePanel.theYearView.displayedYear;
+        Assertions.assertEquals(today.getYear(), thePanelDate.getYear());
 
-        // Give the AppTreePanel thread time to create the YearView
-        while(appTreePanel.theYearView == null) {
-            Thread.sleep(500);
-        }
+        // MonthView - today
+        theTree.setSelectionPath(appTreePanel.monthViewPath);
+        thePanelDate = appTreePanel.theMonthView.displayedMonth;
+        Assertions.assertEquals(today.getMonthValue(), thePanelDate.getMonthValue());
 
-        // Verify that the YearView's displayed year (Viewed Date) is correct.
-        // In this case there is limited value added for this assertion since
-        // the two dates have not diverged in this test, but this establishes a
-        // known starting point and verifies it to be correctly set.
-        Assertions.assertEquals(appTreePanel.theYearView.getYear(), knownDate.getYear());
+        // Day Notes - today
+        theTree.setSelectionPath(appTreePanel.dayNotesPath);
+        thePanelDate = appTreePanel.theAppDays.getDate();
+        Assertions.assertEquals(today, thePanelDate);
 
-        // Verify that the YearView's selection and our known date are the same.
-        theChoice = appTreePanel.theYearView.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate));
+        // Month Notes - today
+        theTree.setSelectionPath(appTreePanel.monthNotesPath);
+        thePanelDate = appTreePanel.theAppMonths.getDate();
+        Assertions.assertEquals(today, thePanelDate);
 
-        // Now look at the Label for the selected date
-        String whatItShouldBe = YearView.dtf.format(knownDate);
-        String whatItIs = appTreePanel.theYearView.getChoiceLabelText();
-        Assertions.assertEquals(whatItShouldBe, whatItIs);
+        // Year Notes - today
+        theTree.setSelectionPath(appTreePanel.yearNotesPath);
+        thePanelDate = appTreePanel.theAppYears.getDate();
+        Assertions.assertEquals(today, thePanelDate);
+    }
 
-        // 2.  Switch to a Month View of a different month in this same year, verify that it
-        //     displays the correct (viewed) month while retaining the selected date.
-        LocalDate viewedDate = LocalDate.of(today.getYear(), Month.MARCH, 1);
-        // These two steps replicate the result of a user having clicked on 'March' on the YearView
-        appTreePanel.setViewedDate(viewedDate, ChronoUnit.MONTHS);
-        appTreePanel.showMonthView();
+    @Test
+    @Order(2)
+    void testKnownDate() {
 
-        // Give the AppTreePanel thread time to create the MonthView
-        while(appTreePanel.theMonthView == null) {
-            Thread.sleep(500);
-        }
+        // a specific date for the AppTreePanel's viewedDate.
+        LocalDate knownDate = LocalDate.of(1937, Month.JULY, 15);
+        appTreePanel.setViewedDate(knownDate);
 
-        // Verify that the MonthView's displayed month (Viewed Date) is correct.
-        Assertions.assertTrue(MonthView.displayedMonth.isEqual(viewedDate));
-
-        // Verify that the MonthView's selection and our known date are the same.
-        theChoice = appTreePanel.theMonthView.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
-
-        // Now look at the Label for the selected date - it should show the correct selected
-        //   date even though we are viewing a different month.
-        whatItShouldBe = MonthView.dtf.format(knownDate);
-        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
-        Assertions.assertEquals(whatItShouldBe, whatItIs);
-
-        // 3.  Go back to the YearView
+        // YearView - knownDate
         theTree.setSelectionPath(appTreePanel.yearViewPath);
+        thePanelDate = appTreePanel.theYearView.displayedYear;
+        Assertions.assertEquals(knownDate.getYear(), thePanelDate.getYear());
 
-        // Verify that the YearView still shows the correct, original selection.
-        theChoice = appTreePanel.theYearView.getChoice();
-        Assertions.assertTrue(theChoice.isEqual(knownDate));
-        whatItShouldBe = YearView.dtf.format(knownDate);
-        whatItIs = appTreePanel.theYearView.getChoiceLabelText();
-        Assertions.assertEquals(whatItShouldBe, whatItIs);
+        // MonthView - knownDate
+        theTree.setSelectionPath(appTreePanel.monthViewPath);
+        thePanelDate = appTreePanel.theMonthView.displayedMonth;
+        Assertions.assertEquals(knownDate.getMonthValue(), thePanelDate.getMonthValue());
 
-// 12/17/2019 - Disabled the rest of this test, because a mismatch was discovered between initial implementation
-//   and the intended design, and it was fixed in AppTreePanel.  Now that Note type panel date changes will
-//   be felt in Viewing type panels, the remaining steps here have improper expectations.
-//   Need an entirely new set of test steps, to cover altered behavior.
+        // Day Notes - knownDate
+        theTree.setSelectionPath(appTreePanel.dayNotesPath);
+        thePanelDate = appTreePanel.theAppDays.getDate();
+        Assertions.assertEquals(knownDate, thePanelDate);
 
-//        // 4.  Go to MonthNotes.  Verify that it shows Notes for the viewed date.
-//        theTree.setSelectionPath(appTreePanel.monthNotesPath);
-//        while(appTreePanel.theAppMonths == null) {
-//            // Give the AppTreePanel thread time to create the MonthView
-//            Thread.sleep(500);
-//        }
-//        theChoice = appTreePanel.theAppMonths.getChoice();
-//        Assertions.assertTrue(theChoice.isEqual(viewedDate));
-//
-//        // 5.  Go back to the Month View.  Verify it still shows the view for the month
-//        //     you previously viewed (the Viewed Date).
-//
-//        // This time we get there via the Tree selection and not a YearView-month click
-//        theTree.setSelectionPath(appTreePanel.monthViewPath);
-//
-//        // The same tests as we did earlier, with fewer comments.
-//        Assertions.assertTrue(MonthView.displayedMonth.isEqual(viewedDate));
-//        theChoice = appTreePanel.theMonthView.getChoice();
-//        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
-//        whatItShouldBe = MonthView.dtf.format(knownDate);
-//        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
-//        Assertions.assertEquals(whatItShouldBe, whatItIs);
-//
-//        // 6.  Go to Day Notes.  Verify it shows the notes for the Selected Date.
-//        theTree.setSelectionPath(appTreePanel.dayNotesPath);
-//
-//        // Give the AppTreePanel thread time to create the DayNoteGroup
-//        while(appTreePanel.theAppDays == null) {
-//            Thread.sleep(500);
-//        }
-//
-//        // Verify the date shown is the Selected Date.
-//        theChoice = appTreePanel.theAppDays.getChoice();
-//        Assertions.assertTrue(theChoice.isEqual(knownDate)); // knownDate was set in Step 1.
-//
-//        // Increase the day by two
-//        knownDate = knownDate.plusDays(2);
-//        appTreePanel.theAppDays.setOneForward();
-//        appTreePanel.theAppDays.setOneForward();
-//        theChoice = appTreePanel.theAppDays.getChoice();
-//        Assertions.assertTrue(theChoice.isEqual(knownDate));
-//        // (with DayNotes, the choice is both the Selected and the Viewed Date).
-//
-//        // 7.  Go to Month View.  Verify it shows the selected month, with the new selected date.
-//        theTree.setSelectionPath(appTreePanel.monthViewPath);
-//        theChoice = appTreePanel.theMonthView.getChoice();
-//        Assertions.assertTrue(theChoice.isEqual(knownDate));  // knownDate was set in step 6.
-//        whatItShouldBe = MonthView.dtf.format(knownDate);
-//        whatItIs = appTreePanel.theMonthView.getChoiceLabelText();
-//        Assertions.assertEquals(whatItShouldBe, whatItIs);
-//
-//        // 8.  Go to the Year View.  Verify it shows the selected month, with the new selected date.
-//        theTree.setSelectionPath(appTreePanel.yearViewPath);
-//        theChoice = appTreePanel.theYearView.getChoice();
-//        Assertions.assertTrue(theChoice.isEqual(knownDate));  // knownDate was set in step 6.
-//        whatItShouldBe = YearView.dtf.format(knownDate);
-//        whatItIs = appTreePanel.theYearView.getChoiceLabelText();
-//        Assertions.assertEquals(whatItShouldBe, whatItIs);
+        // Month Notes - knownDate
+        theTree.setSelectionPath(appTreePanel.monthNotesPath);
+        thePanelDate = appTreePanel.theAppMonths.getDate();
+        Assertions.assertEquals(knownDate, thePanelDate);
+
+        // Year Notes - knownDate
+        theTree.setSelectionPath(appTreePanel.yearNotesPath);
+        thePanelDate = appTreePanel.theAppYears.getDate();
+        Assertions.assertEquals(knownDate, thePanelDate);
     }
 
 }
