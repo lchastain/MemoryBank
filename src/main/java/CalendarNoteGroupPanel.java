@@ -50,7 +50,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         panelTitleLabel.setForeground(Color.white);
         panelTitleLabel.setFont(Font.decode("Serif-bold-20"));
 
-        theDate = LocalDate.now();
+        theDate = AppTreePanel.theInstance.getViewedDate(); // was LocalDate.now();
         GroupInfo groupInfo = new GroupInfo(getTitle(), groupType);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;

@@ -6,10 +6,20 @@ Problems:
 
 
 Current/Next:
-    Menu Management for both tabbed groups, and date tracking for the calendar-type tabbed group.
+    Menu Adjustment for both tabbed groups, and date tracking for the calendar-type tabbed group.
     Add icons to Month and Year Notes
+    Make a top-level 'Notes' notegroup.
+
+    goal menu adjustments are coming from low-level; need to come from top to each tab.  But for Todo,
+    still need to show the Goal menu (for all of them, actually, but a s-a todo has its own, which
+    will have to be different when in a goal).  tab-change means new menu adj.
+
+    Done:  initial display (after node change) based on the state of the Goal and its tabs.
+    Need:  tab changes, and separate save/undo actions.
 
 =====================================================================================================
+
+
 
 22 Apr 2022
 Finished with date tracking and tests, checking in.  But wait - where is DEVELOP.LOG, in the changes list?  It is not
@@ -22,6 +32,16 @@ So the yellow means that you have a file open in the editor that is not part of 
 now it's back to usable, and behold - no typing help, either.  Not sure if this is temporary or permanent, due to going
 away and coming back, or some other setting I made in the meanwhile, or some other setting I made while trying to bring
 it back.  So now just keeping a wary eye on it and hoping it continues to behave.
+---
+Then - IJ reports unable to save settings, please restart, but restart does not help.  Some talk on internet about the
+workspace.xml file in .idea folder, so I moved it to desktop, to force a rebuild.  It did, but my ide returned with
+no open files.  But that can be easily fixed, so I just reopened the ones I wanted.  Then for the develop.log, it
+offered to use a plugin to manage .log files - I declined.
+Possibly the change of status on this one file was the issue because now the complaint about unable to save seems
+to be gone, but now I see that I also lost all configurations.  So - put the preserved xml file back in place, and all
+seems well.  Also a factor - I was trying to silence the Kotlin plugin (it was demanding an update even though it
+was disabled), disable, remove, do not install, turn off updates, etc.  Each time wanted a IJ restart and then IJ has
+the settings problem, but eventually got Kotlin out of my IDE.
 
 21 Apr 2022
 Reworking date tracking and tests, now that there is no selectedDate.  Removed most functionality from the 'Today'

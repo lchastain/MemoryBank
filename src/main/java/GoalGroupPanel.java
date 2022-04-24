@@ -20,6 +20,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
     static String userInfo;
 
     private final GoalGroupProperties groupProperties;
+    JTabbedPane theTabbedPane;
     private JPanel headingRow1; // Need to reference this when switching tabs.
     private JComponent theTodoCenterPanel;
     private JComponent theLogCenterPanel;
@@ -87,11 +88,40 @@ public class GoalGroupPanel extends NoteGroupPanel {
     }
 
 
+    @Override
+    // As a composite NoteGroupPanel, the logic of menu item enablement needs some elaboration:
+    // For a change to the Goal's title or plan, the items are enabled regardless of which tab is active.
+    // Otherwise, the changed state of the NoteGroup in the active tab is used.
+    // This logic only applies as the Goal is first displayed; after that the tab-change listener
+    //   is tasked with making the call with the correct value boolean for the active tab.
+    protected void adjustMenuItems(boolean b) {
+        MemoryBank.debug("GoalGroupPanel.adjustMenuItems <" + b + ">");
+        if(myNoteGroup.groupChanged) {
+            super.adjustMenuItems(true);
+        } else {
+            boolean doit = false;
+            int index = theTabbedPane.getSelectedIndex();
+            switch (index) {
+                case 0:
+                    doit = theTodoNoteGroupPanel.myNoteGroup.groupChanged;
+                    break;
+                case 1:
+                    doit = theLogNoteGroupPanel.myNoteGroup.groupChanged;
+                    break;
+                case 2:
+                    doit = theMilestoneNoteGroupPanel.myNoteGroup.groupChanged;
+                    break;
+            }
+            super.adjustMenuItems(doit);
+        }
+    } // end adjustMenuItems
+
+
     @SuppressWarnings({"unchecked", "rawtypes"})
-        // Returns a JTabbedPane where the first tab holds the true header and the second tab remains null.
-        // Visually this works even when tabs are changed; for actual content changes below the header, the
-        // JTabbedPane's changeListener handles that, to make it 'look' like the tabs hold the content when
-        // in reality the content of the center of the basePanel is just swapped out.
+    // Returns a JTabbedPane where the first tab holds the true header and the second tab remains null.
+    // Visually this works even when tabs are changed; for actual content changes below the header, the
+    // JTabbedPane's changeListener handles that, to make it 'look' like the tabs hold the content when
+    // in reality the content of the center of the basePanel is just swapped out.
     JComponent buildHeader() {
         // The two-row Header for the GoalGroup
         //-----------------------------------------------------
@@ -218,7 +248,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         heading.add(headingRow2);  // Status Dropdowns
 
         // Now the tabbed pane part -
-        JTabbedPane theTabbedPane = new JTabbedPane();
+        theTabbedPane = new JTabbedPane();
         theTabbedPane.addTab("To Do", heading);
         theTabbedPane.addTab("Log", null);
         theTabbedPane.addTab("Milestones", null);
@@ -355,10 +385,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     @Override
     void preClosePanel() {
+        super.preClosePanel();  // this one takes care of the Properties (Goal header info)
         theTodoNoteGroupPanel.preClosePanel();
         theLogNoteGroupPanel.preClosePanel();
         theMilestoneNoteGroupPanel.preClosePanel();
-        super.preClosePanel();
     }
 
     @Override

@@ -12,7 +12,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         implements IconKeeper, MouseListener {
 
     static ImageIcon defaultIcon;
-//    static DayNoteDefaults dayNoteDefaults; // Also accessed by MonthView
 
     static {
         // Because the parent NoteGroup class is where all NoteComponents get
@@ -20,20 +19,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         //   (seen in a DayNoteComponent) MUST be present BEFORE that
         //   constructor is called.  This is why we need to
         //   assign it during the static section of this class.
-        //------------------------------------------------------------------
-//        dayNoteDefaults = DayNoteDefaults.load(); // This may provide a different default icon.
-//        if(dayNoteDefaults.defaultIconFileName == null) {
-//            // Something wrong; just make a new one; it will not be null.
-//            dayNoteDefaults = new DayNoteDefaults();
-//        } else if (dayNoteDefaults.defaultIconFileName.equals("")) {
-//            // It IS possible that the user wants no default icon.
-//            MemoryBank.debug("Default DayNoteComponent Icon: <blank>");
-//            defaultIcon = new ImageIcon();
-//        } else {
-//            MemoryBank.debug("Default DayNoteComponent Icon: " + dayNoteDefaults.defaultIconFileName);
-//            defaultIcon = new ImageIcon(dayNoteDefaults.defaultIconFileName);
-//            IconInfo.scaleIcon(defaultIcon);
-//        } // end if/else
         if(MemoryBank.appOpts.defaultDayNoteIconInfo == null) {
             IconNoteData ind = new IconNoteData();
             ind.setIconFileString(MemoryBank.appOpts.defaultDayNoteIconDescription);
@@ -235,11 +220,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     } // end setDefaultIcon
 
 
-    //--------------------------------------------------------------
-    // Method Name: toggleMilitary
-    //
-    // This is called from the 12/24 button
-    //--------------------------------------------------------------
+    // This is called from the 12/24 button in the DayNoteGroupPanel header
     private void toggleMilitary() {
         if(MemoryBank.appOpts.timeFormat == AppOptions.TimeFormat.MILITARY) {
             MemoryBank.appOpts.timeFormat = AppOptions.TimeFormat.CIVILIAN;
@@ -250,7 +231,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             getNoteComponent(i).resetTimeLabel();
         } // end for i
-        setGroupChanged(true);
+//        setGroupChanged(true);   WHY?  no actual data change.  timeOfDayString does not change; it is parsed in when needed.
     } // end toggleMilitary
 
 } // end class DayNoteGroupPanel

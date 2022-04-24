@@ -263,6 +263,13 @@ public class AppTreePanelTest {
     }
 
     @Test
+    @Order(7)
+    void testShowToday() {
+        // Too simple to pass by - just getting coverage
+        appTreePanel.showToday();
+    }
+
+    @Test
     @Order(8)
     void testShowWeek() {
         appTreePanel.showWeek(LocalDate.now());

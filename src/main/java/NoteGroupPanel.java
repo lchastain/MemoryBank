@@ -429,8 +429,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // acceptable, at least until it begins cropping up repeatedly.
     @Override // A NoteComponentManager interface implementation
     public void setGroupChanged(boolean b) {
-        adjustMenuItems(b);
-        myNoteGroup.setGroupChanged(b); // Calling the 'real' one, in the NoteGroup.
+        myNoteGroup.setGroupChanged(b); // Calling the one in the NoteGroup (data, vs components).
+        adjustMenuItems(b); // Data is consulted; this line must come after the one above.
     } // end setGroupChanged
 
 
@@ -848,11 +848,15 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     // Used to enable or disable the 'undo' and 'save' menu items, called from 'setGroupChanged'.
     // Although the boolean param matches the 'groupChanged' variable in most cases, there are
-    // some instances where the child Panel is not tracking that state, but it still has a
-    // menu that needs adjustment.  So, enablement comes in as an input param.
+    // some instances where the child Panel has additional factors to consider and/or additional
+    // or different steps to take.  So, the enablement boolean comes in as an input param.
     protected void adjustMenuItems(boolean b) {
         if (myListMenu == null) return; // Too soon.  Come back later.
-        MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
+        if(!b) { // same actions but two branches for breakpoint.  Feel free to collapse at some later date.
+            MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
+        } else {
+            MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
+        }
 
         // And now we adjust the Menu -
         JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");

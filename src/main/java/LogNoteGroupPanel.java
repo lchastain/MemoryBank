@@ -41,14 +41,14 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
     @Override
     protected void adjustMenuItems(boolean b) {
-        super.adjustMenuItems(b);
-
-        // This NoteGroupPanel may be inside a collection of other Panels - update the parent, if there is one.
-        if(parentNoteGroupPanel != null) {
-            MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
+        MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
+        if(parentNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
             parentNoteGroupPanel.adjustMenuItems(b);
+        } else {
+            super.adjustMenuItems(b);
         }
     }
+
     // Called from the constructor to create and place the visual components of the panel.
     @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {

@@ -41,7 +41,8 @@ Test Plan:
 
 2.  Set a known viewed date in the AppTreePanel, then show each panel and verify its shown date.
 
-
+Not covered here:  Date changes to Panels that are in a tabbed collection.  For those, see the
+  workings of the AlteredDateListener.
 
 
 

@@ -18,15 +18,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     //---------------------------------------------------------------------
     // DateSelection - method is dateSelected, to respond to TMC clicks.
     // IconKeeper - method is setDefaultIcon.
-
-    // Because the parent NoteGroup class is where all NoteComponents get
-    //   made and that constructor runs before the one here, the defaultIcon
-    //   (as seen in our EventNoteComponents) MUST be present BEFORE the
-    //   NoteGroup constructor is called.  This is why we need to
-    //   assign it from the static section of this class.  The defaultIcon
-    //   filename comes from the eventNoteDefaults.
     //------------------------------------------------------------------
-//    private static final EventNoteDefaults eventNoteDefaults;
     static ImageIcon defaultIcon;
 
     private final ThreeMonthColumn tmc;
@@ -34,17 +26,11 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     private EventNoteComponent eventNoteComponent;
 
     static {
-//        eventNoteDefaults = EventNoteDefaults.load();
-//
-//        if (eventNoteDefaults.defaultIconFileName.equals("")) {
-//            MemoryBank.debug("Default EventNoteComponent Icon: <blank>");
-//            defaultIcon = new ImageIcon();
-//        } else {
-//            MemoryBank.debug("Default EventNoteComponent Icon: " + eventNoteDefaults.defaultIconFileName);
-//            defaultIcon = new ImageIcon(eventNoteDefaults.defaultIconFileName);
-//           IconInfo.scaleIcon(defaultIcon);
-//        } // end if/else
-
+        // Because the parent NoteGroup class is where all NoteComponents get
+        //   made and that constructor runs before the one here, the defaultIcon
+        //   (as seen in our EventNoteComponents) MUST be present BEFORE the
+        //   NoteGroup constructor is called.  This is why we need to
+        //   assign it from the static section of this class.
         if(MemoryBank.appOpts.defaultEventNoteIconInfo == null) {
             IconNoteData ind = new IconNoteData();
             ind.setIconFileString(MemoryBank.appOpts.defaultEventNoteIconDescription);

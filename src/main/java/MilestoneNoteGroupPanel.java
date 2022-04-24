@@ -47,12 +47,11 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
     @Override
     protected void adjustMenuItems(boolean b) {
-        super.adjustMenuItems(b);
-
-        // This NoteGroupPanel may be inside a collection of other Panels - update the parent, if there is one.
-        if(parentNoteGroupPanel != null) {
-            MemoryBank.debug("MilestoneNoteGroupPanel.adjustMenuItems <" + b + ">");
+        MemoryBank.debug("MilestoneNoteGroupPanel.adjustMenuItems <" + b + ">");
+        if(parentNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
             parentNoteGroupPanel.adjustMenuItems(b);
+        } else {
+            super.adjustMenuItems(b);
         }
     }
 

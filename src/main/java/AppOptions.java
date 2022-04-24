@@ -64,6 +64,9 @@ class AppOptions {
         timeFormat = TimeFormat.CIVILIAN;
     } // end constructor
 
+    // Returns a boolean to indicate whether or not the indicated NoteGroup is present in the
+    //   list of NoteGroups that are currently showing on the Tree.
+    // Used by Search and Archive operations.
     boolean active(GroupType groupType, String groupName) {
         Vector theList = null;
         switch (groupType) {
