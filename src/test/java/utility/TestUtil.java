@@ -10,7 +10,6 @@ class TestUtil implements Notifier, SubSystem {
     private int notifyCount;
     private Method theMethod;
     private Object theMessage;
-    private AppTreePanel theAppTreePanel;
 
     TestUtil() {
         theAnswerString = "No comment";
@@ -102,6 +101,31 @@ class TestUtil implements Notifier, SubSystem {
 
     Object getTheMessage() {
         return theMessage;
+    }
+
+    // A utility function to retrieve a specified JMenuItem.
+    // Calling contexts will perform a 'doClick' on the returned value.
+    JMenuItem getMenuItem(String menu, String text) {
+        JMenu jm;
+        JMenuItem jmi = null;
+        AppTreePanel appTreePanel = getTheAppTreePanel();
+
+        int numMenus = appTreePanel.getAppMenuBar().getMenuCount();
+        for (int i = 0; i < numMenus; i++) {
+            jm = appTreePanel.getAppMenuBar().getMenu(i);
+            if (jm == null) continue;
+            //System.out.println("Menu: " + jm.getText());
+            if (jm.getText().equals(menu)) {
+                for (int j = 0; j < jm.getItemCount(); j++) {
+                    jmi = jm.getItem(j);
+                    if (jmi == null) continue; // Separator
+                    //System.out.println("    Menu Item text: " + jmi.getText());
+                    if (jmi.getText().equals(text)) return jmi;
+                } // end for j
+            }
+        } // end for i
+
+        return jmi;
     }
 
     int getNotifyCount() {

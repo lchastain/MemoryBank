@@ -163,30 +163,6 @@ public class AppTreePanelTest {
         } // end for i
     }
 
-    // A utility function to retrieve a specified JMenuItem.
-    // Calling contexts will perform a 'doClick' on the returned value.
-    JMenuItem getMenuItem(String menu, String text) {
-        JMenu jm;
-        JMenuItem jmi = null;
-
-        int numMenus = appTreePanel.getAppMenuBar().getMenuCount();
-        for (int i = 0; i < numMenus; i++) {
-            jm = appTreePanel.getAppMenuBar().getMenu(i);
-            if (jm == null) continue;
-            //System.out.println("Menu: " + jm.getText());
-            if (jm.getText().equals(menu)) {
-                for (int j = 0; j < jm.getItemCount(); j++) {
-                    jmi = jm.getItem(j);
-                    if (jmi == null) continue; // Separator
-                    //System.out.println("    Menu Item text: " + jmi.getText());
-                    if (jmi.getText().equals(text)) return jmi;
-                } // end for j
-            }
-        } // end for i
-
-        return jmi;
-    }
-
     // This does test the showHelp function, but that feature itself is not anywhere near
     // ready for production and will be redone.  When the method executes in the main
     // app, a Help-file viewer window is left open where under 'normal' usage, it is
@@ -201,10 +177,10 @@ public class AppTreePanelTest {
     // is no longer needed here but I'm leaving it as an example that could definitely
     // be useful in other contexts.
     @Test
-//    @Disabled
     @Order(5)
     void testShowHelp() {
-        JMenuItem jmi = getMenuItem("Help", "Contents");
+        TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
+        JMenuItem jmi = testUtil.getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
         try {
             // Sleep, long enough for the help windows to appear.
@@ -289,7 +265,8 @@ public class AppTreePanelTest {
         // The 'show' tests can hose the menus during testing, so this is needed to restore them.
         appTreePanel.appMenuBar.manageMenus("No Selection");
 
-        JMenuItem jmi = getMenuItem("App", "Archive...");
+        TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
+        JMenuItem jmi = testUtil.getMenuItem("App", "Archive...");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
     }
 
@@ -298,7 +275,8 @@ public class AppTreePanelTest {
     void testAddNew() {
         appTreePanel.appMenuBar.manageMenus("To Do List");
         appTreePanel.restoringPreviousSelection = false; // not this time...
-        JMenuItem jmi = getMenuItem("To Do List", "Add New...");
+        TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
+        JMenuItem jmi = testUtil.getMenuItem("To Do List", "Add New...");
         jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
         appTreePanel.restoringPreviousSelection = true; // put it back.
     }
@@ -321,8 +299,8 @@ public class AppTreePanelTest {
         appTreePanel.showCurrentNoteGroup();
 
         appTreePanel.appMenuBar.manageMenus("To Do List");
-        JMenuItem jmi = getMenuItem("To Do List", "Save As...");
         TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
+        JMenuItem jmi = testUtil.getMenuItem("To Do List", "Save As...");
         testUtil.setTheAnswerString("Get New Joke");
         jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
 

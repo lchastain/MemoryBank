@@ -258,7 +258,7 @@ public class FileDataAccessor implements DataAccessor {
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             appOptions = AppUtil.mapper.readValue(text, AppOptions.class);
-            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
+            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(appOptions));
         } catch (FileNotFoundException fnfe) {
             appOptions = new AppOptions(); // not a problem; use defaults.
             MemoryBank.debug("User tree options not found; using defaults");
@@ -283,7 +283,7 @@ public class FileDataAccessor implements DataAccessor {
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             appOptions = AppUtil.mapper.readValue(text, AppOptions.class);
-            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(MemoryBank.appOpts));
+            MemoryBank.debug("Archived appOpts from JSON file: " + AppUtil.toJsonString(appOptions));
         } catch (Exception anyException) {
             e = anyException;
         }

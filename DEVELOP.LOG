@@ -5,21 +5,24 @@ Problems:
     Date-related Panels, after being left up overnight, have the wrong 'Today' button handling.
 
 
-Current/Next:
-    Menu Adjustment for both tabbed groups, and date tracking for the calendar-type tabbed group.
+Next:
     Add icons to Month and Year Notes
     Make a top-level 'Notes' notegroup.
 
-    goal menu adjustments are coming from low-level; need to come from top to each tab.  But for Todo,
-    still need to show the Goal menu (for all of them, actually, but a s-a todo has its own, which
-    will have to be different when in a goal).  tab-change means new menu adj.
-
-    Done:  initial display (after node change) based on the state of the Goal and its tabs.
-    Need:  tab changes, and separate save/undo actions.
+Current:
+    Done:
+    Need:  Menu Adjustment and date tracking for the calendar-type tabbed group.  Separate save/undo actions.
+            Tests of menu item enablement for various node/tab change sequences.
 
 =====================================================================================================
 
+26 Apr 2022
+Added two new tests for menu state checking of Goal tabs after tree selections and tab changes.
 
+25 Apr 2022
+IDE distractions but then finished initial menu adjustment (after node change) based on the state of the Goal and its
+tabs.  Checked in.  Then today - separated out the 'save' and 'undo' actions for Goal sub-panels, and added
+tab-tracking for menu enablements.
 
 22 Apr 2022
 Finished with date tracking and tests, checking in.  But wait - where is DEVELOP.LOG, in the changes list?  It is not

@@ -42,8 +42,8 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
     @Override
     protected void adjustMenuItems(boolean b) {
         MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
-        if(parentNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
-            parentNoteGroupPanel.adjustMenuItems(b);
+        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
+            fosterNoteGroupPanel.adjustMenuItems(b);
         } else {
             super.adjustMenuItems(b);
         }

@@ -10,8 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 // This class is a grouping of three other panels - To Do, Log, and Milestones.
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -30,34 +28,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
     TodoNoteGroupPanel theTodoNoteGroupPanel;
     LogNoteGroupPanel theLogNoteGroupPanel;
     MilestoneNoteGroupPanel theMilestoneNoteGroupPanel;
-    GoalTabType currentGoalTabType;
-
-    public enum GoalTabType {
-        TODO(0),
-        LOG(1),
-        MILES(2);
-
-        private final int value;
-        private static final Map map = new HashMap<>();
-
-        GoalTabType(int value) {
-            this.value = value;
-        }
-
-        static {
-            for (GoalTabType pageType : GoalTabType.values()) {
-                map.put(pageType.value, pageType);
-            }
-        }
-
-        public static GoalTabType valueOf(int pageType) {
-            return (GoalTabType) map.get(pageType);
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 
     static {
         MemoryBank.trace();
@@ -74,7 +44,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
         super();
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
-        currentGoalTabType = GoalTabType.TODO;
 
         groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
 
@@ -89,14 +58,15 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
 
     @Override
-    // As a composite NoteGroupPanel, the logic of menu item enablement needs some elaboration:
-    // For a change to the Goal's title or plan, the items are enabled regardless of which tab is active.
-    // Otherwise, the changed state of the NoteGroup in the active tab is used.
-    // This logic only applies as the Goal is first displayed; after that the tab-change listener
-    //   is tasked with making the call with the correct value boolean for the active tab.
+    // As a composite (foster) NoteGroupPanel, the logic of menu item enablement needs some elaboration:
+    // For a change to the Goal's title or plan, the items are enabled regardless of the state of the NoteGroup
+    // in the active tab.  Otherwise, the changed state of the NoteGroup in the active tab is used.
+    // This logic only applies when the Goal is displayed due to Tree selection and while it remains on the same tab;
+    //   after that the tab-change listener is tasked with adjusting the menu for the NoteGroup in the active tab,
+    //   and prior to that change the Goal's changes (if any) are preserved.
     protected void adjustMenuItems(boolean b) {
         MemoryBank.debug("GoalGroupPanel.adjustMenuItems <" + b + ">");
-        if(myNoteGroup.groupChanged) {
+        if (myNoteGroup.groupChanged) {
             super.adjustMenuItems(true);
         } else {
             boolean doit = false;
@@ -118,10 +88,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    // Returns a JTabbedPane where the first tab holds the true header and the second tab remains null.
-    // Visually this works even when tabs are changed; for actual content changes below the header, the
-    // JTabbedPane's changeListener handles that, to make it 'look' like the tabs hold the content when
-    // in reality the content of the center of the basePanel is just swapped out.
+        // Returns a JTabbedPane where the first tab holds the true header and the second tab remains null.
+        // Visually this works even when tabs are changed; for actual content changes below the header, the
+        // JTabbedPane's changeListener handles that, to make it 'look' like the tabs hold the content when
+        // in reality the content of the center of the basePanel is just swapped out.
     JComponent buildHeader() {
         // The two-row Header for the GoalGroup
         //-----------------------------------------------------
@@ -256,12 +226,14 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTabbedPane.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                // If the Goal itself has changed (Title or Plan), preserve it now, before adjusting the
+                //   menu to match the state of NoteGroup in the new tab.
+                GoalGroupPanel.super.preClosePanel();
+
                 JTabbedPane pane = (JTabbedPane) e.getSource();
                 int index = pane.getSelectedIndex();
-                currentGoalTabType = GoalTabType.valueOf(index);
-                //System.out.println(index);
-                switch (currentGoalTabType) {
-                    case TODO:  // To Do List
+                switch (index) {
+                    case 0:  // To Do List
                         theBasePanel.remove(theLogCenterPanel);
                         theBasePanel.remove(theMilestonesCenterPanel);
                         theBasePanel.add(theTodoCenterPanel, BorderLayout.CENTER);
@@ -270,8 +242,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
                         headingRow1.remove(theLogNoteGroupPanel.theNotePager);
                         headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
                         headingRow1.add(theTodoNoteGroupPanel.theNotePager, BorderLayout.EAST);
+
+                        GoalGroupPanel.super.adjustMenuItems(theTodoNoteGroupPanel.myNoteGroup.groupChanged);
                         break;
-                    case LOG: // Log Entries
+                    case 1: // Log Entries
                         theBasePanel.remove(theTodoCenterPanel);
                         theBasePanel.remove(tmcPanel);
                         theBasePanel.remove(theMilestonesCenterPanel);
@@ -280,8 +254,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
                         headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
                         headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
                         headingRow1.add(theLogNoteGroupPanel.theNotePager, BorderLayout.EAST);
+
+                        GoalGroupPanel.super.adjustMenuItems(theLogNoteGroupPanel.myNoteGroup.groupChanged);
                         break;
-                    case MILES: // Milestones
+                    case 2: // Milestones
                         theBasePanel.remove(theTodoCenterPanel);
                         theBasePanel.remove(tmcPanel);
                         theBasePanel.remove(theLogCenterPanel);
@@ -290,6 +266,8 @@ public class GoalGroupPanel extends NoteGroupPanel {
                         headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
                         headingRow1.remove(theLogNoteGroupPanel.theNotePager);
                         headingRow1.add(theMilestoneNoteGroupPanel.theNotePager, BorderLayout.EAST);
+
+                        GoalGroupPanel.super.adjustMenuItems(theMilestoneNoteGroupPanel.myNoteGroup.groupChanged);
                 }
                 theBasePanel.validate();
                 theBasePanel.repaint();
@@ -309,7 +287,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_TODO);
         theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
         theTodoNoteGroupPanel = new TodoNoteGroupPanel(theGroupInfo);
-        theTodoNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
+        theTodoNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theTodoLayout = (BorderLayout) theTodoNoteGroupPanel.theBasePanel.getLayout();
         theTodoCenterPanel = (JComponent) theTodoLayout.getLayoutComponent(BorderLayout.CENTER);
 
@@ -327,7 +305,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_LOG);
         theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
         theLogNoteGroupPanel = new LogNoteGroupPanel(theGroupInfo);
-        theLogNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
+        theLogNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theLogLayout = (BorderLayout) theLogNoteGroupPanel.theBasePanel.getLayout();
         theLogCenterPanel = (JComponent) theLogLayout.getLayoutComponent(BorderLayout.CENTER);
 
@@ -335,7 +313,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theGroupInfo = new GroupInfo(getGroupName(), GroupType.MILESTONE);
         theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
         theMilestoneNoteGroupPanel = new MilestoneNoteGroupPanel(theGroupInfo);
-        theMilestoneNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
+        theMilestoneNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
         BorderLayout theLayout = (BorderLayout) theMilestoneNoteGroupPanel.theBasePanel.getLayout();
         theMilestonesCenterPanel = (JComponent) theLayout.getLayoutComponent(BorderLayout.CENTER);
 
@@ -349,14 +327,15 @@ public class GoalGroupPanel extends NoteGroupPanel {
     // This still leaves the GroupProperties.
     @Override
     void clearAllNotes() {
-        switch (currentGoalTabType) {
-            case TODO:  // To Do List
+        int index = theTabbedPane.getSelectedIndex();
+        switch (index) {
+            case 0:  // To Do List
                 theTodoNoteGroupPanel.clearAllNotes();
                 break;
-            case LOG: // Log Entries
+            case 1: // Log Entries
                 theLogNoteGroupPanel.clearAllNotes();
                 break;
-            case MILES: // Milestones
+            case 2: // Milestones
                 theMilestoneNoteGroupPanel.clearAllNotes();
                 break;
             default:  // We don't expect this one to be used, but it covers the unexpected.
@@ -386,9 +365,18 @@ public class GoalGroupPanel extends NoteGroupPanel {
     @Override
     void preClosePanel() {
         super.preClosePanel();  // this one takes care of the Properties (Goal header info)
-        theTodoNoteGroupPanel.preClosePanel();
-        theLogNoteGroupPanel.preClosePanel();
-        theMilestoneNoteGroupPanel.preClosePanel();
+        int index = theTabbedPane.getSelectedIndex();
+        switch (index) {
+            case 0:
+                theTodoNoteGroupPanel.preClosePanel();
+                break;
+            case 1:
+                theLogNoteGroupPanel.preClosePanel();
+                break;
+            case 2:
+                theMilestoneNoteGroupPanel.preClosePanel();
+                break;
+        }
     }
 
     @Override
@@ -500,9 +488,20 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     @Override
     public void updateGroup() {
-        theTodoNoteGroupPanel.updateGroup();
-        theLogNoteGroupPanel.updateGroup();
-        theMilestoneNoteGroupPanel.updateGroup();
+        super.updateGroup(); // This can 'undo' header changes, if they haven't yet been preserved
+        //      (and that may be what is being asked for).
+        int index = theTabbedPane.getSelectedIndex();
+        switch (index) {
+            case 0:
+                theTodoNoteGroupPanel.updateGroup();
+                break;
+            case 1:
+                theLogNoteGroupPanel.updateGroup();
+                break;
+            case 2:
+                theMilestoneNoteGroupPanel.updateGroup();
+                break;
+        }
         super.updateGroup();
     }
 

@@ -40,7 +40,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // Currently only used by SearchResultComponent 'Found In' button handler, set after construction of SRG panels.
 
     NoteGroupPanelKeeper myKeeper; // A pointer to this Panel's keeper, used during deleteGroup.
-    transient NoteGroupPanel parentNoteGroupPanel; // Helps with menu management.
+    NoteGroupPanel fosterNoteGroupPanel; // If not out on our own, where are we staying?  For menu management.
 
     // Private members
     private int intHighestNoteComponentIndex;
@@ -573,10 +573,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             extendedNoteComponent.saveSubjects();
         }
 
-        // Without this condition, the existing unchanged data might get written out to the data store
+        // Without this condition, existing unchanged data might get written out to the data store
         //   and that might overwrite changes that had been made and were already persisted outside of a Panel.
-        //   An example of changes outside of a Panel:  a todo list item is moved to Today, which is already
-        //   open but was not viewed after the move.
+        //   An example of changes outside of a Panel:  a todo list item is moved to this NoteGroup, which had already
+        //   been loaded into this Panel before that move/addition.  If this group HAD changed before the move then the
+        //   context that is changing it outside of this panel would have first preserved it, so that we still do not
+        //   pass the condition below.
         if (myNoteGroup.groupChanged) {
             getPanelData(); // update the data, condense.
             myNoteGroup.saveNoteGroup();
@@ -798,7 +800,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     }
 
     // Called by AppTreePanel in response to user selection of the menu item to save the group.
-    protected void refresh() { // So maybe this isn't the best most representative name...
+    protected void refresh() { // I'm open to a better choice of name here...
         preClosePanel();     // Save any in-progress changes
         updateGroup();  // Reload the interface - this removes 'gaps', which is the 'refresh' part of it.
     }
@@ -859,15 +861,17 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         }
 
         // And now we adjust the Menu -
+        // (see the note at 'setListMenu' for why we don't need to verify non-null MenuItems before setting enabled)
         JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-        if (theUndo != null) theUndo.setEnabled(b);
+        theUndo.setEnabled(b);
         JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-        if (theSave != null) theSave.setEnabled(b);
+        theSave.setEnabled(b);
     }
 
-    // Not all NoteGroups need to manage enablement of items in their menu but those
-    // that do, all do the same things.  If this ever branches out into different
-    // actions and/or menu items then they can override this and/or adjustMenuItems.
+    // Not all NoteGroups need to manage enablement of items in their menu but all those
+    // that do will call this method.  On the provided menu (currently) there will always
+    // be a 'save' and an 'undo' option.  If this ever branches changes then they may need
+    // to override adjustMenuItems (or make a change here).
     protected void setListMenu(JMenu listMenu) {
         MemoryBank.debug("NoteGroupPanel.setListMenu: " + listMenu.getText());
         myListMenu = listMenu;

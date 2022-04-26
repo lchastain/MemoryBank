@@ -26,11 +26,11 @@ public class TabbedCalendarNoteGroupPanel extends NoteGroupPanel implements Chan
         // Before this class is constructed, the AppTreePanel is responsible for (re-)constructing the
         //   three calendar-based NoteGroup panels.
         theDayNoteGroupPanel = AppTreePanel.theInstance.theAppDays;
-        theDayNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
+        theDayNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
         theMonthNoteGroupPanel = AppTreePanel.theInstance.theAppMonths;
-        theMonthNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
+        theMonthNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
         theYearNoteGroupPanel = AppTreePanel.theInstance.theAppYears;
-        theYearNoteGroupPanel.parentNoteGroupPanel = this; // For menu adjustments.
+        theYearNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
 
         theTabbedPane = new JTabbedPane();
         theTabbedPane.addTab("Day", theDayNoteGroupPanel.theBasePanel);

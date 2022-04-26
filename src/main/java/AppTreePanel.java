@@ -1518,21 +1518,20 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             JTextArea jTextArea = new JTextArea();
             String groupChangedString = "\"groupChanged\" : " + theNoteGroupPanel.myNoteGroup.groupChanged + ",\n";
             jTextArea.append(groupChangedString);
-            Object[] theData;
+            Object[] theData = null; // Not ever expected to stay this value.
             if (theNoteGroupPanel instanceof GoalGroupPanel) { // Show the correct sub-panel (tab)
                 GoalGroupPanel goalGroupPanel = (GoalGroupPanel) theNoteGroupPanel;
-                switch (goalGroupPanel.currentGoalTabType) {
-                    case TODO:  // To Do List
+                int index = goalGroupPanel.theTabbedPane.getSelectedIndex();
+                switch (index) {
+                    case 0:  // To Do List
                         theData = goalGroupPanel.theTodoNoteGroupPanel.myNoteGroup.getTheData();
                         break;
-                    case LOG: // Log Entries
+                    case 1: // Log Entries
                         theData = goalGroupPanel.theLogNoteGroupPanel.myNoteGroup.getTheData();
                         break;
-                    case MILES: // Milestones
+                    case 2: // Milestones
                         theData = goalGroupPanel.theMilestoneNoteGroupPanel.myNoteGroup.getTheData();
                         break;
-                    default:  // We don't expect this one to be used, but this is 'safer' than going with a null.
-                        theData = goalGroupPanel.myNoteGroup.getTheData();
                 }
             } else {
                 theData = theNoteGroupPanel.myNoteGroup.getTheData();
