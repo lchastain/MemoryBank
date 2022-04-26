@@ -1,15 +1,25 @@
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 
 class ToggleAboutTest {
     private static AppTreePanel appTreePanel;
     private int theSelectionRow;
 
     @BeforeAll
-    static void meFirst() {
+    static void meFirst() throws IOException {
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+
+        // Remove any pre-existing Test data
+        File testData = new File(MemoryBank.userDataHome);
+        FileUtils.cleanDirectory(testData);
+
+        // Load the user's options  (Defaults)
+        AppOptions.loadOpts();
 
         // The problem with just having this in the BeforeEach was that we started
         // multiple JMenuItem listeners and not all of them would go away before
@@ -42,7 +52,7 @@ class ToggleAboutTest {
     // if selected again and it is already showing, it will go
     // back to the previous tree selection.
     @Test
-//    @Disabled
+//    @Disabled  // Keep this around; it is still an option.  See other notes.
     void testShowAboutToggle() throws InterruptedException {
         JTree theTree = appTreePanel.getTree();
         int[] theRows;
@@ -77,11 +87,12 @@ class ToggleAboutTest {
 
         // And now select 'About' again, even though it's already showing.
         // This is what activates the 'toggle' functionality.
-        appTreePanel.showAbout();
+        appTreePanel.restoringPreviousSelection = false; // Critical that this is false, for this test -
+        appTreePanel.showAbout();  // (otherwise it was set to true when we got the appTreePanel)
 
         // And then verify that the 'toggle' feature worked, to put us back
         // to the tree selection that was made earlier.
-        theRows = theTree.getSelectionRows(); // Third reading
+        theRows = appTreePanel.getTree().getSelectionRows(); // Third reading
         assert theRows != null;
         //System.out.println(AppUtil.toJsonString(theRows));
         //assert theRows.length <= 0 || (theRows[0] == theSelectionRow);

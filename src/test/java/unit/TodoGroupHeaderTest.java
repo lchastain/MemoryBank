@@ -23,6 +23,11 @@ class TodoGroupHeaderTest {
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
+        // Load up this Test user's application options
+        AppOptions.loadOpts();
+
+        TestUtil.getTheAppTreePanel();
+
         // Remove any pre-existing Test data
         File testDataLoc = new File(MemoryBank.userDataHome);
         try {
@@ -34,10 +39,8 @@ class TodoGroupHeaderTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testDataLoc);
-
-        // Load up this Test user's application options
-        AppOptions.loadOpts();
     }
 
     @BeforeEach

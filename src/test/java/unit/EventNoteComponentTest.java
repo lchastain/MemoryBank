@@ -1,9 +1,19 @@
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 class EventNoteComponentTest {
     EventNoteGroupPanel myEventNoteGroup;
     EventNoteComponent theEventNoteComponent;
+
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
+    }
 
     @BeforeEach
     void setUp() {
@@ -11,7 +21,6 @@ class EventNoteComponentTest {
         myEventNoteGroup.setEditable(false);
         theEventNoteComponent = new EventNoteComponent(myEventNoteGroup, 0);
     }
-
 
     @Test
     void testMakeDataObject() {

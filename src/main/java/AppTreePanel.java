@@ -612,7 +612,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     //   was previously showing a different one.
     // Not needed when not grouped, because the AppTreePanel's viewedDate will be used to sync up the different
     //   panels upon change of tree node selection, that does not occur upon a tab change.
-    // Since this only occurs when grouped, we rely on the expectation that all three panels have been constructed.
+    // Since this only occurs when grouped, we have an expectation that all three panels have been constructed.
     public void dateChanged(LocalDate fromDate, LocalDate theNewDate) {
         Month fromMonth;
         int fromYear;
@@ -991,15 +991,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             theNotesNode.insert(new DefaultMutableTreeNode("Year Notes"), 2);
 
             // And we now need to remove the AlteredDateListeners from the three panels.
-            // We do that by saving any in-progress changes and then clearing the keepers
-            //   so that upon subsequent tree selection, the discrete panels will be reconstructed.
-//            theAppDays.preClosePanel();
-//            theAppDays = null;
-//            theAppMonths.preClosePanel();
-//            theAppMonths = null;
-//            theAppYears.preClosePanel();
-//            theAppYears = null;
-            // OR - just set them to null but let unsaved changes stay, for now -
+            //  (coming from already-grouped and going to ungrouped, we know that none of the groups is null)
             theAppDays.setAlteredDateListener(null);
             theAppMonths.setAlteredDateListener(null);
             theAppYears.setAlteredDateListener(null);
@@ -2047,11 +2039,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             theAppYears.setAlteredDateListener(this);
             theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
         }
-        // After this initial date setting, the AlteredDateListener will keep the panels in sync.
-// No longer needed; these are now constructed with the viewedDate vs LocalDate.now().
-//        theAppDays.setDate(viewedDate);
-//        theAppMonths.setDate(viewedDate);
-//        theAppYears.setDate(viewedDate);
 
         theNoteGroupPanel = theTabbedCalendarNoteGroupPanel;
         rightPane.setViewportView(theTabbedCalendarNoteGroupPanel.theBasePanel);

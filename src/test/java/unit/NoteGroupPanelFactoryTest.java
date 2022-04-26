@@ -1,6 +1,16 @@
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 class NoteGroupPanelFactoryTest {
+
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
+    }
 
     @Test
     void testGetGroup() {

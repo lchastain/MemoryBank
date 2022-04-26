@@ -22,6 +22,9 @@ class RecurrencePanelTest {
 
     @BeforeAll
     static void meFirst() {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+
         // Set the Look and Feel
         try {
             String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";

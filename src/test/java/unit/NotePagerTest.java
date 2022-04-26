@@ -29,6 +29,7 @@ class NotePagerTest {
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -41,11 +42,13 @@ class NotePagerTest {
         String fileName = "todo_Long List.json";
         File newname = new File(NoteGroupFile.todoListGroupAreaPath + fileName);
         File testFile = FileUtils.toFile(TodoNoteGroupPanel.class.getResource("NotePagerTest" + File.separatorChar + fileName));
+        assert testFile != null;
         FileUtils.copyFile(testFile, newname);
 
         fileName = "todo_PageRollover.json";
         newname = new File(NoteGroupFile.todoListGroupAreaPath + fileName);
         testFile = FileUtils.toFile(TodoNoteGroupPanel.class.getResource("NotePagerTest" + File.separatorChar + fileName));
+        assert testFile != null;
         FileUtils.copyFile(testFile, newname);
     }
 

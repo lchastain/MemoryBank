@@ -13,23 +13,24 @@ class LinkagesEditorPanelTest {
     DayNoteGroupPanel dayNoteGroupPanel;
     TodoNoteGroupPanel todoNoteGroupPanel;
 
-    LinkagesEditorPanelTest() {
-        goalGroupPanel = new GoalGroupPanel("Take Over The World");
-        dayNoteGroupPanel = new DayNoteGroupPanel();
-        todoNoteGroupPanel = new TodoNoteGroupPanel("Preparations");
-    }
-
     @BeforeAll
     static void setup() {
-        // Change the Notifier used by the LinkagesEditorPanel
-        LinkagesEditorPanel.optionPane = new TestUtil();
-    }
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
+        // Change the Notifier used by the LinkagesEditorPanel
+        LinkagesEditorPanel.optionPane = new TestUtil();  // Not the same one that the NoteGroupPanel uses.
+    }
 
     // This test is for coverage only; it exercises the two panel constructors as well as the manual sorting
     //    functionality, and then the other methods that are called from those.  No assertions needed.
     @Test
     void testLinkagesEditorPanel() throws InterruptedException {
+        goalGroupPanel = new GoalGroupPanel("Take Over The World");
+        dayNoteGroupPanel = new DayNoteGroupPanel();
+        todoNoteGroupPanel = new TodoNoteGroupPanel("Preparations");
+
         // Make a new Todo note.
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Links from a TodoNote.";

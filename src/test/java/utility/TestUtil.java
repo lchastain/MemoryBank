@@ -32,6 +32,7 @@ class TestUtil implements Notifier, SubSystem {
         AppTreePanel atp;
         atp = Objects.requireNonNullElseGet(AppTreePanel.theInstance, () -> new AppTreePanel(new JFrame(), MemoryBank.appOpts));
         atp.optionPane = new TestUtil(); // If the instance comes from here, its Notifier must be the TestUtil.
+        atp.restoringPreviousSelection = true; // This disables the threading; what you want for most test cases.
         return atp;
     }
 

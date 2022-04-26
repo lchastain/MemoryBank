@@ -28,6 +28,7 @@ class LastModUpdateTest {
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -36,6 +37,7 @@ class LastModUpdateTest {
         // Retrieve the test data for this class from test resources.
         String fileName = "setup@testing.com";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
     }
 

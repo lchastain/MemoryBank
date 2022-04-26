@@ -14,6 +14,7 @@ class ReuseNoteTest {
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -22,6 +23,7 @@ class ReuseNoteTest {
         // Retrieve the test data for this class from test resources.
         String fileName = "ReuseNoteTest";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
     }
 

@@ -16,9 +16,10 @@ class NoteGroupPanelKeeperTest {
     @BeforeAll
     static void setup() throws IOException {
         // Set the test user's data location
+        MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
-        MemoryBank.debug = true;
+        TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -32,7 +33,6 @@ class NoteGroupPanelKeeperTest {
         assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
     }
-
 
     @BeforeEach
     void setUp() {

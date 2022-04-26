@@ -12,6 +12,7 @@ class ClearNoteGroupPanelTest {
     static void setDataLocation() {
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
     }
 
     @Test

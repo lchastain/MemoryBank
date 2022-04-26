@@ -1,22 +1,17 @@
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 class SearchPanelTest {
     SearchPanel theSearchPanel;
 
-    @BeforeEach
-    void setUp() { }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void testGetSummary() {
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
     }
 
     @Test

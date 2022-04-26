@@ -27,6 +27,7 @@ import java.time.OffsetDateTime;
 //   the drag left, and SearchResultHeader will be tested with a drag right operation.
 
 public class DragAndDropTests {
+    static AppTreePanel appTreePanel;
 
     @BeforeAll
     static void meFirst() throws IOException {
@@ -47,10 +48,14 @@ public class DragAndDropTests {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testDataLoc);
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+
+        AppTreePanel.theInstance = null; // We don't want to 'inherit' one that was previously used.
+        appTreePanel = TestUtil.getTheAppTreePanel(); // This sets a 'Test' Notifier
     }
 
     @AfterAll

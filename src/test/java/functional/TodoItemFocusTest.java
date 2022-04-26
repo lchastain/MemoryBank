@@ -35,6 +35,7 @@ public class TodoItemFocusTest {
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+        TestUtil.getTheAppTreePanel();
 
         todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
         theFrame = new JFrame("ItemFocusTest");

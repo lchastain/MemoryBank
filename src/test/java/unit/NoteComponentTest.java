@@ -16,6 +16,7 @@ class NoteComponentTest {
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -24,10 +25,10 @@ class NoteComponentTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         todoNoteGroup = new TodoNoteGroupPanel("Get New Job");
-        NoteGroupPanel.optionPane = new TestUtil();
     }
 
     @BeforeEach

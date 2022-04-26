@@ -34,10 +34,12 @@ class SearchResultHeaderTest {
         // Retrieve a fresh set of test data from test resources
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testDataLoc);
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+        TestUtil.getTheAppTreePanel();
     }
 
     // This test is needed in order to get coverage for an anonymous class that is

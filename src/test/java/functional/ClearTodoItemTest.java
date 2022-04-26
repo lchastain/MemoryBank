@@ -18,6 +18,7 @@ class ClearTodoItemTest {
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
         File testData = new File(MemoryBank.userDataHome);
@@ -31,6 +32,7 @@ class ClearTodoItemTest {
         // This test user has a rich set of data, includes Search Results and Todo Lists
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options

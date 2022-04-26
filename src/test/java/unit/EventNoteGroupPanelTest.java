@@ -31,9 +31,8 @@ class EventNoteGroupPanelTest {
         assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
+        TestUtil.getTheAppTreePanel();
         eventNoteGroup = new EventNoteGroupPanel("holidays");
-        testUtil = new TestUtil();
-        EventNoteGroupPanel.optionPane = testUtil;
     }
 
     @AfterAll

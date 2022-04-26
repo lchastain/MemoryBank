@@ -31,6 +31,7 @@ class AddTodoListTest {
 
         // Load up this Test user's application options
         AppOptions.loadOpts();
+        TestUtil.getTheAppTreePanel();
     }
 
     @Test

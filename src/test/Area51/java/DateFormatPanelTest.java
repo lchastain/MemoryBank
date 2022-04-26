@@ -9,6 +9,7 @@ class DateFormatPanelTest {
     static void meFirst() {
         dateFormatPanel = new DateFormatPanel();
         dateFormatPanel.setup(ZonedDateTime.now().toEpochSecond(), "yyyy MM dd");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
     }
 
     @BeforeEach

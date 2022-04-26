@@ -2,20 +2,22 @@ import org.junit.jupiter.api.*;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.time.LocalDate;
 
 class DayNoteGroupPanelTest {
     private DayNoteGroupPanel dng;
 
     @BeforeAll
-    static void ssetup() {
+    static void beforeAll() throws IOException {
         MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        MemoryBank.setUserDataHome("test.user@lcware.net");
+        TestUtil.getTheAppTreePanel();
     }
 
     @BeforeEach
     void setUp() {
-        MemoryBank.setUserDataHome("test.user@lcware.net");
-        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         dng = new DayNoteGroupPanel();
     }
 

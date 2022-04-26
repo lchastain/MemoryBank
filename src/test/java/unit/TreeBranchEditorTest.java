@@ -1,13 +1,21 @@
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.ItemEvent;
+import java.io.IOException;
 
 class TreeBranchEditorTest {
     private TreeBranchEditor treeBranchEditor;
     DefaultMutableTreeNode dmtn;
+
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+    }
 
     @BeforeEach
     void setUp() {

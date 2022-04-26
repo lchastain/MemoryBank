@@ -1,18 +1,21 @@
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 //@Disabled("Looking for a rogue 'working' dialog")
 class ThreeMonthColumnTest {
     ThreeMonthColumn tmc;
 
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+    }
+
     @BeforeEach
     void setUp() {
         tmc = new ThreeMonthColumn();
-    }
-
-    @AfterEach
-    void tearDown() {
     }
 
     @Test

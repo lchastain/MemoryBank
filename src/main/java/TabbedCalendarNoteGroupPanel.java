@@ -39,10 +39,12 @@ public class TabbedCalendarNoteGroupPanel extends NoteGroupPanel implements Chan
         theTabbedPane.addChangeListener(this);
 
         theBasePanel.add(theTabbedPane, BorderLayout.CENTER);
+        setListMenu(AppMenuBar.getNodeMenu("Calendar Notes"));
     } // end constructor
 
     @Override
     public void stateChanged(ChangeEvent e) {
+        // In case you want an example where you don't already have a handle to the source of the Event -
         //JTabbedPane pane = (JTabbedPane) e.getSource();
         int index = theTabbedPane.getSelectedIndex();
         switch (index) {

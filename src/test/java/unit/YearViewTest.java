@@ -1,5 +1,3 @@
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.awt.event.MouseEvent;
@@ -8,14 +6,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 class YearViewTest {
-
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
 
     @Test
     void testMouseAdapter() throws InterruptedException {
@@ -48,6 +38,8 @@ class YearViewTest {
     @Test
     // Just runs the constructors, for coverage.
     void runit() {
+        MemoryBank.debug = true;
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         YearView yv = new YearView();
     }
 

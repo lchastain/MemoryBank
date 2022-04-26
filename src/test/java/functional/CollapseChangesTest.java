@@ -23,6 +23,8 @@ class CollapseChangesTest {
 
     @BeforeAll
     static void setup() throws IOException {
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+
         // Set the test user's data location
         MemoryBank.setUserDataHome("test.user@lcware.net");
 

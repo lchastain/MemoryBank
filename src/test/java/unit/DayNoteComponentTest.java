@@ -1,5 +1,6 @@
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -7,17 +8,23 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 
 class DayNoteComponentTest {
     private DayNoteComponent dayNoteComponent;
     DayNoteGroupPanel dayNoteGroup;
     Notifier theNotifier;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void beforeAll() throws IOException {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("test.user@lcware.net");
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
+    }
+
+    @BeforeEach
+    void setUp() {
         dayNoteGroup = new DayNoteGroupPanel();
         dayNoteComponent = new DayNoteComponent(dayNoteGroup, 0);
         dayNoteComponent.initialize();
@@ -107,6 +114,7 @@ class DayNoteComponentTest {
         String fileName = "IconFileViewTest/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 
+        assert testFile != null;
         dayNoteComponent.setIcon(new ImageIcon(testFile.getPath()));
     }
 
