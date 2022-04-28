@@ -349,23 +349,10 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     } // end createTree
 
 
-    // TODO This may need some work; review workings of the now-disabled earlier methods.
     @Override
-    public void dateChanged(LocalDate fromDate, LocalDate theNewDate) {
+    public void dateChanged(DateRelatedDisplayType whoChangedIt, LocalDate theNewDate) {
         viewedDate = theNewDate;
     }
-
-//    public void dateDecremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-//        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
-//        viewedDate = theNewDate;
-//        viewedDateGranularity = theGranularity;
-//    }
-//
-//    public void dateIncremented(LocalDate theNewDate, ChronoUnit theGranularity) {
-//        if (theGranularity == ChronoUnit.DAYS) selectedDate = theNewDate;
-//        viewedDate = theNewDate;
-//        viewedDateGranularity = theGranularity;
-//    }
 
     public JTree getTree() {
         return theTree;
@@ -665,7 +652,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             if (theYearView == null) {
                 theYearView = new YearView(viewedDate);
                 theYearView.setArchiveDate(theArchiveDate);
-                theYearView.setParent(this);
+                theYearView.setTreePanel(this);
             } else {
                 theYearView.setChoice(selectedDate); // To get the right choiceLabel
                 theYearView.setView(viewedDate); // To show the right Year
@@ -691,7 +678,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
                 // DayCanvases are ready to properly show icons.  (This appears to also prevent the problem
                 // from appearing in the final (empty) DayCanvases of the MonthCanvas grid (not sure why).
                 theMonthView.setArchiveDate(theArchiveDate);
-                theMonthView.setParent(this);
+                theMonthView.setTreePanel(this);
             } else {  // The MonthView was previously constructed.  Now we need to put it to the right choice.
                 theMonthView.setChoice(selectedDate);
             }

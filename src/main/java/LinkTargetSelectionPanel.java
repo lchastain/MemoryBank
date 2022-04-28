@@ -194,7 +194,8 @@ public class LinkTargetSelectionPanel extends JPanel implements TreeSelectionLis
     } // end createTree
 
     @Override
-    public void dateChanged(LocalDate fromDate, LocalDate theNewDate) {
+    // Not the 'standard' usage here; just using it as a way invalidate a previous selection.
+    public void dateChanged(DateRelatedDisplayType whoChangedIt, LocalDate theNewDate) {
         selectedNoteData = null;
         resetTargetSelectionLabel();
     }

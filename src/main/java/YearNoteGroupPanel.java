@@ -21,6 +21,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
 
     YearNoteGroupPanel() {
         super(GroupType.YEAR_NOTES);
+        myDateType = DateRelatedDisplayType.YEAR_NOTES;
         buildMyPanel();
     } // end constructor
 
@@ -81,7 +82,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
                 if(archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
 
-                AppTreePanel.theInstance.dateChanged(fromDate, theDate);
+                if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
                 break;
             case "+":
                 setOneForward(ChronoUnit.YEARS);

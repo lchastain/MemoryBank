@@ -15,7 +15,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     LocalDate theDate;   // Holds the date of the group that the Panel is currently displaying.
     DateTimeFormatter dtf; // Child classes display the date in different formats.
 
-    private AlteredDateListener alteredDateListener = null;
+    AlteredDateListener alteredDateListener = null;
+    DateRelatedDisplayType myDateType;
     ChronoUnit dateGranularity;
     JLabel panelTitleLabel;
     LabelButton todayButton = makeAlterButton("T", null);
@@ -141,12 +142,11 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     } // end setDate
 
 
-    // After this, the Group is reloaded according to the current choice.
+    // After this, the Group is reloaded according to the current date.
     // It does not go through 'setDate'; instead the calling context calls 'updateGroup'.
     public void setOneBack(ChronoUnit theMagnitude) {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
-        LocalDate fromDate = theDate;
         if(reviewMode) {
             DataAccessor dataAccessor = MemoryBank.dataAccessor;
             NoteGroupDataAccessor noteGroupDataAccessor = dataAccessor.getNoteGroupDataAccessor(myNoteGroup.myGroupInfo);
@@ -155,13 +155,12 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
             theDate = theDate.minus(1, theMagnitude);
         }
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
-        if(alteredDateListener != null) alteredDateListener.dateChanged(fromDate, theDate);
+        if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
     } // end setOneBack
 
     public void setOneForward(ChronoUnit theMagnitude) {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
-        LocalDate fromDate = theDate;
         if(reviewMode) {
             boolean hardStop = false; // Flag to keep us from going beyond the archive date.
             if(archiveDate != null) {
@@ -178,7 +177,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
             theDate = theDate.plus(1, theMagnitude);
         }
         myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
-        if(alteredDateListener != null) alteredDateListener.dateChanged(fromDate, theDate);
+        if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
     } // end setOneForward
 
 

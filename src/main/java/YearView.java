@@ -31,8 +31,9 @@ public class YearView extends JPanel {
     private final JPanel yearPanel;
     private int theYear;            // numerous
     static DateTimeFormatter dtf;
+    private AlteredDateListener alteredDateListener = null;
     LocalDate displayedYear;  // Of course it holds more than just the Year.
-    private TreePanel treePanel = null;  // see 'setParent' - not all usages are for a 'real' TreePanel.
+    private TreePanel treePanel;
     private static final Color hasDataColor = Color.blue;
     private static final Color noDataColor = Color.black;
     private static final Font hasDataFont = Font.decode("Dialog-bold-16");
@@ -238,6 +239,7 @@ public class YearView extends JPanel {
         bottomPanel.add(choiceLabel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        treePanel = AppTreePanel.theInstance;
         recalc(theYear);
 
         // Add key bindings to react to arrow keys
@@ -330,6 +332,10 @@ public class YearView extends JPanel {
     } // end recalc
 
 
+//    void setAlteredDateListener(AlteredDateListener adl) {
+//        alteredDateListener = adl;
+//    }
+
     void setArchiveDate(LocalDate theArchiveDate) {
         archiveDate = theArchiveDate;
         setChoice(theArchiveDate); // To get the right choiceLabel
@@ -359,8 +365,10 @@ public class YearView extends JPanel {
         intNumSelections = numSelections;
     } // end setDialog
 
-    void setParent(TreePanel atp) {
+    // Since the TreePanel is also the AlteredDateListener, this 'set' method does double-duty.
+    void setTreePanel(TreePanel atp) {
         treePanel = atp;
+        alteredDateListener = (AlteredDateListener) atp;
     }
 
     void setView(LocalDate viewDate) {
@@ -398,7 +406,7 @@ public class YearView extends JPanel {
                     if (treePanel == null) return;
                     myDate = LocalDate.of(theYear, monthLocalDate.getMonth().getValue(), treePanel.getViewedDate().getDayOfMonth());
                     if (archiveDate != null && myDate.isAfter(archiveDate)) myDate = archiveDate;
-                    treePanel.setViewedDate(myDate);
+                    alteredDateListener.dateChanged(DateRelatedDisplayType.YEAR_VIEW, myDate);
                     treePanel.showMonthView();
                 } // end mousePressed
             });//end addMouseListener

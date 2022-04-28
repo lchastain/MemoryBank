@@ -33,7 +33,7 @@ public class MonthView extends JLayeredPane {
     private final MonthCanvas monthCanvas;
     private final JLabel choiceLabel;
     private final int heightOffset = 0;
-    private TreePanel treePanel = null;
+    private TreePanel treePanel;
     private boolean[][] hasDataArray;  // for a year.  index 0 = month, index 1 = days, values have data True or False
     private final Dimension minSize;
     private static final int borderWidth = 2;
@@ -41,6 +41,7 @@ public class MonthView extends JLayeredPane {
     private final String[] dayNames;
     private final JPanel monthGrid;
     private LocalDate archiveDate;
+    private AlteredDateListener alteredDateListener = null;
 
     // Directly accessed by Tests  // TODO - but not yet.  Will be needed for mouseListener tests, like already seen for YearView.
     LabelButton yearMinus;
@@ -59,10 +60,9 @@ public class MonthView extends JLayeredPane {
     MonthView(LocalDate initialChoice) {
         theChoice = initialChoice;
 
-//        displayedMonth = initialChoice;
-
         // Construct with a date where the Month (with 31 days) starts on a Sunday, part of the cure for:
         //   SCR00035 - MonthView does not show all icons for a day.
+        // The value will adjust to initialChoice when the view is set, before the end of construction.
         displayedMonth = LocalDate.of(1900, 7, 15);
 
         // Initialize day of week names.
@@ -128,7 +128,7 @@ public class MonthView extends JLayeredPane {
         add(monthCanvas, Integer.valueOf(0));
         add(choiceLabel, Integer.valueOf(1));
 
-        setView(initialChoice); // The choice will not always be the displayedMonth.
+        setView(initialChoice); // This fixes the displayedMonth.
         MonthView.this.setLabelBounds(); // adjust the label.
     } // end constructor
 
@@ -173,11 +173,14 @@ public class MonthView extends JLayeredPane {
     }
 
 
+//    void setAlteredDateListener(AlteredDateListener adl) {
+//        alteredDateListener = adl;
+//    }
+
     void setArchiveDate(LocalDate theArchiveDate) {
         archiveDate = theArchiveDate;
         setChoice(theArchiveDate); // This sets the 'choice' label and day highlight, if appropriate.
     }
-
 
     public void setChoice(LocalDate theNewChoice) {
         // Was tempted (for better performance) to avoid the recalc at the end, if the new choice was still on the same
@@ -228,8 +231,10 @@ public class MonthView extends JLayeredPane {
         choiceLabel.setBounds(x, y, width, height);
     } // end setLabelBounds
 
-    void setParent(TreePanel atp) {
+    // Since the TreePanel is also the AlteredDateListener, this 'set' method does double-duty.
+    void setTreePanel(TreePanel atp) {
         treePanel = atp;
+        alteredDateListener = (AlteredDateListener) atp;
     }
 
     //--------------------------------------------------
@@ -260,11 +265,12 @@ public class MonthView extends JLayeredPane {
                     if (buttonText.equals("-")) displayedMonth = displayedMonth.minusMonths(1);
                     if (buttonText.equals("T")) {
                         displayedMonth = Objects.requireNonNullElseGet(archiveDate, LocalDate::now);
-                        treePanel.setViewedDate(displayedMonth);
                     }
                     if (buttonText.equals("+")) displayedMonth = displayedMonth.plusMonths(1);
                     if (buttonText.equals("Y+")) displayedMonth = displayedMonth.plusMonths(12);
-                    if(treePanel != null) treePanel.setViewedDate(displayedMonth);
+                    if(alteredDateListener != null) {
+                        alteredDateListener.dateChanged(DateRelatedDisplayType.MONTH_VIEW, displayedMonth);
+                    }
 
                     // If we have scrolled into a new year, we need to update the 'hasData' info.
                     if (currentYear != displayedMonth.getYear()) {
@@ -500,11 +506,11 @@ public class MonthView extends JLayeredPane {
             highlight();
             activeDayCanvas = this;
             if (treePanel == null) return;
-            treePanel.setViewedDate(theChoice);
             if (e.getClickCount() == 2) {
                 if (archiveDate != null && theChoice.isAfter(archiveDate)) {
                     theChoice = archiveDate;
                 }
+                alteredDateListener.dateChanged(DateRelatedDisplayType.MONTH_VIEW, theChoice);
                 treePanel.showDay();
             }
         } // end mousePressed

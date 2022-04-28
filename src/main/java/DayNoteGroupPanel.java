@@ -33,6 +33,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
     DayNoteGroupPanel() {
         super(GroupType.DAY_NOTES);
+        myDateType = DateRelatedDisplayType.DAY_NOTES;
         buildMyPanel();
     } // end constructor
 
@@ -129,12 +130,10 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
                 setOneBack(ChronoUnit.DAYS);
                 break;
             case "T":
-                LocalDate fromDate = theDate;
-
                 if(archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
 
-                AppTreePanel.theInstance.dateChanged(fromDate, theDate);
+                AppTreePanel.theInstance.dateChanged(DateRelatedDisplayType.DAY_NOTES, theDate);
                 break;
             case "+":
                 setOneForward(ChronoUnit.DAYS);
@@ -160,7 +159,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
             default:
                 System.out.println("DayNoteGroupPanel.mouseClicked unhandled: " + s);
         }
-
         updateGroup();
     } // end mouseClicked
 

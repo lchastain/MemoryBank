@@ -21,6 +21,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
 
     MonthNoteGroupPanel() {
         super(GroupType.MONTH_NOTES);
+        myDateType = DateRelatedDisplayType.MONTH_NOTES;
         buildMyPanel();
     } // end constructor
 
@@ -76,12 +77,10 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
                 setOneBack(ChronoUnit.MONTHS);
                 break;
             case "T":
-                LocalDate fromDate = theDate;
-
                 if(archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
 
-                AppTreePanel.theInstance.dateChanged(fromDate, theDate);
+                if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
                 break;
             case "+":
                 setOneForward(ChronoUnit.MONTHS);

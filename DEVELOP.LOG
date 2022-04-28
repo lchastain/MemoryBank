@@ -11,13 +11,26 @@ Next:
 
 Current:
     Done:
-    Need:  Menu Adjustment and date tracking for the calendar-type tabbed group.  Separate save/undo actions.
-            Tests of menu item enablement for various node/tab change sequences.
+    Need:   Update ArchiveTreePanel to catch up with recent changes to AppTreePanel.  Make tests.
+            Tests of date tracking for the CalendarNoteGroup tabs.  AlteredDateListener.
 
 =====================================================================================================
 
+28 Apr 2022
+Fixed the dateChanged() handling for all panels (I think), and reverted users of the TreePanel interface.  Now the
+viewedDate is only used for new constructions whereas the AlteredDateListener handles all changes for previously
+constructed panels.  Next will be to expand testing to cover the gaps that are now evident.  Check in.
+
+27 Apr 2022
+The 100% coverage notwithstanding, found a BIG flaw in my recent refactorings:  The AlteredDateListener IS still
+needed for ungrouped Calendar-based panels.  Any panel that has AlterButtons (including 'T') needs it.  Tests are
+covering some of the required behavior when it comes to the AppTreePanel and changing tree nodes, but they are not
+covering date-syncing as it relates to the use of the AlterButtons.
+
 26 Apr 2022
-Added two new tests for menu state checking of Goal tabs after tree selections and tab changes.
+Added two new tests for menu state checking of Goal tabs after tree selections and tab changes.  Rest of day stuck on
+repairing the ToggleAbout test, broken when I set 'restorinPreviousSelection' to true for all tests.  But now have 204
+total tests and back to 100% class coverage.  Check in.
 
 25 Apr 2022
 IDE distractions but then finished initial menu adjustment (after node change) based on the state of the Goal and its
