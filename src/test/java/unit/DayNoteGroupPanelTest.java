@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Month;
 
 class DayNoteGroupPanelTest {
     private DayNoteGroupPanel dng;
@@ -28,7 +29,8 @@ class DayNoteGroupPanelTest {
 
     @Test
     void testSetChoice() {
-        dng.setDate(LocalDate.now());
+        LocalDate testDate = LocalDate.of(1944, Month.FEBRUARY, 12);
+        dng.setDate(testDate);
     }
 
     @Test

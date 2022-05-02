@@ -10,14 +10,12 @@ import java.time.temporal.ChronoUnit;
 
 // The purpose of this testing is to verify that data and Panels for Calendar-type Groups are cleared out
 //   when the date changes, and the appropriate new data is loaded in, when found.
-//
-// For this test the 'setup' area has three consecutive notes for each Calendar type.
-//  (although upon coding the tests, discovered that apparently only two consecutive notes would have sufficed).
-//
-// And upon examination of the areas covered, do not see any need to continue with adding tests for the
-// Month or Year, since the relevant code under test is all in common areas.  We are already at point 'overkill'.
+// Using a DayNoteGroupPanel for these tests and do not see any need to add tests for the Month or Year,
+//   since the relevant code under test is all in common areas.
+// This test is conducted without an AlteredDateListener - see the DateTrackingTests for tests of date
+//   synchronization between DateRelatedDisplay panel types.
 
-class DateAlterTest {
+class DateLoadingTest {
     CalendarNoteGroupPanel noteGroupPanel;
 
     @BeforeAll
@@ -166,7 +164,6 @@ class DateAlterTest {
         Assertions.assertEquals("Friday, March 16, 2018", noteGroupPanel.getTitle());
         groupSize = theNoteGroup.noteGroupDataVector.size();
         Assertions.assertEquals(0, groupSize);
-
     }
 
 }

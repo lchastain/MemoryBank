@@ -108,42 +108,45 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         reviewMode = true;
     }
 
+    // If there has been a significant enough date change to warrant a panel reload then save changes, set a new date
+    //   for the panel, clear the panel, load the data for the new date.  Otherwise just accept the new date.
     public void setDate(LocalDate theNewChoice) {
-        // If the new date is the same as the one that is currently showing then the inclination is to just return
-        // without taking any action.  However, that does not cover the case where the data for the date that is
-        // showing has been changed outside the Panel, and needs to be reloaded.  So - inclination override,
-        // at least at this level.  But the AppTreePanel can also just decide not to come here if there has been
-        // no viewed date change even though there has been a change of NoteGroup.
+        // Is the new date 'far' enough from the one it currently has, to justify a panel update?
+        if (!getTitle().equals(getTitle(theNewChoice))) {
+            preClosePanel(); // Save changes, if any.
 
-        // The proper approach for all accesses is to save a group before possibly altering it.  Otherwise,
-        // there could be data-loss.  So for the hypothetical case where the data for this date has been externally
-        // changed outside this Panel, we just trust that any
-        // changes we had in progress in this Panel will have already been saved by the context that made the
-        // external change, before it made that change, and so the call below
-        // will NOT result in the old data going back to overwrite the newer info because preClose will not make
-        // a call to save since by then the groupChanged flag will be false.  On the other hand, if there has been
-        // no other access to the group and there ARE unsaved changes in the Panel, then the call below will capture
-        // them.
-        preClosePanel();
+            // This new date will be used to generate a new title for the Panel, which also happens to be the Group Name.
+            theDate = theNewChoice;
 
-        // This new date will be used to generate a new title for the Panel, which also happens to be the Group Name.
-        theDate = theNewChoice;
+            // This reset of the GroupInfo groupName is needed because the name it currently has is still based on the 'old'
+            //   date, and the GroupInfo is what is used to identify the Group that needs to be loaded.  After the load, the
+            //   existing GroupProperties, if any, are cleared out so that the new ones, if any, can be deserialized
+            //   into them from the data that was loaded.  If none were loaded, new ones are created when
+            //   getGroupProperties() is called, and the name used at that time will be the one we set here and now.
+            myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Set the groupName now in case there is no data to load.
 
-        // This reset of the GroupInfo groupName is needed because the name it currently has is still the 'old' date,
-        //   and the GroupInfo is what is used to identify the Group that needs to be loaded.  After the load, the
-        //   existing GroupProperties, if any, are cleared out so that the new ones, if any, can be deserialized
-        //   into them from the data that was loaded.  If none were loaded, new ones are created when
-        //   getGroupProperties() is called, and the name used at that time will be the one we set here and now.
-        myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Fix the GroupInfo.groupName prior to data load
+            // Reload the data, if there is any for the new date.
+            updateGroup();  // Be aware that this clears the panel, which also clears the source data.
+            // In operational use cases this works just fine; tests, however, might not be happy about it.
+        } else { // Take the new date but decline the panel reload; we are already showing this date.
+            theDate = theNewChoice;
+        }
 
-        // Reload the data.
-        updateGroup();  // Be aware that this clears the panel, which clears the source data.
-        // In operational use cases that works just fine; tests, however, might not be happy about it.
+        // There is one feature of the MB app that warrants some discussion:  The ability to move a Todo Item from its
+        // list to a specific date.  When this happens, the tree will be showing the To Do List, and the viewedDate
+        // (that the DayNotes panel holds) may be the one to which the todo item data is being moved.  In that case the
+        // DayNotes panel data is preserved prior to adding the TodoItem and then it is saved again after that, and
+        // then the AppTreePanel is cleared of the DayNotes panel so that a reload is forced if Day Notes is selected
+        // on the tree at some point after the move of the item.  In that case we would only be arriving here upon the
+        // tree selection, and there would be no unsaved changes here to preserve, that could possibly overwrite the
+        // data to which the To Do Item had been moved.
     } // end setDate
 
 
-    // After this, the Group is reloaded according to the current date.
-    // It does not go through 'setDate'; instead the calling context calls 'updateGroup'.
+    // Reduce the date by one increment and notify the AlteredDateListener, if one is defined.
+    // To load in the new data after this, calling contexts should call 'updateGroup()'.
+    // They should not call setDate() after this because the only value it would provide at that point is to make that
+    //   call for them, while repeating most of the other tasks that by then would have already been done here.
     public void setOneBack(ChronoUnit theMagnitude) {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.
@@ -158,6 +161,10 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
     } // end setOneBack
 
+    // Increase the date by one increment and notify the AlteredDateListener, if one is defined.
+    // To load in the new data after this, calling contexts should call 'updateGroup()'.
+    // They should not call setDate() after this because the only value it would provide at that point is to make that
+    //   call for them, while repeating most of the other tasks that by then would have already been done here.
     public void setOneForward(ChronoUnit theMagnitude) {
         preClosePanel(); // Save the current one first, if needed.
         myNoteGroup.setGroupProperties(null); // There may be no file to load, so this is needed here.

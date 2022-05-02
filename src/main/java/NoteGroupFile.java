@@ -508,7 +508,10 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
             System.out.println("Looking in: " + f.getAbsolutePath());
 
             LocalDate theDate = getDataDate(f, returnDate, direction);
-            if (theDate != null) return theDate; // This will be the one we were looking for.
+            if (theDate != null) { // This will be the one we were looking for.
+                returnDate = theDate;
+                break;
+            }
             // Otherwise, we keep looking as long as there are 'Year' directories remaining to be searched -
         }
 

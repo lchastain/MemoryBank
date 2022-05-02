@@ -81,9 +81,15 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
             // But also - any of the aged-off events may have moved to the date that is currently being displayed
             // in the DayNoteGroupPanel, and that Panel may already be preserved in its keeper for redisplay but that
-            // instance of the DayNoteGroup does not have the new addition(s).  So - un-keep it, to force a reload of
-            // the possibly updated data if/when it is eventually redisplayed.
+            // instance of the DayNoteGroup does not have the new addition(s), whereas its actual date data WAS
+            // already preserved when the group was retrieved and added to.  So - un-keep the DayNotesPanel, to force
+            // a reload of the possibly updated data if/when it is eventually redisplayed.
+            // To reiterate more succinctly:  Do not do a 'theAppDays.preClose()' now; at best it is not needed and at
+            // worst if it somehow was needed, it would overwrite the event(s) that we just aged out.
             AppTreePanel.theInstance.theAppDays = null;
+            // And finally, nulling out theAppDays is more of a shotgun-style approach.  To do it more surgically, in
+            // ageEvents you could conditionally null out theAppDays, only if it is not already null and the group you
+            // are moving to matches the AppTreePanel's viewedDate.
         } // end if
         doSort(); // needed whether events were aged off, or not.
         setListMenu(AppMenuBar.getNodeMenu("Upcoming Event"));

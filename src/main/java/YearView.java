@@ -127,17 +127,19 @@ public class YearView extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 LabelButton source = (LabelButton) e.getSource();
-                if (!source.isEnabled()) return; // It's not really a button; we need to check this first.
+                if (!source.isEnabled()) return; // It's not a JButton, so we need to check this first.
 
+                LocalDate theYearDate = Objects.requireNonNullElseGet(archiveDate, LocalDate::now);
                 if (intNumSelections > 0) {
                     // This is both a view-change and a selection.
-                    setChoice(LocalDate.now());
-                    if (treePanel != null) treePanel.setViewedDate(theChoice);
+                    setChoice(theYearDate); // This does a setView, which does the recalc.
                 } else {
                     // This is a view-change only.
                     theYear = Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear();
-                    if (treePanel != null) treePanel.setViewedDate(LocalDate.now());
-                    recalc(theYear);
+                    recalc(theYearDate);
+                }
+                if(alteredDateListener != null) {
+                    alteredDateListener.dateChanged(DateRelatedDisplayType.YEAR_VIEW, theYearDate);
                 }
             }
         };
@@ -183,6 +185,17 @@ public class YearView extends JPanel {
                 if (theChar == KeyEvent.VK_ENTER) {
                     String theEntry = yearTextField.getText();
                     if (!theEntry.isEmpty()) {
+                        // TODO - make a full date here, recalc with that.  Use date-addition math that was previously in AppTreePanel.setViewYear()
+//                        // Implementation of the TreePanel interface method
+//                        public void setViewYear(int theYear) {
+//                            int fromYear = viewedDate.getYear();
+//                            int yearDiff = fromYear - theYear; // If this is zero, no Exception and no different result, so go with it.
+//                            // We use 'plusYears' to keep it 'legal', vs simply constructing a LocalDate from current day and month
+//                            //   and glommed onto the provided year.  This really only prevents one bad date - going from Feb 29
+//                            //   on a leap year, to a non-leap year.  But what the heck, why not.
+//                            viewedDate = viewedDate.plusYears(yearDiff);
+//                        }
+
                         theYear = Integer.parseInt(yearTextField.getText());
                         if (theYear <= 0) theYear = 1; // Entry limited to 4 digits, but they can still be flaky.
                         recalc(theYear);
@@ -305,13 +318,20 @@ public class YearView extends JPanel {
         return theButton;
     }
 
-    public void recalc(int year) {
+    private void recalc(LocalDate theDate) {
+        recalc(theDate.getYear());
+    }
+
+    private void recalc(int year) {
         // Update the Year info
         titleLabel.setText("Year " + theYear);
         yearTextField.setText(String.valueOf(theYear));
-        if (treePanel != null) {
-            treePanel.setViewedDate(theYear);
+        if(alteredDateListener != null) {
+            alteredDateListener.dateChanged(DateRelatedDisplayType.YEAR_VIEW, displayedYear);
         }
+//        if (treePanel != null) {
+//            treePanel.setViewYear(theYear);
+//        }
 
         // Look for new day data, for color/font setting.
         hasDataArray = MemoryBank.dataAccessor.findDataDays(year);
@@ -331,10 +351,6 @@ public class YearView extends JPanel {
         todayButton.setEnabled(!(year == Objects.requireNonNullElseGet(archiveDate, LocalDate::now).getYear()));
     } // end recalc
 
-
-//    void setAlteredDateListener(AlteredDateListener adl) {
-//        alteredDateListener = adl;
-//    }
 
     void setArchiveDate(LocalDate theArchiveDate) {
         archiveDate = theArchiveDate;
@@ -374,8 +390,8 @@ public class YearView extends JPanel {
     void setView(LocalDate viewDate) {
         displayedYear = viewDate;
         if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
-        theYear = viewDate.getYear();
-        recalc(theYear);
+//        theYear = viewDate.getYear();
+        recalc(viewDate);
     } // end setView
 
 
@@ -617,10 +633,12 @@ public class YearView extends JPanel {
                 } // end if this is a dialog
 
                 if (treePanel == null) return;
-                treePanel.setViewedDate(theChoice);
                 if (e.getClickCount() == 2) {
                     if (archiveDate != null && theChoice.isAfter(archiveDate)) {
                         theChoice = archiveDate;
+                    }
+                    if(alteredDateListener != null) {
+                        alteredDateListener.dateChanged(DateRelatedDisplayType.YEAR_VIEW, theChoice);
                     }
                     treePanel.showDay();
                 }

@@ -387,17 +387,13 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
 //        viewedDateGranularity = ChronoUnit.DAYS;
 //    }
 
-    @Override
-    public  void setViewedDate(int theYear) {
-        viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
-//        viewedDateGranularity = ChronoUnit.YEARS;
-    }
-
-    @Override
-    public void setViewedDate(LocalDate theViewedDate) {
-        viewedDate = theViewedDate;
-//        viewedDateGranularity = theGranularity;
-    }
+//    public  void setViewYear(int theYear) {
+//        viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
+//    }
+//
+//    public void setViewedDate(LocalDate theViewedDate) {
+//        viewedDate = theViewedDate;
+//    }
 
 
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
@@ -705,7 +701,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
                 theAppDays.setAlteredDateListener(this);
             } else {
                 theAppDays.setDate(selectedDate);
-                setViewedDate(selectedDate);
+//                setViewedDate(selectedDate);
             }
             rightPane.setViewportView(theAppDays.theBasePanel);
         } else if (theNodeString.equals("Month Notes")) {

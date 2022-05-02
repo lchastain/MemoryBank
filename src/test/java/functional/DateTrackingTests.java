@@ -5,10 +5,12 @@ import javax.swing.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
 
-// Test the ability of the AppTreePanel to correctly manage the Viewed Date
-//   in the face of panel constructions and re-visitations, date selections, and date viewings in
-//   several combinations.
+// Test the ability of the AppTreePanel to correctly manage and synchronize the displayed date of the five
+//   date-related Panels in the face of panel constructions, reused panels, and panel-initiated date changes.
+// See the 'Date Tracking.txt' doc for a full explanation of the Testing.
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -36,24 +38,12 @@ public class DateTrackingTests {
             System.out.println("ignored Exception: " + e.getMessage());
         }
 
-        // The problem with just having this in the BeforeEach was that we started
-        // multiple JMenuItem listeners each time, and each test ran so fast that
-        // not all of the listeners would have gone away before they were activated
-        // by other tests in the suite, causing some confusion.
+        AppTreePanel.theInstance = null; // We don't want any 'leftovers' from other test runs.
         appTreePanel = TestUtil.getTheAppTreePanel();
-
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
         appTreePanel.optionPane = new TestUtil();
         theTree = appTreePanel.getTree(); // Usage here means no coverage test needed for getTree().
     }
-
-    @AfterAll
-    static void meLast() {
-        theTree = null;
-        appTreePanel = null;
-    }
-
-    // See the 'Date Tracking.txt' doc for a full explanation of the Testing.
 
     // Start up each of the date-related panels, and verify all dates are 'Today'.
     //     (This is not that much of a test; more like baseline setting).
@@ -88,13 +78,24 @@ public class DateTrackingTests {
         Assertions.assertEquals(today, thePanelDate);
     }
 
+    // Tests with a known date (but not Today)
     @Test
     @Order(2)
     void testKnownDate() {
+        // Reset the tree, to clear out previously constructed panels.
+        AppTreePanel.theInstance = null; // Because we need to test new Panels.
+        appTreePanel = TestUtil.getTheAppTreePanel();
+        theTree = appTreePanel.getTree(); // Usage here means no coverage test needed for getTree().
 
-        // a specific date for the AppTreePanel's viewedDate.
+        // Check constructions with an 'other than today' date.
         LocalDate knownDate = LocalDate.of(1937, Month.JULY, 15);
-        appTreePanel.setViewedDate(knownDate);
+
+        // Making a direct call to the AppTreePanel's AlteredDateListener, in order to
+        //   set its viewedDate the way it would happen if a panel had altered its date
+        //   to the one being specified here.  Previously was able to call 'setViewedDate'
+        //   but that TreePanel method has been deprecated.
+        appTreePanel.dateChanged(DateRelatedDisplayType.YEAR_VIEW, knownDate);
+       //appTreePanel.setViewedDate(knownDate);
 
         // YearView - knownDate
         theTree.setSelectionPath(appTreePanel.yearViewPath);
@@ -120,6 +121,71 @@ public class DateTrackingTests {
         theTree.setSelectionPath(appTreePanel.yearNotesPath);
         thePanelDate = appTreePanel.theAppYears.getDate();
         Assertions.assertEquals(knownDate, thePanelDate);
+
+        // a new known date for the AppTreePanel's viewedDate.
+        knownDate = LocalDate.of(1943, Month.SEPTEMBER, 11);
+        appTreePanel.theAppDays.setDate(knownDate);
+        appTreePanel.theAppDays.setOneForward(ChronoUnit.DAYS);
+        appTreePanel.theAppDays.setOneBack(ChronoUnit.DAYS);
+        //appTreePanel.setViewedDate(knownDate);
+
+        // Now check that previously constructed panels also use the new Date -
+
+        // MonthView - new knownDate for a previously constructed panel
+        theTree.setSelectionPath(appTreePanel.monthViewPath);
+        thePanelDate = appTreePanel.theMonthView.displayedMonth;
+        Assertions.assertEquals(knownDate.getMonthValue(), thePanelDate.getMonthValue());
+
+        // Year Notes - new knownDate for a previously constructed panel
+        theTree.setSelectionPath(appTreePanel.yearNotesPath);
+        thePanelDate = appTreePanel.theAppYears.getDate();
+        Assertions.assertEquals(knownDate, thePanelDate);
     }
 
+    // Use Year Notes to add a Year to the viewedDate (vs direct setting in the AppTreePanel), then verify that the
+    //   other previously constructed panels now have that same date (without first selecting them on the Tree).
+    @Test
+    @Order(3)
+    void testLargeAlterDate() {
+        // Get a date that is one year later than the one used in the last test.
+        // This is for later comparison; will get there via a panel increment -
+        LocalDate knownDate = LocalDate.of(1944, Month.SEPTEMBER, 11);
+
+        // Move the Year Notes ahead by one year.  This change will be seen on ALL other panels.
+        appTreePanel.theAppYears.setOneForward(ChronoUnit.YEARS);
+
+        // Check the Day Notes
+        thePanelDate = appTreePanel.theAppDays.getDate();
+        Assertions.assertEquals(knownDate, thePanelDate);
+
+        // Check the MonthView
+        thePanelDate = appTreePanel.theMonthView.displayedMonth;
+        Assertions.assertEquals(knownDate.getMonthValue(), thePanelDate.getMonthValue());
+    }
+
+    // Use Day Notes to subtract a Day from the viewedDate (vs direct setting in the AppTreePanel), then verify that
+    //   the other previously constructed panels now have that same date (without first selecting them on the Tree).
+    @Test
+    @Order(4)
+    void testSmallAlterDate() {
+        // Get the date used in the previous test -
+        LocalDate knownDate = LocalDate.of(1944, Month.SEPTEMBER, 11);
+
+        // Move the Day Notes back by one day.
+        // This change should be seen on all other panels, even though it will not cause
+        //   a reload of MonthNotes or YearNotes data.
+        appTreePanel.theAppDays.setOneBack(ChronoUnit.DAYS);
+
+        // Check the Day Notes - verify the change
+        thePanelDate = appTreePanel.theAppDays.getDate();
+        Assertions.assertEquals(knownDate.minusDays(1), thePanelDate);
+
+        // Check the Year Notes - verify the change
+        thePanelDate = appTreePanel.theAppYears.getDate();
+        Assertions.assertEquals(knownDate.minusDays(1), thePanelDate);
+
+        // Check the YearView - verify the change
+        thePanelDate = appTreePanel.theYearView.displayedYear;
+        Assertions.assertEquals(knownDate.minusDays(1), thePanelDate);
+    }
 }

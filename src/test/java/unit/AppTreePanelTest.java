@@ -226,10 +226,10 @@ public class AppTreePanelTest {
     @Test
     @Order(6)
     void testShowMonth() {
-        // For the test user there is icon data in this month.
+        // For the test user there is icon data in this month; needs to have
+        //   icon data to get the coverage we're looking for here.
         LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
-
-        appTreePanel.setViewedDate(theMonthToShow);
+        appTreePanel.theMonthView = new MonthView(theMonthToShow);
         appTreePanel.showMonthView();
         JTree theTree = appTreePanel.getTree();
         TreePath tp = theTree.getSelectionPath();
@@ -274,7 +274,7 @@ public class AppTreePanelTest {
     @Order(10)
     void testAddNew() {
         appTreePanel.appMenuBar.manageMenus("To Do List");
-        appTreePanel.restoringPreviousSelection = false; // not this time...
+        appTreePanel.restoringPreviousSelection = false; // not this time; it's not only about threading.
         TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
         JMenuItem jmi = testUtil.getMenuItem("To Do List", "Add New...");
         jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.

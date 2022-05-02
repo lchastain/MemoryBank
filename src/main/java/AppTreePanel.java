@@ -599,88 +599,47 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end createTree
 
     @Override // AlteredDateListener method
-    // Needed to keep date-related panels synchronized with respect to viewedDate when the viewedDate of any one of
-    //   them changes.  The change will only come from user interaction with the provided controls on the currently
-    //   displayed panel, so the last such interaction 'wins' and the resulting date is therefore the one to be used
-    //   by all other panels.  The change will be applied immediately to the viewedDate and also to any other panels
-    //   that have already been constructed, IF the change is significant enough to warrant a change of their view.
+    // Needed to keep date-related panels synchronized with respect to viewedDate when the date of any one of them
+    //   changes.  The change will only come from user interaction with the provided controls on the currently
+    //   displayed panel, so the last such interaction 'wins' and the resulting date is therefore the one to be used by
+    //   all other panels.  The change will be applied immediately to the viewedDate here and also to any other panels
+    //   that have already been constructed, regardless of whether or not the change is significant enough to warrant
+    //   a change of their view.  There are two separate justifications for applying the same date to all other panels:
+    // Reason 1:  To keep the numeric date unchanged when the change is by Month or by Year.
+    //   Consider when the day is the 27th of the month and the MonthNotes has already been constructed.  In the
+    //   DayNotes panel, the date is reduced from the 27th to the 26th.  The change would normally be too small to
+    //   be seen on the MonthView.  Then on the tree, select the MonthView and then increment by one from September to
+    //   October.  Now go back to DayNotes, and while you expect that the month has changed to October, you also
+    //   expect that the date is the 26th.  The only way that the MonthView could have added one month and yet land
+    //   on the correct day is if that 1-day change you made earlier had been accepted as its new 'base' date.
+    // Reason 2:  To keep numeric dates 'legal'.
+    //   Consider that you are looking at DayNotes on Aug 31.  Then the month is incremented (either from here or from
+    //   one of the 'month' panels.  Then the day you land on is Sep 30.  This 'correction' happens thanks to the
+    //   LocalDate logic handling of how to add or subtract a 'month'.  Using that mechanism we can always get to a
+    //   'legal' date, and don't have to do any day-math or date reconstructing from calculated integers.  The panel
+    //   that makes the change is always able to do its own math and arrive at the correct day, regardless of the
+    //   size of the change.  This is why that is the date that needs to be applied to all the other panels.
     public void dateChanged(DateRelatedDisplayType whoChangedIt, LocalDate theNewDate) {
         viewedDate = theNewDate;
-
-        // To keep all the CalendarNoteGroupPanels 'in sync', we may need to set new dates on
-        //   the other Note Panels besides the one that already had the change.
-
-        // We do not just go ahead and set the other NoteGroup panels without regard to whether or not there was a
-        //   significant-enough date change, because doing so will cause them to first save their data and
-        //   that will cause some of their menu items to become disabled, with no reason apparent to the user.
-        switch (whoChangedIt) {
-            case DAY_NOTES: // This change comes from the DayNoteGroupPanel
-                // If the change was small enough, we may not also need a change of year or month
-                if(theAppMonths != null) {
-                    if (!theAppMonths.getTitle().equals(theAppMonths.getTitle(viewedDate))) {
-                        theAppMonths.setDate(viewedDate);
-                    }
-                }
-                if(theAppYears != null) {
-                    if(!theAppYears.getTitle().equals(theAppYears.getTitle(viewedDate))) {
-                        theAppYears.setDate(viewedDate);
-                    }
-                }
-
-                // These two have no persisted data; update without concern.
-                if(theMonthView != null) theMonthView.setView(viewedDate);
-                if(theYearView != null) theYearView.setView(viewedDate);
-                break;
-            case MONTH_NOTES:
-                // A change of the month will definitely require a new Day setting.
-                if(theAppDays != null) {
-                    theAppDays.setDate(viewedDate);
-                }
-
-                // But the new month may still be within the same year as the previous viewedDate -
-                if(theAppYears != null) {
-                    if(!theAppYears.getTitle().equals(theAppYears.getTitle(viewedDate))) {
-                        theAppYears.setDate(viewedDate);
-                    }
-                }
-
-                // These two have no persisted data; update without concern.
-                if(theMonthView != null) theMonthView.setView(viewedDate);
-                if(theYearView != null) theYearView.setView(viewedDate);
-                break;
-            case YEAR_NOTES: // This change comes from the YearNoteGroupPanel
-                // A change of the year will definitely affect both viewed Day and the
-                //   viewed Month (same day & month, but in a different year).
-                if(theAppDays != null) {
-                    theAppDays.setDate(viewedDate);
-                }
-                if(theAppMonths != null) {
-                    theAppMonths.setDate(viewedDate);
-                }
-
-                // These two have no persisted data; update without concern.
-                if(theMonthView != null) theMonthView.setView(viewedDate);
-                if(theYearView != null) theYearView.setView(viewedDate);
-                break;
-            default: // aka 'UNKNOWN'; works for both MonthView and YearView
-                // A date change from either of these will definitely require a new setting for the Day and Month Notes.
-                if(theAppDays != null) {
-                    theAppDays.setDate(viewedDate);
-                }
-                if(theAppMonths != null) {
-                    theAppMonths.setDate(viewedDate);
-                }
-
-                // But a new month may still be within the same year as the previous viewedDate -
-                if(theAppYears != null) {
-                    if(!theAppYears.getTitle().equals(theAppYears.getTitle(viewedDate))) {
-                        theAppYears.setDate(viewedDate);
-                    }
-                }
-
-                // The change came from either the MonthView or the YearView; we only want to update the other one.
-                if(whoChangedIt == DateRelatedDisplayType.MONTH_VIEW) if(theYearView != null) theYearView.setView(viewedDate);
-                if(whoChangedIt == DateRelatedDisplayType.YEAR_VIEW) if(theMonthView != null) theMonthView.setView(viewedDate);
+        // To keep all the Date-related Panels 'in sync', we need to set new dates on
+        //   the other Panels besides the one that already had the change.
+        // But don't worry; if there was not a significant-enough date change, the setDate method
+        //   will not do a Notes panel reload, so that menu items remain enabled and panels
+        //   retain their current appearance.
+        if(theAppDays != null && whoChangedIt != DateRelatedDisplayType.DAY_NOTES) {
+            theAppDays.setDate(viewedDate);
+        }
+        if(theAppMonths != null && whoChangedIt != DateRelatedDisplayType.MONTH_NOTES) {
+            theAppMonths.setDate(viewedDate);
+        }
+        if(theAppYears != null && whoChangedIt != DateRelatedDisplayType.YEAR_NOTES) {
+            theAppYears.setDate(viewedDate);
+        }
+        if(theYearView != null && whoChangedIt != DateRelatedDisplayType.YEAR_VIEW) {
+            theYearView.setView(viewedDate);
+        }
+        if(theMonthView != null && whoChangedIt != DateRelatedDisplayType.MONTH_VIEW) {
+            theMonthView.setView(viewedDate);
         }
     } // end dateChanged
 
@@ -1279,17 +1238,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end saveGroupAs
 
 
-    @Override // Implementation of the TreePanel interface method
-    public void setViewedDate(int theYear) {
-        viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
-    }
-
-    @Override // Implementation of the TreePanel interface method
-    public void setViewedDate(LocalDate theViewedDate) {
-        viewedDate = theViewedDate;
-//        viewedDateGranularity = theGranularity;
-    }
-
     // This method will put the 'About' graphic into the right
     //   side of the display.  However, if invoked a second time
     //   without any other tree selection in between, it will
@@ -1547,6 +1495,19 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                         theData = goalGroupPanel.theMilestoneNoteGroupPanel.myNoteGroup.getTheData();
                         break;
                 }
+            } else if (theTabbedCalendarNoteGroupPanel != null) { // Show the correct sub-panel (tab)
+                int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();
+                switch (index) {
+                    case 0:  // Day Notes
+                        theData = theAppDays.myNoteGroup.getTheData();
+                        break;
+                    case 1: // Month Notes
+                        theData = theAppMonths.myNoteGroup.getTheData();
+                        break;
+                    case 2: // Year Notes
+                        theData = theAppYears.myNoteGroup.getTheData();
+                        break;
+                }
             } else {
                 theData = theNoteGroupPanel.myNoteGroup.getTheData();
             }
@@ -1563,10 +1524,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     public void showDay() {
         MemoryBank.debug("showDay called.  viewedDate = " + viewedDate.toString());
         if (appOpts.groupCalendarNotes) {
-            // Cause a re-construct when selected, which will make it 'land' on the Day tab.
-// TODO           theTabbedCalendarNoteGroupPanel = null;  NO - just set it to index zero, if non-null.  Otherwise it will
-            // go there when constructed.
             theTree.setSelectionPath(calendarNotesPath);
+            theTabbedCalendarNoteGroupPanel.theTabbedPane.setSelectedIndex(0);
         } else {
             theTree.setSelectionPath(dayNotesPath);
         }
@@ -1796,7 +1755,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         jScrollPane.setViewportView(jTextArea);
         jScrollPane.setPreferredSize(new Dimension(600, 500));
         theMessage = jScrollPane;
-        optionPane.showMessageDialog(this, theMessage, "Viewing Current NoteGroup", PLAIN_MESSAGE);
+        optionPane.showMessageDialog(this, theMessage, "Viewing NoteGroup Keepers", PLAIN_MESSAGE);
     }
 
     // Called from YearView - a click on a Month name
@@ -2065,7 +2024,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
         }
 
-        theNoteGroupPanel = theTabbedCalendarNoteGroupPanel;
+//        theNoteGroupPanel = theTabbedCalendarNoteGroupPanel;
         rightPane.setViewportView(theTabbedCalendarNoteGroupPanel.theBasePanel);
 
         int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();

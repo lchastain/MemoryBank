@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -80,12 +82,22 @@ public class Area51a {
         lhs.addAll(vector2);
         Vector<String> finalVector = new Vector<>(lhs);
 
-        System.out.println(finalVector.toString());
+        System.out.println(finalVector);
+    }
+
+    // What date is Feb 31?  (from Jan 31, increase the month only)
+    private void try6() {
+        LocalDate startDate = LocalDate.of(2022, Month.JANUARY, 31);
+        LocalDate newDate = startDate.plusMonths(1);
+        System.out.println(newDate);
+        // Exception in thread "main" java.time.DateTimeException: Invalid date 'FEBRUARY 31'
+        // LocalDate directDate = LocalDate.of(2022, Month.FEBRUARY, 31);
+        System.out.println("  Plus zero years: " + newDate.plusYears(0));
     }
 
     public static void main(String[] args) {
         Area51a a51 = new Area51a();
-        a51.try5();
+        a51.try6();
 
     }
 

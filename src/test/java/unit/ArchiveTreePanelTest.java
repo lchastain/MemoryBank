@@ -90,10 +90,10 @@ public class ArchiveTreePanelTest {
 
     @Test
     void testShowMonthView() {
-        // For the test user there is icon data in this month.
+        // For the test user there is icon data in this month; needs to have
+        //   icon data to get the coverage we're looking for here.
         LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
-
-        archiveTreePanel.setViewedDate(theMonthToShow);
+        archiveTreePanel.theMonthView = new MonthView(theMonthToShow);
         archiveTreePanel.showMonthView();
         TreePath tp = theTree.getSelectionPath();
         Assertions.assertNotNull(tp);

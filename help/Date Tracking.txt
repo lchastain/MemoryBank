@@ -28,6 +28,9 @@ already visible on the Panel.  Selected dates will default to current date, and 
 any other panel.  But there IS an exception - when the selection is made by a double-click on a specific date, the
 AppTreePanel's viewedDate WILL change to that date and the view will change to DayNotes.
 
+The AlterButtons (arrow buttons and the 'T') can change the date for the currently displayed panel, and upon such a
+change the AlteredDateListener sets the AppTreePanel viewedDate and synchronizes any already-constructed Panels.
+
 
 
 ===================================================================================================================
@@ -36,10 +39,15 @@ Test Plan:
 1.  Start the app (AppTreePanel)
     Show each of the five date-related panels and verify that their dates are the same, 'today'.
 
-2.  Set a known viewed date in the AppTreePanel, then show each panel and verify its shown date.
+2.  Restart the app (AppTreePanel)
+    Set a known viewed date in the AppTreePanel, then show each panel and verify its shown date.
+    Set a new known date and verify one Note panel and one View panel (both previously constructed, now).
 
-Not covered here:  Date changes to Panels that are in a tabbed collection.  For those, see the
-  workings of the AlteredDateListener.
+3.  Keep the previously constructed panels, use Year Notes to change the date (vs doing it via the AppTreePanel)
+    Verify (without showing them) that the other panels have that new date.
+
+4.  Keep the previously constructed panels, use Day Notes to change the date by only two days.
+    Verify that the other panels did not change (because the change would not have affected their view)
 
 
 

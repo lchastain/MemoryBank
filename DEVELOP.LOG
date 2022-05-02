@@ -3,6 +3,8 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 
 Problems:
     Date-related Panels, after being left up overnight, have the wrong 'Today' button handling.
+    Year view set by typing, no call to dateChanged.  This may be ok but after that, a daynotes change and then back
+        to year view, stayed on the date that was set earlier.
 
 
 Next:
@@ -12,9 +14,41 @@ Next:
 Current:
     Done:
     Need:   Update ArchiveTreePanel to catch up with recent changes to AppTreePanel.  Make tests.
-            Tests of date tracking for the CalendarNoteGroup tabs.  AlteredDateListener.
 
 =====================================================================================================
+
+2 May 2022
+Completed the refactoring for removing setViewedDate(), repaired all tests.  Check in.
+
+1 May 2022
+Added the TabbedCalendarNotesPanel handling to the 'show current notegroup' feature.  Then found that showDay() when
+grouped is not working.  Changed the View Panels code (3 places) to call dateChanged instead of setViewDate.  Now all
+tests again passing, after changing one expectation to fit the new approach that the AppTreePanel will always call
+setDate() from dateChanged.  Now, do not need setViewedDate(), except that some tests (and the archive panel) are
+still using it.  Will refactor all, to eliminate the call.  The AppTreePanel data member 'theViewedDate' is still
+needed, but now it will not have a setter, other than via dateChanged().
+
+30 Apr 2022
+So to fix that, I kept going back to my voluminous comments on date setting and date altering, and slowly discovered
+that the precautions I had in place to prevent data loss, had already moved to those calling contexts that might cause
+the loss in the first place, so that the conditions in place were not needed, and I CAN call setDate() for every new
+date regardless of magnitude or granularity of the change.  That is, with a tweak to the date setting method in the
+CalendarNoteGroupPanel to essentially contradict the previous comment there that explained why the change is not
+ignorable.  Now, it is still never ignorable but if the panel does not need a reload then it does not do that; it just
+accepts the new date with no other action taken, and it does this so that coarser-granularity date alterations from
+that point onward will keep the correct day setting.  And by using the LocalDate methods to add/subtract chronounits,
+problems such as going forward one month from Jan 31 are handled by the framework and you land on Feb 28 (or Feb 29 if
+it is a leap year).  Going back to January from there - you go back to either the 28th or 29th, depending on which one
+you had landed on in February.  This system-imposed alteration - is completely understandable and acceptable.
+After that - three tests have problems (no surprise there).  Working on them, next.
+
+29 Apr 2022
+Testing went well until I found a small crack that the Day Notes panel can fall through:
+  1.  All panels initialized to the same date.
+  2.  Then DayNotes is changed by a small amount but stays within the same month.
+  3.  Then go to any other date-related panel (month or year granularity) and alter the date.
+  4.  Then go back to the Day Notes - of course it should match the new setting for either Month or Year+Month, but
+        the 'day' that it lands is the original numeric from step 1, not the new one set in step 2.
 
 28 Apr 2022
 Fixed the dateChanged() handling for all panels (I think), and reverted users of the TreePanel interface.  Now the

@@ -9,10 +9,6 @@ public interface TreePanel {
 
     LocalDate getViewedDate();
 
-    void setViewedDate(int theYear);
-
-    void setViewedDate(LocalDate theViewedDate);
-
     void showDay();
 
     void showFoundIn(SearchResultData searchResultData);
