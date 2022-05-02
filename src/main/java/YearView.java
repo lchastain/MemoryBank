@@ -91,6 +91,11 @@ public class YearView extends JPanel {
         //   will repeat until the button is released.  This is an acknowledgement that the desired
         //   year may be well away from the one currently on display.
         MouseAdapter alterButtonHandler = new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if(alteredDateListener != null) {
+                    alteredDateListener.dateChanged(DateRelatedDisplayType.YEAR_VIEW, displayedYear);
+                }
+            }
             public void mouseExited(MouseEvent e) {
                 if (alterButtonDepressed) depressedThread.stopit();
                 alterButtonDepressed = false;
@@ -113,6 +118,7 @@ public class YearView extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 if (alterButtonDepressed) depressedThread.stopit();
                 alterButtonDepressed = false;
+                displayedYear = displayedYear.plusYears(theYear - displayedYear.getYear());
             } // end mouseReleased
         };// end of new MouseAdapter
 
@@ -185,19 +191,15 @@ public class YearView extends JPanel {
                 if (theChar == KeyEvent.VK_ENTER) {
                     String theEntry = yearTextField.getText();
                     if (!theEntry.isEmpty()) {
-                        // TODO - make a full date here, recalc with that.  Use date-addition math that was previously in AppTreePanel.setViewYear()
-//                        // Implementation of the TreePanel interface method
-//                        public void setViewYear(int theYear) {
-//                            int fromYear = viewedDate.getYear();
-//                            int yearDiff = fromYear - theYear; // If this is zero, no Exception and no different result, so go with it.
-//                            // We use 'plusYears' to keep it 'legal', vs simply constructing a LocalDate from current day and month
-//                            //   and glommed onto the provided year.  This really only prevents one bad date - going from Feb 29
-//                            //   on a leap year, to a non-leap year.  But what the heck, why not.
-//                            viewedDate = viewedDate.plusYears(yearDiff);
-//                        }
-
                         theYear = Integer.parseInt(yearTextField.getText());
                         if (theYear <= 0) theYear = 1; // Entry limited to 4 digits, but they can still be flaky.
+
+                        int yearDiff = theYear - displayedYear.getYear();
+                        // We use 'plusYears' to keep it 'legal', vs simply constructing a LocalDate from current day
+                        //   and month and glommed onto the provided year.  This really only prevents one bad date -
+                        //   going from Feb 29 on a leap year, to a non-leap year.  But what the heck, why not.
+                        displayedYear = displayedYear.plusYears(yearDiff);
+
                         recalc(theYear);
                     }
                     transferFocusUpCycle(); // Otherwise it holds on, and key mappings don't work no mo.
@@ -329,9 +331,6 @@ public class YearView extends JPanel {
         if(alteredDateListener != null) {
             alteredDateListener.dateChanged(DateRelatedDisplayType.YEAR_VIEW, displayedYear);
         }
-//        if (treePanel != null) {
-//            treePanel.setViewYear(theYear);
-//        }
 
         // Look for new day data, for color/font setting.
         hasDataArray = MemoryBank.dataAccessor.findDataDays(year);
@@ -390,7 +389,7 @@ public class YearView extends JPanel {
     void setView(LocalDate viewDate) {
         displayedYear = viewDate;
         if (activeDayLabel != null) activeDayLabel.reset(); // turn off any previous selection.
-//        theYear = viewDate.getYear();
+        theYear = viewDate.getYear();
         recalc(viewDate);
     } // end setView
 

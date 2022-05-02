@@ -127,7 +127,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
             // Reload the data, if there is any for the new date.
             updateGroup();  // Be aware that this clears the panel, which also clears the source data.
-            // In operational use cases this works just fine; tests, however, might not be happy about it.
+            // In operational use cases this works just fine; test classes, however, could get tripped up if they
+            //   intend to keep using that same data for the next test in the test class.
         } else { // Take the new date but decline the panel reload; we are already showing this date.
             theDate = theNewChoice;
         }

@@ -161,12 +161,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     } // end constructor for ArchiveTreePanel
 
 
-    //-------------------------------------------------------
-    // Method Name: closeGroup
-    //
-    // Removes the tree leaf corresponding to the currently
-    //    selected Group.
-    //-------------------------------------------------------
+    // Removes the tree leaf corresponding to the currently selected Group.
     void closeGroup() {
         // Obtain a reference to the current tree selection.
         // Since the App menu provides the only 'legal' entry to this
@@ -192,9 +187,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             // Select the parent branch.
             TreeNode[] pathToRoot = theParent.getPath();
             theTree.setSelectionPath(new TreePath(pathToRoot));
-
-            boolean updateLists = true; // If inline, IJ complains about the method not ever having another value.
-            updateTreeState(updateLists); // Needed now, in case there is a new link target selection.
         }
 
         // Restore the tree selection listening.
@@ -335,7 +327,12 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
 
         // At creation, all paths are collapsed.
         // Expand branches based on last saved configuration.
-        resetTreeState();
+        if (appOpts.goalsExpanded) theTree.expandPath(goalsPath);
+        if (appOpts.eventsExpanded) theTree.expandPath(eventsPath);
+        if (appOpts.viewsExpanded) theTree.expandPath(viewsPath);
+        if (appOpts.notesExpanded) theTree.expandPath(notesPath);
+        if (appOpts.todoListsExpanded) theTree.expandPath(todolistsPath);
+        if (appOpts.searchesExpanded) theTree.expandPath(searchresultsPath);
 
         // Set to single selection mode.
         theTree.getSelectionModel().setSelectionMode
@@ -352,6 +349,21 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     @Override
     public void dateChanged(DateRelatedDisplayType whoChangedIt, LocalDate theNewDate) {
         viewedDate = theNewDate;
+        if(theAppDays != null && whoChangedIt != DateRelatedDisplayType.DAY_NOTES) {
+            theAppDays.setDate(viewedDate);
+        }
+        if(theAppMonths != null && whoChangedIt != DateRelatedDisplayType.MONTH_NOTES) {
+            theAppMonths.setDate(viewedDate);
+        }
+        if(theAppYears != null && whoChangedIt != DateRelatedDisplayType.YEAR_NOTES) {
+            theAppYears.setDate(viewedDate);
+        }
+        if(theYearView != null && whoChangedIt != DateRelatedDisplayType.YEAR_VIEW) {
+            theYearView.setView(viewedDate);
+        }
+        if(theMonthView != null && whoChangedIt != DateRelatedDisplayType.MONTH_VIEW) {
+            theMonthView.setView(viewedDate);
+        }
     }
 
     public JTree getTree() {
@@ -361,41 +373,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     @Override
     public LocalDate getViewedDate() { return viewedDate; }
 
-    // Call this method after changes have been made to the tree, to
-    //   cause a repaint.  The first line below does that all by itself,
-    //   but it also results in a tree with all nodes collapsed.  So the
-    //   rest of this method is needed to re-expand any nodes that
-    //   should have stayed that way.
-    private void resetTreeState() {
-        treeModel.nodeStructureChanged(theRootNode); // collapses all branches
-
-        // Expand branches based on last configuration.
-        if (appOpts.goalsExpanded) theTree.expandPath(goalsPath);
-        if (appOpts.eventsExpanded) theTree.expandPath(eventsPath);
-        if (appOpts.viewsExpanded) theTree.expandPath(viewsPath);
-        if (appOpts.notesExpanded) theTree.expandPath(notesPath);
-        if (appOpts.todoListsExpanded) theTree.expandPath(todolistsPath);
-        if (appOpts.searchesExpanded) theTree.expandPath(searchresultsPath);
-
-    } // end resetTreeState
-
-
-//    @Override
-//    public void setSelectedDate(LocalDate theSelection) {
-//        selectedDate = theSelection;
-//        viewedDate = theSelection;
-//        viewedDateGranularity = ChronoUnit.DAYS;
-//    }
-
-//    public  void setViewYear(int theYear) {
-//        viewedDate = LocalDate.of(theYear, viewedDate.getMonth(), viewedDate.getDayOfMonth());
-//    }
-//
-//    public void setViewedDate(LocalDate theViewedDate) {
-//        viewedDate = theViewedDate;
-//    }
-
-
     // Called from YearView mouse dbl-click on numeric date, or MonthView mouse dbl-click on the 'day' square.
     @Override
     public void showDay() {
@@ -404,9 +381,9 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     } // end showDay
 
 
-    // Show the Group where the search result was found.  This is going to be its current state and not a snapshot
-    // of the group when the data was found, so the note(s) in this group that met the search criteria may not still
-    // be here or may not still meet that criteria.  And it is possible that the
+    // Show the Group where the search result was found.  This is going to be its state when the archive was made and
+    // not a snapshot of the group when the data was found, so the note(s) in this group that met the search criteria
+    // may not still be here or may not still meet that criteria.  And it is possible that the
     // group itself has gone away.  If the group cannot be shown then nothing happens.
     @Override
     public void showFoundIn(SearchResultData srd) {
@@ -740,97 +717,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         showWorkingDialog(false); // This may have already been done, but no harm in doing it again.
     } // end treeSelectionChanged
 
-
-    //-------------------------------------------------
-    // Method Name:  updateAppOptions
-    //
-    // Capture the current tree configuration in terms of node expansion/contraction
-    //   and variable group contents, and put it into appOpts (AppOptions class).
-    //-------------------------------------------------
-    void updateTreeState(boolean updateLists) {
-        appOpts.goalsExpanded = theTree.isExpanded(goalsPath);
-        appOpts.eventsExpanded = theTree.isExpanded(eventsPath);
-        appOpts.viewsExpanded = theTree.isExpanded(viewsPath);
-        appOpts.notesExpanded = theTree.isExpanded(notesPath);
-        appOpts.todoListsExpanded = theTree.isExpanded(todolistsPath);
-        appOpts.searchesExpanded = theTree.isExpanded(searchresultsPath);
-
-        //System.out.println("Divider Location: " + splitPane.getDividerLocation());
-        appOpts.paneSeparator = splitPane.getDividerLocation();
-
-        appOpts.theSelectionRow = theTree.getMaxSelectionRow();
-        // Current selection text was captured when the last selection
-        //    was made, but the row may have changed due to expansion
-        //    or collapsing of nodes above the selection.
-
-        if (!updateLists) return;
-
-        // Variables reused in multiple places, below.
-        DefaultMutableTreeNode leafLink;
-        int numLists;
-
-        // Preserve the names of the active Goals in the AppOptions.
-        DefaultMutableTreeNode theGoalsNode = BranchHelperInterface.getNodeByName(theRootNode, "Goals");
-        appOpts.goalsList.clear();
-
-        numLists = theGoalsNode.getChildCount();
-        if (numLists > 0) {
-            leafLink = theGoalsNode.getFirstLeaf();
-            while (numLists-- > 0) {
-                String s = leafLink.toString();
-                //MemoryBank.debug("  Preserving Goal: " + s);
-                appOpts.goalsList.addElement(s);
-                leafLink = leafLink.getNextLeaf();
-            } // end while
-        } // end if
-
-        // Preserve the names of the Event Lists in the AppOptions.
-        DefaultMutableTreeNode theEventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
-        appOpts.eventsList.clear();
-
-        numLists = theEventsNode.getChildCount();
-        if (numLists > 0) {
-            leafLink = theEventsNode.getFirstLeaf();
-            while (numLists-- > 0) {
-                String leafName = leafLink.toString();
-                //MemoryBank.debug("  Preserving Event List: " + leafName);
-                appOpts.eventsList.addElement(leafName);
-                leafLink = leafLink.getNextLeaf();
-            } // end while
-        } // end if
-
-        // Preserve the names of the active To Do Lists in the AppOptions.
-        DefaultMutableTreeNode theTodoNode = BranchHelperInterface.getNodeByName(theRootNode, "To Do Lists");
-        appOpts.tasksList.clear();
-
-        numLists = theTodoNode.getChildCount();
-        if (numLists > 0) {
-            leafLink = theTodoNode.getFirstLeaf();
-            while (numLists-- > 0) {
-                String s = leafLink.toString();
-                //MemoryBank.debug("  Preserving Todo List: " + s);
-                appOpts.tasksList.addElement(s);
-                leafLink = leafLink.getNextLeaf();
-            } // end while
-        } // end if
-
-        // Preserve the names of the active Search Results in the AppOpts.
-        DefaultMutableTreeNode theSearchNode = BranchHelperInterface.getNodeByName(theRootNode, "Search Results");
-        int numResults;
-        appOpts.searchResultList.clear();
-
-        numResults = theSearchNode.getChildCount();
-        if (numResults > 0) {
-            leafLink = theSearchNode.getFirstLeaf();
-            while (numResults-- > 0) {
-                String s = leafLink.toString();
-                //MemoryBank.debug("  Preserving search result: " + s);
-                appOpts.searchResultList.addElement(s);
-                leafLink = leafLink.getNextLeaf();
-            } // end while
-        } // end if
-
-    } // end updateAppOptions
 
     //-------------------------------------------------------------
     // Method Name: valueChanged
