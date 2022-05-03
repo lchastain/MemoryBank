@@ -3,8 +3,6 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 
 Problems:
     Date-related Panels, after being left up overnight, have the wrong 'Today' button handling.
-    Year view set by typing, no call to dateChanged.  This may be ok but after that, a daynotes change and then back
-        to year view, stayed on the date that was set earlier.
 
 
 Next:
@@ -12,12 +10,16 @@ Next:
     Make a top-level 'Notes' notegroup.
 
 Current:
-    Done:
 
 =====================================================================================================
 
 2 May 2022
 Completed the refactoring for removing setViewedDate(), repaired all tests.  Check in.
+Then fixed this:
+  Year view set by typing, no call to dateChanged.  This may be ok but after that, a daynotes change and then back
+  to year view, stayed on the date that was set earlier.
+and checked in again.  Now the typed numeric date also goes thru the alteredDateListener, upon YearView recalc.
+Did a pub & version preserve, ready to move on to new functionality.
 
 1 May 2022
 Added the TabbedCalendarNotesPanel handling to the 'show current notegroup' feature.  Then found that showDay() when

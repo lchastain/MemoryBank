@@ -2023,8 +2023,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             theAppYears.setAlteredDateListener(this);
             theTabbedCalendarNoteGroupPanel = new TabbedCalendarNoteGroupPanel();
         }
-
-//        theNoteGroupPanel = theTabbedCalendarNoteGroupPanel;
         rightPane.setViewportView(theTabbedCalendarNoteGroupPanel.theBasePanel);
 
         int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();

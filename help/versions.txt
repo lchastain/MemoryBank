@@ -124,11 +124,13 @@ Ver.    Notes
 0.6     30 Aug 2021   a pre-final v0.6
         Upgraded Java from v8 to v16.  New Jackson jars (v2.9.0 for core, databind, annotations) as well.
 
+0.6      2 May 2022   a pre-final v0.6
+        Older archives not compatible; clear out before going live with this version
+        Goals is now a tabbed pane of a To Do List, a Log, and a list of Milestones with a shared 'plan' header.
+        Calendar Notes can be optionally grouped into a tabbed pane panel
+
         NOT YET ARCHIVED; this version in dev workspace only.
 0.6     -ongoing-   a pre-final v0.6
-        Split Goals into a To Do List, a Log, and a list of Milestones, all shown in a tabbed-pane.
-        Older archives not compatible; clear out before going live with this version
-
 
 
 

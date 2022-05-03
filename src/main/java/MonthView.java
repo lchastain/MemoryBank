@@ -172,11 +172,6 @@ public class MonthView extends JLayeredPane {
         return theButton;
     }
 
-
-//    void setAlteredDateListener(AlteredDateListener adl) {
-//        alteredDateListener = adl;
-//    }
-
     void setArchiveDate(LocalDate theArchiveDate) {
         archiveDate = theArchiveDate;
         setChoice(theArchiveDate); // This sets the 'choice' label and day highlight, if appropriate.
