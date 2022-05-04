@@ -1238,6 +1238,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end saveGroupAs
 
 
+    // Convenience for Panels that are groupings of NoteGroupPanels but do not extend that class.
+    // (Currently only the TabbedCalendarNoteGroupPanel, but GoalGroupPanel may be interested...)
+    void setTheNoteGroupPanel(NoteGroupPanel noteGroupPanel) { theNoteGroupPanel = noteGroupPanel; }
+
     // This method will put the 'About' graphic into the right
     //   side of the display.  However, if invoked a second time
     //   without any other tree selection in between, it will

@@ -47,14 +47,18 @@ public class TabbedCalendarNoteGroupPanel extends NoteGroupPanel implements Chan
         // In case you want an example where you don't already have a handle to the source of the Event -
         //JTabbedPane pane = (JTabbedPane) e.getSource();
         int index = theTabbedPane.getSelectedIndex();
+        // We 'setTheNoteGroupPanel()' below so that AppTreePanel knows which NoteGroup to apply menu actions.
         switch (index) {
             case 0:  // Day Notes
+                AppTreePanel.theInstance.setTheNoteGroupPanel(theDayNoteGroupPanel);
                 theDayNoteGroupPanel.adjustMenuItems(theDayNoteGroupPanel.myNoteGroup.groupChanged);
                 break;
             case 1: // Month Notes
+                AppTreePanel.theInstance.setTheNoteGroupPanel(theMonthNoteGroupPanel);
                 theMonthNoteGroupPanel.adjustMenuItems(theMonthNoteGroupPanel.myNoteGroup.groupChanged);
                 break;
             case 2: // Year Notes
+                AppTreePanel.theInstance.setTheNoteGroupPanel(theYearNoteGroupPanel);
                 theYearNoteGroupPanel.adjustMenuItems(theYearNoteGroupPanel.myNoteGroup.groupChanged);
                 break;
         }
