@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public abstract class IconNoteComponent extends NoteComponent {
+public class IconNoteComponent extends NoteComponent {
     private static final long serialVersionUID = 1L;
     static final int ICONNOTEHEIGHT = 38; // 24 is too small for icons.
 
@@ -161,8 +161,9 @@ public abstract class IconNoteComponent extends NoteComponent {
                 int m = e.getModifiersEx();
                 //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // Click of right mouse button.
                 if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
-                    if (e.getClickCount() >= 2) return; // Single right click only, not a double.
+                    if (e.getClickCount() >= 2) return; // Handle a single right click only, not a double.
                     showIconPopup(e);  // Show the popup menu
+                    setBorder(null);  // The popup puts an unseen border onto the label, which cuts into the icon.
                 } else if (e.getClickCount() == 2) {  // Double left button click
                     System.out.print(""); // Don't care.
                 } else { // Single Left Mouse Button
@@ -215,7 +216,6 @@ public abstract class IconNoteComponent extends NoteComponent {
         Dimension d = super.getMaximumSize();
         return new Dimension(d.width, ICONNOTEHEIGHT);
     } // end getMaximumSize
-
 
     // Need to keep the height constant.
     public Dimension getPreferredSize() {
@@ -271,6 +271,29 @@ public abstract class IconNoteComponent extends NoteComponent {
     } // end setIcon
 
 
+    //----------------------------------------------------------
+    // Method Name: setNoteData
+    //
+    // Called by the overridden setNoteData and the 'swap' method.
+    //----------------------------------------------------------
+    private void setIconNoteData(IconNoteData newNoteData) {
+        myNoteData = newNoteData;
+
+        // update visual components...
+        initialized = true;  // without updating the 'lastModDate'
+        resetComponent();
+        setNoteChanged();
+    } // end setIconNoteData
+
+    @Override
+    public void setNoteData(NoteData newNoteData) {
+        if (newNoteData instanceof IconNoteData) {  // same type, but cast is still needed
+            setIconNoteData((IconNoteData) newNoteData);
+        } else {
+            setIconNoteData(new IconNoteData(newNoteData));
+        }
+    } // end setNoteData
+
     //------------------------------------------------------------
     // Method Name:  showIconPopup
     //
@@ -299,11 +322,9 @@ public abstract class IconNoteComponent extends NoteComponent {
         for (ActionListener al : ala) blankMi.removeActionListener(al);
         blankMi.addActionListener(actionListener);
 
-        // Set the Menu Item checkbox for 'Show on Month'
-        siombMi.setState(((IconNoteData) getNoteData()).getShowIconOnMonthBoolean());
-
         // Enable/Disable the items based on rules.
-        blankMi.setEnabled(true);
+
+        // The icon can only be set as the default, if it isn't already.
         String s = ((IconNoteData) getNoteData()).getIconFileString();
         if (s == null) {
             sadMi.setEnabled(false);
@@ -314,8 +335,22 @@ public abstract class IconNoteComponent extends NoteComponent {
             if (s.equals("")) blankMi.setEnabled(false);
         } // end if
 
+        // Set the Menu Item checkbox for 'Show on Month'
+        siombMi.setState(((IconNoteData) getNoteData()).getShowIconOnMonthBoolean());
+        // But regardless of the boolean, only Day icons can show on the MonthView.
+        siombMi.setVisible(this instanceof DayNoteComponent);
+
+        // Blank is always enabled.
+//        blankMi.setEnabled(true);
+
         iconPopup.show(me.getComponent(), me.getX(), me.getY());
     } // end showIconPopup
+
+
+    @Override
+    protected void makeDataObject() {
+        myNoteData = new IconNoteData();
+    } // end makeDataObject
 
 
     // Called after a change to the encapsulated data, to show the visual effects of the change.
@@ -329,8 +364,9 @@ public abstract class IconNoteComponent extends NoteComponent {
         // before set.  This is what allows it to go to the 'default'
         // icon, and if the default icon is later changed, noteIcon
         // will automatically change to the new appearance.
-        // If it was explicitly cleared, it will be "" and will not
-        // be affected by changes to the default.
+        // If it was explicitly cleared, means that the user wants to see no
+        // icon at all.  In that case it will be empty ("") and will not
+        // be affected by subsequent changes to the default icon.
         if (infs == null) {
             // MemoryBank.debug("IconNoteComponent resetComponent:  Icon string null - using default");
             if(myIconKeeper != null) {
@@ -349,45 +385,30 @@ public abstract class IconNoteComponent extends NoteComponent {
         setIcon(theIcon);
     } // end resetComponent
 
-//    // Called after a change to the encapsulated data, to show the visual effects of the change.
-//    protected void resetComponent() {
-//        super.resetComponent();
-//
-//        IconNoteData iconNoteData = (IconNoteData) getNoteData();
-//
-//        IconInfo iconInfo = iconNoteData.iconInfo;
-//        String infs = iconNoteData.getIconFileString();
-//
-//        // The NoteData.iconFileString may be null if it was never
-//        // before set.  This is what allows it to go to the 'default'
-//        // icon, and if the default icon is later changed, theIconLabel
-//        // will automatically change to the new appearance.
-//        // But if it was explicitly cleared, it will be "" and will not
-//        // be affected by changes to the default.
-//
-//        ImageIcon theIcon = null;
-//
-//        if(iconInfo == null && infs == null) {
-//           // MemoryBank.debug("IconNoteComponent resetComponent:  IconInfo is null - using default");
-//            if(myIconKeeper != null) {
-//                theIcon = myIconKeeper.getDefaultIcon();
-////                setIcon(myIconKeeper.getDefaultIcon());
-//            }
-//        } else if(iconInfo != null) {
-//            theIcon = iconInfo.getImageIcon();
-//        } else { // infs is not null but iconInfo was.  Must use infs to make an IconInfo, then.
-////            if (infs.trim().equals("")) { // An explicit 'blank' icon
-////                MemoryBank.debug("IconNoteComponent resetComponent:  Icon string empty - showing blank icon");
-////            } else {
-//                MemoryBank.debug("Setting icon to: " + infs);
-//                iconInfo = MemoryBank.dataAccessor.getIconInfoForDescription(infs);
-//                //theIcon = new ImageIcon(infs);
-//            if(iconInfo != null) theIcon = iconInfo.getImageIcon();
-////            } // end if
-//
-//        } // end if
-//        if(theIcon == null) return;
-//        setIcon(theIcon);
-//    } // end resetComponent
+    @Override
+    public void swap(NoteComponent inc) {
+        // Get a reference to the two data objects
+        IconNoteData ind1 = (IconNoteData) this.getNoteData();
+        IconNoteData ind2 = (IconNoteData) inc.getNoteData();
+
+        // Note: getNoteData and setNoteData are working with references
+        //   to data objects.  If you 'get' data into a local variable
+        //   and then later clear the component, you have also just
+        //   cleared the data in your local variable because you never had
+        //   a separate copy of the data object, just the reference to it.
+
+        // So - copy the data objects.
+        if (ind1 != null) ind1 = new IconNoteData(ind1);
+        if (ind2 != null) ind2 = new IconNoteData(ind2);
+
+        if (ind1 == null) inc.clear();
+        else inc.setNoteData(ind1);
+
+        if (ind2 == null) this.clear();
+        else this.setNoteData(ind2);
+
+        myManager.setGroupChanged(true);
+    } // end swap
+
 
 } // end class IconNoteComponent

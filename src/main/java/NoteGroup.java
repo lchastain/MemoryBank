@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +11,7 @@ import java.util.Vector;
 // Children of this class have specialized GroupProperties and NoteData.
 
 @SuppressWarnings("rawtypes")
-class NoteGroup implements LinkHolder {
+abstract class NoteGroup implements LinkHolder {
     private static final Logger log = LoggerFactory.getLogger(NoteGroup.class);
 
     NoteGroupDataAccessor groupDataAccessor; // Provides a way to persist and retrieve the Group data
@@ -314,14 +313,16 @@ class NoteGroup implements LinkHolder {
     //
     // This method is called with the raw data that is the data Vector.
     // Child groups with notes that are children of NoteData should override.
-    protected void setNotes(Object vectorObject) {
-        if(vectorObject == null) {
-            noteGroupDataVector.clear(); // null not allowed here.
-        } else if(vectorObject instanceof Vector) {
-            noteGroupDataVector = (Vector) vectorObject;
-        } else {
-            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() {
-            });
-        }
-    }
+    abstract void setNotes(Object vectorObject);
+    // Back before this class went abstract, this was the implementation here:
+    //    if(vectorObject == null) {
+    //        noteGroupDataVector.clear(); // null not allowed here.
+    //    } else if(vectorObject instanceof Vector) {
+    //        noteGroupDataVector = (Vector) vectorObject;
+    //    } else {
+    //        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() { });
+    //    }
+    // There could still be future need for a plain-vanilla NoteGroup, so keep this
+    //   note nearby, until it either happens or the note gets really old.  3 May 2022.
+
 }

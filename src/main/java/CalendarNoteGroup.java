@@ -1,10 +1,13 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Vector;
 
-public abstract class CalendarNoteGroup extends NoteGroup {
+public class CalendarNoteGroup extends NoteGroup {
 
     enum Direction {
         BACKWARD,
@@ -52,6 +55,16 @@ public abstract class CalendarNoteGroup extends NoteGroup {
         }
         theName = dtf.format(theDate);
         return theName;
+    }
+
+    @Override
+    protected void setNotes(Object vectorObject) {
+        if(vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
+        } else {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<IconNoteData>>() {
+            });
+        }
     }
 
     static class CalendarFileFilter implements FileFilter {

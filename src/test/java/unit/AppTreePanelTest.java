@@ -304,8 +304,6 @@ public class AppTreePanelTest {
         testUtil.setTheAnswerString("Get New Joke");
         jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
 
-        // Need to make an active notegroup before this will work.
-        appTreePanel.deleteGroup();
     }
 
     @Test

@@ -28,6 +28,10 @@ class AppOptions {
     int theSelectionRow;
     IconInfo defaultDayNoteIconInfo;
     String defaultDayNoteIconDescription;
+    IconInfo defaultMonthNoteIconInfo;
+    String defaultMonthNoteIconDescription;
+    IconInfo defaultYearNoteIconInfo;
+    String defaultYearNoteIconDescription;
     IconInfo defaultEventNoteIconInfo;
     String defaultEventNoteIconDescription;
     TimeFormat timeFormat;
@@ -59,6 +63,10 @@ class AppOptions {
         searchResultList = new Vector<>(0, 1);
         defaultDayNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "icon_not", "gif");
         defaultDayNoteIconDescription = null;
+        defaultMonthNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "calendr2", "gif");
+        defaultMonthNoteIconDescription = null;
+        defaultYearNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "note2", "gif");
+        defaultYearNoteIconDescription = null;
         defaultEventNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "reminder", "gif");
         defaultEventNoteIconDescription = null;
         timeFormat = TimeFormat.CIVILIAN;

@@ -94,6 +94,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     }// end buildMyPanel
 
 
+    @Override
     public ImageIcon getDefaultIcon() {
         return defaultIcon;
     }
@@ -208,6 +209,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
     // Called by the DayNoteComponent's
     //   popup menu handler for 'Set As Default'.
+    @Override
     public void setDefaultIcon(ImageIcon li) {
         defaultIcon = li;
         MemoryBank.appOpts.defaultDayNoteIconInfo = null;

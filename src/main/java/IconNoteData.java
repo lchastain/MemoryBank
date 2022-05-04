@@ -45,7 +45,7 @@ class IconNoteData extends NoteData {
     public void setIconFileString(String val) {
         if(val != null) {
             iconFileString = val;
-            System.out.println(val);
+            MemoryBank.debug("IconNoteData.setIconFileString to: " + val);
         }
     }
 

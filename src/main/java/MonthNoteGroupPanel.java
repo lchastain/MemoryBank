@@ -1,5 +1,5 @@
 /*  User interface to manage notes associated with a Month.
-    This class extends from NoteGroup and uses the inherited
+    This class extends from NoteGroupPanel and uses the inherited
     NoteComponent; there is no need for a MonthNoteComponent.
  */
 
@@ -11,12 +11,27 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
+public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener, IconKeeper {
     private static final long serialVersionUID = 1L;
 
+    static ImageIcon defaultIcon;
+
     static {
+        // Because the parent NoteGroup class is where all NoteComponents get
+        //   made and that constructor runs before the one here, the defaultIcon
+        //   (seen in an IconNoteComponent) MUST be present BEFORE that
+        //   constructor is called.  This is why we need to
+        //   assign it during the static section of this class.
+        if(MemoryBank.appOpts.defaultMonthNoteIconInfo == null) {
+            IconNoteData ind = new IconNoteData();
+            ind.setIconFileString(MemoryBank.appOpts.defaultMonthNoteIconDescription);
+            defaultIcon = ind.getImageIcon();
+        } else {
+            defaultIcon = MemoryBank.appOpts.defaultMonthNoteIconInfo.getImageIcon();
+        }
+
         MemoryBank.trace();
-    } // end static
+    } // end of the static section
 
 
     MonthNoteGroupPanel() {
@@ -57,6 +72,18 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
         updateHeader();
     } // end constructor
 
+    @Override
+    public ImageIcon getDefaultIcon() {
+        return defaultIcon;
+    }
+
+    // Remove this method to get lines that are about half the height and have no icons.
+    @Override
+    JComponent makeNewNote(int i) {
+        IconNoteComponent inc = new IconNoteComponent(this, i);
+        inc.setVisible(false);
+        return inc;
+    } // end makeNewNote
 
     //---------------------------------------------------------
     // MouseListener methods
@@ -126,6 +153,18 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
     } // end mouseReleased
     //---------------------------------------------------------
 
-} // end class MonthNoteGroup
+    // Called by the IconNoteComponent's
+    //   popup menu handler for 'Set As Default'.
+    @Override
+    public void setDefaultIcon(ImageIcon li) {
+        defaultIcon = li;
+        MemoryBank.appOpts.defaultMonthNoteIconInfo = null;
+        MemoryBank.appOpts.defaultMonthNoteIconDescription = li.getDescription();
+        setGroupChanged(true);
+        preClosePanel();
+        updateGroup();
+    } // end setDefaultIcon
+
+} // end class MonthNoteGroupPanel
 
 

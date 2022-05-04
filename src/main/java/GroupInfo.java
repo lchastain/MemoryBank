@@ -36,7 +36,7 @@ class GroupInfo {
     // no ID then return a NoteGroup of the requested type, whether we
     // can find one (first preference) or cannot, so must make one.
     NoteGroup getNoteGroup() {
-        NoteGroup theNoteGroup;
+        NoteGroup theNoteGroup = null;
         // Try to get the NoteGroup from an existing Panel
         NoteGroupPanel thePanel = null;
         if (AppTreePanel.theInstance != null && archiveName == null) {
@@ -76,15 +76,14 @@ class GroupInfo {
                     break;
                 case MONTH_NOTES:
                 case YEAR_NOTES:
-                default:
-                    theNoteGroup = new NoteGroup(this);
+                    theNoteGroup = new CalendarNoteGroup(this);
             }
         }
 
         // If we have a groupId then we only want theNoteGroup if the ID matches.
         // If the ID does not match then return null but if we don't have an ID
         // to match with then we can return the loaded or new NoteGroup.
-        if(groupId != null) {
+        if(theNoteGroup != null && groupId != null) {
             if(!groupId.toString().equals(theNoteGroup.getGroupProperties().instanceId.toString())) {
                 theNoteGroup = null;
             }

@@ -2,16 +2,40 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
-    Date-related Panels, after being left up overnight, have the wrong 'Today' button handling.
-
+    DayNote Panel, after being left up overnight, has the wrong 'Today' button handling.  At month/year rollover,
+        those panels would also be problematic.  By 'wrong', I mean that the 'T' was (correctly) disabled when the
+        panel was showing the previous day, but it did not re-enable when the day changed.
+    'Clear All' not targeting MonthNotes when Grouped.  Check out Save, also.
 
 Next:
-    Add icons to Month and Year Notes
     Make a top-level 'Notes' notegroup.
 
 Current:
 
 =====================================================================================================
+
+4 May 2022
+Showing the icon popup menu was causing a crop of the icon; fixed with a set border to null.
+Resolve the 'show on month' menu item issue by hiding the menu item for Month and Year.  Left the 'show' item
+  management as-is.
+Check-in, to capture the new features to this point.
+
+
+3 May 2022 (married 23 years, now)
+Fixed an event aging issue where DayNotes was not immediately updated, when Cal notes are grouped.  re-pub'd.
+Was able to add icons to MonthNotes by removing 'abstract' from CalendarNoteGroup and IconNoteComponent and
+  then having the Panel use them directly instead of the base NoteGroup and NoteComponent.  Did
+  NOT need to add a MonthNoteComponent or a MonthNoteGroup, but did need to add some methods to the previously
+  abstract classes, mostly cloned/morphed over from DayNotes.  setNoteData was the trickiest.
+After that, there was minimal change needed to YearNoteGroupPanel, to give it the icons as well.
+This kept failing during testing, as an uninvited add-on at the end of AppTreePanel test saveGroupAs():
+  appTreePanel.deleteGroup();  but then I removed the line, and found there was still coverage for that,
+  from testDeleteLastSearchResult().  So - problem gone.
+Also had lost some coverage in NoteGroup after bringing IconNoteGroup to life, so 'fixed' it by making NoteGroup
+  to now be the one that is abstract.
+It seems that now I can get the 'old' appearance/behavior for these two groups simply by removing their short new
+  makeNewNote method, and data still saves/loads fine, with the shorter lines displayed.  Too simple and easy to
+  do that, so I don't feel a need to try and keep the earlier revs around as some kind of hot-swap alternative.
 
 2 May 2022
 Completed the refactoring for removing setViewedDate(), repaired all tests.  Check in.

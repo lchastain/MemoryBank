@@ -9,7 +9,7 @@ import java.time.LocalTime;
 public class DayNoteComponent extends IconNoteComponent {
     private static final long serialVersionUID = 1L;
 
-    private static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
+//    private static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
     static Notifier optionPane;
 
     // The Members
@@ -77,7 +77,7 @@ public class DayNoteComponent extends IconNoteComponent {
         int minWidth = 100; // For the Text Field
         minWidth += noteTimeLabel.getPreferredSize().width;
         minWidth += theIconLabel.getPreferredSize().width;
-        return new Dimension(minWidth, DAYNOTEHEIGHT);
+        return new Dimension(minWidth, ICONNOTEHEIGHT);
     } // end getPreferredSize
 
 
@@ -89,6 +89,7 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end initialize
 
 
+    @Override
     protected void makeDataObject() {
         myDayNoteData = new DayNoteData();
     } // end makeDataObject
@@ -149,6 +150,21 @@ public class DayNoteComponent extends IconNoteComponent {
         noteTimeLabel.setEditable(b);
     }
 
+    //----------------------------------------------------------
+    // Method Name: setNoteData
+    //
+    // Called by the overridden setNoteData and the 'swap' method.
+    //----------------------------------------------------------
+    private void setDayNoteData(DayNoteData newNoteData) {
+        myDayNoteData = newNoteData;
+        MemoryBank.debug("My time: " + myDayNoteData.getTimeOfDayString());
+
+        // update visual components...
+        initialized = true;  // without updating the 'lastModDate'
+        resetComponent();
+        setNoteChanged();
+    } // end setDayNoteData
+
     @Override
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
@@ -163,23 +179,6 @@ public class DayNoteComponent extends IconNoteComponent {
             setDayNoteData(new DayNoteData(newNoteData));
         }
     } // end setNoteData
-
-
-    //----------------------------------------------------------
-    // Method Name: setNoteData
-    //
-    // Called by the overridden setNoteData and the 'swap' method.
-    //----------------------------------------------------------
-    private void setDayNoteData(DayNoteData newNoteData) {
-        myDayNoteData = newNoteData;
-        MemoryBank.debug("My time: " + myDayNoteData.getTimeOfDayString());
-
-        // update visual components...
-        initialized = true;  // without updating the 'lastModDate'
-        resetComponent();
-        setNoteChanged();
-    } // end setNoteData
-
 
     protected void shiftDown() {
         if (noteTimeLabel.isActive) {
@@ -208,6 +207,7 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end shiftUp
 
 
+    @Override
     public void swap(NoteComponent dnc) {
         // Get a reference to the two data objects
         DayNoteData dnd1 = (DayNoteData) this.getNoteData();
@@ -262,7 +262,7 @@ public class DayNoteComponent extends IconNoteComponent {
         } // end clear
 
         public Dimension getPreferredSize() {
-            return new Dimension(timeWidth, DAYNOTEHEIGHT);
+            return new Dimension(timeWidth, ICONNOTEHEIGHT);
         } // end getPreferredSize
 
 

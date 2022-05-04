@@ -11,13 +11,30 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener {
+public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener, IconKeeper {
     private static final long serialVersionUID = 1L;
 
-    static {
-        MemoryBank.trace();
-    } // end static
+    static ImageIcon defaultIcon;
 
+    static {
+        // Because the parent NoteGroup class is where all NoteComponents get
+        //   made and that constructor runs before the one here, the defaultIcon
+        //   (seen in an IconNoteComponent) MUST be present BEFORE that constructor
+        //   is called.  This is why we need to assign it during the static section
+        //   of this class, which is why the member must be static.  Having it be
+        //   unique across different child classes of CalendarNoteGroupPanel is why
+        //   it must be declared separately in each child, even though the 'get' methods
+        //   are all identical.
+        if(MemoryBank.appOpts.defaultYearNoteIconInfo == null) {
+            IconNoteData ind = new IconNoteData();
+            ind.setIconFileString(MemoryBank.appOpts.defaultYearNoteIconDescription);
+            defaultIcon = ind.getImageIcon();
+        } else {
+            defaultIcon = MemoryBank.appOpts.defaultYearNoteIconInfo.getImageIcon();
+        }
+
+        MemoryBank.trace();
+    } // end of the static section
 
     YearNoteGroupPanel() {
         super(GroupType.YEAR_NOTES);
@@ -57,6 +74,18 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
         updateHeader();
     } // end constructor
 
+    @Override
+    public ImageIcon getDefaultIcon() {
+        return defaultIcon;
+    }
+
+    // Remove this method to get lines that are about half the height and have no icons.
+    @Override
+    JComponent makeNewNote(int i) {
+        IconNoteComponent inc = new IconNoteComponent(this, i);
+        inc.setVisible(false);
+        return inc;
+    } // end makeNewNote
 
     //---------------------------------------------------------
     // MouseListener methods
@@ -129,6 +158,18 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     } // end mouseReleased
     //---------------------------------------------------------
 
-} // end class YearNoteGroup
+    // Called by the IconNoteComponent's
+    //   popup menu handler for 'Set As Default'.
+    @Override
+    public void setDefaultIcon(ImageIcon li) {
+        defaultIcon = li;
+        MemoryBank.appOpts.defaultYearNoteIconInfo = null;
+        MemoryBank.appOpts.defaultYearNoteIconDescription = li.getDescription();
+        setGroupChanged(true);
+        preClosePanel();
+        updateGroup();
+    } // end setDefaultIcon
+
+} // end class YearNoteGroupPanel
 
 

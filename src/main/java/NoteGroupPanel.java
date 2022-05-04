@@ -513,7 +513,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
                 //MemoryBank.debug("  clearing panel index " + panelIndex);
 
                 // These three lines are an effective 'clear' of the component, without using the
-                // reference that could point back to 'good' data that is elswhere in the vector.
+                // reference that could point back to 'good' data that is elsewhere in the vector.
                 tempNoteComponent.makeDataObject();
                 tempNoteComponent.resetComponent();
                 tempNoteComponent.initialized = false;
