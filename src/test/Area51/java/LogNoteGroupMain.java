@@ -3,11 +3,13 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class LogGroupMain {
+public class LogNoteGroupMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
         MemoryBank.setUserDataHome("lex@doughmain.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        TestUtil.getTheAppTreePanel();
 
         LogNoteGroupPanel theLogNoteGroup;
         JFrame testFrame = new JFrame();

@@ -59,9 +59,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     NoteGroupPanel(int intPageSize) {
         pageSize = intPageSize;
-        BaseData.loading = true;   // attempted fix..
+//        BaseData.loading = true;  // attempted fix..
         buildNotesPanel();
-        BaseData.loading = false;
+//        BaseData.loading = false;
     } // end constructor 2
 
     // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).
@@ -181,7 +181,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         //   actually put the result into a typed variable; it goes directly
         //   into the container.  Every Group method that accesses the
         //   container contents will either be overridden and cast the
-        //   note to the correect type, or it will call a method common
+        //   note to the correct type, or it will call a method common
         //   to all JComponents, such as 'setVisible'.
         for (int i = 0; i <= intHighestNoteComponentIndex; i++) {
             groupNotesListPanel.add(makeNewNote(i));
@@ -355,48 +355,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         myNoteGroup.setNotes(getCondensedInfo());
     }
 
-
-    // View and Edit the linkages associated with this Group.
-    void groupLinkages() {
-        LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(myNoteGroup.getGroupProperties(), null);
-        // In the above call, need to get properties via the accessor, because they could be null for CalendarNoteGroups.
-
-        int choice = JOptionPane.showConfirmDialog(
-                this.theBasePanel,
-                linkagesEditorPanel,
-                "Linkages Editor",
-                JOptionPane.OK_CANCEL_OPTION, // Option type
-                JOptionPane.PLAIN_MESSAGE);    // Message type
-
-        if (choice == JOptionPane.OK_OPTION) {
-            // Replace the original linkTargets with the linkTargets from the edited note.
-            linkagesEditorPanel.updateLinkagesFromEditor();
-            myNoteGroup.getGroupProperties().linkTargets = linkagesEditorPanel.linkTargets;
-
-            // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
-            // are about to create from it/them will have proper corresponding forward link(s).
-            // Sorry but this will happen now even if 'Ok' was clicked but nothing had changed.
-            setGroupChanged(true);
-            preClosePanel();
-
-            myNoteGroup.addReverseLinks(myNoteGroup.getGroupProperties().linkTargets);
-
-            // These lines can be useful during development.
-            //System.out.println("Serializing the new group properties:");
-            //System.out.println(AppUtil.toJsonString(myProperties));
-        }
-
-        // If this NoteComponent's group has a keeper and was also viewed via the linkTargetSelectionPanel
-        // during the link view/edit operation then it was pulled out of the AppTreePanel in order to be
-        // shown and now the viewing pane of the main app will be empty but it will still appear to hold
-        // the group.  You can see this by resizing the app; it will repaint as empty.
-        // So the fix is to clear the tree selection and then reselect the current group.
-        // This happens just from showing the group for target selection; the ultimate selection of a link
-        // (or not) does not matter.
-        int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
-        AppTreePanel.theInstance.getTree().clearSelection();
-        AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
-    } // end groupLinkages
 
     // This does nothing in this base class, because not all children will support a rename operation.
     //   As for fixing the title, upon a rename the entire group is reloaded and the reload will set the

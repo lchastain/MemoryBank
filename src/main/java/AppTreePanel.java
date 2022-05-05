@@ -1001,7 +1001,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         else if (what.startsWith("Clear ")) theNoteGroupPanel.clearAllNotes();
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Go Back")) doGoBack();
-        else if (what.equals("Linkages...")) theNoteGroupPanel.groupLinkages();
         else if (what.equals("Review Mode")) toggleReview();
         else if (what.equals("Group Calendar Notes")) groupCalendarNotes();
         else if (what.equals("Show Scheduled Events")) showEvents();

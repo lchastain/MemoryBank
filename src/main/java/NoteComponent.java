@@ -48,7 +48,6 @@ public class NoteComponent extends JPanel {
     private static final JMenuItem miClearLine;
     private static final JMenuItem miCutLine;
     private static final JMenuItem miCopyLine;
-    private static final JMenuItem miLinkLine;
     private static final JMenuItem miPasteLine;
 
     static {
@@ -79,8 +78,6 @@ public class NoteComponent extends JPanel {
         miCutLine.addActionListener(popHandler);
         miCopyLine = contextMenu.add("Copy Line");
         miCopyLine.addActionListener(popHandler);
-        miLinkLine = contextMenu.add("Note Linkages...");
-        miLinkLine.addActionListener(popHandler);
         miPasteLine = contextMenu.add("Paste Line");
         miPasteLine.addActionListener(popHandler);
         miClearLine = contextMenu.add("Clear Line");
@@ -199,9 +196,7 @@ public class NoteComponent extends JPanel {
         NoteData tmpNoteData = getNoteData();
         if (tmpNoteData == null) return textStatus;
 
-        if (tmpNoteData.getNoteString().trim().equals("")) {
-            textStatus = NEEDS_TEXT;
-        } else {
+        if (!tmpNoteData.getNoteString().trim().equals("")) {
             textStatus = HAS_BASE_TEXT;
         } // end if
 
@@ -319,14 +314,12 @@ public class NoteComponent extends JPanel {
         contextMenu.removeAll();
         contextMenu.add(miCutLine);   // the default state is 'enabled'.
         contextMenu.add(miCopyLine);
-        contextMenu.add(miLinkLine);
         contextMenu.add(miPasteLine);
         contextMenu.add(miClearLine);
 
         if (!initialized) {
             miCutLine.setEnabled(false);
             miCopyLine.setEnabled(false);
-            miLinkLine.setEnabled(false);
             miPasteLine.setEnabled(MemoryBank.clipboardNote != null);
             miClearLine.setEnabled(false);
             return;
@@ -336,7 +329,6 @@ public class NoteComponent extends JPanel {
         if (null != menuNoteData && menuNoteData.hasText()) {
             miCutLine.setEnabled(true);
             miCopyLine.setEnabled(true);
-            miLinkLine.setEnabled(true);
             miPasteLine.setEnabled(false);
             miClearLine.setEnabled(true);
         }
@@ -831,63 +823,6 @@ public class NoteComponent extends JPanel {
                     break;
                 case "Copy Line":
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
-                    break;
-                case "Note Linkages...":
-                    GroupProperties groupProperties = theNoteComponent.myNoteGroupPanel.myNoteGroup.getGroupProperties();
-                    LinkagesEditorPanel linkagesEditorPanel = new LinkagesEditorPanel(groupProperties, noteData);
-
-                    // Highlight this note to show it is the one being modified.
-                    theNoteComponent.setBorder(redBorder);
-
-                    // FYI - recent (unsaved) changes to groups that could be possible selections for a new link -
-                    //   will still be seen because those groups are refreshed prior to display for selections.
-                    //   ie, a 'save' is performed by the LinkTargetSelectionPanel at that time, so there ARE no
-                    //   unsaved changes.
-
-                    int choice = JOptionPane.showConfirmDialog(
-                            theNoteComponent,
-                            linkagesEditorPanel,
-                            "Linkages Editor",
-                            JOptionPane.OK_CANCEL_OPTION, // Option type
-                            JOptionPane.PLAIN_MESSAGE);    // Message type
-
-                    if (choice == JOptionPane.OK_OPTION) {
-                        // Replace the original linkTargets with the linkTargets from the editor.
-                        linkagesEditorPanel.updateLinkagesFromEditor(); // Accept new links, deletions, reordering.
-                        noteData.linkTargets = linkagesEditorPanel.linkTargets;
-
-                        // Save this NoteGroup, to preserve the new link(s) so that the reverse links that we
-                        // are about to create from it/them will have proper corresponding forward link(s).
-                        theNoteComponent.setNoteChanged();
-                        theNoteComponent.myNoteGroupPanel.preClosePanel();
-
-                        // Set the NoteData group.  Do NOT use noteData.getMyNoteGroup() as the value to set;
-                        // it is still null, at this point.  Need to work on that...
-                        // maybe have it set automatically, somewhere, and then no need to call a 'set', here.
-                        noteData.setMyNoteGroup(theNoteComponent.myNoteGroupPanel.myNoteGroup);
-                        noteData.addReverseLinks(noteData.linkTargets);
-//                        linkagesEditorPanel.addReverseLinks(noteData.linkTargets);
-
-                        // These lines can be useful during development.
-                        //System.out.println("Serializing the new link:");
-                        //System.out.println(AppUtil.toJsonString(noteData));
-                    }
-
-                    // Remove the 'modification in progress' highlight
-                    theNoteComponent.setBorder(null);
-
-                    // If this NoteComponent's group was also viewed via the linkTargetSelectionPanel
-                    // during the link view/edit operation then it was pulled out of the AppTreePanel in order to be
-                    // shown and now the viewing pane of the main app will be empty but it will still appear to hold
-                    // the group.  You can see this by resizing the app; it will repaint as empty.
-                    // So the fix is to clear the tree selection and then reselect the current group.
-                    // This will have happened just from showing the group; the ultimate selection of a link (or not) does not
-                    // matter.  Initially this was a problem for all types of NoteGroupPanel but now that the non-calendar
-                    // link sources are not allowed to even look at their own group, it only applies to CalendarNoteGroups.
-                    // However, not trying to make a distinction at this point; doing it for all group types does not hurt anything.
-                    int selectionRow = AppTreePanel.theInstance.getTree().getMaxSelectionRow();
-                    AppTreePanel.theInstance.getTree().clearSelection();
-                    AppTreePanel.theInstance.getTree().setSelectionRow(selectionRow);
                     break;
                 case "Paste Line":
                     theNoteComponent.initialize();

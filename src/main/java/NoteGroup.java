@@ -11,7 +11,7 @@ import java.util.Vector;
 // Children of this class have specialized GroupProperties and NoteData.
 
 @SuppressWarnings("rawtypes")
-abstract class NoteGroup implements LinkHolder {
+abstract class NoteGroup {
     private static final Logger log = LoggerFactory.getLogger(NoteGroup.class);
 
     NoteGroupDataAccessor groupDataAccessor; // Provides a way to persist and retrieve the Group data
@@ -85,45 +85,6 @@ abstract class NoteGroup implements LinkHolder {
         return theData;
     }
 
-
-    // Make a 'reverse' link from a 'forward' one where this
-    // entity is the source; in the return link it will be the target.
-    // The calling context will attach the result to the correct LinkHolder.
-    public LinkedEntityData createReverseLink(LinkedEntityData linkedEntityData) {
-        LinkedEntityData reverseLinkedEntityData;
-
-        // Now we need to get our properties.  Direct access does not work correctly for all
-        // NoteGroup children, so properties are acquired via the (possibly overridden) getter.
-        GroupProperties groupProperties = getGroupProperties();
-
-        // We need to be sure that we have non-null properties.
-        assert groupProperties != null;
-
-        // But we don't actually want the full Properties; just the info from them, so -
-        GroupInfo groupInfo = new GroupInfo(groupProperties); // This strips off the linkTargets.
-
-        // And now we can start making the reverse link.
-        // Initially it will look just like a standard 'forward' link from this group
-        reverseLinkedEntityData = new LinkedEntityData(groupInfo, null);
-
-        // But now - give it the same ID as the forward one.  This will help with any
-        // subsequent operations where the two will need to be 'in sync'.
-        reverseLinkedEntityData.instanceId = linkedEntityData.instanceId;
-
-        // Then give it a type that is the reverse of the forward link's type -
-        reverseLinkedEntityData.linkType = linkedEntityData.reverseLinkType(linkedEntityData.linkType);
-
-        // and then raise the 'reversed' flag.
-        reverseLinkedEntityData.reversed = true;
-
-        // It might appear that the type of this 'new' link could be changed, but the editor panel will stop that
-        // when it is displayed because this reversed link will already be in the list of links to be shown,
-        // whereas links that are truly 'new' will have only been created by the panel while it is active.
-        // Point being - there is no need to set 'reverseLinkedEntityData.retypeMe' to false.
-        return reverseLinkedEntityData;
-    }
-
-
     void deleteNoteGroup() {
         groupDataAccessor.deleteNoteGroupData();
         if(myNoteGroupPanel != null) {
@@ -169,26 +130,6 @@ abstract class NoteGroup implements LinkHolder {
     }
 
 
-
-    // Given a NoteInfo with an ID that matches a note in this group, find and return a reference
-    // to that note's link targets.  Any changes that the calling context then makes via that
-    // reference, WILL be seen in the note in this group.
-    @SuppressWarnings("rawtypes")
-    public LinkTargets getLinkTargets(NoteInfo noteInfo) {
-        String theNoteId = noteInfo.noteId.toString();
-        for(Object vectorObject: noteGroupDataVector) {
-            NoteData noteData = (NoteData) vectorObject;
-            // For this 'search' we cannot rely on the BaseData.equals() method because the classes are different.
-            // So - we go down to the level of their IDs.
-
-            // OR - cast to a NoteInfo in the loop, then when 'found', recast so you can access
-            // and return the linkTargets.  If that works then this same logic could be used to return the
-            // full NoteData, if you have a need for that.  just sayin..
-            // (but I don't have the time right now to try this; other areas are in more critical condition).
-            if(noteData.instanceId.toString().equals(theNoteId)) return noteData.linkTargets;
-        }
-        return null;
-    }
 
     void loadNoteGroup() {
         // First, load the raw data (if any) for the group.  If not then theData remains null.

@@ -29,15 +29,9 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         buildPanelContent(); // Content other than the groupDataVector
     } // end of the primary constructor
 
-
     public LogNoteGroupPanel(GroupInfo groupInfo) {
         this(groupInfo, DEFAULT_PAGE_SIZE);
     }
-
-    public LogNoteGroupPanel(String groupName) {
-        this(new GroupInfo(groupName, GroupType.LOG), DEFAULT_PAGE_SIZE);
-    }
-
 
     @Override
     protected void adjustMenuItems(boolean b) {
@@ -106,7 +100,6 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         headingRow2.add(new JLabel("  "));
 
         heading.add(headingRow1);
-//        heading.add(headingRow2);
         add(heading, BorderLayout.NORTH);
         setGroupHeader(headingRow2);
     }

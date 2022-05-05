@@ -2,16 +2,21 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
-    DayNote Panel, after being left up overnight, has the wrong 'Today' button handling.  At month/year rollover,
-        those panels would also be problematic.  By 'wrong', I mean that the 'T' was (correctly) disabled when the
-        panel was showing the previous day, but it did not re-enable when the day changed.
 
 Next:
-    Make a top-level 'Notes' notegroup.
+    Make a top-level 'Notes' notegroup, and add it as a new Goal tab.
 
 Current:
 
 =====================================================================================================
+
+
+5 May 2022
+Started work on the 'Notes' feature.  Naming solution:  call it a PlainNoteGroupPanel.  Will extend NoteGroupPanel
+but probably provide no more additional components other than a header / title, much like Month and Year notes
+before they got icons and while NoteGroup was still a fully implemented class vs now it is an abstract.  That does
+mean, however, that a 'PlainNoteGroup' is needed, to provide that implementation.
+
 
 4 May 2022
 Showing the icon popup menu was causing a crop of the icon; fixed with a set border to null.
@@ -21,9 +26,9 @@ Check-in, to capture the new features to this point.
 Fixed this:     'Clear All' not targeting MonthNotes when Grouped; instead clearing DayNotes.  And it appears
   that 'Save' was also only being applied to DayNotes.  Fixed by adding code to the tab-change handler but also
   needed to add a 'setTheNoteGroup()' call to AppTreePanel, to semi-expose that private var.
-  This shows that a panel-grouping panel can be much simpler than the GoalPanel, but not going to change it since
-  it also does a lot of header-sharing and management.
-Another check-in, to clear top issues in between feature work.
+  This shows that a panel-grouping panel can be much simpler than the GoalGroupPanel, but not going to change goals
+  since it also does a lot of header-sharing and management.
+Another check-in, to clear top issues in between feature work.  Also pub'd.
 
 3 May 2022 (married 23 years, now)
 Fixed an event aging issue where DayNotes was not immediately updated, when Cal notes are grouped.  re-pub'd.

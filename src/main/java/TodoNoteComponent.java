@@ -206,6 +206,7 @@ public class TodoNoteComponent extends NoteComponent {
             if (theAppDays.getTitle(theDayNoteDate).equals(theAppDays.getTitle(theTodoDate))) {
                 // Delete the Panel from its keeper.
                 AppTreePanel.theInstance.theAppDays = null;
+                AppTreePanel.theInstance.theTabbedCalendarNoteGroupPanel = null;
             }
         }
 

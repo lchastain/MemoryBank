@@ -63,7 +63,7 @@ class GroupInfo {
                 case LOG:
                 case GOAL_LOG:
                 case TODO_LOG:  // We don't have this, yet.
-                    theNoteGroup = new LogGroup(this);
+                    theNoteGroup = new LogNoteGroup(this);
                     break;
                 case GOALS:
                     theNoteGroup = new GoalGroup(this);
