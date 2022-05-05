@@ -280,6 +280,16 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
                 filePrefix = logFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
+            case NOTES:
+                areaPath = firstPart + DataArea.NOTES.getAreaName() + File.separatorChar;
+                filePrefix = noteFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
+            case GOAL_NOTES:
+                areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
+                filePrefix = noteFilePrefix;
+                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
+                break;
             case GOAL_TODO:
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = todoListFilePrefix;
@@ -310,11 +320,6 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
             case TODO_LIST:
                 areaPath = firstPart + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
                 filePrefix = todoListFilePrefix;
-                theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case TODO_LOG:
-                areaPath = firstPart + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
-                filePrefix = logFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
                 break;
             case SEARCH_RESULTS:
@@ -644,7 +649,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         try {
             String text = FileUtils.readFileToString(theFile, StandardCharsets.UTF_8.name());
             theGroup = AppUtil.mapper.readValue(text, Object[].class);
-            //System.out.println("Group data from JSON file: " + AppUtil.toJsonString(theGroup));
+            System.out.println("Group data from JSON file: " + AppUtil.toJsonString(theGroup));
         } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -688,7 +693,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         MemoryBank.debug("File for " + groupInfo.getGroupName() + " is: " + theFilename);
         //   From the file, the raw data comes in as a JSON string that can be parsed as an
         //   array of one or two Objects that identify themselves as either a LinkedHashMap
-        //   or an ArrayList (although I never said that they should be).
+        //   or an ArrayList (although I never called them that; I called them Vector).
         return loadFileData(theFilename);
     } // end loadNoteGroupData
 
@@ -715,8 +720,9 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
             case MILESTONE:
             case EVENTS:
             case LOG:
+            case NOTES:
+            case GOAL_NOTES:
             case TODO_LIST:
-            case TODO_LOG:
             case SEARCH_RESULTS:
                 break;
             default:
@@ -783,13 +789,17 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
                 areaName = DataArea.LOGS.getAreaName();
                 prefix = logFilePrefix;
                 break;
+            case NOTES:
+                areaName = DataArea.NOTES.getAreaName();
+                prefix = noteFilePrefix;
+                break;
+            case GOAL_NOTES:
+                areaName = DataArea.GOALS.getAreaName();
+                prefix = noteFilePrefix;
+                break;
             case TODO_LIST:
                 areaName = DataArea.TODO_LISTS.getAreaName();
                 prefix = todoListFilePrefix;
-                break;
-            case TODO_LOG:
-                areaName = DataArea.TODO_LISTS.getAreaName();
-                prefix = logFilePrefix;
                 break;
             case SEARCH_RESULTS:
                 areaName = DataArea.SEARCH_RESULTS.getAreaName();
@@ -824,6 +834,9 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
             theAnsr.setGroupName(theName);
         } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.TODO_LISTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.TODO_LIST;
+            theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
+        } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.NOTES.getAreaName() + File.separatorChar)) {
+            theAnsr.groupType = GroupType.NOTES;
             theAnsr.setGroupName(getGroupNameFromFilename(theFullFilename));
         } else if (StringUtils.containsIgnoreCase(theFullFilename, File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar)) {
             theAnsr.groupType = GroupType.SEARCH_RESULTS;

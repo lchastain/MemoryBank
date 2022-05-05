@@ -1,19 +1,18 @@
 enum GroupType {
 
     NOTES("Notes"),
-    GOAL_NOTES("Goal Notes"),
     CALENDAR_NOTES("Calendar Notes"),
     DAY_NOTES("Day Note"),      // Non-plural here is correct; needed when group naming.
     MONTH_NOTES("Month Note"),  // Non-plural here is correct; needed when group naming.
     YEAR_NOTES("Year Note"),    // Non-plural here is correct; needed when group naming.
     GOALS("Goal"),
     GOAL_LOG("Goal Log"),
+    GOAL_NOTES("Goal Notes"),
     GOAL_TODO("Goal To Do"),
     LOG("Log"),
     MILESTONE("Milestone"),
     EVENTS("Event"),
     TODO_LIST("To Do List"),
-    TODO_LOG("To Do Log"),
     SEARCH_RESULTS("Search Result"),
     UNKNOWN("Unknown");
 

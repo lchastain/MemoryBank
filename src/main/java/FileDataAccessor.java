@@ -32,6 +32,7 @@ public class FileDataAccessor implements DataAccessor {
     static String goalGroupAreaPath;
     static String searchResultGroupAreaPath;
     static String logGroupAreaPath;
+    static String plainNoteGroupAreaPath;
     static String todoListGroupAreaPath;
     static String eventGroupFilePrefix;
     static String goalGroupFilePrefix;
@@ -39,6 +40,7 @@ public class FileDataAccessor implements DataAccessor {
     static String searchResultFilePrefix;
     static String todoListFilePrefix;
     static String logFilePrefix;
+    static String noteFilePrefix;
     static String locationsFilename;
 
 
@@ -58,6 +60,7 @@ public class FileDataAccessor implements DataAccessor {
         searchResultFilePrefix = "search_";
         todoListFilePrefix = "todo_";
         logFilePrefix = "log_";
+        noteFilePrefix = "notes_";
 
         locationsFilename = "Locations.json";
 
@@ -74,6 +77,7 @@ public class FileDataAccessor implements DataAccessor {
         goalGroupAreaPath = basePath + DataArea.GOALS.getAreaName() + File.separatorChar;
         searchResultGroupAreaPath = basePath + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
         logGroupAreaPath = basePath + DataArea.LOGS.getAreaName() + File.separatorChar;
+        plainNoteGroupAreaPath = basePath + DataArea.NOTES.getAreaName() + File.separatorChar;
         todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
     }
 
@@ -94,6 +98,10 @@ public class FileDataAccessor implements DataAccessor {
             case LOG:
                 theSourceDir = new File(NoteGroupFile.logGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.LOGS.getAreaName());
+                break;
+            case NOTES:
+                theSourceDir = new File(NoteGroupFile.plainNoteGroupAreaPath);
+                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.NOTES.getAreaName());
                 break;
             case TODO_LIST:
                 theSourceDir = new File(NoteGroupFile.todoListGroupAreaPath);
@@ -176,6 +184,9 @@ public class FileDataAccessor implements DataAccessor {
                 break;
             case LOGS:
                 theAreaFullPath = NoteGroupFile.logGroupAreaPath;
+                break;
+            case NOTES:
+                theAreaFullPath = NoteGroupFile.plainNoteGroupAreaPath;
                 break;
             case TODO_LISTS:
                 theAreaFullPath = NoteGroupFile.todoListGroupAreaPath;
@@ -565,6 +576,10 @@ public class FileDataAccessor implements DataAccessor {
             case LOG:
                 theAreaPath = logGroupAreaPath;
                 thePrefix = logFilePrefix;
+                break;
+            case NOTES:
+                theAreaPath = plainNoteGroupAreaPath;
+                thePrefix = noteFilePrefix;
                 break;
             case EVENTS:
                 theAreaPath = eventGroupAreaPath;

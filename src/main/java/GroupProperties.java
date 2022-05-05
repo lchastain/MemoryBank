@@ -46,11 +46,6 @@ public class GroupProperties extends BaseData {
     }
 
 
-    GroupInfo getGroupInfo() {
-        return new GroupInfo(this);
-    }
-
-
     String getGroupName() {
         return groupName;
     }

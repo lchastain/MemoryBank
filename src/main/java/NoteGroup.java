@@ -108,7 +108,6 @@ abstract class NoteGroup {
     // They may have direct access to 'myProperties', but this ensures uniform (debuggable) access, one-stop shopping.
     public GroupProperties getGroupProperties() {
         // If we loaded our properties member from a data store then we need to use that one.
-        //   (it may already contain linkages).
         if(myProperties != null) return myProperties;
 
         // But a CalendarNoteGroup has a different GroupProperties for every Date choice.  They can be set at

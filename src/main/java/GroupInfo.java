@@ -60,9 +60,8 @@ class GroupInfo {
                 case EVENTS:
                     theNoteGroup = new EventNoteGroup(this);
                     break;
-                case LOG:
+                case LOG:  // No longer planned to be standalone.  Remove this option when this comment gets too old.  5 May 2022
                 case GOAL_LOG:
-                case TODO_LOG:  // We don't have this, yet.
                     theNoteGroup = new LogNoteGroup(this);
                     break;
                 case GOALS:
@@ -70,6 +69,10 @@ class GroupInfo {
                     break;
                 case MILESTONE:
                     theNoteGroup = new MilestoneNoteGroup(this);
+                    break;
+                case NOTES:
+                case GOAL_NOTES:
+                    theNoteGroup = new PlainNoteGroup(this);
                     break;
                 case DAY_NOTES:
                     theNoteGroup = new DayNoteGroup(this);
