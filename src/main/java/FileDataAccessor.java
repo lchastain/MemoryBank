@@ -157,7 +157,6 @@ public class FileDataAccessor implements DataAccessor {
             // Copy the active notegroups into the archive
             archiveGroupType(archiveRepo, GroupType.GOALS);
             archiveGroupType(archiveRepo, GroupType.EVENTS);
-            archiveGroupType(archiveRepo, GroupType.LOG);
             archiveGroupType(archiveRepo, GroupType.TODO_LIST);
             archiveGroupType(archiveRepo, GroupType.SEARCH_RESULTS);
 

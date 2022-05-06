@@ -42,16 +42,15 @@ class CalendarNoteGroupPanelTest {
 
         // Load the user's options
         AppOptions.loadOpts();
-        MemoryBank.appOpts.groupCalendarNotes = true;
+        MemoryBank.appOpts.groupCalendarNotes = true; // But ensure that the Calendar Notes are grouped.
 
         testUtil = new TestUtil();
         AppTreePanel.theInstance = null; // We don't want to 'inherit' one that was previously used.
         appTreePanel = TestUtil.getTheAppTreePanel(); // This sets a 'Test' Notifier
         theTree = appTreePanel.getTree();
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) theTree.getModel().getRoot();
-        DefaultMutableTreeNode notesBranchNode = BranchHelperInterface.getNodeByName(rootNode, "Notes");
-        DefaultMutableTreeNode dmtn = BranchHelperInterface.getNodeByName(notesBranchNode, "Calendar Notes");
-        theCalendarNotesTreePath = AppUtil.getTreePath(dmtn);
+        DefaultMutableTreeNode notesBranchNode = BranchHelperInterface.getNodeByName(rootNode, "Calendar Notes");
+        theCalendarNotesTreePath = AppUtil.getTreePath(notesBranchNode);
     } // end static
 
     @AfterAll

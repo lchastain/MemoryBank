@@ -1,7 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-class LinkTargets { } // Define so it can be @JSonIgnored; still present in data.
-
 class NoteData extends BaseData {
     String noteString;
     String subjectString;

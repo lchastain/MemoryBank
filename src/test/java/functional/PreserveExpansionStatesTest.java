@@ -21,7 +21,7 @@ class PreserveExpansionStatesTest {
     private AppTreePanel atp;
     private JTree theTree;
     private final String viewsNodeName = "Views";
-    private final String notesNodeName = "Notes";
+    private final String notesNodeName = "Calendar Notes";
     private final String todolistsNodeName = "To Do Lists";
     private final String searchesNodeName = "Search Results";
 

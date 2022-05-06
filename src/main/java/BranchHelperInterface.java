@@ -37,8 +37,8 @@ public interface BranchHelperInterface {
     // This method will return the node with the specified name.  It does a breadth-first search and
     // returns the first one that it finds, so if a user has named a deeper node the same as the one
     // we're searching for it will not interfere with the one that was requested.  If for some reason
-    // a lower one is desired then make the call with 'theRoot' referencing a deeper starting branch
-    // rather than the root of the entire tree.
+    // a lower one is desired then make the call with 'theRoot' referencing the deepest starting branch
+    // rather than the root of the entire tree, especially since it goes no deeper than the first level.
     @SuppressWarnings("rawtypes")
     static DefaultMutableTreeNode getNodeByName(DefaultMutableTreeNode theRoot, String theName) {
         DefaultMutableTreeNode dmtn = null;

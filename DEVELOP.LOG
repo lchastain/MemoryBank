@@ -4,19 +4,31 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 Problems:
 
 Next:
-    Make a top-level 'Notes' notegroup, and add it as a new Goal tab.
 
 Current:
 
 =====================================================================================================
 
+6 May 2022
+Went ahead with that 'first thought', and modified the grouping/ungrouping with Calendar Notes.  The change was a
+bit traumatic, though, having effects in tree selection logic and tests.  Fixed all, while keeping the new behavior.
+Then found a linkages leftover - NoteInfo, now not needed, so dropped it.  Intend to check in and pub now, since
+the noise in the lines above is all cleared out.  May be time for an extended burn-in without dev work here.
+Down to 197 tests but still having 100% class coverage.
 
 5 May 2022
 Started work on the 'Notes' feature.  Naming solution:  call it a PlainNoteGroupPanel.  Will extend NoteGroupPanel
 but probably provide no more additional components other than a header / title, much like Month and Year notes
 before they got icons and while NoteGroup was still a fully implemented class vs now it is an abstract.  That does
 mean, however, that a 'PlainNoteGroup' is needed, to provide that implementation.
-
+-----
+And then - it went pretty smoothly, all the way up to and including a standalone driver for it.  Then just as
+smoothly was able to add it to a Goal, and now - wondering if I really do need the top-level Notes type after all,
+much like the pull-back I had before with Logs.  Need to let it burn in for a while, thinking about that.
+----
+First thought - if there is not to be a new branch editor for this new type, then grouping the calendar notes could
+change a bit, and just drop the branch altogether, turning it into a single leaf.  Or, when ungrouping, bring them
+back.  Also just at the idea stage, atm.
 
 4 May 2022
 Showing the icon popup menu was causing a crop of the icon; fixed with a set border to null.

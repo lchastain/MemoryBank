@@ -11,7 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-// This class is a grouping of three other panels - To Do, Log, and Milestones.
+// This class is a grouping of four other panels - To Do, Log, Milestones, and Notes.
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class GoalGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
@@ -23,11 +23,13 @@ public class GoalGroupPanel extends NoteGroupPanel {
     private JComponent theTodoCenterPanel;
     private JComponent theLogCenterPanel;
     private JComponent theMilestonesCenterPanel;
+    private JComponent theNotesCenterPanel;
     private JComponent tmcPanel;  // Added or removed depending on Tab
 
     TodoNoteGroupPanel theTodoNoteGroupPanel;
     LogNoteGroupPanel theLogNoteGroupPanel;
     MilestoneNoteGroupPanel theMilestoneNoteGroupPanel;
+    PlainNoteGroupPanel thePlainNoteGroupPanel;
 
     static {
         MemoryBank.trace();
@@ -80,6 +82,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
                     break;
                 case 2:
                     doit = theMilestoneNoteGroupPanel.myNoteGroup.groupChanged;
+                    break;
+                case 3:
+                    doit = thePlainNoteGroupPanel.myNoteGroup.groupChanged;
                     break;
             }
             super.adjustMenuItems(doit);
@@ -222,6 +227,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTabbedPane.addTab("To Do", heading);
         theTabbedPane.addTab("Log", null);
         theTabbedPane.addTab("Milestones", null);
+        theTabbedPane.addTab("Notes", null);
 
         theTabbedPane.addChangeListener(new ChangeListener() {
             @Override
@@ -230,44 +236,43 @@ public class GoalGroupPanel extends NoteGroupPanel {
                 //   menu to match the state of NoteGroup in the new tab.
                 GoalGroupPanel.super.preClosePanel();
 
+                // Clear out the previous components.
+                // We don't need to be surgical about this; there is no complaint if one or more are not found.
+                theBasePanel.remove(theTodoCenterPanel);
+                theBasePanel.remove(tmcPanel);
+                theBasePanel.remove(theLogCenterPanel);
+                theBasePanel.remove(theMilestonesCenterPanel);
+                theBasePanel.remove(theNotesCenterPanel);
+                headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
+                headingRow1.remove(theLogNoteGroupPanel.theNotePager);
+                headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
+                headingRow1.remove(thePlainNoteGroupPanel.theNotePager);
+
                 JTabbedPane pane = (JTabbedPane) e.getSource();
                 int index = pane.getSelectedIndex();
                 switch (index) {
                     case 0:  // To Do List
-                        theBasePanel.remove(theLogCenterPanel);
-                        theBasePanel.remove(theMilestonesCenterPanel);
                         theBasePanel.add(theTodoCenterPanel, BorderLayout.CENTER);
                         theBasePanel.add(tmcPanel, BorderLayout.EAST);
-
-                        headingRow1.remove(theLogNoteGroupPanel.theNotePager);
-                        headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
                         headingRow1.add(theTodoNoteGroupPanel.theNotePager, BorderLayout.EAST);
-
                         GoalGroupPanel.super.adjustMenuItems(theTodoNoteGroupPanel.myNoteGroup.groupChanged);
                         break;
                     case 1: // Log Entries
-                        theBasePanel.remove(theTodoCenterPanel);
-                        theBasePanel.remove(tmcPanel);
-                        theBasePanel.remove(theMilestonesCenterPanel);
                         theBasePanel.add(theLogCenterPanel, BorderLayout.CENTER);
-
-                        headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
-                        headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
                         headingRow1.add(theLogNoteGroupPanel.theNotePager, BorderLayout.EAST);
-
                         GoalGroupPanel.super.adjustMenuItems(theLogNoteGroupPanel.myNoteGroup.groupChanged);
                         break;
                     case 2: // Milestones
-                        theBasePanel.remove(theTodoCenterPanel);
-                        theBasePanel.remove(tmcPanel);
-                        theBasePanel.remove(theLogCenterPanel);
                         theBasePanel.add(theMilestonesCenterPanel, BorderLayout.CENTER);
-
-                        headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
-                        headingRow1.remove(theLogNoteGroupPanel.theNotePager);
                         headingRow1.add(theMilestoneNoteGroupPanel.theNotePager, BorderLayout.EAST);
-
                         GoalGroupPanel.super.adjustMenuItems(theMilestoneNoteGroupPanel.myNoteGroup.groupChanged);
+                        break;
+                    case 3: // Notes
+                        theBasePanel.add(theNotesCenterPanel, BorderLayout.CENTER);
+                        headingRow1.add(thePlainNoteGroupPanel.theNotePager, BorderLayout.EAST);
+                        GoalGroupPanel.super.adjustMenuItems(thePlainNoteGroupPanel.myNoteGroup.groupChanged);
+                        break;
+
                 }
                 theBasePanel.validate();
                 theBasePanel.repaint();
@@ -283,6 +288,8 @@ public class GoalGroupPanel extends NoteGroupPanel {
     @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {
         GroupInfo theGroupInfo;  // Support an archiveName, if there is one.
+        BorderLayout theLayout;
+
         // Make a TodoNoteGroupPanel and get its center component (used when switching tabs)
         theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_TODO);
         theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
@@ -300,7 +307,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
         tmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         tmcPanel.add(tmc);
 
-
         // Make a LogGroupPanel and get its center component (used when switching tabs)
         theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_LOG);
         theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
@@ -314,14 +320,22 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
         theMilestoneNoteGroupPanel = new MilestoneNoteGroupPanel(theGroupInfo);
         theMilestoneNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
-        BorderLayout theLayout = (BorderLayout) theMilestoneNoteGroupPanel.theBasePanel.getLayout();
+        theLayout = (BorderLayout) theMilestoneNoteGroupPanel.theBasePanel.getLayout();
         theMilestonesCenterPanel = (JComponent) theLayout.getLayoutComponent(BorderLayout.CENTER);
+
+        // Make a PlainNoteGroupPanel and get its center component (used when switching tabs)
+        theGroupInfo = new GroupInfo(getGroupName(), GroupType.GOAL_NOTES);
+        theGroupInfo.archiveName = myNoteGroup.myGroupInfo.archiveName;
+        thePlainNoteGroupPanel = new PlainNoteGroupPanel(theGroupInfo);
+        thePlainNoteGroupPanel.fosterNoteGroupPanel = this; // For menu adjustments.
+        theLayout = (BorderLayout) thePlainNoteGroupPanel.theBasePanel.getLayout();
+        theNotesCenterPanel = (JComponent) theLayout.getLayoutComponent(BorderLayout.CENTER);
 
         JComponent theHeader = buildHeader();
         add(theHeader, BorderLayout.NORTH);            // Adds to theBasePanel
         add(theTodoCenterPanel, BorderLayout.CENTER);
         add(tmcPanel, BorderLayout.EAST);
-    }
+    } // end buildPanelContent
 
     // Clear all notes (which may span more than one page) and the interface.
     // This still leaves the GroupProperties.
@@ -338,6 +352,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
             case 2: // Milestones
                 theMilestoneNoteGroupPanel.clearAllNotes();
                 break;
+            case 3: // Milestones
+                thePlainNoteGroupPanel.clearAllNotes();
+                break;
             default:  // We don't expect this one to be used, but it covers the unexpected.
                 super.clearAllNotes();
         }
@@ -351,6 +368,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTodoNoteGroupPanel.myNoteGroup.deleteNoteGroup();
         theLogNoteGroupPanel.myNoteGroup.deleteNoteGroup();
         theMilestoneNoteGroupPanel.myNoteGroup.deleteNoteGroup();
+        thePlainNoteGroupPanel.myNoteGroup.deleteNoteGroup();
     }
 
     @Override
@@ -376,6 +394,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
             case 2:
                 theMilestoneNoteGroupPanel.preClosePanel();
                 break;
+            case 3:
+                thePlainNoteGroupPanel.preClosePanel();
+                break;
         }
     }
 
@@ -385,6 +406,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTodoNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
         theLogNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
         theMilestoneNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
+        thePlainNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
     }
 
     // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
@@ -480,6 +502,12 @@ public class GoalGroupPanel extends NoteGroupPanel {
         GroupInfo milestoneGroupInfo = new GroupInfo(milestoneGroupProperties);
         theMilestoneNoteGroupPanel.myNoteGroup.groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(milestoneGroupInfo);
         theMilestoneNoteGroupPanel.setGroupChanged(true);
+
+        GroupProperties groupProperties = thePlainNoteGroupPanel.myNoteGroup.getGroupProperties();
+        groupProperties.setGroupName(newName);
+        GroupInfo groupInfo = new GroupInfo(groupProperties);
+        thePlainNoteGroupPanel.myNoteGroup.groupDataAccessor = MemoryBank.dataAccessor.getNoteGroupDataAccessor(groupInfo);
+        thePlainNoteGroupPanel.setGroupChanged(true);
         //--------------------------------------------------------------------------------------
         preClosePanel(); // This handles the save for all of them.
 
@@ -500,6 +528,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
                 break;
             case 2:
                 theMilestoneNoteGroupPanel.updateGroup();
+                break;
+            case 3:
+                thePlainNoteGroupPanel.updateGroup();
                 break;
         }
         super.updateGroup();

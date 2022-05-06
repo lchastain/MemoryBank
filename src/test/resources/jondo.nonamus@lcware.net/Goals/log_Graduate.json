@@ -1,0 +1,18 @@
+[ {
+  "zdtLastModString" : "2022-04-07T07:54:08.730460200+04:00[Europe/Samara]",
+  "instanceId" : "80e32b86-75d2-4d17-bbc6-3e05cbe3c457",
+  "groupType" : "LOG",
+  "groupName" : "Graduate"
+}, [ {
+  "zdtLastModString" : "2022-04-07T07:54:08.730460200+04:00[Europe/Samara]",
+  "instanceId" : "bf080af5-04f3-4b43-a015-e24dee78ea16",
+  "noteString" : "Second semester / First year finals",
+  "extendedNoteString" : "",
+  "logDateString" : "2021-05-21"
+}, {
+  "zdtLastModString" : "2022-04-07T07:51:35.071824100+04:00[Europe/Samara]",
+  "instanceId" : "0ed4d442-a75a-4729-98dd-a7b464ce6bb9",
+  "noteString" : "Midterms",
+  "extendedNoteString" : "",
+  "logDateString" : "2020-12-18"
+} ] ]
