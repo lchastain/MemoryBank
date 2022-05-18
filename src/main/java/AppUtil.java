@@ -2,6 +2,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
@@ -26,6 +27,7 @@ public class AppUtil {
         mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     } // end static
 
 

@@ -14,11 +14,11 @@ public class PlainNoteGroupMain {
         PlainNoteGroupPanel thePlainNoteGroup;
         JFrame testFrame = new JFrame();
 
-//        testFrame.setTitle("Parentless PlainNoteGroupPanel Driver");
-//        thePlainNoteGroup = new PlainNoteGroupPanel(new GroupInfo("Vanilla Sky", GroupType.NOTES), 8);
+        testFrame.setTitle("Parentless PlainNoteGroupPanel Driver");
+        thePlainNoteGroup = new PlainNoteGroupPanel(new GroupInfo("Vanilla Sky", GroupType.NOTES), 8);
 
-        testFrame.setTitle("Parentless PlainNoteGroupPanel Driver for a Goal");
-        thePlainNoteGroup = new PlainNoteGroupPanel(new GroupInfo("Retire", GroupType.GOAL_NOTES));
+//        testFrame.setTitle("Parentless PlainNoteGroupPanel Driver for a Goal");
+//        thePlainNoteGroup = new PlainNoteGroupPanel(new GroupInfo("Retire", GroupType.GOAL_NOTES));
 
         testFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {

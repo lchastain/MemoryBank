@@ -19,6 +19,7 @@ public class NoteComponent extends JPanel {
     // The Members
     NoteData myNoteData;
     NoteTextField noteTextField;
+    JTextPane thePane;
 
     // Needed by container classes to set their scrollbar unit increment.
     static final int NOTEHEIGHT = 24;
@@ -91,7 +92,7 @@ public class NoteComponent extends JPanel {
 
     NoteComponent(NoteComponentManager noteComponentManager, int i) {
         super(new BorderLayout(2, 0));
-        myManager = noteComponentManager;  // A NoteGroup, or the LinkagesEditorPanel
+        myManager = noteComponentManager;  // A NoteGroup
         if(myManager instanceof NoteGroupPanel) {
             myNoteGroupPanel = (NoteGroupPanel) myManager;
         }

@@ -29,7 +29,7 @@ import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 @SuppressWarnings("rawtypes")
 public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionListener, AlteredDateListener {
     static final long serialVersionUID = 1L; // JPanel wants this but we will not serialize.
-    static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method.
+    static AppTreePanel theInstance;  // A tricky way for a static context to call an instance method of this class.
     AppMenuBar appMenuBar;
     Map<String, JFrame> archiveWindows;
 
@@ -788,15 +788,15 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
 
     // Make a Consolidated View group from all the currently selected Event Groups.
-    @SuppressWarnings({"rawtypes"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private EventNoteGroupPanel getConsolidatedView() {
         // First, get all the nodes that are currently under Upcoming Events.
         DefaultMutableTreeNode eventsNode = BranchHelperInterface.getNodeByName(theRootNode, "Upcoming Events");
         Enumeration e = eventsNode.breadthFirstEnumeration();
         String theNodeName;
         EventNoteGroupPanel theBigGroup = null;
-        Vector<NoteData> groupDataVector;
-        LinkedHashSet<NoteData> theUniqueSet = null;
+        Vector groupDataVector; // This is the reason for the 'rawtypes' warning suppress.
+        LinkedHashSet theUniqueSet = null;
         while (e.hasMoreElements()) { // A bit of unintentional mis-direction, here.
             // The first node that we get this way - is the expandable node itself - Upcoming Events.
             DefaultMutableTreeNode eventNode = (DefaultMutableTreeNode) e.nextElement();
@@ -811,9 +811,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             theNodeName = eventNode.toString();
             GroupInfo theGroupInfo = new GroupInfo(theNodeName, GroupType.EVENTS);
             Object[] theData = MemoryBank.dataAccessor.getNoteGroupDataAccessor(theGroupInfo).loadNoteGroupData();
+            System.out.println("Data Length: " + theData.length);
 
             BaseData.loading = true; // We don't want to affect the lastModDates!
-            groupDataVector = AppUtil.mapper.convertValue(theData[theData.length - 1], new TypeReference<Vector<EventNoteData>>() {
+            Object vectorObject = theData[theData.length - 1]; // The Data has two Objects; properties and a Vector.
+            groupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<EventNoteData>>() {
             });
             BaseData.loading = false; // Restore normal lastModDate updating.
 

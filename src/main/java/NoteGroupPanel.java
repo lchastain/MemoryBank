@@ -59,9 +59,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     NoteGroupPanel(int intPageSize) {
         pageSize = intPageSize;
-//        BaseData.loading = true;  // attempted fix..
         buildNotesPanel();
-//        BaseData.loading = false;
     } // end constructor 2
 
     // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).

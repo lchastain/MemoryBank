@@ -9,6 +9,37 @@ Current:
 
 =====================================================================================================
 
+18 May 2022:  Tried harder with a jackson upgrade; fixed the TypeRef issue in the getConsolidatedView
+method by more closely duplicating the (raw, unchecked) declarations used by all other NoteGroups.
+Version of Jackson is now up to 2.13.3, but this will only work via IJ for now; not possible to change
+the c:\jars content until new code is pub'd.  Need to consider issues with keeping older jar versions in order to run
+older MB versions; this is getting messy.  May be fixable by having each MB version have its own jar repo, within the
+project filespace.
+
+17 May 2022:  Adding Jackson versions (3 files) for 2.10.1; upgrade from 2.9.6, to fix this issue:
+https://github.com/FasterXML/jackson-core/issues/556 in support of adding persistence to the MB
+app to allow editing of StyledDocument.  But it didn't, and it broke a TypeRef line related to
+EventNoteData in AppTreePanel, so I backed it back out, then found that the 3 earlier files were
+unneeded, as they were included in jackson-datatype-jsr310-2.9.6, so removed those too.  IJ can be
+used via Project Structure / Libraries to upgrade jackson as needed; then only standalone run
+would need a new jar file.
+
+16 May 2022
+The idea continues to ferment, now looking at a JTextPane solution instead of a JTextArea.  But that provides for a LOT
+more customization of text and if we go there, will need to expand the editing capabilities.  And then - why bother
+with a list of them, when a single one would do?  But the data - how to serialize and deserialize?  Lots more to
+consider now.  Will need to work the standalone approach until I have something that might be incorporated.
+
+14 May 2022
+Have been 'out' for several days, with a head cold and then gout!  But still using the app and doing the burn-in
+that I mentioned, and what has become clear is that yes, the standalone Notes is still wanted; there are some uses
+that just do not translate all that well to being added to a Goal, and the titles of these lists would not track
+well either.  So - it appears that the last action was premature; I WILL need a new branch editor and therefore the
+'Notes' branch should probably go back to being permanent, not conditional tied to the Calendar notes grouping.
+Also toying with an idea to use a TextArea and show multi-line notes vs a horizontal scroll.  This would give it an
+alternative base NoteComponent, if it could be made to work.  So - lots of retooling about to start.  I plan to get
+that idea out of the way first, using the standalone driver.
+
 6 May 2022
 Went ahead with that 'first thought', and modified the grouping/ungrouping with Calendar Notes.  The change was a
 bit traumatic, though, having effects in tree selection logic and tests.  Fixed all, while keeping the new behavior.

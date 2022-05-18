@@ -11,7 +11,7 @@ public class PlainNoteGroupPanel extends NoteGroupPanel {
 
     public PlainNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
-        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty Group.
         myNoteGroup.myNoteGroupPanel = this;
         if (groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
         loadNotesPanel();
