@@ -119,14 +119,12 @@ public class ExtendedNoteComponent extends JPanel {
         }
 
         theDefaultSubject = defaultSubject;
-        add(scrollPane, "Center");
+        add(scrollPane, BorderLayout.CENTER);
     } // end constructor
 
 
     void addSubject(String s) {
-        //------------------------------------------------------------------
         // Do not want to add the subject to the file in these cases.
-        //------------------------------------------------------------------
         if (s.equals("")) return;
         if (s.equals(theDefaultSubject)) return;
 

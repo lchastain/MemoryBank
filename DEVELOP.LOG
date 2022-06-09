@@ -4,10 +4,84 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 Problems:
 
 Next:
+    Move icons to resources, embedded in the jar?  Example given by the TextFields example and being worked currently
+      via the new 'RichTextEditor/StyledDocumentResearch'.
+
+    Need better text formatting icons.  Considering making my own, with powerpoint.
+
+    Make a new class from this research (leaving the research in area51)
+      and plan on how it will be used in the main app.
+
 
 Current:
+    The idea from 14 May to have multi-line JTextAreas replace JTextFields - now complicated by the JTextPane and the
+      realization that only one of those would ever be needed, so it wouldn't need to be a NoteGroup at all.
+      But a NoteGroup of JTextAreas is an acceptable alternative approach; need to keep working these ideas...
 
 =====================================================================================================
+
+ 8 Jun 2022
+Now looking at bringing in the StyledDocumentResearch work in a new RichTextEditor class, and thinking on how it will
+be used.  On a per-note basis, and/or provide a full new tree node type that has a view of a single StyledDocument?
+----
+Here's the current idea:  Per-note, only (for now?).  Each notedata can set the kind of Extended note editor it will
+use.  The setting will be changeable via a new button on the extended note editor.  Default will be 'plain'.  Change to
+'rich' would have no effect on the result other than showing in a new editor, but from there a change back to 'plain'
+will keep the text but remove all formatting, and the editor would go back to the minimal JTextArea.  For 'rich', will
+need a new way to develop the tooltip.  Which editor is shown can depend on checking if the text is StyledDocumentData
+or not.  Persistence still as a String in the extendedNoteString.
+----
+Why keep both?  Why not just switch them all over to rich?  Good question(s) - initially because it is a dramatic
+feature change and I might not be all that comfortable with it; it could help to provide a choice.  Then there is the
+performance concern; if every single Note in a group had this additional overhead, do we see issues with speed of
+display or data read & write, or the increased size of persisted info?  Keeping both will allow for comparison.
+
+ 6 Jun 2022
+Started a new, much smaller project for the StyledDocumentResearch only, and then uploaded to GitHub and added a
+README.md to that project.  Just wanted to share this one; seems huge, to me anyway.
+
+ 5 Jun 2022
+Success!  The secret was to apply the content before any paragraph attributes.  After moving the paragraph attributes
+lower in the overall loop, all seems to be working as intended.
+
+ 4 Jun 2022
+Added superscript and subscript, while awaiting inspiration on the alignment issues.
+Lots more printout study and T&E; I now know a lot of things that do not work...
+
+ 3 Jun 2022
+Added the new icons to the local images repo, then made a new method to apply them to the buttons in the header.
+Genericized the access of the 'pig' icon by changing its load from a literal string to the icon description.
+Current issue is paragraph alignments; haven't so far needed to apply a style to a reloaded paragraph, but now -
+Initial solution not producing same results as the doc; the style keeps on going to the rest of the doc.
+
+ 2 Jun 2022
+Changed the Color attribute to be able to read back in.  And then added a phantom attribute that is not used by the
+app but gives the RGB of the Color, for alternative readability of the stored data.  This should have no negative
+effects but I'm more comfortable with the info that I see in the JSON string.  Operationally, this one is ignored.
+I Put the JTextPane into a JScrollPane; works as desired.
+Went surfing for icons to use with some of the buttons.
+
+ 1 Jun 2022
+Finished the data modeling and was able to scan the doc to populate it, then scan the Object to create a new doc, and
+it looks the same!  Now need to look closer to see if paragraph attributes are recreated properly.
+
+30 May 2022:
+Completed the color-setting logic for the RichTextEditor, then renamed it to StyledDocumentResearch since it has so
+much T&E and comments, that will be removed for the final class (with the original name) that will be used in the main
+app.  Cleaned up all comments to hopefully act as a reviewable reference if/when needed later.  Now - still working it;
+need to find a way to persist and retrieve.  Can already see how to get the text fragments into a string array, but how
+to model the Attributes...  thinking on it.
+
+24 May 2022:
+Have been developing a 'RichTextEditor' that can be used as a panel for the new NoteGroup type, although at the
+moment it may all be contained in the header of the Group; data structure still not determined as I try to parse out
+the content of the JTextPane into my own Object(s) that can be jackson-serialized and deserialized.  Mostly still
+just studying the provided examples but one decision today - will not support embedded components (other than icons).
+The example has a JButton that I have since removed.  I may want to provide a FontChooser and a ColorChooser, along
+with a size selection dropdown, but if all that is done, this will no longer be a simple component but a near-full
+featured word processor.  However, my intent is to limit the size; the users should not be creating a multi-page
+unwieldly document, but at most a verbose but well-styled 'note'.  Might be a shame to provide such a powerful editor
+to manage a simple short note.
 
 18 May 2022:  Tried harder with a jackson upgrade; fixed the TypeRef issue in the getConsolidatedView
 method by more closely duplicating the (raw, unchecked) declarations used by all other NoteGroups.
