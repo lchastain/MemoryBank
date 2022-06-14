@@ -2,11 +2,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -44,6 +40,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     public GoalGroupPanel(GroupInfo groupInfo) {
         super();
+        setDefaultSubject("Goal Title"); // Base class needs/uses this in its editExtendedText.
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
 
@@ -63,9 +60,9 @@ public class GoalGroupPanel extends NoteGroupPanel {
     // As a composite (foster) NoteGroupPanel, the logic of menu item enablement needs some elaboration:
     // For a change to the Goal's title or plan, the items are enabled regardless of the state of the NoteGroup
     // in the active tab.  Otherwise, the changed state of the NoteGroup in the active tab is used.
-    // This logic only applies when the Goal is displayed due to Tree selection and while it remains on the same tab;
-    //   after that the tab-change listener is tasked with adjusting the menu for the NoteGroup in the active tab,
-    //   and prior to that change the Goal's changes (if any) are preserved.
+    // This logic only applies while the Goal has already been displayed due to Tree selection and it remains on the
+    //   same tab; after that the tab-change listener is tasked with adjusting the menu for the NoteGroup in the
+    //   active tab, and prior to that change the Goal's changes (if any) are preserved.
     protected void adjustMenuItems(boolean b) {
         MemoryBank.debug("GoalGroupPanel.adjustMenuItems <" + b + ">");
         if (myNoteGroup.groupChanged) {
@@ -133,7 +130,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                boolean planChanged = editExtendedNoteComponent(titleNoteData);
+                boolean planChanged = editExtendedText(titleNoteData);
                 if (planChanged) {
                     if (titleNoteData.subjectString.isEmpty()) {
                         titleNoteData.subjectString = goalName;
@@ -180,16 +177,13 @@ public class GoalGroupPanel extends NoteGroupPanel {
         JComboBox currentStatus = new JComboBox<>();
         currentStatus.setModel(new DefaultComboBoxModel(GoalGroupProperties.CurrentStatus.values()));
         if (groupProperties.currentStatus != null) currentStatus.setSelectedItem(groupProperties.currentStatus);
-        currentStatus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
-                JComboBox jComboBox = (JComboBox) e.getSource();
-                GoalGroupProperties.CurrentStatus currentStatus = (GoalGroupProperties.CurrentStatus) jComboBox.getSelectedItem();
-                if (currentStatus != groupProperties.currentStatus) {
-                    setGroupChanged(true);
-                    groupProperties.currentStatus = currentStatus;
-                }
+        currentStatus.addActionListener(e -> {
+            GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
+            JComboBox jComboBox = (JComboBox) e.getSource();
+            GoalGroupProperties.CurrentStatus currentStatus1 = (GoalGroupProperties.CurrentStatus) jComboBox.getSelectedItem();
+            if (currentStatus1 != groupProperties.currentStatus) {
+                setGroupChanged(true);
+                groupProperties.currentStatus = currentStatus1;
             }
         });
         currentStatusPanel.add(currentStatus);
@@ -200,16 +194,13 @@ public class GoalGroupPanel extends NoteGroupPanel {
         overallStatus.setModel(new DefaultComboBoxModel(GoalGroupProperties.OverallStatus.values()));
         if (groupProperties.overallStatus != null) overallStatus.setSelectedItem(groupProperties.overallStatus);
         else overallStatus.setSelectedIndex(1);
-        overallStatus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
-                JComboBox jComboBox = (JComboBox) e.getSource();
-                GoalGroupProperties.OverallStatus overallStatus = (GoalGroupProperties.OverallStatus) jComboBox.getSelectedItem();
-                if (overallStatus != groupProperties.overallStatus) {
-                    setGroupChanged(true);
-                    groupProperties.overallStatus = overallStatus;
-                }
+        overallStatus.addActionListener(e -> {
+            GoalGroupProperties groupProperties = (GoalGroupProperties) myNoteGroup.getGroupProperties();
+            JComboBox jComboBox = (JComboBox) e.getSource();
+            GoalGroupProperties.OverallStatus overallStatus1 = (GoalGroupProperties.OverallStatus) jComboBox.getSelectedItem();
+            if (overallStatus1 != groupProperties.overallStatus) {
+                setGroupChanged(true);
+                groupProperties.overallStatus = overallStatus1;
             }
         });
         overallStatusPanel.add(overallStatus);
@@ -229,54 +220,51 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTabbedPane.addTab("Milestones", null);
         theTabbedPane.addTab("Notes", null);
 
-        theTabbedPane.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                // If the Goal itself has changed (Title or Plan), preserve it now, before adjusting the
-                //   menu to match the state of NoteGroup in the new tab.
-                GoalGroupPanel.super.preClosePanel();
+        theTabbedPane.addChangeListener(e -> {
+            // If the Goal itself has changed (Title or Plan), preserve it now, before adjusting the
+            //   menu to match the state of NoteGroup in the new tab.
+            GoalGroupPanel.super.preClosePanel();
 
-                // Clear out the previous components.
-                // We don't need to be surgical about this; there is no complaint if one or more are not found.
-                theBasePanel.remove(theTodoCenterPanel);
-                theBasePanel.remove(tmcPanel);
-                theBasePanel.remove(theLogCenterPanel);
-                theBasePanel.remove(theMilestonesCenterPanel);
-                theBasePanel.remove(theNotesCenterPanel);
-                headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
-                headingRow1.remove(theLogNoteGroupPanel.theNotePager);
-                headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
-                headingRow1.remove(thePlainNoteGroupPanel.theNotePager);
+            // Clear out the previous components.
+            // We don't need to be surgical about this; there is no complaint if one or more are not found.
+            theBasePanel.remove(theTodoCenterPanel);
+            theBasePanel.remove(tmcPanel);
+            theBasePanel.remove(theLogCenterPanel);
+            theBasePanel.remove(theMilestonesCenterPanel);
+            theBasePanel.remove(theNotesCenterPanel);
+            headingRow1.remove(theTodoNoteGroupPanel.theNotePager);
+            headingRow1.remove(theLogNoteGroupPanel.theNotePager);
+            headingRow1.remove(theMilestoneNoteGroupPanel.theNotePager);
+            headingRow1.remove(thePlainNoteGroupPanel.theNotePager);
 
-                JTabbedPane pane = (JTabbedPane) e.getSource();
-                int index = pane.getSelectedIndex();
-                switch (index) {
-                    case 0:  // To Do List
-                        theBasePanel.add(theTodoCenterPanel, BorderLayout.CENTER);
-                        theBasePanel.add(tmcPanel, BorderLayout.EAST);
-                        headingRow1.add(theTodoNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                        GoalGroupPanel.super.adjustMenuItems(theTodoNoteGroupPanel.myNoteGroup.groupChanged);
-                        break;
-                    case 1: // Log Entries
-                        theBasePanel.add(theLogCenterPanel, BorderLayout.CENTER);
-                        headingRow1.add(theLogNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                        GoalGroupPanel.super.adjustMenuItems(theLogNoteGroupPanel.myNoteGroup.groupChanged);
-                        break;
-                    case 2: // Milestones
-                        theBasePanel.add(theMilestonesCenterPanel, BorderLayout.CENTER);
-                        headingRow1.add(theMilestoneNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                        GoalGroupPanel.super.adjustMenuItems(theMilestoneNoteGroupPanel.myNoteGroup.groupChanged);
-                        break;
-                    case 3: // Notes
-                        theBasePanel.add(theNotesCenterPanel, BorderLayout.CENTER);
-                        headingRow1.add(thePlainNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                        GoalGroupPanel.super.adjustMenuItems(thePlainNoteGroupPanel.myNoteGroup.groupChanged);
-                        break;
+            JTabbedPane pane = (JTabbedPane) e.getSource();
+            int index = pane.getSelectedIndex();
+            switch (index) {
+                case 0:  // To Do List
+                    theBasePanel.add(theTodoCenterPanel, BorderLayout.CENTER);
+                    theBasePanel.add(tmcPanel, BorderLayout.EAST);
+                    headingRow1.add(theTodoNoteGroupPanel.theNotePager, BorderLayout.EAST);
+                    GoalGroupPanel.super.adjustMenuItems(theTodoNoteGroupPanel.myNoteGroup.groupChanged);
+                    break;
+                case 1: // Log Entries
+                    theBasePanel.add(theLogCenterPanel, BorderLayout.CENTER);
+                    headingRow1.add(theLogNoteGroupPanel.theNotePager, BorderLayout.EAST);
+                    GoalGroupPanel.super.adjustMenuItems(theLogNoteGroupPanel.myNoteGroup.groupChanged);
+                    break;
+                case 2: // Milestones
+                    theBasePanel.add(theMilestonesCenterPanel, BorderLayout.CENTER);
+                    headingRow1.add(theMilestoneNoteGroupPanel.theNotePager, BorderLayout.EAST);
+                    GoalGroupPanel.super.adjustMenuItems(theMilestoneNoteGroupPanel.myNoteGroup.groupChanged);
+                    break;
+                case 3: // Notes
+                    theBasePanel.add(theNotesCenterPanel, BorderLayout.CENTER);
+                    headingRow1.add(thePlainNoteGroupPanel.theNotePager, BorderLayout.EAST);
+                    GoalGroupPanel.super.adjustMenuItems(thePlainNoteGroupPanel.myNoteGroup.groupChanged);
+                    break;
 
-                }
-                theBasePanel.validate();
-                theBasePanel.repaint();
             }
+            theBasePanel.validate();
+            theBasePanel.repaint();
         });
 
         return theTabbedPane;
@@ -285,7 +273,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     // Called from within the constructor to create and place the visual components of the panel.
     // The view will be a Tabbed Pane, with the initial Tab showing a ToDo List.
-    @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {
         GroupInfo theGroupInfo;  // Support an archiveName, if there is one.
         BorderLayout theLayout;
@@ -369,15 +356,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theLogNoteGroupPanel.myNoteGroup.deleteNoteGroup();
         theMilestoneNoteGroupPanel.myNoteGroup.deleteNoteGroup();
         thePlainNoteGroupPanel.myNoteGroup.deleteNoteGroup();
-    }
-
-    @Override
-    public boolean editExtendedNoteComponent(NoteData noteData) {
-        setDefaultSubject("Goal Title"); // Base class needs/uses this in its editExtendedNoteComponent.
-        // Prevent base class from constructing its own.
-        extendedNoteComponent = new ExtendedNoteComponent("Goal Title");
-        extendedNoteComponent.setPhantomText(userInfo);
-        return super.editExtendedNoteComponent(noteData);
     }
 
     @Override

@@ -15,7 +15,6 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     boolean fixedDataWhileLoading;
 
     public SearchResultGroupPanel(GroupInfo groupInfo) {
-        setDefaultSubject("Search Info"); // Used in Search Criteria review, only.
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
         setEditable(false); // Search Results are non-editable
@@ -61,54 +60,65 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     } // end constructor
 
 
+    // This interface allows for a group rename.
     void doReview() {
+        JPanel nameAndSearchPanel = new JPanel(new BorderLayout());
+        String originalName = getGroupName();
+
+        // Get the group's properties.  One of the data members is the original search settings.
         SearchResultGroupProperties myProperties = (SearchResultGroupProperties) myNoteGroup.myProperties;
 
-        // Invoking a new SearchPanel with previously established settings -
-        //   means that it will be non-editable, for criteria review only.
+        // Invoking a new SearchPanel with previously established settings
+        //   means that it will be non-editable; used for criteria review only.
         SearchPanel searchPanel = new SearchPanel(myProperties.searchPanelSettings);
 
-        // Make our own ExtendedNoteComponent, vs the default one provided by our base class when the editor
-        //  is invoked.  This allows further customization, below.
-        extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
+        // Make a Title panel
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5, 0));
+        JTextField titleField = new JTextField(26);
+        JLabel titleLabel = new JLabel("  Search Title: ");
+        titleLabel.setFont(Font.decode("Dialog-bold-14"));
+        titlePanel.add(titleLabel);
+        titlePanel.add(titleField);
+        titleField.setText(originalName);
+        titleField.setFont(Font.decode("Dialog-bold-14"));
+        nameAndSearchPanel.add(titlePanel, BorderLayout.NORTH);
+        nameAndSearchPanel.add(searchPanel, BorderLayout.CENTER);
 
-        // Provide an alternative center panel for the ExtendedNoteComponent -
-        //   the SearchPanel replaces the JScrollPane that holds a JTextArea.
-        extendedNoteComponent.setCenterPanel(searchPanel);
+        int doit = JOptionPane.showConfirmDialog(
+                JOptionPane.getFrameForComponent(theBasePanel),
+                nameAndSearchPanel,
+                "Search criteria for:    " + getGroupName(),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        // Configure the title of the editor, and the initial subject (in this case 'subject' == search name).
-        NoteData titleNoteData = new NoteData("Search criteria for:    " + getGroupName());
-        titleNoteData.setSubjectString(getGroupName());
-        // Since we are not using the default JTextArea, there is no need to set an extendedNoteString.
-
-        // We will use the base class 'edit' method for displaying the search criteria.
-        // It takes the subject from the provided note, IF this NoteGroup has a default subject.
-        boolean nameChanged = editExtendedNoteComponent(titleNoteData);
+        if (doit == -1) return; // The X on the dialog
+        if (doit == JOptionPane.CANCEL_OPTION) return;
 
         // The non-editable display of the search criteria does still allow for the Search name to be changed.
-        if(nameChanged) {
+        // Get the current name, determine if there was a change (other than whitespace & case) -
+        String currentName = titleField.getText();
+        if(currentName == null || currentName.isBlank()) currentName = originalName;
+        else currentName = currentName.trim();
+        if(!originalName.equalsIgnoreCase(currentName)) {
             JTree theTree = AppTreePanel.theInstance.getTree();
             NoteGroupPanelKeeper theKeeper = AppTreePanel.theInstance.theSearchResultsKeeper;
             BranchHelper searchBranchHelper = new BranchHelper(theTree, theKeeper, DataArea.SEARCH_RESULTS);
             DefaultMutableTreeNode myBranch = BranchHelperInterface.getNodeByName(searchBranchHelper.theRoot, searchBranchHelper.theAreaNodeName);
             ArrayList<NodeChange> changeList = new ArrayList<>(); // Array of NodeChange
-            String renamedFrom = getGroupName();
-            String renamedTo = extendedNoteComponent.getSubject();
-            changeList.add(new NodeChange(renamedFrom, renamedTo));
+            changeList.add(new NodeChange(originalName, currentName));
 
             // Unlike with the TreeBranchEditor, we have no alternate tree branch to swap with.
             // But this is a single operation, so we do it more surgically - rename the one affected node.
-            DefaultMutableTreeNode changedNode = BranchHelperInterface.getNodeByName(myBranch, renamedFrom);
-            changedNode.setUserObject(renamedTo); // This is the tree-flavored equivalent of node.setText().
+            DefaultMutableTreeNode changedNode = BranchHelperInterface.getNodeByName(myBranch, originalName);
+            changedNode.setUserObject(currentName); // This is the tree-flavored equivalent of node.setText().
 
-            // Now - do all required operations.
+            // Now - let the BranchHelper do all the required operations.
             boolean didIt = searchBranchHelper.doApply(myBranch, changeList);
 
             if(!didIt) {
-                System.out.println("The renamed operation failed; resetting node name to original value");
-                changedNode.setUserObject(renamedFrom);
+                System.out.println("The rename operation failed; resetting node name to original value");
+                changedNode.setUserObject(originalName);
             } else {
-                System.out.println("Renamed SearchResult FROM: " + renamedFrom + "   TO: " + renamedTo);
+                System.out.println("Renamed SearchResult FROM: " + originalName + "   TO: " + currentName);
             }
         }
     }
@@ -116,12 +126,10 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
     private void buildPanelContent() {
         // The 2-row Header for the SearchResultGroup -
-        //-----------------------------------------------------
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
 
         // The First Header Row -   (Title & paging control)
-        //----------------------------------------------------------
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
 
@@ -154,10 +162,8 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         headingRow1.add(titleLabel, "Center");
         headingRow1.add(theNotePager, "East");
-        //----------------------------------------------------------
 
         // The Second Header Row -     (record count and search text)
-        //----------------------------------------------------------
         JPanel headingRow2 = new JPanel(new BorderLayout());
         headingRow2.setBackground(Color.blue);
 
@@ -176,7 +182,6 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         searchSummary.setFont(Font.decode("Serif-bold-14"));
         searchSummary.setText(SearchPanel.getSummary(((SearchResultGroupProperties) myNoteGroup.myProperties).searchPanelSettings));
         headingRow2.add(searchSummary, "Center");
-        //----------------------------------------------------------
 
         heading.add(headingRow1);
         heading.add(headingRow2);

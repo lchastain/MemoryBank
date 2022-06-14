@@ -9,6 +9,9 @@ public class StyledDocumentData {
     StyledDocumentData() {
         paragraphData = new Vector<>(0, 1);
     }
+//    StyledDocumentData(String s) {
+//        this();
+//    }
 
     void addParagraph(ParagraphData pd) {
         paragraphData.add(pd);

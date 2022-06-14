@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.io.File;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -191,16 +192,21 @@ public class BranchSelectionTests {
         // But doing it this way, it happens in a separate thread, so we need to give it some time to show the dialog.
         Thread.sleep(500);
 
-        // Now we need to verify that the notifier's 'message' was the SearchPanel.
+        // Now we need to verify that the notifier's 'message' contained the SearchPanel.
         Object theMessage = notifier.getTheMessage();
-        Assertions.assertTrue(theMessage instanceof SearchPanel);
+        // But the message is just a JPanel, with the SearchPanel as its 'center' component.
+        Assertions.assertTrue(theMessage instanceof JPanel);
+        JPanel thePanel = (JPanel) theMessage;
+        BorderLayout bl = (BorderLayout) thePanel.getLayout();
+        SearchPanel sp = (SearchPanel) bl.getLayoutComponent(thePanel, BorderLayout.CENTER);
+        Assertions.assertNotNull(sp);
 
         // Since we cancelled the search, we cannot leave the selection row here....  it would be too high upon app
         //   restart.  And this cannot be 'fixed' in AppTreePanel because the logic there is written such that the
         //   search was being conducted due to a user request where their current selection may have been any other
         //   valid node.  This is an after-test data problem, so we need to fix it here.
         // Apparently, a 'too high' restored tree row is just ignored, so there is no handling of a selection event
-        //   and menus do not get managed; the restarted app shows them ALL.
+        //   and menus do not get managed; the restarted app shows ALL menus.
         theTree.clearSelection();
         MemoryBank.appOpts.theSelectionRow = -1;
         MemoryBank.appOpts.theSelection = "No Selection";

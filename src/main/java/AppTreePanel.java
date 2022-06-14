@@ -125,15 +125,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //   any of those items need to show the 'Working...'
         //   dialog, they will be able to.
         //---------------------------------------------------
-        ActionListener al = new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                final String what = ae.getActionCommand();
-                new Thread(new Runnable() {
-                    public void run() {
-                        handleMenuBar(what);
-                    }
-                }).start(); // Start the thread
-            }
+        ActionListener al = ae -> {
+            final String what = ae.getActionCommand();
+            new Thread(() -> handleMenuBar(what)).start(); // Start the thread
         };
         appMenuBar.addHandler(al); // Add the above handler to all menu items.
         //---------------------------------------------------------
@@ -1050,8 +1044,21 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // Present the user with a dialog whereby they may specify the parameters of
     // their search, then send those parameters to the 'doSearch' method.
     private void prepareSearch() {
+        JPanel nameAndSearchPanel = new JPanel(new BorderLayout());
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5, 0));
+        JTextField titleField = new JTextField(26);
+        titleField.setToolTipText("You can name your search (optional)");
+        JLabel titleLabel = new JLabel("  Search Title: ");
+        titleLabel.setFont(Font.decode("Dialog-bold-14"));
+        titlePanel.add(titleLabel);
+        titlePanel.add(titleField);   // may want to set text here...  but need to get a name for the new group....
+        titleField.setFont(Font.decode("Dialog-bold-14"));
+        nameAndSearchPanel.add(titlePanel, BorderLayout.NORTH);
+        // TODO - allow that a name may be supplied, but do validity checking.
+
         searching = true;
         searchPanel = new SearchPanel();
+        nameAndSearchPanel.add(searchPanel, BorderLayout.CENTER);
         Frame theFrame = JOptionPane.getFrameForComponent(this);
 
         // Now display the search dialog.
@@ -1059,7 +1066,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         String string2 = "Cancel";
         Object[] options = {string1, string2};
         int choice = optionPane.showOptionDialog(theFrame,
-                searchPanel,
+                nameAndSearchPanel,
                 "Search - Please specify the conditions for your quest",
                 JOptionPane.OK_CANCEL_OPTION,
                 PLAIN_MESSAGE,
@@ -1355,16 +1362,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             archiveTree.getSelectionModel().setSelectionMode
                     (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-            archiveTree.addTreeSelectionListener(new TreeSelectionListener() {
-                @Override
-                public void valueChanged(TreeSelectionEvent e) {
-                    appMenuBar.manageMenus("One Archive");
-                    TreePath newPath = e.getNewLeadSelectionPath();
-                    if (newPath == null) return;
+            archiveTree.addTreeSelectionListener(e -> {
+                appMenuBar.manageMenus("One Archive");
+                TreePath newPath = e.getNewLeadSelectionPath();
+                if (newPath == null) return;
 
-                    // Obtain a reference to the new selection.
-                    selectedArchiveNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
-                }
+                // Obtain a reference to the new selection.
+                selectedArchiveNode = (DefaultMutableTreeNode) (newPath.getLastPathComponent());
             });
 
             MouseListener ml = new MouseAdapter() {
@@ -1797,22 +1801,16 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
 
             // Create a new thread and setVisible within the thread.
-            new Thread(new Runnable() {
-                public void run() {
-                    theWorkingDialog.setVisible(true);
-                }
-            }).start(); // Start the thread so that the dialog will show.
+            new Thread(() -> theWorkingDialog.setVisible(true)).start(); // Start the thread so that the dialog will show.
         } else {
-            new Thread(new Runnable() {
-                public void run() {
-                    // Give the 'visible' time to complete, before going invisible.
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    theWorkingDialog.setVisible(false);
+            new Thread(() -> {
+                // Give the 'set visible' time to complete, before going invisible.
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+                theWorkingDialog.setVisible(false);
             }).start();
         } // end if show - else hide
     } // end showWorkingDialog
@@ -1860,8 +1858,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             // If the extendedNoteComponent of the open group had been edited then there may have been a Subjects
             //   change.  If so then those changes may be saved right now.
-            if (theNoteGroupPanel.extendedNoteComponent != null) {
-                theNoteGroupPanel.extendedNoteComponent.saveSubjects(); // This is a no-op if there was no change.
+            if (theNoteGroupPanel.plainNoteDataEditor != null) {
+                theNoteGroupPanel.plainNoteDataEditor.subjectEditor.saveSubjects(); // This is a no-op if there was no change.
             }
         } // end if
 
@@ -2239,13 +2237,12 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             //   the 'working' dialog that is displayed during the treeSelectionChanged
             //   method would never update until after all actions had completed,
             //   and that defeats its entire purpose.  But be aware that this methodology
-            //   can derail breakpoint debugging, especially during test runs.
-            new Thread(new Runnable() {
-                public void run() {
-                    // AppUtil.localDebug(true);
-                    treeSelectionChanged(newPath);
-                    // AppUtil.localDebug(false);
-                }
+            //   can derail breakpoint debugging, especially during test runs.  This is
+            //   why many tests will first set restoringPreviousSelection to true.
+            new Thread(() -> {
+                // AppUtil.localDebug(true);
+                treeSelectionChanged(newPath);
+                // AppUtil.localDebug(false);
             }).start(); // Start the thread
         }
     } // end valueChanged

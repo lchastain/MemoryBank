@@ -10,10 +10,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-// An interface to edit the members of an EventNoteData.
-// It inherits a subject-management capability.
+// A user-interface to edit the members of an EventNoteData.
 
-public class EventEditorPanel extends ExtendedNoteComponent {
+public class EventEditorPanel extends PlainNoteDataEditor {
     private static final long serialVersionUID = 1L;
 
     private EventNoteData editedEventNoteData;
@@ -86,7 +85,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
     // End of variables declaration
 
 
-    public EventEditorPanel(String s) {
+    public EventEditorPanel(SubjectEditor s) {
         super(s);
         setLayout(null);
         initializeComponent();
@@ -487,24 +486,24 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         lblCategory.setFont(Font.decode("Dialog-bold-12"));
 
-        // Set the default Categories.
-        if (getSubjectCount() == 0) {
-            addSubject("Birthday");
-            addSubject("Wedding");
-            addSubject("Travel");
-            addSubject("Vacation");
-            addSubject("Holiday");
-            addSubject("Anniversary");
-            addSubject("Green light");
-            addSubject("Deadline");
-            addSubject("Meeting");
+        // Set the default Categories (subjects).
+        if (subjectEditor.getSubjectCount() == 0) {
+            subjectEditor.addSubject("Birthday");
+            subjectEditor.addSubject("Wedding");
+            subjectEditor.addSubject("Travel");
+            subjectEditor.addSubject("Vacation");
+            subjectEditor.addSubject("Holiday");
+            subjectEditor.addSubject("Anniversary");
+            subjectEditor.addSubject("Green light");
+            subjectEditor.addSubject("Deadline");
+            subjectEditor.addSubject("Meeting");
         } // end if no subjects were loaded.
 
         // Replace jComboBox2 with the subjectChooser
         rectTmp = jComboBox2.getBounds();
         remove(jComboBox2);
-        addComponent(contentPane, subjectChooser, rectTmp.x, rectTmp.y, rectTmp.width, rectTmp.height);
-        subjectChooser.setToolTipText("Type or select a Category for this Event");
+        addComponent(contentPane, subjectEditor.subjectComponent, rectTmp.x, rectTmp.y, rectTmp.width, rectTmp.height);
+        subjectEditor.subjectComponent.setToolTipText("Type or select a Category for this Event");
 
         chkboxRetainNote.setFont(Font.decode("Dialog-bold-11"));
 
@@ -545,11 +544,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
 
         txtfDurationValue.addKeyListener(userTyping);
 
-        txtfDurationValue.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                setDuration();
-            }
-        });
+        txtfDurationValue.addActionListener(e -> setDuration());
 
         txtfDurationValue.addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
@@ -560,12 +555,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         AbstractDocument doc = (AbstractDocument) txtfDurationValue.getDocument();
         doc.setDocumentFilter(new FixedSizeDocumentFilter(5));
 
-        ilDurationUnits = new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                // Don't care about deselections; only selections.
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    setDuration();
-                }
+        ilDurationUnits = e -> {
+            // Don't care about deselections; only selections.
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                setDuration();
             }
         };
         comboxDurationUnits.addItemListener(ilDurationUnits);
@@ -613,12 +606,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         addComponent(this, comboxLocation, rectTmp.x, rectTmp.y, rectTmp.width, rectTmp.height);
 
         comboxLocation.addKeyListener(userTyping);
-        ItemListener ilLocation = new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                // Don't care about deselections; only selections (which happen immediately afterwards)
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    setLocation();
-                }
+        ItemListener ilLocation = e -> {
+            // Don't care about deselections; only selections (which happen immediately afterwards)
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                setLocation();
             }
         };
         comboxLocation.addItemListener(ilLocation);
@@ -848,7 +839,7 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         //------------------------------------------------
         // These two methods are in the base class.
         setExtText(end.getExtendedNoteString());
-        setSubject(end.getSubjectString());
+        subjectEditor.setSubject(end.getSubjectString());
 
         chkboxRetainNote.setSelected(end.getRetainNote());
 
@@ -1003,10 +994,10 @@ public class EventEditorPanel extends ExtendedNoteComponent {
         // The noteString is not affected by this editor.
 
         // But the extended note is.
-        updateSubject();
+        subjectEditor.updateSubject();
         end.setExtendedNoteString(getExtText());
 
-        end.setSubjectString(getSubject());
+        end.setSubjectString(subjectEditor.getSubject());
         // We need to be able to save a blank subject, and recall it,
         //   which is different than if you never set one in the
         //   first place, in which case it would be null and you

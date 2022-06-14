@@ -10,7 +10,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked"})
 public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, DateSelection {
     private static final Logger log = LoggerFactory.getLogger(EventNoteGroupPanel.class);
 
@@ -46,6 +46,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // Only Archived event groups use this constructor.
     // Normal access comes via the other constructor, which will age and sort.
     public EventNoteGroupPanel(GroupInfo groupInfo) {
+        setDefaultSubject("Upcoming Event");
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel();
@@ -63,9 +64,8 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         theNotePager.reset(1);
 
-        setDefaultSubject("Upcoming Event");
         if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
-    }
+    } // end constructor
 
 
     // This constructor will load the group if it exists in 'current' data, otherwise
@@ -250,24 +250,25 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     } // end doSort
 
 
-    @Override
-    // Is it possible that this does not need to be overridden?  Just set tne extendedNoteComponent in the constructor
-    //   and let the base class call the 'regular' edit method.  ??  Cannot research this now; later.
-    public boolean editExtendedNoteComponent(NoteData noteData) {
+    @Override // Override IS needed; not only do we replace the 'plainNoteDataEditor' with our own 'EventEditorPanel',
+    // but it then needs to work with a child of NoteData (EventNoteData), and from here we call the non-standard
+    // methods such as 'showTheData' and 'assimilateTheData'.  Of course this could all be done with an interface
+    // that the base class references instead of the specific classes, but short of that, this approach will suffice.
+    public boolean editExtendedText(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
-        if(extendedNoteComponent == null) {
-            extendedNoteComponent = new EventEditorPanel("Upcoming Event");
-        }
+        SubjectEditor subjectEditor = new SubjectEditor(defaultSubject);
+        subjectEditor.setSubject(noteData.getSubjectString());
+        plainNoteDataEditor = new EventEditorPanel(subjectEditor);
 
         // Cast the input parameter to its full potential.
         EventNoteData eventNoteData = (EventNoteData) noteData;
 
         // Send the current data to the Event Editor dialog.
-        ((EventEditorPanel) extendedNoteComponent).showTheData(eventNoteData);
+        ((EventEditorPanel) plainNoteDataEditor).showTheData(eventNoteData);
 
         int doit = optionPane.showConfirmDialog(
                 JOptionPane.getFrameForComponent(theBasePanel),
-                extendedNoteComponent,
+                plainNoteDataEditor,
                 noteData.getNoteString(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
@@ -275,14 +276,14 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         if (doit == JOptionPane.CANCEL_OPTION) return false;
 
         // Get the data from the Event Editor dialog.
-        ((EventEditorPanel) extendedNoteComponent).assimilateTheData(eventNoteData);
+        ((EventEditorPanel) plainNoteDataEditor).assimilateTheData(eventNoteData);
 
         // We don't know for sure that something changed, but since the edit was not cancelled
         // we will assume that there were changes, and indicate that a save group is needed.
         setGroupChanged(true);
 
         return true;
-    } // end editExtendedNoteComponent
+    } // end editExtendedText
 
 
     public ImageIcon getDefaultIcon() {

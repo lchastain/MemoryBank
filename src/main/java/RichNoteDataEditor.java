@@ -1,12 +1,18 @@
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Enumeration;
+import java.util.Vector;
 
-public class RichTextEditor {
+import static javax.swing.JOptionPane.PLAIN_MESSAGE;
+
+public class RichNoteDataEditor {
+    private static final int maxSubjects = 20;
+
     JPanel theMainPanel;
+    JComboBox<String> subjectChooser;
     JTextPane textPane;
     StyledDocumentData sdd;
 
@@ -29,7 +35,28 @@ public class RichTextEditor {
     JButton cancelBtn = new JButton("Cancel");
     JButton plainEditorBtn = new JButton("Plain Text Editor");
 
-    public RichTextEditor() {
+    JComponent subjectComponent; // Edit the Subject with either a JTextField or a JComboBox
+    String phantomText;  // Leave this null, if not being used.
+
+    private Vector<String> subjects;
+    private String mySubject;
+    private final String theDefaultSubject;
+
+    public RichNoteDataEditor(String defaultSubject) {
+        if (defaultSubject != null) {
+                subjects = MemoryBank.dataAccessor.loadSubjects(defaultSubject);
+
+                subjectChooser = new JComboBox<>(subjects);
+                subjectChooser.setEditable(true);
+                subjectChooser.setFont(Font.decode("Serif-bold-12"));
+                // Note: too large of font here causes display problems.
+
+                subjectChooser.setToolTipText("Type or Select the Subject for this note");
+                subjectChooser.setMaximumRowCount(maxSubjects);
+                subjectComponent = subjectChooser;
+        }
+        theDefaultSubject = defaultSubject;
+
         textPane = new JTextPane();
         DefaultStyledDocument theDocument = (DefaultStyledDocument) textPane.getStyledDocument();
         addStylesToDocument(theDocument);
@@ -63,42 +90,6 @@ public class RichTextEditor {
         theMainPanel.add(jsp, BorderLayout.CENTER);
     }
 
-//    private void fillDocument() {
-//        String newline = "\n";
-//        String[] initString =
-//                {"This is an editable JTextPane, ",                     //plain
-//                        "another ",                                     //italic
-//                        "styled ",                                      //bold
-//                        "text ",                                        //small
-//                        "component, ",                                  //large
-//                        "which supports embedded components " + newline,//plain
-//                        "and embedded icons..." + newline,              //plain
-//                        "icon" + newline,                               //icon
-//                        "JTextPane is a subclass of JEditorPane that " +
-//                                "uses a StyledEditorKit and StyledDocument, and provides " +
-//                                "cover methods for interacting with those objects."
-//                };
-//
-//        //System.out.println("Length of initial string array: " + initString.length);
-//
-//        String[] initStyles =
-//                {"plain", "italic", "bold", "small", "large",
-//                        "plain", "plain", "icon",
-//                        "plain"
-//                };
-//
-//        StyledDocument doc = textPane.getStyledDocument();
-//
-//        try {
-//            for (int i = 0; i < initString.length; i++) {
-//                doc.insertString(doc.getLength(), initString[i],
-//                        doc.getStyle(initStyles[i]));
-//            }
-//        } catch (BadLocationException ble) {
-//            System.err.println("Couldn't insert initial text into text pane.");
-//        }
-//    } // end fillDocument
-
     private JPanel getButtonPanel() {
         iconifyButton(underlineBtn, "images/underline.gif");
         iconifyButton(boldBtn, "images/bold.gif");
@@ -115,6 +106,7 @@ public class RichTextEditor {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         JPanel buttonRowN = new JPanel();
         JPanel buttonRowS = new JPanel();
+        if(subjectChooser != null) buttonRowN.add(subjectChooser);
         buttonRowN.add(normalBtn);
         buttonRowN.add(boldBtn);
         buttonRowN.add(italicBtn);
@@ -229,26 +221,20 @@ public class RichTextEditor {
             textPane.setDocument(new DefaultStyledDocument());
         });
 
-        saveBtn.addActionListener(e -> {
-            String theString = textPane.getText();
-            if (theString == null || theString.trim().isEmpty()) return;
-            System.out.println(theString);
-            System.out.println();
-            sdd = new StyledDocumentData();
+        saveBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                collectDocData();  // null out the sdd, then fill it with data, if there is any.
 
-            // Get the section of the document containing the text (and styling) that we need to preserve.
-            Element theSection = textPane.getStyledDocument().getDefaultRootElement();
-            System.out.println("The StyledDocument components starting with the DefaultRootElement - ");
-            RichTextEditor.this.expandElement(theSection, 1);
+                System.out.println("================================================================");
+                System.out.println("JSON representation of the StyledDocumentData: ");
+                System.out.println(AppUtil.toJsonString(sdd));
 
-            System.out.println("================================================================");
-            System.out.println("JSON representation of the StyledDocumentData: ");
-            System.out.println(AppUtil.toJsonString(sdd));
-
-            DefaultStyledDocument newDoc = new DefaultStyledDocument();
-            sdd.fillStyledDocument(newDoc);
-            textPane.setDocument(newDoc);
-            addStylesToDocument(newDoc); // Most of these could be migrated to the button handlers.
+                DefaultStyledDocument newDoc = new DefaultStyledDocument();
+                sdd.fillStyledDocument(newDoc);
+                textPane.setDocument(newDoc);
+                RichNoteDataEditor.this.addStylesToDocument(newDoc);
+            }
         });
         cancelBtn.addActionListener(e -> { // Get back to the original content.
             DefaultStyledDocument dsd =new DefaultStyledDocument();
@@ -258,6 +244,20 @@ public class RichTextEditor {
 
         return buttonPanel;
     } // end getButtonPanel
+
+    void collectDocData() {
+        sdd = null;
+        String theString = textPane.getText();
+        if (theString == null || theString.trim().isEmpty()) return;
+        System.out.println(theString);
+        System.out.println();
+        sdd = new StyledDocumentData();
+
+        // Get the section of the document containing the text (and styling) that we need to preserve.
+        Element theSection = textPane.getStyledDocument().getDefaultRootElement();
+        System.out.println("The StyledDocument components starting with the DefaultRootElement - ");
+        RichNoteDataEditor.this.expandElement(theSection, 1);
+    }
 
     // Given an Element of a Document, show its content, recursively as needed.
     private void expandElement(Element theElement, int level) {
@@ -299,7 +299,6 @@ public class RichTextEditor {
         System.out.println(indent + elementName + " Text Fragment: [" + printableTextFragment + "]");
 
         if(elementName.equals("paragraph")) {
-            //newParagraphData = new ParagraphData(theTextFragment, startOffset, endOffset);
             newParagraphData = new ParagraphData(theTextFragment);
             sdd.addParagraph(newParagraphData);
         }
@@ -311,30 +310,6 @@ public class RichTextEditor {
             newParagraphData.paragraphAttributeData = AttributeData.getAttributeDataVector(attributes);
             System.out.println();
         }
-
-        //<editor-fold desc="yagni">
-// No longer so useful, but keep for ease of future development, if that happens.
-//        // List out a one-liner for each child Element; they will be individually expanded further below.
-//        if(elementCount > 1) { // If only 1 then this info is just immediately repeated, so don't.
-//            for (i = 0; i < elementCount; i++) {
-//                Element childElement = theElement.getElement(i);
-//                String childElementName = childElement.getName();
-//                System.out.print(indent + elementName + " Element " + i + " Name: " + childElementName);
-//                boolean isLeaf = childElement.isLeaf();
-//                int startOffset = childElement.getStartOffset();
-//                int endOffset = childElement.getEndOffset();
-//                if (endOffset > docLength) endOffset = docLength;
-//                attributes = childElement.getAttributes();
-//                attributeCount = attributes.getAttributeCount();
-//                System.out.print("\tisLeaf: " + isLeaf);
-//                System.out.print("\tStart: " + startOffset);
-//                System.out.print("\tEnd: " + endOffset);
-//                System.out.print("\tAttribute Count: " + attributeCount);
-//                System.out.println("\tElementCount: " + childElement.getElementCount());
-//            }
-//            System.out.println();
-//        }
-//</editor-fold>
 
         // If the Element itself has Elements, report on those, and recurse if not isLeaf().
         for (i = 0; i < elementCount; i++) {
@@ -473,15 +448,6 @@ public class RichTextEditor {
     }
 
     public static void main(String[] args) {
-        RichTextEditor rte = new RichTextEditor();
-        JFrame testFrame = new JFrame("Styled Document Research");
-
-        testFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                System.exit(0);
-            }
-        });
-
         // Needed to override the 'metal' L&F for Swing components.
         String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
         System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
@@ -489,15 +455,43 @@ public class RichTextEditor {
             UIManager.setLookAndFeel(thePlaf);
         } catch (Exception ignored) {
         }    // end try/catch
-        SwingUtilities.updateComponentTreeUI(testFrame);
 
-        testFrame.getContentPane().add(rte.theMainPanel, "Center");
-        testFrame.pack();
-        testFrame.setSize(new Dimension(780, 500));
-        testFrame.setVisible(true);
-        testFrame.setLocationRelativeTo(null);
+        NoteData nd = new NoteData();
+        nd.noteString = "A test noteString";
+        nd.extendedNoteString = "A test (undecorated) extendedNoteString";
+        nd.subjectString = "Day Note";
+        RichNoteDataEditor rte = new RichNoteDataEditor(nd.getSubjectString());
+        rte.theMainPanel.setPreferredSize(new Dimension(780, 500));
+        rte.textPane.setText(nd.extendedNoteString);
 
-    }
+        String string1 = "Save";               // 0   (value of the 'doit' int; OK_OPTION)
+        String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
+        String string3 = "Plain Text Editor";  // 2   (home-grown)
+        Object[] options = {string1, string2, string3};
+        int doit = JOptionPane.showOptionDialog(null,
+                rte.theMainPanel,
+                nd.getNoteString(),
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                PLAIN_MESSAGE,
+                null,     //don't use a custom Icon
+                options,  //the titles of buttons
+                string1); //the title of the default button
 
+        if(doit == JOptionPane.OK_OPTION) { // Save
+            rte.collectDocData();  // null out the sdd, then fill it with data, if there is any.
+            if(rte.sdd != null) {
 
-}
+                System.out.println("================================================================");
+                System.out.println("JSON representation of the StyledDocumentData: ");
+                System.out.println(AppUtil.toJsonString(rte.sdd));
+
+                DefaultStyledDocument newDoc = new DefaultStyledDocument();
+                rte.sdd.fillStyledDocument(newDoc);
+                rte.textPane.setDocument(newDoc);
+                rte.addStylesToDocument(newDoc);
+            }
+        }
+
+    } // end main
+
+} // end class RichTextEditor

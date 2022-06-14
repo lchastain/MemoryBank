@@ -1,12 +1,20 @@
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Vector;
 
+import static javax.swing.JOptionPane.PLAIN_MESSAGE;
+
 // Provides an editable view of the Notes in the noteGroupDataVector of a NoteGroup.
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked"})
 public abstract class NoteGroupPanel implements NoteComponentManager {
     static final int PAGE_SIZE = 40; // A default; see the pageSize member for actual size.
 
@@ -14,14 +22,16 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     static final int ASCENDING = 0;
     static final int DESCENDING = 1;
 
-    //=============================================================
-    // Members that child classes may access directly
-    //=============================================================
     static Notifier optionPane;
     static String ems;     // Error Message String
     NoteGroup myNoteGroup; // Group onto which this Panel provides a window.
     JComponent theBasePanel;   // JComponent vs JPanel, still a container but allows more flexibility.
-    ExtendedNoteComponent extendedNoteComponent;
+
+    // Declaring globally; can improve performance by reducing need for frequent constructions.
+// NO - there are inconsistencies... search result, events, goals.
+    PlainNoteDataEditor plainNoteDataEditor;
+    RichNoteDataEditor richNoteDataEditor;
+
     JMenu myListMenu; // Child classes each have their own menu
 
     String defaultSubject;
@@ -244,55 +254,121 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     //   override it and take appropriate action(s) due to having their 'deleteNoteGroup' invoked.
     void deletePanel() {}
 
-    // Provides an interface for the modification of two members of the NoteData.
-    //   Returns true if there was a change to either one; false otherwise.
-    public boolean editExtendedNoteComponent(NoteData noteData) {
-        // System.out.println("NoteGroup editExtendedNoteComponent");
-
-        // Load the enc with the correct data
-        if (extendedNoteComponent == null) {
-            extendedNoteComponent = new ExtendedNoteComponent(defaultSubject);
-        }
-
-        extendedNoteComponent.setExtText(noteData.getExtendedNoteString());
-        if (defaultSubject != null) extendedNoteComponent.setSubject(noteData.getSubjectString());
-
+    // Provides a user interface for the modification of the NoteData's extended text, and its subject if
+    //   it supports subjects.  Returns true if there was a change to either one; false otherwise.
+    public boolean editExtendedText(NoteData noteData) {
         // Preserve initial values, for later comparison to
         //   determine if there was a change.
         String origSubject = noteData.getSubjectString();
-        String origExtendedString = noteData.getExtendedNoteString();
+        String origExtendedText = noteData.getExtendedNoteString();
+
+        // Construct the SubjectEditor, if this panel child type allows subject management.
+        SubjectEditor subjectEditor = null;
+        if(defaultSubject != null) {
+            subjectEditor = new SubjectEditor(defaultSubject);
+            subjectEditor.setSubject(noteData.getSubjectString());
+        }
+
+        // Examine the extendedNoteString to determine which editor should be displayed.
+        boolean richEditor = false;
+        StyledDocumentData sdd = null;
+        if(origExtendedText != null && !origExtendedText.isBlank()) {
+            try { // This fails (as desired) on empty string, string not JSON, JSON not a StyledDocument, unrecognized.
+                sdd = AppUtil.mapper.readValue(origExtendedText, new TypeReference<StyledDocumentData>() {
+                });
+                richEditor = true;
+            } catch (JsonParseException | JsonMappingException ignore) {
+                //System.out.println("Caught a json problem, so not using rich editor.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         // Present the ExtendedNoteComponent in a modal dialog
-        int doit = JOptionPane.showConfirmDialog(
-                JOptionPane.getFrameForComponent(theBasePanel),
-                extendedNoteComponent,
-                noteData.getNoteString(),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if(richEditor) {
+            RichNoteDataEditor rte = new RichNoteDataEditor(myNoteGroup.myNoteGroupPanel.defaultSubject);
+            rte.theMainPanel.setPreferredSize(new Dimension(780, 500));
 
-        if (doit == -1) return false; // The X on the dialog
-        if (doit == JOptionPane.CANCEL_OPTION) return false;
+            if(sdd != null) sdd.fillStyledDocument((DefaultStyledDocument) rte.textPane.getStyledDocument());
+//            textPane.setDocument(newDoc);
+
+            String string1 = "Save";               // 0   (value of the 'doit' int; OK_OPTION)
+            String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
+            String string3 = "Plain Text Editor";  // 2   (home-grown)
+            Object[] options = {string1, string2, string3};
+            int doit = JOptionPane.showOptionDialog(null,
+                    rte.theMainPanel,
+                    noteData.getNoteString(),
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    PLAIN_MESSAGE,
+                    null,     //don't use a custom Icon
+                    options,  //the titles of buttons
+                    string1); //the title of the default button
+
+            if(doit == JOptionPane.OK_OPTION) { // Save
+                rte.collectDocData();  // null out the sdd, then fill it with data, if there is any.
+                if(rte.sdd != null) {
+
+                    System.out.println("================================================================");
+                    System.out.println("JSON representation of the StyledDocumentData: ");
+                    System.out.println(AppUtil.toJsonString(rte.sdd));
+
+                    DefaultStyledDocument newDoc = new DefaultStyledDocument();
+                    rte.sdd.fillStyledDocument(newDoc);
+                    rte.textPane.setDocument(newDoc);
+                    rte.addStylesToDocument(newDoc);
+                }
+            }
+        } else {  // Show the extendedNoteString in a simple JTextArea
+            if(plainNoteDataEditor == null) plainNoteDataEditor = new PlainNoteDataEditor(subjectEditor);
+            plainNoteDataEditor.setExtText(noteData.getExtendedNoteString());
+
+            String string1 = "Save";
+            String string2 = "Cancel";
+            String string3 = "Rich Text Editor";
+            Object[] options = {string1, string2, string3};
+            int doit = optionPane.showOptionDialog(JOptionPane.getFrameForComponent(theBasePanel),
+                    plainNoteDataEditor,
+                    noteData.getNoteString(),
+                    JOptionPane.DEFAULT_OPTION,
+                    PLAIN_MESSAGE,
+                    null,     //don't use a custom Icon
+                    options,  //the titles of buttons
+                    string1); //the title of the default button
+
+
+            if (doit == JOptionPane.CLOSED_OPTION) return false; // -1; The X on the dialog
+            //if (doit == JOptionPane.OK_OPTION) return false;  //   0; Save
+            if (doit == JOptionPane.NO_OPTION) return false;  //     1; Cancel
+            if (doit == JOptionPane.WHEN_IN_FOCUSED_WINDOW) { //     2; Change Editor
+
+            }
+        }
 
         // Collect results of the editing -
-        //------------------------------------------------------------------
+        boolean aChangeWasMade = false;
 
         // Get the Subject
-        extendedNoteComponent.updateSubject(); // This moves the subject from the combobox into the component data
-        String newSubject = extendedNoteComponent.getSubject(); // This gets the component data
-        // We need to be able to save a 'None' subject (ie, ""), and recall it,
-        //   which is different than if you never set one in the
-        //   first place, in which case you would get the default.  So -
-        //   we accept the newSubject above without checking its content.
+        String newSubject = null;
+        if(subjectEditor != null) {
+            plainNoteDataEditor.subjectEditor.updateSubject(); // This moves the subject from the combobox into the component data
+            newSubject = plainNoteDataEditor.subjectEditor.getSubject(); // This gets the component data
+            // We need to be able to save a 'None' subject (ie, ""), and recall it,
+            //   which is different than if you never set one in the first place,
+            //   in which case you would get a null (which displays as the default).
+            //   So - we accept the newSubject above without checking its content.
+            if (newSubject != null) { // Either new or old could be null, which is an allowed value.
+                if (origSubject == null) aChangeWasMade = true;
+                else if (!newSubject.equals(origSubject)) aChangeWasMade = true;
+            } else {
+                if(origSubject != null) aChangeWasMade = true;
+            } // end if
+        }
 
         // Get the Extended text
-        String newExtendedString = extendedNoteComponent.getExtText();
+        String newExtendedString = plainNoteDataEditor.getExtText();
 
-        boolean aChangeWasMade = false;
-        if (newSubject != null) {
-            // Cannot simplify the logic here; either new or old could be null, which is an allowed value.
-            if (origSubject == null) aChangeWasMade = true;
-            else if (!newSubject.equals(origSubject)) aChangeWasMade = true;
-        } // end if
-        if (!newExtendedString.equals(origExtendedString)) aChangeWasMade = true;
+        if (!newExtendedString.equals(origExtendedText)) aChangeWasMade = true;
 
         if (aChangeWasMade) {
             noteData.setExtendedNoteString(newExtendedString);
@@ -300,9 +376,10 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         } // end if
 
         //------------------------------------------------------------------
+        plainNoteDataEditor = null; // force a re-construct, if this method is called again.
 
         return aChangeWasMade;
-    } // end editExtendedNoteComponent
+    } // end editExtendedText
 
 
     int getHighestNoteComponentIndex() {
@@ -525,8 +602,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     // This should be called prior to closing, but there are a few other cases.
     void preClosePanel() {
-        if (null != extendedNoteComponent && null != defaultSubject) {
-            extendedNoteComponent.saveSubjects();
+        if (null != plainNoteDataEditor && null != defaultSubject) {
+            plainNoteDataEditor.subjectEditor.saveSubjects();
         }
 
         // Without this condition, existing unchanged data might get written out to the data store

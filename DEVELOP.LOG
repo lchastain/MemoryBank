@@ -4,21 +4,35 @@ Development notes for MemoryBank - record of issues and accomplishments.  Not co
 Problems:
 
 Next:
-    Move icons to resources, embedded in the jar?  Example given by the TextFields example and being worked currently
-      via the new 'RichTextEditor/StyledDocumentResearch'.
-
+    Move all icons to resources, embedded in the jar?  Already doing this with some images.
     Need better text formatting icons.  Considering making my own, with powerpoint.
-
-    Make a new class from this research (leaving the research in area51)
-      and plan on how it will be used in the main app.
 
 
 Current:
-    The idea from 14 May to have multi-line JTextAreas replace JTextFields - now complicated by the JTextPane and the
-      realization that only one of those would ever be needed, so it wouldn't need to be a NoteGroup at all.
-      But a NoteGroup of JTextAreas is an acceptable alternative approach; need to keep working these ideas...
+    SubjectEditor integration into the RichTextEditor.
+    Change editors, with style-loss warning.
 
 =====================================================================================================
+
+13 Jun 2002
+Finished creating the SubjectEditor class and making it work in all the previously-working places, except for the
+display of the SearchResultsSettings review dialog.  There, stopped it from extending the PlainNoteDataEditor
+(previously the ExtendedNoteComponent) and instead have it use its own code (a bit of duplication between the
+SearchResultPanel.doReview and the NoteGroupPanel.editExtendedText, but this feels justified).
+Then added the ability to reset a subject back to its default, without having to add it to the list of available
+subjects (new JButton, just to the left of the JComboBox).
+
+11 Jun 2002 (cottage day)
+And on that note of subjects, I see too much duplication of effort between the two editors, so I want to turn that part
+into its own class - a SubjectEditor, that they both will utilize.  And there are pre-existing problems - I never had
+a way to 'clear' a subject so that it would go back to the default.  Now going to work on that, as a prereq to
+continuing the editors that will use the new class.
+
+10 Jun 2022
+In as much as the ExtendedNoteComponent is not ever placed in any container other than the JOptionPane dialogs and
+does not in and of itself persist its data, the same JOptionPane dialogs could just as easily display a RichTextEditor.
+This is the approach I'm currently working on.  Name change:  ExtendedNoteComponent --> PlainNoteDataEditor, and
+RichTextEditor --> RichNoteDataEditor.  NoteData vs text, because they also manage the Subjects.
 
  8 Jun 2022
 Now looking at bringing in the StyledDocumentResearch work in a new RichTextEditor class, and thinking on how it will

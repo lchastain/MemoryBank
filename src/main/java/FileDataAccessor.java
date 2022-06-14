@@ -593,14 +593,10 @@ public class FileDataAccessor implements DataAccessor {
         File dataDir = new File(theAreaPath);
 
         // Get the complete list of Group filenames.
+        // Although this filter does not account for directories, we know that the dataDir for the
+        //  areas that we look in will not under normal program operation contain other directories.
         String[] theFileList = dataDir.list(
-                new FilenameFilter() {
-                    // Although this filter does not account for directories, we know that the dataDir for the
-                    //  areas that we look in will not under normal program operation contain other directories.
-                    public boolean accept(File f, String s) {
-                        return s.startsWith(thePrefix);
-                    }
-                }
+                (f, s) -> s.startsWith(thePrefix)
         );
 
         // Filter and normalize the selections.
@@ -644,7 +640,7 @@ public class FileDataAccessor implements DataAccessor {
 
     @Override
     public Vector<String> loadSubjects(String defaultSubject) {
-        // This is the default list that they will get, if the load operation does not succeed.
+        // This is the the empty vector that they will get if the load operation does not succeed.
         Vector<String> subjects = new Vector<>(6, 1);
 
         String subjectsFilename = makeSubjectFilename(defaultSubject);

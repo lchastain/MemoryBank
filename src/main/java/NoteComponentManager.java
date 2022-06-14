@@ -4,10 +4,10 @@
 
 public interface NoteComponentManager {
     default void activateNextNote(int index) {}
-    default boolean editExtendedNoteComponent(NoteData tmpNoteData) { return true; }
+    default boolean editExtendedText(NoteData tmpNoteData) { return true; }
     default int getLastVisibleNoteIndex() { return 0; }
     default void setGroupChanged(boolean b) {}
     default void setStatusMessage(String s) {}
-    void shiftDown(int index);
-    void shiftUp(int index);
+    default void shiftDown(int index) {}
+    default void shiftUp(int index) {}
 }

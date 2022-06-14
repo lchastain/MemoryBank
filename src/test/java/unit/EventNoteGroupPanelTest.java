@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 class EventNoteGroupPanelTest {
-    private static EventNoteGroupPanel eventNoteGroup;
+    private static EventNoteGroupPanel eventNoteGroupPanel;
     static TestUtil testUtil;
 
     @BeforeAll
@@ -32,7 +32,8 @@ class EventNoteGroupPanelTest {
         FileUtils.copyDirectory(testResource, testData);
 
         TestUtil.getTheAppTreePanel();
-        eventNoteGroup = new EventNoteGroupPanel("holidays");
+        eventNoteGroupPanel = new EventNoteGroupPanel("holidays");
+
     }
 
     @AfterAll
@@ -43,24 +44,24 @@ class EventNoteGroupPanelTest {
 
     @Test
     void testDateSelected() {
-        eventNoteGroup.dateSelected(LocalDate.now());
+        eventNoteGroupPanel.dateSelected(LocalDate.now());
     }
 
     @Test
     void testDefaultIcon() {
-        ImageIcon theDefault = eventNoteGroup.getDefaultIcon();
+        ImageIcon theDefault = eventNoteGroupPanel.getDefaultIcon();
         Assertions.assertNotNull(theDefault);
 
         // We are setting the one it already has, but this
         // still exercises the code and gets the coverage.
-        eventNoteGroup.setDefaultIcon(theDefault);
+        eventNoteGroupPanel.setDefaultIcon(theDefault);
     }
 
     @Test
     void testEditExtendedNoteComponent() {
-        EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroup.getNoteComponent(2);
+        EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroupPanel.getNoteComponent(2);
         EventNoteData eventNoteData = (EventNoteData) eventNoteComponent.getNoteData();
-        eventNoteGroup.editExtendedNoteComponent(eventNoteData);
+        eventNoteGroupPanel.editExtendedText(eventNoteData);
     }
 
 }

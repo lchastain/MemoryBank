@@ -599,7 +599,7 @@ public class NoteComponent extends JPanel {
             NoteComponent.this.setBorder(redBorder);
 
             NoteData tmpNoteData = getNoteData();
-            extendedNoteChanged = myManager.editExtendedNoteComponent(tmpNoteData);
+            extendedNoteChanged = myManager.editExtendedText(tmpNoteData);
 
             if (extendedNoteChanged) {
                 // Set (or clear) the tool tip.

@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 public class SearchPanel extends JPanel implements DocumentListener {
     private static final long serialVersionUID = 1L;
 
-    // TODO searchPastEvents, searchNotes
 
     // 'My' Variables declaration section
     //-------------------------------------------------------------
@@ -975,10 +974,9 @@ public class SearchPanel extends JPanel implements DocumentListener {
         //--------------------------------------------------------
         MouseAdapter ma2 = new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
-                boolean rightClick = false;
+                boolean rightClick = me.getButton() == MouseEvent.BUTTON3;
                 //int m = me.getModifiersEx();
                 //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) rightClick = true;
-                if(me.getButton() == MouseEvent.BUTTON3) rightClick = true;
 
                 JRadioButton source = (JRadioButton) me.getSource();
                 if (!source.isSelected() && rightClick) return;
@@ -1141,8 +1139,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
     //   one place to search; otherwise false.
     //----------------------------------------------------------
     boolean hasWhere() {
-        boolean retVal = false;
-        if (chkboxGoals.isSelected()) retVal = true;
+        boolean retVal = chkboxGoals.isSelected();
         if (chkboxDayNotes.isSelected()) retVal = true;
         if (chkboxMonthNotes.isSelected()) retVal = true;
         if (chkboxYearNotes.isSelected()) retVal = true;
