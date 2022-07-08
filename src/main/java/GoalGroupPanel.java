@@ -40,7 +40,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     public GoalGroupPanel(GroupInfo groupInfo) {
         super();
-        setDefaultSubject("Goal Title"); // Base class needs/uses this in its editExtendedText.
+        setDefaultSubject("Goal Title"); // Base class needs/uses this in its editNoteData.
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
 
@@ -130,7 +130,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                boolean planChanged = editExtendedText(titleNoteData);
+                boolean planChanged = editNoteData(titleNoteData);
                 if (planChanged) {
                     if (titleNoteData.subjectString.isEmpty()) {
                         titleNoteData.subjectString = goalName;

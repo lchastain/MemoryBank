@@ -2,27 +2,53 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
+    Show current notegroup - not working for calendar notes that are grouped.
+
+
 
 Next:
     Move all icons to resources, embedded in the jar?  Already doing this with some images.
     Need better text formatting icons.  Considering making my own, with powerpoint.
+    Automated test for switching editors?  Tests for RichNoteDataEditor?
 
 
 Current:
-    SubjectEditor integration into the RichTextEditor.
-    Change editors, with style-loss warning.
 
 =====================================================================================================
 
-13 Jun 2002
+8 Jul 2022
+0545 Fixed the tool tips for styled extended notes.  Now considering to disallow a continuous editor swap; let them
+do it once, only, and then cancel if that's what is intended because cancel would be the same as switching back to
+the editor you started with.  But this yet again may call for a dedicated Dialog and not just the JOptionPane.  How
+much value-added for the effort?  No - leaving it as is, and moving on.
+Fixed this: The 'X' on the subject is not appropriate, if the subject is already the default subject (null).
+
+7 Jul 2022
+Dr. and test appointments, showing the apartment to sell, etc.  In between distractions, did clear up the problem with
+alignment settings taking the paragraph back to default (I think).  Now - moving ahead as though that is taken care of
+but only because I cannot think of any other test; it passes the ones I've tried.  Now want to work on the tooltip
+text for styled.  Wanted tooltips on the editor dismissal buttons but those are JOptionPane-owned and I don't see how
+to add a tip to those string-array buttons.  If it becomes a higher priority, will have to move away from JOptionPane
+and go with my own dialog window.
+
+3 Jul 2022
+Back safely; had to deal with emails, wire xfers, videos and photos, first.  Now looking into the editor-switch
+warning.
+
+16 Jun 2022
+Finished with the NoteDataEditor new interface and the editor swap and handling of eventual edits.  All seems ok
+and all tests working (again).  Now preparing to abandon the code for several days, as we prepare to depart on
+a vacation to not-yet-war-torn Crimea.  If all goes well, could be back to code dev by 7/1.
+
+13 Jun 2022
 Finished creating the SubjectEditor class and making it work in all the previously-working places, except for the
 display of the SearchResultsSettings review dialog.  There, stopped it from extending the PlainNoteDataEditor
-(previously the ExtendedNoteComponent) and instead have it use its own code (a bit of duplication between the
-SearchResultPanel.doReview and the NoteGroupPanel.editExtendedText, but this feels justified).
+(previously the ExtendedNoteComponent) and instead have it use its own code (a small bit of duplication between
+the SearchResultPanel.doReview and the NoteGroupPanel.editExtendedText (now editNoteData), but this feels justified).
 Then added the ability to reset a subject back to its default, without having to add it to the list of available
 subjects (new JButton, just to the left of the JComboBox).
 
-11 Jun 2002 (cottage day)
+11 Jun 2022 (cottage day)
 And on that note of subjects, I see too much duplication of effort between the two editors, so I want to turn that part
 into its own class - a SubjectEditor, that they both will utilize.  And there are pre-existing problems - I never had
 a way to 'clear' a subject so that it would go back to the default.  Now going to work on that, as a prereq to

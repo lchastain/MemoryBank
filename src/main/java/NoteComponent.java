@@ -8,6 +8,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -523,6 +524,14 @@ public class NoteComponent extends JPanel {
 
             String subjectString = nd.getSubjectString();
             String extendedNoteString = nd.getExtendedNoteString().trim();
+            StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(extendedNoteString);
+            if(sdd != null) {
+                JTextPane jtp = new JTextPane();
+                DefaultStyledDocument dsd = (DefaultStyledDocument) jtp.getStyledDocument();
+                sdd.fillStyledDocument(dsd);
+                extendedNoteString = jtp.getText();
+            }
+
             String strToolTip;
 
             if (subjectString != null) {
@@ -599,7 +608,7 @@ public class NoteComponent extends JPanel {
             NoteComponent.this.setBorder(redBorder);
 
             NoteData tmpNoteData = getNoteData();
-            extendedNoteChanged = myManager.editExtendedText(tmpNoteData);
+            extendedNoteChanged = myManager.editNoteData(tmpNoteData);
 
             if (extendedNoteChanged) {
                 // Set (or clear) the tool tip.

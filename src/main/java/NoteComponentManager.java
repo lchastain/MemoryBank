@@ -4,7 +4,7 @@
 
 public interface NoteComponentManager {
     default void activateNextNote(int index) {}
-    default boolean editExtendedText(NoteData tmpNoteData) { return true; }
+    default boolean editNoteData(NoteData tmpNoteData) { return true; }
     default int getLastVisibleNoteIndex() { return 0; }
     default void setGroupChanged(boolean b) {}
     default void setStatusMessage(String s) {}

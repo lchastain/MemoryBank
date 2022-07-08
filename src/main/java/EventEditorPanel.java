@@ -65,7 +65,7 @@ public class EventEditorPanel extends PlainNoteDataEditor {
     private JCheckBox chkboxRetainNote;
     private JTextField txtfDurationValue;
     private JComboBox<String> comboxLocation;
-    private JComboBox<String> jComboBox2;  // placeholder; to be replaced with subjectChooser
+    private JComboBox<String> jComboBox2;  // placeholder; to be replaced with subjectComponent
     private JComboBox<String> comboxDurationUnits;
     private JScrollPane spaneNotes;
     private JButton btnRecurrence;
@@ -499,7 +499,7 @@ public class EventEditorPanel extends PlainNoteDataEditor {
             subjectEditor.addSubject("Meeting");
         } // end if no subjects were loaded.
 
-        // Replace jComboBox2 with the subjectChooser
+        // Replace jComboBox2 with the subjectComponent
         rectTmp = jComboBox2.getBounds();
         remove(jComboBox2);
         addComponent(contentPane, subjectEditor.subjectComponent, rectTmp.x, rectTmp.y, rectTmp.width, rectTmp.height);
@@ -838,7 +838,7 @@ public class EventEditorPanel extends PlainNoteDataEditor {
         // Load the interface with the correct data
         //------------------------------------------------
         // These two methods are in the base class.
-        setExtText(end.getExtendedNoteString());
+        setExtendedNoteString(end.getExtendedNoteString());
         subjectEditor.setSubject(end.getSubjectString());
 
         chkboxRetainNote.setSelected(end.getRetainNote());

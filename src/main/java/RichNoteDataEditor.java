@@ -1,20 +1,17 @@
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Enumeration;
-import java.util.Vector;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
-public class RichNoteDataEditor {
+public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
     private static final int maxSubjects = 20;
 
-    JPanel theMainPanel;
-    JComboBox<String> subjectChooser;
+    SubjectEditor subjectEditor;
     JTextPane textPane;
     StyledDocumentData sdd;
+    boolean aStyleWasChanged;
 
     JButton normalBtn = new JButton("Plain");
     JButton boldBtn = new JButton("Bold");
@@ -32,35 +29,25 @@ public class RichNoteDataEditor {
     JButton clearBtn = new JButton("Clear");
 
     JButton saveBtn = new JButton("Save");
-    JButton cancelBtn = new JButton("Cancel");
     JButton plainEditorBtn = new JButton("Plain Text Editor");
 
-    JComponent subjectComponent; // Edit the Subject with either a JTextField or a JComboBox
-    String phantomText;  // Leave this null, if not being used.
-
-    private Vector<String> subjects;
-    private String mySubject;
-    private final String theDefaultSubject;
-
-    public RichNoteDataEditor(String defaultSubject) {
-        if (defaultSubject != null) {
-                subjects = MemoryBank.dataAccessor.loadSubjects(defaultSubject);
-
-                subjectChooser = new JComboBox<>(subjects);
-                subjectChooser.setEditable(true);
-                subjectChooser.setFont(Font.decode("Serif-bold-12"));
-                // Note: too large of font here causes display problems.
-
-                subjectChooser.setToolTipText("Type or Select the Subject for this note");
-                subjectChooser.setMaximumRowCount(maxSubjects);
-                subjectComponent = subjectChooser;
-        }
-        theDefaultSubject = defaultSubject;
+    public RichNoteDataEditor(SubjectEditor subjectEditor) {
+        super(new BorderLayout());
+        this.subjectEditor = subjectEditor;
 
         textPane = new JTextPane();
+
+        // Make a new default style for the JTextPane.
+        SimpleAttributeSet sas = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(sas, "SansSerif");
+        StyleConstants.setFontSize(sas, 16);
+        textPane.setParagraphAttributes(sas, true);
+        textPane.setCharacterAttributes(sas, true);
+
         DefaultStyledDocument theDocument = (DefaultStyledDocument) textPane.getStyledDocument();
         addStylesToDocument(theDocument);
         buildPanel();
+        this.setPreferredSize(new Dimension(780, 500));
 
         String s1 = textPane.getText(); // This may have unwanted '\r' characters...
         String s2 = "";
@@ -77,17 +64,36 @@ public class RichNoteDataEditor {
         System.out.println("JTextPane text length: " + s1.length() + "\tStyledDocument text length: " + s2.length());
     } // end constructor
 
+
     private void buildPanel() {
-        theMainPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = this.getButtonPanel();
-        theMainPanel.add(buttonPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.NORTH);
 
         JScrollPane jsp = new JScrollPane();
         jsp.setViewportView(textPane);
         // Vertical and Horizontal scrollbars as needed but the JTextPane
         //   will wrap text, so the horizontal bar should never appear.
 
-        theMainPanel.add(jsp, BorderLayout.CENTER);
+        add(jsp, BorderLayout.CENTER);
+    }
+
+    @Override
+    public NoteDataEditor getAlternateEditor() {
+        // Warn of styling loss -
+        if(aStyleWasChanged) { // They made styling changes, THEN decided to go plain?  ??
+            String styleWarning; // They get one warning..
+            boolean doIt;
+            styleWarning = "Are you sure you want to change to 'plain' text?" + System.lineSeparator();
+            styleWarning += "All styling changes that you have made in the current session will be lost," + System.lineSeparator();
+            styleWarning += "and cancelling the new editor will not bring them back unless you first" + System.lineSeparator();
+            styleWarning += "save your work at this point.  Continue without saving?";
+            doIt = JOptionPane.showConfirmDialog(this, styleWarning,
+                    "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+            if (!doIt) return this;
+        }
+        NoteDataEditor theEditor = new PlainNoteDataEditor(subjectEditor);
+        theEditor.setExtendedNoteString(textPane.getText());
+        return theEditor;
     }
 
     private JPanel getButtonPanel() {
@@ -104,36 +110,31 @@ public class RichNoteDataEditor {
         iconifyButton(backgroundBtn, "images/background.gif");
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        JPanel buttonRowN = new JPanel();
-        JPanel buttonRowS = new JPanel();
-        if(subjectChooser != null) buttonRowN.add(subjectChooser);
-        buttonRowN.add(normalBtn);
-        buttonRowN.add(boldBtn);
-        buttonRowN.add(italicBtn);
-        buttonRowN.add(underlineBtn);
-        buttonRowN.add(leftBtn);
-        buttonRowN.add(centerBtn);
-        buttonRowN.add(rightBtn);
-        buttonRowN.add(fullBtn);
-        buttonRowN.add(superscriptBtn);
-        buttonRowN.add(subscriptBtn);
-        buttonRowN.add(foregroundBtn);
-        buttonRowN.add(backgroundBtn);
-        buttonRowN.add(iconBtn);
-        buttonRowN.add(clearBtn);
+        JPanel buttonRow = new JPanel();
+        if(subjectEditor != null) buttonRow.add(subjectEditor);
+        buttonRow.add(normalBtn);
+        buttonRow.add(boldBtn);
+        buttonRow.add(italicBtn);
+        buttonRow.add(underlineBtn);
+        buttonRow.add(leftBtn);
+        buttonRow.add(centerBtn);
+        buttonRow.add(rightBtn);
+        buttonRow.add(fullBtn);
+        buttonRow.add(superscriptBtn);
+        buttonRow.add(subscriptBtn);
+        buttonRow.add(foregroundBtn);
+        buttonRow.add(backgroundBtn);
+        buttonRow.add(iconBtn);
+        buttonRow.add(clearBtn);
+        //buttonRow.add(saveBtn);    // Restore this, to see the JSON object.
 
         normalBtn.setToolTipText("Remove any extra text attributes from selection");
         iconBtn.setToolTipText("Insert an icon of your choosing");
         clearBtn.setToolTipText("Remove all content from JTextPane");
         saveBtn.setToolTipText("Doc-->Data, Reload");
-        buttonRowS.add(saveBtn);
-        cancelBtn.setToolTipText("Revert to the original content");
-        buttonRowS.add(cancelBtn);
         plainEditorBtn.setToolTipText("Remove all text styling");
-        buttonRowS.add(plainEditorBtn);
 
-        buttonPanel.add(buttonRowN, BorderLayout.NORTH);
-        buttonPanel.add(buttonRowS, BorderLayout.SOUTH);
+        buttonPanel.add(buttonRow, BorderLayout.NORTH);
 
         // Add ActionListeners to buttons
         normalBtn.addActionListener(e -> setNewStyle("plain", true));
@@ -221,25 +222,19 @@ public class RichNoteDataEditor {
             textPane.setDocument(new DefaultStyledDocument());
         });
 
-        saveBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                collectDocData();  // null out the sdd, then fill it with data, if there is any.
+        // The 'save' button is no longer presented, so this action will be unused but will be retained so that
+        //   it can be quickly restored if needed for further research or troubleshooting.
+        saveBtn.addActionListener(e -> {
+            collectDocData();  // null out the sdd, then fill it with data, if there is any.
 
-                System.out.println("================================================================");
-                System.out.println("JSON representation of the StyledDocumentData: ");
-                System.out.println(AppUtil.toJsonString(sdd));
+            System.out.println("================================================================");
+            System.out.println("JSON representation of the StyledDocumentData: ");
+            System.out.println(AppUtil.toJsonString(sdd));
 
-                DefaultStyledDocument newDoc = new DefaultStyledDocument();
-                sdd.fillStyledDocument(newDoc);
-                textPane.setDocument(newDoc);
-                RichNoteDataEditor.this.addStylesToDocument(newDoc);
-            }
-        });
-        cancelBtn.addActionListener(e -> { // Get back to the original content.
-            DefaultStyledDocument dsd =new DefaultStyledDocument();
-            addStylesToDocument(dsd);
-            textPane.setDocument(dsd);
+            DefaultStyledDocument newDoc = new DefaultStyledDocument();
+            sdd.fillStyledDocument(newDoc);
+            textPane.setDocument(newDoc);
+            RichNoteDataEditor.this.addStylesToDocument(newDoc);
         });
 
         return buttonPanel;
@@ -256,7 +251,7 @@ public class RichNoteDataEditor {
         // Get the section of the document containing the text (and styling) that we need to preserve.
         Element theSection = textPane.getStyledDocument().getDefaultRootElement();
         System.out.println("The StyledDocument components starting with the DefaultRootElement - ");
-        RichNoteDataEditor.this.expandElement(theSection, 1);
+        expandElement(theSection, 1);
     }
 
     // Given an Element of a Document, show its content, recursively as needed.
@@ -354,13 +349,13 @@ public class RichNoteDataEditor {
 
         // Get the default style; It is referenced by a standardized enum to be sure that we get it,
         // but it is probably 'default'.  No need to add this one to the doc but it is needed as
-        // the parent of our own default/base style.
+        // the parent of our own default/base style, 'plain'.
         StyleContext sc = StyleContext.getDefaultStyleContext();
-        Style defaultContextStyle = sc.getStyle(StyleContext.DEFAULT_STYLE);
+        Style defaultStyle = sc.getStyle(StyleContext.DEFAULT_STYLE);
 
         // Now make and add our own default, that we will call 'plain'.
         // This will be the parent of all the other styles to follow.
-        Style plain = doc.addStyle("plain", defaultContextStyle);
+        Style plain = doc.addStyle("plain", defaultStyle);
         StyleConstants.setFontFamily(plain, "SansSerif");
         StyleConstants.setFontSize(plain, 16);
 
@@ -423,6 +418,7 @@ public class RichNoteDataEditor {
         Style newStyle = document.getStyle(styleName);
         int start = textPane.getSelectionStart();
         int end = textPane.getSelectionEnd();
+        aStyleWasChanged = true;
         if (isCharacterStyle) {
             boolean replaceOld = styleName.equals("plain");
             document.setCharacterAttributes(start, end - start,
@@ -430,9 +426,33 @@ public class RichNoteDataEditor {
         } else {
             document.setParagraphAttributes(start,
                     end - start,
-                    newStyle, false);
+                    newStyle, true);
         }
+    } // end setNewStyle
+
+    @Override
+    public int getEditingDirective(String title) {  // boolean allowEditorChange ?
+        String string1 = "Save";               // 0   (OK_OPTION)
+        String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
+        String string3 = "Plain Text Editor";  // 2   (home-grown meaning, but value matches WHEN_IN_FOCUSED_WINDOW)
+        Object[] options = {string1, string2, string3};
+        return JOptionPane.showOptionDialog(this.getParent(),
+                this,
+                title,
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                PLAIN_MESSAGE,
+                null,     // don't use a custom Icon
+                options,  // the titles of buttons
+                string1); // the title of the default button
     }
+
+    @Override
+    // Return a String of the JSON-ified StyledDocumentData
+    public String getExtendedNoteString() {
+        collectDocData();  // null out the sdd, then fill it with data, if there is any.
+        return AppUtil.toJsonString(sdd);
+    }
+
 
     private void iconifyButton(JButton theButton, String iconPath) {
         ImageIcon buttonIconImage;
@@ -447,7 +467,16 @@ public class RichNoteDataEditor {
         }
     }
 
+    @Override
+    public void setExtendedNoteString(String theText) {
+        textPane.setText(theText);
+    }
+
     public static void main(String[] args) {
+        MemoryBank.debug = true;
+        MemoryBank.setUserDataHome("lex@doughmain.net");
+        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+
         // Needed to override the 'metal' L&F for Swing components.
         String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
         System.out.println("Setting Pluggable Look & Feel to: " + thePlaf);
@@ -460,16 +489,16 @@ public class RichNoteDataEditor {
         nd.noteString = "A test noteString";
         nd.extendedNoteString = "A test (undecorated) extendedNoteString";
         nd.subjectString = "Day Note";
-        RichNoteDataEditor rte = new RichNoteDataEditor(nd.getSubjectString());
-        rte.theMainPanel.setPreferredSize(new Dimension(780, 500));
+        SubjectEditor subjectEditor = new SubjectEditor(nd.getSubjectString());
+        RichNoteDataEditor rte = new RichNoteDataEditor(subjectEditor);
+        rte.setPreferredSize(new Dimension(780, 500));
         rte.textPane.setText(nd.extendedNoteString);
 
         String string1 = "Save";               // 0   (value of the 'doit' int; OK_OPTION)
         String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
-        String string3 = "Plain Text Editor";  // 2   (home-grown)
-        Object[] options = {string1, string2, string3};
+        Object[] options = {string1, string2};
         int doit = JOptionPane.showOptionDialog(null,
-                rte.theMainPanel,
+                rte,
                 nd.getNoteString(),
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 PLAIN_MESSAGE,
@@ -494,4 +523,4 @@ public class RichNoteDataEditor {
 
     } // end main
 
-} // end class RichTextEditor
+} // end class RichNoteDataEditor

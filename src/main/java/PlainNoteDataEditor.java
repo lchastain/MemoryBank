@@ -11,14 +11,13 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class PlainNoteDataEditor extends JPanel {
+import static javax.swing.JOptionPane.PLAIN_MESSAGE;
+
+public class PlainNoteDataEditor extends JPanel implements NoteDataEditor {
     private static final long serialVersionUID = 1L;
 
-    // This Panel can have variable content; default declarations below.
-    SubjectEditor subjectEditor;
-    JComboBox<String> subjectChooser;
+    SubjectEditor subjectEditor; // Constructed elsewhere and sent to the constructor here.
     protected JTextArea body;  // held/shown in a JScrollPane
-
     String phantomText;  // Leave this null, if not being used.
 
     PlainNoteDataEditor(SubjectEditor subjectEditor) {
@@ -86,13 +85,43 @@ public class PlainNoteDataEditor extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     } // end constructor
 
+    @Override
+    // Make a new 'other' editor and initialize it with the data that this class holds.
+    public NoteDataEditor getAlternateEditor() {
+        NoteDataEditor theEditor = new RichNoteDataEditor(subjectEditor);
+        theEditor.setExtendedNoteString(body.getText());
+        return theEditor;
+    }
+
+    @Override
+    public int getEditingDirective(String title) {
+        String string1 = "Save";               // 0   (OK_OPTION)
+        String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
+        String string3 = "Rich Text Editor";  // 2   (home-grown meaning, but value matches WHEN_IN_FOCUSED_WINDOW)
+        Object[] options = {string1, string2, string3};
+        return JOptionPane.showOptionDialog(null,
+                this,
+                title,
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                PLAIN_MESSAGE,
+                null,     // don't use a custom Icon
+                options,  // the titles of buttons
+                string1); // the title of the default button
+    }
+
+    @Override
+    public String getExtendedNoteString() {
+        return getExtText();
+    }
+
     String getExtText() {
-        String theText = body.getText();
+        String theText = body.getText(); // An empty JTextArea returns "".
         if(theText.equals(phantomText)) return "";
         return theText;
     }
 
-    void setExtText(String s) {
+    @Override
+    public void setExtendedNoteString(String s) {
         if (s != null && !s.trim().isEmpty()) {
             body.setText(s);
             body.setForeground(Color.BLACK);
@@ -104,11 +133,7 @@ public class PlainNoteDataEditor extends JPanel {
                 body.setText(s);
             }
         }
-    } // end setExtText
-
-    void setCenterPanel(JPanel theCenterPanel) {
-        add(theCenterPanel, BorderLayout.CENTER);
-    }
+    } // end setExtendedNoteString
 
     void setPhantomText(String theText) {
         phantomText = theText;

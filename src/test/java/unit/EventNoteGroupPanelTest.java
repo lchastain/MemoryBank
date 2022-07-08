@@ -61,7 +61,7 @@ class EventNoteGroupPanelTest {
     void testEditExtendedNoteComponent() {
         EventNoteComponent eventNoteComponent = (EventNoteComponent) eventNoteGroupPanel.getNoteComponent(2);
         EventNoteData eventNoteData = (EventNoteData) eventNoteComponent.getNoteData();
-        eventNoteGroupPanel.editExtendedText(eventNoteData);
+        eventNoteGroupPanel.editNoteData(eventNoteData);
     }
 
 }

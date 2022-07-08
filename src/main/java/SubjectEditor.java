@@ -8,6 +8,7 @@ public class SubjectEditor extends JPanel {
     private static final long serialVersionUID = 1L;
     private static final int maxSubjects = 20;
 
+    JButton setDefaultBtn; // This allows a subject to be 'un'-set.
     JComponent subjectComponent; // Will be either a JTextField or a JComboBox
 
     private Vector<String> subjects;
@@ -31,11 +32,19 @@ public class SubjectEditor extends JPanel {
             subjectComponent.setFont(Font.decode("Serif-bold-12")); // Note: font too large == display problems.
             ((JComboBox<?>) subjectComponent).setEditable(true);
             ((JComboBox<?>) subjectComponent).setMaximumRowCount(maxSubjects);
-            JButton setDefaultBtn = new JButton("X");
-            setDefaultBtn.addActionListener(e -> ((JComboBox<?>) subjectComponent).setSelectedItem(defaultSubject));
+            setDefaultBtn = new JButton("X");
+            setDefaultBtn.addActionListener(e -> {
+                ((JComboBox<?>) subjectComponent).setSelectedItem(defaultSubject);
+                setDefaultBtn.setVisible(false); // No need for it, after clicked once.
+            });
             setDefaultBtn.setToolTipText("Revert to default");
             add(setDefaultBtn, BorderLayout.WEST);
             add(subjectComponent, BorderLayout.CENTER);
+        }
+        if(subjectComponent instanceof JComboBox) {
+            ((JComboBox<?>) subjectComponent).addItemListener(e -> {
+                if(setDefaultBtn != null) setDefaultBtn.setVisible(true);
+            });
         }
         theDefaultSubject = defaultSubject;
     } // end constructor
@@ -66,9 +75,10 @@ public class SubjectEditor extends JPanel {
 
 
     public String getSubject() {
+        updateSubject();
         if (mySubject == null) return null;
         if (mySubject.equals(theDefaultSubject)) return null;
-        else return mySubject;
+        return mySubject;
     } // end getSubject
 
 
@@ -96,16 +106,18 @@ public class SubjectEditor extends JPanel {
         } else {
             ((JTextField) subjectComponent).setText(newSubject);
         }
+        if(setDefaultBtn != null) setDefaultBtn.setVisible(newSubject != null);
+
     } // end setSubject
 
     // This is needed to acquire text that might be typed into the Subject combobox control.
-    // Needs to be called from a NoteGroup during an Edit session for the ExtendedNoteComponent,
+    // Needs to be called from a NoteGroup during an Edit session,
     // because there is nothing in place to do this automatically as the result of an awt or
     // swing event.  There could be, of course, but I opted to NOT go that route because it
     // would be called for every single keypress and dropdown selection, whereas this one is
     // only needed once, at the end of the edit session.
     void updateSubject() {
-        if(subjectComponent == null) return;  // No subject chooser for Todo items.
+        if(subjectComponent == null) return;  // Not all NoteData children will allow Subject editing.
 
         if(subjectComponent instanceof JComboBox) {
             String theSubject = (String) ((JComboBox<?>) subjectComponent).getEditor().getItem();

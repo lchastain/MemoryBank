@@ -1858,8 +1858,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             // If the extendedNoteComponent of the open group had been edited then there may have been a Subjects
             //   change.  If so then those changes may be saved right now.
-            if (theNoteGroupPanel.plainNoteDataEditor != null) {
-                theNoteGroupPanel.plainNoteDataEditor.subjectEditor.saveSubjects(); // This is a no-op if there was no change.
+            if (theNoteGroupPanel.subjectEditor != null) {
+                theNoteGroupPanel.subjectEditor.saveSubjects(); // This is a no-op if there was no change.
             }
         } // end if
 

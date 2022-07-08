@@ -1,6 +1,11 @@
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.Vector;
 
 public class StyledDocumentData {
@@ -9,9 +14,22 @@ public class StyledDocumentData {
     StyledDocumentData() {
         paragraphData = new Vector<>(0, 1);
     }
-//    StyledDocumentData(String s) {
-//        this();
-//    }
+
+    static StyledDocumentData  getStyledDocumentData(String s) {
+        // Is the String a JSON string of StyledDocumentData?
+        // If so, turn it into a StyledDocumentData object.
+        StyledDocumentData sdd = null;
+        if (s != null && !s.isBlank()) {
+            try { // This fails (as desired) on empty string, string not JSON, JSON not a StyledDocument, unrecognized.
+                sdd = AppUtil.mapper.readValue(s, new TypeReference<StyledDocumentData>() { });
+            } catch (JsonParseException | JsonMappingException ignore) {
+                //System.out.println("Caught a json problem, so not using rich editor.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sdd;
+    } // end getStyledDocumentData
 
     void addParagraph(ParagraphData pd) {
         paragraphData.add(pd);

@@ -21,7 +21,7 @@ public class ExtendedNoteEditorMain {
         subjectEditor.setSubject(noteData.getSubjectString());
         PlainNoteDataEditor plainNoteDataEditor = new PlainNoteDataEditor(subjectEditor);
 
-        plainNoteDataEditor.setExtText(noteData.getExtendedNoteString());
+        plainNoteDataEditor.setExtendedNoteString(noteData.getExtendedNoteString());
         plainNoteDataEditor.subjectEditor.setSubject(noteData.getSubjectString());
 
         JFrame testFrame = new JFrame("ExtendedNoteEditor Driver");

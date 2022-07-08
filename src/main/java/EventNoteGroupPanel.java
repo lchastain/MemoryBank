@@ -254,21 +254,21 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // but it then needs to work with a child of NoteData (EventNoteData), and from here we call the non-standard
     // methods such as 'showTheData' and 'assimilateTheData'.  Of course this could all be done with an interface
     // that the base class references instead of the specific classes, but short of that, this approach will suffice.
-    public boolean editExtendedText(NoteData noteData) {
+    public boolean editNoteData(NoteData noteData) {
         // Show the ExtendedNoteComponent (EventEditorPanel)
         SubjectEditor subjectEditor = new SubjectEditor(defaultSubject);
         subjectEditor.setSubject(noteData.getSubjectString());
-        plainNoteDataEditor = new EventEditorPanel(subjectEditor);
+        noteDataEditor = new EventEditorPanel(subjectEditor);
 
         // Cast the input parameter to its full potential.
         EventNoteData eventNoteData = (EventNoteData) noteData;
 
         // Send the current data to the Event Editor dialog.
-        ((EventEditorPanel) plainNoteDataEditor).showTheData(eventNoteData);
+        ((EventEditorPanel) noteDataEditor).showTheData(eventNoteData);
 
         int doit = optionPane.showConfirmDialog(
                 JOptionPane.getFrameForComponent(theBasePanel),
-                plainNoteDataEditor,
+                noteDataEditor,
                 noteData.getNoteString(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
@@ -276,14 +276,14 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         if (doit == JOptionPane.CANCEL_OPTION) return false;
 
         // Get the data from the Event Editor dialog.
-        ((EventEditorPanel) plainNoteDataEditor).assimilateTheData(eventNoteData);
+        ((EventEditorPanel) noteDataEditor).assimilateTheData(eventNoteData);
 
         // We don't know for sure that something changed, but since the edit was not cancelled
         // we will assume that there were changes, and indicate that a save group is needed.
         setGroupChanged(true);
 
         return true;
-    } // end editExtendedText
+    } // end editNoteData
 
 
     public ImageIcon getDefaultIcon() {
