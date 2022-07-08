@@ -43,7 +43,7 @@ class NoteData extends BaseData {
         // If someone actually enters a value of "" then that's what they will get, vs the default.
         subjectString = null;  // null, not "".
 
-        extendedNoteString = "";
+        extendedNoteString = ""; // Never null.
         linkTargets = new LinkTargets();
     } // end clear
 

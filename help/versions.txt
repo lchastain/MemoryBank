@@ -129,6 +129,13 @@ Ver.    Notes
         Goals is now a tabbed pane of a To Do List, a Log, and a list of Milestones with a shared 'plan' header.
         Calendar Notes can be optionally grouped into a tabbed pane panel
 
+0.6     ?? 8 Jul 2022   a pre-final v0.6
+        Added icons to Month and Year Notes.
+        A new Goal tab:  Notes, is a new type of NoteGroup that is still evolving.  Current presentation of it is
+            much like the older MonthNotes and YearNotes (no icon).
+        A 'rich' Note editor that can style the text.  Can switch editor from plain to this one (and vice-versa).
+
+
         NOT YET ARCHIVED; this version in dev workspace only.
 0.6     -ongoing-   a pre-final v0.6
 

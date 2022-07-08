@@ -450,7 +450,9 @@ public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
     // Return a String of the JSON-ified StyledDocumentData
     public String getExtendedNoteString() {
         collectDocData();  // null out the sdd, then fill it with data, if there is any.
-        return AppUtil.toJsonString(sdd);
+        String theString = "";
+        if(sdd != null) theString = AppUtil.toJsonString(sdd);
+        return theString;
     }
 
 

@@ -523,13 +523,15 @@ public class NoteComponent extends JPanel {
             if (nd == null) return;
 
             String subjectString = nd.getSubjectString();
-            String extendedNoteString = nd.getExtendedNoteString().trim();
-            StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(extendedNoteString);
-            if(sdd != null) {
-                JTextPane jtp = new JTextPane();
-                DefaultStyledDocument dsd = (DefaultStyledDocument) jtp.getStyledDocument();
-                sdd.fillStyledDocument(dsd);
-                extendedNoteString = jtp.getText();
+            String extendedNoteString = nd.getExtendedNoteString();
+            if(!extendedNoteString.isBlank()) {
+                StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(extendedNoteString);
+                if (sdd != null) {
+                    JTextPane jtp = new JTextPane();
+                    DefaultStyledDocument dsd = (DefaultStyledDocument) jtp.getStyledDocument();
+                    sdd.fillStyledDocument(dsd);
+                    extendedNoteString = jtp.getText();
+                }
             }
 
             String strToolTip;
@@ -542,11 +544,11 @@ public class NoteComponent extends JPanel {
             // The tool tip will be a concatenation of the subject
             //   and the extended note.  If one is not present then
             //   it will just be the other.  If neither, then null.
-            if ((subjectString != null) && !extendedNoteString.equals("")) {
+            if ((subjectString != null) && (!extendedNoteString.isBlank())) {
                 strToolTip = subjectString + System.lineSeparator() + extendedNoteString;
             } else if (subjectString != null) {
                 strToolTip = subjectString;
-            } else if (!extendedNoteString.equals("")) {
+            } else if (!extendedNoteString.isBlank()) {
                 strToolTip = extendedNoteString;
             } else {
                 strToolTip = null;
@@ -582,7 +584,7 @@ public class NoteComponent extends JPanel {
         private void setTextColor() {
             NoteData nd = getNoteData();
             if (nd == null) return;
-            if (!nd.getExtendedNoteString().trim().equals(""))
+            if (!nd.getExtendedNoteString().isBlank())
                 setForeground(Color.blue);
             else
                 setForeground(Color.black);

@@ -2,8 +2,7 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
-    Show current notegroup - not working for calendar notes that are grouped.
-
+    Saving an empty rich note stores the text 'null' in the string.
 
 
 Next:
@@ -22,6 +21,9 @@ do it once, only, and then cancel if that's what is intended because cancel woul
 the editor you started with.  But this yet again may call for a dedicated Dialog and not just the JOptionPane.  How
 much value-added for the effort?  No - leaving it as is, and moving on.
 Fixed this: The 'X' on the subject is not appropriate, if the subject is already the default subject (null).
+This problem: Show current notegroup - not working for calendar notes that are grouped -
+    No longer seen!  Did I fix that on-the-fly and just failed to remark on it?  Or maybe it was fixed as a side-effect of
+    fixing the menus.  Anyway, dropping it as a problem.
 
 7 Jul 2022
 Dr. and test appointments, showing the apartment to sell, etc.  In between distractions, did clear up the problem with
