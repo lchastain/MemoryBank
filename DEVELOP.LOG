@@ -2,7 +2,8 @@
 Development notes for MemoryBank - record of issues and accomplishments.  Not comprehensive.
 
 Problems:
-    Saving an empty rich note stores the text 'null' in the string.
+  'Today' notes get lost when clicking Today.  Why is it active in the first place?
+  Iconified button icons not showing in production.
 
 
 Next:
@@ -12,6 +13,7 @@ Next:
 
 
 Current:
+   Going 'live' with current ver for feature burn-in, and version archive.
 
 =====================================================================================================
 
@@ -24,6 +26,8 @@ Fixed this: The 'X' on the subject is not appropriate, if the subject is already
 This problem: Show current notegroup - not working for calendar notes that are grouped -
     No longer seen!  Did I fix that on-the-fly and just failed to remark on it?  Or maybe it was fixed as a side-effect of
     fixing the menus.  Anyway, dropping it as a problem.
+Fixed this: Saving an empty rich note stores the text 'null' in the string.
+  and committed.
 
 7 Jul 2022
 Dr. and test appointments, showing the apartment to sell, etc.  In between distractions, did clear up the problem with

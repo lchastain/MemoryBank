@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
+    private static final long serialVersionUID = 1L;
     private static final int maxSubjects = 20;
 
     SubjectEditor subjectEditor;

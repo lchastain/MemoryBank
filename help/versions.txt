@@ -4,20 +4,21 @@ Versions:
 The work on Memory Bank started in Dec of 1997, initially as just a 'todo list'.  Earliest dev note in a
     development log is from Jan 1998.  It later evolved into the Personal Log app, and finally to Memory Bank.
 
-Archives of development snapshots are here:
+Locations of development snapshot archives:
 
-C:\UberArchive\SHEBA\PRESERVED\Archive 2005_0423
+C:\UberArchive\SHEBA\PRESERVED\Archive 2005_0423  (deleted 15 Jul 2022)
     3 snapshots of the todo app development -  todo980202, todo990103, todo991123
 
-C:\UberArchive\SHEBA\PRESERVED\Archive 2007_0325\MyJavaArchives
+C:\UberArchive\SHEBA\PRESERVED\Archive 2007_0325\MyJavaArchives (deleted 16 Jul 2022)
     19 different versions of todo and log; 8 of them are in .tar files
     There is some overlap of the later ones here with the 39 that are below, but
     the overlap is not all one-way; this indicates that the snapshots came from different systems
     and locations over time, and got collected into archives unevenly.  There is not going to be a
     lot of value added in trying now to deconflict / condense, so will not bother.
 
-C:\UberArchive\SHEBA\PRESERVED\FreeAgent\Log versions
-    39 snapshots covering development of the Personal Log app (log) from 2004_0906 up to 2012_0115
+C:\UberArchive\SHEBA\PRESERVED\FreeAgent\Log versions  (deleted 17 Jul 2022)
+    39 snapshots covering development of the Personal Log app (log) from 2004_0906 up to 2012_0115,
+    including the ChronoNotes offshoot done while at Overwatch.
     For the ones in the above archive that cover some of this same period but are not here - suspect those
     had been culled from this collection as not-needed dups or near-dups of snapshots that were
     just too close in time.  But as I said above, not going to try and 'fix' anything at this point.
@@ -126,15 +127,15 @@ Ver.    Notes
 
 0.6      2 May 2022   a pre-final v0.6
         Older archives not compatible; clear out before going live with this version
+        New NoteGroup types:  Log, Milestones
         Goals is now a tabbed pane of a To Do List, a Log, and a list of Milestones with a shared 'plan' header.
         Calendar Notes can be optionally grouped into a tabbed pane panel
 
-0.6     ?? 8 Jul 2022   a pre-final v0.6
+0.6      8 Jul 2022   a pre-final v0.6
         Added icons to Month and Year Notes.
         A new Goal tab:  Notes, is a new type of NoteGroup that is still evolving.  Current presentation of it is
             much like the older MonthNotes and YearNotes (no icon).
         A 'rich' Note editor that can style the text.  Can switch editor from plain to this one (and vice-versa).
-
 
         NOT YET ARCHIVED; this version in dev workspace only.
 0.6     -ongoing-   a pre-final v0.6
