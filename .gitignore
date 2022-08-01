@@ -1,0 +1,10 @@
+*.class
+
+appData/*
+development/*
+
+# Package Files #
+*.jar
+*.war
+*.ear
+

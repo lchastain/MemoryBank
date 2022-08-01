@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MemoryBank:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MemoryBank_jar</output-path>
+    <root id="archive" name="MemoryBank.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="MemoryBank" />
+      <element id="extracted-dir" path="C:/Jars/image4j.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Jars/slf4j-1.7.5.zip" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Jars/logback-1.0.13.zip" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Jars/slf4j-api-1.7.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Jars/logback-core-1.0.13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Jars/image4j-core-0.7-all.zip" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/Jars/logback-classic-1.0.13.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
