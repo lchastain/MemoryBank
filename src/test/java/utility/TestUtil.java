@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-class TestUtil implements Notifier, SubSystem {
+public class TestUtil implements Notifier, SubSystem {
     private String theAnswerString;
     private int theAnswerInt;
     private int notifyCount;

@@ -8,7 +8,7 @@ import java.io.IOException;
 // The NotePager is built into the base NoteGroup class, but only some child classes
 // use it.  For these tests we will use a TodoNoteGroup as the driver for the NotePager.
 
-// But - the methods that need unit testing beyond what we already get for 'free' by
+// But - the methods that need united testing beyond what we already get for 'free' by
 //     testing the full NoteGroup classes - are all event handlers.  Luckily, we can
 //     make these events here 'from scratch', using the NotePager component that is
 //     constructed by the base NoteGroup.

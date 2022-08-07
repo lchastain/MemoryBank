@@ -48,7 +48,7 @@ public class BranchSelectionTests {
         appTreePanel.restoringPreviousSelection = true; // This helps keep the thread count down.
         notifier = (TestUtil) appTreePanel.optionPane;
 
-        theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
+        theTree = appTreePanel.getTree(); // Usage here means no united test needed for getTree().
         rootNode = (DefaultMutableTreeNode) theTree.getModel().getRoot();
     } // end BeforeAll method meFirst()
 

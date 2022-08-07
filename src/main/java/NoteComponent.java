@@ -22,7 +22,7 @@ public class NoteComponent extends JPanel {
     NoteTextField noteTextField;
     JTextPane thePane;
 
-    // Needed by container classes to set their scrollbar unit increment.
+    // Needed by container classes to set their scrollbar united increment.
     static final int NOTEHEIGHT = 24;
 
     static final int NEEDS_TEXT = 77;    // Arbitrary values
@@ -293,17 +293,14 @@ public class NoteComponent extends JPanel {
         String s = " ";
 
         switch (textStatus) {
-            case NEEDS_TEXT:
-                s = "Click here to enter text for this note.";
-                break;
-            case HAS_BASE_TEXT:
-                s = "Press 'Enter' to add a subject or an extended note.";
-                break;
-            case HAS_EXT_TEXT:
+            case NEEDS_TEXT -> s = "Click here to enter text for this note.";
+            case HAS_BASE_TEXT -> s = "Press 'Enter' to add a subject or an extended note.";
+            case HAS_EXT_TEXT -> {
                 // This gives away the 'hidden' text, if
                 //   there is no primary (blue) text.
                 s = "Double-click or press 'Enter' to see/edit";
                 s += " the subject and extended note.";
+            }
         } // end switch
         myManager.setStatusMessage(s);
     } // end resetPanelStatusMessage

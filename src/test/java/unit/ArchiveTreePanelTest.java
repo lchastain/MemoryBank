@@ -52,7 +52,7 @@ public class ArchiveTreePanelTest {
         archiveTreePanel = new ArchiveTreePanel(archiveName);
 
         archiveTreePanel.optionPane = new TestUtil();
-        theTree = archiveTreePanel.getTree(); // Usage here means no unit test needed for getTree().
+        theTree = archiveTreePanel.getTree(); // Usage here means no united test needed for getTree().
 
     } // end meFirst
 

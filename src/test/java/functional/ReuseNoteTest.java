@@ -55,7 +55,7 @@ class ReuseNoteTest {
         // problem does not occur.
         //
         // These two assertions verify that the associated underlying data was correctly altered.
-        // They do not check the visual aspects of the result but unit tests for the DayNoteComponent
+        // They do not check the visual aspects of the result but united tests for the DayNoteComponent
         // (not yet written) will verify that the underlying data is used in the display of the info.
         // (and for now - it all looks ok, so this satisfies the testing needed for the additional
         // issues that turned up while fixing SCR0065).

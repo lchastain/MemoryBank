@@ -139,7 +139,7 @@ public class EventNoteData extends IconNoteData {
         // But if units went to Unknown we don't want to do any recalculations
         // and we don't want to remove any user-supplied durationValue (yet);
         // just leave it alone until the user takes some further action such
-        // as making a different unit selection, or leaving the interface.
+        // as making a different united selection, or leaving the interface.
         if (theValue.equals("Unknown")) {
             durationUnits = null;  // We don't actually keep the 'Unknown' value; it just means units should be null.
             return;
@@ -148,7 +148,7 @@ public class EventNoteData extends IconNoteData {
         // Duration may have been set while units were still unknown and in
         // that case no other calculations would have been attempted.  Now
         // we are either setting units for the first time, or changing to
-        // a different unit.  In either case, a duration that was previously
+        // a different united.  In either case, a duration that was previously
         // set (if any) will need to be re-set, to do those calcs again with
         // different results.
         if (durationValue != null) setDurationValue(durationValue);
@@ -914,10 +914,10 @@ public class EventNoteData extends IconNoteData {
                         calculatedDurationValue = null;
                         calculatedDurationUnits = null;
                     }
-                } // end if Days is too small a unit
-            } // end if Hours is too small a unit
+                } // end if Days is too small a united
+            } // end if Hours is too small a united
             return; // (we only go in the other direction, below).
-        } // end if Minutes is too small a unit
+        } // end if Minutes is too small a united
 
         if (calculatedDurationValue > 99999) {  // Units starts in Days, at this point
             // Convert Days to Weeks
@@ -929,7 +929,7 @@ public class EventNoteData extends IconNoteData {
                 calculatedDurationUnits = null;
             }
             return; // (we only go in the other direction, below).
-        } // end if Days is too small a unit
+        } // end if Days is too small a united
         //--------------------------------------------------------
 
         // Now there are a few other cases where units should be compressed, as long as there is no loss of precision.

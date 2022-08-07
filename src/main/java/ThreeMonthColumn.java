@@ -195,8 +195,6 @@ public class ThreeMonthColumn extends JPanel {
             };// end of new MouseAdapter
 
             // Create the Alter Buttons
-            String iString = MemoryBank.mbHome + "/images/";
-
             downAb = new LabelButton("", LabelButton.DOWN);
             downAb.addMouseListener(ma);
             downAb.setPreferredSize(new Dimension(28, 28));

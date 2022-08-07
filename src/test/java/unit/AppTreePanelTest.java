@@ -74,7 +74,7 @@ public class AppTreePanelTest {
     @Test
     @Order(1)
     void testDeepClone() {
-        JTree theTree = appTreePanel.getTree(); // Usage here means no unit test needed for getTree().
+        JTree theTree = appTreePanel.getTree(); // Usage here means no united test needed for getTree().
         theTree.setSelectionRow(theSelectionRow);
         TreePath treePath = theTree.getSelectionPath();
         Assertions.assertNotNull(treePath);

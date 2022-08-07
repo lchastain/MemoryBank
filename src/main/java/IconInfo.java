@@ -60,6 +60,7 @@ public class IconInfo {
         return imageIcon;
     }
 
+    // If I have a non-null, non-empty name and format, then I'm 'ready'.
     boolean ready() {
         boolean theAnser = true;
         if(iconName == null || iconName.isEmpty()) theAnser = false;

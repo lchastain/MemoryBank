@@ -536,12 +536,6 @@ public class StyledDocumentResearch {
         StyleConstants.setFontSize(s, 24);
         s = doc.addStyle("small", plain);
         StyleConstants.setFontSize(s, 10);
-
-        s = doc.addStyle("icon", plain);
-        ImageIcon pigIcon = StyledDocumentData.createImageIcon("images/Pig.gif");
-        if (pigIcon != null) {
-            StyleConstants.setIcon(s, pigIcon);
-        }
     } // end addStylesToDocument
 
 

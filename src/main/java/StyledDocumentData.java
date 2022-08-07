@@ -36,7 +36,7 @@ public class StyledDocumentData {
     }
 
     // Returns an ImageIcon, or null if the path was invalid.
-    static ImageIcon createImageIcon(String path) {
+    static ImageIcon createImageIcon(String path) { // path is case-sensitive!   .GIF != .gif
         java.net.URL imgURL = StyledDocumentData.class.getResource(path);
         if (imgURL != null) {
             return new ImageIcon(imgURL, path);
@@ -115,7 +115,7 @@ public class StyledDocumentData {
                 try {
                     theDocument.insertString(theDocument.getLength(), cd.contentTextFragment, contentStyle);
                 } catch (BadLocationException ble) {
-                    System.err.println("Couldn't insert text into text pane.");
+                    System.err.println("Couldn't insert text into the document.");
                 }
             } // end for contentData
 

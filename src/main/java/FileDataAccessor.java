@@ -419,6 +419,13 @@ public class FileDataAccessor implements DataAccessor {
             if (iconInfo.dataArea == DataArea.APP_ICONS) baseIconPath = MemoryBank.mbHome + c + "icons" + c;
             if (iconInfo.dataArea == DataArea.USER_ICONS) baseIconPath = MemoryBank.userDataHome + c + "icons" + c;
 
+            // tmp, while moving...
+            if (iconInfo.dataArea == DataArea.IMAGES) {
+                baseIconPath = "images" + c;
+            } else {
+                baseIconPath = "icons" + c;
+            }
+
             // Convert file separator characters, if needed.  This makes for file system
             // compatibility (even though we only expect to run on one type of OS).
             String replaceWith = String.valueOf(c);

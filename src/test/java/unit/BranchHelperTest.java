@@ -125,7 +125,7 @@ class BranchHelperTest {
     }
 
     // The NodeChange class is so small, why not go ahead and include the only other test needed for it?
-    // This way, no additional test class needed for unit testing NodeChange.
+    // This way, no additional test class needed for united testing NodeChange.
     @Test
     void testNodeChangeToString() {
         NodeChange nodeChange;

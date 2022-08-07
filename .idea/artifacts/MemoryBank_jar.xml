@@ -6,13 +6,11 @@
         <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
       </element>
       <element id="module-output" name="MemoryBank" />
-      <element id="extracted-dir" path="C:/Jars/image4j.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/Jars/slf4j-1.7.5.zip" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/Jars/logback-1.0.13.zip" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/Jars/slf4j-api-1.7.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/Jars/logback-core-1.0.13.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/Jars/image4j-core-0.7-all.zip" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/Jars/logback-classic-1.0.13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/image4j.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/slf4j-api-1.7.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/logback-core-1.0.13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/image4j-core-0.7-all.zip" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/logback-classic-1.0.13.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
