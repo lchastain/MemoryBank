@@ -1,0 +1,27 @@
+<component name="libraryTable">
+  <library name="carrotgarden.maven.carrot.image4j.plugin" type="repository">
+    <properties maven-id="com.carrotgarden.maven:carrot-maven-image4j-plugin:1.1.1" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/carrot-maven-image4j-plugin-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-plugin-api-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-project-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-settings-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-profile-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-model-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-artifact-manager-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-repository-metadata-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/wagon-provider-api-1.0-beta-6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/backport-util-concurrent-3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-plugin-registry-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/plexus-interpolation-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/plexus-utils-1.5.15.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/maven-artifact-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/plexus-container-default-1.0-alpha-9-stable-1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/junit-3.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/classworlds-1.1-alpha-2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../Jars/image4j-0.7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

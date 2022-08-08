@@ -1,7 +1,10 @@
 *.class
 
+.empty/*
 appData/*
+archive/*
 development/*
+target/*
 
 # Package Files #
 *.jar
