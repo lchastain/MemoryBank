@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MemoryBank Jondo" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="MemoryBank" />
+    <module name="MemoryBank" />
+    <option name="PROGRAM_PARAMETERS" value="jondo.nonamus@lcware.net" />
+    <option name="VM_PARAMETERS" value="-Ddebug -Dfile.encoding=UTF_8 -enableassertions --add-opens java.base/java.time=ALL-UNNAMED" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
