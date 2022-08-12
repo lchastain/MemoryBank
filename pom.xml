@@ -65,10 +65,6 @@
             <version>1.9</version>
         </dependency>
 
-        <!--
-          C:\Jars>mvn install:install-file -Dfile=image4j.jar -DgroupId=net.sf.image4j
-          -DartifactId=codec -Dversion=0.7 -Dpackaging=jar
-        -->
         <dependency>
             <groupId>net.sf.image4j</groupId>
             <artifactId>codec</artifactId>

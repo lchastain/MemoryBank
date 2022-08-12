@@ -1,7 +1,6 @@
 *.class
 
 .empty/*
-appData/*
 archive/*
 development/*
 target/*

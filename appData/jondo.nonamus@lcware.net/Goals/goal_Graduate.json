@@ -1,0 +1,19 @@
+[ {
+  "zdtLastModString" : "2020-11-10T14:33:56.464+04:00[Europe/Samara]",
+  "instanceId" : "ceacc4fd-a5d9-4610-91bb-0ccb49ec56f1",
+  "groupType" : "GOALS",
+  "groupName" : "Graduate",
+  "linkTargets" : [ ],
+  "longTitle" : null,
+  "goalPlan" : null
+}, [ {
+  "zdtLastModString" : "2020-08-17T16:13:36.283+04:00[Europe/Samara]",
+  "instanceId" : "2341cf3e-b17f-4702-b76c-6275f8559e79",
+  "noteString" : "take classes",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 2
+} ] ]

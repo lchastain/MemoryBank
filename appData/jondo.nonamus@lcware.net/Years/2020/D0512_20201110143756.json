@@ -1,0 +1,38 @@
+[ {
+  "zdtLastModString" : "2020-11-10T14:37:56.328+04:00[Europe/Samara]",
+  "instanceId" : "5d74cbd2-6d27-4301-bf87-b5f3d47e68b5",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Tuesday, May 12, 2020",
+  "simpleName" : null,
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-11-10T14:37:36.147+04:00[Europe/Samara]",
+  "instanceId" : "a9878b7b-99dd-4e2a-8b4f-997626c9f067",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/clock.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-11-10T14:37:45.570+04:00[Europe/Samara]",
+  "instanceId" : "552b51a0-ffbe-49ef-a7bb-fdc0d65e4b64",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/clock.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-11-10T14:37:56.328+04:00[Europe/Samara]",
+  "instanceId" : "8502deb1-254a-417b-8bb8-a2056cd091f9",
+  "noteString" : "Daylight Savings Time Starts",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/clock.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+} ] ]

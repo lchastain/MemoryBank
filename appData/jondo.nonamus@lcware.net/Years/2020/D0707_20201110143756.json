@@ -1,0 +1,38 @@
+[ {
+  "zdtLastModString" : "2020-11-10T14:37:56.328+04:00[Europe/Samara]",
+  "instanceId" : "5ca7e0ba-e625-4af8-b424-88fc44b6c558",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Tuesday, July 7, 2020",
+  "simpleName" : null,
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-11-10T14:37:36.147+04:00[Europe/Samara]",
+  "instanceId" : "447f0183-ca9c-49fc-9218-ecd7d726b0bf",
+  "noteString" : "Independence Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/us_flag.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-11-10T14:37:45.586+04:00[Europe/Samara]",
+  "instanceId" : "205fc68d-9ce2-4a3b-a9cd-72c83b8bd288",
+  "noteString" : "Independence Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/us_flag.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-11-10T14:37:56.328+04:00[Europe/Samara]",
+  "instanceId" : "c19a7e98-7de7-4f15-8a21-e0bf3f971f37",
+  "noteString" : "Independence Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/us_flag.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+} ] ]

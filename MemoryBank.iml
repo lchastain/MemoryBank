@@ -12,7 +12,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/functional" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/unit" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/utility" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/appData" />
       <excludeFolder url="file://$MODULE_DIR$/development/Software Change Requests" />
       <excludeFolder url="file://$MODULE_DIR$/development" />
       <excludeFolder url="file://$MODULE_DIR$/archive" />
@@ -21,13 +20,14 @@
       <excludeFolder url="file://$MODULE_DIR$/archive/datafix 2020_0212" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/.empty/.classes" />
+      <excludeFolder url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
+      <excludeFolder url="file://$MODULE_DIR$/appData/lex@doughmain.net" />
+      <excludeFolder url="file://$MODULE_DIR$/appData/g01@doughmain.net" />
     </content>
     <content url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
     <content url="file://$MODULE_DIR$/src/test/Area51/java" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="org.junit.jupiter:junit-jupiter:5.5.1" level="project" />
-    <orderEntry type="library" name="org.junit.vintage:junit-vintage-engine:5.5.1" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -37,8 +37,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="slf4s.api_2.12" level="project" />
-    <orderEntry type="library" name="carrotgarden.maven.carrot.image4j.plugin" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.13.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.13.3" level="project" />
@@ -51,6 +49,6 @@
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:17.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-text:1.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.11" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.image4j:codec:0.7" level="project" />
+    <orderEntry type="library" name="carrotgarden.maven.carrot.image4j.plugin" level="project" />
   </component>
 </module>

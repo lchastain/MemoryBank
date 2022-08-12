@@ -1,0 +1,37 @@
+{
+  "goalsExpanded" : true,
+  "eventsExpanded" : true,
+  "viewsExpanded" : true,
+  "notesExpanded" : true,
+  "todoListsExpanded" : true,
+  "searchesExpanded" : true,
+  "groupCalendarNotes" : false,
+  "theSelection" : "Graduate",
+  "theSelectionRow" : 2,
+  "defaultDayNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "icon_not",
+    "iconFormat" : "gif"
+  },
+  "defaultMonthNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "calendr2",
+    "iconFormat" : "gif"
+  },
+  "defaultYearNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "note2",
+    "iconFormat" : "gif"
+  },
+  "defaultEventNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "reminder",
+    "iconFormat" : "gif"
+  },
+  "timeFormat" : "CIVILIAN",
+  "goalsList" : [ "Graduate", "Retire by age 50" ],
+  "eventsList" : [ "holidays", "appointments", "disasters", "money" ],
+  "tasksList" : [ "Get New Job", "New Car Shopping" ],
+  "searchResultList" : [ "20201107080501", "20201107080423" ],
+  "paneSeparator" : 191
+}
