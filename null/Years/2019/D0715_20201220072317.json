@@ -1,0 +1,47 @@
+[ {
+  "zdtLastModString" : "2020-12-20T07:23:17.089+04:00[Europe/Samara]",
+  "instanceId" : "48e18952-7e66-4eb8-a203-d98c61492478",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Monday, July 15, 2019",
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-12-20T07:23:16.657+04:00[Europe/Samara]",
+  "instanceId" : "43580c1e-df8c-40ed-b4c9-30cad002751b",
+  "noteString" : "Look at me!  I am unsaved!",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "linkTargets" : [ ],
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "07:23:16.657"
+}, {
+  "zdtLastModString" : "2020-12-20T07:23:16.944+04:00[Europe/Samara]",
+  "instanceId" : "4ca21f45-fa35-475e-9f6e-ba1573a37a22",
+  "noteString" : "",
+  "subjectString" : "Ten Things To Do",
+  "extendedNoteString" : "Priority: Not Set\nStatus: Not specified.\n",
+  "linkTargets" : [ ],
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-12-20T07:23:17.016+04:00[Europe/Samara]",
+  "instanceId" : "6a18d858-987e-4886-8f34-b6e076471476",
+  "noteString" : "",
+  "subjectString" : "Ten Things To Do",
+  "extendedNoteString" : "Priority: Not Set\nStatus: Not specified.\n",
+  "linkTargets" : [ ],
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-12-20T07:23:17.089+04:00[Europe/Samara]",
+  "instanceId" : "3aed2a5a-26f7-4e2e-805d-ce9c459810ac",
+  "noteString" : "",
+  "subjectString" : "Ten Things To Do",
+  "extendedNoteString" : "Priority: Not Set\nStatus: Not specified.\n",
+  "linkTargets" : [ ],
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : null
+} ] ]

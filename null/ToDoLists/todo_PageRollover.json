@@ -1,0 +1,84 @@
+[ {
+  "showPriority" : true,
+  "maxPriority" : 20,
+  "deadWidth" : 170,
+  "pHeader" : true,
+  "pFooter" : true,
+  "pBorder" : true,
+  "pCSpace" : true,
+  "pEText" : false,
+  "pPriority" : true,
+  "pDeadline" : false,
+  "pCutoff" : 99,
+  "lineSpace" : 1,
+  "whenNoKey" : 1,
+  "column1Label" : "Priority",
+  "column2Label" : "To Do Text",
+  "column3Label" : "Status",
+  "column4Label" : "Deadline",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2019-12-28T06:57:47.609+04:00[Europe/Samara]",
+  "noteString" : "One",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:57:50.437+04:00[Europe/Samara]",
+  "noteString" : "Two",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:57:57.081+04:00[Europe/Samara]",
+  "noteString" : "Three",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:57:59.582+04:00[Europe/Samara]",
+  "noteString" : "Four",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:58:01.959+04:00[Europe/Samara]",
+  "noteString" : "Five",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:58:03.741+04:00[Europe/Samara]",
+  "noteString" : "Six",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:58:05.789+04:00[Europe/Samara]",
+  "noteString" : "Seven",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+}, {
+  "zdtLastModString" : "2019-12-28T06:58:08.712+04:00[Europe/Samara]",
+  "noteString" : "Eight",
+  "subjectString" : null,
+  "extendedNoteString" : "",
+  "todoDateString" : null,
+  "intPriority" : 0,
+  "intStatus" : 0
+} ] ]

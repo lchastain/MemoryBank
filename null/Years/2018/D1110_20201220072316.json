@@ -1,0 +1,17 @@
+[ {
+  "zdtLastModString" : "2020-12-20T07:23:16.130+04:00[Europe/Samara]",
+  "instanceId" : "f4bedf4f-ebf1-4326-8854-d01534f63183",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Saturday, November 10, 2018",
+  "linkTargets" : [ ]
+}, [ {
+  "zdtLastModString" : "2020-12-20T07:23:16.130+04:00[Europe/Samara]",
+  "instanceId" : "a311dfc2-4fbf-42a1-920e-53fd9a679b72",
+  "noteString" : "Navy Reserves Weekend",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Reserves Training\n\nLocation: 32nd Street Naval Base, San Diego",
+  "linkTargets" : [ ],
+  "iconFileString" : null,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : null
+} ] ]

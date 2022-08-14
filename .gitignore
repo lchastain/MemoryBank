@@ -10,3 +10,5 @@ target/*
 *.war
 *.ear
 
+/appData/lex@doughmain.net/
+/.css/
