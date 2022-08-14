@@ -7,11 +7,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/Area51/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/icons" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/images" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/functional" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/unit" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/utility" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/icons" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/images" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/development/Software Change Requests" />
       <excludeFolder url="file://$MODULE_DIR$/development" />
       <excludeFolder url="file://$MODULE_DIR$/archive" />
