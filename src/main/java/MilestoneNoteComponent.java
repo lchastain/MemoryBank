@@ -3,10 +3,12 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class MilestoneNoteComponent extends IconNoteComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final DateTimeFormatter dtf;
     private static final YearView yvDateChooser;
@@ -28,7 +30,68 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         yvDateChooser = new YearView(); // Used by showDateChooser()
 
         // Make the milestone icons
-        theIcons = MemoryBank.dataAccessor.getImageIcons(DataArea.APP_ICONS, "Milestones");
+        theIcons = new ImageIcon[8]; // Seven icons, and a 'blank'.
+        ImageIcon anIcon;
+        String theName;
+        java.net.URL imgURL;
+        int arrayIndex = -1;
+        theIcons[++arrayIndex] = null; // A 'blank' icon
+
+        theName = "icons/Milestones/bullseye.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
+
+        theName = "icons/Milestones/checklist.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
+
+        theName = "icons/Milestones/chkmark.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
+
+        theName = "icons/Milestones/flag.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
+
+        theName = "icons/Milestones/mountaintop.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
+
+        theName = "icons/Milestones/signpost.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
+
+        theName = "icons/Milestones/youdidit.jpg";
+        imgURL = MemoryBank.class.getResource(theName);
+        if (imgURL != null) {
+            anIcon = new ImageIcon(imgURL, theName);
+            IconInfo.scaleIcon(anIcon);
+            theIcons[++arrayIndex] = anIcon;
+        }
 
     } // end static section
 
@@ -109,7 +172,7 @@ public class MilestoneNoteComponent extends IconNoteComponent {
             MemoryBank.debug("Moving MilestoneNote to specified date: " + moveToDate.toString());
         } else {
             LocalDate today = LocalDate.now();
-            MemoryBank.debug("Moving MilestoneNote to Today: " + today.toString());
+            MemoryBank.debug("Moving MilestoneNote to Today: " + today);
             myMilestoneNoteData.setNoteDate(LocalDate.now());
         }
 
@@ -172,17 +235,14 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         String s = " ";
 
         switch (textStatus) {
-            case NEEDS_TEXT:
-                s = "Click here to enter text for this task.";
-                break;
-            case HAS_BASE_TEXT:
-                s = "Double-click here to add details about this task.";
-                break;
-            case HAS_EXT_TEXT:
+            case NEEDS_TEXT -> s = "Click here to enter text for this task.";
+            case HAS_BASE_TEXT -> s = "Double-click here to add details about this task.";
+            case HAS_EXT_TEXT -> {
                 // This gives away the 'hidden' text, if
                 //   there is no primary (blue) text.
                 s = "Double-click here to see/edit";
                 s += " the additional details for this task.";
+            }
         } // end switch
         myManager.setStatusMessage(s);
     } // end resetPanelStatusMessage
@@ -297,6 +357,7 @@ public class MilestoneNoteComponent extends IconNoteComponent {
     // Inner Classes -
     //---------------------------------------------------------
     protected class IconButton extends LabelButton implements MouseListener {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         public static final int minWidth = 40;
@@ -428,6 +489,7 @@ public class MilestoneNoteComponent extends IconNoteComponent {
 
 
     class NoteDateLabel extends JLabel {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         boolean isActive;

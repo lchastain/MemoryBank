@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -87,30 +86,30 @@ public class FileDataAccessor implements DataAccessor {
         File theDestDir = null;
 
         switch (groupType) {
-            case GOALS:
+            case GOALS -> {
                 theSourceDir = new File(NoteGroupFile.goalGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.GOALS.getAreaName());
-                break;
-            case EVENTS:
+            }
+            case EVENTS -> {
                 theSourceDir = new File(NoteGroupFile.eventGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName());
-                break;
-            case LOG:
+            }
+            case LOG -> {
                 theSourceDir = new File(NoteGroupFile.logGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.LOGS.getAreaName());
-                break;
-            case NOTES:
+            }
+            case NOTES -> {
                 theSourceDir = new File(NoteGroupFile.plainNoteGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.NOTES.getAreaName());
-                break;
-            case TODO_LIST:
+            }
+            case TODO_LIST -> {
                 theSourceDir = new File(NoteGroupFile.todoListGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.TODO_LISTS.getAreaName());
-                break;
-            case SEARCH_RESULTS:
+            }
+            case SEARCH_RESULTS -> {
                 theSourceDir = new File(NoteGroupFile.searchResultGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName());
-                break;
+            }
         }
         if (theSourceDir == null) return;
 
@@ -170,33 +169,16 @@ public class FileDataAccessor implements DataAccessor {
     //  Returns true if the area already existed OR the creation was successful.
     @Override  // The interface implementation
     public boolean createArea(DataArea dataArea) {
-        String theAreaFullPath;
-        switch (dataArea) {
-            case ARCHIVES:
-                theAreaFullPath = archiveAreaPath;
-                break;
-            case GOALS:
-                theAreaFullPath = NoteGroupFile.goalGroupAreaPath;
-                break;
-            case UPCOMING_EVENTS:
-                theAreaFullPath = NoteGroupFile.eventGroupAreaPath;
-                break;
-            case LOGS:
-                theAreaFullPath = NoteGroupFile.logGroupAreaPath;
-                break;
-            case NOTES:
-                theAreaFullPath = NoteGroupFile.plainNoteGroupAreaPath;
-                break;
-            case TODO_LISTS:
-                theAreaFullPath = NoteGroupFile.todoListGroupAreaPath;
-                break;
-            case SEARCH_RESULTS:
-                theAreaFullPath = NoteGroupFile.searchResultGroupAreaPath;
-                break;
-            default:
-                theAreaFullPath = MemoryBank.mbHome;
-                break;
-        }
+        String theAreaFullPath = switch (dataArea) {
+            case ARCHIVES -> archiveAreaPath;
+            case GOALS -> NoteGroupFile.goalGroupAreaPath;
+            case UPCOMING_EVENTS -> NoteGroupFile.eventGroupAreaPath;
+            case LOGS -> NoteGroupFile.logGroupAreaPath;
+            case NOTES -> NoteGroupFile.plainNoteGroupAreaPath;
+            case TODO_LISTS -> NoteGroupFile.todoListGroupAreaPath;
+            case SEARCH_RESULTS -> NoteGroupFile.searchResultGroupAreaPath;
+            default -> MemoryBank.mbHome;
+        };
         File f = new File(theAreaFullPath);
         if (f.exists()) return true;
         return f.mkdirs();
@@ -357,7 +339,8 @@ public class FileDataAccessor implements DataAccessor {
 
         // The loaded data is a Vector of DayNoteData.
         // Not currently worried about the 'loading' boolean, since MonthView does not re-persist the data.
-        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<DayNoteData>>() { });
+        Vector<DayNoteData> theDayNotes = AppUtil.mapper.convertValue(theObject, new TypeReference<>() {
+        });
 
         Image[] returnArray = new Image[5];
         int index = 0;
@@ -413,44 +396,40 @@ public class FileDataAccessor implements DataAccessor {
     public ImageIcon getImageIcon(IconInfo iconInfo) {
         ImageIcon theImageIcon = null;
         if (iconInfo.ready()) {
-            String baseIconPath = ""; // when dataArea is null we look in the current directory.
-            char c = File.separatorChar; // short, for better readability.
-            if (iconInfo.dataArea == DataArea.IMAGES) baseIconPath = MemoryBank.mbHome + c + "images" + c;
-            if (iconInfo.dataArea == DataArea.APP_ICONS) baseIconPath = MemoryBank.mbHome + c + "icons" + c;
-            if (iconInfo.dataArea == DataArea.USER_ICONS) baseIconPath = MemoryBank.userDataHome + c + "icons" + c;
+            String baseIconPath; // when dataArea is null we look in the current directory.
 
-            // tmp, while moving...
             if (iconInfo.dataArea == DataArea.IMAGES) {
-                baseIconPath = "images" + c;
+                baseIconPath = "images/";
             } else {
-                baseIconPath = "icons" + c;
+                baseIconPath = "icons/";
             }
 
-            // Convert file separator characters, if needed.  This makes for file system
-            // compatibility (even though we only expect to run on one type of OS).
-            String replaceWith = String.valueOf(c);
-            if (replaceWith.equals("\\")) replaceWith = "\\\\"; // (we want backslashes, not escape chars).
-            String remainingPath = iconInfo.iconName.replaceAll(":", replaceWith);
-
-            String theFilename = baseIconPath + remainingPath + "." + iconInfo.iconFormat;
+            String theFilename = baseIconPath + iconInfo.iconName + "." + iconInfo.iconFormat;
             //MemoryBank.debug("Full icon filename: " + theFilename);
+
+            String thePath = iconInfo.iconName + "." + iconInfo.iconFormat;
+            java.net.URL imgURL = FileDataAccessor.class.getResource(baseIconPath + thePath);
 
             Image theImage = null;
             if (iconInfo.iconFormat.equalsIgnoreCase("ico")) {
                 try {
-                    List<BufferedImage> images = ICODecoder.read(new File(theFilename));
+                    assert imgURL != null;
+                    BufferedInputStream inputStream = new BufferedInputStream(imgURL.openStream());
+                    List<BufferedImage> images = ICODecoder.read(inputStream);
                     theImage = images.get(0);
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
             } else if (iconInfo.iconFormat.equalsIgnoreCase("bmp")) {
                 try {
-                    theImage = BMPDecoder.read(new File(theFilename));
+//                    theImage = BMPDecoder.read(new File(theFilename));
+                    theImage = BMPDecoder.read(new File(baseIconPath + thePath));
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
             } else { // This handles .png, .jpg, .gif
-                theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
+//                theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
+                theImage = Toolkit.getDefaultToolkit().getImage(baseIconPath + thePath);
             } // end if
 
             if (theImage != null) {
@@ -513,44 +492,6 @@ public class FileDataAccessor implements DataAccessor {
     } // end getImageIcon
 
 
-    @Override
-    // Usage of this is currently limited to MilestoneNoteComponents.  It relies on the icon files being numbered
-    //   (hence the sorting) and also having a readme file (which is ignored and becomes a 'blank' that enters into
-    //   the rotation after the initial null is 'scrolled' away, so that a blank remains as an option.  Not very
-    //   reusable at this point; refactor will probably be needed if another usage is implemented.
-    public ImageIcon[] getImageIcons(DataArea dataArea, String lowerPath) {
-        ImageIcon[] theIcons;
-        String dirPath;
-
-        if(lowerPath != null && !lowerPath.trim().isEmpty()) {
-            // lowerPath may have colons in it, in place of path separator chars if it goes deeper than one level.
-            String replaceWith = String.valueOf(File.separatorChar);
-            if (replaceWith.equals("\\")) replaceWith = "\\\\"; // (Windows-specific; we don't want escape chars).
-            String lowerIconDirPath = lowerPath.replaceAll(":", replaceWith);
-            dirPath = dataArea + "/" + lowerIconDirPath + "/";
-        } else { // For the current single usage case, this section is never entered.
-            dirPath = dataArea.toString() + "/";
-        }
-
-        File iconDir = new File(dirPath);
-        String[] theFileList = iconDir.list();
-        assert theFileList != null;
-        Arrays.sort(theFileList); // So that the icon order does not change arbitrarily.
-        theIcons = new ImageIcon[theFileList.length];
-
-        theIcons[0] = null; // A 'blank' icon
-        int index = 1;
-        for(String filename: theFileList) {
-            if(filename.endsWith(".txt")) continue; // Allows for the icon directory to have a 'readme'.
-            //System.out.println(filename);
-            ImageIcon nextIcon = new ImageIcon(dirPath + filename);
-            IconInfo.scaleIcon(nextIcon);
-            theIcons[index++] = nextIcon;
-        }
-        return theIcons;
-    }
-
-
     // The archive name cannot be used directly as a directory name due to the presence
     //   of the colons in the time portion.  So, we need to parse the archive name with
     //   the format that was used to make the directory name from the original date, in
@@ -571,30 +512,30 @@ public class FileDataAccessor implements DataAccessor {
         //   believe that it is so versatile, here we just go directly to the FileDataAccessor.
 
         switch (groupType) {
-            case SEARCH_RESULTS:
+            case SEARCH_RESULTS -> {
                 theAreaPath = searchResultGroupAreaPath;
                 thePrefix = searchResultFilePrefix;
-                break;
-            case TODO_LIST:
+            }
+            case TODO_LIST -> {
                 theAreaPath = todoListGroupAreaPath;
                 thePrefix = todoListFilePrefix;
-                break;
-            case LOG:
+            }
+            case LOG -> {
                 theAreaPath = logGroupAreaPath;
                 thePrefix = logFilePrefix;
-                break;
-            case NOTES:
+            }
+            case NOTES -> {
                 theAreaPath = plainNoteGroupAreaPath;
                 thePrefix = noteFilePrefix;
-                break;
-            case EVENTS:
+            }
+            case EVENTS -> {
                 theAreaPath = eventGroupAreaPath;
                 thePrefix = eventGroupFilePrefix;
-                break;
-            case GOALS:
+            }
+            case GOALS -> {
                 theAreaPath = goalGroupAreaPath;
                 thePrefix = goalGroupFilePrefix;
-                break;
+            }
         }
 
         File dataDir = new File(theAreaPath);
@@ -656,7 +597,8 @@ public class FileDataAccessor implements DataAccessor {
             String text = FileUtils.readFileToString(new File(subjectsFilename), StandardCharsets.UTF_8.name());
             Object theObject;
             theObject = AppUtil.mapper.readValue(text, Object.class);
-            subjects = AppUtil.mapper.convertValue(theObject, new TypeReference<Vector<String>>() { });
+            subjects = AppUtil.mapper.convertValue(theObject, new TypeReference<>() {
+            });
             System.out.println("Subjects from JSON file: " + AppUtil.toJsonString(subjects));
         } catch (FileNotFoundException fnfe) {
             // not a problem; use defaults.
@@ -906,7 +848,8 @@ public class FileDataAccessor implements DataAccessor {
             // the search parameters may have specified a date-specific search; we don't want all Last Mod
             // dates to get updated to this moment and thereby muck up the search results.
             BaseData.loading = true;
-            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<Vector<AllNoteData>>() { });
+            searchDataVector = AppUtil.mapper.convertValue(theGroupData[theGroupData.length - 1], new TypeReference<>() {
+            });
             BaseData.loading = false;
         }
         if (searchDataVector == null) return;

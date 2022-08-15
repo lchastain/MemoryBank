@@ -34,24 +34,15 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     private DefaultTreeModel treeModel;
     private final JScrollPane rightPane;
 
-    // Paths to expandable 'parent' nodes
-    private TreePath viewsPath;
-    private TreePath notesPath;
-    private TreePath todolistsPath;
-    private TreePath searchresultsPath;
-
     DayNoteGroupPanel theAppDays;
     MonthNoteGroupPanel theAppMonths;
     YearNoteGroupPanel theAppYears;
     MonthView theMonthView;
     YearView theYearView;
-    private final JSplitPane splitPane;
 
     private final LocalDate selectedDate;  // The selected date
     private LocalDate viewedDate;    // A date to be shown but not as a 'choice'.
     private ChronoUnit viewedDateGranularity;
-
-    private DefaultMutableTreeNode theRootNode;
 
     // Predefined Tree Paths to 'leaf' nodes.
     TreePath dayNotesPath;
@@ -60,8 +51,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     TreePath yearNotesPath;
     TreePath yearViewPath;
     TreePath monthViewPath;
-    private TreePath eventsPath;
-    private TreePath goalsPath;
 
     private final AppOptions appOpts;
 
@@ -86,7 +75,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         theWorkingDialog = new JDialog(archiveWindow, "Working", true);
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
-        IconInfo iconInfo = new IconInfo(DataArea.APP_ICONS, "animated:manrun", "gif");
+        IconInfo iconInfo = new IconInfo(DataArea.APP_ICONS, "animated/manrun", "gif");
         lbl.setIcon(iconInfo.getImageIcon());
         lbl.setVerticalTextPosition(JLabel.TOP);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
@@ -115,7 +104,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         rightPane = new JScrollPane(aboutPanel);
 
         // Add the scroll panes to a split pane.
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setLeftComponent(treeView);
         if (appOpts.paneSeparator > 0) splitPane.setDividerLocation(appOpts.paneSeparator);
         else splitPane.setDividerLocation(140);
@@ -202,7 +191,6 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     private void createTree() {
         MemoryBank.debug("Creating the tree");
         DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
-        theRootNode = trunk;
 
         // Temporary highly-reused variables
         DefaultMutableTreeNode branch; // An expandable node
@@ -216,7 +204,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         branch = new DefaultMutableTreeNode(DataArea.GOALS);
         trunk.add(branch);
         pathToRoot = branch.getPath();
-        goalsPath = new TreePath(pathToRoot);
+        TreePath goalsPath = new TreePath(pathToRoot);
 
         for (String s : appOpts.goalsList) {
             // Add to the tree
@@ -232,7 +220,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         branch = new DefaultMutableTreeNode(DataArea.UPCOMING_EVENTS);
         trunk.add(branch);
         pathToRoot = branch.getPath();
-        eventsPath = new TreePath(pathToRoot);
+        TreePath eventsPath = new TreePath(pathToRoot);
 
         for (String s : appOpts.eventsList) {
             // Add to the tree
@@ -249,7 +237,8 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         branch = new DefaultMutableTreeNode("Views");
         trunk.add(branch);
         pathToRoot = branch.getPath();
-        viewsPath = new TreePath(pathToRoot);
+        // Paths to expandable 'parent' nodes
+        TreePath viewsPath = new TreePath(pathToRoot);
 
         leaf = new DefaultMutableTreeNode("Year View");
         branch.add(leaf);
@@ -273,7 +262,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         branch = new DefaultMutableTreeNode("Notes");
         trunk.add(branch);
         pathToRoot = branch.getPath();
-        notesPath = new TreePath(pathToRoot);
+        TreePath notesPath = new TreePath(pathToRoot);
 
         leaf = new DefaultMutableTreeNode("Day Notes");
         branch.add(leaf);
@@ -296,7 +285,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         branch = new DefaultMutableTreeNode(DataArea.TODO_LISTS, true);
         trunk.add(branch);
         pathToRoot = branch.getPath();
-        todolistsPath = new TreePath(pathToRoot);
+        TreePath todolistsPath = new TreePath(pathToRoot);
 
         for (String s : appOpts.tasksList) {
             // Add to the tree
@@ -310,7 +299,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         branch = new DefaultMutableTreeNode("Search Results", true);
         trunk.add(branch);
         pathToRoot = branch.getPath();
-        searchresultsPath = new TreePath(pathToRoot);
+        TreePath searchresultsPath = new TreePath(pathToRoot);
 
         // Restore previous search results, if any.
         if (!appOpts.searchResultList.isEmpty()) {
@@ -436,22 +425,16 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
             //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
 
             // Create a new thread and setVisible within the thread.
-            new Thread(new Runnable() {
-                public void run() {
-                    theWorkingDialog.setVisible(true);
-                }
-            }).start(); // Start the thread so that the dialog will show.
+            new Thread(() -> theWorkingDialog.setVisible(true)).start(); // Start the thread so that the dialog will show.
         } else {
-            new Thread(new Runnable() {
-                public void run() {
-                    // Give the 'visible' time to complete, before going invisible.
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    theWorkingDialog.setVisible(false);
+            new Thread(() -> {
+                // Give the 'visible' time to complete, before going invisible.
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+                theWorkingDialog.setVisible(false);
             }).start();
         } // end if show - else hide
     } // end showWorkingDialog
@@ -731,12 +714,10 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     public void valueChanged(TreeSelectionEvent e) {
         final TreePath newPath = e.getNewLeadSelectionPath();
         // Handle from a separate thread.
-        new Thread(new Runnable() {
-            public void run() {
-                // AppUtil.localDebug(true);
-                treeSelectionChanged(newPath);
-                // AppUtil.localDebug(false);
-            }
+        new Thread(() -> {
+            // AppUtil.localDebug(true);
+            treeSelectionChanged(newPath);
+            // AppUtil.localDebug(false);
         }).start(); // Start the thread
 
     } // end valueChanged

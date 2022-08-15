@@ -6,17 +6,7 @@
         <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
       </element>
       <element id="module-output" name="MemoryBank" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/image4j.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/slf4j-api-1.7.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/logback-core-1.0.13.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/image4j-core-0.7-all.zip" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Jars/logback-classic-1.0.13.jar" path-in-jar="/" />
-      <element id="directory" name="icons">
-        <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources/icons" />
-      </element>
-      <element id="directory" name="images">
-        <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources/images" />
-      </element>
+      <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
     </root>
   </artifact>
 </component>

@@ -105,7 +105,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
         IconInfo iconInfo = new IconInfo();
-        iconInfo.iconName = "animated:const_anim";
+        iconInfo.iconName = "animated/const_anim";
         iconInfo.iconFormat = "gif";
         iconInfo.dataArea = DataArea.APP_ICONS;
 
@@ -855,17 +855,12 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 noteGroupPanel = theTodoListKeeper.get(theName);
                 break;
             case NOTES:
-                switch (theName) {
-                    case "Day Notes":
-                        noteGroupPanel = theAppDays;
-                        break;
-                    case "Month Notes":
-                        noteGroupPanel = theAppMonths;
-                        break;
-                    case "Year Notes":
-                        noteGroupPanel = theAppYears;
-                        break;
-                }
+                noteGroupPanel = switch (theName) {
+                    case "Day Notes" -> theAppDays;
+                    case "Month Notes" -> theAppMonths;
+                    case "Year Notes" -> theAppYears;
+                    default -> noteGroupPanel;
+                };
                 break;
             case DAY_NOTES:
                 if (theAppDays != null) {
@@ -1176,21 +1171,21 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         String theContext = appMenuBar.getCurrentContext();
         switch (theContext) {
-            case "Goal":
+            case "Goal" -> {
                 success = ((GoalGroupPanel) theNoteGroupPanel).saveAs();
                 groupParentPath = goalsPath;
                 theNoteGroupPanelKeeper = theGoalsKeeper;
-                break;
-            case "Upcoming Event":
+            }
+            case "Upcoming Event" -> {
                 success = ((EventNoteGroupPanel) theNoteGroupPanel).saveAs();
                 groupParentPath = eventsPath;
                 theNoteGroupPanelKeeper = theEventListKeeper;
-                break;
-            case "To Do List":
+            }
+            case "To Do List" -> {
                 success = ((TodoNoteGroupPanel) theNoteGroupPanel).saveAs();
                 groupParentPath = todolistsPath;
                 theNoteGroupPanelKeeper = theTodoListKeeper;
-                break;
+            }
         }
         if (null == groupParentPath) return; // Should not happen in normal operation.
 
@@ -1411,22 +1406,22 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         BranchHelper branchHelper = null;
 
         switch (theNodeString) {
-            case "Goals":
+            case "Goals" -> {
                 menuContext = "Goals Branch Editor";
                 branchHelper = new BranchHelper(theTree, theGoalsKeeper, DataArea.GOALS);
-                break;
-            case "Upcoming Events":
+            }
+            case "Upcoming Events" -> {
                 menuContext = "Upcoming Events Branch Editor";
                 branchHelper = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
-                break;
-            case "To Do Lists":
+            }
+            case "To Do Lists" -> {
                 menuContext = "To Do Lists Branch Editor";
                 branchHelper = new BranchHelper(theTree, theTodoListKeeper, DataArea.TODO_LISTS);
-                break;
-            case "Search Results":
+            }
+            case "Search Results" -> {
                 menuContext = "Search Results Branch Editor";
                 branchHelper = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
-                break;
+            }
         }
         if (branchHelper != null) {
             int resultCount = branchHelper.getChoices().size(); // Choices array list can be empty but not null.
@@ -1465,36 +1460,29 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             String groupChangedString = "\"groupChanged\" : " + theNoteGroupPanel.myNoteGroup.groupChanged + ",\n";
             jTextArea.append(groupChangedString);
             Object[] theData = null; // Not ever expected to stay this value.
-            if (theNoteGroupPanel instanceof GoalGroupPanel) { // Show the correct sub-panel (tab)
-                GoalGroupPanel goalGroupPanel = (GoalGroupPanel) theNoteGroupPanel;
+            if (theNoteGroupPanel instanceof GoalGroupPanel goalGroupPanel) { // Show the correct sub-panel (tab)
                 int index = goalGroupPanel.theTabbedPane.getSelectedIndex();
                 switch (index) {
-                    case 0:  // To Do List
-                        theData = goalGroupPanel.theTodoNoteGroupPanel.myNoteGroup.getTheData();
-                        break;
-                    case 1: // Log Entries
-                        theData = goalGroupPanel.theLogNoteGroupPanel.myNoteGroup.getTheData();
-                        break;
-                    case 2: // Milestones
-                        theData = goalGroupPanel.theMilestoneNoteGroupPanel.myNoteGroup.getTheData();
-                        break;
-                    case 3: // Notes
-                        theData = goalGroupPanel.thePlainNoteGroupPanel.myNoteGroup.getTheData();
-                        break;
+                    case 0 ->  // To Do List
+                            theData = goalGroupPanel.theTodoNoteGroupPanel.myNoteGroup.getTheData();
+                    case 1 -> // Log Entries
+                            theData = goalGroupPanel.theLogNoteGroupPanel.myNoteGroup.getTheData();
+                    case 2 -> // Milestones
+                            theData = goalGroupPanel.theMilestoneNoteGroupPanel.myNoteGroup.getTheData();
+                    case 3 -> // Notes
+                            theData = goalGroupPanel.thePlainNoteGroupPanel.myNoteGroup.getTheData();
                 }
             } else if (theTabbedCalendarNoteGroupPanel != null) { // Show the correct sub-panel (tab)
                 int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();
-                switch (index) {
-                    case 0:  // Day Notes
-                        theData = theAppDays.myNoteGroup.getTheData();
-                        break;
-                    case 1: // Month Notes
-                        theData = theAppMonths.myNoteGroup.getTheData();
-                        break;
-                    case 2: // Year Notes
-                        theData = theAppYears.myNoteGroup.getTheData();
-                        break;
-                }
+                theData = switch (index) {
+                    case 0 ->  // Day Notes
+                            theAppDays.myNoteGroup.getTheData();
+                    case 1 -> // Month Notes
+                            theAppMonths.myNoteGroup.getTheData();
+                    case 2 -> // Year Notes
+                            theAppYears.myNoteGroup.getTheData();
+                    default -> theData;
+                };
             } else {
                 theData = theNoteGroupPanel.myNoteGroup.getTheData();
             }
@@ -2009,15 +1997,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();
         switch (index) {
-            case 0:
-                theNoteGroupPanel = theAppDays;
-                break;
-            case 1:
-                theNoteGroupPanel = theAppMonths;
-                break;
-            case 2:
-                theNoteGroupPanel = theAppYears;
-                break;
+            case 0 -> theNoteGroupPanel = theAppDays;
+            case 1 -> theNoteGroupPanel = theAppMonths;
+            case 2 -> theNoteGroupPanel = theAppYears;
         }
     } // end showCalendarNotes
 
