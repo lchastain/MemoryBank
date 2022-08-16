@@ -10,11 +10,11 @@ target/*
 *.war
 *.ear
 
-/appData/default.user@elseware.com/
-/appData/g01@doughmain.net/
-/appData/lex@doughmain.net/
-/appData/new.user@lcware.net/
-/appData/setup@testing.com/
-/appData/test.user@lcware.net/
-/appData/UniqueNewUser@lcware.net/
+/mbDevData/default.user@elseware.com/
+/mbDevData/g01@doughmain.net/
+/mbDevData/lex@doughmain.net/
+/mbDevData/new.user@lcware.net/
+/mbDevData/setup@testing.com/
+/mbDevData/test.user@lcware.net/
+/mbDevData/UniqueNewUser@lcware.net/
 /.css/

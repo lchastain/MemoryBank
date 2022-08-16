@@ -1,0 +1,31 @@
+[ [ {
+  "zdtLastModString" : "2020-04-04T15:35:19.269+04:00[Europe/Samara]",
+  "instanceId" : "d14e1fa5-1a3c-4a97-bb33-f74cac7d8e3f",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/heart0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-04-04T15:35:33.621+04:00[Europe/Samara]",
+  "instanceId" : "ce4b1dab-3022-4696-84d7-0bce08136196",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "linkTargets" : [ ],
+  "iconFileString" : "c:/users/lee/workspace/memory bank/icons/heart0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+}, {
+  "zdtLastModString" : "2020-04-04T15:35:50.177+04:00[Europe/Samara]",
+  "instanceId" : "c4e8776c-2f7f-4cc7-a2fe-5eaab29e0ea9",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "linkTargets" : [ ],
+  "iconFileString" : "C:/Users/Lee/workspace/Memory Bank/icons/heart0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : null
+} ] ]

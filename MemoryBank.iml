@@ -29,6 +29,13 @@
       <excludeFolder url="file://$MODULE_DIR$/appData/test.user@lcware.net" />
       <excludeFolder url="file://$MODULE_DIR$/appData/UniqueNewUser@lcware.net" />
       <excludeFolder url="file://$MODULE_DIR$/.css" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/default.user@elseware.com" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/g01@doughmain.net" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/lex@doughmain.net" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/new.user@lcware.net" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/setup@testing.com" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/test.user@lcware.net" />
+      <excludeFolder url="file://$MODULE_DIR$/mbDevData/UniqueNewUser@lcware.net" />
     </content>
     <content url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
     <content url="file://$MODULE_DIR$/src/test/Area51/java" />
