@@ -36,7 +36,6 @@ public interface DataAccessor {
 
     String[] getArchiveNames();
     Image[] getIconArray(int year, int month, int day);
-    ImageIcon getImageIcon(IconInfo iconInfo);
     ImageIcon getImageIcon(IconNoteData iconNoteData);
 
     AppOptions getArchiveOptions(String archiveName);

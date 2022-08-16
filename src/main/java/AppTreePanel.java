@@ -105,7 +105,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         JLabel lbl = new JLabel("Please Wait...");
         lbl.setFont(Font.decode("Dialog-bold-16"));
         IconInfo iconInfo = new IconInfo();
-        iconInfo.iconName = "animated/const_anim";
+        iconInfo.iconName = "Animated/const_anim";
         iconInfo.iconFormat = "gif";
         iconInfo.dataArea = DataArea.APP_ICONS;
 

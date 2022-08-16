@@ -1,5 +1,12 @@
+import net.sf.image4j.codec.bmp.BMPDecoder;
+import net.sf.image4j.codec.ico.ICODecoder;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.util.List;
 
 // This class is a 'handle' by which icon images may be acquired by the app.  It is needed as an alternative
 //  to the 'iconFileString' of IconNoteData, that does not have the filesystem path and filename but still
@@ -51,19 +58,71 @@ public class IconInfo {
     }
 
     ImageIcon getImageIcon() {
-        return MemoryBank.dataAccessor.getImageIcon(this);
+        ImageIcon theImageIcon = null;
+        if (ready()) {
+            String baseIconPath; // when dataArea is null we look in the current directory.
+
+            if (dataArea == DataArea.IMAGES) {
+                baseIconPath = "images/";
+            } else {
+                baseIconPath = "icons/";
+            }
+
+            String theFilename = baseIconPath + iconName + "." + iconFormat;
+            MemoryBank.debug("Full icon filename: " + theFilename);
+
+            java.net.URL imgURL = IconInfo.class.getResource(theFilename);
+            assert imgURL != null;
+
+            Image theImage = null;
+            if (iconFormat.equalsIgnoreCase("ico")) {
+                try {
+                    BufferedInputStream inputStream = new BufferedInputStream(imgURL.openStream());
+                    List<BufferedImage> images = ICODecoder.read(inputStream);
+                    theImage = images.get(0);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else if (iconFormat.equalsIgnoreCase("bmp")) {
+                try {
+//                    theImage = BMPDecoder.read(new File(theFilename));
+                    BufferedInputStream inputStream = new BufferedInputStream(imgURL.openStream());
+                    theImage = BMPDecoder.read(inputStream);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else { // This handles .png, .jpg, .gif
+//                theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
+//                theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
+//                theImage = Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource(theFilename));
+                theImage = Toolkit.getDefaultToolkit().getImage(imgURL);
+
+            } // end if
+
+            if (theImage != null) {
+                theImageIcon = new ImageIcon();
+                theImageIcon.setImage(theImage);
+
+                //===================================== IMPORTANT !!! ================================================
+                // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
+                //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
+                //   With the filename hiding in the place of the description, we can update the associated
+                //   IconNoteData, and later restore the image from that.
+                theImageIcon.setDescription(theFilename);
+            }
+        } // end if the IconInfo is 'ready'.
+        return theImageIcon;
     }
 
     ImageIcon getImageIcon(int width, int height) {
-        ImageIcon imageIcon = MemoryBank.dataAccessor.getImageIcon(this);
+        ImageIcon imageIcon = getImageIcon();
         scaleIcon(imageIcon, width, height);
         return imageIcon;
     }
 
     // If I have a non-null, non-empty name and format, then I'm 'ready'.
     boolean ready() {
-        boolean theAnser = true;
-        if(iconName == null || iconName.isEmpty()) theAnser = false;
+        boolean theAnser = iconName != null && !iconName.isEmpty();
         if(iconFormat == null || iconFormat.isEmpty()) theAnser = false;
         return theAnser;
     }

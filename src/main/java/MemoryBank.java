@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 // One important setting in IntelliJ:
 // File / Settings / Editor / File Encodings - set all to UTF-8.
 
-@SuppressWarnings("rawtypes")
 public class MemoryBank {
     static Color amColor;
     static Color pmColor;
@@ -55,7 +54,8 @@ public class MemoryBank {
         if (init) System.out.println("Initialization trace printouts on.");
         if (timing) System.out.println("Timing printouts on.");
 
-        setProgramDataLocation();  // mbHome is set here.
+        // No longer needed?
+//        setProgramDataLocation();  // mbHome is set here.
 
         appOpts = new AppOptions(); // Start with default values.
 
@@ -177,10 +177,11 @@ public class MemoryBank {
         // First - look for the top-level directory containing data for all users.
         String currentDir = System.getProperty("user.dir");
         debug("The current working directory is: " + currentDir);
-        File f = new File("appData"); // Look first in current dir.
+        File f = new File("mbDevData"); // Look first in current dir.
+        System.out.println("Found mbDevData here: " + f.getAbsolutePath());
         String loc;
         if (f.exists()) { // A development directory; give the app a different icon.
-            loc = currentDir + "/appData/" + userEmail;
+            loc = currentDir + "/mbDevData/" + userEmail;
             appIconName = "notepad";
         } else { // Use the standard icon and location for user data.
             String userHome = System.getProperty("user.home"); // Home directory.
@@ -303,19 +304,18 @@ public class MemoryBank {
         splash = new AppSplash(myImage);
         splash.setVisible(true);
         logApplicationShowing = false;
-        new Thread(new Runnable() {
-            @SuppressWarnings("BusyWait")
-            public void run() {
-                try {
-                    while (!logApplicationShowing) {
-                        Thread.sleep(1000);
-                    } // end while
-                } catch (Exception e) {
-                    System.out.println("Exception: " + e.getMessage());
-                }
-                splash.setVisible(false);
-                splash = null;
-            } // end run
+        // end run
+        new Thread(() -> {
+            try {
+                while (!logApplicationShowing) {
+                    //noinspection BusyWait
+                    Thread.sleep(1000);
+                } // end while
+            } catch (Exception e) {
+                System.out.println("Exception: " + e.getMessage());
+            }
+            splash.setVisible(false);
+            splash = null;
         }).start();
 
         // Tool Tip Adjustments
@@ -357,8 +357,8 @@ public class MemoryBank {
         //   does not dictate how the rest of the app must operate from that point on.
         // But a configuration 'file' feels like a more preferred option, to
         // allow easier access and alteration by support personnel (once we get support personnel).
-        // The Data Accessors must have access to certain static vars (such as userDataHome),
-        // so this setting should be made AFTER those vars are set.
+        // The Data Accessors must have access to the userDataHome,
+        // so this setting should be made AFTER that var is set.
         dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         appOpts = dataAccessor.getAppOptions(); // Load the user settings - if available, will override defaults.
@@ -409,11 +409,10 @@ public class MemoryBank {
         // Set up a shutdown hook, to save all data before exit,
         //   whether or not it was a planned exit.
         //---------------------------------------------------------------------
-        Thread logPreClose = new Thread(new Runnable() {
-            public void run() {
-                appTreePanel.preClose(); // Preserve all changes across all open Panels.
-                AppOptions.saveOpts();
-            } // end run
+        // end run
+        Thread logPreClose = new Thread(() -> {
+            appTreePanel.preClose(); // Preserve all changes across all open Panels.
+            AppOptions.saveOpts();
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
     } // end main

@@ -393,62 +393,6 @@ public class FileDataAccessor implements DataAccessor {
     }
 
     @Override
-    public ImageIcon getImageIcon(IconInfo iconInfo) {
-        ImageIcon theImageIcon = null;
-        if (iconInfo.ready()) {
-            String baseIconPath; // when dataArea is null we look in the current directory.
-
-            if (iconInfo.dataArea == DataArea.IMAGES) {
-                baseIconPath = "images/";
-            } else {
-                baseIconPath = "icons/";
-            }
-
-            String theFilename = baseIconPath + iconInfo.iconName + "." + iconInfo.iconFormat;
-            //MemoryBank.debug("Full icon filename: " + theFilename);
-
-            String thePath = iconInfo.iconName + "." + iconInfo.iconFormat;
-            java.net.URL imgURL = FileDataAccessor.class.getResource(baseIconPath + thePath);
-
-            Image theImage = null;
-            if (iconInfo.iconFormat.equalsIgnoreCase("ico")) {
-                try {
-                    assert imgURL != null;
-                    BufferedInputStream inputStream = new BufferedInputStream(imgURL.openStream());
-                    List<BufferedImage> images = ICODecoder.read(inputStream);
-                    theImage = images.get(0);
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            } else if (iconInfo.iconFormat.equalsIgnoreCase("bmp")) {
-                try {
-//                    theImage = BMPDecoder.read(new File(theFilename));
-                    theImage = BMPDecoder.read(new File(baseIconPath + thePath));
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            } else { // This handles .png, .jpg, .gif
-//                theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
-                theImage = Toolkit.getDefaultToolkit().getImage(baseIconPath + thePath);
-            } // end if
-
-            if (theImage != null) {
-                theImageIcon = new ImageIcon();
-                theImageIcon.setImage(theImage);
-
-                //===================================== IMPORTANT !!! ================================================
-                // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
-                //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
-                //   With the filename hiding in the place of the description, we can update the associated
-                //   IconNoteData, and later restore the image from that.
-                theImageIcon.setDescription(theFilename);
-            }
-        } // end if the IconInfo is 'ready'.
-        return theImageIcon;
-    } // end getImageIcon
-
-
-    @Override
     public ImageIcon getImageIcon(IconNoteData iconNoteData) {
         ImageIcon theImageIcon = null;
 
