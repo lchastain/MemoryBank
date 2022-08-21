@@ -1,12 +1,11 @@
 import com.fasterxml.jackson.core.type.TypeReference;
-import net.sf.image4j.codec.bmp.BMPDecoder;
-import net.sf.image4j.codec.ico.ICODecoder;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -14,8 +13,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Enumeration;
 import java.util.Vector;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 @SuppressWarnings("rawtypes")
 public class FileDataAccessor implements DataAccessor {
@@ -42,12 +43,9 @@ public class FileDataAccessor implements DataAccessor {
     static String noteFilePrefix;
     static String locationsFilename;
 
-
-
     Vector<NoteData> foundDataVector;
     static String iconBase;
     static IconFileChooser iconFileChooser;
-
 
     static {
         archiveFileFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
@@ -63,9 +61,52 @@ public class FileDataAccessor implements DataAccessor {
 
         locationsFilename = "Locations.json";
 
-        iconBase = MemoryBank.mbHome + File.separatorChar + "icons" + File.separatorChar;
-        iconFileChooser = new IconFileChooser(iconBase);
-    }
+        // Get the icons resource.
+        java.net.URL theURL = FileDataAccessor.class.getResource("icons");
+        System.out.println("The URL for icons is: " + theURL);
+
+        if(theURL != null) {
+            // When run from the IDE, the protocol of our resource is 'file'.
+            // But when run from a .jar, protocol is 'jar'.
+            if (theURL.getProtocol().equals("file")) {
+                try {
+                    iconFileChooser = new IconFileChooser(new File(theURL.toURI()).getAbsolutePath());
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            } else if(theURL.getProtocol().equals("jar")) {
+                // The URL for icons is:
+                // jar:file:/C:/<IJ project area>/out/artifacts/MemoryBank_jar/MemoryBank.jar!/icons
+                String jarPath = theURL.getPath().substring(5, theURL.getPath().indexOf("!")); //strip out only the JAR file
+                JarFile jar = null;
+                try {
+                    jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Enumeration<JarEntry> entries = null;
+                int entryCount = 0;
+                if (jar != null) entries = jar.entries(); // get all the entries in the jar
+                if (entries != null) {
+                    //System.out.println("JAR icons content: ");
+                    while(entries.hasMoreElements()) {
+                        String name = entries.nextElement().getName();
+                        entryCount++;
+                        // Note that nothing happens here except for a printout of the icons directory contents.
+                        // Future work will be to continue with an alternative to the JFileChooser.
+                        if (name.startsWith("icons/")) { //filter according to the path
+                            String entry = name.substring("icons/".length());
+                            //System.out.println(entry);
+                            // If this entry is in a subdirectory, checkSubdir will be > 0.
+                            //int checkSubdir = entry.indexOf("/");
+                        }
+                    }
+                    System.out.println("Count of icon entries found in the JAR: " + entryCount);
+                }
+                iconFileChooser = new IconFileChooser(null); // User must navigate to their own icon collection, for now.
+            }
+        } // and if theURL IS null, the still-null iconFileChooser will blow us up.  Oh well.
+    } // end static section
 
     FileDataAccessor() {
         basePath = MemoryBank.userDataHome + File.separatorChar;
@@ -391,50 +432,6 @@ public class FileDataAccessor implements DataAccessor {
         }
         return iconFileName;
     }
-
-    @Override
-    public ImageIcon getImageIcon(IconNoteData iconNoteData) {
-        ImageIcon theImageIcon = null;
-
-        if (iconNoteData.iconFileString != null) {
-            String theFilename = iconNoteData.iconFileString.toLowerCase();
-            //MemoryBank.debug("Full icon filename: " + theFilename);
-            if (new File(theFilename).exists()) {
-
-                Image theImage = null;
-                if (theFilename.endsWith(".ico")) {
-                    try {
-                        List<BufferedImage> images = ICODecoder.read(new File(theFilename));
-                        theImage = images.get(0);
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                } else if (theFilename.endsWith(".bmp")) {
-                    try {
-                        theImage = BMPDecoder.read(new File(theFilename));
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                } else { // This handles .png, .jpg, .gif
-                    theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
-                } // end if
-
-                if (theImage != null) {
-                    theImageIcon = new ImageIcon();
-                    theImageIcon.setImage(theImage);
-
-                    //=============== IMPORTANT !!! =====================================================================
-                    // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
-                    //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
-                    //   With the filename hiding in the place of the description, we can update the associated
-                    //   IconNoteData, and later restore the image from that.
-                    theImageIcon.setDescription(theFilename);
-                }
-            } // end if the IconInfo is 'ready'.
-        }
-        return theImageIcon;
-    } // end getImageIcon
-
 
     // The archive name cannot be used directly as a directory name due to the presence
     //   of the colons in the time portion.  So, we need to parse the archive name with
@@ -822,6 +819,4 @@ public class FileDataAccessor implements DataAccessor {
             } // end if
         } // end for
     }// end searchDataFile
-
-
 }

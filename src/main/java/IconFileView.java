@@ -3,6 +3,8 @@
 //   The modification mainly involves the addition of support for
 //   Windows .ico files.
 
+// This class is used when presenting a dialog for icon selection.
+
 import javax.swing.*;
 import javax.swing.filechooser.FileView;
 import java.io.File;
@@ -49,7 +51,6 @@ public class IconFileView extends FileView {
     //   is used to recognize icon files vs other types, and this method will only handle those that it recognizes.
     @Override
     public Icon getIcon(File f) { // Note that the return type is an interface, not a class.
-        String theFullFilename = f.getAbsolutePath();
         String iconFileName = f.getName();
         String[] nameParts = iconFileName.split("\\.");
 
@@ -74,7 +75,7 @@ public class IconFileView extends FileView {
                     // work better if loaded from a URL vs a File, but my own test does not support that; it works
                     // identically to an image that was loaded via a File.
                     // The getResource method that is used to make a URL will look for the files in same folder (or
-                    // package if you are runnng from a jar), but that is not workable when running from an IDE that
+                    // package if you are running from a jar), but that is not workable when running from an IDE that
                     // regularly rebuilds its output directory.  So - I put one animated gif into the production area
                     // (C:\Users\Lee\workspace\Memory Bank\out\production\MemoryBank)
                     // for a test, and was able to make a good URL, and the image did appear to load via the ImageIcon
@@ -89,9 +90,9 @@ public class IconFileView extends FileView {
                 case "bmp": // bmp still having issues; the decoder throws an exception in some (most?) cases.
                     break;
                 case "ico":
-                    // It would have been better to use an IconInfo here rather than an IconNoteData, but we
-                    // already have a full filename, and I never did write a method to parse it up into the
-                    // discrete members needed by the IconInfo; this is the only place it would have been used.
+                    // The app is coded so that we only arrive here when we are NOT running from a .jar file.
+                    // So, the use of an IconInfo at this stage to retrieve a Resource is not appropriate.  Instead, we
+                    // just go with the direct file reference, which may be pointing anywhere in the local filesystem.
                     IconNoteData ind = new IconNoteData();
 
                     ind.setIconFileString(f.getAbsolutePath());

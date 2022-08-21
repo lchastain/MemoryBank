@@ -1,11 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serial;
 import java.time.LocalDate;
 
 public class TodoNoteComponent extends NoteComponent {
     // The icon in a TodoNoteComponent is simpler than the one that would be inherited from IconNoteComponent.
     // The extra overhead is not needed and so this class can extend directly from NoteComponent.
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // The Members
@@ -45,19 +47,24 @@ public class TodoNoteComponent extends NoteComponent {
         iconInfo.iconFormat = "gif";
 
         iconInfo.iconName = "button06_yes";
-        todo_done = iconInfo.getImageIcon(24, 20);
+        todo_done = iconInfo.getImageIcon();
+        IconInfo.scaleIcon(todo_done, 24, 20);
 
         iconInfo.iconName = "constru3";
-        todo_inprog = iconInfo.getImageIcon(24, 20);
+        todo_inprog = iconInfo.getImageIcon();
+        IconInfo.scaleIcon(todo_inprog, 24, 20);
 
         iconInfo.iconName = "watch1b";
-        todo_wait = iconInfo.getImageIcon(24, 20);
+        todo_wait = iconInfo.getImageIcon();
+        IconInfo.scaleIcon(todo_wait, 24, 20);
 
         iconInfo.iconName = "button06_query";
-        todo_query = iconInfo.getImageIcon(24, 20);
+        todo_query = iconInfo.getImageIcon();
+        IconInfo.scaleIcon(todo_query, 24, 20);
 
         iconInfo.iconName = "button06_no";
-        todo_obe = iconInfo.getImageIcon(24, 20);
+        todo_obe = iconInfo.getImageIcon();
+        IconInfo.scaleIcon(todo_obe, 24, 20);
 
     } // end static section
 
@@ -109,6 +116,7 @@ public class TodoNoteComponent extends NoteComponent {
     static String getIconDescriptionForStatus(int status) {
         String iString;
 
+        //noinspection EnhancedSwitchMigration
         switch (status) {
             case TodoNoteData.TODO_COMPLETED:
                 iString = todo_done.getDescription();
@@ -255,17 +263,14 @@ public class TodoNoteComponent extends NoteComponent {
         String s = " ";
 
         switch (textStatus) {
-            case NEEDS_TEXT:
-                s = "Click here to enter text for this task.";
-                break;
-            case HAS_BASE_TEXT:
-                s = "Double-click here to sdd details about this task.";
-                break;
-            case HAS_EXT_TEXT:
+            case NEEDS_TEXT -> s = "Click here to enter text for this task.";
+            case HAS_BASE_TEXT -> s = "Double-click here to sdd details about this task.";
+            case HAS_EXT_TEXT -> {
                 // This gives away the 'hidden' text, if
                 //   there is no primary (blue) text.
                 s = "Double-click here to see/edit";
                 s += " the additional details for this task.";
+            }
         } // end switch
         myNoteGroupPanel.setStatusMessage(s);
     } // end resetPanelStatusMessage
@@ -363,6 +368,7 @@ public class TodoNoteComponent extends NoteComponent {
     // Inner Classes -
     //---------------------------------------------------------
     protected class PriorityButton extends JButton implements MouseListener {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         public static final int minWidth = 48;
@@ -540,6 +546,7 @@ public class TodoNoteComponent extends NoteComponent {
 
 
     protected class StatusButton extends LabelButton implements MouseListener {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         public static final int minWidth = 40;
@@ -607,24 +614,12 @@ public class TodoNoteComponent extends NoteComponent {
 
         void showStatusIcon() {
             switch (theStatus) {
-                case TodoNoteData.TODO_STARTED:
-                    setIcon(null);
-                    break;
-                case TodoNoteData.TODO_COMPLETED:
-                    setIcon(todo_done);
-                    break;
-                case TodoNoteData.TODO_INPROG:
-                    setIcon(todo_inprog);
-                    break;
-                case TodoNoteData.TODO_WAITING:
-                    setIcon(todo_wait);
-                    break;
-                case TodoNoteData.TODO_QUERY:
-                    setIcon(todo_query);
-                    break;
-                case TodoNoteData.TODO_OBE:
-                    setIcon(todo_obe);
-                    break;
+                case TodoNoteData.TODO_STARTED -> setIcon(null);
+                case TodoNoteData.TODO_COMPLETED -> setIcon(todo_done);
+                case TodoNoteData.TODO_INPROG -> setIcon(todo_inprog);
+                case TodoNoteData.TODO_WAITING -> setIcon(todo_wait);
+                case TodoNoteData.TODO_QUERY -> setIcon(todo_query);
+                case TodoNoteData.TODO_OBE -> setIcon(todo_obe);
             } // end switch
         } // end showStatusIcon
 
@@ -710,6 +705,7 @@ public class TodoNoteComponent extends NoteComponent {
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             // System.out.println(s);
+            //noinspection EnhancedSwitchMigration
             switch (s) {
                 case "Clear Priority":
                     tnc.pbThePriorityButton.clear();

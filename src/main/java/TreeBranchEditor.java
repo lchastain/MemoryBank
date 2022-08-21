@@ -33,9 +33,11 @@ public class TreeBranchEditor extends JPanel
     int theScrollPosition;
 
     static {
-        theTrash = new IconInfo(DataArea.IMAGES, "waste", "gif").getImageIcon();
-        IconInfo.scaleIcon(theTrash, 32, 32);
+//        theTrash = new IconInfo(DataArea.IMAGES, "waste", "gif").getImageIcon();
+//        IconInfo.scaleIcon(theTrash, 32, 32);
 
+        // Removed the above lines because the image is no longer there, whereas the safe IS.
+        // But need to review - maybe remove it too, from both images and this section?
         theSafe = new IconInfo(DataArea.IMAGES, "safe1", "ico").getImageIcon();
         IconInfo.scaleIcon(theSafe, 32, 32);
     }
@@ -322,7 +324,7 @@ public class TreeBranchEditor extends JPanel
         //log.debug(theAction);
 
         switch (theAction) {
-            case "Cancel":
+            case "Cancel" -> {
                 myBranch = deepClone(origBranch);
                 theChoices = getChoices();
                 changeList = new ArrayList<>();
@@ -330,19 +332,19 @@ public class TreeBranchEditor extends JPanel
                 theScrollPosition = 0;
                 showTree();
                 showChoices();
-                break;
-            case "Apply": // For selections, deselections, renames and removals
+            }
+            case "Apply" -> { // For selections, deselections, renames and removals
                 for (String s : removals) {
                     changeList.add(new NodeChange(s, NodeChange.REMOVED));
                 }
                 myHelper.doApply(myBranch, changeList);
-                // At this point there is not much use in leaving the editor displayed and
-                // accessible to the user; in fact they may wreak havoc with another click
-                // of any of the buttons that we handle here.  But for some reason, it seems
-                // like a bad idea to try and idiot-proof it from here; that will be up to
-                // the consumer of this tool.  Good luck and happy tree-trimming!
-                break;
-            case "Delete":
+            }
+            // At this point there is not much use in leaving the editor displayed and
+            // accessible to the user; in fact they may wreak havoc with another click
+            // of any of the buttons that we handle here.  But for some reason, it seems
+            // like a bad idea to try and idiot-proof it from here; that will be up to
+            // the consumer of this tool.  Good luck and happy tree-trimming!
+            case "Delete" -> {
                 // The action was a 'delete' button click, which is just a flag toggle in this context.
                 // The changeList will grow with each click of this button but due to the binary nature
                 //   of the state change, only the last one will 'count', when the changeList is finally
@@ -358,7 +360,7 @@ public class TreeBranchEditor extends JPanel
                 }
                 showTree();
                 showChoices();
-                break;
+            }
         }
     }
 

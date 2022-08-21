@@ -147,7 +147,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         JScrollPane treeView = new JScrollPane(theTree);
 
         // Create the viewing pane and start with the 'about' graphic.
-        AppImage abbowt = new AppImage(MemoryBank.mbHome + "/images/ABOUT.gif");
+        AppImage abbowt = new AppImage("images/about.gif");
         aboutPanel = new JPanel(new GridBagLayout());
         aboutPanel.add(abbowt); // Nested the image in a panel with a flexible layout, for centering.
         rightPane = new JScrollPane(aboutPanel);

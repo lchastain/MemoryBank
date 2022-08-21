@@ -300,7 +300,7 @@ public class MemoryBank {
         //---------------------------------------------------------------
         // Splash Screen
         //---------------------------------------------------------------
-        ImageIcon myImage = new ImageIcon(mbHome + "/images/ABOUT.gif");
+        ImageIcon myImage = new IconInfo(DataArea.IMAGES, "about", "gif").getImageIcon();
         splash = new AppSplash(myImage);
         splash.setVisible(true);
         logApplicationShowing = false;

@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ public interface DataAccessor {
 
     String[] getArchiveNames();
     Image[] getIconArray(int year, int month, int day);
-    ImageIcon getImageIcon(IconNoteData iconNoteData);
 
     AppOptions getArchiveOptions(String archiveName);
 

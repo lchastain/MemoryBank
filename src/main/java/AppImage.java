@@ -16,8 +16,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.io.Serial;
 
 public final class AppImage extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Image theImage;
@@ -62,7 +64,8 @@ public final class AppImage extends JPanel {
     public AppImage(String imageFile) {
         this();
         doScale = false;
-        setImage(getToolkit().getImage(imageFile));
+        java.net.URL imgURL = AppImage.class.getResource(imageFile);
+        setImage(getToolkit().getImage(imgURL));
     } // end constructor
 
 

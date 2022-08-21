@@ -1,8 +1,10 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
+import java.io.Serial;
 
 public class IconFileChooser extends JFileChooser {
+    @Serial
     private static final long serialVersionUID = 1L;
     static private final FileFilter filter;
 
@@ -55,6 +57,7 @@ public class IconFileChooser extends JFileChooser {
     public IconFileChooser(String thePath) {
         super(thePath);
         setAcceptAllFileFilterUsed(false);
+        //setFileSelectionMode(JFileChooser.FILES_ONLY); // Does not stop all navigation.
         addChoosableFileFilter(filter);
         setFileView(new IconFileView());
         // setAccessory(new ImagePreview(this));  // The ImagePreview is available at the oracle site.

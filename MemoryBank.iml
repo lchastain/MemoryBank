@@ -7,17 +7,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/Area51/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/functional" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/unit" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/utility" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/development/Software Change Requests" />
       <excludeFolder url="file://$MODULE_DIR$/development" />
       <excludeFolder url="file://$MODULE_DIR$/archive" />
       <excludeFolder url="file://$MODULE_DIR$/archive/datafix" />
       <excludeFolder url="file://$MODULE_DIR$/archive/datafix/java" />
       <excludeFolder url="file://$MODULE_DIR$/archive/datafix 2020_0212" />
-      <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/.empty/.classes" />
       <excludeFolder url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
       <excludeFolder url="file://$MODULE_DIR$/appData/lex@doughmain.net" />
@@ -36,6 +33,7 @@
       <excludeFolder url="file://$MODULE_DIR$/mbDevData/setup@testing.com" />
       <excludeFolder url="file://$MODULE_DIR$/mbDevData/test.user@lcware.net" />
       <excludeFolder url="file://$MODULE_DIR$/mbDevData/UniqueNewUser@lcware.net" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <content url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
     <content url="file://$MODULE_DIR$/src/test/Area51/java" />
@@ -50,9 +48,12 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="carrotgarden.maven.carrot.image4j.plugin" level="project" />
+    <orderEntry type="library" name="slf4j.jdk14" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.13.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.13.3" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.36" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-api:5.5.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apiguardian:apiguardian-api:1.1.0" level="project" />
@@ -61,7 +62,6 @@
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:17.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-text:1.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.11" level="project" />
-    <orderEntry type="library" name="carrotgarden.maven.carrot.image4j.plugin" level="project" />
-    <orderEntry type="library" name="slf4j.jdk14" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.image4j:codec:0.7" level="project" />
   </component>
 </module>

@@ -3,12 +3,13 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.Serial;
 
 public class IconNoteComponent extends NoteComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
     static final int ICONNOTEHEIGHT = 38; // 24 is too small for icons.
 
@@ -96,56 +97,54 @@ public class IconNoteComponent extends NoteComponent {
     } // end clear
 
     void defineActionListener() {
-        actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JMenuItem jm = (JMenuItem) e.getSource();
-                String s = jm.getText();
-                IconNoteData myIconNoteData = ((IconNoteData) getNoteData());
-                switch (s) {
-                    case "Reset Icon":
-                        myIconNoteData.setIconFileString(null);
-                        myIconNoteData.setShowIconOnMonthBoolean(false);
-                        assert myIconKeeper != null;
-                        setIcon(myIconKeeper.getDefaultIcon());
-                        break;
-                    case "Blank Icon":
-                        myIconNoteData.setIconFileString("");
-                        theIconLabel.setIcon(null);
-                        myIconNoteData.setShowIconOnMonthBoolean(false);
-                        break;
-                    case "Set As Default":
-                        // Get a reference to the icon.
-                        ImageIcon tmpIcon;
-                        tmpIcon = (ImageIcon) theIconLabel.getIcon();
+        // end actionPerformed
+        actionListener = e -> {
+            JMenuItem jm = (JMenuItem) e.getSource();
+            String s = jm.getText();
+            IconNoteData myIconNoteData = ((IconNoteData) getNoteData());
+            switch (s) {
+                case "Reset Icon":
+                    myIconNoteData.setIconFileString(null);
+                    myIconNoteData.setShowIconOnMonthBoolean(false);
+                    assert myIconKeeper != null;
+                    setIcon(myIconKeeper.getDefaultIcon());
+                    break;
+                case "Blank Icon":
+                    myIconNoteData.setIconFileString("");
+                    theIconLabel.setIcon(null);
+                    myIconNoteData.setShowIconOnMonthBoolean(false);
+                    break;
+                case "Set As Default":
+                    // Get a reference to the icon.
+                    ImageIcon tmpIcon;
+                    tmpIcon = (ImageIcon) theIconLabel.getIcon();
 
-                        // Set the new default icon and tell the container to update,
-                        //   which will reload all visual components.
-                        assert myIconKeeper != null;
-                        myIconKeeper.setDefaultIcon(tmpIcon);
+                    // Set the new default icon and tell the container to update,
+                    //   which will reload all visual components.
+                    assert myIconKeeper != null;
+                    myIconKeeper.setDefaultIcon(tmpIcon);
 
-                        // Adjust underlying data.
-                        // Now that this icon is the default -
-                        // ------------------------
-                        // Do not show it on Month.  We don't need to unset the
-                        //   menu item check box, since that is set each time
-                        //   prior to menu display, based on the underlying data.
-                        myIconNoteData.setShowIconOnMonthBoolean(false);
+                    // Adjust underlying data.
+                    // Now that this icon is the default -
+                    // ------------------------
+                    // Do not show it on Month.  We don't need to unset the
+                    //   menu item check box, since that is set each time
+                    //   prior to menu display, based on the underlying data.
+                    myIconNoteData.setShowIconOnMonthBoolean(false);
 
-                        // Make sure the data indicates that this component
-                        //   should use the 'default' icon.
-                        myIconNoteData.setIconFileString(null);
+                    // Make sure the data indicates that this component
+                    //   should use the 'default' icon.
+                    myIconNoteData.setIconFileString(null);
 
-                        break;
-                    case "Show on Month":
-                        myIconNoteData.setShowIconOnMonthBoolean(siombMi.getState());
-                        break;
-                    default:  // ignore anything else
-                        return;
-                }
+                    break;
+                case "Show on Month":
+                    myIconNoteData.setShowIconOnMonthBoolean(siombMi.getState());
+                    break;
+                default:  // ignore anything else
+                    return;
+            }
 
-                setNoteChanged();
-            } // end actionPerformed
+            setNoteChanged();
         };
     } // end defineActionListener
 
