@@ -4,6 +4,11 @@ you to make date-related notes that you can later recall via a calendar or a sea
 provides a way to help in planning and documenting progress towards goals.  The level of detail 
 is left to the user; it could be hour-to-hour in a day, or a note on the occasional month.  Note 
 decoration with icon images is also possible and makes for a more interesting and
-colorful display, especially on the Month view.
+colorful display, especially on the Month view.  On the Year View, a blue-colored date 
+indicates that there are notes tied to that day.  A double-click on the date will take you
+there.
 
 ![img.png](src/main/resources/images/YearView2022_0525.png)
+
+[helpme](src/main/resources/help/helpme.md)
+
