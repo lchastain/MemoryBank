@@ -393,21 +393,26 @@ public class FileDataAccessor implements DataAccessor {
                     iconFileString = DayNoteGroupPanel.defaultIcon.getDescription();
                 } // end if
 
-                if (iconFileString.equals("")) {
-                    // Show this 'blank' on the month.
-                    // Possibly as a 'spacer'.
+                if (iconFileString.equals("")) { // NOT the same handling as null.
+                    // Show this 'blank' on the month, possibly as a 'spacer'.
                     returnArray[index] = null;
                 } else {
-                    Image theImage = new ImageIcon(iconFileString).getImage();
-                    theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
-                    // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
-                    //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
-                    //   day), then switch to the MonthView (to be contructed for the first time in your session).
-                    // Adding a .flush() does fix the problem of some icons (answer_bad.gif) not showing the first time
-                    //   the MonthView is displayed but other .gif files didn't need it.
-                    // And - other file types may react differently.  This flush is needed in conjuction with a double
-                    //   load of the initial month to be shown; that is done in treePanel.treeSelectionChanged().
-                    returnArray[index] = theImage;
+                    java.net.URL imgURL = FileDataAccessor.class.getResource(iconFileString);
+                    if(imgURL != null) {
+                        Image theImage = Toolkit.getDefaultToolkit().getImage(imgURL);
+                        IconInfo.scaleIcon(new ImageIcon(theImage));
+                        theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
+                        // Review the problem by: start the app on DayNotes, adjust the date to be within a month where one
+                        //   of the known bad icons (answer_bad.gif) should be shown (you don't need to go to an exact
+                        //   day), then switch to the MonthView (to be contructed for the first time in your session).
+                        // Adding a .flush() does fix the problem of some icons (answer_bad.gif) not showing the first time
+                        //   the MonthView is displayed but other .gif files didn't need it.
+                        // And - other file types may react differently.  This flush is needed in conjuction with a double
+                        //   load of the initial month to be shown; that is done in treePanel.treeSelectionChanged().
+                        returnArray[index] = theImage;
+                    } else {
+                        returnArray[index] = null;
+                    }
                 } // end if
 
                 index++;

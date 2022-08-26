@@ -7,11 +7,13 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class MonthView extends JLayeredPane {
+    @Serial
     private static final long serialVersionUID = -1L;
     // As a container, this class has only two items:
     //   a MonthCanvas (this one is quite complex) and a JLabel (shows the current date selection).
@@ -237,6 +239,7 @@ public class MonthView extends JLayeredPane {
     //--------------------------------------------------
 
     class MonthCanvas extends JPanel {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         JLabel monthLabel;
@@ -404,6 +407,7 @@ public class MonthView extends JLayeredPane {
 
     // Representation of a Day in a month 'view'
     public class DayCanvas extends JPanel implements MouseListener {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private final JLabel dayLabel;
@@ -549,6 +553,7 @@ public class MonthView extends JLayeredPane {
 
 
     static final class DayCanvasLayout extends GridLayout {
+        @Serial
         private static final long serialVersionUID = 1L;
         private static final int standardIconSize = 32; // Actually, 32x32
 
