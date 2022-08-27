@@ -2,11 +2,12 @@
   <artifact type="jar" name="MemoryBank:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/MemoryBank_jar</output-path>
     <root id="archive" name="MemoryBank.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
-      </element>
       <element id="module-output" name="MemoryBank" />
       <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/README.md" />
     </root>
   </artifact>
 </component>

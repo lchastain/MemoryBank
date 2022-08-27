@@ -1652,8 +1652,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     private void showHelp() {
         //new Exception("Your help is showing").printStackTrace();
         try {
-            String s = MemoryBank.mbHome + "/";
-            Runtime.getRuntime().exec("hh " + s + "MemoryBank.chm");
+            Runtime.getRuntime().exec("hh " +  "MemoryBank.chm");
         } catch (IOException ioe) {
             // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
             MemoryBank.debug(ioe.getMessage());

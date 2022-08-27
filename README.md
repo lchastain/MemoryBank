@@ -7,7 +7,7 @@ decoration with icon images is also possible and makes for a more interesting an
 colorful display, especially on the Month view.  See the help files for much more info on 
 controls, dialogs and views.
 
-![](src/main/resources/images/YearView2022_0525.png)
-![](src/main/resources/images/MonthView2022_0323.png)
+![](src/main/resources/images/YearView2022_0525.png)  
+![](src/main/resources/images/MonthView2022_0323.png)  
 [Help Documentation](src/main/resources/help/markdown/TableOfContents.md)
 
