@@ -7,6 +7,7 @@
 // Tree Selection events - valueChanged() --> treeSelectionChanged() in a new thread.
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,12 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.IOException;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.*;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1651,12 +1656,68 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     private void showHelp() {
         //new Exception("Your help is showing").printStackTrace();
-        try {
-            Runtime.getRuntime().exec("hh " +  "MemoryBank.chm");
-        } catch (IOException ioe) {
-            // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
-            MemoryBank.debug(ioe.getMessage());
-        } // end try/catch
+//        try {
+//            Runtime.getRuntime().exec("hh " +  "MemoryBank.chm");
+//        } catch (IOException ioe) {
+//            // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
+//            MemoryBank.debug(ioe.getMessage());
+//        } // end try/catch
+
+        String marky = null;
+        //URL theURL = AppTreePanel.class.getResource("README.md");
+        URL theURL = AppTreePanel.class.getResource("src/main/resources/help/markdown/TableOfContents.md");
+        File theFile;
+        if (theURL != null) {
+            System.out.println("Found the README file in the resources: " + theURL);
+            try {
+                BufferedInputStream inputStream = new BufferedInputStream(theURL.openStream());
+                InputStreamReader isReader = new InputStreamReader(inputStream);
+                //Creating a BufferedReader object
+                BufferedReader reader = new BufferedReader(isReader);
+                StringBuilder sb = new StringBuilder();
+                String str;
+                while((str = reader.readLine())!= null){
+                    sb.append(str);
+                    sb.append("\n");
+                }
+                marky = sb.toString();
+                //System.out.println(marky);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Found the README file in the local filesystem");
+            //theFile = new File("README.md");
+            theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
+            try {
+                marky = FileUtils.readFileToString(theFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (marky != null && !marky.isBlank()) {
+            marky = marky.replaceAll("src/", "file:src/");
+            marky = marky.replaceAll("../../images/", "file:src/main/resources/images/");
+            System.out.println(marky);
+            String html = com.github.rjeschke.txtmark.Processor.process(marky);
+            if (html != null && !html.isEmpty()) {
+                JEditorPane editor = new JEditorPane();
+                editor.setContentType("text/html");
+                editor.setEditable(false);
+                editor.setText(html);
+
+                JScrollPane jsp = new JScrollPane();
+                jsp.setPreferredSize(new Dimension(900, 650));
+                add(jsp, BorderLayout.CENTER);
+
+                jsp.setViewportView(editor);
+
+                optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
+            }
+
+        }
+
     } // end showHelp
 
 

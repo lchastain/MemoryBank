@@ -163,64 +163,14 @@ public class AppTreePanelTest {
         } // end for i
     }
 
-    // This does test the showHelp function, but that feature itself is not anywhere near
-    // ready for production and will be redone.  When the method executes in the main
-    // app, a Help-file viewer window is left open where under 'normal' usage, it is
-    // up to the user to close.  But for a test case this is obviously not an acceptable
-    // outcome so we ask the external Windows (platform-specific) executable 'taskkill'
-    // to get rid of the window for us.
-    // As an FYI, however, while the command was under development and I was trying
-    // various syntax to use with 'exec' and none were working, I needed to see the
-    // output/complaint that the taskkill process was emitting.  But running it from
-    // a test case, I saw nothing in the output.  This is the reason for all the extra
-    // reading and printout of the process's stdout and stderr streams.  Now that code
-    // is no longer needed here but I'm leaving it as an example that could definitely
-    // be useful in other contexts.
     @Test
     @Order(5)
     void testShowHelp() {
         TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
         JMenuItem jmi = testUtil.getMenuItem("Help", "Contents");
         jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
-        try {
-            // Sleep, long enough for the help windows to appear.
-            // This is because there are multiple menu item listeners currently active out there during a full test
-            //   suite execution (not under normal operation), and we get more than one help window as a result.
-            //   The taskkill kills all of them, as long as they are up and showing before we try.
-            Thread.sleep(1500);  // Interaction with the doSearch test; this should be more.
-            //
-            //   So a possibly better alternative is to change the access level of the method to package-private
-            //   and just call it directly, rather than via a menu item click.    Just sayin..
-            // Kill the help window -
-            Process process = Runtime.getRuntime().exec("taskkill /FI \"WindowTitle eq XML Notepad Help\" /T /F");
-
-            // The rest of this is just to get the feedback from TASKKILL, if any.
-            InputStream is = process.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-
-            while ((line = br.readLine()) != null && !line.isEmpty()) {
-                System.out.println(line);
-                System.out.flush();
-            }
-
-            InputStream es = process.getErrorStream();
-            InputStreamReader esr = new InputStreamReader(es);
-            BufferedReader br2 = new BufferedReader(esr);
-
-            while ((line = br2.readLine()) != null && !line.isEmpty()) {
-                System.out.println(line);
-                System.out.flush();
-            }
-
-            int exitVal = process.waitFor();
-            System.out.println("Process exitValue: " + exitVal);
-
-            System.out.println("End testShowHelp");
-        } catch (IOException | InterruptedException ioe) {
-            ioe.printStackTrace();
-        }
+        //   So a possibly better alternative is to change the access level of the method to package-private
+        //   and just call it directly, rather than via a menu item click.    Just sayin..
     }
 
     @Test
@@ -340,14 +290,12 @@ public class AppTreePanelTest {
     @Order(13)
     void testShowEvents() {
         // We need to start a 'window close' thread that will kick in only AFTER we have shown the Events.
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Thread.sleep(1500);
-                    WindowEvent we = new WindowEvent(appTreePanel.theEventsDialog, WindowEvent.WINDOW_CLOSING);
-                    appTreePanel.theEventsDialog.dispatchEvent(we);
-                } catch (InterruptedException ignore) { }
-            }
+        new Thread(() -> {
+            try {
+                Thread.sleep(1500);
+                WindowEvent we = new WindowEvent(appTreePanel.theEventsDialog, WindowEvent.WINDOW_CLOSING);
+                appTreePanel.theEventsDialog.dispatchEvent(we);
+            } catch (InterruptedException ignore) { }
         }).start(); // Start the thread
         appTreePanel.showEvents();
     }
