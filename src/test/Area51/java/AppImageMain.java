@@ -8,12 +8,12 @@ public class AppImageMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("g01@doughmain.net");
+        MemoryBank.userEmail = "g01@doughmain.net";
 
         AppImage li = new AppImage();
 
         // Construct a list of five images (although one is null) -
-        String basePath = MemoryBank.mbHome + File.separatorChar;
+        String basePath = "" + File.separatorChar;
         Image[] images = new Image[]{
                 new ImageIcon(basePath + "icons" + File.separatorChar + "icon_not.gif").getImage(),
                 new ImageIcon(basePath + "images" + File.separatorChar + "ABOUT.gif").getImage(),

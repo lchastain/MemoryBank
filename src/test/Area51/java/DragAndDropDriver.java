@@ -146,6 +146,7 @@ public class DragAndDropDriver extends JPanel implements ClingSource {
 
         // Use this to view the action.  Then close the window manually.
         while(testFrame.isVisible()) {
+            //noinspection BusyWait
             Thread.sleep(1000);
         }
     } // end testDragLeft
@@ -185,6 +186,7 @@ public class DragAndDropDriver extends JPanel implements ClingSource {
 
         // Use this to view the action.  Then close the window manually.
         while(testFrame.isVisible()) {
+            //noinspection BusyWait
             Thread.sleep(1000);
         }
     } // end testDragRight
@@ -194,7 +196,7 @@ public class DragAndDropDriver extends JPanel implements ClingSource {
         Box theContainer = DragAndDropDriver.makeContent();
         DragAndDropDriver theDriver = new DragAndDropDriver(theContainer);
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
 
         theDriver.testFrame = new JFrame("Drag And Drop Driver");
 

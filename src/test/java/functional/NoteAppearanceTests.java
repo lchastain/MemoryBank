@@ -31,12 +31,12 @@ public class NoteAppearanceTests {
     @BeforeAll
     static void setup() throws IOException {
         // Set the test user's data location
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         try {
             FileUtils.cleanDirectory(testData);
         } catch (Exception ignore){}

@@ -13,7 +13,7 @@ class DayNoteGroupPanelTest {
     static void beforeAll() throws IOException {
         MemoryBank.debug = true;
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         TestUtil.getTheAppTreePanel();
     }
 

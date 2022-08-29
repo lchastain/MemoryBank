@@ -10,7 +10,7 @@ import java.util.Vector;
 class ClearNoteGroupPanelTest {
     @BeforeAll
     static void setDataLocation() {
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         TestUtil.getTheAppTreePanel();
     }

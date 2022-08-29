@@ -18,7 +18,7 @@ class DayNoteComponentTest {
     @BeforeAll
     static void beforeAll() throws IOException {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         TestUtil.getTheAppTreePanel();
     }

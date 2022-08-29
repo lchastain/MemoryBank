@@ -1,11 +1,13 @@
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.io.Serial;
 import java.util.Enumeration;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final int maxSubjects = 20;
 
@@ -477,7 +479,7 @@ public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("lex@doughmain.net");
+        MemoryBank.userEmail = "lex@doughmain.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Needed to override the 'metal' L&F for Swing components.

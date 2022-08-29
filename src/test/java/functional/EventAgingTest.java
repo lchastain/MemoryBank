@@ -14,12 +14,12 @@ class EventAgingTest {
     @BeforeAll
     static void setup() {
         // Set the test user's data location
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         MemoryBank.debug = true;
 
         // Remove any pre-existing Test data
-        File testDataLoc = new File(MemoryBank.userDataHome);
+        File testDataLoc = new File(FileDataAccessor.userDataHome);
         try {
             FileUtils.cleanDirectory(testDataLoc);
         } catch (Exception e) {

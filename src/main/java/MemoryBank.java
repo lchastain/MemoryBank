@@ -3,7 +3,6 @@ import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -18,8 +17,7 @@ public class MemoryBank {
     static boolean debug;
     static boolean event;
     static boolean init;
-    static String userDataHome; // User data top-level directory 'mbankData'
-    static String mbHome;  // Memory Bank program data location, for finding images & more
+    static String userEmail;
     static AppOptions appOpts;     // saved/loaded
     static NoteData clipboardNote;
     static JFrame logFrame;
@@ -33,9 +31,9 @@ public class MemoryBank {
     private static boolean logApplicationShowing;
     private static final int[] percs = {20, 25, 45, 50, 60, 90, 100};
     private static int updateNum = 0;
-    private static String appIconName;
-    private static String appIconFormat;
-
+    static String appIconName;
+    static String appIconFormat;
+    static DataAccessor.AccessType dataAccessorType;
 
     static {
         // These can be 'defined' in the startup command.  Ex:
@@ -136,161 +134,11 @@ public class MemoryBank {
     } // end event
 
 
-    // Set the location for program data - 'mbHome'.
-    // Program data is not subject to the same constraints as is the user data; there is no requirement
-    //   to use a data accessor to get to it; there is only one choice: the local filesystem, so the
-    //   direct use of classes from java.io.File in this method - is allowed.
-    // Look first in the current directory.  This allows the program data to come from a development location.
-    //   If not found then set it explicitly to the default location.
-    // In either case, test that it is valid, by checking for the 'images' subdirectory.
-    private static void setProgramDataLocation() {
-        String currentDir = System.getProperty("user.dir");
-        debug("The current working directory is: " + currentDir);
-        //System.out.println("Program Files is at: " + System.getenv("ProgramFiles"));
-
-        // Program data - icons, images, etc, the same for every user.
-        File f = new File("images"); // Look first in current dir.
-        if (f.exists()) {  // This logic is far from infallible...
-            mbHome = currentDir;
-        } else { // Explicitly setting mbHome for now.
-            String homeBase = System.getenv("ProgramFiles");
-            mbHome = homeBase + "/Memory Bank";
-
-            // Test to see if we have images available at that location -
-            f = new File(mbHome + "/images");
-            if (!f.exists()) {
-                String s = ("Cannot find program data!");
-                s += "\nThe Memory Bank program will terminate now.";
-                JOptionPane.showMessageDialog(logFrame, s, "Error!",
-                        JOptionPane.ERROR_MESSAGE);
-                System.exit(1);  // Abby Normal exit.
-            } // end if
-        } // end if
-        debug("MemoryBank Home = " + mbHome);
-    } // end setProgramDataLocation
-
-
-    // Note: the DataAccessor has not yet been set, at the point in time when this method is called.
-    public static void setUserDataHome(String userEmail) {
-        // User data - personal notes, different for each user.
-
-        // First - look for the top-level directory containing data for all users.
-        String currentDir = System.getProperty("user.dir");
-        debug("The current working directory is: " + currentDir);
-        File f = new File("mbDevData"); // Look first in current dir.
-        System.out.println("Found mbDevData here: " + f.getAbsolutePath());
-        String loc;
-        if (f.exists()) { // A development directory; give the app a different icon.
-            loc = currentDir + "/mbDevData/" + userEmail;
-            appIconName = "notepad";
-        } else { // Use the standard icon and location for user data.
-            String userHome = System.getProperty("user.home"); // Home directory.
-            loc = userHome + "/mbankData/" + userEmail;
-            appIconName = "icon_not";
-        }
-        appIconFormat = "gif";
-        String traceString = Thread.currentThread().getStackTrace()[2].toString();
-        debug("Call to setUserDataHome, from: " + traceString);
-        debug("Setting user data location to: " + loc);
-
-        // Next - look for the data for this specific user.
-        boolean goodUserDataLoc = true;
-        f = new File(loc);
-        if (f.exists()) {
-            if (!f.isDirectory()) { // Bad location, if it already exists and is not a directory.
-                goodUserDataLoc = false;
-            } // end if directory
-        } else { // Create a new directory for this user
-            if (!f.mkdirs()) { // Bad location, if we were unable to make the needed directory.
-                goodUserDataLoc = false;
-            } // end if
-        } // end if exists
-
-        if (goodUserDataLoc) {
-            userDataHome = loc;
-        } else {  // Build up and display an informative error message.
-            JPanel le = new JPanel(new GridLayout(5, 1, 0, 0));
-
-            String oneline;
-            oneline = "The MemoryBank program was not able to access or create:";
-            JLabel el1 = new JLabel(oneline);
-            JLabel el2 = new JLabel(loc, JLabel.CENTER);
-            oneline = "This could be due to insufficient permissions ";
-            oneline += "or a problem with the file system.";
-            JLabel el3 = new JLabel(oneline);
-            oneline = "Please try again with a different location, or see";
-            oneline += " your system administrator";
-            JLabel el4 = new JLabel(oneline);
-            oneline = "if you believe the location is a valid one.";
-            JLabel el5 = new JLabel(oneline, JLabel.CENTER);
-
-            el1.setFont(Font.decode("Dialog-bold-14"));
-            el2.setFont(Font.decode("Dialog-bold-14"));
-            el3.setFont(Font.decode("Dialog-bold-14"));
-            el4.setFont(Font.decode("Dialog-bold-14"));
-            el5.setFont(Font.decode("Dialog-bold-14"));
-
-            le.add(el1);
-            le.add(el2);
-            le.add(el3);
-            le.add(el4);
-            le.add(el5);
-
-            optionPane.showMessageDialog(null, le,
-                    "Problem with specified location", JOptionPane.ERROR_MESSAGE);
-        } // end if
-
-        if (!goodUserDataLoc) {  // Some validity testing here..
-            System.exit(0);
-        } // end if
-
-    } // end setUserDataHome
-
-
-    //-----------------------------------------------------------------
-    // Method Name: timing
-    //
-    // Description:  Prints the input parameter with a timestamp.
-    //-----------------------------------------------------------------
-    private static void timing(String s) {
-        if (timing) System.out.println(LocalDate.now() + "  " + s);
-    } // end timing
-
-
-    //-------------------------------------------------------------
-    // Method Name: update
-    //
-    // Called by other classes to indicate their progress on the
-    //   splash screen, during initialization.
-    //-------------------------------------------------------------
-    public static void update(String s) {
-        int thePercentage;
-        if (timing) {
-            if (updateNum > 9) System.out.print(updateNum + " ");
-            else System.out.print(updateNum + "  ");
-            timing(s);
-        } // end if
-
-        // Test drivers will not have a splash screen.
-        if (splash == null) return;
-
-        // Each new call to update should be planned for and tested,
-        //   and a new percs entry added to the list.
-        // Otherwise, a subsequent call will overrun the
-        //   end of the percs array.
-        if (updateNum >= percs.length) {
-            System.out.print("Error! Not enough percentages to cover all the");
-            System.out.println(" calls to 'update'.");
-            return;
-        } // end if
-
-        thePercentage = percs[updateNum++];
-        splash.setProgress(s, thePercentage);
-    } // end update
-
-
     public static void main(String[] args) {
-        String userEmail = "default.user@elseware.com";
+        // Set the primary user identifier.  We use the user's email address but this could be interpreted by
+        // the DataAccessor implementation as a DB name, or a filesystem Directory, or something else as long as it
+        // uniquely identifies the data set for the given user email.
+        userEmail = "default.user@elseware.com";
 
         // Hold our place in line, on the taskbar.
         logFrame = new JFrame("Memory Bank:");
@@ -350,16 +198,16 @@ public class MemoryBank {
             } // end if/else
         } // end for i
 
-        setUserDataHome(userEmail);
-
         // Set the type of Data Accessor that this app will use.
-        // The parameter can eventually come from a configuration setting; the source of the configuration values
+        // The value can eventually come from a configuration setting; the source of the configuration values
         //   does not dictate how the rest of the app must operate from that point on.
         // But a configuration 'file' feels like a more preferred option, to
         // allow easier access and alteration by support personnel (once we get support personnel).
-        // The Data Accessors must have access to the userDataHome,
-        // so this setting should be made AFTER that var is set.
-        dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
+        dataAccessorType = DataAccessor.AccessType.FILE;
+
+        // The Data Accessors must have access to the user's data,
+        // so this setting should be made AFTER the userEmail is set.
+        dataAccessor = DataAccessor.getDataAccessor(dataAccessorType);
 
         appOpts = dataAccessor.getAppOptions(); // Load the user settings - if available, will override defaults.
         if(appOpts == null) appOpts = new AppOptions(); // In case of an uloadable file; not the same as not present.
@@ -416,6 +264,48 @@ public class MemoryBank {
         });
         Runtime.getRuntime().addShutdownHook(logPreClose);
     } // end main
+
+    //-----------------------------------------------------------------
+    // Method Name: timing
+    //
+    // Description:  Prints the input parameter with a timestamp.
+    //-----------------------------------------------------------------
+    private static void timing(String s) {
+        if (timing) System.out.println(LocalDate.now() + "  " + s);
+    } // end timing
+
+
+    //-------------------------------------------------------------
+    // Method Name: update
+    //
+    // Called by other classes to indicate their progress on the
+    //   splash screen, during initialization.
+    //-------------------------------------------------------------
+    public static void update(String s) {
+        int thePercentage;
+        if (timing) {
+            if (updateNum > 9) System.out.print(updateNum + " ");
+            else System.out.print(updateNum + "  ");
+            timing(s);
+        } // end if
+
+        // Test drivers will not have a splash screen.
+        if (splash == null) return;
+
+        // Each new call to update should be planned for and tested,
+        //   and a new percs entry added to the list.
+        // Otherwise, a subsequent call will overrun the
+        //   end of the percs array.
+        if (updateNum >= percs.length) {
+            System.out.print("Error! Not enough percentages to cover all the");
+            System.out.println(" calls to 'update'.");
+            return;
+        } // end if
+
+        thePercentage = percs[updateNum++];
+        splash.setProgress(s, thePercentage);
+    } // end update
+
 
 
 } // end class MemoryBank

@@ -15,11 +15,11 @@ class AddTodoListTest {
     @BeforeAll
     static void setup() throws IOException {
         // Set the test user's data location
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         FileUtils.cleanDirectory(testData);
 
         // Retrieve a fresh set of test data from test resources.

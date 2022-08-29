@@ -4,7 +4,7 @@ public class TabbedCNGPanelMain {
 
 //    public static void main(String[] args) {
 //        MemoryBank.debug = true;
-//        MemoryBank.setUserDataHome("lex@doughmain.net");
+//        MemoryBank.userEmail = "lex@doughmain.net");
 //        MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 //        JFrame testFrame = new JFrame("Tabbed Calendar Note Group Panel Driver");
 //

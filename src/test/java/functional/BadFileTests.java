@@ -16,11 +16,11 @@ public class BadFileTests {
         //MemoryBank.debug = true;
 
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         try {
             FileUtils.cleanDirectory(testData);
         } catch (Exception ignore){}
@@ -28,6 +28,7 @@ public class BadFileTests {
         // Retrieve a fresh set of test data from test resources
         String fileName = "leroy.brown@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
 
         // Load up this Test user's application options

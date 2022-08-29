@@ -34,11 +34,11 @@ public class DragAndDropTests {
         MemoryBank.debug = true;
 
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
-        File testDataLoc = new File(MemoryBank.userDataHome);
+        File testDataLoc = new File(FileDataAccessor.userDataHome);
         try {
             FileUtils.cleanDirectory(testDataLoc);
         } catch (Exception e) {
@@ -135,7 +135,7 @@ public class DragAndDropTests {
 
         // Verify that the second column of the TodoNoteComponent now holds the StatusButton component
         TodoNoteComponent todoNoteComponent = (TodoNoteComponent) todoNoteGroupPanel.groupNotesListPanel.getComponent(0);
-        Class theClass = todoNoteComponent.getComponent(1).getClass();
+        Class<? extends Component> theClass = todoNoteComponent.getComponent(1).getClass();
         System.out.println("The class of the component in the second position of the TodoNoteComponent is: " + theClass);
         Assertions.assertSame(TodoNoteComponent.StatusButton.class, theClass);
 
@@ -210,7 +210,7 @@ public class DragAndDropTests {
 
         // Verify that the second column of the SearchResultComponent now holds the FoundInButton component
         SearchResultComponent theComponent = (SearchResultComponent) searchResultGroupPanel.groupNotesListPanel.getComponent(0);
-        Class theClass = theComponent.getComponent(1).getClass();
+        Class<? extends Component> theClass = theComponent.getComponent(1).getClass();
         System.out.println("The class of the component in the second position of the SearchResultComponent is: " + theClass);
         Assertions.assertSame(SearchResultComponent.FoundInButton.class, theClass);
 

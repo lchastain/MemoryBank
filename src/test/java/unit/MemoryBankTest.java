@@ -14,10 +14,12 @@ class MemoryBankTest {
         MemoryBank.debug = true;
 
         // Set the locations for our user data (the directories will be created, if not already there)
-        MemoryBank.setUserDataHome("null");
-        File testBadData = new File(MemoryBank.userDataHome);
-        MemoryBank.setUserDataHome("test.user@lcware.net");
-        File testGoodData = new File(MemoryBank.userDataHome);
+        MemoryBank.userEmail = "null";
+        DataAccessor.getDataAccessor(MemoryBank.dataAccessorType);
+        File testBadData = new File(FileDataAccessor.userDataHome);
+        MemoryBank.userEmail = "test.user@lcware.net";
+        DataAccessor.getDataAccessor(MemoryBank.dataAccessorType);
+        File testGoodData = new File(FileDataAccessor.userDataHome);
 
         // Remove any pre-existing Test data
         FileUtils.cleanDirectory(testBadData);
@@ -38,14 +40,14 @@ class MemoryBankTest {
 
     @BeforeEach
     void setup(){
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
     }
 
     // The 'happy path' is covered by other tests;
     // this is for testing the Exception handling.
     @Test
     void testLoadOpts() {
-        MemoryBank.setUserDataHome(null);
+        MemoryBank.userEmail = null;
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         AppOptions.loadOpts(); // Outputs an expected stacktrace.
     }
@@ -59,7 +61,7 @@ class MemoryBankTest {
 
     @Test
     void testMain() {
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         String[] theArgs = new String[]{"freddo", "-debug", "-event", "-trace", "-timing", "test.user@lcware.net"};
         MemoryBank.main(theArgs);
         MemoryBank.logFrame.dispatchEvent(new WindowEvent(MemoryBank.logFrame, WindowEvent.WINDOW_CLOSING));
@@ -69,7 +71,7 @@ class MemoryBankTest {
     // this is for testing the Exception handling.
     @Test
     void testSaveOpts() {
-        MemoryBank.setUserDataHome(null);
+        MemoryBank.userEmail = null;
         AppOptions.saveOpts();
     }
 }

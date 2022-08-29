@@ -11,8 +11,8 @@ public class PlafSelectionPanel extends JPanel implements ActionListener {
     static final long serialVersionUID = 1L;
 
     private String selectedPlaf;
-    private ButtonGroup bg;
-    private HashMap<String, String> hm;
+    private final ButtonGroup bg;
+    private final HashMap<String, String> hm;
 
     private PlafSelectionPanel() {
         UIManager.LookAndFeelInfo[] lafiArray = UIManager.getInstalledLookAndFeels();
@@ -104,7 +104,7 @@ public class PlafSelectionPanel extends JPanel implements ActionListener {
 
 
 
-//        MemoryBank.setUserDataHome("g01@doughmain.net");
+//        MemoryBank.userEmail = "g01@doughmain.net");
 //
 //        JFrame testFrame = new JFrame("RecurrencePanel Driver");
 //

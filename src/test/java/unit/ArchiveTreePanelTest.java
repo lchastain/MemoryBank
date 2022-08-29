@@ -21,11 +21,11 @@ public class ArchiveTreePanelTest {
         MemoryBank.debug = true;
 
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         try {
             FileUtils.cleanDirectory(testData);
         } catch (Exception ignore){

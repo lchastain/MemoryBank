@@ -12,10 +12,10 @@ public class ResetTestData {
 
     public static void main(String[] args) throws IOException {
         // Set the test user's data location
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         try {
             FileUtils.cleanDirectory(testData);
         } catch (Exception ignore){}
@@ -24,6 +24,7 @@ public class ResetTestData {
         // This test user has a rich set of data, includes Search Results and Todo Lists
         String fileName = "jondo.nonamus@lcware.net";
         File testResource = FileUtils.toFile(AppTreePanel.class.getResource(fileName));
+        assert testResource != null;
         FileUtils.copyDirectory(testResource, testData);
     }
 }

@@ -26,10 +26,10 @@ class CollapseChangesTest {
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Set the test user's data location
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         FileUtils.cleanDirectory(testData);
 
         // Retrieve a fresh set of test data from test resources.
@@ -92,7 +92,7 @@ class CollapseChangesTest {
         // Expecting no warning here; a popup dialog will ruin that
         // expectation and definitely counts as a test fail.
         // And aside from that, we should verify that our file still exists -
-        String theFilePath = MemoryBank.userDataHome + File.separatorChar + "ToDoLists" + File.separatorChar;
+        String theFilePath = FileDataAccessor.userDataHome + File.separatorChar + "ToDoLists" + File.separatorChar;
         String theFileName = "todo_Get New Job.json";
         File theFile = new File(theFilePath + theFileName);
         Assertions.assertTrue(theFile.exists());

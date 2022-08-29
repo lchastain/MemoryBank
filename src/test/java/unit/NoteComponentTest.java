@@ -14,12 +14,12 @@ class NoteComponentTest {
     @BeforeAll
     static void beforeAll() throws IOException {
         // Set the location for our user data (the directory will be created, if not already there)
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
         TestUtil.getTheAppTreePanel();
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         FileUtils.cleanDirectory(testData);
 
         // Retrieve a fresh set of test data from test resources

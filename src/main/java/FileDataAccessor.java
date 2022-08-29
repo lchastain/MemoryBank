@@ -42,6 +42,7 @@ public class FileDataAccessor implements DataAccessor {
     static String logFilePrefix;
     static String noteFilePrefix;
     static String locationsFilename;
+    static String userDataHome; // User data top-level directory 'mbankData'
 
     Vector<NoteData> foundDataVector;
     static String iconBase;
@@ -109,7 +110,8 @@ public class FileDataAccessor implements DataAccessor {
     } // end static section
 
     FileDataAccessor() {
-        basePath = MemoryBank.userDataHome + File.separatorChar;
+        setUserDataHome(MemoryBank.userEmail);
+        basePath = userDataHome + File.separatorChar;
         archiveAreaPath = basePath + "Archives";
 
         calendarNoteGroupAreaPath = basePath + DataArea.CALENDARS.getAreaName() + File.separatorChar;
@@ -120,6 +122,81 @@ public class FileDataAccessor implements DataAccessor {
         plainNoteGroupAreaPath = basePath + DataArea.NOTES.getAreaName() + File.separatorChar;
         todoListGroupAreaPath = basePath + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
     }
+
+    public static void setUserDataHome(String userEmail) {
+        // User data - personal notes, different for each user.
+
+        // First - look for the top-level directory containing data for all users.
+        String currentDir = System.getProperty("user.dir");
+        MemoryBank.debug("The current working directory is: " + currentDir);
+        File f = new File("mbDevData"); // Look first in current dir.
+        System.out.println("Found mbDevData here: " + f.getAbsolutePath());
+        String loc;
+        if (f.exists()) { // A development directory; give the app a different icon.
+            loc = currentDir + "/mbDevData/" + userEmail;
+            MemoryBank.appIconName = "notepad";
+        } else { // Use the standard icon and location for user data.
+            String userHome = System.getProperty("user.home"); // Home directory.
+            loc = userHome + "/mbankData/" + userEmail;
+            MemoryBank.appIconName = "icon_not";
+        }
+        MemoryBank.appIconFormat = "gif";
+        String traceString = Thread.currentThread().getStackTrace()[2].toString();
+        MemoryBank.debug("Call to setUserDataHome, from: " + traceString);
+        MemoryBank.debug("Setting user data location to: " + loc);
+
+        // Next - look for the data for this specific user.
+        boolean goodUserDataLoc = true;
+        f = new File(loc);
+        if (f.exists()) {
+            if (!f.isDirectory()) { // Bad location, if it already exists and is not a directory.
+                goodUserDataLoc = false;
+            } // end if directory
+        } else { // Create a new directory for this user
+            if (!f.mkdirs()) { // Bad location, if we were unable to make the needed directory.
+                goodUserDataLoc = false;
+            } // end if
+        } // end if exists
+
+        if (goodUserDataLoc) {
+            userDataHome = loc;
+        } else {  // Build up and display an informative error message.
+            JPanel le = new JPanel(new GridLayout(5, 1, 0, 0));
+
+            String oneline;
+            oneline = "The MemoryBank program was not able to access or create:";
+            JLabel el1 = new JLabel(oneline);
+            JLabel el2 = new JLabel(loc, JLabel.CENTER);
+            oneline = "This could be due to insufficient permissions ";
+            oneline += "or a problem with the file system.";
+            JLabel el3 = new JLabel(oneline);
+            oneline = "Please try again with a different location, or see";
+            oneline += " your system administrator";
+            JLabel el4 = new JLabel(oneline);
+            oneline = "if you believe the location is a valid one.";
+            JLabel el5 = new JLabel(oneline, JLabel.CENTER);
+
+            el1.setFont(Font.decode("Dialog-bold-14"));
+            el2.setFont(Font.decode("Dialog-bold-14"));
+            el3.setFont(Font.decode("Dialog-bold-14"));
+            el4.setFont(Font.decode("Dialog-bold-14"));
+            el5.setFont(Font.decode("Dialog-bold-14"));
+
+            le.add(el1);
+            le.add(el2);
+            le.add(el3);
+            le.add(el4);
+            le.add(el5);
+
+            JOptionPane.showMessageDialog(null, le,
+                    "Problem with specified location", JOptionPane.ERROR_MESSAGE);
+        } // end if
+
+        if (!goodUserDataLoc) {  // Some validity testing here..
+            System.exit(0);
+        } // end if
+
+    } // end setUserDataHome
 
     static void archiveGroupType(File archiveRepo, GroupType groupType) throws IOException {
         String archiveRepoPath = archiveRepo.getAbsolutePath();
@@ -218,7 +295,7 @@ public class FileDataAccessor implements DataAccessor {
             case NOTES -> NoteGroupFile.plainNoteGroupAreaPath;
             case TODO_LISTS -> NoteGroupFile.todoListGroupAreaPath;
             case SEARCH_RESULTS -> NoteGroupFile.searchResultGroupAreaPath;
-            default -> MemoryBank.mbHome;
+            default -> throw new IllegalStateException("Unexpected value: " + dataArea);
         };
         File f = new File(theAreaFullPath);
         if (f.exists()) return true;
@@ -286,7 +363,7 @@ public class FileDataAccessor implements DataAccessor {
     @Override
     public AppOptions getAppOptions() {
         AppOptions appOptions = null;
-        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
+        String filename = userDataHome + File.separatorChar + "appOpts.json";
 
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
@@ -310,7 +387,7 @@ public class FileDataAccessor implements DataAccessor {
         String archiveDirectoryName = archiveFileFormat.format(theArchiveTimestamp);
 
         Exception e = null;
-        String filename = MemoryBank.userDataHome + File.separatorChar + DataArea.ARCHIVES.getAreaName();
+        String filename = userDataHome + File.separatorChar + DataArea.ARCHIVES.getAreaName();
         filename += File.separatorChar + archiveDirectoryName + File.separatorChar + "appOpts.json";
 
         try {
@@ -358,7 +435,7 @@ public class FileDataAccessor implements DataAccessor {
         return theArchiveNames.toArray(new String[0]);
     }
 
-    // Returns an array of 5 LogIcons that are read from a file
+    // Returns an array of 5 Icons that are read from a file
     //   of data for the specified day.  There may be one or more
     //   null placeholders in the array.
     @Override
@@ -515,7 +592,7 @@ public class FileDataAccessor implements DataAccessor {
 
     @Override
     public Locations loadLocations() {
-        String fileName = MemoryBank.userDataHome + File.separatorChar + locationsFilename;
+        String fileName = userDataHome + File.separatorChar + locationsFilename;
         Exception e = null;
 
         try {
@@ -574,7 +651,7 @@ public class FileDataAccessor implements DataAccessor {
         if (space > -1) s = defaultSubject.substring(0, space);
         else s = defaultSubject;
         s += "Subjects.json";
-        subjectsFilename = MemoryBank.userDataHome + File.separatorChar + s;
+        subjectsFilename = userDataHome + File.separatorChar + s;
         return subjectsFilename;
     }
 
@@ -596,7 +673,7 @@ public class FileDataAccessor implements DataAccessor {
 
     @Override
     public void saveAppOptions() {
-        String filename = MemoryBank.userDataHome + File.separatorChar + "appOpts.json";
+        String filename = userDataHome + File.separatorChar + "appOpts.json";
         MemoryBank.debug("Saving application option data in " + filename);
 
         try (FileWriter writer = new FileWriter(filename);
@@ -626,7 +703,7 @@ public class FileDataAccessor implements DataAccessor {
 
     @Override
     public boolean saveLocations(Locations theLocations) {
-        String fileName = MemoryBank.userDataHome + File.separatorChar + locationsFilename;
+        String fileName = userDataHome + File.separatorChar + locationsFilename;
         MemoryBank.debug("Saving Locations in " + fileName);
 
         try (FileWriter writer = new FileWriter(fileName);
@@ -671,8 +748,8 @@ public class FileDataAccessor implements DataAccessor {
         // Scan the user's data area for data files - we do a recursive
         //   directory search and each file is examined as soon as it is
         //   found, provided that it passes the file-level filters.
-        MemoryBank.debug("Data location is: " + MemoryBank.userDataHome);
-        File f = new File(MemoryBank.userDataHome);
+        MemoryBank.debug("Data location is: " + userDataHome);
+        File f = new File(userDataHome);
         scanDataDir(f, 0, searchPanel); // Indirectly fills the foundDataVector
 
         return foundDataVector;

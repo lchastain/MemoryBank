@@ -9,7 +9,7 @@ public class ExtendedNoteEditorMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("g01@doughmain.net");
+        MemoryBank.userEmail = "g01@doughmain.net";
 
         String defaultSubject = "a default subject";
         NoteData noteData = new NoteData();

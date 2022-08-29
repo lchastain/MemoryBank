@@ -2,12 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Area51 {
-    private Notifier optionPane = new Notifier() {
+    private final Notifier optionPane = new Notifier() {
     };
 
     static {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("lex@doughmain.net");
+        MemoryBank.userEmail = "lex@doughmain.net";
     }
 
     private Area51() {

@@ -42,17 +42,17 @@ class LocationsTest {
 
     @Test
     void testLoad() {
-        MemoryBank.setUserDataHome(null);
+        MemoryBank.userEmail = null;
         locations = Locations.load();  // The bad one
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         locations = Locations.load();  // The good one
     }
 
     @Test
     void testSave() {
-        MemoryBank.setUserDataHome(null);
+        MemoryBank.userEmail = null;
         locations.save();
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         locations.save();
     }
 }

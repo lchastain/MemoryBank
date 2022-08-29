@@ -7,7 +7,7 @@ public class RecurrencePanelMain {
 
     public static void main(String[] args) {
         MemoryBank.debug = true;
-        MemoryBank.setUserDataHome("g01@doughmain.net");
+        MemoryBank.userEmail = "g01@doughmain.net";
 
         JFrame testFrame = new JFrame("RecurrencePanel Driver");
 

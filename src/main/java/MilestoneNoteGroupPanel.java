@@ -55,7 +55,6 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
         }
     }
 
-    @SuppressWarnings({"rawtypes"})
     JComponent buildHeader() {
         // The Header Row -   The Title and a Pager control
         JPanel heading = new JPanel(new BorderLayout());
@@ -79,7 +78,6 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
 
     // Called from within the constructor to create and place the visual components of the panel.
-    @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {
         theHeader = buildHeader();
         add(theHeader, BorderLayout.NORTH);  // Adds to theBasePanel
@@ -105,7 +103,7 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
 //    public static void main(String[] args) {
 //        MemoryBank.debug = true;
-//        MemoryBank.setUserDataHome("lex@doughmain.net");
+//        MemoryBank.userEmail = "lex@doughmain.net";
 //
 //        MilestoneNoteGroupPanel theNoteGroupPanel;
 //        JFrame testFrame = new JFrame();

@@ -10,7 +10,7 @@ import java.util.Vector;
 public class Area51a {
 
     static {
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
     }
 
     private Area51a() {
@@ -64,11 +64,11 @@ public class Area51a {
     }
 
     // Does isEmpty() return true if the string has only spaces?   No.
-    private void try4() {
-        String fourSpaces = "    ";
-        System.out.println("four spaces is empty: " + fourSpaces.isEmpty());
-        System.out.println("trimmed four spaces is empty: " + fourSpaces.trim().isEmpty());
-    }
+//    private void try4() {
+//        String fourSpaces = "    ";
+//        System.out.println("four spaces is empty: " + fourSpaces.isEmpty());
+//        System.out.println("trimmed four spaces is empty: " + fourSpaces.trim().isEmpty());
+//    }
 
     // Merging two vectors, without duplicates -
     private void try5() {

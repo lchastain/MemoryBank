@@ -11,11 +11,11 @@ class ToggleAboutTest {
 
     @BeforeAll
     static void meFirst() throws IOException {
-        MemoryBank.setUserDataHome("test.user@lcware.net");
+        MemoryBank.userEmail = "test.user@lcware.net";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data
-        File testData = new File(MemoryBank.userDataHome);
+        File testData = new File(FileDataAccessor.userDataHome);
         FileUtils.cleanDirectory(testData);
 
         // Load the user's options  (Defaults)
