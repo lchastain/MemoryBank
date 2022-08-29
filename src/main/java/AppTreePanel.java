@@ -1665,7 +1665,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         String marky = null;
         //URL theURL = AppTreePanel.class.getResource("README.md");
-        URL theURL = AppTreePanel.class.getResource("src/main/resources/help/markdown/TableOfContents.md");
+        //URL theURL = AppTreePanel.class.getResource("src/main/resources/help/markdown/TableOfContents.md");
+        URL theURL = AppTreePanel.class.getResource("src/main/resources/help/html/TableOfContents.html");
         File theFile;
         if (theURL != null) {
             System.out.println("Found the README file in the resources: " + theURL);
@@ -1688,7 +1689,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         } else {
             System.out.println("Found the README file in the local filesystem");
             //theFile = new File("README.md");
-            theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
+            //theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
+            theFile = new File("src/main/resources/help/html/TableOfContents.html");
             try {
                 marky = FileUtils.readFileToString(theFile);
             } catch (IOException e) {
@@ -1697,7 +1699,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         }
 
         if (marky != null && !marky.isBlank()) {
-            marky = marky.replaceAll("src/", "file:src/");
+//            marky = marky.replaceAll("src/", "file:src/");
             marky = marky.replaceAll("../../images/", "file:src/main/resources/images/");
             System.out.println(marky);
             String html = com.github.rjeschke.txtmark.Processor.process(marky);
@@ -1705,7 +1707,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 JEditorPane editor = new JEditorPane();
                 editor.setContentType("text/html");
                 editor.setEditable(false);
-                editor.setText(html);
+//                editor.setText(html);
+                editor.setText(marky);
 
                 JScrollPane jsp = new JScrollPane();
                 jsp.setPreferredSize(new Dimension(900, 650));
@@ -1715,6 +1718,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
                 optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
             }
+
+        } else {
 
         }
 
