@@ -28,7 +28,6 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
     private String groupFilename;
 
     NoteGroupFile(GroupInfo groupInfo) {
-        super();
         myGroupInfo = groupInfo;
 
         // No need to have a filename hanging around until we actually use it.
@@ -47,33 +46,15 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         //   preserved even though there are no notes to go along with them, such as the
         //   search panel settings of a SearchResultGroup.
         switch (groupInfo.groupType) {
-            case DAY_NOTES:
-                dateType = ChronoUnit.DAYS;
-                break;
-            case MONTH_NOTES:
-                dateType = ChronoUnit.MONTHS;
-                break;
-            case YEAR_NOTES:
-                dateType = ChronoUnit.YEARS;
-                break;
-            case SEARCH_RESULTS:
-                saveWithoutData = true;
-                break;
-            case TODO_LIST:
-                saveWithoutData = true;
-                break;
-            case LOG:
-                saveWithoutData = false;
-                break;
-            case EVENTS:
-                saveWithoutData = true;
-                break;
-            case GOALS:
-                saveWithoutData = true;
-                break;
-            case MILESTONE:
-                saveWithoutData = false;
-                break;
+            case DAY_NOTES -> dateType = ChronoUnit.DAYS;
+            case MONTH_NOTES -> dateType = ChronoUnit.MONTHS;
+            case YEAR_NOTES -> dateType = ChronoUnit.YEARS;
+            case SEARCH_RESULTS -> saveWithoutData = true;
+            case TODO_LIST -> saveWithoutData = true;
+            case LOG -> saveWithoutData = false;
+            case EVENTS -> saveWithoutData = true;
+            case GOALS -> saveWithoutData = true;
+            case MILESTONE -> saveWithoutData = false;
         }
         if (dateType != null) fileFilter = new CalendarNoteGroup.CalendarFileFilter(dateType);
     }
@@ -265,68 +246,68 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         }
 
         switch (groupInfo.groupType) {
-            case GOALS:
+            case GOALS -> {
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = goalGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case MILESTONE:
+            }
+            case MILESTONE -> {
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = milestoneGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case GOAL_LOG:
+            }
+            case GOAL_LOG -> {
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = logFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case NOTES:
+            }
+            case NOTES -> {
                 areaPath = firstPart + DataArea.NOTES.getAreaName() + File.separatorChar;
                 filePrefix = noteFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case GOAL_NOTES:
+            }
+            case GOAL_NOTES -> {
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = noteFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case GOAL_TODO:
+            }
+            case GOAL_TODO -> {
                 areaPath = firstPart + DataArea.GOALS.getAreaName() + File.separatorChar;
                 filePrefix = todoListFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case EVENTS:
+            }
+            case EVENTS -> {
                 areaPath = firstPart + DataArea.UPCOMING_EVENTS.getAreaName() + File.separatorChar;
                 filePrefix = eventGroupFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case DAY_NOTES:
+            }
+            case DAY_NOTES -> {
                 theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "D");
-                break;
-            case MONTH_NOTES: // Example group name:  October 2020
+            }
+            case MONTH_NOTES -> { // Example group name:  October 2020
                 theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "M");
-                break;
-            case YEAR_NOTES: // Example group name:  2020
+            }
+            case YEAR_NOTES -> { // Example group name:  2020
                 theChoice = CalendarNoteGroup.getDateFromGroupName(groupInfo);
                 theFilename = foundFilename(theChoice, "Y");
-                break;
-            case LOG:
+            }
+            case LOG -> {
                 areaPath = firstPart + DataArea.LOGS.getAreaName() + File.separatorChar;
                 filePrefix = logFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case TODO_LIST:
+            }
+            case TODO_LIST -> {
                 areaPath = firstPart + DataArea.TODO_LISTS.getAreaName() + File.separatorChar;
                 filePrefix = todoListFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
-            case SEARCH_RESULTS:
+            }
+            case SEARCH_RESULTS -> {
                 areaPath = firstPart + DataArea.SEARCH_RESULTS.getAreaName() + File.separatorChar;
                 filePrefix = searchResultFilePrefix;
                 theFilename = areaPath + filePrefix + groupInfo.getGroupName() + ".json";
-                break;
+            }
         }
 
         if (!theFilename.isEmpty() && new File(theFilename).exists()) {
@@ -362,6 +343,9 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
 
                 // System.out.println("Looking for " + lookfor);
                 foundFiles = f.list(new AppUtil.logFileFilter(lookfor));
+         assert foundFiles != null;
+   System.out.println("foundFiles: " + foundFiles.length);
+   for(String s: foundFiles) System.out.println(s);
             } // end if directory
         } // end if the directory for the year exists
 
@@ -576,7 +560,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
     private static String getTimePartString(LocalDateTime localDateTime, ChronoUnit cu, Character padding) {
 
         switch (cu) {
-            case YEARS:
+            case YEARS -> {
                 StringBuilder theYears = new StringBuilder(String.valueOf(localDateTime.getYear()));
                 if (padding != null) {
                     while (theYears.length() < 4) {
@@ -584,38 +568,43 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
                     }
                 }
                 return theYears.toString();
-            case MONTHS:
+            }
+            case MONTHS -> {
                 String theMonths = String.valueOf(localDateTime.getMonthValue());
                 if (padding != null) {
                     if (theMonths.length() < 2) theMonths = padding + theMonths;
                 }
                 return theMonths;
-            case DAYS:
+            }
+            case DAYS -> {
                 String theDays = String.valueOf(localDateTime.getDayOfMonth());
                 if (padding != null) {
                     if (theDays.length() < 2) theDays = padding + theDays;
                 }
                 return theDays;
-            case HOURS:
+            }
+            case HOURS -> {
                 String theHours = String.valueOf(localDateTime.getHour());
                 if (padding != null) {
                     if (theHours.length() < 2) theHours = padding + theHours;
                 }
                 return theHours;
-            case MINUTES:
+            }
+            case MINUTES -> {
                 String theMinutes = String.valueOf(localDateTime.getMinute());
                 if (padding != null) {
                     if (theMinutes.length() < 2) theMinutes = padding + theMinutes;
                 }
                 return theMinutes;
-            case SECONDS:
+            }
+            case SECONDS -> {
                 String theSeconds = String.valueOf(localDateTime.getSecond());
                 if (padding != null) {
                     if (theSeconds.length() < 2) theSeconds = padding + theSeconds;
                 }
                 return theSeconds;
-            default:
-                throw new IllegalStateException("Unexpected value: " + cu);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + cu);
         }
     } // end getTimePartString
 
@@ -649,7 +638,7 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         try {
             String text = FileUtils.readFileToString(theFile, StandardCharsets.UTF_8.name());
             theGroup = AppUtil.mapper.readValue(text, Object[].class);
-            System.out.println("Group data from JSON file: " + AppUtil.toJsonString(theGroup));
+            //System.out.println("Group data from JSON file: " + AppUtil.toJsonString(theGroup));
         } catch (FileNotFoundException fnfe) { // This is allowed, but you get back a null.
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -765,48 +754,49 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         String prefix = "NoPrefix";    // But at least we'll know where to look.
 
         switch (groupType) {
-            case GOALS:
+            case GOALS -> {
                 areaName = DataArea.GOALS.getAreaName();
                 prefix = goalGroupFilePrefix;
-                break;
-            case GOAL_LOG:
+            }
+            case GOAL_LOG -> {
                 areaName = DataArea.GOALS.getAreaName();
                 prefix = logFilePrefix;
-                break;
-            case GOAL_TODO:
+            }
+            case GOAL_TODO -> {
                 areaName = DataArea.GOALS.getAreaName();
                 prefix = todoListFilePrefix;
-                break;
-            case MILESTONE:
+            }
+            case MILESTONE -> {
                 areaName = DataArea.GOALS.getAreaName();
                 prefix = milestoneGroupFilePrefix;
-                break;
-            case EVENTS:
+            }
+            case EVENTS -> {
                 areaName = DataArea.UPCOMING_EVENTS.getAreaName();
                 prefix = eventGroupFilePrefix;
-                break;
-            case LOG:
+            }
+            case LOG -> {
                 areaName = DataArea.LOGS.getAreaName();
                 prefix = logFilePrefix;
-                break;
-            case NOTES:
+            }
+            case NOTES -> {
                 areaName = DataArea.NOTES.getAreaName();
                 prefix = noteFilePrefix;
-                break;
-            case GOAL_NOTES:
+            }
+            case GOAL_NOTES -> {
                 areaName = DataArea.GOALS.getAreaName();
                 prefix = noteFilePrefix;
-                break;
-            case TODO_LIST:
+            }
+            case TODO_LIST -> {
                 areaName = DataArea.TODO_LISTS.getAreaName();
                 prefix = todoListFilePrefix;
-                break;
-            case SEARCH_RESULTS:
+            }
+            case SEARCH_RESULTS -> {
                 areaName = DataArea.SEARCH_RESULTS.getAreaName();
                 prefix = searchResultFilePrefix;
-                break;
-            default:
-                // The other types do not have associated File data.
+            }
+            default -> {
+            }
+            // The other types do not have associated File data.
         }
         return basePath + areaName + File.separatorChar + prefix + groupName + ".json";
     }

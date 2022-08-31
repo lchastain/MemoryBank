@@ -56,7 +56,7 @@ public class IconFileView extends FileView {
 
         ImageIcon icon = null;
 
-        System.out.println("File is: " + f.getAbsolutePath());
+        //System.out.println("File is: " + f.getAbsolutePath());
         if (nameParts.length >= 2) {
             String extension = nameParts[1].toLowerCase();
 
@@ -83,7 +83,10 @@ public class IconFileView extends FileView {
                     // So for now we will stick with what has been at least partially working, which is the same as
                     // most of the others, including the non-animated gifs.
                     icon = new ImageIcon(f.getPath());
-                    if (icon.getImage() != null) {  // Same as above but with alternative code, to keep IJ quiet.
+                    if (icon.getImage() != null) {
+                        // Same as above but with braces, to keep IJ quiet about identical case handling.
+                        // Hoping for some future change where I can have better animated gifs, in which
+                        // case that code would go under this (then-different) case.
                         IconInfo.scaleIcon(icon);
                     }
                     break;

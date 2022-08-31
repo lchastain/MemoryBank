@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 class MemoryBankTest {
 
@@ -60,7 +61,7 @@ class MemoryBankTest {
     }
 
     @Test
-    void testMain() {
+    void testMain() throws URISyntaxException {
         MemoryBank.userEmail = "test.user@lcware.net";
         String[] theArgs = new String[]{"freddo", "-debug", "-event", "-trace", "-timing", "test.user@lcware.net"};
         MemoryBank.main(theArgs);

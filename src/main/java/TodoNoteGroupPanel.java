@@ -59,7 +59,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
     @Override
     protected void adjustMenuItems(boolean b) {
-        MemoryBank.debug("TodoNoteGroupPanel.adjustMenuItems <" + b + ">");
+        //MemoryBank.debug("TodoNoteGroupPanel.adjustMenuItems <" + b + ">");
         if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
             fosterNoteGroupPanel.adjustMenuItems(b);
         } else {
@@ -215,7 +215,8 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         Object[] theGroup = myNoteGroup.groupDataAccessor.loadNoteGroupData(groupInfo);
         //System.out.println("Merging NoteGroup data from JSON file: " + AppUtil.toJsonString(theGroup));
 
-        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<Vector<TodoNoteData>>() {  });
+        Vector<TodoNoteData> mergeVector = AppUtil.mapper.convertValue(theGroup[1], new TypeReference<>() {
+        });
 
         // Create a 'set', to contain only unique items from both lists.
         LinkedHashSet<NoteData> theUniqueSet = new LinkedHashSet<>(myNoteGroup.noteGroupDataVector);

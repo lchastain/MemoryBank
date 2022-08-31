@@ -3,8 +3,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 
 public class LogNoteGroupPanel extends NoteGroupPanel {
@@ -35,7 +33,7 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
     @Override
     protected void adjustMenuItems(boolean b) {
-        MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
+        //MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
         if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
             fosterNoteGroupPanel.adjustMenuItems(b);
         } else {
@@ -44,7 +42,6 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
     }
 
     // Called from the constructor to create and place the visual components of the panel.
-    @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {
         // The multi-row Header for the Log Panel -
         //-----------------------------------------------------
@@ -78,23 +75,20 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
         JTextField newEntryField = new JTextField();
         newEntryField.setFont(Font.decode("Serif-bold-12"));
-        newEntryField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JTextField jtf = (JTextField) e.getSource();
-                String theEntry = jtf.getText();
-                if (theEntry == null || theEntry.isEmpty()) return;
-                jtf.setText(null); // Clear the input field, make ready for the next entry.
+        newEntryField.addActionListener(e -> {
+            JTextField jtf = (JTextField) e.getSource();
+            String theEntry = jtf.getText();
+            if (theEntry == null || theEntry.isEmpty()) return;
+            jtf.setText(null); // Clear the input field, make ready for the next entry.
 
-                // Make a new log entry from the user-entered text.
-                LogNoteData logNoteData = new LogNoteData();
-                logNoteData.setNoteString(theEntry);
-                logNoteData.setLogDate(LocalDate.now());
+            // Make a new log entry from the user-entered text.
+            LogNoteData logNoteData = new LogNoteData();
+            logNoteData.setNoteString(theEntry);
+            logNoteData.setLogDate(LocalDate.now());
 
-                prependNote(logNoteData);
+            prependNote(logNoteData);
 
-                System.out.println(theEntry);
-            }
+            System.out.println(theEntry);
         });
         headingRow2.add(newEntryField, "Stretch");
         headingRow2.add(new JLabel("  "));

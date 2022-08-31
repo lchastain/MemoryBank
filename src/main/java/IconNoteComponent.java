@@ -173,7 +173,7 @@ public class IconNoteComponent extends NoteComponent {
 
                     if(theIconDescription != null) {
                         IconNoteData myIconNoteData = ((IconNoteData) getNoteData());
-                        myIconNoteData.iconFileString = theIconDescription;
+                        myIconNoteData.setIconFileString(theIconDescription);
                         myIconNoteData.setShowIconOnMonthBoolean(true);
                         setIcon(myIconNoteData.getImageIcon());
                         setNoteChanged();

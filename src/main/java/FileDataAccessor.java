@@ -4,8 +4,6 @@ import org.apache.commons.io.FileUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -13,10 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Vector;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 @SuppressWarnings("rawtypes")
 public class FileDataAccessor implements DataAccessor {
@@ -45,7 +40,6 @@ public class FileDataAccessor implements DataAccessor {
     static String userDataHome; // User data top-level directory 'mbankData'
 
     Vector<NoteData> foundDataVector;
-    static String iconBase;
     static IconFileChooser iconFileChooser;
 
     static {
@@ -62,55 +56,10 @@ public class FileDataAccessor implements DataAccessor {
 
         locationsFilename = "Locations.json";
 
-        // Get the icons resource.
-        java.net.URL theURL = FileDataAccessor.class.getResource("icons");
-        System.out.println("The URL for icons is: " + theURL);
-
-        if(theURL != null) {
-            // When run from the IDE, the protocol of our resource is 'file'.
-            // But when run from a .jar, protocol is 'jar'.
-            if (theURL.getProtocol().equals("file")) {
-                try {
-                    iconFileChooser = new IconFileChooser(new File(theURL.toURI()).getAbsolutePath());
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-            } else if(theURL.getProtocol().equals("jar")) {
-                // The URL for icons is:
-                // jar:file:/C:/<IJ project area>/out/artifacts/MemoryBank_jar/MemoryBank.jar!/icons
-                String jarPath = theURL.getPath().substring(5, theURL.getPath().indexOf("!")); //strip out only the JAR file
-                JarFile jar = null;
-                try {
-                    jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Enumeration<JarEntry> entries = null;
-                int entryCount = 0;
-                if (jar != null) entries = jar.entries(); // get all the entries in the jar
-                if (entries != null) {
-                    //System.out.println("JAR icons content: ");
-                    while(entries.hasMoreElements()) {
-                        String name = entries.nextElement().getName();
-                        entryCount++;
-                        // Note that nothing happens here except for a printout of the icons directory contents.
-                        // Future work will be to continue with an alternative to the JFileChooser.
-                        if (name.startsWith("icons/")) { //filter according to the path
-                            String entry = name.substring("icons/".length());
-                            //System.out.println(entry);
-                            // If this entry is in a subdirectory, checkSubdir will be > 0.
-                            //int checkSubdir = entry.indexOf("/");
-                        }
-                    }
-                    System.out.println("Count of icon entries found in the JAR: " + entryCount);
-                }
-                iconFileChooser = new IconFileChooser(null); // User must navigate to their own icon collection, for now.
-            }
-        } // and if theURL IS null, the still-null iconFileChooser will blow us up.  Oh well.
+        setUserDataHome(MemoryBank.userEmail);
     } // end static section
 
     FileDataAccessor() {
-        setUserDataHome(MemoryBank.userEmail);
         basePath = userDataHome + File.separatorChar;
         archiveAreaPath = basePath + "Archives";
 
@@ -125,29 +74,20 @@ public class FileDataAccessor implements DataAccessor {
 
     public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
-
-        // First - look for the top-level directory containing data for all users.
-        String currentDir = System.getProperty("user.dir");
-        MemoryBank.debug("The current working directory is: " + currentDir);
-        File f = new File("mbDevData"); // Look first in current dir.
-        System.out.println("Found mbDevData here: " + f.getAbsolutePath());
         String loc;
-        if (f.exists()) { // A development directory; give the app a different icon.
-            loc = currentDir + "/mbDevData/" + userEmail;
-            MemoryBank.appIconName = "notepad";
-        } else { // Use the standard icon and location for user data.
+        if (MemoryBank.appEnvironment.equals("ide")) {
+            loc = MemoryBank.currentDir + "/mbDevData/" + userEmail;
+        } else {
             String userHome = System.getProperty("user.home"); // Home directory.
             loc = userHome + "/mbankData/" + userEmail;
-            MemoryBank.appIconName = "icon_not";
         }
-        MemoryBank.appIconFormat = "gif";
-        String traceString = Thread.currentThread().getStackTrace()[2].toString();
-        MemoryBank.debug("Call to setUserDataHome, from: " + traceString);
-        MemoryBank.debug("Setting user data location to: " + loc);
+        System.out.println("Data location for " + userEmail + " is: " + loc);
+//        String traceString = Thread.currentThread().getStackTrace()[2].toString();
+//        MemoryBank.debug("Call to setUserDataHome, from: " + traceString);
 
         // Next - look for the data for this specific user.
         boolean goodUserDataLoc = true;
-        f = new File(loc);
+        File f = new File(loc);
         if (f.exists()) {
             if (!f.isDirectory()) { // Bad location, if it already exists and is not a directory.
                 goodUserDataLoc = false;
@@ -368,7 +308,7 @@ public class FileDataAccessor implements DataAccessor {
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             appOptions = AppUtil.mapper.readValue(text, AppOptions.class);
-            MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(appOptions));
+            //MemoryBank.debug("appOpts from JSON file: " + AppUtil.toJsonString(appOptions));
         } catch (FileNotFoundException fnfe) {
             appOptions = new AppOptions(); // not a problem; use defaults.
             MemoryBank.debug("User tree options not found; using defaults");
@@ -393,7 +333,7 @@ public class FileDataAccessor implements DataAccessor {
         try {
             String text = FileUtils.readFileToString(new File(filename), StandardCharsets.UTF_8.name());
             appOptions = AppUtil.mapper.readValue(text, AppOptions.class);
-            MemoryBank.debug("Archived appOpts from JSON file: " + AppUtil.toJsonString(appOptions));
+            //MemoryBank.debug("Archived appOpts from JSON file: " + AppUtil.toJsonString(appOptions));
         } catch (Exception anyException) {
             e = anyException;
         }
@@ -443,6 +383,7 @@ public class FileDataAccessor implements DataAccessor {
         LocalDate ld = LocalDate.of(year, month, day);
 
         String theFilename = NoteGroupFile.foundFilename(ld, "D");
+System.out.println("Found this data file: " + theFilename);
         if (!new File(theFilename).exists()) return null;
 
         MemoryBank.debug("Loading: " + theFilename);
@@ -450,9 +391,10 @@ public class FileDataAccessor implements DataAccessor {
         Object[] theDayGroup = NoteGroupFile.loadFileData(theFilename);
 
         // If we have only loaded GroupProperties but no accompanying data, then bail out now.
+        // The last entry in theDayGroup array will be an ArrayList, IF there is data for that day.
         Object theObject = theDayGroup[theDayGroup.length - 1];
         String theClass = theObject.getClass().getName();
-        System.out.println("The DayGroup class type is: " + theClass);
+        //System.out.println("The DayGroup class type is: " + theClass);
         if (!theClass.equals("java.util.ArrayList")) return null;
 
         // The loaded data is a Vector of DayNoteData.
@@ -475,7 +417,7 @@ public class FileDataAccessor implements DataAccessor {
                     returnArray[index] = null;
                 } else {
                     java.net.URL imgURL = FileDataAccessor.class.getResource(iconFileString);
-                    if(imgURL != null) {
+                    if (imgURL != null) {
                         Image theImage = Toolkit.getDefaultToolkit().getImage(imgURL);
                         IconInfo.scaleIcon(new ImageIcon(theImage));
                         theImage.flush(); // SCR00035 - MonthView does not show all icons for a day.
@@ -502,9 +444,9 @@ public class FileDataAccessor implements DataAccessor {
         return returnArray;
     } // end getIconArray
 
-    // At this point this is just a selection operation and the return value is not yet an image, just (some of?)
-    // its metadata built into a String.  When the actual image is retrieved by getImageIcon (based on info from this
-    // String), THAT is where the description is set.
+    // At this point this is just a selection operation and the return value is not yet an image, just
+    // the filesystem path to it, as a String.
+    // The actual image will be retrieved by getImageIcon, based on the identifier in this String.
     public String chooseIcon() {
         String iconFileName = null;
         int returnVal = iconFileChooser.showDialog(null, "Set Icon");
@@ -512,6 +454,10 @@ public class FileDataAccessor implements DataAccessor {
             iconFileName = iconFileChooser.getSelectedFile().getAbsolutePath();
             MemoryBank.debug("Chosen icon file: " + iconFileName);
         }
+        // Example:
+        //Chosen icon file: C:\Users\Lee\workspace\Memory Bank\target\classes\icons\anchor.gif
+        //IconNoteData.setIconFileString to: "c:|users|lee|workspace|memory bank|target|classes|icons|anchor.gif"
+
         return iconFileName;
     }
 
@@ -622,7 +568,7 @@ public class FileDataAccessor implements DataAccessor {
             theObject = AppUtil.mapper.readValue(text, Object.class);
             subjects = AppUtil.mapper.convertValue(theObject, new TypeReference<>() {
             });
-            System.out.println("Subjects from JSON file: " + AppUtil.toJsonString(subjects));
+            //System.out.println("Subjects from JSON file: " + AppUtil.toJsonString(subjects));
         } catch (FileNotFoundException fnfe) {
             // not a problem; use defaults.
             MemoryBank.debug("Subjects file not found.  Returning the default list.");

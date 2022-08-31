@@ -1,10 +1,13 @@
+# Description of the Application -  
+Essentially it is a selection tree with a menubar and a viewing area.  The tree 'grows' 
+over time as the user adds their personal info.
+
 The app consists of a menubar over a vertically split pane.  In the left side of the split
     pane is an application navigation tree that controls the content of the right side of
     the split pane as well as the available choices on the menubar.  The navigation tree
     has selectable branches and leaves (nodes) with descriptive names so that user
-    selection is intuitive.  A listing of the available nodes is given below, along with
-    the descriptions of the associated right-side panels.  Menu options are detailed in
-    the Controls document.
+    selection is intuitive.  A listing of the available tree nodes is given below, along with
+    the descriptions of the associated viewing panels and menu bar options.
 
 ## Tree Nodes:
 
@@ -38,9 +41,7 @@ Month View - View of a (US-style) Calendar Month
 Day Notes   - Make / Edit / Keep up to PAGE_SIZE number of notes associated with a specific date.
     Each note has:
         A line of text shown in a (x character) text field that can scroll horizontally to hold up to x characters
-        An optional time field
-
-        , with optional associated icons
+        An optional time field with optional associated icons
     Shows up to PAGE_SIZE number of notes for
     Which day is shown in the UI can be controlled in several ways.  Foremost are the +/- controls,
         for incrementing and decrementing the display by one Day.

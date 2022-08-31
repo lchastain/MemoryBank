@@ -64,25 +64,17 @@ public class GoalGroupPanel extends NoteGroupPanel {
     //   same tab; after that the tab-change listener is tasked with adjusting the menu for the NoteGroup in the
     //   active tab, and prior to that change the Goal's changes (if any) are preserved.
     protected void adjustMenuItems(boolean b) {
-        MemoryBank.debug("GoalGroupPanel.adjustMenuItems <" + b + ">");
+        //MemoryBank.debug("GoalGroupPanel.adjustMenuItems <" + b + ">");
         if (myNoteGroup.groupChanged) {
             super.adjustMenuItems(true);
         } else {
             boolean doit = false;
             int index = theTabbedPane.getSelectedIndex();
             switch (index) {
-                case 0:
-                    doit = theTodoNoteGroupPanel.myNoteGroup.groupChanged;
-                    break;
-                case 1:
-                    doit = theLogNoteGroupPanel.myNoteGroup.groupChanged;
-                    break;
-                case 2:
-                    doit = theMilestoneNoteGroupPanel.myNoteGroup.groupChanged;
-                    break;
-                case 3:
-                    doit = thePlainNoteGroupPanel.myNoteGroup.groupChanged;
-                    break;
+                case 0 -> doit = theTodoNoteGroupPanel.myNoteGroup.groupChanged;
+                case 1 -> doit = theLogNoteGroupPanel.myNoteGroup.groupChanged;
+                case 2 -> doit = theMilestoneNoteGroupPanel.myNoteGroup.groupChanged;
+                case 3 -> doit = thePlainNoteGroupPanel.myNoteGroup.groupChanged;
             }
             super.adjustMenuItems(doit);
         }
@@ -240,28 +232,27 @@ public class GoalGroupPanel extends NoteGroupPanel {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             int index = pane.getSelectedIndex();
             switch (index) {
-                case 0:  // To Do List
+                case 0 -> {  // To Do List
                     theBasePanel.add(theTodoCenterPanel, BorderLayout.CENTER);
                     theBasePanel.add(tmcPanel, BorderLayout.EAST);
                     headingRow1.add(theTodoNoteGroupPanel.theNotePager, BorderLayout.EAST);
                     GoalGroupPanel.super.adjustMenuItems(theTodoNoteGroupPanel.myNoteGroup.groupChanged);
-                    break;
-                case 1: // Log Entries
+                }
+                case 1 -> { // Log Entries
                     theBasePanel.add(theLogCenterPanel, BorderLayout.CENTER);
                     headingRow1.add(theLogNoteGroupPanel.theNotePager, BorderLayout.EAST);
                     GoalGroupPanel.super.adjustMenuItems(theLogNoteGroupPanel.myNoteGroup.groupChanged);
-                    break;
-                case 2: // Milestones
+                }
+                case 2 -> { // Milestones
                     theBasePanel.add(theMilestonesCenterPanel, BorderLayout.CENTER);
                     headingRow1.add(theMilestoneNoteGroupPanel.theNotePager, BorderLayout.EAST);
                     GoalGroupPanel.super.adjustMenuItems(theMilestoneNoteGroupPanel.myNoteGroup.groupChanged);
-                    break;
-                case 3: // Notes
+                }
+                case 3 -> { // Notes
                     theBasePanel.add(theNotesCenterPanel, BorderLayout.CENTER);
                     headingRow1.add(thePlainNoteGroupPanel.theNotePager, BorderLayout.EAST);
                     GoalGroupPanel.super.adjustMenuItems(thePlainNoteGroupPanel.myNoteGroup.groupChanged);
-                    break;
-
+                }
             }
             theBasePanel.validate();
             theBasePanel.repaint();
@@ -330,20 +321,16 @@ public class GoalGroupPanel extends NoteGroupPanel {
     void clearAllNotes() {
         int index = theTabbedPane.getSelectedIndex();
         switch (index) {
-            case 0:  // To Do List
-                theTodoNoteGroupPanel.clearAllNotes();
-                break;
-            case 1: // Log Entries
-                theLogNoteGroupPanel.clearAllNotes();
-                break;
-            case 2: // Milestones
-                theMilestoneNoteGroupPanel.clearAllNotes();
-                break;
-            case 3: // Milestones
-                thePlainNoteGroupPanel.clearAllNotes();
-                break;
-            default:  // We don't expect this one to be used, but it covers the unexpected.
-                super.clearAllNotes();
+            case 0 ->  // To Do List
+                    theTodoNoteGroupPanel.clearAllNotes();
+            case 1 -> // Log Entries
+                    theLogNoteGroupPanel.clearAllNotes();
+            case 2 -> // Milestones
+                    theMilestoneNoteGroupPanel.clearAllNotes();
+            case 3 -> // Milestones
+                    thePlainNoteGroupPanel.clearAllNotes();
+            default ->  // We don't expect this one to be used, but it covers the unexpected.
+                    super.clearAllNotes();
         }
     } // end clearAllNotes
 
@@ -363,18 +350,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
         super.preClosePanel();  // this one takes care of the Properties (Goal header info)
         int index = theTabbedPane.getSelectedIndex();
         switch (index) {
-            case 0:
-                theTodoNoteGroupPanel.preClosePanel();
-                break;
-            case 1:
-                theLogNoteGroupPanel.preClosePanel();
-                break;
-            case 2:
-                theMilestoneNoteGroupPanel.preClosePanel();
-                break;
-            case 3:
-                thePlainNoteGroupPanel.preClosePanel();
-                break;
+            case 0 -> theTodoNoteGroupPanel.preClosePanel();
+            case 1 -> theLogNoteGroupPanel.preClosePanel();
+            case 2 -> theMilestoneNoteGroupPanel.preClosePanel();
+            case 3 -> thePlainNoteGroupPanel.preClosePanel();
         }
     }
 
@@ -498,18 +477,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
         //      (and that may be what is being asked for).
         int index = theTabbedPane.getSelectedIndex();
         switch (index) {
-            case 0:
-                theTodoNoteGroupPanel.updateGroup();
-                break;
-            case 1:
-                theLogNoteGroupPanel.updateGroup();
-                break;
-            case 2:
-                theMilestoneNoteGroupPanel.updateGroup();
-                break;
-            case 3:
-                thePlainNoteGroupPanel.updateGroup();
-                break;
+            case 0 -> theTodoNoteGroupPanel.updateGroup();
+            case 1 -> theLogNoteGroupPanel.updateGroup();
+            case 2 -> theMilestoneNoteGroupPanel.updateGroup();
+            case 3 -> thePlainNoteGroupPanel.updateGroup();
         }
         super.updateGroup();
     }

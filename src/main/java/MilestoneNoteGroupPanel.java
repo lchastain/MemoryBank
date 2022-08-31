@@ -47,7 +47,7 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
     @Override
     protected void adjustMenuItems(boolean b) {
-        MemoryBank.debug("MilestoneNoteGroupPanel.adjustMenuItems <" + b + ">");
+        //MemoryBank.debug("MilestoneNoteGroupPanel.adjustMenuItems <" + b + ">");
         if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
             fosterNoteGroupPanel.adjustMenuItems(b);
         } else {

@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
+import java.io.Serial;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Vector;
@@ -132,6 +133,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     void buildNotesPanel() {
         theBasePanel = new JPanel(new BorderLayout()) {
+            @Serial
             private static final long serialVersionUID = 1L;
 
             // This preference is necessary to set a limit of a maximum height value.
@@ -148,6 +150,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         intHighestNoteComponentIndex = pageSize - 1;
 
         jsp = new JScrollPane() {
+            @Serial
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -835,11 +838,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // or different steps to take.  So, the enablement boolean comes in as an input param.
     protected void adjustMenuItems(boolean b) {
         if (myListMenu == null) return; // Too soon.  Come back later.
-        if(!b) { // same actions but two branches for breakpoint.  Feel free to collapse at some later date.
-            MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
-        } else {
-            MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
-        }
+        //MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
 
         // And now we adjust the Menu -
         // (see the note at 'setListMenu' for why we don't need to verify non-null MenuItems before setting enabled)
@@ -851,7 +850,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     // Not all NoteGroups need to manage enablement of items in their menu but all those
     // that do will call this method.  On the provided menu (currently) there will always
-    // be a 'save' and an 'undo' option.  If this ever branches changes then they may need
+    // be a 'save' and an 'undo' option.  If this ever changes then they may need
     // to override adjustMenuItems (or make a change here).
     protected void setListMenu(JMenu listMenu) {
         MemoryBank.debug("NoteGroupPanel.setListMenu: " + listMenu.getText());

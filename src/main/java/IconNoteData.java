@@ -77,7 +77,7 @@ class IconNoteData extends NoteData {
         ImageIcon theImageIcon = null;
 
         if (iconFileString != null) {
-            String theFilename = iconFileString.toLowerCase();
+            String theFilename = iconFileString.replaceAll("\\\\", "/");
             //MemoryBank.debug("Full icon filename: " + theFilename);
             if (new File(theFilename).exists()) {
                 Image theImage = null;
@@ -124,8 +124,8 @@ class IconNoteData extends NoteData {
 
     public void setIconFileString(String val) {
         if (val != null) {
-            iconFileString = val;
-            MemoryBank.debug("IconNoteData.setIconFileString to: " + val);
+            iconFileString = val.replaceAll("\\\\", "/");
+            MemoryBank.debug("IconNoteData.setIconFileString to: " + iconFileString);
         }
     }
 

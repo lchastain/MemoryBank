@@ -209,7 +209,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         for (String s : appOpts.goalsList) {
             // Add to the tree
             leaf = new DefaultMutableTreeNode(s, false);
-            MemoryBank.debug("  Adding List: " + s);
+            //MemoryBank.debug("  Adding List: " + s);
             branch.add(leaf);
         } // end for
 
@@ -225,7 +225,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         for (String s : appOpts.eventsList) {
             // Add to the tree
             leaf = new DefaultMutableTreeNode(s, false);
-            MemoryBank.debug("  Adding List: " + s);
+            //MemoryBank.debug("  Adding List: " + s);
             branch.add(leaf);
         } // end for
         //---------------------------------------------------

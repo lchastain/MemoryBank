@@ -464,7 +464,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         for (String s : appOpts.goalsList) {
             // Add to the tree
             leaf = new DefaultMutableTreeNode(s, false);
-            MemoryBank.debug("  Adding List: " + s);
+            //MemoryBank.debug("  Adding List: " + s);
             branch.add(leaf);
         } // end for
 
@@ -480,7 +480,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         for (String s : appOpts.eventsList) {
             // Add to the tree
             leaf = new DefaultMutableTreeNode(s, false);
-            MemoryBank.debug("  Adding List: " + s);
+            //MemoryBank.debug("  Adding List: " + s);
             branch.add(leaf);
         } // end for
         //---------------------------------------------------
@@ -1666,10 +1666,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         String marky = null;
         //URL theURL = AppTreePanel.class.getResource("README.md");
         //URL theURL = AppTreePanel.class.getResource("src/main/resources/help/markdown/TableOfContents.md");
-        URL theURL = AppTreePanel.class.getResource("src/main/resources/help/html/TableOfContents.html");
+        //URL theURL = AppTreePanel.class.getResource("src/main/resources/help/html/TableOfContents.html");
+        URL theURL = AppTreePanel.class.getResource("help/html/TableOfContents.html");
         File theFile;
         if (theURL != null) {
-            System.out.println("Found the README file in the resources: " + theURL);
+            System.out.println("Found the TOC file in the resources: " + theURL);
             try {
                 BufferedInputStream inputStream = new BufferedInputStream(theURL.openStream());
                 InputStreamReader isReader = new InputStreamReader(inputStream);
@@ -1687,21 +1688,23 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 e.printStackTrace();
             }
         } else {
-            System.out.println("Found the README file in the local filesystem");
             //theFile = new File("README.md");
             //theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
             theFile = new File("src/main/resources/help/html/TableOfContents.html");
-            try {
-                marky = FileUtils.readFileToString(theFile);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(theFile.exists()) {
+                System.out.println("Found the TOC file at: " + theFile.getAbsolutePath());
+                try {
+                    marky = FileUtils.readFileToString(theFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         if (marky != null && !marky.isBlank()) {
 //            marky = marky.replaceAll("src/", "file:src/");
             marky = marky.replaceAll("../../images/", "file:src/main/resources/images/");
-            System.out.println(marky);
+            //System.out.println(marky);
             String html = com.github.rjeschke.txtmark.Processor.process(marky);
             if (html != null && !html.isEmpty()) {
                 JEditorPane editor = new JEditorPane();
@@ -1718,8 +1721,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
                 optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
             }
-
-        } else {
 
         }
 

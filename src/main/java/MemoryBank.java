@@ -1,11 +1,21 @@
+import org.apache.commons.io.FileUtils;
+
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 // One important setting in IntelliJ:
 // File / Settings / Editor / File Encodings - set all to UTF-8.
@@ -34,6 +44,8 @@ public class MemoryBank {
     static String appIconName;
     static String appIconFormat;
     static DataAccessor.AccessType dataAccessorType;
+    static String appEnvironment;
+    static String currentDir;
 
     static {
         // These can be 'defined' in the startup command.  Ex:
@@ -44,8 +56,10 @@ public class MemoryBank {
         timing = (System.getProperty("timing") != null);
 
         // Interface instances with default methods
-        optionPane = new Notifier() { };
-        system = new SubSystem() { };
+        optionPane = new Notifier() {
+        };
+        system = new SubSystem() {
+        };
 
         if (debug) System.out.println("Debugging printouts on.");
         if (event) System.out.println("Event tracing printouts on.");
@@ -91,9 +105,9 @@ public class MemoryBank {
         String className = "null";
 
         StackTraceElement[] theTrace = Thread.currentThread().getStackTrace();
-        for(int count = 1; count < theTrace.length; count++) {
+        for (int count = 1; count < theTrace.length; count++) {
             StackTraceElement ste = theTrace[count];
-            if(ste.toString().contains("init>")) {
+            if (ste.toString().contains("init>")) {
                 methodName = ste.getMethodName();
                 className = ste.getClassName();
                 break;
@@ -134,7 +148,74 @@ public class MemoryBank {
     } // end event
 
 
-    public static void main(String[] args) {
+    // Get the name of the jar we are running from, send it to the extractor.
+    public static boolean extractResourcesToTempFolder() {
+        // Get the path to the jar file we are running from within.
+        URL url = MemoryBank.class.getProtectionDomain().getCodeSource().getLocation();
+        String jarPath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8);
+        System.out.println("Path to the JAR we are running from within:\n  " + jarPath);
+
+        return extractResourcesToTempFolder(jarPath);
+    }
+
+    // The two variants could have been combined into one, but by having this one take the input parameter,
+    //   we are not constrained to run it only via a jar; this allows easier dev via the IDE.
+    public static boolean extractResourcesToTempFolder(String jarPath) {
+        int iconCount;
+        int entryCount;
+        try {
+            String strTmp = System.getProperty("java.io.tmpdir");
+
+            // Delete the mbankResources folder (if it even exists), and create a new one.
+            String destPath = strTmp + "membankResources" + File.separator;
+            File tempDir = new File(destPath);
+            FileUtils.deleteDirectory(tempDir);
+            //noinspection ResultOfMethodCallIgnored
+            tempDir.mkdirs();
+
+            JarFile jarFile = new JarFile(jarPath);
+            Enumeration<JarEntry> enums = jarFile.entries();
+            iconCount = 0;
+            entryCount = 0;
+            while (enums.hasMoreElements()) {
+                JarEntry entry = enums.nextElement();
+                entryCount++;
+                String entryName = entry.getName();
+                if (entryName.startsWith("icons/") || entryName.startsWith("help/")) {
+                    //System.out.println(entryName); // conditional but still a bit too much; disabled till needed.
+                    File toWrite = new File(destPath + entry.getName());
+                    if (entry.isDirectory()) {
+                        //noinspection ResultOfMethodCallIgnored
+                        toWrite.mkdirs();
+                        continue;
+                    }
+                    if (entryName.startsWith("icons/")) iconCount++;
+                    InputStream in = new BufferedInputStream(jarFile.getInputStream(entry));
+                    OutputStream out = new BufferedOutputStream(new FileOutputStream(toWrite));
+                    byte[] buffer = new byte[2048];
+                    for (; ; ) {
+                        int nBytes = in.read(buffer);
+                        if (nBytes <= 0) {
+                            break;
+                        }
+                        out.write(buffer, 0, nBytes);
+                    }
+                    out.flush();
+                    out.close();
+                    in.close();
+                }
+                //System.out.println(entryName); // unconditional, but too verbose in the console if not needed.
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        System.out.println("Count of icons found in the JAR: " + iconCount);
+        System.out.println("Total count of entries found in the JAR: " + entryCount);
+        return true;
+    }
+
+    public static void main(String[] args) throws URISyntaxException {
         // Set the primary user identifier.  We use the user's email address but this could be interpreted by
         // the DataAccessor implementation as a DB name, or a filesystem Directory, or something else as long as it
         // uniquely identifies the data set for the given user email.
@@ -166,13 +247,11 @@ public class MemoryBank {
             splash = null;
         }).start();
 
-        // Tool Tip Adjustments
-        ToolTipManager.sharedInstance().setInitialDelay(1500); // Wait just a bit longer to show the first tooltip.
-        ToolTipManager.sharedInstance().setDismissDelay(90000); // Keep tooltip up for a long time.
+        // Tool Tip display time adjustments
+        ToolTipManager.sharedInstance().setInitialDelay(1300); // Wait just a bit longer to show the first tooltip.
+        ToolTipManager.sharedInstance().setDismissDelay(90000); // Keep tooltip up for a looong time.  It still goes away with mouse movement.
 
-        //---------------------------------------------------------------
-        // Evaluate input parameters, if any.
-        //---------------------------------------------------------------
+        //<editor-fold desc="Evaluate input parameters, if any.">
         update("Evaluating parameters");
         if (args.length > 0)
             System.out.println("Number of args: " + args.length);
@@ -197,6 +276,43 @@ public class MemoryBank {
                 System.out.println("Parameter not handled: [" + startupFlag + "]");
             } // end if/else
         } // end for i
+        //</editor-fold>
+
+        // Print out some info about our Operating System and local filesystem.
+        String strTmp = System.getProperty("java.io.tmpdir");
+        System.out.println("OS Name: " + System.getProperty("os.name"));
+        System.out.println("OS Version: " + System.getProperty("os.version"));
+        System.out.println("OS temporary directory: " + strTmp);
+        currentDir = System.getProperty("user.dir");
+        System.out.println("The current working directory is: " + currentDir);
+
+        // Determine the application's environment - running via the IDE, or a Jar file?
+        // The answer to this question will be used when accessing application resources
+        // such as images, icons and help info.
+        URL theIconURL = MemoryBank.class.getResource("icons");
+        if (theIconURL != null) {
+            if (theIconURL.getProtocol().equals("jar")) {
+                appEnvironment = "jar";
+                appIconName = "icon_not"; // Use the standard icon; this indicates we will be using 'real' data.
+                System.out.println("It seems that we are running via a JAR file.");
+                if (!extractResourcesToTempFolder()) {
+                    System.out.println("Unable to extract resources!  Program will exit");
+                    System.exit(1);
+                }
+                String destPath = strTmp + "membankResources/icons";
+                FileDataAccessor.iconFileChooser = new IconFileChooser(destPath);
+            } else { // The other choice for protocol is "file".
+                appEnvironment = "ide";  // and what that means to us is that our env is the IDE.
+                appIconName = "notepad"; // Give the app a different icon; a visual indicator that we will use 'test' data.
+                System.out.println("Looks like we are running via the IDE.");
+                FileDataAccessor.iconFileChooser = new IconFileChooser(new File(theIconURL.toURI()).getAbsolutePath());
+            }
+        } else {
+            System.out.println("Unable to determine location of the icons!  Program will exit");
+            System.exit(1);
+        }
+        appIconFormat = "gif"; // both app icons are of type gif.
+
 
         // Set the type of Data Accessor that this app will use.
         // The value can eventually come from a configuration setting; the source of the configuration values
@@ -210,7 +326,7 @@ public class MemoryBank {
         dataAccessor = DataAccessor.getDataAccessor(dataAccessorType);
 
         appOpts = dataAccessor.getAppOptions(); // Load the user settings - if available, will override defaults.
-        if(appOpts == null) appOpts = new AppOptions(); // In case of an uloadable file; not the same as not present.
+        if (appOpts == null) appOpts = new AppOptions(); // In case of an uloadable file; not the same as not present.
         // New attributes to store and retrieve (future work):
         // size of main frame         - only if it makes sense after the future sizing work is done.
         // location of main frame     - only if it makes sense after the future sizing work is done.
@@ -305,7 +421,6 @@ public class MemoryBank {
         thePercentage = percs[updateNum++];
         splash.setProgress(s, thePercentage);
     } // end update
-
 
 
 } // end class MemoryBank

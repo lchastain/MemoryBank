@@ -75,7 +75,7 @@ public class IconInfo {
                 theIconDescription = baseIconPath + iconName + "." + iconFormat;
             }
 
-            MemoryBank.debug("Full icon name: " + theIconDescription);
+            //MemoryBank.debug("Full icon name: " + theIconDescription);
 
             java.net.URL imgURL = IconInfo.class.getResource(theIconDescription);
             if(imgURL != null) {
