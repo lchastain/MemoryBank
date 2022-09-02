@@ -19,6 +19,7 @@ class EventNoteGroupPanelTest {
 
         // Set the location for our user data (the directory will be created, if not already there)
         MemoryBank.userEmail = "test.user@lcware.net";
+        MemoryBank.appEnvironment = "ide";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data

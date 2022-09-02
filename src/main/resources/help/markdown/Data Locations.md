@@ -4,7 +4,7 @@ User data location when running via a jar file:
 [user home]/mbankData/[userEmail]/   
 If this directory is not found, it will be created.  User data will go here.
 
-user data location when running via the IDE:  
+User data location when running via the IDE:  
 [your development folder]/mbDevData/[userEmail]  
 Set the email address (ie, which data set to use) as a program option in the run configurations.
 See the jondo configuration for an example.
@@ -17,14 +17,15 @@ advice is to make a renamed copy and put it where it can be 'seen' by the execut
 adjust the run config or execution parameters to access it as a different/test user.
 
 Icon location when running via the IDE:  
-[your development folder]/target/classes/icons/
-This is the location for icon selections via the IconFileChooser (a child of JFileChooser), as 
-well as the location from where they are loaded when referenced by a note.
+[your development folder]/src/main/resources/icons/  
+This is the location for icon selections via the IconFileChooser (a child of 
+JFileChooser), as well as when they are referenced by a note.    
 
 Icon location when running via a jar file:
 For selections by the IconFileChooser:
-[system temp directory]/membankResources/icons  
-For access by a single note, the icon is taken directly from resources embedded in the jar file.   
+[system temp directory]/membankResources/icons/  
+For access by a single note, the icon is taken directly from resources embedded 
+in the jar file.   
 
 Help files location when running via the IDE:
 [your development folder]/src/main/resources/help

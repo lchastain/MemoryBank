@@ -15,9 +15,7 @@ class MemoryBankTest {
         MemoryBank.debug = true;
 
         // Set the locations for our user data (the directories will be created, if not already there)
-        MemoryBank.userEmail = "null";
-        DataAccessor.getDataAccessor(MemoryBank.dataAccessorType);
-        File testBadData = new File(FileDataAccessor.userDataHome);
+        File testBadData = new File("null");
         MemoryBank.userEmail = "test.user@lcware.net";
         DataAccessor.getDataAccessor(MemoryBank.dataAccessorType);
         File testGoodData = new File(FileDataAccessor.userDataHome);

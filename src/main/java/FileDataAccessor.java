@@ -75,7 +75,7 @@ public class FileDataAccessor implements DataAccessor {
     public static void setUserDataHome(String userEmail) {
         // User data - personal notes, different for each user.
         String loc;
-        if (MemoryBank.appEnvironment.equals("ide")) {
+        if (MemoryBank.appEnvironment == null || MemoryBank.appEnvironment.equals("ide")) {
             loc = MemoryBank.currentDir + "/mbDevData/" + userEmail;
         } else {
             String userHome = System.getProperty("user.home"); // Home directory.

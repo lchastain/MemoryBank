@@ -260,7 +260,7 @@ public class IconNoteComponent extends NoteComponent {
         // The default icon should have already been scaled by the container for which it is the default.
         // Otherwise, scale the icon.
         if ((theIcon != myIconKeeper.getDefaultIcon()) && (theIcon != null)) {
-            String s = theIcon.getDescription();  // Description was set in the DataAccessor's getImageIcon()
+            String s = theIcon.getDescription();  // Description was set by IconInfo.getImageIcon()
             // Make an IconInfo here?
             ((IconNoteData) getNoteData()).setIconFileString(s);
             IconInfo.scaleIcon(theIcon);
@@ -358,12 +358,12 @@ public class IconNoteComponent extends NoteComponent {
         IconNoteData iconNoteData = (IconNoteData) getNoteData();
         ImageIcon theIcon = null;
 
-        String infs = iconNoteData.getIconFileString();
+        String infs = iconNoteData.getIconFileString(); // This (now) drops off the leading path!
         // The NoteData.iconFileString may be null if it was never
         // before set.  This is what allows it to go to the 'default'
         // icon, and if the default icon is later changed, noteIcon
         // will automatically change to the new appearance.
-        // If it was explicitly cleared, means that the user wants to see no
+        // If it was explicitly cleared, it means that the user wants to see no
         // icon at all.  In that case it will be empty ("") and will not
         // be affected by subsequent changes to the default icon.
         if (infs == null) {

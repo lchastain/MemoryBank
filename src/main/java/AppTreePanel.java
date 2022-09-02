@@ -22,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -122,7 +123,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theWorkingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         //</editor-fold>
 
-        optionPane = new Notifier() { }; // Uses all default methods.
+        optionPane = new Notifier() {
+        }; // Uses all default methods.
 
         //---------------------------------------------------
         // Create the menubar handler, but fire it from a
@@ -200,7 +202,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     // Decide which type of Group we are adding, get a name for it, and put it into the app tree.
     // The new Panel is not actually instantiated here; that happens when it is selected.
-    @SuppressWarnings({"rawtypes", "fallthrough"})  // rawtypes the xlint warning about Enumeration, (much farther) below.
+    @SuppressWarnings({"rawtypes", "fallthrough"})
+    // rawtypes to clear the xlint warning about Enumeration, (much farther) below.
     private void addNewGroup() {
         String newName = null;
 
@@ -597,19 +600,19 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // But don't worry; if there was not a significant-enough date change, the setDate method
         //   will not do a Notes panel reload, so that menu items remain enabled and panels
         //   retain their current appearance.
-        if(theAppDays != null && whoChangedIt != DateRelatedDisplayType.DAY_NOTES) {
+        if (theAppDays != null && whoChangedIt != DateRelatedDisplayType.DAY_NOTES) {
             theAppDays.setDate(viewedDate);
         }
-        if(theAppMonths != null && whoChangedIt != DateRelatedDisplayType.MONTH_NOTES) {
+        if (theAppMonths != null && whoChangedIt != DateRelatedDisplayType.MONTH_NOTES) {
             theAppMonths.setDate(viewedDate);
         }
-        if(theAppYears != null && whoChangedIt != DateRelatedDisplayType.YEAR_NOTES) {
+        if (theAppYears != null && whoChangedIt != DateRelatedDisplayType.YEAR_NOTES) {
             theAppYears.setDate(viewedDate);
         }
-        if(theYearView != null && whoChangedIt != DateRelatedDisplayType.YEAR_VIEW) {
+        if (theYearView != null && whoChangedIt != DateRelatedDisplayType.YEAR_VIEW) {
             theYearView.setView(viewedDate);
         }
-        if(theMonthView != null && whoChangedIt != DateRelatedDisplayType.MONTH_VIEW) {
+        if (theMonthView != null && whoChangedIt != DateRelatedDisplayType.MONTH_VIEW) {
             theMonthView.setView(viewedDate);
         }
     } // end dateChanged
@@ -918,7 +921,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //   that does not cover the case of the initial setting, and it would also allow for the possibility
         //   that the tracking variable might get out of sync with the menu item, whereas this way does not.
 
-        if(initial) {
+        if (initial) {
             doit = MemoryBank.appOpts.groupCalendarNotes;
         } else {
             doit = AppMenuBar.groupCalendarNotes.getState();
@@ -955,7 +958,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             yearNotesPath = new TreePath(pathToRoot);
         }
 
-        if(!initial) {
+        if (!initial) {
             DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
             theTreeModel.nodeStructureChanged(theRootNode);
             resetTreeState();
@@ -1045,7 +1048,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     // their search, then send those parameters to the 'doSearch' method.
     private void prepareSearch() {
         JPanel nameAndSearchPanel = new JPanel(new BorderLayout());
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5, 0));
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         JTextField titleField = new JTextField(26);
         titleField.setToolTipText("You can name your search (optional)");
         JLabel titleLabel = new JLabel("  Search Title: ");
@@ -1225,7 +1228,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     // Convenience for Panels that are groupings of NoteGroupPanels but do not extend that class.
     // (Currently only the TabbedCalendarNoteGroupPanel, but GoalGroupPanel may be interested...)
-    void setTheNoteGroupPanel(NoteGroupPanel noteGroupPanel) { theNoteGroupPanel = noteGroupPanel; }
+    void setTheNoteGroupPanel(NoteGroupPanel noteGroupPanel) {
+        theNoteGroupPanel = noteGroupPanel;
+    }
 
     // This method will put the 'About' graphic into the right
     //   side of the display.  However, if invoked a second time
@@ -1655,50 +1660,91 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end showGoal
 
     private void showHelp() {
-        //new Exception("Your help is showing").printStackTrace();
-//        try {
-//            Runtime.getRuntime().exec("hh " +  "MemoryBank.chm");
-//        } catch (IOException ioe) {
-//            // hh "badFile" - does NOT throw an exception, but puts up a 'cant find file' window/message.
-//            MemoryBank.debug(ioe.getMessage());
-//        } // end try/catch
+        URL theHelpUrl;
+        try {
+            if (MemoryBank.appEnvironment.equals("ide")) {
+                theHelpUrl = new URL("file:src/main/resources/help/html/TableOfContents.html");
+            } else { // The only other choice is jar, in which case the files should have been extracted by now.
+                String tempDirPathString = System.getProperty("java.io.tmpdir");
+                //System.out.println("Temp directory string: " + tempDirPathString);
+                tempDirPathString = tempDirPathString.replaceAll("\\\\", "/");
+                //System.out.println("Adjusted Temp directory string: " + tempDirPathString);
+                String urlToHelpString = "file:///" + tempDirPathString + "membankResources/help/html/TableOfContents.html";
+                // The constructed urlToHelpString should look like this:
+                //     "file:///<tempDirPath>membankResources/help/html/TableOfContents.html"
+                theHelpUrl = new URL(urlToHelpString);
+            }
+        } catch (MalformedURLException e) {
+            // For testing code coverage, we could get here if the leading 'file:' was missing or misspelled.
+            // Operationally I don't see how that would ever happen, but IJ really wants to play catch.
+            e.printStackTrace();
+            String theMessage = "Unable to find the application help Table of Contents!";
+            theMessage += "\nYou are on your own.";
+            Notifier.showErrorMessage(this, theMessage, "Bummer");
+            return;
+        }
 
+        JEditorPane editor;
+        try {
+            editor = new JEditorPane(theHelpUrl);
+            editor.setEditable(false);
+        } catch (IOException e) {
+            // This one is a bit more operationally likely; a file can go missing
+            // or unreadable for many different reasons.
+            e.printStackTrace();
+            String theMessage = "Unable to open the application help Table of Contents!";
+            theMessage += "\nYou are on your own.";
+            Notifier.showErrorMessage(this, theMessage, "Bummer");
+            return;
+        }
+
+        JScrollPane jsp = new JScrollPane();
+        jsp.setPreferredSize(new Dimension(900, 650));
+        add(jsp, BorderLayout.CENTER);
+        jsp.setViewportView(editor);
+        optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
+    } // end showHelp
+
+    void waitForMe() {
         String marky = null;
         //URL theURL = AppTreePanel.class.getResource("README.md");
         //URL theURL = AppTreePanel.class.getResource("src/main/resources/help/markdown/TableOfContents.md");
         //URL theURL = AppTreePanel.class.getResource("src/main/resources/help/html/TableOfContents.html");
-        URL theURL = AppTreePanel.class.getResource("help/html/TableOfContents.html");
-        File theFile;
-        if (theURL != null) {
-            System.out.println("Found the TOC file in the resources: " + theURL);
-            try {
-                BufferedInputStream inputStream = new BufferedInputStream(theURL.openStream());
-                InputStreamReader isReader = new InputStreamReader(inputStream);
-                //Creating a BufferedReader object
-                BufferedReader reader = new BufferedReader(isReader);
-                StringBuilder sb = new StringBuilder();
-                String str;
-                while((str = reader.readLine())!= null){
-                    sb.append(str);
-                    sb.append("\n");
-                }
-                marky = sb.toString();
-                //System.out.println(marky);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            //theFile = new File("README.md");
-            //theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
-            theFile = new File("src/main/resources/help/html/TableOfContents.html");
-            if(theFile.exists()) {
-                System.out.println("Found the TOC file at: " + theFile.getAbsolutePath());
+        if (MemoryBank.appEnvironment.equals("jar")) {
+            URL theURL = AppTreePanel.class.getResource("help/html/TableOfContents.html");
+            File theFile;
+            if (theURL != null) {
+                System.out.println("Found the TOC file in the resources: " + theURL);
                 try {
-                    marky = FileUtils.readFileToString(theFile);
+                    BufferedInputStream inputStream = new BufferedInputStream(theURL.openStream());
+                    InputStreamReader isReader = new InputStreamReader(inputStream);
+                    //Creating a BufferedReader object
+                    BufferedReader reader = new BufferedReader(isReader);
+                    StringBuilder sb = new StringBuilder();
+                    String str;
+                    while ((str = reader.readLine()) != null) {
+                        sb.append(str);
+                        sb.append("\n");
+                    }
+                    marky = sb.toString();
+                    //System.out.println(marky);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            } else {
+                //theFile = new File("README.md");
+                //theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
+                theFile = new File("src/main/resources/help/html/TableOfContents.html");
+                if (theFile.exists()) {
+                    System.out.println("Found the TOC file at: " + theFile.getAbsolutePath());
+                    try {
+                        marky = FileUtils.readFileToString(theFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+
         }
 
         if (marky != null && !marky.isBlank()) {
@@ -1723,8 +1769,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             }
 
         }
-
-    } // end showHelp
+    }
 
 
     void showKeepers() {

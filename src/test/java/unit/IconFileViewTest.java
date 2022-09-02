@@ -12,6 +12,7 @@ class IconFileViewTest {
     @BeforeAll
     static void beforeAll() throws IOException {
         MemoryBank.debug = true;
+        MemoryBank.appEnvironment = "ide";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
     }
 

@@ -66,9 +66,8 @@ public class MemoryBank {
         if (init) System.out.println("Initialization trace printouts on.");
         if (timing) System.out.println("Timing printouts on.");
 
-        // No longer needed?
-//        setProgramDataLocation();  // mbHome is set here.
-
+        appEnvironment = "ide"; // default; Tests need this.
+        currentDir = System.getProperty("user.dir");
         appOpts = new AppOptions(); // Start with default values.
 
         // Set the Look and Feel
@@ -162,6 +161,7 @@ public class MemoryBank {
     //   we are not constrained to run it only via a jar; this allows easier dev via the IDE.
     public static boolean extractResourcesToTempFolder(String jarPath) {
         int iconCount;
+        int imageCount;
         int entryCount;
         try {
             String strTmp = System.getProperty("java.io.tmpdir");
@@ -176,12 +176,13 @@ public class MemoryBank {
             JarFile jarFile = new JarFile(jarPath);
             Enumeration<JarEntry> enums = jarFile.entries();
             iconCount = 0;
+            imageCount = 0;
             entryCount = 0;
             while (enums.hasMoreElements()) {
                 JarEntry entry = enums.nextElement();
                 entryCount++;
                 String entryName = entry.getName();
-                if (entryName.startsWith("icons/") || entryName.startsWith("help/")) {
+                if (entryName.startsWith("icons/") || entryName.startsWith("help/") || entryName.startsWith("images/")) {
                     //System.out.println(entryName); // conditional but still a bit too much; disabled till needed.
                     File toWrite = new File(destPath + entry.getName());
                     if (entry.isDirectory()) {
@@ -190,6 +191,7 @@ public class MemoryBank {
                         continue;
                     }
                     if (entryName.startsWith("icons/")) iconCount++;
+                    if (entryName.startsWith("images/")) imageCount++;
                     InputStream in = new BufferedInputStream(jarFile.getInputStream(entry));
                     OutputStream out = new BufferedOutputStream(new FileOutputStream(toWrite));
                     byte[] buffer = new byte[2048];
@@ -211,6 +213,7 @@ public class MemoryBank {
             return false;
         }
         System.out.println("Count of icons found in the JAR: " + iconCount);
+        System.out.println("Count of images found in the JAR: " + imageCount);
         System.out.println("Total count of entries found in the JAR: " + entryCount);
         return true;
     }
@@ -283,7 +286,6 @@ public class MemoryBank {
         System.out.println("OS Name: " + System.getProperty("os.name"));
         System.out.println("OS Version: " + System.getProperty("os.version"));
         System.out.println("OS temporary directory: " + strTmp);
-        currentDir = System.getProperty("user.dir");
         System.out.println("The current working directory is: " + currentDir);
 
         // Determine the application's environment - running via the IDE, or a Jar file?
@@ -296,7 +298,10 @@ public class MemoryBank {
                 appIconName = "icon_not"; // Use the standard icon; this indicates we will be using 'real' data.
                 System.out.println("It seems that we are running via a JAR file.");
                 if (!extractResourcesToTempFolder()) {
-                    System.out.println("Unable to extract resources!  Program will exit");
+                    splash.setVisible(false);
+                    String theMessage = "Unable to extract resources!";
+                    theMessage += "\nApplication will exit.";
+                    Notifier.showErrorMessage(null, theMessage, "Fatal Error");
                     System.exit(1);
                 }
                 String destPath = strTmp + "membankResources/icons";
@@ -305,7 +310,8 @@ public class MemoryBank {
                 appEnvironment = "ide";  // and what that means to us is that our env is the IDE.
                 appIconName = "notepad"; // Give the app a different icon; a visual indicator that we will use 'test' data.
                 System.out.println("Looks like we are running via the IDE.");
-                FileDataAccessor.iconFileChooser = new IconFileChooser(new File(theIconURL.toURI()).getAbsolutePath());
+//                FileDataAccessor.iconFileChooser = new IconFileChooser(new File(theIconURL.toURI()).getAbsolutePath());
+                FileDataAccessor.iconFileChooser = new IconFileChooser("src/main/resources/icons");
             }
         } else {
             System.out.println("Unable to determine location of the icons!  Program will exit");

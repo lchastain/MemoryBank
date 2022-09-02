@@ -9,7 +9,6 @@ Calendar Views
 Calendar Notes  
 Searches  
 Archives  
-
 # Developer / Advanced Info
 [Data Locations](Data%20Locations.md) - Program and User data locations for various execution 
 environments.  

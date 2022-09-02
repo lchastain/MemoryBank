@@ -16,6 +16,10 @@ public interface Notifier {
         return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
     }
 
+    static void showErrorMessage(Component parentComponent, Object message, String title) {
+        JOptionPane.showMessageDialog(parentComponent, message, title, JOptionPane.ERROR_MESSAGE);
+    }
+
     default void showMessageDialog(Component parentComponent, Object message, String title, int messageType) {
        JOptionPane.showMessageDialog(parentComponent, message, title, messageType);
    }
