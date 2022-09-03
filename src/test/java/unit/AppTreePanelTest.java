@@ -13,6 +13,12 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+// Note about using a menu-item click to run private methods:
+// You could see multiple effects from that, if the other tests in the full suite leave behind JMenuItem listeners.
+//   So a possibly better alternative is to change the access level of the method to package-private
+//   and just call it directly, rather than via a menu item click.    Just sayin..
+
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AppTreePanelTest {
@@ -167,11 +173,7 @@ public class AppTreePanelTest {
     @Test
     @Order(5)
     void testShowHelp() {
-        TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
-        JMenuItem jmi = testUtil.getMenuItem("Help", "Contents");
-        jmi.doClick(); // You could see multiple effects from this, if the other tests leave behind JMenuItem listeners.
-        //   So a possibly better alternative is to change the access level of the method to package-private
-        //   and just call it directly, rather than via a menu item click.    Just sayin..
+        appTreePanel.showHelp();
     }
 
     @Test

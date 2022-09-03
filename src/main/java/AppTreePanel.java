@@ -17,10 +17,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1659,7 +1656,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return menuContext;
     } // end showGoal
 
-    private void showHelp() {
+    void showHelp() {
         URL theHelpUrl;
         try {
             if (MemoryBank.appEnvironment.equals("ide")) {

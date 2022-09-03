@@ -111,7 +111,7 @@ class DayNoteComponentTest {
 
     @Test
     void setIcon() {
-        String fileName = "IconFileViewTest/specs.ico";
+        String fileName = "IconFileViewTest/icons/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 
         assert testFile != null;

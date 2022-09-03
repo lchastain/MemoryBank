@@ -383,7 +383,7 @@ public class FileDataAccessor implements DataAccessor {
         LocalDate ld = LocalDate.of(year, month, day);
 
         String theFilename = NoteGroupFile.foundFilename(ld, "D");
-System.out.println("Found this data file: " + theFilename);
+        //System.out.println("Found this data file: " + theFilename);
         if (!new File(theFilename).exists()) return null;
 
         MemoryBank.debug("Loading: " + theFilename);

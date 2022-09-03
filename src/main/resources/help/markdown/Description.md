@@ -81,3 +81,5 @@ Branch Editors - These allow selection and deselection of the branch content to
 Tree branches are
     expandable and collapsible, and their state is retained between program runs, as well
     as the last selection that was made.
+
+[Table Of Contents](TableOfContents.md)

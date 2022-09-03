@@ -1,13 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import net.sf.image4j.codec.bmp.BMPDecoder;
-import net.sf.image4j.codec.ico.ICODecoder;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 class IconNoteData extends NoteData {
     String iconFileString;  // The 'description' of the icon
@@ -44,7 +37,7 @@ class IconNoteData extends NoteData {
         // This is an on-the-fly data fix.
         if (iconFileString != null) {
             int theIndex = iconFileString.indexOf("/icons/");
-            if (theIndex > 0) newString = iconFileString.substring(theIndex+1);
+            if (theIndex > 0) newString = iconFileString.substring(theIndex + 1);
         }
         return newString;
     }
@@ -72,46 +65,8 @@ class IconNoteData extends NoteData {
 
         iconFileString = getIconFileString(); // drop out any leading drive/path specifier.
         if (iconFileString != null) {
-            if(MemoryBank.appEnvironment.equals("ide")) {
-                String theFilename = iconFileString;
-                if(theFilename.startsWith("icons/")) theFilename = "src/main/resources/" + theFilename;
-
-                //MemoryBank.debug("The relative path/filename for the icon: " + theFilename);
-                if (new File(theFilename).exists()) {
-                    Image theImage = null;
-                    if (theFilename.endsWith(".ico")) {
-                        try {
-                            List<BufferedImage> images = ICODecoder.read(new File(theFilename));
-                            theImage = images.get(0);
-                        } catch (IOException ioe) {
-                            ioe.printStackTrace();
-                        }
-                    } else if (theFilename.endsWith(".bmp")) {
-                        try {
-                            theImage = BMPDecoder.read(new File(theFilename));
-                        } catch (IOException ioe) {
-                            ioe.printStackTrace();
-                        }
-                    } else { // This handles .png, .jpg, .gif
-                        theImage = Toolkit.getDefaultToolkit().getImage(theFilename);
-                    } // end if
-
-                    if (theImage != null) {
-                        theImageIcon = new ImageIcon();
-                        theImageIcon.setImage(theImage);
-
-                        //=============== IMPORTANT !!! =====================================================================
-                        // ImageIcon docs will say that the description is not used or needed, BUT - it IS used by this app.
-                        //   This is tricky; the description is picked up by IconNoteComponent.setIcon(ImageIcon theIcon).
-                        //   With the filename hiding in the place of the description, we can update the associated
-                        //   IconNoteData, and later restore the image from that.
-                        theImageIcon.setDescription(theFilename);
-                    }
-                } // end if - if we are running via the ide and we found a file for the icon in the local filesystem.
-            } else { // Otherwise, we expect to find the icon in the resources extracted from the jar we are running.
-                IconInfo iconInfo = getIconInfo();
-                theImageIcon = iconInfo.getImageIcon();
-            }
+            IconInfo iconInfo = getIconInfo();
+            theImageIcon = iconInfo.getImageIcon();
         }
         return theImageIcon;
     } // end getImageIcon

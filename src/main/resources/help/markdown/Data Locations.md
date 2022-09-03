@@ -2,38 +2,40 @@
 
 User data location when running via a jar file:  
 [user home]/mbankData/[userEmail]/   
-If this directory is not found, it will be created.  User data will go here.
+If this directory is not found, it will be created.  
 
 User data location when running via the IDE:  
 [your development folder]/mbDevData/[userEmail]  
 Set the email address (ie, which data set to use) as a program option in the run configurations.
-See the jondo configuration for an example.
-If this directory is not found, it will be created.  User data will go here.
+See the jondo configuration for an example.  
+If this directory is not found, it will be created.  
 
 There is no access from development code to 'real' data because data that the user intends to keep 
-needs to remain uncorrupted by testing and unnecessary, partial or nonsensical notes made during 
+needs to remain uncorrupted by testing or unnecessary, partial or nonsensical notes made during 
 development.  If such an access need arises (in either direction) then the best 
 advice is to make a renamed copy and put it where it can be 'seen' by the executing code, then 
 adjust the run config or execution parameters to access it as a different/test user.
 
-Icon location when running via the IDE:  
-[your development folder]/src/main/resources/icons/  
-This is the location for icon selections via the IconFileChooser (a child of 
-JFileChooser), as well as when they are referenced by a note.    
-
-Icon location when running via a jar file:
-For selections by the IconFileChooser:
+---
+Location of available icon selections presented by the IconFileChooser -  
+When running via the IDE:  
+[your development folder]/src/main/resources/icons/
+When running via a jar file:
 [system temp directory]/membankResources/icons/  
-For access by a single note, the icon is taken directly from resources embedded 
-in the jar file.   
 
+Location of the icon when displayed on either a notegroup line or on the MonthView -  
+Regardless of the application run environment, the getResource method is used 
+and the icon will come from the filesystem under src/main/resources when run via
+the ide, or from the jar's embedded resources when run via a jar file.
+
+When a graphic needs to come from the images (vs the icons), the accesses and paths
+are the same as they are leading up to the icons, but under the 'images' directory.
+
+---
 Help files location when running via the IDE:
-[your development folder]/src/main/resources/help
-All markdown files, with some embedded .png file references
-can start from README.md or TableOfContents.md
+[your development folder]/src/main/resources/help  
 
-help files location when running via a jar file:
-A.  .md and .html files
-B.  .png embedded graphics  (images)
+Help files location when running via a jar file:
+[system temp directory]/membankResources/help
 
-
+[Table Of Contents](TableOfContents.md)

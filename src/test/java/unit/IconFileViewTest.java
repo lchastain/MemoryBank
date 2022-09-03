@@ -5,14 +5,12 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 
-//@Disabled("Explicitly Disabled")
 class IconFileViewTest {
     private IconFileView ifv;
 
     @BeforeAll
     static void beforeAll() throws IOException {
         MemoryBank.debug = true;
-        MemoryBank.appEnvironment = "ide";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
     }
 
@@ -27,9 +25,8 @@ class IconFileViewTest {
     }
 
     @Test
-//    @Disabled
     void testGetName() {
-        String fileName = "IconFileViewTest/specs.ico";
+        String fileName = "IconFileViewTest/icons/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
         assert testFile != null;
         assert testFile.exists();
@@ -38,7 +35,6 @@ class IconFileViewTest {
     }
 
     @Test
-//    @Disabled
     void testIsTraversable() {
         // The provided File does not matter; we want a null in every case.
         Boolean b = ifv.isTraversable(new File("nofile"));
@@ -46,7 +42,6 @@ class IconFileViewTest {
     }
 
     @Test
-//    @Disabled
     void testGetDescription() {
         // The provided File does not matter; we want a null in every case.
         String s = ifv.getDescription(new File("nofile"));
@@ -54,7 +49,6 @@ class IconFileViewTest {
     }
 
     @Test
-//    @Disabled
     void testGetTypeDescription() {
         // The provided File does not matter; we want a null in every case.
         String s = ifv.getTypeDescription(new File("nofile"));
@@ -62,9 +56,8 @@ class IconFileViewTest {
     }
 
     @Test
-//    @Disabled
     void testGetIcon() {
-        String fileName = "IconFileViewTest/specs.ico";
+        String fileName = "IconFileViewTest/icons/specs.ico";
         File testFile = FileUtils.toFile(getClass().getResource(fileName));
 
         assert testFile != null;
