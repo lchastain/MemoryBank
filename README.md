@@ -10,3 +10,8 @@ controls, dialogs and views.
 ![](src/main/resources/images/MonthView2022_0323.png)  
 [Help Documentation](src/main/resources/help/markdown/TableOfContents.md)  
 
+This is a paragraph with one <span style="font-size:larger;">word</span>
+larger than the others.
+
+
+
