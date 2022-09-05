@@ -1,6 +1,7 @@
 # Description of the Application -  
-Essentially it is a selection tree with a menubar and a viewing area.  The tree 'grows' 
-over time as the user adds their personal info.
+Essentially it is just a selection tree on the left side with a menubar overall and a 
+viewing area on the right side.  The tree 'grows' 
+over time as you add your personal info.
 
 The app consists of a menubar over a vertically split pane.  In the left side of the split
     pane is an application navigation tree that controls the content of the right side of

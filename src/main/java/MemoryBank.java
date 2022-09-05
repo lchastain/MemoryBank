@@ -208,7 +208,7 @@ public class MemoryBank {
                 }
                 //System.out.println(entryName); // unconditional, but too verbose in the console if not needed.
             }
-        } catch (IOException ex) {
+        } catch(IOException ex) {
             ex.printStackTrace();
             return false;
         }
@@ -308,9 +308,8 @@ public class MemoryBank {
                 FileDataAccessor.iconFileChooser = new IconFileChooser(destPath);
             } else { // The other choice for protocol is "file".
                 appEnvironment = "ide";  // and what that means to us is that our env is the IDE.
-                appIconName = "notepad"; // Give the app a different icon; a visual indicator that we will use 'test' data.
+                appIconName = "notepad"; // Give the app a different icon; a visual indicator that we will use 'development' data.
                 System.out.println("Looks like we are running via the IDE.");
-//                FileDataAccessor.iconFileChooser = new IconFileChooser(new File(theIconURL.toURI()).getAbsolutePath());
                 FileDataAccessor.iconFileChooser = new IconFileChooser("src/main/resources/icons");
             }
         } else {

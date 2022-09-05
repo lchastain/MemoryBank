@@ -14,6 +14,30 @@
         <slf4jVersion>1.7.36</slf4jVersion>
     </properties>
 
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Build an executable JAR -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <index>false</index>
+<!--                        <manifestFile>META-INF/MANIFEST.MF</manifestFile>-->
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+<!--                            <classpathPrefix>C:\jars\</classpathPrefix>-->
+                            <classpathLayoutType>repository</classpathLayoutType>
+                            <mainClass>MemoryBank</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -40,12 +64,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.5.1</version>
@@ -56,6 +74,12 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>17.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.directory.studio</groupId>
+            <artifactId>org.apache.commons.io</artifactId>
+            <version>2.4</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
@@ -71,7 +95,12 @@
             <version>0.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.rjeschke</groupId>
+            <artifactId>txtmark</artifactId>
+            <version>0.13</version>
+        </dependency>
 
     </dependencies>
-    
+
 </project>

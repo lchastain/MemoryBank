@@ -1,14 +1,17 @@
 # Data Locations
 
-User data location when running via a jar file:  
-[user home]/mbankData/[userEmail]/   
-If this directory is not found, it will be created.  
+A unique user identifier is supplied as a program argument, in the form of an email address.
+The user data developed by the application is then stored on the local filesystem under a
+directory with that name.  If the directory is not found, it will be created.
 
-User data location when running via the IDE:  
+When running via a jar file, the filesystem location is:  
+[user home]/mbankData/[userEmail]/   
+
+When running via the IDE, the filesystem location is:  
 [your development folder]/mbDevData/[userEmail]  
+
 Set the email address (ie, which data set to use) as a program option in the run configurations.
 See the jondo configuration for an example.  
-If this directory is not found, it will be created.  
 
 There is no access from development code to 'real' data because data that the user intends to keep 
 needs to remain uncorrupted by testing or unnecessary, partial or nonsensical notes made during 
@@ -38,4 +41,3 @@ Help files location when running via the IDE:
 Help files location when running via a jar file:
 [system temp directory]/membankResources/help
 
-[Table Of Contents](TableOfContents.md)
