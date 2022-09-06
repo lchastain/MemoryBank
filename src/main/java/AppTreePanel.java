@@ -1659,7 +1659,72 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return menuContext;
     } // end showGoal
 
+    // When the env is IDE, the JEditorPane is loaded with html text.
+    // When the env is jar, the JEditorPane is constructed with a URL to an html file.
+    //   The jar method is needed in order to be able to find the relative paths to the images.
+    //   It would also work for the ide, but don't want to make that one unnecessarily complex.
     void showHelp() {
+        File theContentsFile;
+        JEditorPane editor;
+        String markyHtmlString;
+
+        String tempDirPathString = System.getProperty("java.io.tmpdir");
+        //System.out.println("Temp directory string: " + tempDirPathString);
+        tempDirPathString = tempDirPathString.replaceAll("\\\\", "/");
+        //System.out.println("Adjusted Temp directory string: " + tempDirPathString);
+
+        if (MemoryBank.appEnvironment.equals("ide")) {
+            theContentsFile = new File("src/main/resources/help/markdown/TableOfContents.md");
+        } else { // The only other choice is jar, in which case the files should have been extracted by now.
+            theContentsFile = new File(tempDirPathString + "membankResources/help/markdown/TableOfContents.md");
+        }
+
+        if(theContentsFile.exists()) {
+            System.out.println("Path to the help: " + theContentsFile.getAbsolutePath());
+            try {
+                markyHtmlString = FileUtils.readFileToString(theContentsFile);
+                String html = com.github.rjeschke.txtmark.Processor.process(markyHtmlString);
+                if (html != null && !html.isEmpty()) {
+                    if(MemoryBank.appEnvironment.equals("ide")) {
+                        html = html.replaceAll("../../images/", "file:src/main/resources/images/");
+                        editor = new JEditorPane();
+                        editor.setContentType("text/html");
+                        editor.setEditable(false);
+                        editor.setText(html);
+                    } else {
+                        //html = html.replaceAll("../../images/", "file:///" + tempDirPathString + "/images/");
+                        // Here is where we need to write an html file....
+
+                        String urlToHelpString = "file:///" + tempDirPathString + "membankResources/help/html/TableOfContents.html";
+                        System.out.println("urlToHelpString = " + urlToHelpString);
+                        // The constructed urlToHelpString should look like this:
+                        //     "file:///<tempDirPath>membankResources/help/html/TableOfContents.html"
+                        URL theHelpUrl = new URL(urlToHelpString);
+                        editor = new JEditorPane(theHelpUrl);
+                        editor.setEditable(false);
+                    }
+                    System.out.println("HTML from markdown: \n" + html);
+
+                    JScrollPane jsp = new JScrollPane();
+                    jsp.setPreferredSize(new Dimension(900, 650));
+                    add(jsp, BorderLayout.CENTER);
+                    jsp.setViewportView(editor);
+                    optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
+                } // and if it IS null or empty, we just return silently.
+            } catch (IOException e) {
+                e.printStackTrace();
+                String theMessage = "Unable to read the application help Table of Contents!";
+                theMessage += "\nYou are on your own.";
+                Notifier.showErrorMessage(this, theMessage, "Bummer");
+            }
+        } else { // It don't exist.
+            String theMessage = "Unable to find the application help Table of Contents!";
+            theMessage += "\nYou are on your own.";
+            Notifier.showErrorMessage(this, theMessage, "Bummer");
+        }
+    } // end showHelp
+
+    void showHelpHtml() {
         URL theHelpUrl;
         try {
             if (MemoryBank.appEnvironment.equals("ide")) {
@@ -1705,7 +1770,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
     } // end showHelp
 
-    void waitForMe() {
+    void showHelpX() {
+        URL theHelpUrl;
         String marky = null;
         //URL theURL = AppTreePanel.class.getResource("README.md");
         //URL theURL = AppTreePanel.class.getResource("src/main/resources/help/markdown/TableOfContents.md");
@@ -1734,7 +1800,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             } else {
                 //theFile = new File("README.md");
                 //theFile = new File("src/main/resources/help/markdown/TableOfContents.md");
-                theFile = new File("src/main/resources/help/html/TableOfContents.html");
+                theFile = new File("src/main/resources/help/markdown/TableOfContents.html");
                 if (theFile.exists()) {
                     System.out.println("Found the TOC file at: " + theFile.getAbsolutePath());
                     try {
