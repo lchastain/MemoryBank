@@ -25,7 +25,6 @@ class CollapseChangesTest {
     static void setup() throws IOException {
         // Set the test user's data location
         MemoryBank.userEmail = "test.user@lcware.net";
-        MemoryBank.appEnvironment = "ide";
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
 
         // Remove any pre-existing Test data

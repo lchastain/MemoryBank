@@ -10,6 +10,7 @@ target/*
 *.war
 *.ear
 
+/mbDevData/null/
 /mbDevData/default.user@elseware.com/
 /mbDevData/g01@doughmain.net/
 /mbDevData/lex@doughmain.net/
@@ -18,3 +19,4 @@ target/*
 /mbDevData/test.user@lcware.net/
 /mbDevData/UniqueNewUser@lcware.net/
 /.css/
+/src/test/java/end2end/

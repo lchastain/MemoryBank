@@ -21,7 +21,7 @@ class MemoryBankTest {
         File testGoodData = new File(FileDataAccessor.userDataHome);
 
         // Remove any pre-existing Test data
-        FileUtils.cleanDirectory(testBadData);
+        if(testBadData.exists()) FileUtils.cleanDirectory(testBadData);
         FileUtils.cleanDirectory(testGoodData);
 
         // Retrieve a fresh set of test data from test resources
