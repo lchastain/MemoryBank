@@ -13,14 +13,13 @@ specifying the main class, MemoryBank.
 And when you do that, be sure to provide the user email program argument.  
 Ex:  java -classpath [path to jar];[path to external libraries] MemoryBank jondo@lcware.net
 
-Starting at C:\, here is the 'Target' I use in a windows shortcut to run the app via the jar:  
-"C:\Program Files\Java\jdk-16.0.2\bin\java.exe" -Dtiming -Ddebug -classpath 
+Starting at C:\, here is the 'Target' from a windows shortcut that runs the app via the 
+jar:  
+"C:\Program Files\Java\jdk-16.0.2\bin\java.exe" -classpath 
 [dev workspace]\out\artifacts\MemoryBank_jar\MemoryBank.jar;[path to external libraries] MemoryBank jondo@lcware.net
 
 And similarly, to run the app via the jar built by Maven:
-"C:\Program Files\Java\jdk-16.0.2\bin\java.exe" -Dtiming -Ddebug -classpath
+"C:\Program Files\Java\jdk-16.0.2\bin\java.exe" -classpath
 [dev workspace]\target\MemoryBank-1.0-SNAPSHOT.jar;[path to external libraries] MemoryBank jondo@lcware.net
-
-
 
 
