@@ -15,11 +15,11 @@ Ex:  java -classpath [path to jar];[path to external libraries] MemoryBank jondo
 
 Starting at C:\, here is the 'Target' I use in a windows shortcut to run the app via the jar:  
 "C:\Program Files\Java\jdk-16.0.2\bin\java.exe" -Dtiming -Ddebug -classpath 
-[dev workspace]\out\artifacts\MemoryBank_jar\MemoryBank.jar;c:\jars\* MemoryBank jondo@lcware.net
+[dev workspace]\out\artifacts\MemoryBank_jar\MemoryBank.jar;[path to external libraries] MemoryBank jondo@lcware.net
 
 And similarly, to run the app via the jar built by Maven:
 "C:\Program Files\Java\jdk-16.0.2\bin\java.exe" -Dtiming -Ddebug -classpath
-[dev workspace]\target\MemoryBank-1.0-SNAPSHOT.jar;c:\jars\* MemoryBank jondo@lcware.net
+[dev workspace]\target\MemoryBank-1.0-SNAPSHOT.jar;[path to external libraries] MemoryBank jondo@lcware.net
 
 
 

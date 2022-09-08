@@ -21,6 +21,6 @@ statements to create yet a third variant of the jar file.  But these scripts
 utilize a non-supplied local directory that I keep, called C:\jars, which holds
 all the referenced external libraries.  Keeping them all in one place is a 
 convenience trick which simplifies command-line statements and you can do the same
-thing; it's just that I cannot give you those libraries; you will need to download
+thing but I cannot supply those libraries; you will need to download
 them yourself to your own development environment.
 
