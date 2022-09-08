@@ -24,11 +24,8 @@
                 <version>2.4</version>
                 <configuration>
                     <archive>
-                        <index>false</index>
-<!--                        <manifestFile>META-INF/MANIFEST.MF</manifestFile>-->
                         <manifest>
                             <addClasspath>true</addClasspath>
-<!--                            <classpathPrefix>C:\jars\</classpathPrefix>-->
                             <classpathLayoutType>repository</classpathLayoutType>
                             <mainClass>MemoryBank</mainClass>
                         </manifest>

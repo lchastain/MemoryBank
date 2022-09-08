@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Unit" type="JUnit" factoryName="JUnit">
+    <module name="MemoryBank" />
+    <extension name="coverage" sample_coverage="false" />
+    <option name="MAIN_CLASS_NAME" value="" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="directory" />
+    <option name="VM_PARAMETERS" value="-Ddebug -Dfile.encoding=UTF_8 -enableassertions --add-opens java.base/java.time=ALL-UNNAMED" />
+    <option name="PARAMETERS" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="TEST_SEARCH_SCOPE">
+      <value defaultName="moduleWithDependencies" />
+    </option>
+    <dir value="$PROJECT_DIR$/src/test/java/unit" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
