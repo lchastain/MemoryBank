@@ -4,16 +4,17 @@ A unique user identifier is supplied as a program argument, in the form of an em
 The user data developed by the application is then stored on the local filesystem under a
 directory with that name.  If the directory is not found, it will be created.
 
-When running via a jar file, the filesystem location is:  
+When running via a jar file (production code), the filesystem location is:  
 [user home]/mbankData/[userEmail]/   
 
-When running via the IDE, the filesystem location is:  
+When running via the IDE (development code), the filesystem location is:  
 [your development folder]/mbDevData/[userEmail]  
 
 Set the email address (ie, which data set to use) as a program option in the run configurations.
 See the jondo configuration for an example.  
 
-There is no access from development code to 'real' data because data that the user intends to keep 
+There is no crossover from development code to production data because data that the user intends 
+to keep 
 needs to remain uncorrupted by testing or unnecessary, partial or nonsensical notes made during 
 development.  If such an access need arises (in either direction) then the best 
 advice is to make a renamed copy and put it where it can be 'seen' by the executing code, then 

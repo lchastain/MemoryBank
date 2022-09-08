@@ -10,8 +10,10 @@ controls, dialogs and views.
 | <h1>Developer Info | ![](src/main/resources/images/MemBank40.png) |
 |--------------------|---------------------------------------------:|
 
-**[Data Locations](src/main/resources/help/markdown/Data%20Locations.md)** - Program and User data locations for various execution environments.  
-Build Configurations  
+**[Data Locations](src/main/resources/help/markdown/Data%20Locations.md)** - 
+Program and User data locations for various execution environments.  
+**[Build Configurations](src/main/resources/help/markdown/Building.md)** - 
+Various ways to build the code.  
 This __is just__ some info.  
 Run Configurations  
 This is a paragraph with one <span style="font-size:larger;">word</span>
