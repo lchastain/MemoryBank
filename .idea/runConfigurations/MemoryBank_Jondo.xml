@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="MemoryBank" />
     <module name="MemoryBank" />
     <option name="PROGRAM_PARAMETERS" value="jondo.nonamus@lcware.net" />
-    <option name="VM_PARAMETERS" value="-Ddebug -Dfile.encoding=UTF_8 -enableassertions --add-opens java.base/java.time=ALL-UNNAMED" />
+    <option name="VM_PARAMETERS" value="-Ddebug -Dfile.encoding=UTF_8 -enableassertions " />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

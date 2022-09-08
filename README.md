@@ -14,12 +14,11 @@ controls, dialogs and views.
 Program and User data locations for various execution environments.  
 **[Build Configurations](src/main/resources/help/markdown/Building.md)** - 
 Various ways to build the code.  
-This __is just__ some info.  
-Run Configurations  
-This is a paragraph with one <span style="font-size:larger;">word</span>
-larger than the others.  
-**[User Help Information](src/main/resources/help/markdown/TableOfContents.md)**
+**[Running](src/main/resources/help/markdown/Running.md)** - How to run the app.    
+**[User Help Information](src/main/resources/help/markdown/TableOfContents.md)**  
 
+While the application is 100% Java and therefore can run on any 
+JVM-capable OS, recent work has all been targeted for Windows 10.  
 
 
 

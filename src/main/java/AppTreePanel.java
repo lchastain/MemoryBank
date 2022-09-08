@@ -1667,6 +1667,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     //   is not a compelling enough reason (in this case) to sacrifice the simplicity of the ide approach.
     void showHelp() {
         final JEditorPane editor;
+        JScrollPane jsp = new JScrollPane();
 
         String tempDirPathString = System.getProperty("java.io.tmpdir");
         //System.out.println("Temp directory string: " + tempDirPathString);
@@ -1707,13 +1708,12 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     System.out.println(e.getDescription());
                     editor.setText(getHtmlForFile(e.getDescription()));
+                    editor.setCaretPosition(0); // For longer docs; scroll back to the top.
                 }
             });
             System.out.println("HTML from markdown: \n" + html);
 
-            JScrollPane jsp = new JScrollPane();
             jsp.setPreferredSize(new Dimension(900, 650));
-            add(jsp, BorderLayout.CENTER);
             jsp.setViewportView(editor);
             optionPane.showMessageDialog(null, jsp, "Help Contents", PLAIN_MESSAGE);
         } else { // It don't exist.
