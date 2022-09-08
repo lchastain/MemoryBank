@@ -22,22 +22,23 @@ adjust the run config or execution parameters to access it as a different/test u
 ---
 Location of available icon selections presented by the IconFileChooser -  
 When running via the IDE:  
-[your development folder]/src/main/resources/icons/
-When running via a jar file:
+[your development folder]/src/main/resources/icons/  
+When running via a jar file:  
 [system temp directory]/membankResources/icons/  
 
-Location of the icon when displayed on either a notegroup line or on the MonthView -  
-Regardless of the application run environment, the getResource method is used 
-and the icon will come from the filesystem under src/main/resources when run via
-the ide, or from the jar's embedded resources when run via a jar file.
+Location of the icon when displayed on either a notegroup line or on the MonthView -
+the getResource method is used and the icon will come from the filesystem under 
+src/main/resources when run via the ide, or from the jar's embedded resources when 
+run via a jar file.
 
 When a graphic needs to come from the images (vs the icons), the accesses and paths
 are the same as they are leading up to the icons, but under the 'images' directory.
 
 ---
 Help files location when running via the IDE:
-[your development folder]/src/main/resources/help  
+[your development folder]/src/main/resources/help/markdown  
 
 Help files location when running via a jar file:
-[system temp directory]/membankResources/help
+[system temp directory]/membankResources/help/markdown
+
 

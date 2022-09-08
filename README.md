@@ -9,6 +9,7 @@ controls, dialogs and views.
 
 | <h1>Developer Info | ![](src/main/resources/images/MemBank40.png) |
 |--------------------|---------------------------------------------:|
+
 **[Data Locations](src/main/resources/help/markdown/Data%20Locations.md)** - Program and User data locations for various execution environments.  
 Build Configurations  
 This __is just__ some info.  

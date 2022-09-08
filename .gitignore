@@ -10,6 +10,7 @@ target/*
 *.war
 *.ear
 
+/null/
 /mbDevData/null/
 /mbDevData/default.user@elseware.com/
 /mbDevData/g01@doughmain.net/

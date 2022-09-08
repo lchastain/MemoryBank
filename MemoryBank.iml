@@ -36,6 +36,8 @@
       <excludeFolder url="file://$MODULE_DIR$/mbDevData/test.user@lcware.net" />
       <excludeFolder url="file://$MODULE_DIR$/mbDevData/UniqueNewUser@lcware.net" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/src/test/java/end2end" />
+      <excludeFolder url="file://$MODULE_DIR$/null" />
     </content>
     <content url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
     <content url="file://$MODULE_DIR$/src/test/Area51/java" />
