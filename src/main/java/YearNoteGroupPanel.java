@@ -61,6 +61,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
         p0.add(decadeMinus);
         p0.add(prev);
         p0.add(todayButton);
+        todayButton.setToolTipText("This Year");
         p0.add(next);
         p0.add(decadePlus);
 
@@ -98,27 +99,21 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
 
         // One of the mutually exclusive conditions below is expected
         // to be true but if none are then we just ignore the action.
-        switch (s) {
-            case "D-":
-                setOneBack(ChronoUnit.DECADES);
-                break;
-            case "-":
-                setOneBack(ChronoUnit.YEARS);
-                break;
-            case "T":
-                LocalDate fromDate = theDate;
+        if ("D-".equals(s)) {
+            setOneBack(ChronoUnit.DECADES);
+        } else if ("-".equals(s)) {
+            setOneBack(ChronoUnit.YEARS);
+        } else if ("T".equals(s)) {
+            LocalDate fromDate = theDate;
 
-                if(archiveDate != null) setDate(archiveDate);
-                else setDate(LocalDate.now());
+            if (archiveDate != null) setDate(archiveDate);
+            else setDate(LocalDate.now());
 
-                if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
-                break;
-            case "+":
-                setOneForward(ChronoUnit.YEARS);
-                break;
-            case "D+":
-                setOneForward(ChronoUnit.DECADES);
-                break;
+            if (alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
+        } else if ("+".equals(s)) {
+            setOneForward(ChronoUnit.YEARS);
+        } else if ("D+".equals(s)) {
+            setOneForward(ChronoUnit.DECADES);
         }
 
         updateGroup();
@@ -127,22 +122,16 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getName();
-        switch (s) {
-            case "D-":
-                s = "Click here to go back ten years";
-                break;
-            case "-":
-                s = "Click here to see previous year";
-                break;
-            case "T":
-                s = "Click here to see notes for this year.";
-                break;
-            case "+":
-                s = "Click here to see next year";
-                break;
-            case "D+":
-                s = "Click here to go forward ten years";
-                break;
+        if ("D-".equals(s)) {
+            s = "Click here to go back ten years";
+        } else if ("-".equals(s)) {
+            s = "Click here to see previous year";
+        } else if ("T".equals(s)) {
+            s = "Click here to see notes for this year.";
+        } else if ("+".equals(s)) {
+            s = "Click here to see next year";
+        } else if ("D+".equals(s)) {
+            s = "Click here to go forward ten years";
         }
         setStatusMessage(s);
     } // end mouseEntered

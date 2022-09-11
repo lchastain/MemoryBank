@@ -28,22 +28,25 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
         // At this point we do not yet know our exact name.
         // But we do know that it will be some format of 'today'.
-        switch(groupType) { // This Panel should not be constructed with any other types.
-            case YEAR_NOTES:
+        // And the fact that it IS 'today' means that we need to disable the 'T' button,
+        //   which would have been enabled when we updated the group before we had our title.
+        todayButton.setEnabled(false);
+        switch (groupType) { // This Panel should not be constructed with any other types.
+            case YEAR_NOTES -> {
                 setDefaultSubject("Year Note");
                 dateGranularity = ChronoUnit.YEARS;
                 dtf = DateTimeFormatter.ofPattern("yyyy");
-                break;
-            case MONTH_NOTES:
+            }
+            case MONTH_NOTES -> {
                 setDefaultSubject("Month Note");
                 dateGranularity = ChronoUnit.MONTHS;
                 dtf = DateTimeFormatter.ofPattern("MMMM yyyy");
-                break;
-            case DAY_NOTES:
+            }
+            case DAY_NOTES -> {
                 setDefaultSubject("Day Note");
                 dateGranularity = ChronoUnit.DAYS;
                 dtf = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
-                break;
+            }
         }
         // Create the panel's title
         panelTitleLabel = new JLabel();

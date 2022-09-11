@@ -59,6 +59,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
         p0.add(yearMinus);
         p0.add(prev);
         p0.add(todayButton);
+        todayButton.setToolTipText("This Month");
         p0.add(next);
         p0.add(yearPlus);
 
@@ -97,24 +98,15 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
         // One of the mutually exclusive conditions below is expected
         // to be true but if none are then we just ignore the action.
         switch (s) {
-            case "Y-":
-                setOneBack(ChronoUnit.YEARS);
-                break;
-            case "-":
-                setOneBack(ChronoUnit.MONTHS);
-                break;
-            case "T":
-                if(archiveDate != null) setDate(archiveDate);
+            case "Y-" -> setOneBack(ChronoUnit.YEARS);
+            case "-" -> setOneBack(ChronoUnit.MONTHS);
+            case "T" -> {
+                if (archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
-
-                if(alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
-                break;
-            case "+":
-                setOneForward(ChronoUnit.MONTHS);
-                break;
-            case "Y+":
-                setOneForward(ChronoUnit.YEARS);
-                break;
+                if (alteredDateListener != null) alteredDateListener.dateChanged(myDateType, theDate);
+            }
+            case "+" -> setOneForward(ChronoUnit.MONTHS);
+            case "Y+" -> setOneForward(ChronoUnit.YEARS);
         }
         updateGroup();
     } // end mouseClicked
@@ -122,22 +114,16 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
         String s = source.getName();
-        switch (s) {
-            case "Y-":
-                s = "Click here to go back one year";
-                break;
-            case "-":
-                s = "Click here to see previous month";
-                break;
-            case "T":
-                s = "Click here to see notes for this month.";
-                break;
-            case "+":
-                s = "Click here to see next month";
-                break;
-            case "Y+":
-                s = "Click here to go forward one year";
-                break;
+        if ("Y-".equals(s)) {
+            s = "Click here to go back one year";
+        } else if ("-".equals(s)) {
+            s = "Click here to see previous month";
+        } else if ("T".equals(s)) {
+            s = "Click here to see notes for this month.";
+        } else if ("+".equals(s)) {
+            s = "Click here to see next month";
+        } else if ("Y+".equals(s)) {
+            s = "Click here to go forward one year";
         }
         setStatusMessage(s);
     } // end mouseEntered
