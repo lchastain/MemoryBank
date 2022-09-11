@@ -38,8 +38,10 @@ public class AppMenuBar extends JMenuBar {
         fileMenu.add(new JMenuItem("Archive..."));
         fileMenu.add(groupCalendarNotes); // "Group Calendar Notes"
         fileMenu.add(new JMenuItem("Show Scheduled Events"));
-        fileMenu.add(new JMenuItem("Show Current NoteGroup"));
-        fileMenu.add(new JMenuItem("Show Keepers"));
+        if(MemoryBank.appEnvironment.equals("ide")) {
+            fileMenu.add(new JMenuItem("Show Current NoteGroup"));
+            fileMenu.add(new JMenuItem("Show Keepers"));
+        }
         fileMenu.add(new JMenuItem("Icon Manager..."));
         fileMenu.add(new JMenuItem("Exit"));
 
@@ -158,38 +160,19 @@ public class AppMenuBar extends JMenuBar {
     static JMenu getNodeMenu(String selectionContext) {
         JMenu theMenu;
         switch (selectionContext) {
-            case "Year View":
-            case "Month View":
-            case "Week View":
-                theMenu = viewsMenu;
-                break;
-            case "Calendar Notes":
-            case "Day Notes":
-            case "Month Notes":
-            case "Year Notes":
-                theMenu = notesMenu;
-                break;
-            case "Search Result":
+            case "Year View", "Month View", "Week View" -> theMenu = viewsMenu;
+            case "Calendar Notes", "Day Notes", "Month Notes", "Year Notes" -> theMenu = notesMenu;
+            case "Search Result" -> {
                 theMenu = searchesMenu;
                 searchesMenu.setVisible(true);
-                break;
-            case "Goals Branch Editor":
-            case "Upcoming Events Branch Editor":  // Upcoming Events
-            case "To Do Lists Branch Editor":  // TodoBranchHelper
-                theMenu = branchEditorMenu;
-                break;
-            case "Goal":
-                theMenu = goalsMenu;
-                break;
-            case "Upcoming Event":
-                theMenu = eventsMenu;
-                break;
-            case "To Do List":
-                theMenu = todolistsMenu;
-                break;
-            default: // No additional menu is defined for the specified node.
-                theMenu = null;
-                break;
+            }  // Upcoming Events
+            case "Goals Branch Editor", "Upcoming Events Branch Editor", "To Do Lists Branch Editor" ->  // TodoBranchHelper
+                    theMenu = branchEditorMenu;
+            case "Goal" -> theMenu = goalsMenu;
+            case "Upcoming Event" -> theMenu = eventsMenu;
+            case "To Do List" -> theMenu = todolistsMenu;
+            default -> // No additional menu is defined for the specified node.
+                    theMenu = null;
         }
         return theMenu;
     } // end getNodeMenu
@@ -218,51 +201,34 @@ public class AppMenuBar extends JMenuBar {
         MemoryBank.debug("Setting MenuBar Configuration: " + theCurrentContext);
 
         switch (theCurrentContext) {
-            case "One Archive":
-                archiveMenu.setVisible(true);
-                break;
-            case "Year View":  // Year View
-            case "Month View":  // Month View
-            case "Week View":
-                viewsMenu.setVisible(true);
-                break;
-            case "Calendar Notes":
-            case "Day Notes":
-            case "Month Notes":
-            case "Year Notes":
-                notesMenu.setVisible(true);
-                break;
-            case "Search Result":  // Search Results
-                searchesMenu.setVisible(true);
-                break;
-            case "Goals Branch Editor":
+            case "One Archive" -> archiveMenu.setVisible(true);
+            // Year View
+            // Month View
+            case "Year View", "Month View", "Week View" -> viewsMenu.setVisible(true);
+            case "Calendar Notes", "Day Notes", "Month Notes", "Year Notes" -> notesMenu.setVisible(true);
+            case "Search Result" ->  // Search Results
+                    searchesMenu.setVisible(true);
+            case "Goals Branch Editor" -> {
                 branchEditorMenu.setText("Goals");
                 branchEditorMenu.setVisible(true);
-                break;
-            case "Upcoming Events Branch Editor":  // Upcoming Events
+            }
+            case "Upcoming Events Branch Editor" -> {  // Upcoming Events
                 branchEditorMenu.setText("Events");
                 branchEditorMenu.setVisible(true);
-                break;
-            case "To Do Lists Branch Editor":  // TodoBranchHelper
+            }
+            case "To Do Lists Branch Editor" -> {  // TodoBranchHelper
                 branchEditorMenu.setText("To Do Lists");
                 branchEditorMenu.setVisible(true);
-                break;
-            case "Goal":
-                goalsMenu.setVisible(true);
-                break;
-            case "Upcoming Event":
-                eventsMenu.setVisible(true);
-                break;
-            case "To Do List":       // A List
-                todolistsMenu.setVisible(true);
-                break;
-            case "Viewing FoundIn":
-                goBack.setVisible(true);
-                break;
-            default: // aka "No Selection"
-                // No special handling but still a valid configuration; all custom menus hidden.
-                // Expected uses:  Show About, Branches without an editor, a few others.
-                break;
+            }
+            case "Goal" -> goalsMenu.setVisible(true);
+            case "Upcoming Event" -> eventsMenu.setVisible(true);
+            case "To Do List" ->       // A List
+                    todolistsMenu.setVisible(true);
+            case "Viewing FoundIn" -> goBack.setVisible(true);
+            default -> {
+            } // aka "No Selection"
+            // No special handling but still a valid configuration; all custom menus hidden.
+            // Expected uses:  Show About, Branches without an editor, a few others.
         }
     } // end manageMenus
 

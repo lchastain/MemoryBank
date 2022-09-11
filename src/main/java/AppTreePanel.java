@@ -1483,17 +1483,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                     case 3 -> // Notes
                             theData = goalGroupPanel.thePlainNoteGroupPanel.myNoteGroup.getTheData();
                 }
-            } else if (theTabbedCalendarNoteGroupPanel != null) { // Show the correct sub-panel (tab)
-                int index = theTabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex();
-                theData = switch (index) {
-                    case 0 ->  // Day Notes
-                            theAppDays.myNoteGroup.getTheData();
-                    case 1 -> // Month Notes
-                            theAppMonths.myNoteGroup.getTheData();
-                    case 2 -> // Year Notes
-                            theAppYears.myNoteGroup.getTheData();
-                    default -> theData;
-                };
             } else {
                 theData = theNoteGroupPanel.myNoteGroup.getTheData();
             }

@@ -6,8 +6,8 @@
   "todoListsExpanded" : true,
   "searchesExpanded" : true,
   "groupCalendarNotes" : false,
-  "theSelection" : "Graduate",
-  "theSelectionRow" : 2,
+  "theSelection" : "Year View",
+  "theSelectionRow" : 12,
   "defaultDayNoteIconInfo" : {
     "dataArea" : "APP_ICONS",
     "iconName" : "icon_not",
