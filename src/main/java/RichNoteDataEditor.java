@@ -31,7 +31,7 @@ public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
     JButton iconBtn = new JButton("Icon");
     JButton clearBtn = new JButton("Clear");
 
-    JButton saveBtn = new JButton("Save");
+    JButton showBtn = new JButton("Show");
     JButton plainEditorBtn = new JButton("Plain Text Editor");
 
     public RichNoteDataEditor(SubjectEditor subjectEditor) {
@@ -129,12 +129,12 @@ public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
         buttonRow.add(backgroundBtn);
         buttonRow.add(iconBtn);
         buttonRow.add(clearBtn);
-        //buttonRow.add(saveBtn);    // Restore this, to see the JSON object.
+        //buttonRow.add(showBtn);    // Restore this, to see the JSON object.
 
         normalBtn.setToolTipText("Remove any extra text attributes from selection");
         iconBtn.setToolTipText("Insert an icon of your choosing");
         clearBtn.setToolTipText("Remove all content from JTextPane");
-        saveBtn.setToolTipText("Doc-->Data, Reload");
+        showBtn.setToolTipText("Doc-->Data, Reload");
         plainEditorBtn.setToolTipText("Remove all text styling");
 
         buttonPanel.add(buttonRow, BorderLayout.NORTH);
@@ -227,7 +227,7 @@ public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
 
         // The 'save' button is no longer presented, so this action will be unused but will be retained so that
         //   it can be quickly restored if needed for further research or troubleshooting.
-        saveBtn.addActionListener(e -> {
+        showBtn.addActionListener(e -> {
             collectDocData();  // null out the sdd, then fill it with data, if there is any.
 
             System.out.println("================================================================");
@@ -435,7 +435,7 @@ public class RichNoteDataEditor extends JPanel implements NoteDataEditor {
 
     @Override
     public int getEditingDirective(String title) {  // boolean allowEditorChange ?
-        String string1 = "Save";               // 0   (OK_OPTION)
+        String string1 = "OK";                 // 0   (OK_OPTION)
         String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
         String string3 = "Plain Text Editor";  // 2   (home-grown meaning, but value matches WHEN_IN_FOCUSED_WINDOW)
         Object[] options = {string1, string2, string3};

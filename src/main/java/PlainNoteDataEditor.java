@@ -10,10 +10,12 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 public class PlainNoteDataEditor extends JPanel implements NoteDataEditor {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     SubjectEditor subjectEditor; // Constructed elsewhere and sent to the constructor here.
@@ -25,6 +27,7 @@ public class PlainNoteDataEditor extends JPanel implements NoteDataEditor {
         this.subjectEditor = subjectEditor;
         body = new JTextArea(12, 80) {
             // To stop the compiler from whining -
+            @Serial
             private static final long serialVersionUID = 1L;
 
             public void addNotify() {
@@ -95,9 +98,9 @@ public class PlainNoteDataEditor extends JPanel implements NoteDataEditor {
 
     @Override
     public int getEditingDirective(String title) {
-        String string1 = "Save";               // 0   (OK_OPTION)
+        String string1 = "OK";                 // 0   (OK_OPTION)
         String string2 = "Cancel";             // 1   (CANCEL_OPTION or CLOSED_OPTION)
-        String string3 = "Rich Text Editor";  // 2   (home-grown meaning, but value matches WHEN_IN_FOCUSED_WINDOW)
+        String string3 = "Rich Text Editor";   // 2   (home-grown meaning, but value matches WHEN_IN_FOCUSED_WINDOW)
         Object[] options = {string1, string2, string3};
         return JOptionPane.showOptionDialog(null,
                 this,
