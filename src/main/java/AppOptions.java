@@ -55,6 +55,11 @@ class AppOptions {
         todoListsExpanded = false;
         searchesExpanded = false;
         groupCalendarNotes = false;
+        // The groupCalendarNotes boolean defaults to 'false' because until a new user has more notes to display
+        // and needs to condense the screen real-estate usage, showing the three discrete date management notegroups
+        // makes for a better visual presentation and will help familiarize them with what tools they have before
+        // they make the decision to 'bury' some of them.
+
         theSelection = null;
         theSelectionRow = -1;
         goalsList = new Vector<>(0, 1);

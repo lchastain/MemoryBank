@@ -77,7 +77,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     private DefaultMutableTreeNode theRootNode;
     private DefaultMutableTreeNode selectedArchiveNode;
-    private int theCalendarIndex;
 
     // Predefined Tree Paths to 'leaf' nodes.
     TreePath calendarNotesPath;
@@ -143,7 +142,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         setOpaque(true);
 
         MemoryBank.update("Recreating the previous Tree configuration");
-        theCalendarIndex = -1;
         createTree();  // Create the tree.
 
         // Listen for when the selection changes.
@@ -434,11 +432,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         }
     }
 
-    //-----------------------------------------------------------------
-    // Method Name: createTree
-    //
-    // Creates the 'MemoryBank' tree.
-    //-----------------------------------------------------------------
+    // Create the 'MemoryBank' tree.
     private void createTree() {
         MemoryBank.debug("Creating the tree");
         DefaultMutableTreeNode trunk = new DefaultMutableTreeNode("App");
@@ -513,9 +507,21 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         yearViewPath = new TreePath(pathToRoot);
         //---------------------------------------------------
 
-        // Calendar Notes - Group types are Day, Month, Year
-        theCalendarIndex = 4;  // Not magic; just going by where we know this to belong on the trunk.
-        groupCalendarNotes(true); // group or not, but add the right leaves to the tree.
+        //---------------------------------------------------
+        // Notes - First, the base 'Notes' node, then
+        //   add one or three Calendar leaves, then
+        //   add any user-defined stand-alone note groups.
+        //---------------------------------------------------
+        branch = new DefaultMutableTreeNode("Notes");
+        trunk.add(branch);
+        pathToRoot = branch.getPath();
+        notesPath = new TreePath(pathToRoot);
+
+        // Calendar Notes - either grouped as 'Calendar Notes' or ungrouped as DayNotes, MonthNotes,
+        //   and YearNotes.  Group according to the user's option setting (default is false).
+        // After the grouping decision, the method will also add the user's standalone note groups, if any.
+        groupCalendarNotes(MemoryBank.appOpts.groupCalendarNotes);
+
 
         //---------------------------------------------------
         // To Do Lists
@@ -916,50 +922,45 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return viewedDate;
     }
 
-    private void groupCalendarNotes(boolean initial) {
-        boolean doit;
-        // The decision on whether to group or ungroup could have been made as a simple toggle of a setting, but
-        //   that does not cover the case of the initial setting, and it would also allow for the possibility
-        //   that the tracking variable might get out of sync with the menu item, whereas this way does not.
-
-        if (initial) {
-            doit = MemoryBank.appOpts.groupCalendarNotes;
-        } else {
-            doit = AppMenuBar.groupCalendarNotes.getState();
-            theRootNode.remove(theCalendarIndex); // Either a leaf, or a branch with three leaves.
-        }
-        System.out.println("Group: yes/no: " + doit);
-
-        DefaultMutableTreeNode leaf, branch;
+    // Remove all children from the node at notesPath, then add according to the boolean.
+    private void groupCalendarNotes(boolean doit) {
+        DefaultMutableTreeNode leaf;
         TreeNode[] pathToRoot;  // An array of node names leading back to the root (after the node has been added)
-        if (doit) { // Group them, into a single leaf off of the tree trunk.
+
+        // Remove all nodes below the notesPath -
+        DefaultMutableTreeNode theNotesNode = (DefaultMutableTreeNode) notesPath.getLastPathComponent();
+        theNotesNode.removeAllChildren();
+        calendarNotesPath = null;
+        dayNotesPath = null;
+        monthNotesPath = null;
+        yearNotesPath = null;
+
+        if (doit) { // Add a single leaf for the grouped notes.
             leaf = new DefaultMutableTreeNode("Calendar Notes");
-            theRootNode.insert(leaf, theCalendarIndex);
+            theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             calendarNotesPath = new TreePath(pathToRoot);
-        } else { // Ungroup them; make a branch, with three leaves
-            branch = new DefaultMutableTreeNode("Calendar Notes");
-            theRootNode.insert(branch, theCalendarIndex);
-            pathToRoot = branch.getPath();
-            notesPath = new TreePath(pathToRoot);
-
+        } else { // Add three discrete leaves.
             leaf = new DefaultMutableTreeNode("Day Notes");
-            branch.add(leaf);
+            theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             dayNotesPath = new TreePath(pathToRoot);
 
             leaf = new DefaultMutableTreeNode("Month Notes");
-            branch.add(leaf);
+            theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             monthNotesPath = new TreePath(pathToRoot);
 
             leaf = new DefaultMutableTreeNode("Year Notes");
-            branch.add(leaf);
+            theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             yearNotesPath = new TreePath(pathToRoot);
         }
+        System.out.println("Group: yes/no: " + doit);
 
-        if (!initial) {
+        // Update the tree visual
+        if(theTree != null) { // It will be null the first time this method is called in the current session,
+            // but in that case we will have built the node correctly in the first place; no need to update.
             DefaultTreeModel theTreeModel = (DefaultTreeModel) theTree.getModel();
             theTreeModel.nodeStructureChanged(theRootNode);
             resetTreeState();
@@ -968,6 +969,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             updateAppOptions(false);
         }
     }
+
 
     private void handleMenuBar(@NotNull String what) {
         if (what.equals("Exit")) System.exit(0);
@@ -979,7 +981,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         else if (what.equals("Contents")) showHelp();
         else if (what.equals("Go Back")) doGoBack();
         else if (what.equals("Review Mode")) toggleReview();
-        else if (what.equals("Group Calendar Notes")) groupCalendarNotes(false);
+        else if (what.equals("Group Calendar Notes")) groupCalendarNotes(AppMenuBar.groupCalendarNotes.getState());
         else if (what.equals("Show Scheduled Events")) showEvents();
         else if (what.equals("Show Current NoteGroup")) showCurrentNoteGroup();
         else if (what.equals("Show Keepers")) showKeepers();

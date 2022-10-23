@@ -12,7 +12,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -23,7 +22,6 @@ import java.util.jar.JarFile;
 public class MemoryBank {
     static Color amColor;
     static Color pmColor;
-    static DateTimeFormatter dtf;
     static boolean debug;
     static boolean event;
     static boolean init;
