@@ -243,8 +243,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 theNoteGroupPanelKeeper = theTodoListKeeper;
                 break;
             case "Search Results Branch Editor":
-                // This can happen after the last SearchResults was deleted, leaving only the
-                //   leaf that would otherwise be a branch.
+                // There is no menu option offered that would lead you here, but it can
+                //   can still happen after the last SearchResults was deleted, leaving only
+                //   the leaf that would otherwise be a branch, if that leaf is then selected.
                 prepareSearch();
                 // no break here, deliberately.
             default:
@@ -1435,6 +1436,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 menuContext = "Search Results Branch Editor";
                 branchHelper = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
             }
+            case "Notes" -> //                branchHelper = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.NOTES);
+                    menuContext = "Notes";
         }
         if (branchHelper != null) {
             int resultCount = branchHelper.getChoices().size(); // Choices array list can be empty but not null.

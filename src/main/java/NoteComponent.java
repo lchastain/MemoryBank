@@ -11,8 +11,10 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serial;
 
 public class NoteComponent extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
     boolean editable = true;
     static MouseEvent lastMouseEnteredEvent; // Needed for tooltip management
@@ -425,6 +427,7 @@ public class NoteComponent extends JPanel {
     //   appears when the focus is gained.
     protected class NoteTextField extends JTextField implements ActionListener,
             DocumentListener, FocusListener, MouseListener, KeyListener {
+        @Serial
         private static final long serialVersionUID = 1L;
         public static final int minWidth = 80;
 
@@ -825,20 +828,18 @@ public class NoteComponent extends JPanel {
             NoteData noteData = theNoteComponent.getNoteData(); // Not used in every case, below.
             String theMenuItemText = jm.getText();
             switch (theMenuItemText) {
-                case "Cut Line":
+                case "Cut Line" -> {
                     MemoryBank.clipboardNote = noteData.copy();  // isolate source data
                     theNoteComponent.clear();
                     theNoteComponent.setNoteChanged();
-                    break;
-                case "Copy Line":
-                    MemoryBank.clipboardNote = noteData.copy();  // isolate source data
-                    break;
-                case "Paste Line":
+                }
+                case "Copy Line" -> MemoryBank.clipboardNote = noteData.copy();  // isolate source data
+                case "Paste Line" -> {
                     theNoteComponent.initialize();
                     // Pasting a copy allows us to do a paste multiple times without re-copying.
 
                     // But we need to use the right data type for the component; a copy/paste could cross over data types.
-                    if(theNoteComponent.getNoteData().getClass() == MemoryBank.clipboardNote.getClass()) {
+                    if (theNoteComponent.getNoteData().getClass() == MemoryBank.clipboardNote.getClass()) {
                         // If they are the same type then we can take a full copy.
                         theNoteComponent.setNoteData(MemoryBank.clipboardNote.copy());
                     } else {
@@ -846,14 +847,12 @@ public class NoteComponent extends JPanel {
                         theNoteComponent.setNoteData(new NoteData(MemoryBank.clipboardNote));
                     }
                     theNoteComponent.setNoteChanged();
-                    break;
-                case "Clear Line":
+                }
+                case "Clear Line" -> {
                     theNoteComponent.clear();
                     theNoteComponent.setNoteChanged();
-                    break;
-                default:
-                    System.out.println(theMenuItemText);
-                    break;
+                }
+                default -> System.out.println(theMenuItemText);
             }
         } // end actionPerformed
     } // end class PopHandler

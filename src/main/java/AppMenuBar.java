@@ -17,7 +17,8 @@ public class AppMenuBar extends JMenuBar {
     private static final JMenu goalsMenu;
     private static final JMenu eventsMenu;
     private static final JMenu viewsMenu;
-    private static final JMenu notesMenu;
+    private static final JMenu calendarNotesMenu;
+    private static final JMenu userNotesMenu;
     private static final JMenu todolistsMenu;
     private static final JMenu searchesMenu;
 
@@ -76,12 +77,23 @@ public class AppMenuBar extends JMenuBar {
         viewsMenu = new JMenu("View");
         viewsMenu.add(new JMenuItem("Today"));
 
-        notesMenu = new JMenu("Notes");
-        notesMenu.add(new JMenuItem("Undo All"));
-        notesMenu.add(reviewMode);
-        notesMenu.add(new JMenuItem("Today"));
-        notesMenu.add(new JMenuItem("Save"));
-        notesMenu.add(new JMenuItem("Clear All"));
+        calendarNotesMenu = new JMenu("Calendar Notes");
+        calendarNotesMenu.add(new JMenuItem("Undo All"));
+        calendarNotesMenu.add(reviewMode);
+        calendarNotesMenu.add(new JMenuItem("Today"));
+        calendarNotesMenu.add(new JMenuItem("Save"));
+        calendarNotesMenu.add(new JMenuItem("Clear All"));
+
+        userNotesMenu = new JMenu("Notes");
+        userNotesMenu.add(new JMenuItem("Undo All"));
+        userNotesMenu.add(new JMenuItem("Close"));
+        userNotesMenu.add(new JMenuItem("Add New..."));
+        userNotesMenu.add(new JMenuItem("Merge..."));
+        //userNotesMenu.add(new JMenuItem("Print..."));
+        userNotesMenu.add(new JMenuItem("Save"));
+        userNotesMenu.add(new JMenuItem("Save As..."));
+        userNotesMenu.add(new JMenuItem("Clear All"));
+        userNotesMenu.add(new JMenuItem("Delete"));
 
         todolistsMenu = new JMenu("To Do List");
         todolistsMenu.add(new JMenuItem("Undo All"));
@@ -113,7 +125,8 @@ public class AppMenuBar extends JMenuBar {
         add(goalsMenu);
         add(eventsMenu);
         add(viewsMenu);
-        add(notesMenu);
+        add(calendarNotesMenu);
+        add(userNotesMenu);
         add(todolistsMenu);
         add(searchesMenu);
         add(goBack);
@@ -161,7 +174,7 @@ public class AppMenuBar extends JMenuBar {
         JMenu theMenu;
         switch (selectionContext) {
             case "Year View", "Month View", "Week View" -> theMenu = viewsMenu;
-            case "Calendar Notes", "Day Notes", "Month Notes", "Year Notes" -> theMenu = notesMenu;
+            case "Calendar Notes", "Day Notes", "Month Notes", "Year Notes" -> theMenu = calendarNotesMenu;
             case "Search Result" -> {
                 theMenu = searchesMenu;
                 searchesMenu.setVisible(true);
@@ -171,6 +184,7 @@ public class AppMenuBar extends JMenuBar {
             case "Goal" -> theMenu = goalsMenu;
             case "Upcoming Event" -> theMenu = eventsMenu;
             case "To Do List" -> theMenu = todolistsMenu;
+            case "Notes" -> theMenu = userNotesMenu;
             default -> // No additional menu is defined for the specified node.
                     theMenu = null;
         }
@@ -191,7 +205,8 @@ public class AppMenuBar extends JMenuBar {
         goalsMenu.setVisible(false);
         eventsMenu.setVisible(false);
         viewsMenu.setVisible(false);
-        notesMenu.setVisible(false);
+        calendarNotesMenu.setVisible(false);
+        userNotesMenu.setVisible(false);
         todolistsMenu.setVisible(false);
         searchesMenu.setVisible(false);
         goBack.setVisible(false);
@@ -205,7 +220,7 @@ public class AppMenuBar extends JMenuBar {
             // Year View
             // Month View
             case "Year View", "Month View", "Week View" -> viewsMenu.setVisible(true);
-            case "Calendar Notes", "Day Notes", "Month Notes", "Year Notes" -> notesMenu.setVisible(true);
+            case "Calendar Notes", "Day Notes", "Month Notes", "Year Notes" -> calendarNotesMenu.setVisible(true);
             case "Search Result" ->  // Search Results
                     searchesMenu.setVisible(true);
             case "Goals Branch Editor" -> {
@@ -222,8 +237,8 @@ public class AppMenuBar extends JMenuBar {
             }
             case "Goal" -> goalsMenu.setVisible(true);
             case "Upcoming Event" -> eventsMenu.setVisible(true);
-            case "To Do List" ->       // A List
-                    todolistsMenu.setVisible(true);
+            case "Notes" -> userNotesMenu.setVisible(true);
+            case "To Do List" -> todolistsMenu.setVisible(true);
             case "Viewing FoundIn" -> goBack.setVisible(true);
             default -> {
             } // aka "No Selection"

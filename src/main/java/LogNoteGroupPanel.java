@@ -12,7 +12,7 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
     public LogNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
-        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
+        myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty NoteGroup.
         myNoteGroup.myNoteGroupPanel = this;
         if (groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
         setAppendable(false); // New notes for this panel will come in at the 'top'.
@@ -65,33 +65,19 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         theNotePager.setBackground(headingRow1.getBackground());
         headingRow1.add(theNotePager, "East");
 
-        // The Second Header Row -   New Log Entry
-        JPanel headingRow2 = new JPanel(new DndLayout());
+        // The Second Header Row -   New Log Entry button
+        JPanel headingRow2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        JLabel newEntryLabel = new JLabel(" New Entry: ");
-        newEntryLabel.setHorizontalAlignment(JLabel.CENTER);
-        newEntryLabel.setFont(Font.decode("Serif-bold-14"));
-        headingRow2.add(newEntryLabel);
-
-        JTextField newEntryField = new JTextField();
-        newEntryField.setFont(Font.decode("Serif-bold-12"));
-        newEntryField.addActionListener(e -> {
-            JTextField jtf = (JTextField) e.getSource();
-            String theEntry = jtf.getText();
-            if (theEntry == null || theEntry.isEmpty()) return;
-            jtf.setText(null); // Clear the input field, make ready for the next entry.
-
-            // Make a new log entry from the user-entered text.
+        JButton newEntryButton = new JButton("New Entry");
+        newEntryButton.setFont(Font.decode("Serif-bold-14"));
+        newEntryButton.setFocusable(false);
+        newEntryButton.setPreferredSize(new Dimension(100, 20));
+        newEntryButton.addActionListener(e -> { // Make a new, empty log entry.
             LogNoteData logNoteData = new LogNoteData();
-            logNoteData.setNoteString(theEntry);
             logNoteData.setLogDate(LocalDate.now());
-
             prependNote(logNoteData);
-
-            System.out.println(theEntry);
         });
-        headingRow2.add(newEntryField, "Stretch");
-        headingRow2.add(new JLabel("  "));
+        headingRow2.add(newEntryButton);
 
         heading.add(headingRow1);
         add(heading, BorderLayout.NORTH);

@@ -4,10 +4,12 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class LogNoteComponent extends NoteComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private static final int LOGNOTEHEIGHT = 24;
@@ -21,8 +23,8 @@ public class LogNoteComponent extends NoteComponent {
     private final NoteDateLabel noteDateLabel;
 
     static {
-        // Normally just a wrapper for a JOptionPane, but tests may replace this
-        // with their own instance, that would require no user interaction.
+        // optionPane (as a Notifier) is normally just a wrapper for a JOptionPane, but tests may
+        //    replace this field with their own instance of a Notifier that requires no user interaction.
         optionPane = new Notifier() { };
 
         yvDateChooser = new YearView();
@@ -239,6 +241,7 @@ public class LogNoteComponent extends NoteComponent {
 //---------------------------------------------------------
 
     class NoteDateLabel extends JLabel {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         boolean isActive;

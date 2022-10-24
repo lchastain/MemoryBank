@@ -114,16 +114,10 @@ abstract class NoteGroup {
         // construction but then they get nulled out when there is an attempt to load new data due to a change
         // of selected Date.  But if there is no data for the specified new Date,
         // the properties remain null.  That is when this part is needed.
-        switch(myGroupInfo.groupType) {
-            case DAY_NOTES:
-                setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.DAY_NOTES));
-                break;
-            case MONTH_NOTES:
-                setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.MONTH_NOTES));
-                break;
-            case YEAR_NOTES:
-                setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.YEAR_NOTES));
-                break;
+        switch (myGroupInfo.groupType) {
+            case DAY_NOTES -> setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.DAY_NOTES));
+            case MONTH_NOTES -> setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.MONTH_NOTES));
+            case YEAR_NOTES -> setGroupProperties(new GroupProperties(myGroupInfo.getGroupName(), GroupType.YEAR_NOTES));
         }
         return myProperties;
     }
@@ -184,7 +178,7 @@ abstract class NoteGroup {
 
 
     @SuppressWarnings("unchecked")
-        // A NoteData or any one of its children can be sent here.
+    // A NoteData or any one of its children can be sent here.
     void prependNote(NoteData noteData) {
         noteGroupDataVector.add(0, noteData);
         noteData.setMyNoteGroup(this);
