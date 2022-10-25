@@ -79,6 +79,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
     }
 
     // Remove this method to get lines that are about half the height and have no icons.
+    //   ie, the method from the base class will be called in its place.
     @Override
     JComponent makeNewNote(int i) {
         IconNoteComponent inc = new IconNoteComponent(this, i);

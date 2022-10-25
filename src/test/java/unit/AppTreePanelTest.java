@@ -178,7 +178,7 @@ public class AppTreePanelTest {
 
     @Test
     @Order(6)
-    void testShowMonth() {
+    void testShowMonthView() {
         // For the test user there is icon data in this month; needs to have
         //   icon data to get the coverage we're looking for here.
         LocalDate theMonthToShow = LocalDate.of(2019, 7, 15);
@@ -246,17 +246,17 @@ public class AppTreePanelTest {
         TreePath tp = AppUtil.getTreePath(dmtn);
         Assertions.assertNotNull(tp);
         theTree.setSelectionPath(tp);
-        Thread.sleep(800);  // Allow the change time to bake in, and reset the app menus.
+
+        while(appTreePanel.getTheNoteGroupPanel() == null) {
+            //noinspection BusyWait
+            Thread.sleep(100);  // Allow the change time to bake in, and reset the app menus.
+        }
 
         // A side-activity; checks off another method test.
         appTreePanel.showCurrentNoteGroup();
 
         appTreePanel.appMenuBar.manageMenus("To Do List");
-        TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
-        JMenuItem jmi = testUtil.getMenuItem("To Do List", "Save As...");
-        testUtil.setTheAnswerString("Get New Joke");
-        jmi.doClick(); // You could see multiple effects from this, if other tests have left behind JMenuItem listeners.
-
+        appTreePanel.saveGroupAs();  // Too many Exceptions here, if the menu item click is used.
     }
 
     @Test

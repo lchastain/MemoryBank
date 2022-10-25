@@ -924,7 +924,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
     // Remove all children from the node at notesPath, then add according to the boolean.
-    private void groupCalendarNotes(boolean doit) {
+    void groupCalendarNotes(boolean doit) {
         DefaultMutableTreeNode leaf;
         TreeNode[] pathToRoot;  // An array of node names leading back to the root (after the node has been added)
 
@@ -1175,7 +1175,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     } // end resetTreeState
 
 
-    private void saveGroupAs() {
+    void saveGroupAs() {
         String oldName = theNoteGroupPanel.getGroupName();
         boolean success = false;
         NoteGroupPanelKeeper theNoteGroupPanelKeeper = null;

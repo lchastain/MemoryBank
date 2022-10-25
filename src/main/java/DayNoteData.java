@@ -7,7 +7,6 @@ class DayNoteData extends IconNoteData {
         timeOfDayString = LocalTime.now().toString();
     } // end constructor
 
-
     // Alternate constructor, for starting with an EventNoteData,
     //   used when aging events, prior to saving to a Day.
     DayNoteData(EventNoteData eventNoteData) {

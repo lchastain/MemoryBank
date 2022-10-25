@@ -421,11 +421,13 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
     //   as group headers, that need to wait for sorting.
     void showWorkingDialog(boolean showIt) {
         if (showIt) {
-            theWorkingDialog.setLocationRelativeTo(archiveWindow); // In case the app has been moved around.
-            //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
+            if(archiveWindow.isShowing()) {
+                theWorkingDialog.setLocationRelativeTo(archiveWindow); // In case the app has been moved around.
+                //new Exception("Test tracing").printStackTrace(); // Helpful in finding which tests left this up.
 
-            // Create a new thread and setVisible within the thread.
-            new Thread(() -> theWorkingDialog.setVisible(true)).start(); // Start the thread so that the dialog will show.
+                // Create a new thread and setVisible within the thread.
+                new Thread(() -> theWorkingDialog.setVisible(true)).start(); // Start the thread so that the dialog will show.
+            }
         } else {
             new Thread(() -> {
                 // Give the 'visible' time to complete, before going invisible.

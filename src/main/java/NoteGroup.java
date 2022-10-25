@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import java.util.Vector;
 // Children of this class have specialized GroupProperties and NoteData.
 
 @SuppressWarnings("rawtypes")
-abstract class NoteGroup {
+class NoteGroup {
     private static final Logger log = LoggerFactory.getLogger(NoteGroup.class);
 
     NoteGroupDataAccessor groupDataAccessor; // Provides a way to persist and retrieve the Group data
@@ -64,13 +65,13 @@ abstract class NoteGroup {
         BaseData.loading = false;
 
         // Make the basic default properties, if none were loaded.
-        if(myProperties == null) {
+        if (myProperties == null) {
             myProperties = makeGroupProperties(); // This method might be overridden, in child classes of NoteGroup.
         }
     }
 
     @SuppressWarnings("unchecked")
-    // A NoteData or any one of its children can be sent here.
+        // A NoteData or any one of its children can be sent here.
     void appendNote(NoteData noteData) {
         noteGroupDataVector.add(noteData);
         noteData.setMyNoteGroup(this);
@@ -87,7 +88,7 @@ abstract class NoteGroup {
 
     void deleteNoteGroup() {
         groupDataAccessor.deleteNoteGroupData();
-        if(myNoteGroupPanel != null) {
+        if (myNoteGroupPanel != null) {
             // Let the Panel know that its data has been deleted.  For a standard Panel this is just a no-op
             //  because it is going away, but Panels that are NoteGroup Groups will want to 'know' so they
             //  can do a bit of cleanup before they disappear.
@@ -108,7 +109,7 @@ abstract class NoteGroup {
     // They may have direct access to 'myProperties', but this ensures uniform (debuggable) access, one-stop shopping.
     public GroupProperties getGroupProperties() {
         // If we loaded our properties member from a data store then we need to use that one.
-        if(myProperties != null) return myProperties;
+        if (myProperties != null) return myProperties;
 
         // But a CalendarNoteGroup has a different GroupProperties for every Date choice.  They can be set at
         // construction but then they get nulled out when there is an attempt to load new data due to a change
@@ -123,7 +124,6 @@ abstract class NoteGroup {
     }
 
 
-
     void loadNoteGroup() {
         // First, load the raw data (if any) for the group.  If not then theData remains null.
         Object[] theData = groupDataAccessor.loadNoteGroupData();
@@ -135,7 +135,7 @@ abstract class NoteGroup {
         // Reinitialize the properties as well; there may have been a name change.
         makeGroupProperties(); // If persisted data came in then this will be overwritten, below.
 
-        if(theData == null) return;
+        if (theData == null) return;
         // Not that uncommon; many CalendarNote groups will have no data to load.
         // There is also still the (theoretical) possibility that theData is not null but is an array of zero length,
         //   but operationally we have no such logical code path that would result in that situation, so not going
@@ -178,7 +178,7 @@ abstract class NoteGroup {
 
 
     @SuppressWarnings("unchecked")
-    // A NoteData or any one of its children can be sent here.
+        // A NoteData or any one of its children can be sent here.
     void prependNote(NoteData noteData) {
         noteGroupDataVector.add(0, noteData);
         noteData.setMyNoteGroup(this);
@@ -186,7 +186,7 @@ abstract class NoteGroup {
     }
 
     void renameNoteGroup(String renameTo) {
-        if(groupDataAccessor.renameNoteGroupData(myGroupInfo.groupType, myGroupInfo.getGroupName(), renameTo)) {
+        if (groupDataAccessor.renameNoteGroupData(myGroupInfo.groupType, myGroupInfo.getGroupName(), renameTo)) {
             if (myNoteGroupPanel != null) {
                 // Let the Panel know that its NoteGroup data has been renamed.  This will need to cascade through
                 //   to panel title and possibly other visual elements.
@@ -218,7 +218,7 @@ abstract class NoteGroup {
 
     public void setGroupChanged(boolean b) {
         groupChanged = b;
-        if(myProperties != null) myProperties.touchLastMod();
+        if (myProperties != null) myProperties.touchLastMod();
     } // end setGroupChanged
 
 
@@ -227,7 +227,7 @@ abstract class NoteGroup {
     // so they can convert it to the correct child type.
     // This 'set' method should not affect the Last Mod date of the group.
     protected void setGroupProperties(Object propertiesObject) {
-        if(propertiesObject instanceof GroupProperties) {
+        if (propertiesObject instanceof GroupProperties) {
             myProperties = (GroupProperties) propertiesObject;
         } else {
             myProperties = AppUtil.mapper.convertValue(propertiesObject, GroupProperties.class);
@@ -247,16 +247,14 @@ abstract class NoteGroup {
     //
     // This method is called with the raw data that is the data Vector.
     // Child groups with notes that are children of NoteData should override.
-    abstract void setNotes(Object vectorObject);
-    // Back before this class went abstract, this was the implementation here:
-    //    if(vectorObject == null) {
-    //        noteGroupDataVector.clear(); // null not allowed here.
-    //    } else if(vectorObject instanceof Vector) {
-    //        noteGroupDataVector = (Vector) vectorObject;
-    //    } else {
-    //        noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() { });
-    //    }
-    // There could still be future need for a plain-vanilla NoteGroup, so keep this
-    //   note nearby, until it either happens or the note gets really old.  3 May 2022.
+    void setNotes(Object vectorObject) {
+        if (vectorObject == null) {
+            noteGroupDataVector.clear(); // null not allowed here.
+        } else if (vectorObject instanceof Vector) {
+            noteGroupDataVector = (Vector) vectorObject;
+        } else {
+            noteGroupDataVector = AppUtil.mapper.convertValue(vectorObject, new TypeReference<Vector<NoteData>>() { });
+        }
+    }
 
 }

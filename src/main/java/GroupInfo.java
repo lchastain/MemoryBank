@@ -49,38 +49,18 @@ class GroupInfo {
             theNoteGroup = thePanel.myNoteGroup;
             thePanel.preClosePanel(); // Ensures persisted data matches Panel data.
         } else { // There isn't a Panel for it, so we will just make a NoteGroup of the right type; Panel not needed.
-            switch (groupType) {
-                case SEARCH_RESULTS:
-                    theNoteGroup = new SearchResultGroup(this);
-                    break;
-                case TODO_LIST:
-                case GOAL_TODO:
-                    theNoteGroup = new TodoNoteGroup(this);
-                    break;
-                case EVENTS:
-                    theNoteGroup = new EventNoteGroup(this);
-                    break;
-                case LOG:  // No longer planned to be standalone.  Remove this option when this comment gets too old.  5 May 2022
-                case GOAL_LOG:
-                    theNoteGroup = new LogNoteGroup(this);
-                    break;
-                case GOALS:
-                    theNoteGroup = new GoalGroup(this);
-                    break;
-                case MILESTONE:
-                    theNoteGroup = new MilestoneNoteGroup(this);
-                    break;
-                case NOTES:
-                case GOAL_NOTES:
-                    theNoteGroup = new PlainNoteGroup(this);
-                    break;
-                case DAY_NOTES:
-                    theNoteGroup = new DayNoteGroup(this);
-                    break;
-                case MONTH_NOTES:
-                case YEAR_NOTES:
-                    theNoteGroup = new CalendarNoteGroup(this);
-            }
+            theNoteGroup = switch (groupType) {
+                case SEARCH_RESULTS -> new SearchResultGroup(this);
+                case TODO_LIST, GOAL_TODO -> new TodoNoteGroup(this);
+                case EVENTS -> new EventNoteGroup(this);  // No longer planned to be standalone.  Remove this option when this comment gets too old.  5 May 2022
+                case LOG, GOAL_LOG -> new LogNoteGroup(this);
+                case GOALS -> new GoalGroup(this);
+                case MILESTONE -> new MilestoneNoteGroup(this);
+                case NOTES, GOAL_NOTES -> new NoteGroup(this);
+                case DAY_NOTES -> new DayNoteGroup(this);
+                case MONTH_NOTES, YEAR_NOTES -> new CalendarNoteGroup(this);
+                default -> theNoteGroup;
+            };
         }
 
         // If we have a groupId then we only want theNoteGroup if the ID matches.
@@ -110,33 +90,25 @@ class GroupInfo {
         } else { // There isn't a Panel for it, so we will just make a NoteGroup of the right type; Panel not needed.
             LocalDate theDate; // Needed by the Calendar note types.
             switch (groupType) {
-                case SEARCH_RESULTS:
-                    thePanel = new SearchResultGroupPanel(groupName);
-                    break;
-                case TODO_LIST:
-                    thePanel = new TodoNoteGroupPanel(groupName);
-                    break;
-                case EVENTS:
-                    thePanel = new EventNoteGroupPanel(groupName);
-                    break;
-                case GOALS:
-                    thePanel = new GoalGroupPanel(groupName);
-                    break;
-                case DAY_NOTES:
+                case SEARCH_RESULTS -> thePanel = new SearchResultGroupPanel(groupName);
+                case TODO_LIST -> thePanel = new TodoNoteGroupPanel(groupName);
+                case EVENTS -> thePanel = new EventNoteGroupPanel(groupName);
+                case GOALS -> thePanel = new GoalGroupPanel(groupName);
+                case DAY_NOTES -> {
                     thePanel = new DayNoteGroupPanel();
                     theDate = CalendarNoteGroup.getDateFromGroupName(this);
                     ((DayNoteGroupPanel) thePanel).setDate(theDate);
-                    break;
-                case MONTH_NOTES:
+                }
+                case MONTH_NOTES -> {
                     thePanel = new MonthNoteGroupPanel();
                     theDate = CalendarNoteGroup.getDateFromGroupName(this);
                     ((MonthNoteGroupPanel) thePanel).setDate(theDate);
-                    break;
-                case YEAR_NOTES:
+                }
+                case YEAR_NOTES -> {
                     thePanel = new YearNoteGroupPanel();
                     theDate = CalendarNoteGroup.getDateFromGroupName(this);
                     ((YearNoteGroupPanel) thePanel).setDate(theDate);
-                    break;
+                }
             }
         }
         return thePanel;

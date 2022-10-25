@@ -4,6 +4,20 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 
+// A PlainNoteGroupPanel does not have its own specialized NoteGroup, NoteComponent or NoteData - it utilizes only
+//   the base classes of these entities, hence the name 'plain'.
+
+// A PlainNoteGroupPanel can either be a standalone Panel or it can be associated to a 'parent' panel.
+// An association is defined via its name by prefixing 'notes_' to the name of the Group for the parent panel, and the
+// data for it will go to the same location as the data for the parent panel.  For example the Notes for the Goal
+// 'Retire' will be stored in the same location as the Goal and the name will be 'notes_Retire' which will have the
+// effect of attaching it to the goal_Retire.
+
+// Note:  with a new approach being developed for user notes, this panel is not currently (as of 25 Oct 2022) being
+//   instantiated by the main MB application, which could allow NoteGroup to go back to being an abstract class.
+//   But hold off on that until you are sure that you want to delete this class, or remove this commwent if/when it
+//   comes back into usage.
+
 public class PlainNoteGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(PlainNoteGroupPanel.class);
     private static final int DEFAULT_PAGE_SIZE = 25;
@@ -40,7 +54,6 @@ public class PlainNoteGroupPanel extends NoteGroupPanel {
     }
 
     // Called from the constructor to create and place the visual components of the panel.
-    @SuppressWarnings({"rawtypes"})
     private void buildPanelContent() {
         // The multi-row Header for the Log Panel -
         //-----------------------------------------------------

@@ -5,9 +5,9 @@
   "notesExpanded" : true,
   "todoListsExpanded" : true,
   "searchesExpanded" : true,
-  "groupCalendarNotes" : false,
-  "theSelection" : "Year View",
-  "theSelectionRow" : 12,
+  "groupCalendarNotes" : true,
+  "theSelection" : "Calendar Notes",
+  "theSelectionRow" : 14,
   "defaultDayNoteIconInfo" : {
     "dataArea" : "APP_ICONS",
     "iconName" : "icon_not",

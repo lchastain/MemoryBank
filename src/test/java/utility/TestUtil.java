@@ -105,7 +105,7 @@ public class TestUtil implements Notifier, SubSystem {
     }
 
     // A utility function to retrieve a specified JMenuItem.
-    // Calling contexts will perform a 'doClick' on the returned value.
+    // Calling contexts can perform a 'doClick' on the returned value.
     JMenuItem getMenuItem(String menu, String text) {
         JMenu jm;
         JMenuItem jmi = null;

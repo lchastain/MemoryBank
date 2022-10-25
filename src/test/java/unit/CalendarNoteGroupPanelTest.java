@@ -2,7 +2,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.IOException;
@@ -48,9 +47,8 @@ class CalendarNoteGroupPanelTest {
         AppTreePanel.theInstance = null; // We don't want to 'inherit' one that was previously used.
         appTreePanel = TestUtil.getTheAppTreePanel(); // This sets a 'Test' Notifier
         theTree = appTreePanel.getTree();
-        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) theTree.getModel().getRoot();
-        DefaultMutableTreeNode notesBranchNode = BranchHelperInterface.getNodeByName(rootNode, "Calendar Notes");
-        theCalendarNotesTreePath = AppUtil.getTreePath(notesBranchNode);
+//        appTreePanel.groupCalendarNotes(true);
+        theCalendarNotesTreePath = appTreePanel.calendarNotesPath;
     } // end static
 
     @AfterAll
@@ -73,7 +71,7 @@ class CalendarNoteGroupPanelTest {
 
         // get the menu, check its items' enablement status.
         TestUtil testUtil = (TestUtil) appTreePanel.optionPane;
-        jmi = testUtil.getMenuItem("Notes", "Save");
+        jmi = testUtil.getMenuItem("Calendar Notes", "Save");
         System.out.println("Retrieved menu item text: " + jmi.getText());
         Assertions.assertFalse(jmi.isEnabled());
 
@@ -85,7 +83,7 @@ class CalendarNoteGroupPanelTest {
         Assertions.assertEquals(2, tabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex());
         System.out.println("CalendarNotes Panel is on tab: " + tabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex());
 
-        jmi = testUtil.getMenuItem("Notes", "Undo All");
+        jmi = testUtil.getMenuItem("Calendar Notes", "Undo All");
         System.out.println("Retrieved menu item text: " + jmi.getText());
         Assertions.assertFalse(jmi.isEnabled());
     }
@@ -98,7 +96,7 @@ class CalendarNoteGroupPanelTest {
         NoteData yearNoteData = new NoteData();
         yearNoteData.setNoteString("new year note");
         tabbedCalendarNoteGroupPanel.theYearNoteGroupPanel.appendNote(yearNoteData);
-        jmi = testUtil.getMenuItem("Notes", "Save");
+        jmi = testUtil.getMenuItem("Calendar Notes", "Save");
         System.out.println("Retrieved menu item text: " + jmi.getText());
         Assertions.assertTrue(jmi.isEnabled());
 
@@ -108,13 +106,13 @@ class CalendarNoteGroupPanelTest {
         theTree.setSelectionPath(theCalendarNotesTreePath);
         tabbedCalendarNoteGroupPanel =  appTreePanel.theTabbedCalendarNoteGroupPanel;
         Assertions.assertEquals(2, tabbedCalendarNoteGroupPanel.theTabbedPane.getSelectedIndex());
-        jmi = testUtil.getMenuItem("Notes", "Undo All");
+        jmi = testUtil.getMenuItem("Calendar Notes", "Undo All");
         System.out.println("Retrieved menu item text: " + jmi.getText());
         Assertions.assertTrue(jmi.isEnabled());
 
         // Change to tab 1 (the Log) and verify that its menu items are still disabled.
         tabbedCalendarNoteGroupPanel.theTabbedPane.setSelectedIndex(1); // Change to the Log tab.
-        jmi = testUtil.getMenuItem("Notes", "Save");
+        jmi = testUtil.getMenuItem("Calendar Notes", "Save");
         System.out.println("Retrieved menu item text: " + jmi.getText());
         Assertions.assertFalse(jmi.isEnabled());
     }
