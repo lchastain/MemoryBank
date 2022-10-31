@@ -86,11 +86,11 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
 
     @Override
-    JComponent makeNewNote(int i) {
+    JComponent makeNewNoteComponent(int i) {
         LogNoteComponent lnc = new LogNoteComponent(this, i);
         lnc.setVisible(false);
         return lnc;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
 
 }

@@ -107,11 +107,11 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
 
 
     @Override
-    JComponent makeNewNote(int i) {
+    JComponent makeNewNoteComponent(int i) {
         DayNoteComponent dnc = new DayNoteComponent(this, i);
         dnc.setVisible(false);
         return dnc;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
     //<editor-fold desc="MouseListener methods">
     public void mouseClicked(MouseEvent e) {
@@ -121,44 +121,32 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         String s = source.getName();
 
         switch (s) {
-            case "Y-":
-                setOneBack(ChronoUnit.YEARS);
-                break;
-            case "M-":
-                setOneBack(ChronoUnit.MONTHS);
-                break;
-            case "-":
-                setOneBack(ChronoUnit.DAYS);
-                break;
-            case "T":
-                if(archiveDate != null) setDate(archiveDate);
+            case "Y-" -> setOneBack(ChronoUnit.YEARS);
+            case "M-" -> setOneBack(ChronoUnit.MONTHS);
+            case "-" -> setOneBack(ChronoUnit.DAYS);
+            case "T" -> {
+                if (archiveDate != null) setDate(archiveDate);
                 else setDate(LocalDate.now());
-
                 AppTreePanel.theInstance.dateChanged(DateRelatedDisplayType.DAY_NOTES, theDate);
-                break;
-            case "+":
-                setOneForward(ChronoUnit.DAYS);
-                break;
-            case "M+":
-                setOneForward(ChronoUnit.MONTHS);
-                break;
-            case "Y+":
-                setOneForward(ChronoUnit.YEARS);
-                break;
-            case "12":
+            }
+            case "+" -> setOneForward(ChronoUnit.DAYS);
+            case "M+" -> setOneForward(ChronoUnit.MONTHS);
+            case "Y+" -> setOneForward(ChronoUnit.YEARS);
+            case "12" -> {
                 toggleMilitary();
                 source.setName("24");
                 source.setText("24");
                 mouseEntered(e); // Update the status message, without having to exit/enter.
                 return;
-            case "24":
+            }
+            case "24" -> {
                 toggleMilitary();
                 source.setName("12");
                 source.setText("12");
                 mouseEntered(e); // Update the status message, without having to exit/enter.
                 return;
-            default:
-                System.out.println("DayNoteGroupPanel.mouseClicked unhandled: " + s);
+            }
+            default -> System.out.println("DayNoteGroupPanel.mouseClicked unhandled: " + s);
         }
         updateGroup();
     } // end mouseClicked
@@ -168,33 +156,15 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         if(!source.isEnabled()) return; // It's not really a button; we need to check this first.
         String s = source.getName();
         switch (s) {
-            case "Y-":
-                s = "Click here to go back one year";
-                break;
-            case "M-":
-                s = "Click here to go back one month";
-                break;
-            case "-":
-                s = "Click here to see previous day";
-                break;
-            case "T":
-                s = "Click here to see notes for 'today'.";
-                break;
-            case "+":
-                s = "Click here to see next day";
-                break;
-            case "M+":
-                s = "Click here to go forward one month";
-                break;
-            case "Y+":
-                s = "Click here to go forward one year";
-                break;
-            case "12":
-                s = "Click here to see time in 12 hour format";
-                break;
-            case "24":
-                s = "Click here to see time in 24 hour format";
-                break;
+            case "Y-" -> s = "Click here to go back one year";
+            case "M-" -> s = "Click here to go back one month";
+            case "-" -> s = "Click here to see previous day";
+            case "T" -> s = "Click here to see notes for 'today'.";
+            case "+" -> s = "Click here to see next day";
+            case "M+" -> s = "Click here to go forward one month";
+            case "Y+" -> s = "Click here to go forward one year";
+            case "12" -> s = "Click here to see time in 12 hour format";
+            case "24" -> s = "Click here to see time in 24 hour format";
         }
         setStatusMessage(s);
     } // end mouseEntered

@@ -94,11 +94,11 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
 
     @Override
-    JComponent makeNewNote(int i) {
+    JComponent makeNewNoteComponent(int i) {
         MilestoneNoteComponent noteComponent = new MilestoneNoteComponent(this, i);
         noteComponent.setVisible(false);
         return noteComponent;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
 
 //    public static void main(String[] args) {

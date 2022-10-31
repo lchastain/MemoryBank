@@ -41,6 +41,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     Map<String, JFrame> archiveWindows;
 
     private static final Logger log = LoggerFactory.getLogger(AppTreePanel.class);
+    // Seemed like a good idea at the time, but logging this way is not actually being used; no appender is configured.
+    // The initialization remains in place and you can still see output to the console if you do a log.info(<string>),
+    //   but other levels just evaporate, for now.  Alternatives are System.out.println() and MemoryBank.debug().
 
     Notifier optionPane;
     //-------------------------------------------------------------------

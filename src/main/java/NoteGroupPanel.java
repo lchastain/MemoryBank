@@ -180,7 +180,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         //   to display it to the user by adding it to their interface.
         theNotePager = new NotePager(this);
 
-        // The 'makeNewNote' methodology works for ALL child groups regardless
+        // The 'makeNewNoteComponent' methodology works for ALL child groups regardless
         //   of the Type of new note that they make, because we do not
         //   actually put the result into a typed variable; it goes directly
         //   into the container.  Every Group method that accesses the
@@ -188,7 +188,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         //   note to the correct type, or it will call a method common
         //   to all JComponents, such as 'setVisible'.
         for (int i = 0; i <= intHighestNoteComponentIndex; i++) {
-            groupNotesListPanel.add(makeNewNote(i));
+            groupNotesListPanel.add(makeNewNoteComponent(i));
         } // end for
 
         // The first note should not be invisible.
@@ -368,14 +368,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // persisting the group data.  It updates group content without
     // affecting NoteGroupPanel attributes such as the menus.
     protected void getPanelData() {
-
-        // This can be needed by CalendarNoteGroups where the date has been altered.  Otherwise it's a no-op.
-// that line is now in the CalendarNoteGroupPanel override of this method.
-// Leaving the comments here for now because we are not 100% sure that it really is not otherwise needed.
-        // maybe needed for link target changes?
-// can remove after all tests pass and reverse link auto-removal is working.
-//        myNoteGroup.setGroupProperties(myNoteGroup.getGroupProperties());
-
         unloadNotesPanel(theNotePager.getCurrentPage());
         myNoteGroup.setNotes(getCondensedInfo());
     }
@@ -520,13 +512,13 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end loadPage
 
 
-    // This is called from the constructor; should be overridden by
-    //   child classes and those children should NOT call this one.
-    JComponent makeNewNote(int i) {
+    // This method is called from buildNotesPanel, which is called in the constructor.
+    // It should be overridden by child classes and those children should NOT call this one.
+    JComponent makeNewNoteComponent(int i) {
         NoteComponent nc = new NoteComponent(this, i);
         nc.setVisible(false);
         return nc;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
 
     // This method is provided as a means for the pager to notify a

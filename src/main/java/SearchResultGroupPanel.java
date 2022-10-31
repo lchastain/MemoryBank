@@ -253,18 +253,18 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
 
     //-------------------------------------------------------------------
-    // Method Name: makeNewNote
+    // Method Name: makeNewNoteComponent
     //
     // Called by the NoteGroup (base class) constructor.  This
     //   is just the visual component; no actual data yet.
     //-------------------------------------------------------------------
     @Override
-    protected JComponent makeNewNote(int i) {
+    protected JComponent makeNewNoteComponent(int i) {
         SearchResultComponent src = new SearchResultComponent(this, i);
         src.setEditable(false);
         src.setVisible(false);
         return src;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
 
     // Disabled this 9/03/2019 so that it does not pull down code coverage for tests.

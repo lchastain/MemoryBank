@@ -82,11 +82,11 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
 
     // Remove this method to get lines that are about half the height and have no icons.
     @Override
-    JComponent makeNewNote(int i) {
+    JComponent makeNewNoteComponent(int i) {
         IconNoteComponent inc = new IconNoteComponent(this, i);
         inc.setVisible(false);
         return inc;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
     //---------------------------------------------------------
     // MouseListener methods

@@ -296,11 +296,11 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     }
 
     @Override
-    JComponent makeNewNote(int i) {
+    JComponent makeNewNoteComponent(int i) {
         EventNoteComponent newNote = new EventNoteComponent(this, i);
         newNote.setVisible(false);
         return newNote;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
 
     @Override

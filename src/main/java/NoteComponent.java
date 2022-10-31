@@ -22,7 +22,6 @@ public class NoteComponent extends JPanel {
     // The Members
     NoteData myNoteData;
     NoteTextField noteTextField;
-    JTextPane thePane;
 
     // Needed by container classes to set their scrollbar united increment.
     static final int NOTEHEIGHT = 24;
@@ -32,7 +31,7 @@ public class NoteComponent extends JPanel {
     static final int HAS_EXT_TEXT = 99;
 
     // Static values that are accessed from multiple contexts.
-    private static final Border offBorder;
+    static final Border offBorder;
     static Border redBorder;
     static Border highBorder;
     static Border lowBorder;
@@ -251,7 +250,8 @@ public class NoteComponent extends JPanel {
     // This method is called when a line either gains or loses focus.
     //
     // Child classes may override this method in order to do their
-    //   own thing but they should probably call this one after that.
+    //   own thing but they should call this one after that,
+    //   unless they are not using the noteTextField.
     //--------------------------------------------------------------
     protected void noteActivated(boolean blnIAmOn) {
         if(!initialized) return; // No need for this, on notes where nothing was ever done.

@@ -39,9 +39,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         } // end if
         if (theOrder != INORDER) checkColumnOrder();
 
-        listHeader = new TodoGroupHeader(this);
-        setGroupHeader(listHeader);
-
         buildMyPanel(groupInfo.getGroupName());
         theNotePager.reset(1);
         setListMenu(AppMenuBar.getNodeMenu("To Do List"));
@@ -194,16 +191,16 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
 
     //-------------------------------------------------------------------
-    // Method Name: makeNewNote
+    // Method Name: makeNewNoteComponent
     //
     // Called by the NoteGroup (base class) constructor
     //-------------------------------------------------------------------
     @Override
-    JComponent makeNewNote(int i) {
+    JComponent makeNewNoteComponent(int i) {
         TodoNoteComponent tnc = new TodoNoteComponent(this, i);
         tnc.setVisible(false);
         return tnc;
-    } // end makeNewNote
+    } // end makeNewNoteComponent
 
 
     @SuppressWarnings({"unchecked"})
