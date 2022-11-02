@@ -4,6 +4,7 @@
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,7 +15,7 @@ public class DateTimeNoteComponent extends NoteComponent {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    static final int COMPONENTHEIGHT = 95;
+    static final int COMPONENTHEIGHT = 104;
 
     static Notifier optionPane;
 
@@ -73,14 +74,14 @@ public class DateTimeNoteComponent extends NoteComponent {
 
         noteTextArea = new NoteTextArea();
         noteTextArea.setLineWrap(true);
-//        Dimension d = noteTextArea.getPreferredSize();
-//        noteTextArea.setPreferredSize(new Dimension(d.width, 100));
         if(!editable) {
             noteTextArea.setEditable(false);
         }
 
         add(westPanel, BorderLayout.WEST);
-        add(noteTextArea, BorderLayout.CENTER);
+        JScrollPane jsp = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jsp.setViewportView(noteTextArea);
+        add(jsp, BorderLayout.CENTER);
 
         MemoryBank.trace();
     } // end constructor
@@ -106,8 +107,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
     // Need to keep the height constant.
     public Dimension getMaximumSize() {
-        Dimension d = super.getMaximumSize();
-        return new Dimension(d.width, COMPONENTHEIGHT);
+        return new Dimension(super.getMaximumSize().width, COMPONENTHEIGHT);
     } // end getMaximumSize
 
     @Override
@@ -117,8 +117,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
     @Override
     public Dimension getPreferredSize() {
-        Dimension d = super.getPreferredSize();
-        return new Dimension(d.width, COMPONENTHEIGHT);
+        return new Dimension(super.getPreferredSize().width, COMPONENTHEIGHT);
     } // end getPreferredSize
 
 
@@ -609,12 +608,14 @@ public class DateTimeNoteComponent extends NoteComponent {
         @Serial
 
         private static final long serialVersionUID = 1L;
-        private static final int minWidth = 80;
-        private static final int minHeight = 150;
 
         public NoteTextArea() {
-            //super();
-            super(6, 0);
+            // By calling the super contructor with no rows or columns, we get the smallest possible TextArea.
+            // But the component to which this inner class belongs is putting us into a stretchable Panel that
+            //   (given the chosen font) will initially make enough room for text that is five rows in height.
+            //   The number of columns will vary depending on the size of the container that holds the
+            //   DateTimeNoteComponent.
+            super();
 
             // This is needed so that the KeyListener will hear a TAB.
             setFocusTraversalKeysEnabled(false);
@@ -622,7 +623,6 @@ public class DateTimeNoteComponent extends NoteComponent {
             setBorder(offBorder);
             addMouseListener(this);
             setFont(Font.decode("Dialog-bold-14"));
-//            addActionListener(this);  // The Enter key, and a mouse double-click.
             addFocusListener(this);
             getDocument().addDocumentListener(this); // cut/paste/changed
             addKeyListener(this);
@@ -640,20 +640,6 @@ public class DateTimeNoteComponent extends NoteComponent {
             // Restore the document listener.
             getDocument().addDocumentListener(this);
         }
-
-        @Override
-        public Dimension getMinimumSize() {
-            Dimension d = new Dimension(minWidth, minHeight);
-            System.out.println("NoteTextArea minimum size: " + d);
-            return d;
-        } // end getMinimumSize
-
-        @Override
-        public Dimension getPreferredSize() {
-            Dimension d = new Dimension(minWidth, minHeight);
-            System.out.println("NoteTextArea preferred size: " + d);
-            return d;
-        } // end getMaximumSize
 
         // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
         //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
@@ -690,7 +676,7 @@ public class DateTimeNoteComponent extends NoteComponent {
                         -1, -1, lastMouseEnteredEvent.getClickCount(), false);
 
                 // Now get ALL the mouse listeners on that earlier note.
-                // This is because tooltips are displayed by the JVM library code and not our own, so if there
+                // This is because tooltips are displayed by the JVM library code and not our own code, so if there
                 //   is a tooltip showing then it was put there by a listener in that code, so that is the listener
                 //   to which we need to send the event to get the tooltip to go away.
                 MouseListener[] theListeners = theSource.getMouseListeners();
@@ -780,9 +766,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         //=====================================================================
 
         //<editor-fold desc="actionPerformed method for the TextField">
-        // Although there are several child classes, only this base class is handling events on the JTextField.
-        //   This method will be called directly as the event handler when the field has the focus and the user
-        //   presses 'Enter', and indirectly when they mouse double-click on the field.
+        //   This method will be called indirectly for a mouse double-click on the JTextArea.
         //---------------------------------------------------------
         public void actionPerformed(ActionEvent ae) {
             MemoryBank.event();
@@ -792,7 +776,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             hideToolTip(); // Turn off the currently displayed tooltip, if any.
 
             // Highlight this note to show it is the one being modified.
-            DateTimeNoteComponent.this.setBorder(redBorder);
+            setBorder(redBorder);
 
             NoteData tmpNoteData = getNoteData();
             extendedNoteChanged = myManager.editNoteData(tmpNoteData);
@@ -806,7 +790,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             } // end if
 
             // Remove the 'modification in progress' highlight
-            DateTimeNoteComponent.this.setBorder(null);
+            setBorder(null);
         } // end actionPerformed
         //</editor-fold>
 
@@ -884,6 +868,8 @@ public class DateTimeNoteComponent extends NoteComponent {
 
             int kp = ke.getKeyCode();
 
+            System.out.println("Caret position: " + getCaretPosition());
+
             boolean shifted = ke.isShiftDown();
 
             // Translate TAB / Shift-TAB into DOWN / UP
@@ -895,22 +881,42 @@ public class DateTimeNoteComponent extends NoteComponent {
                 } // end if
             } // end if
 
+
             if ((kp != KeyEvent.VK_DOWN) && (kp != KeyEvent.VK_UP)) return;
 
-            if (shifted) {
+            if (shifted) { // This means we are doing a 'swap', if allowed.
                 // System.out.println();
                 if (kp == KeyEvent.VK_UP) shiftUp();
                 else shiftDown();
-            } else {
-                // This is done in order to have the DOWN / UP arrow keys
-                //  behave like the TAB / SHIFT-TAB keys.
-                if (kp == KeyEvent.VK_DOWN) DateTimeNoteComponent.NoteTextArea.this.transferFocus();
-                else DateTimeNoteComponent.NoteTextArea.this.transferFocusBackward();
+            } else { // Otherwise, a simple UP or DOWN arrow.
+                int lineCount = getLineCount();
+                int currentLine = 1;
+                System.out.println("Line Count: " + lineCount);
+                try {  // Get the current line (zero-based)
+                    int offset = getCaretPosition();
+                    int line = getLineOfOffset(offset);
+                    currentLine = line + 1;
+                } catch (BadLocationException ex) {
+                    ex.printStackTrace();
+                }
+                System.out.println("Current line of the TextArea: " + currentLine);
+
+                if (kp == KeyEvent.VK_DOWN) {
+                    if(currentLine >= lineCount) {
+                        transferFocus();
+                    }
+                } else {  // VK_UP
+                    if(currentLine <= 1) {
+                        transferFocusBackward();
+                    }
+                }
+
             } // end if
         } // end keyPressed
 
         @Override
         public void keyReleased(KeyEvent e) {
+//            System.out.println("Selection start: " + getSelectionStart());
         }
 
         @Override
@@ -1027,14 +1033,13 @@ public class DateTimeNoteComponent extends NoteComponent {
 
         // Load up the frame, and go -
         testFrame.setContentPane(boxPanel);
-//        testFrame.setContentPane(dtnc);
         testFrame.pack();
         testFrame.setSize(new Dimension(680, 480));
         testFrame.setVisible(true);
         testFrame.setLocationRelativeTo(null);
     }
 
-} // end class DayNoteComponent
+} // end class DateTimeNoteComponent
 
 
 
