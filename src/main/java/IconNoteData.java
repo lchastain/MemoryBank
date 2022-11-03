@@ -78,7 +78,7 @@ class IconNoteData extends NoteData {
     public void setIconFileString(String val) {
         if (val != null) {
             iconFileString = val.replaceAll("\\\\", "/");
-            MemoryBank.debug("IconNoteData.setIconFileString to: " + iconFileString);
+            //MemoryBank.debug("IconNoteData.setIconFileString to: " + iconFileString);
         }
     }
 

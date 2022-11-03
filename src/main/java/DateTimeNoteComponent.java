@@ -9,7 +9,9 @@ import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.Serial;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class DateTimeNoteComponent extends NoteComponent {
     @Serial
@@ -17,6 +19,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
     static final int COMPONENTHEIGHT = 104;
 
+    private final DateTimeFormatter dtf;
     static Notifier optionPane;
 
     // The Members
@@ -26,6 +29,9 @@ public class DateTimeNoteComponent extends NoteComponent {
     NoteTextArea noteTextArea;
 
     // Private static values that are accessed from multiple local methods.
+    private static final JMenuItem clearDateMi;
+    private static final JMenuItem setDateMi;
+    private static final JPopupMenu datePopup;
     private static final JMenuItem clearTimeMi;
     private static final JMenuItem setTimeMi;
     private static final JPopupMenu timePopup;
@@ -33,17 +39,24 @@ public class DateTimeNoteComponent extends NoteComponent {
     static {
         // optionPane is normally just a wrapper for a JOptionPane, but tests may replace it
         // with their own instance, that would require no user interaction.
-        optionPane = new Notifier() { };
+        optionPane = new Notifier() {
+        };
 
         //-----------------------------------
-        // Create the popup menu.
+        // Create the popup menus.
         //-----------------------------------
+        datePopup = new JPopupMenu();
+        datePopup.setFocusable(false);
         timePopup = new JPopupMenu();
         timePopup.setFocusable(false);
 
         //--------------------------------------------
         // Define the popup menu items for a DateTimeNoteComponent
         //--------------------------------------------
+        clearDateMi = new JMenuItem("Clear Date");
+        datePopup.add(clearDateMi);
+        setDateMi = new JMenuItem("Set Date");
+        datePopup.add(setDateMi);
         clearTimeMi = new JMenuItem("Clear Time");
         timePopup.add(clearTimeMi);
         setTimeMi = new JMenuItem("Set Time");
@@ -55,12 +68,11 @@ public class DateTimeNoteComponent extends NoteComponent {
         super(ng, i);
         remove(noteTextField);
 
+        dtf = DateTimeFormatter.ofPattern("d MMM yyyy");
         makeDataObject(); // Child classes of NoteComponent override this method and set their own data types.
 
-        JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2,2));
+        JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
         setLayout(new BorderLayout());
-        //setLayout(new DndLayout());
-        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         index = i;
 
@@ -74,7 +86,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
         noteTextArea = new NoteTextArea();
         noteTextArea.setLineWrap(true);
-        if(!editable) {
+        if (!editable) {
             noteTextArea.setEditable(false);
         }
 
@@ -103,7 +115,9 @@ public class DateTimeNoteComponent extends NoteComponent {
     }
 
     // (will/might be) Accessed by tests
-    NoteTimeLabel getNoteTimeLabel() { return noteTimeLabel; }
+    NoteTimeLabel getNoteTimeLabel() {
+        return noteTimeLabel;
+    }
 
     // Need to keep the height constant.
     public Dimension getMaximumSize() {
@@ -125,21 +139,32 @@ public class DateTimeNoteComponent extends NoteComponent {
         super.initialize();
 
         myDayNoteData.setTimeOfDayString(LocalTime.now().toString());
-        resetTimeLabel();
+        resetDateLabel();
+        noteTimeLabel.resetTimeLabel();
     } // end initialize
 
 
     @Override
+    // There IS no DateTimeNoteData class, but the DayNoteData is sooo close to what is needed,
+    //   so we just go ahead and use it as if it 'fits'.  And to MAKE it fit,
+    //   we are hijacking the iconFileString (not needed) and replacing it with a LocalDate string
+    //   (that IS needed).  This saves us from having to have a separate data class and NoteGroup.
     protected void makeDataObject() {
         myDayNoteData = new DayNoteData();
+        myDayNoteData.setIconFileString(LocalDate.now().toString());
     } // end makeDataObject
 
 
     @Override
     protected void noteActivated(boolean noteIsActive) {
-        if(!initialized) return; // No need for further action, on notes where nothing was ever done.
+        if (!initialized) return; // No need for further action, on notes where nothing was ever done.
+
         if (!noteIsActive) {
+            noteDateLabel.setInactive();
             noteTimeLabel.setInactive();
+
+            // We don't call the super() in this case, because we have no NoteTextField in this component.
+            // Instead, we do for NoteTextArea, what the base class does for the NoteTextField.
             if (noteTextArea.getText().trim().equals("")) {
                 NoteData nd = getNoteData();
 
@@ -149,7 +174,6 @@ public class DateTimeNoteComponent extends NoteComponent {
                 if (nd.extendedNoteString.trim().equals("")) clear();
             } // end if
         } // end if
-        // We don't call the super() in this case, because we have no NoteTextField.
     } // end noteActivated
 
 
@@ -163,7 +187,8 @@ public class DateTimeNoteComponent extends NoteComponent {
     //----------------------------------------------------------
     @Override
     protected void resetComponent() {
-        resetTimeLabel();
+        resetDateLabel();
+        noteTimeLabel.resetTimeLabel();
 
         String s;
         if (getNoteData() == null) s = "";
@@ -179,38 +204,35 @@ public class DateTimeNoteComponent extends NoteComponent {
     } // end resetComponent
 
 
-    // This method is called in response to a 'military' toggle
-    //   as well as when initializing or updating the time.
-    void resetTimeLabel() {
-        if(!initialized) return;
+    // This method is called when initializing the component or updating the date.
+    void resetDateLabel() {
+        if (!initialized) return;
+        String theDateString = myDayNoteData.getIconFileString();
 
-        String timeOfDayString = myDayNoteData.getTimeOfDayString();
-        if (timeOfDayString == null || timeOfDayString.isEmpty()) {
-            // The following statement could be needed if a DayNoteComponent had
-            //   had its time cleared, and then it was being shifted up or down.
-            noteTimeLabel.setText("     ");  // enough room for 'HH:MM'
-            // Otherwise, if it had been cleared and this method is called by
-            //   a time format toggle, it is not needed but no harm done.
-            return;
-        } // end if
-
-        LocalTime theTime = LocalTime.parse(timeOfDayString);
-        noteTimeLabel.setText(AppUtil.makeTimeString(theTime));
-
-        // Colorize AM / PM
-        if (theTime.getHour() > 11) {
-            noteTimeLabel.setForeground(MemoryBank.pmColor);
+        if (theDateString != null && !theDateString.isBlank()) {
+            LocalDate noteDate = LocalDate.parse(theDateString);
+            String dateString = dtf.format(noteDate);
+            noteDateLabel.setText(dateString);
         } else {
-            noteTimeLabel.setForeground(MemoryBank.amColor);
+            // The following statement could be needed if a DateTimeNoteComponent had
+            //   had its date cleared, and then it was being shifted up or down.
+            noteDateLabel.setText("           ");  // enough room for 'dd MMM yyyy'
         }
-    } // end resetTimeLabel
+    } // end resetDateLabel
 
 
     @Override
     void setEditable(boolean b) {
-        super.setEditable(b);
+        editable = b; // With this one line, we don't need to call the super().
+        noteDateLabel.setEditable(b);
         noteTimeLabel.setEditable(b);
+        noteTextArea.setEditable(b);
     }
+
+    @Override
+    public void setActive() {
+        noteTextArea.requestFocusInWindow();
+    } // end NoteComponent setActive
 
     //----------------------------------------------------------
     // Method Name: setNoteData
@@ -243,26 +265,48 @@ public class DateTimeNoteComponent extends NoteComponent {
     } // end setNoteData
 
     protected void shiftDown() {
-        if (noteTimeLabel.isActive) {
+        if (noteTimeLabel.isActive) { // This section dup'd from DayNoteComponent
             // subtract one minute
             LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
             lt = lt.minusMinutes(1);
             myDayNoteData.setTimeOfDayString(lt.toString());
-            resetTimeLabel();
+            noteTimeLabel.resetTimeLabel();
             DateTimeNoteComponent.this.setNoteChanged();
+        } else if (noteDateLabel.isActive) {
+            LocalDate ld = getDateFromDayNoteData();
+            if (ld != null) {
+                ld = ld.minusDays(1);    // subtract one day
+                myDayNoteData.setIconFileString(ld.toString());
+                resetDateLabel();
+                setNoteChanged();
+            }
         } else {
             myManager.shiftDown(index);
         } // end if
     } // end shiftDown
 
+    // The Date for this note is 'hidden' in the iconFileString; a 'hijacked' field that is otherwise unused.
+    private LocalDate getDateFromDayNoteData() {
+        if (myDayNoteData.iconFileString == null) return null;
+        return LocalDate.parse(myDayNoteData.iconFileString);
+    }
+
     protected void shiftUp() {
-        if (noteTimeLabel.isActive) {
+        if (noteTimeLabel.isActive) { // This section dup'd from DayNoteComponent
             // add one minute
             LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
             lt = lt.plusMinutes(1);
             myDayNoteData.setTimeOfDayString(lt.toString());
-            resetTimeLabel();
+            noteTimeLabel.resetTimeLabel();
             DateTimeNoteComponent.this.setNoteChanged();
+        } else if (noteDateLabel.isActive) {
+            LocalDate ld = getDateFromDayNoteData();
+            if (ld != null) {
+                ld = ld.plusDays(1);    // add one day
+                myDayNoteData.setIconFileString(ld.toString());
+                resetDateLabel();
+                setNoteChanged();
+            }
         } else {
             myManager.shiftUp(index);
         } // end if
@@ -270,6 +314,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
 
     @Override
+    // We did not extend a DayNoteComponent, so this code from there has been dup'd.
     public void swap(NoteComponent dnc) {
         // Get a reference to the two data objects
         DayNoteData dnd1 = (DayNoteData) this.getNoteData();
@@ -299,76 +344,103 @@ public class DateTimeNoteComponent extends NoteComponent {
 // End of NoteComponent specific methods
 //---------------------------------------------------------
 
-    class NoteDateLabel extends JLabel {
+    class NoteDateLabel extends JLabel implements ActionListener {
         @Serial
         private static final long serialVersionUID = 1L;
+        private static final YearView yvDateChooser;
 
         boolean isActive;
         int dateWidth = 100;
         MouseAdapter ma;
 
+        static {
+            yvDateChooser = new YearView();
+        }
+
         NoteDateLabel() {
             clear();
             setHorizontalAlignment(JLabel.CENTER);
-            setFont(Font.decode("Dialog-bold-12"));
+            setFont(Font.decode("Dialog-bold-16"));
 
-//            ma = new MouseAdapter() {
-//                @Override
-//                public void mouseClicked(MouseEvent e) {
-//                    MemoryBank.event();
-//                    // For all clicks - including Single left
-//                    setActive();
-//                    if (!initialized) return;
-//
-//                    int m = e.getModifiersEx();
-//                    if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
-//                        if (e.getClickCount() >= 2) return;  // We don't handle a double click on this component.
-//                        // Show the YearView data chooser
-//                        yvDateChooser.setView(LocalDate.now()); // In case the current date is a null.
-//                        yvDateChooser.setChoice(myLogNoteData.getLogDate());
-//                        showDateChooser();
-//                        LocalDate newDate = yvDateChooser.getChoice();
-//                        // Reselecting the same date has same effect as 'X'ing the dialog - no date change.
-//                        // To clear a date:  right-click the current selection, then close the dialog.
-//                        System.out.println("The date retrieved from the chooser: " + newDate);
-//                        myLogNoteData.setLogDate(newDate);
-//                        myNoteGroupPanel.myNoteGroup.setGroupChanged(true);
-//                        resetDateLabel();
-//                    } else { // Single Left Mouse Button
-//                        if (isActive) {  // This implements a 'toggle'
-//                            setBorder(highBorder);
-//                            isActive = false;
-//                        } else {
-//                            setBorder(lowBorder);
-//                            isActive = true;
-//                            if (getText().trim().equals("")) {
-//                                // This can happen if a previously initialized
-//                                //   note has had its date cleared.
-//                                myDayNoteData.setLogDate(LocalDate.now());
-//                                resetDateLabel();
-//                                setNoteChanged();
-//                            } // end if
-//                        } // end if
-//                    } // end if/else if
-//                } // end mouseClicked
-//
-//                @Override
-//                public void mouseEntered(MouseEvent e) {
-//                    if (!initialized) return;
-//                    myManager.setStatusMessage("Left click mouse to activate, then " +
-//                            "shift up/down arrows to adjust date");
-//                } // end mouseEntered
-//            };
+            ma = new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    MemoryBank.event();
+
+                    // For all clicks - including Single left
+                    noteTimeLabel.setInactive();
+                    setActive();
+                    if (!initialized) return;
+
+                    int m = e.getModifiersEx();
+                    if (e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
+                        if (e.getClickCount() >= 2) return;  // We don't handle a double click on this component.
+                        // Show the popup menu
+                        showDatePopup(e);
+                    } else { // Single Left Mouse Button
+                        if (isActive) {  // This implements a 'toggle'
+                            setBorder(highBorder);
+                            isActive = false;
+                        } else {
+                            setBorder(lowBorder);
+                            isActive = true;
+                            if (getText().trim().equals("")) {
+                                // This can happen if a previously initialized
+                                //   note has had its date cleared.
+                                myDayNoteData.setIconFileString(LocalDate.now().toString());
+                                resetDateLabel();
+                                setNoteChanged();
+                            } // end if
+                        } // end if
+                    } // end if/else if
+                } // end mouseClicked
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (!initialized) return;
+                    myManager.setStatusMessage("Left click mouse to activate, then " +
+                            "shift up/down arrows to adjust date");
+                } // end mouseEntered
+            };
         } // end constructor
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MemoryBank.debug("DayNoteComponent.DateTimeLabel.actionPerformed ActionEvent: " + e.toString());
+            JMenuItem jm = (JMenuItem) e.getSource();
+            String s = jm.getText();
+            switch (s) {
+                case "Clear Date" -> noteDateLabel.clear();
+                case "Set Date" -> { // Show the YearView date chooser
+                    yvDateChooser.setView(LocalDate.now()); // In case the current date is a null.
+                    yvDateChooser.setChoice(getDateFromDayNoteData());
+                    showDateChooser();
+                    LocalDate newDate = yvDateChooser.getChoice();
+                    // Reselecting the same date has same effect as 'X'ing the dialog - no date change.
+                    // To clear a date:  right-click the current selection, then close the dialog.
+                    System.out.println("The date retrieved from the chooser: " + newDate);
+                    if(newDate == null) {
+                        myDayNoteData.iconFileString = null; // Cannot use the 'set' to null this out; do it directly.
+                    } else {
+                        myDayNoteData.setIconFileString(newDate.toString());
+                    }
+                    myNoteGroupPanel.myNoteGroup.setGroupChanged(true);
+                    resetDateLabel();
+                }
+                default ->   // Nothing else expected so print it out -
+                        System.out.println(s);
+            }
+            setNoteChanged();
+        } // end actionPerformed
 
         // Clear both the visual and data elements of this Component
         private void clear() {
             setText("           ");  // enough room for 'dd MMM yyyy'
-            setText("date       ");
+            //setText("date       ");
             setBorder(highBorder);
             isActive = false;
-            if(myDayNoteData != null) { // If not already clear, then clear it.
-                myDayNoteData.setTimeOfDayString(null);
+            if (myDayNoteData != null) { // If not already clear, then clear it.
+                myDayNoteData.iconFileString = null;
             }
         } // end clear
 
@@ -378,12 +450,12 @@ public class DateTimeNoteComponent extends NoteComponent {
 
 
         void setEditable(boolean b) {
-            if(b) { // This limits us to only one mouseListener per NoteDateLabel.
+            if (b) { // This limits us to only one mouseListener per NoteDateLabel.
                 // The limitation is needed because mouse responsiveness needs to track along with editability.
                 MouseListener[] mouseListeners = getMouseListeners();
                 boolean alreadyEditable = false;
                 for (MouseListener ml : mouseListeners) {
-                    if(ml.equals(ma)) {
+                    if (ml.equals(ma)) {
                         alreadyEditable = true;
                         break;
                     }
@@ -402,6 +474,47 @@ public class DateTimeNoteComponent extends NoteComponent {
             isActive = false;
         } // end setInactive
 
+        private void showDateChooser() {
+            // Make a dialog window to choose a date from a Year.
+            Frame f = JOptionPane.getFrameForComponent(this);
+            JDialog tempwin = new JDialog(f, true);
+
+            tempwin.getContentPane().add(yvDateChooser, BorderLayout.CENTER);
+            tempwin.setTitle("Select a new date for this log entry.");
+            tempwin.setSize(yvDateChooser.getPreferredSize());
+            tempwin.setResizable(false);
+            yvDateChooser.setDialog(tempwin, 1);
+
+            // Center the dialog relative to the main frame.
+            tempwin.setLocationRelativeTo(f);
+
+            // Go modal -
+            tempwin.setVisible(true);
+        } // end showDateChooser
+
+        //------------------------------------------------------------
+        // Method Name:  showDatePopup
+        //
+        // There is only one of each unique menu item for the entire
+        //   NoteDateLabel class, no matter how many are created
+        //   and inserted into a NoteGroup.  So, each time the menu
+        //   is displayed, any previous component listeners must
+        //   first be removed and then this one is added.
+        //------------------------------------------------------------
+        void showDatePopup(MouseEvent me) {
+            ActionListener[] ala;
+
+            ala = clearDateMi.getActionListeners();
+            for (ActionListener al : ala) clearDateMi.removeActionListener(al);
+            clearDateMi.addActionListener(this);
+
+            ala = setDateMi.getActionListeners();
+            for (ActionListener al : ala) setDateMi.removeActionListener(al);
+            setDateMi.addActionListener(this);
+
+            datePopup.show(me.getComponent(), me.getX(), me.getY());
+        } // end showDatePopup
+
     } // end class NoteDateLabel
 
     class NoteTimeLabel extends JLabel implements ActionListener, MouseListener {
@@ -414,25 +527,51 @@ public class DateTimeNoteComponent extends NoteComponent {
         NoteTimeLabel() {
             clear(); // initializes as well as 'clears'.
             setHorizontalAlignment(JLabel.CENTER);
-            setFont(Font.decode("DialogInput-bold-20"));
+            //setFont(Font.decode("DialogInput-bold-20"));
+            setFont(Font.decode("Dialog-bold-16"));
         } // end constructor
 
         private void clear() {
             setText("     ");  // enough room for 'HH:MM'
-            setText("time ");  // enough room for 'HH:MM'
+            //setText("time ");  // enough room for 'HH:MM'
             setBorder(highBorder);
             isActive = false;
-            if(myDayNoteData != null) myDayNoteData.setTimeOfDayString("");
+            if (myDayNoteData != null) myDayNoteData.setTimeOfDayString("");
         } // end clear
 
+        // This method is called when initializing or updating the time.
+        void resetTimeLabel() {
+            if (!initialized) return;
+
+            String timeOfDayString = myDayNoteData.getTimeOfDayString();
+            if (timeOfDayString == null || timeOfDayString.isEmpty()) {
+                // The following statement could be needed if a DayNoteComponent had
+                //   had its time cleared, and then it was being shifted up or down.
+                noteTimeLabel.setText("     ");  // enough room for 'HH:MM'
+                // Otherwise, if it had been cleared and this method is called by
+                //   a time format toggle, it is not needed but no harm done.
+                return;
+            } // end if
+
+            LocalTime theTime = LocalTime.parse(timeOfDayString);
+            noteTimeLabel.setText(AppUtil.makeTimeString(theTime));
+
+            // Colorize AM / PM
+            if (theTime.getHour() > 11) {
+                noteTimeLabel.setForeground(MemoryBank.pmColor);
+            } else {
+                noteTimeLabel.setForeground(MemoryBank.amColor);
+            }
+        } // end resetTimeLabel
+
         void setEditable(boolean b) {
-            if(b) { // This limits us to only one mouseListener.
+            if (b) { // This limits us to only one mouseListener.
                 // The limitation was more appropriate when an initial one was added during construction, but now
                 // we no longer do that.  However, this more careful approach is still valid, just more verbose.
                 MouseListener[] mouseListeners = getMouseListeners();
                 boolean alreadyEditable = false;
                 for (MouseListener ml : mouseListeners) {
-                    if(ml.getClass() == this.getClass()) {
+                    if (ml.getClass() == this.getClass()) {
                         alreadyEditable = true;
                         break;
                     }
@@ -468,7 +607,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             // the problem of how to initialize with a null - we just don't.  On the
             // other hand, though - if they clear it (which they can do from that UI)
             // then it can remain null.  Silly user.
-            if(timeOfDayString != null) theTime = LocalTime.parse(timeOfDayString);
+            if (timeOfDayString != null && !timeOfDayString.isBlank()) theTime = LocalTime.parse(timeOfDayString);
             else theTime = LocalTime.now();
 
             TimeChooser tc = new TimeChooser(theTime);
@@ -496,7 +635,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         // Method Name:  showTimePopup
         //
         // There is only one of each unique menu item for the entire
-        //   DayNoteComponent class, no matter how many are created
+        //   NoteTimeLabel class, no matter how many are created
         //   and inserted into a NoteGroup.  So, each time the menu
         //   is displayed, any previous component listeners must
         //   first be removed and then this one is added.
@@ -524,7 +663,6 @@ public class DateTimeNoteComponent extends NoteComponent {
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             switch (s) {
-                case "Clear Line" -> clear();
                 case "Clear Time" ->
                         // Do not set myTime to null; just clear the visual indicator.
                         //  This leaves the note still initialized; critical to decisions
@@ -537,7 +675,6 @@ public class DateTimeNoteComponent extends NoteComponent {
 
             setNoteChanged();
         } // end actionPerformed
-
 
         public Dimension getPreferredSize() {
             return new Dimension(timeWidth, COMPONENTHEIGHT);
@@ -552,19 +689,20 @@ public class DateTimeNoteComponent extends NoteComponent {
         //---------------------------------------------------------
         public void mouseClicked(MouseEvent e) {
             MemoryBank.event();
+
             // For all clicks - including Single left
-            DateTimeNoteComponent.this.setActive();
+            noteDateLabel.setInactive();
+            setActive();
             if (!initialized) return;
 
             int m = e.getModifiersEx();
-            if(e.getButton()==MouseEvent.BUTTON3) { // Click of right mouse button.
+            if (e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
 //            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // This doesn't work in mouseClicked; only 'pressed'
                 if (e.getClickCount() >= 2) return;
                 // Show the popup menu
                 showTimePopup(e);
             } else if (e.getClickCount() == 2) { // Double click, left mouse button.
                 showTimeChooser(); // bring up a mouse-controlled time interface
-
             } else { // Single Left Mouse Button
                 if (isActive) {  // This implements a 'toggle'
                     setBorder(highBorder);
@@ -574,9 +712,10 @@ public class DateTimeNoteComponent extends NoteComponent {
                     isActive = true;
                     if (getText().trim().equals("")) {
                         // This can happen if a previously initialized
-                        //   note has had its time cleared.
-//                        myTime = new Date();
-                        DateTimeNoteComponent.this.resetTimeLabel();
+                        //   note has had its time cleared.  But now the user has clicked
+                        //   on the 'blank' time, and so we fill in the current time.
+                        myDayNoteData.setTimeOfDayString(LocalTime.now().toString());
+                        noteTimeLabel.resetTimeLabel();
                         DateTimeNoteComponent.this.setNoteChanged();
                     } // end if
                 } // end if
@@ -656,7 +795,8 @@ public class DateTimeNoteComponent extends NoteComponent {
                 JComponent component = (JComponent) object;
                 //Rectangle rectangle = component.getBounds();
                 offsetY = component.getBounds().height + 6;
-            } catch (Exception ignore){}
+            } catch (Exception ignore) {
+            }
 
             return new Point(10, offsetY);
         }
@@ -667,7 +807,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             // We preserve a single (static) last MOUSE_ENTERED event across ALL NoteTextAreas, but there is a
             // sequence of operations after program startup, whereby execution could come here while this reference
             // is still null.  So the following  block of code is conditional on it not being null.
-            if(lastMouseEnteredEvent != null) {
+            if (lastMouseEnteredEvent != null) {
                 // Get a reference to the last entered note
                 NoteTextArea theSource = (NoteTextArea) lastMouseEnteredEvent.getSource();
                 // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
@@ -683,7 +823,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
                 // Cycle thru the listeners and call .mouseExited() on all of them.
                 // (including our own, but that one will not remove the tooltip).
-                for(MouseListener ml: theListeners) {
+                for (MouseListener ml : theListeners) {
                     ml.mouseExited(mouseExitedEvent);
                 }
             }
@@ -695,7 +835,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
             String subjectString = nd.getSubjectString();
             String extendedNoteString = nd.getExtendedNoteString();
-            if(!extendedNoteString.isBlank()) {
+            if (!extendedNoteString.isBlank()) {
                 StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(extendedNoteString);
                 if (sdd != null) {
                     JTextPane jtp = new JTextPane();
@@ -765,7 +905,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         // EVENT HANDLERS
         //=====================================================================
 
-        //<editor-fold desc="actionPerformed method for the TextField">
+        //<editor-fold desc="actionPerformed method">
         //   This method will be called indirectly for a mouse double-click on the JTextArea.
         //---------------------------------------------------------
         public void actionPerformed(ActionEvent ae) {
@@ -830,7 +970,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
             DateTimeNoteComponent.this.scrollRectToVisible(getBounds());  // Does this scroll text on the line, or the line in the scrollpane?
-            if(mySelectionMonitor != null) mySelectionMonitor.noteSelected(getNoteData());
+            if (mySelectionMonitor != null) mySelectionMonitor.noteSelected(getNoteData());
 
             // We occasionally get a null pointer exception at startup.
             if (getCaret() == null) return;
@@ -868,9 +1008,13 @@ public class DateTimeNoteComponent extends NoteComponent {
 
             int kp = ke.getKeyCode();
 
-            System.out.println("Caret position: " + getCaretPosition());
-
             boolean shifted = ke.isShiftDown();
+            if (!shifted) {
+                // In case the user 'activated' the date or time, but then left it depressed and went over to
+                //   the text area on the same line and started typing there.
+                noteDateLabel.setInactive();
+                noteTimeLabel.setInactive();
+            }
 
             // Translate TAB / Shift-TAB into DOWN / UP
             if (kp == KeyEvent.VK_TAB) {
@@ -881,13 +1025,13 @@ public class DateTimeNoteComponent extends NoteComponent {
                 } // end if
             } // end if
 
-
             if ((kp != KeyEvent.VK_DOWN) && (kp != KeyEvent.VK_UP)) return;
 
             if (shifted) { // This means we are doing a 'swap', if allowed.
                 // System.out.println();
                 if (kp == KeyEvent.VK_UP) shiftUp();
                 else shiftDown();
+                ke.consume(); // Don't let it go on to affect the TextArea.
             } else { // Otherwise, a simple UP or DOWN arrow.
                 int lineCount = getLineCount();
                 int currentLine = 1;
@@ -902,15 +1046,14 @@ public class DateTimeNoteComponent extends NoteComponent {
                 System.out.println("Current line of the TextArea: " + currentLine);
 
                 if (kp == KeyEvent.VK_DOWN) {
-                    if(currentLine >= lineCount) {
+                    if (currentLine >= lineCount) {
                         transferFocus();
                     }
                 } else {  // VK_UP
-                    if(currentLine <= 1) {
+                    if (currentLine <= 1) {
                         transferFocusBackward();
                     }
                 }
-
             } // end if
         } // end keyPressed
 
@@ -935,6 +1078,8 @@ public class DateTimeNoteComponent extends NoteComponent {
         //<editor-fold desc="MouseListener methods for the TextArea">
         public void mouseClicked(MouseEvent e) {
             MemoryBank.event();
+            noteDateLabel.setInactive();
+            noteTimeLabel.setInactive();
             if (!this.hasFocus()) {
                 // The rmb click does not change focus, so we help it out.
                 requestFocusInWindow();
@@ -944,7 +1089,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             int m = e.getModifiersEx();
 
             // Single click, right mouse button.
-            if(e.getButton()==MouseEvent.BUTTON3) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
                 // System.out.println("Right click on index " + index);
 
                 // In earlier Java versions (before 1.6), The rmb click
