@@ -72,6 +72,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     NoteGroupPanelKeeper theEventListKeeper;      // keeper of all loaded Event lists.
     NoteGroupPanelKeeper theTodoListKeeper;       // keeper of all loaded To Do lists.
     NoteGroupPanelKeeper theSearchResultsKeeper;  // keeper of all loaded SearchResults.
+    NoteGroupPanelKeeper theNotesKeeper;          // keeper of all loaded Note lists.
     SearchPanel searchPanel;
     private final JPanel aboutPanel;
     private final JSplitPane splitPane;
@@ -526,6 +527,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // After the grouping decision, the method will also add the user's standalone note groups, if any.
         groupCalendarNotes(MemoryBank.appOpts.groupCalendarNotes);
 
+        theNotesKeeper = new NoteGroupPanelKeeper();
+        //  Now - get the list of active notes from the options list, create nodes for them.
+        //  None yet; this is a placeholder.
 
         //---------------------------------------------------
         // To Do Lists
@@ -1439,8 +1443,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 menuContext = "Search Results Branch Editor";
                 branchHelper = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.SEARCH_RESULTS);
             }
-            case "Notes" -> //                branchHelper = new BranchHelper(theTree, theSearchResultsKeeper, DataArea.NOTES);
-                    menuContext = "Notes";
+            case "Notes" -> {
+                branchHelper = new BranchHelper(theTree, theNotesKeeper, DataArea.NOTES);
+                menuContext = "Notes";
+            }
         }
         if (branchHelper != null) {
             int resultCount = branchHelper.getChoices().size(); // Choices array list can be empty but not null.

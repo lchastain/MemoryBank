@@ -1,5 +1,4 @@
 enum GroupType {
-
     NOTES("Notes"),
     CALENDAR_NOTES("Calendar Notes"),
     DAY_NOTES("Day Note"),      // Non-plural here is correct; needed when group naming.

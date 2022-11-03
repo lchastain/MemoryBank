@@ -45,6 +45,9 @@ public class BranchHelper implements BranchHelperInterface {
         } else if (areaName.equals(DataArea.TODO_LISTS)) {
             thePrefix = "todo_";
             theType = GroupType.TODO_LIST;
+        } else if (areaName.equals(DataArea.NOTES)) {
+            thePrefix = "notes_"; // Only one file, but can contain many notes.
+            theType = GroupType.NOTES;
         } else if(areaName.equals(DataArea.SEARCH_RESULTS)) {
             thePrefix = "search_";
             theType = GroupType.SEARCH_RESULTS;

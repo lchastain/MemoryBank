@@ -12,6 +12,7 @@ enum DataArea {
     CALENDARS("Years"),
     GOALS("Goals"),
     GOAL_LOG("Goals"),
+    GOAL_NOTE("Goals"),
     UPCOMING_EVENTS("Upcoming Events"),
     MILESTONES("Goals"),
     NOTES("Notes"),
