@@ -37,6 +37,7 @@ class AppOptions {
     TimeFormat timeFormat;
     Vector<String> goalsList;
     Vector<String> eventsList;
+    Vector<String> notesList;
     Vector<String> tasksList;
     Vector<String> searchResultList;
     int paneSeparator;  // Position of the separator bar between Left and Right panes.
@@ -64,6 +65,7 @@ class AppOptions {
         theSelectionRow = -1;
         goalsList = new Vector<>(0, 1);
         eventsList = new Vector<>(0, 1);
+        notesList = new Vector<>(0, 1);
         tasksList = new Vector<>(0, 1);
         searchResultList = new Vector<>(0, 1);
         defaultDayNoteIconInfo = new IconInfo(DataArea.APP_ICONS, "icon_not", "gif");
@@ -88,6 +90,9 @@ class AppOptions {
             case YEAR_NOTES:
                 // These types are always active.
                 return true;
+            case NOTES:
+                theList = notesList;
+                break;
             case GOALS:
                 theList = goalsList;
                 break;
@@ -108,7 +113,7 @@ class AppOptions {
             if(groupName.equals(object)) return true;
         }
         return false;
-    }
+    } // end of the active method.
 
     //=================================================================================================================
     // Below are two static methods that simply make a call to a static method in the app main -

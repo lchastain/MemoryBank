@@ -514,7 +514,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
         //---------------------------------------------------
         // Notes - First, the base 'Notes' node, then
-        //   add one or three Calendar leaves, then
+        //   add one or three Calendar notegroup leaves, then
         //   add any user-defined stand-alone note groups.
         //---------------------------------------------------
         branch = new DefaultMutableTreeNode("Notes");
@@ -526,10 +526,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         //   and YearNotes.  Group according to the user's option setting (default is false).
         // After the grouping decision, the method will also add the user's standalone note groups, if any.
         groupCalendarNotes(MemoryBank.appOpts.groupCalendarNotes);
-
-        theNotesKeeper = new NoteGroupPanelKeeper();
-        //  Now - get the list of active notes from the options list, create nodes for them.
-        //  None yet; this is a placeholder.
 
         //---------------------------------------------------
         // To Do Lists
@@ -855,6 +851,36 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return appMenuBar;
     }
 
+    private String getHtmlForFile(String filename) {
+        File theHelpFile;
+        String markyHtmlString;
+        String theHtml = null;
+
+        if (MemoryBank.appEnvironment.equals("ide")) {
+            theHelpFile = new File("src/main/resources/help/markdown/" + filename);
+        } else { // The only other choice is jar, in which case the files should have been extracted by now.
+            String tempDirPathString = System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/");
+            //System.out.println("Temp directory string: " + tempDirPathString);
+            theHelpFile = new File(tempDirPathString + "membankResources/help/markdown/" + filename);
+        }
+
+        if (theHelpFile.exists()) {
+            System.out.println("Path to the help: " + theHelpFile.getAbsolutePath());
+            try {
+                markyHtmlString = FileUtils.readFileToString(theHelpFile);
+                theHtml = com.github.rjeschke.txtmark.Processor.process(markyHtmlString);
+                if (MemoryBank.appEnvironment.equals("ide")) {
+                    theHtml = theHtml.replaceAll("../../images/", "file:src/main/resources/images/");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                String theMessage = "Unable to read the help file [" + filename + "]";
+                theMessage += "\nYou are on your own.";
+                Notifier.showErrorMessage(this, theMessage, "Bummer");
+            }
+        }
+        return theHtml;
+    }
 
     NoteGroupPanel getPanelFromKeeper(GroupInfo groupInfo) {
         return getPanelFromKeeper(groupInfo.groupType, groupInfo.getGroupName());
@@ -930,7 +956,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         return viewedDate;
     }
 
-    // Remove all children from the node at notesPath, then add according to the boolean.
+    // Remove all children from the node at notesPath, then add according to the boolean, and
+    //   then bring back any user-defined note groups.
     void groupCalendarNotes(boolean doit) {
         DefaultMutableTreeNode leaf;
         TreeNode[] pathToRoot;  // An array of node names leading back to the root (after the node has been added)
@@ -944,27 +971,34 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         yearNotesPath = null;
 
         if (doit) { // Add a single leaf for the grouped notes.
-            leaf = new DefaultMutableTreeNode("Calendar Notes");
+            leaf = new DefaultMutableTreeNode("Calendar Notes", false);
             theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             calendarNotesPath = new TreePath(pathToRoot);
         } else { // Add three discrete leaves.
-            leaf = new DefaultMutableTreeNode("Day Notes");
+            leaf = new DefaultMutableTreeNode("Day Notes", false);
             theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             dayNotesPath = new TreePath(pathToRoot);
 
-            leaf = new DefaultMutableTreeNode("Month Notes");
+            leaf = new DefaultMutableTreeNode("Month Notes", false);
             theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             monthNotesPath = new TreePath(pathToRoot);
 
-            leaf = new DefaultMutableTreeNode("Year Notes");
+            leaf = new DefaultMutableTreeNode("Year Notes", false);
             theNotesNode.add(leaf);
             pathToRoot = leaf.getPath();
             yearNotesPath = new TreePath(pathToRoot);
         }
         System.out.println("Group: yes/no: " + doit);
+
+        //  Now - get the list of active notes from the options list, create nodes for them.
+        theNotesKeeper = new NoteGroupPanelKeeper();
+        for (String s : appOpts.notesList) {
+            // Add to the tree
+            theNotesNode.add(new DefaultMutableTreeNode(s, false));
+        } // end for
 
         // Update the tree visual
         if(theTree != null) { // It will be null the first time this method is called in the current session,
@@ -973,8 +1007,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             theTreeModel.nodeStructureChanged(theRootNode);
             resetTreeState();
             theTree.expandPath(notesPath); // Whether it already is, or not.
-            theTree.setSelectionPath(notesPath);
-            updateAppOptions(false);
+            updateAppOptions(true);
+            showAbout(); // After a tree structure change, this is the 'safest' place to put the selection.
         }
     }
 
@@ -1048,10 +1082,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         if (theAppYears != null) theAppYears.preClosePanel();
         theGoalsKeeper.saveAll();
         theEventListKeeper.saveAll();
+        theNotesKeeper.saveAll();
         theTodoListKeeper.saveAll();
         theSearchResultsKeeper.saveAll(); // Needed when fixing data or after sorting.
 
-        updateAppOptions(true); // Capture expansion states into appOpts
+        updateAppOptions(true); // Capture expansion states and notegroup makeup into appOpts
     } // end preClose
 
 
@@ -1726,37 +1761,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         }
     } // end showHelp
 
-    private String getHtmlForFile(String filename) {
-        File theHelpFile;
-        String markyHtmlString;
-        String theHtml = null;
-
-        if (MemoryBank.appEnvironment.equals("ide")) {
-            theHelpFile = new File("src/main/resources/help/markdown/" + filename);
-        } else { // The only other choice is jar, in which case the files should have been extracted by now.
-            String tempDirPathString = System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/");
-            //System.out.println("Temp directory string: " + tempDirPathString);
-            theHelpFile = new File(tempDirPathString + "membankResources/help/markdown/" + filename);
-        }
-
-        if (theHelpFile.exists()) {
-            System.out.println("Path to the help: " + theHelpFile.getAbsolutePath());
-            try {
-                markyHtmlString = FileUtils.readFileToString(theHelpFile);
-                theHtml = com.github.rjeschke.txtmark.Processor.process(markyHtmlString);
-                if (MemoryBank.appEnvironment.equals("ide")) {
-                    theHtml = theHtml.replaceAll("../../images/", "file:src/main/resources/images/");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                String theMessage = "Unable to read the help file [" + filename + "]";
-                theMessage += "\nYou are on your own.";
-                Notifier.showErrorMessage(this, theMessage, "Bummer");
-            }
-        }
-        return theHtml;
-    }
-
     void showKeepers() {
         Object theMessage;
         JScrollPane jScrollPane = new JScrollPane();
@@ -2254,6 +2258,29 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 String leafName = leafLink.toString();
                 //MemoryBank.debug("  Preserving Event List: " + leafName);
                 appOpts.eventsList.addElement(leafName);
+                leafLink = leafLink.getNextLeaf();
+            } // end while
+        } // end if
+
+        // Preserve the names of the active Notes in the AppOptions.
+        // But - do not include the four calendar-based note types.
+        DefaultMutableTreeNode theNotesNode = BranchHelperInterface.getNodeByName(theRootNode, "Notes");
+        ArrayList<String> notesExclusionList = new ArrayList<>();
+        notesExclusionList.add("Calendar Notes");
+        notesExclusionList.add("Day Notes");
+        notesExclusionList.add("Month Notes");
+        notesExclusionList.add("Year Notes");
+        appOpts.notesList.clear();
+
+        numLists = theNotesNode.getChildCount();
+        if (numLists > 0) {
+            leafLink = theNotesNode.getFirstLeaf();
+            while (numLists-- > 0) {
+                String s = leafLink.toString();
+                if(!notesExclusionList.contains(s)) {
+                    MemoryBank.debug("  Preserving Notes list: " + s);
+                    appOpts.notesList.addElement(s);
+                }
                 leafLink = leafLink.getNextLeaf();
             } // end while
         } // end if
