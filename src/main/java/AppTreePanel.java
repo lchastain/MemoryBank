@@ -239,7 +239,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 theNoteGroupPanelKeeper = theEventListKeeper;
                 break;
             case "Notes":
-            case "Note Branch Editor":
+            case "Notes Branch Editor":
                 groupType = GroupType.NOTES;
                 prompt = "Enter a name for the new list of notes";
                 title = "Add a new Notes List";
@@ -1479,8 +1479,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                 branchHelper = new BranchHelper(theTree, theEventListKeeper, DataArea.UPCOMING_EVENTS);
             }
             case "Notes" -> {
+                menuContext = "Notes Branch Editor";
                 branchHelper = new BranchHelper(theTree, theNotesKeeper, DataArea.NOTES);
-                menuContext = "Notes";
             }
             case "To Do Lists" -> {
                 menuContext = "To Do Lists Branch Editor";
@@ -1496,7 +1496,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             boolean branchEditor = false; // No branch editor until after there is at least one NoteGroup.
             if(resultCount > 0) branchEditor = true;
             else { // except for the Notes, because of the pre-existing Calendar notes.
-                if (menuContext.equals("Notes")) branchEditor = true;
+                if (menuContext.equals("Notes Branch Editor")) branchEditor = true;
             }
             if (branchEditor) {
                 TreeBranchEditor tbe = new TreeBranchEditor(theNodeString, selectedNode, branchHelper);

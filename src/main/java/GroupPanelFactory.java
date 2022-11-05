@@ -58,6 +58,8 @@ class GroupPanelFactory {
             return new TodoNoteGroupPanel(nodeName);
         } else if (theContext.startsWith("Goal")) {
             return new GoalGroupPanel(nodeName);
+        } else if (theContext.startsWith("Note")) {
+            return new DateTimeNoteGroupPanel(nodeName);
         } else if (theContext.startsWith("Upcoming Event")) {
             return new EventNoteGroupPanel(nodeName);
         } else if (theContext.startsWith("Search Result")) {

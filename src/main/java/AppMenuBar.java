@@ -235,6 +235,10 @@ public class AppMenuBar extends JMenuBar {
                 branchEditorMenu.setText("To Do Lists");
                 branchEditorMenu.setVisible(true);
             }
+            case "Notes Branch Editor" -> {
+                branchEditorMenu.setText("Notes");
+                branchEditorMenu.setVisible(true);
+            }
             case "Goal" -> goalsMenu.setVisible(true);
             case "Upcoming Event" -> eventsMenu.setVisible(true);
             case "Notes" -> userNotesMenu.setVisible(true);
