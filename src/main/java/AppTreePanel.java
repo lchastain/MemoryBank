@@ -719,7 +719,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
             // Create the archive
             if (MemoryBank.dataAccessor.createArchive()) {
-                // The deselect/reselect is only needed if we are already showing the archive listing.
+                // The deselect/reselect is only needed if we are currently showing the list of archives.
                 if (currentSelection == 0) {
                     theTree.clearSelection();
                     theTree.setSelectionRow(currentSelection);

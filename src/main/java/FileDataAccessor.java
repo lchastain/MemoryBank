@@ -152,10 +152,6 @@ public class FileDataAccessor implements DataAccessor {
                 theSourceDir = new File(NoteGroupFile.eventGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName());
             }
-            case LOG -> {
-                theSourceDir = new File(NoteGroupFile.logGroupAreaPath);
-                theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.LOGS.getAreaName());
-            }
             case NOTES -> {
                 theSourceDir = new File(NoteGroupFile.plainNoteGroupAreaPath);
                 theDestDir = new File(archiveRepoPath + File.separatorChar + DataArea.NOTES.getAreaName());
@@ -199,7 +195,7 @@ public class FileDataAccessor implements DataAccessor {
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.GOALS.getAreaName()).mkdir()) return false;
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.UPCOMING_EVENTS.getAreaName()).mkdir())
             return false;
-        if (!new File(archiveRepoPath + File.separatorChar + DataArea.LOGS.getAreaName()).mkdir()) return false;
+        if (!new File(archiveRepoPath + File.separatorChar + DataArea.NOTES.getAreaName()).mkdir()) return false;
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.TODO_LISTS.getAreaName()).mkdir()) return false;
         if (!new File(archiveRepoPath + File.separatorChar + DataArea.SEARCH_RESULTS.getAreaName()).mkdir())
             return false;
@@ -214,6 +210,7 @@ public class FileDataAccessor implements DataAccessor {
             // Copy the active notegroups into the archive
             archiveGroupType(archiveRepo, GroupType.GOALS);
             archiveGroupType(archiveRepo, GroupType.EVENTS);
+            archiveGroupType(archiveRepo, GroupType.NOTES);
             archiveGroupType(archiveRepo, GroupType.TODO_LIST);
             archiveGroupType(archiveRepo, GroupType.SEARCH_RESULTS);
 

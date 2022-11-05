@@ -279,6 +279,13 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
         pathToRoot = leaf.getPath();
         yearNotesPath = new TreePath(pathToRoot);
 
+        //  Now - get the list of active notes from the options list, create nodes for them.
+        for (String s : appOpts.notesList) {
+            // Add to the tree
+            branch.add(new DefaultMutableTreeNode(s, false));
+        } // end for
+
+
         //---------------------------------------------------
         // To Do Lists
         //---------------------------------------------------
@@ -518,7 +525,7 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
 
             // Load the archived Event group panel, if it exists (but there is no operationally valid reason why it wouldn't).
             EventNoteGroupPanel eventNoteGroupPanel = null;
-            if(groupInfo.exists()) {
+            if (groupInfo.exists()) {
                 // Yes, existence is also checked when attempting to load the data, but if it fails in that
                 // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
                 // then we don't want one at all.
@@ -690,6 +697,36 @@ public class ArchiveTreePanel extends JPanel implements TreePanel, TreeSelection
                 theAppYears.setDate(viewedDate);
             }
             rightPane.setViewportView(theAppYears.theBasePanel);
+        } else if (parentNodeName.equals("Notes")) {
+            GroupInfo groupInfo = new GroupInfo(theNodeString, GroupType.NOTES);
+            groupInfo.archiveName = archiveName;
+
+            // Load the archived group panel, if it exists (but there is no operationally valid reason why it wouldn't).
+            DateTimeNoteGroupPanel dateTimeNoteGroupPanel = null;
+            if (groupInfo.exists()) {
+                // Yes, existence is also checked when attempting to load the data, but if it fails in that
+                // case then you get a new, empty NoteGroup.  For archives - if we can't have the original
+                // then we don't want one at all.
+                dateTimeNoteGroupPanel = new DateTimeNoteGroupPanel(groupInfo);
+            }
+
+            showWorkingDialog(false);
+
+            if (dateTimeNoteGroupPanel == null) {
+                // We just tried to load it, so if it still null then we take it to mean that the file is
+                // not there.  So we show a notice about that, before we remove this leaf from any
+                // further user attempts to retrieve it.
+                JOptionPane.showMessageDialog(this,
+                        "Cannot read in the Note List.\n" +
+                                "This Note list selection will be removed.",
+                        "List not accessible", JOptionPane.WARNING_MESSAGE);
+
+                // Nothing else can be done; the group was unavailable for some reason.
+                closeGroup(); // This just removes the tree node, but it will reappear the next time
+                // the archive is viewed, since the archive options are not updated or preserved.
+            } else {
+                rightPane.setViewportView(dateTimeNoteGroupPanel.theBasePanel);
+            } // end if
         } else {
             // Any other as-yet unhandled node on the tree.
             // Currently - just Week View
