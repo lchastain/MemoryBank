@@ -192,6 +192,22 @@ public class NoteComponent extends JPanel {
     } // end getPreferredSize
 
 
+    String getStatusMessage(int textStatus) {
+        String s = " ";
+
+        switch (textStatus) {
+            case NEEDS_TEXT -> s = "Click here to enter text for this note.";
+            case HAS_BASE_TEXT -> s = "Press 'Enter' to add a subject or an extended note.";
+            case HAS_EXT_TEXT -> {
+                // This gives away the 'hidden' text, if
+                //   there is no primary (blue) text.
+                s = "Double-click or press 'Enter' to see/edit";
+                s += " the subject and extended note.";
+            }
+        } // end switch
+        return s;
+    } // end getStatusMessage
+
     public int getTextStatus() {
         int textStatus = NEEDS_TEXT;
 
@@ -292,19 +308,7 @@ public class NoteComponent extends JPanel {
 
 
     void resetPanelStatusMessage(int textStatus) {
-        String s = " ";
-
-        switch (textStatus) {
-            case NEEDS_TEXT -> s = "Click here to enter text for this note.";
-            case HAS_BASE_TEXT -> s = "Press 'Enter' to add a subject or an extended note.";
-            case HAS_EXT_TEXT -> {
-                // This gives away the 'hidden' text, if
-                //   there is no primary (blue) text.
-                s = "Double-click or press 'Enter' to see/edit";
-                s += " the subject and extended note.";
-            }
-        } // end switch
-        myManager.setStatusMessage(s);
+        myManager.setStatusMessage(getStatusMessage(textStatus));
     } // end resetPanelStatusMessage
 
 
@@ -794,7 +798,7 @@ public class NoteComponent extends JPanel {
         public void mouseEntered(MouseEvent e) {
             contextMenu.setVisible(false); // This gets rid of a previous one, if any.
             lastMouseEnteredEvent = e;
-            if (!initialized) return;
+//            if (!initialized) return;   // Disabled 11/4/2022 so that new notes will prompt for input.
 
             resetPanelStatusMessage(getTextStatus());
         } // end mouseEntered

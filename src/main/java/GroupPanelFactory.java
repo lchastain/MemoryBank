@@ -16,25 +16,31 @@ class GroupPanelFactory {
             if (groupInfo.exists()) {
                 MemoryBank.debug("Loading " + nodeString + " from stored data");
                 return new GoalGroupPanel(nodeString);
-            } // end if there is a file
+            } // end if there is a group
         } else if (parentNodeString.startsWith("Upcoming Event")) {
             groupInfo = new GroupInfo(nodeString, GroupType.EVENTS);
             if (groupInfo.exists()) {
                 MemoryBank.debug("Loading " + nodeString + " from stored data");
                 return new EventNoteGroupPanel(nodeString);
-            } // end if there is a file
+            } // end if there is a group
+        } else if (parentNodeString.startsWith("Note")) {
+            groupInfo = new GroupInfo(nodeString, GroupType.NOTES);
+            if (groupInfo.exists()) {
+                MemoryBank.debug("Loading " + nodeString + " from stored data");
+                return new DateTimeNoteGroupPanel(nodeString);
+            } // end if there is a group
         } else if (parentNodeString.startsWith("To Do List")) {
             groupInfo = new GroupInfo(nodeString, GroupType.TODO_LIST);
             if (groupInfo.exists()) {
                 MemoryBank.debug("Loading " + nodeString + " from stored data");
                 return new TodoNoteGroupPanel(nodeString);
-            } // end if there is a file
+            } // end if there is a group
         } else if (parentNodeString.startsWith("Search Result")) {
             groupInfo = new GroupInfo(nodeString, GroupType.SEARCH_RESULTS);
             if (groupInfo.exists()) {
                 MemoryBank.debug("Loading " + nodeString + " from stored data");
                 return new SearchResultGroupPanel(nodeString);
-            } // end if there is a file
+            } // end if there is a group
         }
         return null;
     }
