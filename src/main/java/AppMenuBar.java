@@ -88,10 +88,10 @@ public class AppMenuBar extends JMenuBar {
         userNotesMenu.add(new JMenuItem("Undo All"));
         userNotesMenu.add(new JMenuItem("Close"));
         userNotesMenu.add(new JMenuItem("Add New..."));
-        userNotesMenu.add(new JMenuItem("Merge..."));
-        //userNotesMenu.add(new JMenuItem("Print..."));
         userNotesMenu.add(new JMenuItem("Save"));
-        userNotesMenu.add(new JMenuItem("Save As..."));
+        // a 'Save As...' is not just a rename; the Branch editor could do that for you.
+        //   But it is also an obfuscated way to simply make a copy; we lose that
+        //   capability if SaveAs is not supported.  And I'm ok with that, for now.
         userNotesMenu.add(new JMenuItem("Clear All"));
         userNotesMenu.add(new JMenuItem("Delete"));
 

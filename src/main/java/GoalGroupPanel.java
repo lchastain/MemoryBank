@@ -368,7 +368,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,
-    // then if ok, saves the file with that name.
+    // then if ok, saves the group with that name.
     boolean saveAs() {
         Frame theFrame = JOptionPane.getFrameForComponent(theBasePanel);
 
