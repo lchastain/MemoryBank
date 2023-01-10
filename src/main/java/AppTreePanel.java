@@ -970,8 +970,14 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         DefaultMutableTreeNode leaf;
         TreeNode[] pathToRoot;  // An array of node names leading back to the root (after the node has been added)
 
-        // Remove all nodes below the notesPath -
-        DefaultMutableTreeNode theNotesNode = (DefaultMutableTreeNode) notesPath.getLastPathComponent();
+        // If the branch editor doApply has been clicked, the notesNode will have been rewritten.
+        DefaultMutableTreeNode theNotesNode = BranchHelperInterface.getNodeByName(theRootNode, "Notes");
+
+        // Although the path still LOOKS the same, it will yield a different Node.
+        // Need to reestablish this variable for use in expansion / collapsing nodes.
+        notesPath = new TreePath(theNotesNode.getPath());
+
+        // Remove all nodes below theNotesNode -
         theNotesNode.removeAllChildren();
         calendarNotesPath = null;
         dayNotesPath = null;
@@ -1016,9 +1022,9 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             resetTreeState();
             theTree.expandPath(notesPath); // Whether it already is, or not.
             updateAppOptions(true);
-            showAbout(); // After a tree structure change, this is the 'safest' place to put the selection.
+            showAbout(); // After a tree structure change, this is the 'safest' action; no selection.
         }
-    }
+    } // end groupCalendarNotes
 
 
     private void handleMenuBar(@NotNull String what) {

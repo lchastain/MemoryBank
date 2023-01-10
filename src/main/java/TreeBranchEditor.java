@@ -36,7 +36,7 @@ public class TreeBranchEditor extends JPanel
 //        theTrash = new IconInfo(DataArea.IMAGES, "waste", "gif").getImageIcon();
 //        IconInfo.scaleIcon(theTrash, 32, 32);
 
-        // Removed the above lines because the image is no longer there, whereas the safe IS.
+        // Removed the above lines because the 'trash' image is no longer there, whereas the safe IS.
         // But need to review - maybe remove it too, from both images and this section?
         theSafe = new IconInfo(DataArea.IMAGES, "safe1", "ico").getImageIcon();
         IconInfo.scaleIcon(theSafe, 32, 32);
@@ -333,7 +333,7 @@ public class TreeBranchEditor extends JPanel
                 showTree();
                 showChoices();
             }
-            case "Apply" -> { // For selections, deselections, renames and removals
+            case "Apply" -> { // For moves, selections, deselections, renames and removals.
                 for (String s : removals) {
                     changeList.add(new NodeChange(s, NodeChange.REMOVED));
                 }
