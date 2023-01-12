@@ -56,8 +56,7 @@ class GroupInfo {
                 case LOG, GOAL_LOG -> new LogNoteGroup(this);
                 case GOALS -> new GoalGroup(this);
                 case MILESTONE -> new MilestoneNoteGroup(this);
-                case GOAL_NOTES -> new NoteGroup(this);
-                case NOTES, DAY_NOTES -> new DayNoteGroup(this);
+                case NOTES, DAY_NOTES, GOAL_NOTES -> new DayNoteGroup(this);
                 case MONTH_NOTES, YEAR_NOTES -> new CalendarNoteGroup(this);
                 default -> theNoteGroup;
             };

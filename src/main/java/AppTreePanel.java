@@ -1549,7 +1549,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
                     case 2 -> // Milestones
                             theData = goalGroupPanel.theMilestoneNoteGroupPanel.myNoteGroup.getTheData();
                     case 3 -> // Notes
-                            theData = goalGroupPanel.thePlainNoteGroupPanel.myNoteGroup.getTheData();
+                            theData = goalGroupPanel.theDateTimeNoteGroupPanel.myNoteGroup.getTheData();
                 }
             } else {
                 theData = theNoteGroupPanel.myNoteGroup.getTheData();
@@ -1859,7 +1859,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         theTree.setSelectionPath(monthViewPath);
     } // end showMonthView
 
-    private String showNoteNoteGroup(DefaultMutableTreeNode selectedNode) {
+    private String showDateTimeNoteGroup(DefaultMutableTreeNode selectedNode) {
         String theNodeString = selectedNode.toString(); // Get the string for the selected node.
         String menuContext = "Notes";  // For manageMenus
         DateTimeNoteGroupPanel dateTimeNoteGroupPanel;
@@ -1906,7 +1906,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             rightPane.setViewportView(theNoteGroupPanel.theBasePanel);
         } // end if
         return menuContext;
-    } // end showNoteNoteGroup
+    } // end showDateTimeNoteGroup
 
     // Note that this method is NOT called for the 'T' button; only from the Menu.
     // The view will change to a textual representation of today's date.
@@ -2156,7 +2156,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         } else if (isTopLevel) menuContext = showBranch(selectedNode); // Edit the indicated branch, OR - add a new group.
         else if (parentNodeName.equals("Goals")) menuContext = showGoal(selectedNode);  // Selection of a Goal
         else if (parentNodeName.equals("Upcoming Events")) menuContext = showEvent(selectedNode);
-        else if (parentNodeName.equals("Notes")) menuContext = showNoteNoteGroup(selectedNode);
+        else if (parentNodeName.equals("Notes")) menuContext = showDateTimeNoteGroup(selectedNode);
         else if (parentNodeName.equals("To Do Lists")) menuContext = showTodoList(selectedNode);
         else if (parentNodeName.equals("Search Results")) menuContext = showSearchResult(selectedNode);
         else if (theNodeString.equals("Year View")) {
