@@ -31,16 +31,6 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         this(groupInfo, DEFAULT_PAGE_SIZE);
     }
 
-    @Override
-    protected void adjustMenuItems(boolean b) {
-        //MemoryBank.debug("LogNoteGroupPanel.adjustMenuItems <" + b + ">");
-        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
-            fosterNoteGroupPanel.adjustMenuItems(b);
-        } else {
-            super.adjustMenuItems(b);
-        }
-    }
-
     // Called from the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
         // The multi-row Header for the Log Panel -

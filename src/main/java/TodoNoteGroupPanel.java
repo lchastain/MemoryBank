@@ -54,16 +54,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     }
 
 
-    @Override
-    protected void adjustMenuItems(boolean b) {
-        //MemoryBank.debug("TodoNoteGroupPanel.adjustMenuItems <" + b + ">");
-        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
-            fosterNoteGroupPanel.adjustMenuItems(b);
-        } else {
-            super.adjustMenuItems(b);
-        }
-    }
-
     private void buildMyPanel(String groupName) {
         log.debug("Building components for a TodoGroupPanel named: " + groupName);
 

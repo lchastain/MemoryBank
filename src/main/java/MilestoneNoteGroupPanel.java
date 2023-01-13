@@ -45,16 +45,6 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
     }
 
 
-    @Override
-    protected void adjustMenuItems(boolean b) {
-        //MemoryBank.debug("MilestoneNoteGroupPanel.adjustMenuItems <" + b + ">");
-        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
-            fosterNoteGroupPanel.adjustMenuItems(b);
-        } else {
-            super.adjustMenuItems(b);
-        }
-    }
-
     JComponent buildHeader() {
         // The Header Row -   The Title and a Pager control
         JPanel heading = new JPanel(new BorderLayout());

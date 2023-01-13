@@ -829,16 +829,21 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // some instances where the child Panel has additional factors to consider and/or additional
     // or different steps to take.  So, the enablement boolean comes in as an input param.
     protected void adjustMenuItems(boolean b) {
-        if (myListMenu == null) return; // Too soon.  Come back later.
-        //MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
+        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
+            fosterNoteGroupPanel.adjustMenuItems(b);
+        } else {
+            if (myListMenu == null) return; // Too soon.  Come back later.
+            //MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
 
-        // And now we adjust the Menu -
-        // (see the note at 'setListMenu' for why we don't need to verify non-null MenuItems before setting enabled)
-        JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-        theUndo.setEnabled(b);
-        JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-        theSave.setEnabled(b);
+            // And now we adjust the Menu -
+            // (see the note at 'setListMenu' for why we don't need to verify non-null MenuItems before setting enabled)
+            JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
+            theUndo.setEnabled(b);
+            JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
+            theSave.setEnabled(b);
+        }
     }
+
 
     // Not all NoteGroups need to manage enablement of items in their menu but all those
     // that do will call this method.  On the provided menu (currently) there will always
