@@ -11,9 +11,11 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.Serial;
 import java.util.Vector;
 
 public class TodoGroupHeader extends Container implements ClingSource {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final TodoNoteGroupPanel parent;
@@ -113,24 +115,17 @@ public class TodoGroupHeader extends Container implements ClingSource {
             // System.out.println("TodoGroupHeader: hb.defaultLabel = " + hb.defaultLabel);
 
             // We still need to change the order, based on actual order.
-            switch (hb.defaultLabel) {
-                case "Priority":
-                    compTempComp = tnc.getPriorityButton();
-                    break;
-                case "To Do Text":
-                    compTempComp = tnc.getNoteTextField();
-                    break;
-                case "Status":
-                    compTempComp = tnc.getStatusButton();
-                    break;
-                default:
-                    // Now that there are only 3, this will throw an exception
-                    //   if it ever gets here.  Left it in to show me the problem
-                    //   in case it ever happens, and also so that the compiler
-                    //   believes that compTempComp will always have a value.
-                    compTempComp = (JComponent) tnc.getComponent(3);
-                    break;
-            }
+            compTempComp = switch (hb.defaultLabel) {
+                case "Priority" -> tnc.getPriorityButton();
+                case "To Do Text" -> tnc.getNoteTextField();
+                case "Status" -> tnc.getStatusButton();
+                default ->
+                        // Now that there are only 3, this will throw an exception
+                        //   if it ever gets here.  Left it in to show me the problem
+                        //   in case it ever happens, and also so that the compiler
+                        //   believes that compTempComp will always have a value.
+                        (JComponent) tnc.getComponent(3);
+            };
             ClingOns.addElement(compTempComp);
         } // end for i
         return ClingOns;
@@ -138,22 +133,14 @@ public class TodoGroupHeader extends Container implements ClingSource {
 
 
     public String getColumnHeader(int i) {
-        String s = null;
-        switch (i) {
-            case 1:
-                s = hb1.getText();
-                break;
-            case 2:
-                s = hb2.getText();
-                break;
-            case 3:
-                s = hb3.getText();
-                break;
-            case 4:
-                s = hb4.getText();
-                break;
-        } // end switch
-        return s;
+        // end switch
+        return switch (i) {
+            case 1 -> hb1.getText();
+            case 2 -> hb2.getText();
+            case 3 -> hb3.getText();
+            case 4 -> hb4.getText();
+            default -> null;
+        };
     } // end getColumnHeader
 
     int getColumnOrder() {
@@ -199,6 +186,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
     // Inner class
     //----------------------------------------------------------------
     class HeaderButton extends LabelButton implements MouseListener {
+        @Serial
         private static final long serialVersionUID = 1L;
         String prompt;
 
@@ -219,17 +207,14 @@ public class TodoGroupHeader extends Container implements ClingSource {
             if (defaultLabel.equals("Status")) return; // Non-sortable column
 
             AppTreePanel.showWorkingDialog(true);
+            parent.preClosePanel(); // Save any in-progress changes.
 
             switch (defaultLabel) {
-                case "Priority":
-                    parent.sortPriority(shift);
-                    break;
-                case "To Do Text":
-                    parent.sortNoteString(shift);
-                    break;
+                case "Priority" -> parent.sortPriority(shift);
+                case "To Do Text" -> parent.sortNoteString(shift);
             }
 
-            parent.setGroupChanged(true);
+            parent.setGroupChanged(true); // set-up for saving after the sort.
             AppTreePanel.showWorkingDialog(false);
         } // end doSorting
 
@@ -293,11 +278,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
                 doUserHeader();
             } else {
                 final int shiftPressed = e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK;
-                new Thread(new Runnable() {
-                    public void run() {
-                        doSorting(shiftPressed);
-                    }
-                }).start(); // Start the thread
+                new Thread(() -> doSorting(shiftPressed)).start(); // Start the thread
             } // end if
         } // end mouseClicked
 

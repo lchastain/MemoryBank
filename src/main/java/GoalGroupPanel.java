@@ -87,7 +87,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         // JTabbedPane's changeListener handles that, to make it 'look' like the tabs hold the content when
         // in reality the content of the center of the basePanel is just swapped out.
     JComponent buildHeader() {
-        // The two-row Header for the GoalGroup
+        // The two-row Header for the GoalGroupPanel
         //-----------------------------------------------------
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
@@ -167,6 +167,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         JPanel currentStatusPanel = new JPanel(new FlowLayout());
         currentStatusPanel.add(new JLabel("Current Status:"));
         JComboBox currentStatus = new JComboBox<>();
+        currentStatus.setFocusable(false); // Otherwise, 'up' arrows can get into this combobox, and change the value.
         currentStatus.setModel(new DefaultComboBoxModel(GoalGroupProperties.CurrentStatus.values()));
         if (groupProperties.currentStatus != null) currentStatus.setSelectedItem(groupProperties.currentStatus);
         currentStatus.addActionListener(e -> {
@@ -183,6 +184,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         JPanel overallStatusPanel = new JPanel(new FlowLayout());
         overallStatusPanel.add(new JLabel("Progress:"));
         JComboBox overallStatus = new JComboBox<>();
+        overallStatus.setFocusable(false); // Otherwise, 'up' arrows can get into this combobox, and change the value.
         overallStatus.setModel(new DefaultComboBoxModel(GoalGroupProperties.OverallStatus.values()));
         if (groupProperties.overallStatus != null) overallStatus.setSelectedItem(groupProperties.overallStatus);
         else overallStatus.setSelectedIndex(1);

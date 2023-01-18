@@ -495,7 +495,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 
         AppUtil.localDebug(true);
 
-//        preSort();
         unloadNotesPanel(theNotePager.getCurrentPage());
         MemoryBank.debug("TodoNoteGroup.sortPriority - Number of items in list: " + items);
 
