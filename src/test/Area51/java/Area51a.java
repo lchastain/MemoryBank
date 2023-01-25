@@ -1,11 +1,7 @@
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Vector;
+import java.time.*;
+import java.util.*;
 
 public class Area51a {
 
@@ -95,10 +91,34 @@ public class Area51a {
         System.out.println("  Plus zero years: " + newDate.plusYears(0));
     }
 
+    // Testing to have code execute at the start of every day.
+    private void try7() {
+        // Make a Date for the next upcoming midnight.
+        LocalDateTime ldt = LocalDate.now().atStartOfDay(); // Midnight past.
+        ldt = ldt.plusDays(1); // Next Midnight
+        Date nextMidnight = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        System.out.println("Timer start date/time is: " + nextMidnight);
+
+        TimerTask tt = new TimerTask() {
+            @Override
+            public void run() {
+                // This could be a thread start, but for "fast" operations could just be a direct execution.
+                System.out.println(LocalDateTime.now());
+            }
+        };
+
+        // Schedule to run once per day (starting with 'nextMidnight')
+        Timer timer = new Timer();
+        timer.schedule(
+                tt, nextMidnight, 1000 * 60 * 60 * 24
+//                tt, nextMidnight, 1000 * 60 * 5
+        );
+
+    }
+
     public static void main(String[] args) {
         Area51a a51 = new Area51a();
-        a51.try6();
-
+        a51.try7();
     }
 
 }

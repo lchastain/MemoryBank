@@ -7,9 +7,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     LocalDate theDate;   // Holds the date of the group that the Panel is currently displaying.
@@ -31,6 +36,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         // And the fact that it IS 'today' means that we need to disable the 'T' button,
         //   which would have been enabled when we updated the group before we had our title.
         todayButton.setEnabled(false);
+
+        setTimer(); // Set a timer to keep the 'T' button properly enabled when this panel is left up overnight.
         switch (groupType) { // This Panel should not be constructed with any other types.
             case YEAR_NOTES -> {
                 setDefaultSubject("Year Note");
@@ -195,12 +202,36 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     @Override
     public void updateGroup() {
         super.updateGroup();
-        String today;
 
-        today = dtf.format(Objects.requireNonNullElseGet(archiveDate, LocalDate::now));
+        String today = dtf.format(Objects.requireNonNullElseGet(archiveDate, LocalDate::now));
         todayButton.setEnabled(!getTitle().equals(today));
 
         updateHeader();
+    }
+
+    // Set a timer to update the status of the 'today' button at the start of a new day.
+    void setTimer() {
+        // Make a Date for the next upcoming midnight.
+        LocalDateTime ldt = LocalDate.now().atStartOfDay(); // Midnight past.
+        ldt = ldt.plusDays(1); // Next Midnight
+        Date nextMidnight = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        System.out.println("Day-Timer start date/time is: " + nextMidnight);
+
+        TimerTask tt = new TimerTask() {
+            @Override
+            public void run() {
+                // This could alternatively be the start of a thread that performs these operations.
+                preClosePanel();
+                updateGroup();
+                System.out.println("Updated the 'T' button status!  " + LocalDateTime.now());
+            }
+        };
+
+        // Schedule to run once per day (starting with 'nextMidnight')
+        java.util.Timer timer = new Timer();
+        timer.schedule(
+                tt, nextMidnight, 1000 * 60 * 60 * 24
+        );
     }
 
     // This one-liner is broken out as a separate method to simplify the coding
