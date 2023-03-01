@@ -4,9 +4,11 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serial;
 import java.time.LocalTime;
 
 public class DayNoteComponent extends IconNoteComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
 
 //    private static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
@@ -169,14 +171,12 @@ public class DayNoteComponent extends IconNoteComponent {
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
     public void setNoteData(NoteData newNoteData) {
-        if (newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
-            setDayNoteData((DayNoteData) newNoteData);
-        } else if (newNoteData instanceof TodoNoteData) {
-            setDayNoteData(new DayNoteData((TodoNoteData) newNoteData));
-        } else if (newNoteData instanceof EventNoteData) {
-            setDayNoteData(new DayNoteData((EventNoteData) newNoteData));
-        } else {
-            setDayNoteData(new DayNoteData(newNoteData));
+        switch (newNoteData) {
+            case DayNoteData dayNoteData ->   // same type, but cast is still needed
+                    setDayNoteData(dayNoteData);
+            case TodoNoteData todoNoteData -> setDayNoteData(new DayNoteData(todoNoteData));
+            case EventNoteData eventNoteData -> setDayNoteData(new DayNoteData(eventNoteData));
+            case null, default -> setDayNoteData(new DayNoteData(newNoteData));
         }
     } // end setNoteData
 
@@ -243,6 +243,7 @@ public class DayNoteComponent extends IconNoteComponent {
 //---------------------------------------------------------
 
     class NoteTimeLabel extends JLabel implements ActionListener, MouseListener {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         boolean isActive;
@@ -365,21 +366,15 @@ public class DayNoteComponent extends IconNoteComponent {
             JMenuItem jm = (JMenuItem) e.getSource();
             String s = jm.getText();
             switch (s) {
-                case "Clear Line":
-                    clear();
-                    break;
-                case "Clear Time":
+                case "Clear Line" -> clear();
+                case "Clear Time" ->
                     // Do not set myTime to null; just clear the visual indicator.
                     //  This leaves the note still initialized; critical to decisions
                     //  made at load time.
-                    noteTimeLabel.clear();
-                    break;
-                case "Set Time":
-                    noteTimeLabel.showTimeChooser();
-                    break;
-                default:   // Nothing else expected so print it out -
-                    System.out.println(s);
-                    break;
+                        noteTimeLabel.clear();
+                case "Set Time" -> noteTimeLabel.showTimeChooser();
+                default ->   // Nothing else expected so print it out -
+                        System.out.println(s);
             }
 
             setNoteChanged();
@@ -398,9 +393,7 @@ public class DayNoteComponent extends IconNoteComponent {
             DayNoteComponent.this.setActive();
             if (!initialized) return;
 
-            int m = e.getModifiersEx();
             if(e.getButton()==MouseEvent.BUTTON3) { // Click of right mouse button.
-//            if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // This doesn't work in mouseClicked; only 'pressed'
                 if (e.getClickCount() >= 2) return;
                 // Show the popup menu
                 showTimePopup(e);

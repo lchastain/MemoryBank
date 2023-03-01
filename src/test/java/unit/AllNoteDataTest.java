@@ -5,7 +5,7 @@ class AllNoteDataTest {
     // Just going for minimal coverage ...
     @Test
     void testConstruction() {
-        AllNoteData allNoteData = new AllNoteData(new NoteData());
+        new AllNoteData(new NoteData());
     }
 
 }

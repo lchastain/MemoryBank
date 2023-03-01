@@ -8,9 +8,11 @@ class AttributeData {
     String type;
     String value;
 
+    // Used by the Jackson mapper, upon data load and conversion of json to an object of this class.
     AttributeData() { }
 
     AttributeData(String t, String v) {
+        this();  // Not strictly needed, but this stops the IJ 'unused' complaint.
         type = t;
         value = v;
     }

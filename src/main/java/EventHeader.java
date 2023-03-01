@@ -6,8 +6,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.Serial;
 
 public class EventHeader extends JPanel implements MouseListener {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final JLabel lblEventSummary;
@@ -35,6 +37,7 @@ public class EventHeader extends JPanel implements MouseListener {
         btnShowHide = new LabelButton("Show Summary ");
 
         lblEventSummary = new JLabel("Select an Event to display.") {
+            @Serial
             private static final long serialVersionUID = 1L; // Yes, needed.
             public Dimension getPreferredSize() {
                 Dimension d = super.getPreferredSize();
@@ -89,33 +92,30 @@ public class EventHeader extends JPanel implements MouseListener {
         String s = source.getText();
 
         switch (s) {
-            case "Show Summary ":
+            case "Show Summary " -> {
                 pnlCenter.setVisible(true);
                 btnShowHide.setText("Show Calendar ");
                 eventNoteGroupPanel.getThreeMonthColumn().setVisible(false);
-                break;
-            case "Show Calendar ":
+            }
+            case "Show Calendar " -> {
                 pnlCenter.setVisible(false);
                 btnShowHide.setText("Show Summary ");
                 eventNoteGroupPanel.getThreeMonthColumn().setVisible(true);
-                break;
-            default:
+            }
+            default -> {
                 (new Exception("Unhandled action!")).printStackTrace();
                 System.exit(1);
+            }
         }
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
         LabelButton source = (LabelButton) e.getSource();
-        String s = source.getText();
-        switch (s) {
-            case "Show Summary ":
-                s = "Click here to show the summary info for each Event";
-                break;
-            case "Show Calendar ":
-                s = "Click here to hide the summary info for each Event";
-                break;
-        }
+        String s = switch (source.getText()) {
+            case "Show Summary " -> "Click here to show the summary info for each Event";
+            case "Show Calendar " -> "Click here to hide the summary info for each Event";
+            default -> source.getText();
+        };
         eventNoteGroupPanel.setStatusMessage(s);
     } // end mouseEntered
 

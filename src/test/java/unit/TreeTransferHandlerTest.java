@@ -5,12 +5,10 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import java.awt.datatransfer.Transferable;
 
 class TreeTransferHandlerTest {
     private TreeTransferHandler treeTransferHandler;
     private JTree theTree;
-    private DefaultMutableTreeNode aNode;
 
     @BeforeEach
     void setUp() {
@@ -19,7 +17,7 @@ class TreeTransferHandlerTest {
         dmtn = new DefaultMutableTreeNode("An Example Branch");
         dmtn.add(new DefaultMutableTreeNode("that"));
         dmtn.add(new DefaultMutableTreeNode("these"));
-        aNode = new DefaultMutableTreeNode("when");
+        DefaultMutableTreeNode aNode = new DefaultMutableTreeNode("when");
         dmtn.add(new DefaultMutableTreeNode(aNode));
 
         TreeModel treeModel = new DefaultTreeModel(dmtn);
@@ -36,7 +34,7 @@ class TreeTransferHandlerTest {
 
     @Test
     void testCreateTransferable() {
-        Transferable transferable = treeTransferHandler.createTransferable(theTree);
+        treeTransferHandler.createTransferable(theTree);
 //        assert transferable != null;
 //        DataFlavor[] theFlavors = transferable.getTransferDataFlavors();
 //        assert theFlavors != null;
@@ -50,12 +48,10 @@ class TreeTransferHandlerTest {
 //    void testGetSourceActions() {
 //    }
 
-    @Test
-    void testImportData() {
-        boolean b;
-        TransferHandler.TransferSupport transferSupport;
-
-        Transferable transferable = treeTransferHandler.createTransferable(theTree);
+//    @Test
+//    void testImportData() {
+//
+//        Transferable transferable = treeTransferHandler.createTransferable(theTree);
 //        assert transferable != null;
 //        transferSupport = new TransferHandler.TransferSupport(theTree, transferable);
 //        b = treeTransferHandler.importData(transferSupport);
@@ -70,9 +66,7 @@ class TreeTransferHandlerTest {
 
 //        b = treeTransferHandler.importData(transferSupport);
 //        b = treeTransferHandler.importData(TransferHandler.TransferSupport);
-
-
-    }
+//    }
 
     @Test
     void testTestToString() {

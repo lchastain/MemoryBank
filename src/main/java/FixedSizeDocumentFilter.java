@@ -3,7 +3,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
 public class FixedSizeDocumentFilter extends DocumentFilter {
-    private int maxSize;
+    private final int maxSize;
 
     // limit is the maximum number of characters allowed.
     public FixedSizeDocumentFilter(int limit) {

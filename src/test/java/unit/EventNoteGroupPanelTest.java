@@ -11,7 +11,6 @@ import java.time.LocalDate;
 
 class EventNoteGroupPanelTest {
     private static EventNoteGroupPanel eventNoteGroupPanel;
-    static TestUtil testUtil;
 
     @BeforeAll
     static void beforeAll() throws IOException {

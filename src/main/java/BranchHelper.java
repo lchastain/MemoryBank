@@ -3,9 +3,6 @@
  the Tree Branches.
 */
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -14,7 +11,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings("rawtypes")
 public class BranchHelper implements BranchHelperInterface {
-    private static final Logger log = LoggerFactory.getLogger(BranchHelper.class);
+    //private static final Logger log = LoggerFactory.getLogger(BranchHelper.class);
 
     private final JTree theTree;  // The original tree, not the one from the editor.
     private final NoteGroupPanelKeeper theNoteGroupPanelKeeper;

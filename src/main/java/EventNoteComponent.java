@@ -2,7 +2,10 @@
  EventNoteData.
  */
 
+import java.io.Serial;
+
 public class EventNoteComponent extends IconNoteComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final EventNoteGroupPanel myNoteGroup;
 
@@ -38,17 +41,14 @@ public class EventNoteComponent extends IconNoteComponent {
         // construction can still be considered -
         if(noteTextField.isEditable()) {
             switch (textStatus) {
-                case NEEDS_TEXT:
-                    s = "Click here to enter text for this Event.";
-                    break;
-                case HAS_BASE_TEXT:
-                    s = "Double-click here to add details about this Event.";
-                    break;
-                case HAS_EXT_TEXT:
+                case NEEDS_TEXT -> s = "Click here to enter text for this Event.";
+                case HAS_BASE_TEXT -> s = "Double-click here to add details about this Event.";
+                case HAS_EXT_TEXT -> {
                     // This gives away the 'hidden' text, if
                     //   there is no primary (blue) text.
                     s = "Double-click here to see/edit";
                     s += " the additional details for this Event.";
+                }
             } // end switch
         } else {
             s = "Events shown in the Consolidated View are non-editable.  ";

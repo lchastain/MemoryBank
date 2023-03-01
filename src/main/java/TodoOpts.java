@@ -8,12 +8,14 @@ import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 
 public class TodoOpts extends JTabbedPane {
+    @Serial
     private static final long serialVersionUID = 1L;  // Xlint wants this.
 
     private PriorityPanel priorityPanel;
-    private PrintPanel pp;
+    private final PrintPanel pp;
     private SortPanel sortPanel;
     private TodoGroupProperties todoGroupProperties;
 
@@ -86,6 +88,7 @@ public class TodoOpts extends JTabbedPane {
     }
 
     class PriorityPanel extends JPanel implements ChangeListener {
+        @Serial
         private static final long serialVersionUID = -7260327081749645585L;
 
         JCheckBox cb1;
@@ -140,6 +143,7 @@ public class TodoOpts extends JTabbedPane {
     } // end PriorityPanel
 
     class PrintPanel extends JPanel {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         JCheckBox cb1;
@@ -198,6 +202,7 @@ public class TodoOpts extends JTabbedPane {
         } // end constructor
 
         class spacing extends JPanel {
+            @Serial
             private static final long serialVersionUID = -3621786804599232799L;
 
             JRadioButton z;
@@ -235,6 +240,7 @@ public class TodoOpts extends JTabbedPane {
     } // end class printPanel
 
     static class SortPanel extends JPanel {
+        @Serial
         private static final long serialVersionUID = 571253855183342953L;
 
         JRadioButton t;

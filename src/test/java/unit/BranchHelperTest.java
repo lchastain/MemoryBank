@@ -100,8 +100,13 @@ class BranchHelperTest {
         Assertions.assertFalse(theResult);
 
         // Bad - illegal characters in the name
-        theResult = searchBranchHelper.allowRenameTo("blarg: the movie");
-        Assertions.assertFalse(theResult);
+        // Note: a colon will be 'allowed' on a later Mac OS, because it gets translated into a '/'.
+        String os = System.getProperty("os.name");
+        System.out.println("Testing on OS: " + os);
+        if(!os.startsWith("Mac OS")) {
+            theResult = searchBranchHelper.allowRenameTo("blarg: the movie");
+            Assertions.assertFalse(theResult);
+        }
 
         // The 'happy path'
         theResult = searchBranchHelper.allowRenameTo("blarg");

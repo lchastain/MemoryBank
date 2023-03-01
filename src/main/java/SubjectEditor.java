@@ -2,9 +2,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serial;
 import java.util.Vector;
 
 public class SubjectEditor extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final int maxSubjects = 20;
 

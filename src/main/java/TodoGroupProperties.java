@@ -23,7 +23,7 @@ public class TodoGroupProperties extends GroupProperties {
     public int whenNoKey;
 
     @JsonIgnore
-    int numberOfItems;    // How many items in the list
+    int numberOfItems;    // How many items in the list.  Keep this ignored var until it is gone from ALL persisted data.
 
     public String column1Label;
     public String column2Label;
@@ -31,7 +31,7 @@ public class TodoGroupProperties extends GroupProperties {
     public String column4Label;
     public int columnOrder;
 
-    private TodoGroupProperties() {} // Needed / used by Jackson.
+    public TodoGroupProperties() {} // Needed / used by Jackson.
 
     public TodoGroupProperties(GroupInfo groupInfo) { // Constructor with defaults
         super(groupInfo.getGroupName(), groupInfo.groupType);

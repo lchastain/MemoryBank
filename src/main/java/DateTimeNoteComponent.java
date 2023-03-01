@@ -982,7 +982,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
             DateTimeNoteComponent.this.scrollRectToVisible(getBounds());  // Does this scroll text on the line, or the line in the scrollpane?
-            if (mySelectionMonitor != null) mySelectionMonitor.noteSelected(getNoteData());
+            if (mySelectionMonitor != null) mySelectionMonitor.noteSelected();
 
             // We occasionally get a null pointer exception at startup.
             if (getCaret() == null) return;

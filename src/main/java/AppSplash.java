@@ -1,10 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serial;
 
 public class AppSplash extends JWindow {
+    @Serial
     private static final long serialVersionUID = 1841135910245380844L;
 
-    private JProgressBar progressBar;
+    private final JProgressBar progressBar;
 
     public AppSplash(ImageIcon imageIcon) {
         progressBar = new JProgressBar(0, 100);
@@ -26,11 +28,9 @@ public class AppSplash extends JWindow {
         final int theProgress = progress;
         final String theMessage = message;
         progressBar.setValue(theProgress);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                progressBar.setValue(theProgress);
-                progressBar.setString(theMessage);
-            }
+        SwingUtilities.invokeLater(() -> {
+            progressBar.setValue(theProgress);
+            progressBar.setString(theMessage);
         });
     } // end setProgress
 

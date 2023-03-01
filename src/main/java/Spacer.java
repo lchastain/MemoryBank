@@ -5,8 +5,10 @@
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serial;
 
 public class Spacer extends JComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     int myWidth;

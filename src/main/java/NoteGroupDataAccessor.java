@@ -1,7 +1,6 @@
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-@SuppressWarnings("rawtypes")
 public interface NoteGroupDataAccessor {
 
     void deleteNoteGroupData();

@@ -9,6 +9,6 @@ class MonthViewTest {
     void runit() {
         MemoryBank.debug = true;
         MemoryBank.dataAccessor = DataAccessor.getDataAccessor(DataAccessor.AccessType.FILE);
-        MonthView mv = new MonthView(LocalDate.now());
+        new MonthView(LocalDate.now());
     }
 }

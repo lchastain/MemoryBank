@@ -13,8 +13,6 @@ import java.time.LocalDate;
 //@Disabled
 public class SearchTest {
     private static AppTreePanel appTreePanel;
-    private static JTree theTree;
-    private static AppMenuBar amb;
 
     @BeforeAll
     static void meFirst() throws IOException {
@@ -49,19 +47,15 @@ public class SearchTest {
         appTreePanel.restoringPreviousSelection = true; // This should stop the multi-threading.
 
         appTreePanel.optionPane = new TestUtil();
-        theTree = appTreePanel.getTree(); // Usage here means no united test needed for getTree().
-        amb = appTreePanel.getAppMenuBar();
 
         // No significance to this value other than it needs to be a row that
         // we know for a fact will be there, even for a brand-new AppTreePanel.
         // In this case we've chosen a relatively low (safer) value.
-        int theSelectionRow = 3;
+//        int theSelectionRow = 3;
     }
 
     @AfterAll
     static void meLast() {
-        theTree = null;
-        amb = null;
         appTreePanel = null;
     }
 
