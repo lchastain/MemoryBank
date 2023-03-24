@@ -23,7 +23,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="MemoryBank" target="17" />
+      <module name="MemoryBank" target="16" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

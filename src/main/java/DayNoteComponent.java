@@ -171,12 +171,14 @@ public class DayNoteComponent extends IconNoteComponent {
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
     public void setNoteData(NoteData newNoteData) {
-        switch (newNoteData) {
-            case DayNoteData dayNoteData ->   // same type, but cast is still needed
-                    setDayNoteData(dayNoteData);
-            case TodoNoteData todoNoteData -> setDayNoteData(new DayNoteData(todoNoteData));
-            case EventNoteData eventNoteData -> setDayNoteData(new DayNoteData(eventNoteData));
-            case null, default -> setDayNoteData(new DayNoteData(newNoteData));
+        if (newNoteData instanceof DayNoteData) {  // same type, but cast is still needed
+            setDayNoteData((DayNoteData) newNoteData);
+        } else if (newNoteData instanceof TodoNoteData) {
+            setDayNoteData(new DayNoteData((TodoNoteData) newNoteData));
+        } else if (newNoteData instanceof EventNoteData) {
+            setDayNoteData(new DayNoteData((EventNoteData) newNoteData));
+        } else {
+            setDayNoteData(new DayNoteData(newNoteData));
         }
     } // end setNoteData
 

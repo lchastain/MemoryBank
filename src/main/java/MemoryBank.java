@@ -71,12 +71,12 @@ public class MemoryBank {
         // Set the Look and Feel
         try {
             String thePlaf = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
-            debug("Setting plaf to: " + thePlaf);
-//            UIManager.setLookAndFeel(thePlaf);
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(thePlaf);
+            debug("Set the Pluggable Look And Feel to: " + thePlaf);
         } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+            //System.out.println("Exception: " + e.getMessage());
+            //e.printStackTrace();
+            debug("Pluggable Look And Feel remains at default (Metal).");
         }
 
         // Global setting for tool tips
