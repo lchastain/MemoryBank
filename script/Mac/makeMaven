@@ -1,0 +1,12 @@
+#!/bin/ksh
+
+pwd
+cd ~/workspace/"Memory Bank"
+mvn clean package -DskipTests
+
+
+
+
+
+
+

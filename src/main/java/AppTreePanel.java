@@ -24,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -875,7 +876,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         if (theHelpFile.exists()) {
             System.out.println("Path to the help: " + theHelpFile.getAbsolutePath());
             try {
-                markyHtmlString = FileUtils.readFileToString(theHelpFile);
+                markyHtmlString = FileUtils.readFileToString(theHelpFile, (Charset) null);
                 theHtml = com.github.rjeschke.txtmark.Processor.process(markyHtmlString);
                 if (MemoryBank.appEnvironment.equals("ide")) {
                     theHtml = theHtml.replaceAll("../../images/", "file:src/main/resources/images/");

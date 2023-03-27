@@ -1,0 +1,15 @@
+#!/bin/ksh
+
+:<<'END'
+
+FYI, The 'jars' directory is created by:
+  rm -rf jars
+  mvn clean install dependency:copy-dependencies -DskipTests
+  and then:  mv target/dependency jars
+
+END
+
+
+cd ~/workspace/"Memory Bank"
+java -Dtiming -Ddebug -classpath "target/MemoryBank-1.0-SNAPSHOT.jar:jars/*" MemoryBank lex@doughmain.net
+

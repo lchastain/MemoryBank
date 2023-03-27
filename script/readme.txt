@@ -1,3 +1,5 @@
-The files in this 'script' folder are for managing the app from command-line.
+The executable files in the directories below this 'script' folder 
+can be invoked via command-line to build and/or run the
+Memory Bank application on the indicated platform.
 
 

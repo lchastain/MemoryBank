@@ -1,0 +1,13 @@
+#!/bin/ksh
+
+:<<'END'
+
+This one does not need the jars directory, because
+the dependencies are all built into the one jar file.
+
+END
+
+
+cd ~/workspace/"Memory Bank"
+java -Dtiming -Ddebug -classpath target/MemoryBank-1.0-SNAPSHOT-jar-with-dependencies.jar MemoryBank lex@doughmain.net
+

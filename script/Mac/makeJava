@@ -1,0 +1,15 @@
+#!/bin/ksh
+
+pwd
+cd ~/workspace/"Memory Bank"/src/main/java
+javac -classpath .:../../../jars/* -Xlint MemoryBank.java
+
+jar cvf ../../../mbank.jar *.class -C ../resources images/ -C ../resources icons/ -C ../resources help/ ../../../README.md
+
+rm ~/workspace/Memory\ Bank/src/main/java/*.class
+
+
+
+
+
+
