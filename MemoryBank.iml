@@ -37,6 +37,7 @@
       <excludeFolder url="file://$MODULE_DIR$/null" />
       <excludeFolder url="file://$MODULE_DIR$/src/test/java" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/jars" />
     </content>
     <content url="file://$MODULE_DIR$/appData/jondo.nonamus@lcware.net" />
     <content url="file://$MODULE_DIR$/src/test/Area51/java" />

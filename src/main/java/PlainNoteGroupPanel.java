@@ -15,7 +15,7 @@ import java.awt.*;
 
 // Note:  with a new approach being developed for user notes, this panel is not currently (as of 25 Oct 2022) being
 //   instantiated by the main MB application, which could allow NoteGroup to go back to being an abstract class.
-//   But hold off on that until you are sure that you want to delete this class, or remove this commwent if/when it
+//   But hold off on that until you are sure that you want to delete this class, or remove this comment if/when it
 //   comes back into usage.
 
 public class PlainNoteGroupPanel extends NoteGroupPanel {
