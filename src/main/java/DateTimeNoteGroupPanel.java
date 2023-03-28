@@ -56,7 +56,7 @@ public class DateTimeNoteGroupPanel extends NoteGroupPanel {
         heading.add(theNotePager, "East");
 
         theBasePanel.add(heading, BorderLayout.NORTH);
-    }
+    } // end buildMyPanel
 
     //-------------------------------------------------------------------
     // Method Name: makeNewNoteComponent
