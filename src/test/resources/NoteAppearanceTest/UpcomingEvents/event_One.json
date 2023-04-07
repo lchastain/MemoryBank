@@ -2,15 +2,13 @@
   "zdtLastModString" : "2020-11-17T05:45:02.657+04:00[Europe/Samara]",
   "instanceId" : "ef6cf8f0-a0e5-4559-a866-b099331f2fb0",
   "groupType" : "EVENTS",
-  "groupName" : "One",
-  "linkTargets" : [ ]
+  "groupName" : "One"
 }, [ {
   "zdtLastModString" : "2019-11-30T19:12:33.305+04:00[Europe/Samara]",
   "instanceId" : "09982b44-d7fc-47fb-ad25-5ec789495fe9",
   "noteString" : "One",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1a.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -28,7 +26,6 @@
   "noteString" : "Two",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1b.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -46,7 +43,6 @@
   "noteString" : "Three",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/alphabet/alpha1c.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",

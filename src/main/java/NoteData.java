@@ -1,12 +1,8 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 class NoteData extends BaseData {
     String noteString;
     String subjectString;
     String extendedNoteString;
-
-    @JsonIgnore
-    LinkTargets linkTargets;
+    boolean multiline;
 
     // This member is used in linking.  Not always present; needs to be set by a higher context.
     private transient NoteGroup myNoteGroup;
@@ -32,7 +28,7 @@ class NoteData extends BaseData {
         this.extendedNoteString = ndCopy.extendedNoteString;
         this.noteString = ndCopy.noteString;
         this.subjectString = ndCopy.subjectString;
-        this.linkTargets = ndCopy.linkTargets;
+        this.multiline = ndCopy.multiline;
     }// end of the copy constructor
 
 
@@ -44,7 +40,6 @@ class NoteData extends BaseData {
         subjectString = null;  // null, not "".
 
         extendedNoteString = ""; // Never null.
-        linkTargets = new LinkTargets();
     } // end clear
 
     // A copy constructor cannot be called from a reference;

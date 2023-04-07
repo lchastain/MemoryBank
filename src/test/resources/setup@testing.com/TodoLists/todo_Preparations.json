@@ -3,7 +3,6 @@
   "instanceId" : "788f99d2-406a-45cb-b9b2-f28f7a138a94",
   "groupType" : "TODO_LIST",
   "groupName" : "Preparations",
-  "linkTargets" : [ ],
   "showPriority" : true,
   "maxPriority" : 20,
   "deadWidth" : 170,
@@ -28,7 +27,6 @@
   "noteString" : "Choose a location",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 4
@@ -38,7 +36,6 @@
   "noteString" : "Set a Date",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : "2020-10-28",
   "intPriority" : 0,
   "intStatus" : 3
@@ -48,7 +45,6 @@
   "noteString" : "Schedule the caterers",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 1
@@ -58,7 +54,6 @@
   "noteString" : "Notify the authorities",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0

@@ -3,7 +3,6 @@
   "instanceId" : "87183b43-c62d-42aa-a666-a6e1d0aa7bdb",
   "groupType" : "SEARCH_RESULTS",
   "groupName" : "20201107080423",
-  "linkTargets" : [ ],
   "searchPanelSettings" : {
     "not1" : false,
     "not2" : false,
@@ -35,7 +34,6 @@
   "noteString" : "Interview with Primatech - Odessa, TX",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
@@ -47,7 +45,6 @@
   "noteString" : "Got new job!",
   "subjectString" : "Work Note",
   "extendedNoteString" : "Stock clerk at Primatech Paper.  ",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
@@ -59,7 +56,6 @@
   "noteString" : "Payday at Primatech",
   "subjectString" : "Work Note",
   "extendedNoteString" : "Every other Friday.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
@@ -71,7 +67,6 @@
   "noteString" : "Security at Primatech",
   "subjectString" : null,
   "extendedNoteString" : "Security here is crazy!  I came in just a bit early and I guess the guard wasn't expecting anyone at that time.  I almost got shot!!  ",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
@@ -83,7 +78,6 @@
   "noteString" : "Primatech in the news",
   "subjectString" : "Work Note",
   "extendedNoteString" : "I hadn't seen any sign of it myself, but a friend who knows where I work showed me a news story from a couple years back, about some strange goings on at this company.  Will have to keep an eye out.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
@@ -95,7 +89,6 @@
   "noteString" : "Payday at Primatech",
   "subjectString" : "Work Note",
   "extendedNoteString" : "Every other Friday.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",
@@ -107,7 +100,6 @@
   "noteString" : "Payday at Primatech",
   "subjectString" : "Work Note",
   "extendedNoteString" : "Every other Friday.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
     "groupType" : "DAY_NOTES",

@@ -2,27 +2,23 @@
   "zdtLastModString" : "2020-11-13T10:57:03.577+04:00[Europe/Samara]",
   "instanceId" : "e89069e3-3d54-491e-b0d2-3915b631d1d6",
   "groupType" : "MONTH_NOTES",
-  "groupName" : "September 2019",
-  "linkTargets" : [ ]
+  "groupName" : "September 2019"
 }, [ {
   "zdtLastModString" : "2020-11-13T10:54:53.476+04:00[Europe/Samara]",
   "instanceId" : "3dece2f8-b28f-44c3-a44e-156f616838ab",
   "noteString" : "This is the last MonthNote for testing Month",
   "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : [ ]
+  "extendedNoteString" : ""
 }, {
   "zdtLastModString" : "2020-11-13T10:54:31.295+04:00[Europe/Samara]",
   "instanceId" : "2a1c59bc-ef47-408f-a930-9f8bf0f84438",
   "noteString" : "date changes",
   "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : [ ]
+  "extendedNoteString" : ""
 }, {
   "zdtLastModString" : "2020-11-13T10:57:03.577+04:00[Europe/Samara]",
   "instanceId" : "6e8d32c6-cea6-4268-b790-522e45d2e24b",
   "noteString" : "of the CalendarNoteGroup for a Month and and its corresponding MonthNoteGroupPanel ",
   "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : [ ]
+  "extendedNoteString" : ""
 } ] ]

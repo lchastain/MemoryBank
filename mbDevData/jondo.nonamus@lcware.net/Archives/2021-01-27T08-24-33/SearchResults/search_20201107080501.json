@@ -3,8 +3,6 @@
   "instanceId" : "6c74a207-5345-460e-bfc4-80b8e2daced0",
   "groupType" : "SEARCH_RESULTS",
   "groupName" : "20201107080501",
-  "simpleName" : null,
-  "linkTargets" : [ ],
   "searchPanelSettings" : {
     "not1" : false,
     "not2" : false,
@@ -36,14 +34,10 @@
   "noteString" : "Taxi to airport",
   "subjectString" : null,
   "extendedNoteString" : "I've been summoned to the home office, for an important meeting.  No idea what to expect.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.125+04:00[Europe/Samara]",
-    "instanceId" : "17e2f596-3276-40a9-bba3-ab3f9f0aa87c",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Tuesday, June 8, 2010",
-    "simpleName" : null
+    "groupName" : "Tuesday, June 8, 2010"
   }
 }, {
   "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
@@ -51,14 +45,10 @@
   "noteString" : "Taxi to office",
   "subjectString" : null,
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.125+04:00[Europe/Samara]",
-    "instanceId" : "1a49017d-d197-49b1-8454-53ee69c0fe1e",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Tuesday, June 8, 2010",
-    "simpleName" : null
+    "groupName" : "Tuesday, June 8, 2010"
   }
 }, {
   "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
@@ -66,14 +56,10 @@
   "noteString" : "Taxi to office",
   "subjectString" : null,
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.128+04:00[Europe/Samara]",
-    "instanceId" : "3113a286-21f7-4526-95bd-033fbcfa94f8",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Friday, June 11, 2010",
-    "simpleName" : null
+    "groupName" : "Friday, June 11, 2010"
   }
 }, {
   "zdtLastModString" : "2019-10-02T05:37:32.071+04:00[Europe/Samara]",
@@ -81,14 +67,10 @@
   "noteString" : "Taxi to office",
   "subjectString" : null,
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.130+04:00[Europe/Samara]",
-    "instanceId" : "fbced26c-3ad2-4796-b527-2159ad23e0bf",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Saturday, June 12, 2010",
-    "simpleName" : null
+    "groupName" : "Saturday, June 12, 2010"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.242+04:00[Europe/Samara]",
@@ -96,14 +78,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.132+04:00[Europe/Samara]",
-    "instanceId" : "28386100-253f-42a6-820c-821d11eb7236",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, January 4, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, January 4, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.242+04:00[Europe/Samara]",
@@ -111,14 +89,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.133+04:00[Europe/Samara]",
-    "instanceId" : "03749613-c2c8-4046-973b-52c5afb442fb",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, February 1, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, February 1, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -126,14 +100,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.134+04:00[Europe/Samara]",
-    "instanceId" : "19568007-b046-4dfd-b145-e6a557854e89",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, March 7, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, March 7, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -141,14 +111,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.135+04:00[Europe/Samara]",
-    "instanceId" : "332cbcc1-0c6a-4ff4-b265-14eb8cea4a7e",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, April 4, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, April 4, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -156,14 +122,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.136+04:00[Europe/Samara]",
-    "instanceId" : "d2485b03-eb3f-43fa-8956-9a524cf8cc57",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, May 2, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, May 2, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -171,14 +133,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.137+04:00[Europe/Samara]",
-    "instanceId" : "a0d47d21-8828-40f8-adce-500f4b4d9ee0",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, June 6, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, June 6, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -186,14 +144,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.138+04:00[Europe/Samara]",
-    "instanceId" : "5705e2d0-005d-42a1-a898-84f9a96dbc54",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, July 4, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, July 4, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -201,14 +155,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.140+04:00[Europe/Samara]",
-    "instanceId" : "fc27a451-87d2-43c8-823c-f65e099104f3",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, August 1, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, August 1, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -216,14 +166,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.140+04:00[Europe/Samara]",
-    "instanceId" : "5fc8064e-bbbd-4f84-8d6a-606645726e29",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, September 5, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, September 5, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -231,14 +177,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.141+04:00[Europe/Samara]",
-    "instanceId" : "706230d0-f2c7-45c7-8a52-ecbfc5cc002d",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, October 3, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, October 3, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -246,14 +188,10 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.143+04:00[Europe/Samara]",
-    "instanceId" : "87d5a098-f8d4-464a-9507-e75bdb31bc46",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, November 7, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, November 7, 2016"
   }
 }, {
   "zdtLastModString" : "2019-10-29T07:30:02.258+04:00[Europe/Samara]",
@@ -261,13 +199,9 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "fileFoundIn" : null,
   "foundIn" : {
-    "zdtLastModString" : "2020-11-07T08:05:01.145+04:00[Europe/Samara]",
-    "instanceId" : "98bea27d-fcf5-4a1f-91c0-ff1cc2acf2e3",
     "groupType" : "DAY_NOTES",
-    "groupName" : "Monday, December 5, 2016",
-    "simpleName" : null
+    "groupName" : "Monday, December 5, 2016"
   }
 } ] ]

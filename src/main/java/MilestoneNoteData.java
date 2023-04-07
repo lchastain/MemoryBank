@@ -14,9 +14,6 @@ public class MilestoneNoteData extends IconNoteData {
     private String milestoneDateString; // Defaults to 'today' but can be set/chosen later.
 
     @JsonIgnore  // By ignoring this overloaded member from the base class, it is removed from data persistence.
-    LinkTargets linkTargets;
-
-    @JsonIgnore  // By ignoring this overloaded member from the base class, it is removed from data persistence.
     String subjectString;
 
     private int intIconOrder;
@@ -32,7 +29,6 @@ public class MilestoneNoteData extends IconNoteData {
 
         intIconOrder = mndCopy.intIconOrder;
         milestoneDateString = mndCopy.milestoneDateString;
-        linkTargets = mndCopy.linkTargets;
         subjectString = mndCopy.subjectString;
     } // end constructor
 

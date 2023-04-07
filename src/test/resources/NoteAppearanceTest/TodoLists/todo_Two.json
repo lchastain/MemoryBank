@@ -3,7 +3,6 @@
   "instanceId" : "2167cdf6-9496-419e-9db3-47e6e411d1fa",
   "groupType" : "TODO_LIST",
   "groupName" : "Two",
-  "linkTargets" : [ ],
   "showPriority" : true,
   "maxPriority" : 20,
   "deadWidth" : 170,
@@ -28,7 +27,6 @@
   "noteString" : "Two",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 2,
   "intStatus" : 2
@@ -38,7 +36,6 @@
   "noteString" : "Four",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 4,
   "intStatus" : 1
@@ -48,7 +45,6 @@
   "noteString" : "Six",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 6,
   "intStatus" : 3
@@ -58,7 +54,6 @@
   "noteString" : "Eight",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 8,
   "intStatus" : 4
@@ -68,7 +63,6 @@
   "noteString" : "Ten",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 10,
   "intStatus" : 5

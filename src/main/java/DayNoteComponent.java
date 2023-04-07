@@ -79,7 +79,11 @@ public class DayNoteComponent extends IconNoteComponent {
         int minWidth = 100; // For the Text Field
         minWidth += noteTimeLabel.getPreferredSize().width;
         minWidth += theIconLabel.getPreferredSize().width;
-        return new Dimension(minWidth, ICONNOTEHEIGHT);
+        int theHeight = ICONNOTEHEIGHT;
+        if(myDayNoteData.multiline) {
+            theHeight = NoteComponent.MULTI_LINE_HEIGHT;
+        }
+        return new Dimension(minWidth, theHeight);
     } // end getPreferredSize
 
 

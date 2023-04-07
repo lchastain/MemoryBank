@@ -3,7 +3,6 @@
   "instanceId" : "75621463-22b4-42d6-a7c0-739eb1d18823",
   "groupType" : "TODO_LIST",
   "groupName" : "New Car Shopping",
-  "linkTargets" : [ ],
   "showPriority" : true,
   "maxPriority" : 20,
   "deadWidth" : 170,
@@ -28,7 +27,6 @@
   "noteString" : "Buy or Lease?",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -38,7 +36,6 @@
   "noteString" : "Color",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -48,7 +45,6 @@
   "noteString" : "New or Used?",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -58,7 +54,6 @@
   "noteString" : "Size - occupancy, power",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -68,7 +63,6 @@
   "noteString" : "Gasoline Mileage",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -78,7 +72,6 @@
   "noteString" : "Electric?",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -88,7 +81,6 @@
   "noteString" : "Dealership or online?",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -98,7 +90,6 @@
   "noteString" : "or newspaper",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -108,7 +99,6 @@
   "noteString" : "or referral",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0

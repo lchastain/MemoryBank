@@ -3,37 +3,6 @@
   "instanceId" : "4eec2486-8d01-4cda-83ce-30351189deaa",
   "groupType" : "GOALS",
   "groupName" : "Retire",
-  "linkTargets" : [ {
-    "zdtLastModString" : "2020-10-14T15:09:53.955+04:00[Europe/Samara]",
-    "instanceId" : "d6de9a19-2e32-470c-b74f-256dd1334984",
-    "targetGroupInfo" : {
-      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
-      "groupType" : "TODO_LIST",
-      "groupName" : "Testing"
-    },
-    "targetNoteInfo" : {
-      "noteId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
-      "noteString" : "Two - links to Goals - Retire",
-      "extendedNoteString" : ""
-    },
-    "linkType" : "AFTER",
-    "reversed" : true
-  }, {
-    "zdtLastModString" : "2020-10-16T05:01:50.862+04:00[Europe/Samara]",
-    "instanceId" : "616ad79b-e721-4d35-9c31-1a676a0ae938",
-    "targetGroupInfo" : {
-      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
-      "groupType" : "TODO_LIST",
-      "groupName" : "Testing"
-    },
-    "targetNoteInfo" : {
-      "noteId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
-      "noteString" : "Two - links to Goals - Retire",
-      "extendedNoteString" : ""
-    },
-    "linkType" : "DEPENDED_ON_BY",
-    "reversed" : true
-  } ],
   "longTitle" : null,
   "goalPlan" : null
 }, [ {
@@ -41,7 +10,6 @@
   "instanceId" : "974325bc-257f-44b6-bd16-1530781085ac",
   "noteString" : "Establish retirement income",
   "extendedNoteString" : "Earn a pension\ninvestment dividends / interest\n\nPoint is, it needs to be enough to sustain.",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -50,22 +18,6 @@
   "instanceId" : "7c328d00-ca92-4ba4-b9e0-d8e1a00abcb4",
   "noteString" : "Set a Date",
   "extendedNoteString" : "",
-  "linkTargets" : [ {
-    "zdtLastModString" : "2020-10-16T04:41:32.144+04:00[Europe/Samara]",
-    "instanceId" : "91312370-13e9-41ad-8dd3-fae184a3dc15",
-    "targetGroupInfo" : {
-      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
-      "groupType" : "TODO_LIST",
-      "groupName" : "Testing"
-    },
-    "targetNoteInfo" : {
-      "noteId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
-      "noteString" : "Two - links to Goals - Retire",
-      "extendedNoteString" : ""
-    },
-    "linkType" : "AFTER",
-    "reversed" : true
-  } ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0
@@ -74,22 +26,6 @@
   "instanceId" : "bc5eb691-6e68-489f-849e-52234a0281eb",
   "noteString" : "Choose location(s)",
   "extendedNoteString" : "",
-  "linkTargets" : [ {
-    "zdtLastModString" : "2020-10-16T05:02:54.435+04:00[Europe/Samara]",
-    "instanceId" : "9f707639-111b-4f8d-bde6-83d7409a26ca",
-    "targetGroupInfo" : {
-      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
-      "groupType" : "TODO_LIST",
-      "groupName" : "Testing"
-    },
-    "targetNoteInfo" : {
-      "noteId" : "78fe163f-3b91-4ee3-9700-1941c154f40c",
-      "noteString" : "Two - links to Goals - Retire",
-      "extendedNoteString" : ""
-    },
-    "linkType" : "DEPENDED_ON_BY",
-    "reversed" : true
-  } ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 0

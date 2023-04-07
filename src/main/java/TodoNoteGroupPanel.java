@@ -26,7 +26,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     private TodoNoteComponent tNoteComponent;
 
     public TodoNoteGroupPanel(@NotNull GroupInfo groupInfo, int pageSize) {
-        super(pageSize);
+        super(pageSize); // This builds the container for the notes.
 
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
@@ -38,6 +38,9 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
             theOrder = ((TodoGroupProperties) myNoteGroup.getGroupProperties()).columnOrder;
         } // end if
         if (theOrder != INORDER) checkColumnOrder();
+
+//        checkMultiline(); // Expand height of multilines, if any.
+// No - this updates LMD!
 
         buildMyPanel(groupInfo.getGroupName());
         theNotePager.reset(1);
@@ -112,6 +115,18 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     } // end checkColumnOrder
 
 
+    // After a data load or a page change, any notes that are multi-line will need to have
+    //   their height expanded, to be able to show more than one line at a time.
+    private void checkMultiline() {
+        NoteComponent tempNote;
+
+        for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
+            tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
+            tempNote.resetComponent();
+        } // end for
+    } // end checkMultiline
+
+
     private GroupInfo chooseMergeGroup() {
         GroupInfo theChoice = null;
         ArrayList<String> groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.TODO_LIST, true);
@@ -179,19 +194,13 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         return tmc;
     }
 
-
-    //-------------------------------------------------------------------
-    // Method Name: makeNewNoteComponent
-    //
     // Called by the NoteGroup (base class) constructor
-    //-------------------------------------------------------------------
     @Override
     JComponent makeNewNoteComponent(int i) {
         TodoNoteComponent tnc = new TodoNoteComponent(this, i);
         tnc.setVisible(false);
         return tnc;
     } // end makeNewNoteComponent
-
 
     @SuppressWarnings({"unchecked"})
     public void merge() {

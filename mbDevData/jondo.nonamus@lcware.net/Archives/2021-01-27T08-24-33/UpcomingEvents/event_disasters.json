@@ -2,16 +2,13 @@
   "zdtLastModString" : "2020-11-10T14:37:54.874+04:00[Europe/Samara]",
   "instanceId" : "a659c517-1d22-4829-bfe5-bce7f872dbba",
   "groupType" : "EVENTS",
-  "groupName" : "disasters",
-  "simpleName" : null,
-  "linkTargets" : [ ]
+  "groupName" : "disasters"
 }, [ {
   "zdtLastModString" : "2019-11-09T08:19:51.830+04:00[Europe/Samara]",
   "instanceId" : "c9509159-2acd-4e85-aa42-492dfd46a125",
   "noteString" : "Mount St. Helens Eruption",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "locationString" : "",

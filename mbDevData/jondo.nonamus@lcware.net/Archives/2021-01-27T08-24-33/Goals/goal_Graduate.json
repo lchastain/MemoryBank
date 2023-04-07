@@ -3,8 +3,6 @@
   "instanceId" : "ceacc4fd-a5d9-4610-91bb-0ccb49ec56f1",
   "groupType" : "GOALS",
   "groupName" : "Graduate",
-  "simpleName" : null,
-  "linkTargets" : [ ],
   "longTitle" : null,
   "goalPlan" : null
 }, [ {
@@ -13,7 +11,6 @@
   "noteString" : "take classes",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "todoDateString" : null,
   "intPriority" : 0,
   "intStatus" : 2

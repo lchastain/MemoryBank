@@ -1,48 +1,11 @@
 [ {
-  "zdtLastModString" : "2020-07-14T07:19:01.211+04:00[Europe/Samara]",
-  "instanceId" : "9e061fe5-ba70-417d-8acd-a420bafc6ce0",
   "groupType" : "EVENTS",
   "groupName" : "holidays",
-  "linkTargets" : [ {
-    "zdtLastModString" : "2020-10-16T05:04:26.958+04:00[Europe/Samara]",
-    "instanceId" : "ab75a562-6ebf-4b38-a423-6a466e50a2e7",
-    "targetGroupInfo" : {
-      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
-      "groupType" : "TODO_LIST",
-      "groupName" : "Testing"
-    },
-    "targetNoteInfo" : {
-      "noteId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
-      "noteString" : "Three - links to Events - holidays",
-      "subjectString" : null,
-      "extendedNoteString" : ""
-    },
-    "linkType" : "AFTER",
-    "reversed" : true
-  }, {
-    "zdtLastModString" : "2020-10-16T05:07:49.281+04:00[Europe/Samara]",
-    "instanceId" : "11650d1c-5309-4709-8cff-435d182d14af",
-    "targetGroupInfo" : {
-      "groupId" : "be9ef2eb-028f-4275-a640-ad610d098e20",
-      "groupType" : "TODO_LIST",
-      "groupName" : "Testing"
-    },
-    "targetNoteInfo" : {
-      "noteId" : "3e43162c-8bc7-4152-bf44-2a94d9baaa6b",
-      "noteString" : "Three - links to Events - holidays",
-      "subjectString" : null,
-      "extendedNoteString" : ""
-    },
-    "linkType" : "DEPENDED_ON_BY",
-    "reversed" : true
-  } ]
-}, [ {
   "zdtLastModString" : "2019-10-09T12:09:20.686+04:00[Europe/Samara]",
   "instanceId" : "2a78ae4c-2f99-4507-958c-27a4e752c5d0",
   "noteString" : "Valentine's Day",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/program files/memory bank/icons/heart0c.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -60,7 +23,6 @@
   "noteString" : "Memorial Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/program files/memory bank/icons/crossbon.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -78,7 +40,6 @@
   "noteString" : "Halloween",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : [ {
     "zdtLastModString" : "2020-10-16T05:05:53.994+04:00[Europe/Samara]",
     "instanceId" : "23d429ef-73f5-47c8-b831-545cfabd0ad2",
     "targetGroupInfo" : {
@@ -128,7 +89,6 @@
   "noteString" : "Thanksgiving",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/program files/memory bank/icons/hatchet.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -146,7 +106,6 @@
   "noteString" : "New Year's Day",
   "subjectString" : "Holiday",
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/program files/memory bank/icons/dya1.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -164,7 +123,6 @@
   "noteString" : "Christmas",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/program files/memory bank/icons/xtree1b.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",
@@ -182,7 +140,6 @@
   "noteString" : "Labor Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/program files/memory bank/icons/worker1b.gif",
   "showIconOnMonthBoolean" : true,
   "locationString" : "",

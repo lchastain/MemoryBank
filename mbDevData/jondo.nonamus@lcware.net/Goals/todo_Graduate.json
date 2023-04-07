@@ -3,7 +3,6 @@
   "instanceId" : "a1d603c5-8520-4bca-b23a-468d63e9ba1d",
   "groupType" : "GOAL_TODO",
   "groupName" : "Graduate",
-  "linkTargets" : [ ],
   "showPriority" : true,
   "maxPriority" : 20,
   "deadWidth" : 170,
@@ -27,7 +26,6 @@
   "instanceId" : "6818dcfc-7a4b-4a08-8268-565d10f9a252",
   "noteString" : "Get enough money to pay for tuition and books",
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "intPriority" : 1,
   "intStatus" : 0
 }, {
@@ -35,7 +33,6 @@
   "instanceId" : "5bbd9ce4-32f3-4a8d-81a9-af2cea0eb287",
   "noteString" : "Register for sophomore year",
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "intPriority" : 1,
   "intStatus" : 0
 }, {
@@ -43,7 +40,6 @@
   "instanceId" : "9d9e8092-9184-40bf-a196-932aa5a19737",
   "noteString" : "Decide on address - dorm, off-campus, or stay home",
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "intPriority" : 2,
   "intStatus" : 0
 } ] ]

@@ -2,15 +2,13 @@
   "zdtLastModString" : "2020-11-13T10:40:41.655+04:00[Europe/Samara]",
   "instanceId" : "d47f9446-ab53-4f1a-84c3-7a571868a9c1",
   "groupType" : "DAY_NOTES",
-  "groupName" : "Tuesday, March 13, 2018",
-  "linkTargets" : [ ]
+  "groupName" : "Tuesday, March 13, 2018"
 }, [ {
   "zdtLastModString" : "2020-11-13T10:32:03.863+04:00[Europe/Samara]",
   "instanceId" : "17884277-f371-4666-957b-388eb641a858",
   "noteString" : "This is the middle day of data for testing Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0b.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "10:31:58.455"
@@ -20,7 +18,6 @@
   "noteString" : "decreases and increases",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/arrows/b5_arrow1_s.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "10:32:08.271"
@@ -30,7 +27,6 @@
   "noteString" : "of the DayNote Panel and Group",
   "subjectString" : "Middle day test note subject",
   "extendedNoteString" : "Yes, no icon, but this one has a Subject and an Extended note.",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "10:33:29.159"

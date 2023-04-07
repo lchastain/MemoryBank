@@ -59,12 +59,35 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
 
     NoteGroupPanel(int intPageSize) {
+        // Construction of this class simply collects the (dataless) NoteComponents.
+        // After that, the child panel constructors will load the data by making a
+        //   call to the loadNotesPanel method that is also here in this base class.
         pageSize = intPageSize;
         buildNotesPanel();
 
         // Construct the SubjectEditor, if this panel child type allows subject management.
         subjectEditor = null;
     } // end constructor 2
+
+    // Used to enable or disable the 'undo' and 'save' menu items, called from 'setGroupChanged'.
+    // Although the boolean param matches the 'groupChanged' variable in most cases, there are
+    // some instances where the child Panel has additional factors to consider and/or additional
+    // or different steps to take.  So, the enablement boolean comes in as an input param.
+    protected void adjustMenuItems(boolean b) {
+        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
+            fosterNoteGroupPanel.adjustMenuItems(b);
+        } else {
+            if (myListMenu == null) return; // Too soon.  Come back later.
+            //MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
+
+            // And now we adjust the Menu -
+            // (see the note at 'setListMenu' for why we don't need to verify non-null MenuItems before setting enabled)
+            JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
+            theUndo.setEnabled(b);
+            JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
+            theSave.setEnabled(b);
+        }
+    }
 
     // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).
     // If you have a group that you got from a Panel, adding the note to it via the panel is needed so that it
@@ -165,13 +188,14 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         //  and the up/down keys cannot get it back.
         jsb.setFocusable(false);
 
-        jsb.setUnitIncrement(NoteComponent.NOTEHEIGHT);
-        jsb.setBlockIncrement(NoteComponent.NOTEHEIGHT);
+        jsb.setUnitIncrement(NoteComponent.ONE_LINE_HEIGHT);
+        jsb.setBlockIncrement(NoteComponent.ONE_LINE_HEIGHT);
         jsp.setVerticalScrollBar(jsb);
 
         int borderWidth = 2;
         theBasePanel.setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
 
+        // The BoxLayout (on the Y axis) gives the same height to all content.
         groupNotesListPanel = new JPanel();
         groupNotesListPanel.setLayout(
                 new BoxLayout(groupNotesListPanel, BoxLayout.Y_AXIS));
@@ -332,12 +356,21 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end editNoteData
 
 
-    int getHighestNoteComponentIndex() {
-        return intHighestNoteComponentIndex;
-    }
+    // Use this method to remove 'gaps' in the panel data.
+    Vector<NoteData> getCondensedInfo() {
+        Vector<NoteData> trimmedList = new Vector<>();
 
-    public int getLastVisibleNoteIndex() {
-        return lastVisibleNoteIndex;
+        // Xfer the 'good' data over to a new, temporary Vector.
+        for (Object object : myNoteGroup.noteGroupDataVector) {
+
+            // Don't retain this note if there is no significant primary text.
+            NoteData tempNoteData = (NoteData) object;
+            if (tempNoteData.getNoteString().trim().isEmpty()) continue;
+
+            // Add each 'good' note to the 'keeper' list.
+            trimmedList.add(tempNoteData);
+        }
+        return trimmedList;
     }
 
     boolean getEditable() {
@@ -356,6 +389,13 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         return null;
     }
 
+    int getHighestNoteComponentIndex() {
+        return intHighestNoteComponentIndex;
+    }
+
+    public int getLastVisibleNoteIndex() {
+        return lastVisibleNoteIndex;
+    }
 
     // Returns a NoteComponent that can be used to manipulate
     // component state as well as set/get underlying data.
@@ -370,49 +410,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     protected void getPanelData() {
         unloadNotesPanel(theNotePager.getCurrentPage());
         myNoteGroup.setNotes(getCondensedInfo());
-    }
-
-
-    // This does nothing in this base class, because not all children will support a rename operation.
-    //   As for fixing the title, upon a rename the entire group is reloaded and the reload will set the
-    //   new Panel title correctly.  Children, however, can override this method and take any additional
-    //   appropriate action(s) that might be needed due to having had their 'renameNoteGroup' invoked.
-    void renamePanel(String renameTo) {}
-
-    void setAppendable(boolean b) {
-        appendable = b;
-    }
-
-    // This method enables or disables every NoteComponent in the Panel.
-    void setEditable(boolean b) {
-        if (editable != b) {
-            editable = b;
-            loadPage(theNotePager.getCurrentPage());
-        }
-    }
-
-    // Called by all contexts that make a change to the data, each time a change is made.
-    //   Child classes can override if they need to intercept a data change, but in that case
-    //   they should still call THIS super method so that menu items are managed correctly.
-    //
-    // Note that this method is called with a 'false' after a NoteGroup save, regardless of whether or not
-    // the save attempt succeeded.  This disables the 'save' menu item, thereby preventing a second+ attempt to save.
-    // The disabled menu item tells the user that they cannot keep trying and that
-    // there is nothing more they can do.  This might give them a false sense
-    // of having had a successful save, but given that we are considering a hypothetical situation along a
-    // path where we already have an unanticipated error, that particular potential downside is entirely
-    // acceptable, at least until it begins cropping up repeatedly.
-    @Override // A NoteComponentManager interface implementation
-    public void setGroupChanged(boolean b) {
-        myNoteGroup.setGroupChanged(b); // Calling the one in the NoteGroup (data, vs components).
-        adjustMenuItems(b); // Data is consulted; this line must come after the one above.
-    } // end setGroupChanged
-
-
-    // Provides a way to set the displayed data, vs loading it from a file.
-    void showGroupData(Vector<NoteData> newGroupData) {
-        myNoteGroup.noteGroupDataVector = newGroupData;
-        loadPage(1);
     }
 
     // The base group data will be reloaded whenever this method is called.
@@ -541,7 +538,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         loadPage(pageTo);
     } // end pageTo
 
-
     // This should be called prior to closing, but there are a few other cases.
     void preClosePanel() {
         if (null != subjectEditor) subjectEditor.saveSubjects();
@@ -558,22 +554,46 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         }
     } // end preClosePanel
 
+    // This does nothing in this base class, because not all children will support a rename operation.
+    //   As for fixing the title, upon a rename the entire group is reloaded and the reload will set the
+    //   new Panel title correctly.  Children, however, can override this method and take any additional
+    //   appropriate action(s) that might be needed due to having had their 'renameNoteGroup' invoked.
+    void renamePanel(String renameTo) {}
 
-    // Use this method to remove 'gaps' in the panel data.
-    Vector<NoteData> getCondensedInfo() {
-        Vector<NoteData> trimmedList = new Vector<>();
+    void setAppendable(boolean b) {
+        appendable = b;
+    }
 
-        // Xfer the 'good' data over to a new, temporary Vector.
-        for (Object object : myNoteGroup.noteGroupDataVector) {
-
-            // Don't retain this note if there is no significant primary text.
-            NoteData tempNoteData = (NoteData) object;
-            if (tempNoteData.getNoteString().trim().isEmpty()) continue;
-
-            // Add each 'good' note to the 'keeper' list.
-            trimmedList.add(tempNoteData);
+    // This method enables or disables every NoteComponent in the Panel.
+    void setEditable(boolean b) {
+        if (editable != b) {
+            editable = b;
+            loadPage(theNotePager.getCurrentPage());
         }
-        return trimmedList;
+    }
+
+    // Called by all contexts that make a change to the data, each time a change is made.
+    //   Child classes can override if they need to intercept a data change, but in that case
+    //   they should still call THIS super method so that menu items are managed correctly.
+    //
+    // Note that this method is called with a 'false' after a NoteGroup save, regardless of whether or not
+    // the save attempt succeeded.  This disables the 'save' menu item, thereby preventing a second+ attempt to save.
+    // The disabled menu item tells the user that they cannot keep trying and that
+    // there is nothing more they can do.  This might give them a false sense
+    // of having had a successful save, but given that we are considering a hypothetical situation along a
+    // path where we already have an unanticipated error, that particular potential downside is entirely
+    // acceptable, at least until it begins cropping up repeatedly.
+    @Override // A NoteComponentManager interface implementation
+    public void setGroupChanged(boolean b) {
+        myNoteGroup.setGroupChanged(b); // Calling the one in the NoteGroup (data, vs components).
+        adjustMenuItems(b); // Data is consulted; this line must come after the one above.
+    } // end setGroupChanged
+
+
+    // Provides a way to set the displayed data, vs loading it from a file.
+    void showGroupData(Vector<NoteData> newGroupData) {
+        myNoteGroup.noteGroupDataVector = newGroupData;
+        loadPage(1);
     }
 
 
@@ -823,26 +843,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         } // end compare
     } // end class NoteStringComparator
 
-
-    // Used to enable or disable the 'undo' and 'save' menu items, called from 'setGroupChanged'.
-    // Although the boolean param matches the 'groupChanged' variable in most cases, there are
-    // some instances where the child Panel has additional factors to consider and/or additional
-    // or different steps to take.  So, the enablement boolean comes in as an input param.
-    protected void adjustMenuItems(boolean b) {
-        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
-            fosterNoteGroupPanel.adjustMenuItems(b);
-        } else {
-            if (myListMenu == null) return; // Too soon.  Come back later.
-            //MemoryBank.debug("NoteGroupPanel.adjustMenuItems <" + b + ">");
-
-            // And now we adjust the Menu -
-            // (see the note at 'setListMenu' for why we don't need to verify non-null MenuItems before setting enabled)
-            JMenuItem theUndo = AppUtil.getMenuItem(myListMenu, "Undo All");
-            theUndo.setEnabled(b);
-            JMenuItem theSave = AppUtil.getMenuItem(myListMenu, "Save");
-            theSave.setEnabled(b);
-        }
-    }
 
 
     // Not all NoteGroups need to manage enablement of items in their menu but all those

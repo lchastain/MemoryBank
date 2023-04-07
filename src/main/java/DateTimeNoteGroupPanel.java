@@ -61,8 +61,8 @@ public class DateTimeNoteGroupPanel extends NoteGroupPanel {
     //-------------------------------------------------------------------
     // Method Name: makeNewNoteComponent
     //
-    // Called (indirectly) by the NoteGroup (base class) constructor,
-    //   to populate the groupNotesListPanel.
+    // Called by buildNotesPanel in the base class (NoteGroup),
+    //   when the constructor populates the groupNotesListPanel.
     //-------------------------------------------------------------------
     @Override
     JComponent makeNewNoteComponent(int i) {

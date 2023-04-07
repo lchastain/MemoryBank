@@ -2,15 +2,13 @@
   "zdtLastModString" : "2020-07-20T15:04:00.577+04:00[Europe/Samara]",
   "instanceId" : "71f60254-4330-4cb5-9041-24ca2300df79",
   "groupType" : "EVENTS",
-  "groupName" : "meetings",
-  "linkTargets" : [ ]
+  "groupName" : "meetings"
 }, [ {
   "zdtLastModString" : "2019-11-13T19:06:49.521+04:00[Europe/Samara]",
   "instanceId" : "aaef2fb4-d9c8-47da-92d0-0d7e0536f6b2",
   "noteString" : "Annual Superhero Reunion",
   "subjectString" : null,
   "extendedNoteString" : "Iron Man comes every year.",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "locationString" : "",
@@ -28,7 +26,6 @@
   "noteString" : "Company Picnic",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "locationString" : "",

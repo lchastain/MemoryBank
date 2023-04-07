@@ -2,15 +2,13 @@
   "zdtLastModString" : "2020-10-18T16:41:05.010+04:00[Europe/Samara]",
   "instanceId" : "6861748b-9afe-4ab2-af68-fed273e96e07",
   "groupType" : "DAY_NOTES",
-  "groupName" : "Sunday, October 18, 2020",
-  "linkTargets" : [ ]
+  "groupName" : "Sunday, October 18, 2020"
 }, [ {
   "zdtLastModString" : "2020-10-17T11:12:47.718+04:00[Europe/Samara]",
   "instanceId" : "87595563-d0cb-4cc8-b160-78afe5cbd269",
   "noteString" : "One - links to To Do Lists - Preparations",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to a Todo List that is in its keeper\n\tLink to a Todo Note that is in a Panel in its keeper\n\tLink to a Todo List that is NOT in its keeper\n\tLink to a Todo Note that is in a Panel that is NOT in its keeper\n\t",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "16:38:31.492"
@@ -20,7 +18,6 @@
   "noteString" : "Two - links to Goals - Retire",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to a Goal that is in its keeper\n\tLink to a Milestone of a Goal that is in its keeper\n\tLink to a Goal that is NOT in its keeper\n\tLink to a Milestone if a Goal that is NOT in its keeper\n",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "16:38:44.340"
@@ -30,7 +27,6 @@
   "noteString" : "Three - links to Events - holidays",
   "subjectString" : null,
   "extendedNoteString" : "4 Possibilities:\n\tLink to an Upcoming Event Group that is in its keeper\n\tLink to an event whose group in its keeper\n\tLink to an Upcoming Event Group that is NOT in its keeper\n\tLink to an event whose group is NOT in its keeper\n",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "16:42:03.027"
@@ -40,7 +36,6 @@
   "noteString" : "Four - links to Day Notes - (today + 2 days)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe date to use should be today's date, plus two \n(even if that puts us into the next month/year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "16:42:29.885"
@@ -50,7 +45,6 @@
   "noteString" : "Five - links to Month Notes -  (today + 2 months)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe month to use should be the one from today's date, plus two \n(even if that puts us into the next year).\n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "16:43:06.561"
@@ -60,7 +54,6 @@
   "noteString" : "Six - links to Year Notes -  (today + 2 years)",
   "subjectString" : null,
   "extendedNoteString" : "The test setup code will need to create the Group and its content.\nThe year to use should be the one from today's date, plus two. \n\nThe count here is the same as the non-calendar types, plus one more case for\nwhen there is no pre-existing group to link to but for Calendar types we can\nstill make such a link.\n",
-  "linkTargets" : [ ],
   "iconFileString" : null,
   "showIconOnMonthBoolean" : false,
   "timeOfDayString" : "16:43:43.559"

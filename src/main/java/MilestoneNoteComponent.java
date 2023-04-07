@@ -562,7 +562,7 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         } // end clear
 
         public Dimension getPreferredSize() {
-            return new Dimension(dateWidth, NOTEHEIGHT);
+            return new Dimension(dateWidth, super.getPreferredSize().height);
         } // end getPreferredSize
 
 

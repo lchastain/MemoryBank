@@ -50,56 +50,9 @@ public class Area51 {
         TodoNoteData todoNoteData = new TodoNoteData();
         todoNoteData.noteString = "Notify the media";
 
-//        LinkTargetData linkage = new LinkTargetData(goalGroup.myProperties.instanceId, null);
-//        todoNoteData.linkTargets.setNotes(linkage);
-
         System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
     }
 
-
-    // Developing linkages and testing serialization issues.
-    private void try3() {
-        // Make a new EventNoteGroup
-        String groupName = "holidays";
-        EventNoteGroupPanel goalGroup = new EventNoteGroupPanel(groupName);
-
-        // Make a new EventNoteData
-        EventNoteData eventNoteData = new EventNoteData();
-        eventNoteData.noteString = "An exciting event";
-
-        // Make a todo list item.
-        TodoNoteData todoNoteData = new TodoNoteData();
-        todoNoteData.noteString = "Notify the media";
-
-        // Make a  link to the Event Note
-        // We send a 'new' NoteData vs the original eventNoteData, in order to strip off unwanted Event data members.
-        // Also this approach has the effect of isolating changes to the encapsulated NoteData (such as nulling out
-        // its linkTargets to avoid infinite recursion) from the original EventNoteData.
-        NoteData targetNoteData = new NoteData(eventNoteData);
-//        LinkTargetData linkage = new LinkTargetData(UUID.randomUUID(), targetNoteData);
-//        todoNoteData.linkTargets.setNotes(linkage);
-
-        System.out.println("The TodoNoteData with link to an Event and its note, to JSON is: " + AppUtil.toJsonString(todoNoteData));
-    }
-
-    // Developing linkages and testing serialization issues.
-    private void try4() {
-
-        // Make a new GoalGroup
-        String groupName = "WorldPlan1";
-        GoalGroupPanel goalGroup = new GoalGroupPanel(groupName);
-        ((GoalGroupProperties) goalGroup.myNoteGroup.myProperties).longTitle = "Take Over The World";
-        System.out.println("The goal group properties to JSON is: " + AppUtil.toJsonString(goalGroup.myNoteGroup.myProperties));
-
-        // Make a todo list item and a link to the Goal.
-        TodoNoteData todoNoteData = new TodoNoteData();
-        todoNoteData.noteString = "Notify the media";
-
-//        LinkTargetData linkage = new LinkTargetData(goalGroup.myProperties.instanceId, null);
-//        todoNoteData.linkTargets.setNotes(linkage);
-
-        System.out.println("The TodoNoteData with link to a Goal, to JSON is: " + AppUtil.toJsonString(todoNoteData));
-    }
 
     private void try5() {
                 JFrame f = new JFrame();

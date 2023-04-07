@@ -11,14 +11,9 @@
 //   are kept in sync with their corresponding GroupInfo object.
 // Data and Object rehabilitation at some future point - is an option.
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class GroupProperties extends BaseData {
     GroupType groupType;     // Says what kind of group this is.
     private String groupName; // The name of the group, as shown in the Tree.
-
-    @JsonIgnore
-    LinkTargets linkTargets;
 
     // This constructor is used by Jackson type conversion operations and child class constructors.
     GroupProperties() { }
@@ -26,14 +21,12 @@ public class GroupProperties extends BaseData {
     GroupProperties(String theName, GroupType theType) {
         groupName = theName;
         groupType = theType;
-        linkTargets = new LinkTargets();
     }
 
     GroupProperties(GroupProperties theCopy) {
         super(theCopy);  // takes care of the ID.
         groupName = theCopy.groupName;
         groupType = theCopy.groupType;
-        linkTargets = theCopy.linkTargets;
     } // end of the copy constructor
 
 
@@ -44,7 +37,6 @@ public class GroupProperties extends BaseData {
     protected GroupProperties copy() {
         return new GroupProperties(this);
     }
-
 
     String getGroupName() {
         return groupName;

@@ -15,9 +15,6 @@ public class LogNoteData extends NoteData {
     private String logDateString; // Defaults to 'today' but can be set/chosen later.
 
     @JsonIgnore  // By ignoring this overloaded member from the base class, it is removed from data persistence.
-    LinkTargets linkTargets;
-
-    @JsonIgnore  // By ignoring this overloaded member from the base class, it is removed from data persistence.
     String subjectString;
 
     // A 'time' member has been considered but not adopted, because Log entries will typically be tied to unique
@@ -35,7 +32,6 @@ public class LogNoteData extends NoteData {
     public LogNoteData(LogNoteData lndCopy) {
         super(lndCopy);
         logDateString = lndCopy.logDateString;
-        linkTargets = lndCopy.linkTargets;
         subjectString = lndCopy.subjectString;
     } // end constructor
 

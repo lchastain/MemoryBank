@@ -8,6 +8,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,9 +23,11 @@ public class NoteComponent extends JPanel {
     // The Members
     NoteData myNoteData;
     NoteTextField noteTextField;
+    NoteTextArea noteTextArea;
 
-    // Needed by container classes to set their scrollbar united increment.
-    static final int NOTEHEIGHT = 24;
+    // May be used by container classes to set their scrollbar unit increments.
+    static final int ONE_LINE_HEIGHT = 24;
+    static final int MULTI_LINE_HEIGHT = 104;
 
     static final int NEEDS_TEXT = 77;    // Arbitrary values
     static final int HAS_BASE_TEXT = 88;
@@ -52,12 +55,9 @@ public class NoteComponent extends JPanel {
     private static final JMenuItem miCutLine;
     private static final JMenuItem miCopyLine;
     private static final JMenuItem miPasteLine;
+    private static final JCheckBoxMenuItem miMultiLine;
 
     static {
-        // This ensures that mySelectionMonitor will never be null; now it may or may not be replaced.
-        mySelectionMonitor = new NoteSelection() { }; // Unless this is replaced it will just use the default (no-op) methods.
-        // LinkTargetSelectionPanel is the only real client of this; LinkagesEditorPanel is where it is reassigned.
-
         //-----------------------------------
         // Create the borders.
         //-----------------------------------
@@ -85,6 +85,9 @@ public class NoteComponent extends JPanel {
         miPasteLine.addActionListener(popHandler);
         miClearLine = contextMenu.add("Clear Line");
         miClearLine.addActionListener(popHandler);
+        miMultiLine = new JCheckBoxMenuItem("Multiline");
+        contextMenu.add(miMultiLine);
+        miMultiLine.addActionListener(popHandler);
     } // end static section
 
     @Override
@@ -95,15 +98,18 @@ public class NoteComponent extends JPanel {
     NoteComponent(NoteComponentManager noteComponentManager, int i) {
         super(new BorderLayout(2, 0));
         myManager = noteComponentManager;  // A NoteGroup
-        if(myManager instanceof NoteGroupPanel) {
+        if (myManager instanceof NoteGroupPanel) {
             myNoteGroupPanel = (NoteGroupPanel) myManager;
         }
         index = i;
 
         makeDataObject(); // Child classes override this method and set their own data types.
 
+        noteTextArea = new NoteTextArea();
         noteTextField = new NoteTextField();
-        if(!editable) {
+        noteTextArea.setLineWrap(true);
+        if (!editable) {
+            noteTextArea.setEditable(false);
             noteTextField.setEditable(false);
         }
 
@@ -134,7 +140,17 @@ public class NoteComponent extends JPanel {
         });
         //-------------------------------------------------------------------------------------
 
-        add(noteTextField, "Center");
+        if (myNoteData != null) {
+            System.out.println("Multiline ? " + myNoteData.multiline);
+            if (myNoteData.multiline) {
+                // HERE - add one OR the other ....
+                add(noteTextArea, "Center");
+            } else {
+                add(noteTextField, "Center");
+            }
+        } else {
+            add(noteTextField, "Center");
+        }
 
         MemoryBank.trace();
     } // end constructor
@@ -153,8 +169,9 @@ public class NoteComponent extends JPanel {
         MemoryBank.debug("NoteComponent.clear, calling NoteData.clear!"); // scr0050 troubleshooting.
         if (nd != null) nd.clear(); // This can possibly affect groupDataVector.
 
-        // Clear the (base) Component - ie, the noteTextField
+        // Clear the (base) Component - ie, the Text
         noteTextField.clear();
+        noteTextArea.clear();
 
         // Notify the Manager
         myManager.setGroupChanged(true);  // Ensure a group 'save'
@@ -167,15 +184,18 @@ public class NoteComponent extends JPanel {
     // Do not let this component grow to fill the available space in the container.
     public Dimension getMaximumSize() {
         Dimension d = super.getMaximumSize();
-        return new Dimension(d.width, NOTEHEIGHT);
+        int theHeight = ONE_LINE_HEIGHT;
+        if(myNoteData != null && myNoteData.multiline) {
+            theHeight = MULTI_LINE_HEIGHT;
+        }
+        return new Dimension(d.width, theHeight);
     } // end getMaximumSize
 
+    public Dimension getMinimumSize() {
+        return getPreferredSize();
+    } // end getMinimumSize
 
-    //-----------------------------------------------------------------
-    // Method Name: getNoteData
-    //
     // Returns the data object that this component encapsulates and manages.
-    //-----------------------------------------------------------------
     NoteData getNoteData() {
         return myNoteData;
     } // end getNoteData
@@ -188,7 +208,11 @@ public class NoteComponent extends JPanel {
     // Need to keep the height constant.
     public Dimension getPreferredSize() {
         int minWidth = 100; // For the Text Field
-        return new Dimension(minWidth, NOTEHEIGHT);
+        int theHeight = ONE_LINE_HEIGHT;
+        if(myNoteData != null && myNoteData.multiline) {
+            theHeight = MULTI_LINE_HEIGHT;
+        }
+        return new Dimension(minWidth, theHeight);
     } // end getPreferredSize
 
 
@@ -270,15 +294,22 @@ public class NoteComponent extends JPanel {
     //   unless they are not using the noteTextField.
     //--------------------------------------------------------------
     protected void noteActivated(boolean blnIAmOn) {
-        if(!initialized) return; // No need for this, on notes where nothing was ever done.
+        if (!initialized) return; // No need for this, on notes where nothing was ever done.
         if (!blnIAmOn) {
-                if (noteTextField.getText().trim().equals("")) {
-                    NoteData nd = getNoteData();
+            //   Here we enforce the rule that notes must
+            //   have text before they can have additional features.
+            NoteData nd = getNoteData();
+            String theMainText;
+            if(nd.multiline) {
+                theMainText = noteTextArea.getText().trim();
+            } else {
+                theMainText = noteTextField.getText().trim();
+            }
 
-                    //   Here we enforce the rule that notes must
-                    //   have text before they can have additional features.
-                    if (nd.extendedNoteString.trim().equals("")) clear();
-                } // end if
+            if (theMainText.equals("")) {
+                if (nd.extendedNoteString.trim().equals("")) clear();
+            } // end if
+
         } // end if
     } // end noteActivated
 
@@ -301,9 +332,14 @@ public class NoteComponent extends JPanel {
         noteTextField.getDocument().removeDocumentListener(noteTextField);
         noteTextField.setText(s);
         noteTextField.getDocument().addDocumentListener(noteTextField);
-
         noteTextField.setTextColor();
         noteTextField.resetToolTip(getNoteData());
+
+        noteTextArea.getDocument().removeDocumentListener(noteTextArea);
+        noteTextArea.setText(s);
+        noteTextArea.getDocument().addDocumentListener(noteTextArea);
+        noteTextArea.setTextColor();
+        noteTextArea.resetToolTip(getNoteData());
     } // end resetComponent
 
 
@@ -321,12 +357,15 @@ public class NoteComponent extends JPanel {
         contextMenu.add(miCopyLine);
         contextMenu.add(miPasteLine);
         contextMenu.add(miClearLine);
+        contextMenu.add(miMultiLine);
 
         if (!initialized) {
             miCutLine.setEnabled(false);
             miCopyLine.setEnabled(false);
             miPasteLine.setEnabled(MemoryBank.clipboardNote != null);
             miClearLine.setEnabled(false);
+            miMultiLine.setEnabled(false);
+            miMultiLine.setSelected(false);
             return;
         }
 
@@ -336,17 +375,29 @@ public class NoteComponent extends JPanel {
             miCopyLine.setEnabled(true);
             miPasteLine.setEnabled(false);
             miClearLine.setEnabled(true);
+            miMultiLine.setEnabled(true);
+            miMultiLine.setSelected(menuNoteData.multiline);
         }
     } // end resetPopup
 
-    // Called by NoteGroup when shifting up/down.
+    // Called by NoteGroup when shifting up/down, as well as mouse-click handling.
     public void setActive() {
+        // Only one of these will actually cause a visual effect.
+        noteTextArea.requestFocusInWindow();
         noteTextField.requestFocusInWindow();
     } // end NoteComponent setActive
 
     void setEditable(boolean b) {
         editable = b;
+        noteTextArea.setEditable(editable);
         noteTextField.setEditable(editable);
+    }
+
+    // Nothing happens here in this base class; this method is provided so that child components
+    //   can override it when one of their sub-components needs to deactivate one of their other
+    //   sub-components.  Currently only needed by DateTimeNoteCompnent.
+    void setInactive() {
+        // Called for a mouse-click on the noteTextArea
     }
 
     public void setNoteChanged() {
@@ -429,6 +480,409 @@ public class NoteComponent extends JPanel {
 
     // This class implements a text field with a red border that
     //   appears when the focus is gained.
+    protected class NoteTextArea extends JTextArea implements
+            DocumentListener, FocusListener, MouseListener, KeyListener {
+        @Serial
+
+        private static final long serialVersionUID = 1L;
+
+        public NoteTextArea() {
+            // By calling the super contructor with no rows or columns, we get the smallest possible TextArea.
+            // But the component to which this inner class belongs is putting us into a stretchable Panel that
+            //   (given the chosen font) will initially make enough room for text that is five rows in height.
+            //   The number of columns will vary depending on the size of the container that holds the
+            //   outer component.
+            super();
+
+            // This is needed so that the KeyListener will hear a TAB.
+            setFocusTraversalKeysEnabled(false);
+
+            setBorder(offBorder);
+            addMouseListener(this);
+            setFont(Font.decode("Dialog-bold-14"));
+            addFocusListener(this);
+            getDocument().addDocumentListener(this); // cut/paste/changed
+            addKeyListener(this);
+        } // end constructor
+
+        private void clear() {
+            // Remove the document listener, to avoid thread deadlocks.
+            getDocument().removeDocumentListener(this);
+
+            // Clear the text field
+            setText(null);
+            setForeground(Color.black);
+            setToolTipText(null);
+
+            // Restore the document listener.
+            getDocument().addDocumentListener(this);
+        }
+
+        // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
+        //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
+        //   move the pointer into the tooltip text area, and that causes the tooltip to go away.
+        // Important:  Probably not hardened in the face of different L&Fs; optimized for Windows Classic.
+        // Also: a 'fast' mouse move from within the bounds of the NoteComponent into the popped-up tooltip
+        //    can evade the mouseExited event as the cursor crosses the 6-pixel gap, in which case the
+        //    tooltip stays up much longer.  But we must live with that, for now.
+        @Override
+        public Point getToolTipLocation(MouseEvent e) {
+            int offsetY = 30; // Good enough for most components.
+            Object object = e.getSource();
+            try {
+                JComponent component = (JComponent) object;
+                //Rectangle rectangle = component.getBounds();
+                offsetY = component.getBounds().height + 6;
+            } catch (Exception ignore) {
+            }
+
+            return new Point(10, offsetY);
+        }
+
+
+        // Turn off the currently displayed tooltip, if there is one.
+        void hideToolTip() {
+            // We preserve a single (static) last MOUSE_ENTERED event across ALL NoteTextAreas, but there is a
+            // sequence of operations after program startup, whereby execution could come here while this reference
+            // is still null.  So the following  block of code is conditional on it not being null.
+            if (lastMouseEnteredEvent != null) {
+                // Get a reference to the last entered note
+//                DateTimeNoteComponent.NoteTextArea theSource = (DateTimeNoteComponent.NoteTextArea) lastMouseEnteredEvent.getSource();
+                Component theSource = (Component) lastMouseEnteredEvent.getSource();
+                // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
+                MouseEvent mouseExitedEvent = new MouseEvent(theSource, MouseEvent.MOUSE_EXITED,
+                        lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiersEx(),
+                        -1, -1, lastMouseEnteredEvent.getClickCount(), false);
+
+                // Now get ALL the mouse listeners on that earlier note.
+                // This is because tooltips are displayed by the JVM library code and not our own code, so if there
+                //   is a tooltip showing then it was put there by a listener in that code, so that is the listener
+                //   to which we need to send the event to get the tooltip to go away.
+                MouseListener[] theListeners = theSource.getMouseListeners();
+
+                // Cycle thru the listeners and call .mouseExited() on all of them.
+                // (including our own, but that one will not remove the tooltip).
+                for (MouseListener ml : theListeners) {
+                    ml.mouseExited(mouseExitedEvent);
+                }
+            }
+        } // end hideToolTip
+
+        private void resetToolTip(NoteData nd) {
+            if (nd == null) return;
+
+            String subjectString = nd.getSubjectString();
+            String extendedNoteString = nd.getExtendedNoteString();
+            if (!extendedNoteString.isBlank()) {
+                StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(extendedNoteString);
+                if (sdd != null) {
+                    JTextPane jtp = new JTextPane();
+                    DefaultStyledDocument dsd = (DefaultStyledDocument) jtp.getStyledDocument();
+                    sdd.fillStyledDocument(dsd);
+                    extendedNoteString = jtp.getText();
+                }
+            }
+
+            String strToolTip;
+
+            if (subjectString != null) {
+                // System.out.println("Setting the tool tip to: " + ss);
+                if (subjectString.trim().equals("")) subjectString = null;
+            } // end if
+
+            // The tool tip will be a concatenation of the subject
+            //   and the extended note.  If one is not present then
+            //   it will just be the other.  If neither, then null.
+            if ((subjectString != null) && (!extendedNoteString.isBlank())) {
+                strToolTip = subjectString + System.lineSeparator() + extendedNoteString;
+            } else if (subjectString != null) {
+                strToolTip = subjectString;
+            } else if (!extendedNoteString.isBlank()) {
+                strToolTip = extendedNoteString;
+            } else {
+                strToolTip = null;
+            } // end if / else - setting strToolTip
+
+            if (strToolTip != null) {
+                // Insert line breaks as needed and enforce
+                //   an overall text length limit.
+                strToolTip = AppUtil.getTooltipString(strToolTip);
+
+                // In case we had a (too large) gap of linefeeds in the middle
+                //   and the cutoff didn't make it back to real text -
+                strToolTip = strToolTip.trim();
+
+                // Convert potentially malicious characters.
+                strToolTip = strToolTip.replace("&", "&amp;");
+                strToolTip = strToolTip.replace("<", "&lt;");
+
+                // Wrap in HTML and PREserve the original formatting, to hold on to indents and multi-line.
+                strToolTip = "<html><pre>" + strToolTip + "</pre></html>";
+
+            } // end if
+
+            setToolTipText(strToolTip);
+        } // end resetToolTip
+
+        @Override
+        public void setText(String s) {
+            super.setText(s);
+            setCaretPosition(0); // Do not leave notes scrolled horizontally.
+        }
+
+        private void setTextColor() {
+            NoteData nd = getNoteData();
+            if (nd == null) return;
+            if (!nd.getExtendedNoteString().isBlank())
+                setForeground(Color.blue);
+            else
+                setForeground(Color.black);
+        } // end setTextColor
+
+        //=====================================================================
+        // EVENT HANDLERS
+        //=====================================================================
+
+        //<editor-fold desc="actionPerformed method">
+        //   This method will be called indirectly for a mouse double-click on the JTextArea.
+        //---------------------------------------------------------
+        public void actionPerformed(ActionEvent ae) {
+            MemoryBank.event();
+            boolean extendedNoteChanged;
+            if (!this.isEditable()) return;
+            if (!initialized) return;
+            hideToolTip(); // Turn off the currently displayed tooltip, if any.
+
+            // Highlight this note to show it is the one being modified.
+            setBorder(redBorder);
+
+            NoteData tmpNoteData = getNoteData();
+            extendedNoteChanged = myManager.editNoteData(tmpNoteData);
+
+            if (extendedNoteChanged) {
+                // Set (or clear) the tool tip.
+                resetToolTip(tmpNoteData);
+
+                setTextColor();
+                setNoteChanged();
+            } // end if
+
+            // Remove the 'modification in progress' highlight
+            setBorder(null);
+        } // end actionPerformed
+        //</editor-fold>
+
+
+        //<editor-fold desc="DocumentListener methods for the TextArea">
+        public void insertUpdate(DocumentEvent e) {
+            // System.out.println("insertUpdate: " + e.toString());
+            if (!initialized) initialize();
+
+            getNoteData().setNoteString(getText());
+            setNoteChanged();
+        } // end insertUpdate
+
+        public void removeUpdate(DocumentEvent e) {
+            System.out.println("TextArea removeUpdate: " + e.toString());
+            getNoteData().setNoteString(getText());
+            setNoteChanged();
+        } // end removeUpdate
+
+        public void changedUpdate(DocumentEvent e) {
+            System.out.println("changedUpdate: " + e.toString());
+            getNoteData().setNoteString(getText());
+            setNoteChanged();
+        } // end changedUpdate
+        //</editor-fold>
+
+        //<editor-fold desc="FocusListener methods for the TextArea">
+        // Note: The order of focusGained / focusLost along with
+        //  the visual indicators (borders, highlighting) and
+        //  how they can be invoked by either up/down arrows,
+        //  mouse clicks, or the tab key - is critical!
+        //  The key to it all is to disallow other components from
+        //  getting the focus when they appear (most notably, the
+        //  PopupMenu and the vertical scrollbar).  Then, do
+        //  everything based on Focus here being gained or lost.
+        public void focusGained(FocusEvent e) {
+            // System.out.println("focusGained for index " + index);
+            setBorder(redBorder);
+            NoteComponent.this.scrollRectToVisible(getBounds());  // Does this scroll text on the line, or the line in the scrollpane?
+            if (mySelectionMonitor != null) mySelectionMonitor.noteSelected();
+
+            // We occasionally get a null pointer exception at startup.
+            if (getCaret() == null) return;
+// trying to disable the pre-highlighted text seen in todo lists.  Need to consistently reproduce, first.
+//            setSelectionStart(getSelectionEnd());
+            getCaret().setVisible(true);
+
+            if (!initialized) return;
+            noteActivated(true);
+        } // end focusGained
+
+        public void focusLost(FocusEvent e) {
+            // System.out.println("focusLost for index " + index);
+            setBorder(offBorder);
+            getCaret().setVisible(false);
+            // We do not de-select at this point because any selection would be lost
+            // when the user clicks 'ok', for instance.
+            // Instead, selections are cleared prior to presenting new choices.
+
+            noteActivated(false);
+        } // end focusLost
+        //</editor-fold>
+
+        //<editor-fold desc="KeyListener methods for the TextArea">
+        @Override
+        public void keyPressed(KeyEvent ke) {
+            // Turn off a previous popup, if one is showing.
+            // This could happen if a menu was showing, then the user
+            //   pressed a TAB, UP or DOWN key to change focus - the
+            //   popup menu would still be up, but active for the
+            //   previous note vs the one that appeared to be active.
+            if (contextMenu.isVisible()) contextMenu.setVisible(false);
+
+            hideToolTip(); // Turn off the currently displayed tooltip, if any.
+
+            int kp = ke.getKeyCode();
+
+            boolean shifted = ke.isShiftDown();
+            if (!shifted) {
+                // In case the user 'activated' the date or time, but then left it depressed and went over to
+                //   the text area on the same line and started typing there.
+//                noteDateLabel.setInactive();
+//                noteTimeLabel.setInactive();
+            }
+
+            // Translate TAB / Shift-TAB into DOWN / UP
+            if (kp == KeyEvent.VK_TAB) {
+                kp = KeyEvent.VK_DOWN;
+                if (shifted) {
+                    shifted = false;
+                    kp = KeyEvent.VK_UP;
+                } // end if
+            } // end if
+
+            if ((kp != KeyEvent.VK_DOWN) && (kp != KeyEvent.VK_UP)) return;
+
+            if (shifted) { // This means we are doing a 'swap', if allowed.
+                // System.out.println();
+                if (kp == KeyEvent.VK_UP) shiftUp();
+                else shiftDown();
+                ke.consume(); // Don't let it go on to affect the TextArea.
+            } else { // Otherwise, a simple UP or DOWN arrow.
+                int lineCount = getLineCount();
+                int currentLine = 1;
+                System.out.println("Line Count: " + lineCount);
+                try {  // Get the current line (zero-based)
+                    int offset = getCaretPosition();
+                    int line = getLineOfOffset(offset);
+                    currentLine = line + 1;
+                } catch (BadLocationException ex) {
+                    ex.printStackTrace();
+                }
+                System.out.println("Current line of the TextArea: " + currentLine);
+
+                if (kp == KeyEvent.VK_DOWN) {
+                    if (currentLine >= lineCount) {
+                        transferFocus();
+                    }
+                } else {  // VK_UP
+                    if (currentLine <= 1) {
+                        transferFocusBackward();
+                    }
+                }
+            } // end if
+        } // end keyPressed
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+//            System.out.println("Selection start: " + getSelectionStart());
+        }
+
+        @Override
+        public void keyTyped(KeyEvent ke) {
+            if (initialized) return;
+
+            char kc = ke.getKeyChar();
+            if (kc == KeyEvent.VK_TAB) return;
+            if (kc == KeyEvent.VK_ENTER) return;
+            if (kc == KeyEvent.VK_BACK_SPACE) return;
+            initialize(); // this will activate the next note
+            noteActivated(true); // Added for SCR0091
+        } // end keyTyped
+        //</editor-fold>
+
+        //<editor-fold desc="MouseListener methods for the TextArea">
+        public void mouseClicked(MouseEvent e) {
+            MemoryBank.event();
+            NoteComponent.this.setInactive(); // De-activate sub-components in child classes.
+            if (!this.hasFocus()) {
+                // The rmb click does not change focus, so we help it out.
+                requestFocusInWindow();
+            }
+
+            if (!this.isEditable()) return;
+            int m = e.getModifiersEx();
+
+            // Single click, right mouse button.
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                // System.out.println("Right click on index " + index);
+
+                // In earlier Java versions (before 1.6), The rmb click
+                //   did not get focus, so -
+                // requestFocusInWindow();
+
+                // NOTE:  The above 'request' is subject to queuing and
+                //  handling priorities; it will not be honored until after
+                //  this method completes (because it is an event handler)
+                //  AND all other focus events are handled, including the
+                //  focusLost method of the note that currently has it,
+                //  but is about to lose it as a result of this request.
+
+                // Ignore double right mouse clicks.
+                if (e.getClickCount() == 2) return;
+
+                // Set the global NoteComponent.  This is the primary
+                // mechanism that allows the handler to be static.
+                theNoteComponent = NoteComponent.this;
+
+                // Child classes will override resetPopup to enable/disable, setNotes/remove
+                //   menu items, based on the data content of the active NoteComponent.
+                resetPopup();
+
+                // Show the popup menu
+                // System.out.println("Showing popup!");
+                contextMenu.show(e.getComponent(), e.getX(), e.getY());
+
+                // Double click, left mouse button.
+            } else if (e.getClickCount() == 2) {
+                actionPerformed(new ActionEvent(e.getSource(), 0, ""));
+            } // end if/else if
+        } // end mouseClicked
+
+        public void mouseEntered(MouseEvent e) {
+            contextMenu.setVisible(false); // This gets rid of a previous one, if any.
+            lastMouseEnteredEvent = e;
+//            if (!initialized) return;   // Disabled 11/4/2022 so that new notes will prompt for input.
+
+            resetPanelStatusMessage(getTextStatus());
+        } // end mouseEntered
+
+        public void mouseExited(MouseEvent e) {
+            myManager.setStatusMessage(" ");
+        }
+
+        public void mousePressed(MouseEvent e) {
+        }
+
+        public void mouseReleased(MouseEvent e) {
+        }
+        //</editor-fold>
+    } // end class NoteTextArea
+
+    // This class implements a text field with a red border that
+    //   appears when the focus is gained.
     protected class NoteTextField extends JTextField implements ActionListener,
             DocumentListener, FocusListener, MouseListener, KeyListener {
         @Serial
@@ -489,7 +943,8 @@ public class NoteComponent extends JPanel {
                 JComponent component = (JComponent) object;
                 //Rectangle rectangle = component.getBounds();
                 offsetY = component.getBounds().height + 6;
-            } catch (Exception ignore){}
+            } catch (Exception ignore) {
+            }
 
             return new Point(10, offsetY);
         }
@@ -500,9 +955,9 @@ public class NoteComponent extends JPanel {
             // We preserve a single (static) last MOUSE_ENTERED event across ALL NoteTextFields, but there is a
             // sequence of operations after program startup, whereby execution could come here while this reference
             // is still null.  So the following  block of code is conditional on it not being null.
-            if(lastMouseEnteredEvent != null) {
+            if (lastMouseEnteredEvent != null) {
                 // Get a reference to the last entered note
-                NoteTextField theSource = (NoteTextField) lastMouseEnteredEvent.getSource();
+                Component theSource = (Component) lastMouseEnteredEvent.getSource();
                 // and use the reference along with the MOUSE_ENTERED event, to gen up a 'MOUSE_EXITED' event.
                 MouseEvent mouseExitedEvent = new MouseEvent(theSource, MouseEvent.MOUSE_EXITED,
                         lastMouseEnteredEvent.getWhen(), lastMouseEnteredEvent.getModifiersEx(),
@@ -516,7 +971,7 @@ public class NoteComponent extends JPanel {
 
                 // Cycle thru the listeners and call .mouseExited() on all of them.
                 // (including our own, but that one will not remove the tooltip).
-                for(MouseListener ml: theListeners) {
+                for (MouseListener ml : theListeners) {
                     ml.mouseExited(mouseExitedEvent);
                 }
             }
@@ -528,7 +983,7 @@ public class NoteComponent extends JPanel {
 
             String subjectString = nd.getSubjectString();
             String extendedNoteString = nd.getExtendedNoteString();
-            if(!extendedNoteString.isBlank()) {
+            if (!extendedNoteString.isBlank()) {
                 StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(extendedNoteString);
                 if (sdd != null) {
                     JTextPane jtp = new JTextPane();
@@ -640,7 +1095,7 @@ public class NoteComponent extends JPanel {
         } // end insertUpdate
 
         public void removeUpdate(DocumentEvent e) {
-            System.out.println("removeUpdate: " + e.toString());
+            System.out.println("TextField removeUpdate: " + e.toString());
             getNoteData().setNoteString(getText());
             setNoteChanged();
         } // end removeUpdate
@@ -666,7 +1121,7 @@ public class NoteComponent extends JPanel {
             // System.out.println("focusGained for index " + index);
             setBorder(redBorder);
             NoteComponent.this.scrollRectToVisible(getBounds());  // Does this scroll text on the line, or the line in the scrollpane?
-            if(mySelectionMonitor != null) mySelectionMonitor.noteSelected();
+            if (mySelectionMonitor != null) mySelectionMonitor.noteSelected();
 
             // We occasionally get a null pointer exception at startup.
             if (getCaret() == null) return;
@@ -757,10 +1212,9 @@ public class NoteComponent extends JPanel {
             }
 
             if (!this.isEditable()) return;
-            int m = e.getModifiersEx();
 
             // Single click, right mouse button.
-            if(e.getButton()==MouseEvent.BUTTON3) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
                 // System.out.println("Right click on index " + index);
 
                 // In earlier Java versions (before 1.6), The rmb click
@@ -798,9 +1252,7 @@ public class NoteComponent extends JPanel {
         public void mouseEntered(MouseEvent e) {
             contextMenu.setVisible(false); // This gets rid of a previous one, if any.
             lastMouseEnteredEvent = e;
-//            if (!initialized) return;   // Disabled 11/4/2022 so that new notes will prompt for input.
-
-            resetPanelStatusMessage(getTextStatus());
+            resetPanelStatusMessage(getTextStatus()); // even uninitialized new notes still need to prompt for input.
         } // end mouseEntered
 
         public void mouseExited(MouseEvent e) {
@@ -820,7 +1272,7 @@ public class NoteComponent extends JPanel {
 
     // The PopHandler needs to be static; otherwise we get one for every
     // component in the NoteGroup, and ALL of them would respond to the
-    // "one" requesting MenuItem.
+    // "one" requesting context MenuItem.
     // This is because the menu items are also static, so the same JMenuItem
     // is being shown for each NoteComponent, with either a single ActionListener,
     // or several of them if this class were not also static.
@@ -855,6 +1307,31 @@ public class NoteComponent extends JPanel {
                 case "Clear Line" -> {
                     theNoteComponent.clear();
                     theNoteComponent.setNoteChanged();
+                }
+                case "Multiline" -> {
+                    if(noteData.multiline == miMultiLine.getState()) return; // shouldn't happen.
+                    noteData.multiline = !noteData.multiline; // toggle the setting
+                    //System.out.println(AppUtil.toJsonString(noteData));
+                    //System.out.println("Menu Item Selected: " + miMultiLine.getState());
+                    theNoteComponent.setNoteChanged();
+                    Dimension hiLine = new Dimension(theNoteComponent.getPreferredSize().width, MULTI_LINE_HEIGHT);
+                    Dimension loLine = new Dimension(theNoteComponent.getPreferredSize().width, ONE_LINE_HEIGHT);
+                    if(noteData.multiline) {
+                        theNoteComponent.remove(theNoteComponent.noteTextField);
+                        theNoteComponent.add(theNoteComponent.noteTextArea, BorderLayout.CENTER);
+                        theNoteComponent.setSize(hiLine);
+                    } else {
+                        theNoteComponent.remove(theNoteComponent.noteTextArea);
+                        theNoteComponent.add(theNoteComponent.noteTextField, BorderLayout.CENTER);
+                        theNoteComponent.setSize(loLine);
+                    }
+                    theNoteComponent.invalidate();
+                    theNoteComponent.validate();
+                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.revalidate();
+//                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.updateUI();
+//                    theNoteComponent.myNoteGroupPanel.refresh();
+//                    theNoteComponent.resetComponent();
+                    theNoteComponent.setActive();
                 }
                 default -> System.out.println(theMenuItemText);
             }

@@ -2,27 +2,23 @@
   "zdtLastModString" : "2020-11-13T10:49:51.141+04:00[Europe/Samara]",
   "instanceId" : "779c4030-8888-47d3-8a5b-925f197b65b8",
   "groupType" : "YEAR_NOTES",
-  "groupName" : "2018",
-  "linkTargets" : [ ]
+  "groupName" : "2018"
 }, [ {
   "zdtLastModString" : "2020-11-13T10:49:05.445+04:00[Europe/Samara]",
   "instanceId" : "348761fc-3bab-461f-baa2-fe5a3405d9eb",
   "noteString" : "This is the middle note for testing Year",
   "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : [ ]
+  "extendedNoteString" : ""
 }, {
   "zdtLastModString" : "2020-11-13T10:49:13.149+04:00[Europe/Samara]",
   "instanceId" : "4d680cd7-3a34-4de3-8129-ee8b663c54b7",
   "noteString" : "decreases and increases",
   "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : [ ]
+  "extendedNoteString" : ""
 }, {
   "zdtLastModString" : "2020-11-13T10:49:51.141+04:00[Europe/Samara]",
   "instanceId" : "d95ed188-0cd9-4f5e-adf7-c182a8d0e53e",
   "noteString" : "of the YearNoteGroupPanel and its underlying CalendarNoteGroup",
   "subjectString" : null,
-  "extendedNoteString" : "",
-  "linkTargets" : [ ]
+  "extendedNoteString" : ""
 } ] ]

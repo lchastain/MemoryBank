@@ -46,11 +46,14 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     // Only Archived event groups use this constructor.
     // Normal access comes via the other constructor, which will age and sort.
     public EventNoteGroupPanel(GroupInfo groupInfo) {
+        super(); // This would be called implicitly, if this statment were not present.
         setDefaultSubject("Upcoming Event");
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
         myNoteGroup.myNoteGroupPanel = this;
         loadNotesPanel();
 
+        // Other NoteGroupPanels have their own 'buildMyPanel' methods that are called at this time.
+        // Here, we just go right into it, without a separate method call.
         tmc = new ThreeMonthColumn();
         tmc.setSubscriber(this);
 
@@ -66,7 +69,6 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
 
         if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
     } // end constructor
-
 
     // This constructor will load the group if it exists in 'current' data, otherwise
     // you get a new one with that group name.

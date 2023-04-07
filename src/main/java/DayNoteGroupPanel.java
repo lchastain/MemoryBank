@@ -201,7 +201,6 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         for (int i = 0; i <= lastVisibleNoteIndex; i++) {
             getNoteComponent(i).resetTimeLabel();
         } // end for i
-//        setGroupChanged(true);   WHY?  no actual data change.  timeOfDayString does not change; it is parsed in when needed.
     } // end toggleMilitary
 
 } // end class DayNoteGroupPanel

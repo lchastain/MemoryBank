@@ -2,15 +2,13 @@
   "zdtLastModString" : "2020-11-13T10:39:32.873+04:00[Europe/Samara]",
   "instanceId" : "37988136-b8d5-4d3b-b372-67418abffee7",
   "groupType" : "DAY_NOTES",
-  "groupName" : "Monday, March 12, 2018",
-  "linkTargets" : [ ]
+  "groupName" : "Monday, March 12, 2018"
 }, [ {
   "zdtLastModString" : "2020-11-13T10:30:18.991+04:00[Europe/Samara]",
   "instanceId" : "ae055dff-29c1-42e4-a951-e668305e2192",
   "noteString" : "This is the first day of data for testing Day",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/dice/b5_dice0a.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "10:26:59.040"
@@ -20,7 +18,6 @@
   "noteString" : "increases and decreases",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/arrows/b5_arrow1_n.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "10:27:42.655"
@@ -30,7 +27,6 @@
   "noteString" : "of the DayNote Group and Panel",
   "subjectString" : null,
   "extendedNoteString" : "",
-  "linkTargets" : [ ],
   "iconFileString" : "c:/users/lee/workspace/memory bank/icons/beaker0a.gif",
   "showIconOnMonthBoolean" : true,
   "timeOfDayString" : "10:29:19.983"

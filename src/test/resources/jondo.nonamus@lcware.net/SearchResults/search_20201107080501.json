@@ -3,7 +3,6 @@
   "instanceId" : "6c74a207-5345-460e-bfc4-80b8e2daced0",
   "groupType" : "SEARCH_RESULTS",
   "groupName" : "20201107080501",
-  "linkTargets" : [ ],
   "searchPanelSettings" : {
     "not1" : false,
     "not2" : false,
@@ -34,7 +33,6 @@
   "instanceId" : "c3c4619e-29a7-4ad3-8a48-be5522957145",
   "noteString" : "Taxi to airport",
   "extendedNoteString" : "I've been summoned to the home office, for an important meeting.  No idea what to expect.",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Tuesday, June 8, 2010"
@@ -44,7 +42,6 @@
   "instanceId" : "fe5580fd-c4d2-4c21-ba65-e580e79a3c93",
   "noteString" : "Taxi to office",
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Tuesday, June 8, 2010"
@@ -54,7 +51,6 @@
   "instanceId" : "12a4c614-e2fb-456c-bbed-745b1f1a1e84",
   "noteString" : "Taxi to office",
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Friday, June 11, 2010"
@@ -64,7 +60,6 @@
   "instanceId" : "afa95e0f-3f5a-4aaa-9fc1-344542fa514a",
   "noteString" : "Taxi to office",
   "extendedNoteString" : "Didn't get the exact time, just noting that this is what happened, in the order of events of the day.",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Saturday, June 12, 2010"
@@ -74,7 +69,6 @@
   "instanceId" : "f29bbff7-46d0-4886-bb0a-efe9f16ab721",
   "noteString" : "Lease Payment Due",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, January 4, 2016"
@@ -85,7 +79,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, February 1, 2016"
@@ -96,7 +89,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, March 7, 2016"
@@ -107,7 +99,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, April 4, 2016"
@@ -118,7 +109,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, May 2, 2016"
@@ -129,7 +119,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, June 6, 2016"
@@ -140,7 +129,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, July 4, 2016"
@@ -151,7 +139,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, August 1, 2016"
@@ -162,7 +149,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, September 5, 2016"
@@ -173,7 +159,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, October 3, 2016"
@@ -184,7 +169,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, November 7, 2016"
@@ -195,7 +179,6 @@
   "noteString" : "Lease Payment Due",
   "subjectString" : "Event",
   "extendedNoteString" : "Finances\nThe lease payment for the Mercedes is due today!\nLocation: Home Office",
-  "linkTargets" : [ ],
   "foundIn" : {
     "groupType" : "DAY_NOTES",
     "groupName" : "Monday, December 5, 2016"
