@@ -54,6 +54,7 @@ public class IconNoteComponent extends NoteComponent {
 
     IconNoteComponent(NoteComponentManager ng, int i) {
         super(ng, i);
+        componentHeight = ICONNOTEHEIGHT;
         index = i;
 
         defineActionListener(); // Not needed until the popup menu is displayed.
@@ -69,6 +70,7 @@ public class IconNoteComponent extends NoteComponent {
         // Graphical elements
         //------------------
         noteTextField.setFont(Font.decode("DialogInput-bold-20"));
+        noteTextArea.setFont(Font.decode("DialogInput-bold-20"));
 
         theIconLabel = new JLabel() {
             @Override
@@ -213,15 +215,17 @@ public class IconNoteComponent extends NoteComponent {
     // Do not let it grow to fill the available space in the container.
     public Dimension getMaximumSize() {
         Dimension d = super.getMaximumSize();
-        return new Dimension(d.width, ICONNOTEHEIGHT);
+
+        //return new Dimension(d.width, ICONNOTEHEIGHT);
+        return new Dimension(d.width, MULTI_LINE_HEIGHT);
     } // end getMaximumSize
 
     // Need to keep the height constant.
-    public Dimension getPreferredSize() {
-        int minWidth = 100; // For the Text Field
-        minWidth += theIconLabel.getPreferredSize().width;
-        return new Dimension(minWidth, ICONNOTEHEIGHT);
-    } // end getPreferredSize
+//    public Dimension getPreferredSize() {
+//        int minWidth = 100; // For the Text Field
+//        minWidth += theIconLabel.getPreferredSize().width;
+//        return new Dimension(minWidth, ICONNOTEHEIGHT);
+//    } // end getPreferredSize
 
 
     protected void initialize() {

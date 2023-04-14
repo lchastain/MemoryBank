@@ -101,6 +101,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     public AppTreePanel(@NotNull JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
+//        super(new BorderLayout());
         appMenuBar = new AppMenuBar();
         aFrame.setJMenuBar(appMenuBar);
 
@@ -185,7 +186,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         splitPane.setPreferredSize(new Dimension(820, 520));
 
         // Add the split pane to this panel.
-        add(splitPane);
+        add(splitPane, BorderLayout.CENTER);
 
         // Initialize a viewing Date
         viewedDate = LocalDate.now(); // This should never be null.

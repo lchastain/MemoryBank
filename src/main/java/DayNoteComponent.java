@@ -54,6 +54,21 @@ public class DayNoteComponent extends IconNoteComponent {
         noteTimeLabel = new NoteTimeLabel();
         add(noteTimeLabel, "West");
 
+        // Temp while tracking height problems...
+        MouseAdapter ma = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JComponent jc = (JComponent) e.getSource();
+                Container aContainer = jc.getParent();
+                while(aContainer != null) {
+                    System.out.println("container: " + aContainer.getName() + " " + aContainer);
+                    System.out.println("  layout: " + aContainer.getLayout());
+                    aContainer = aContainer.getParent();
+                }
+            }
+        };
+        noteTimeLabel.addMouseListener(ma);
+
         MemoryBank.trace();
     } // end constructor
 
@@ -64,6 +79,25 @@ public class DayNoteComponent extends IconNoteComponent {
         super.clear();
     } // end clear
 
+    public Dimension getMaximumSize() {
+        System.out.println("DayNoteCompnent " + index + " getMaximumSize");
+        Dimension d = super.getMaximumSize();
+        int theHeight = ICONNOTEHEIGHT;
+        if(myNoteData != null && myNoteData.multiline) {
+            theHeight = MULTI_LINE_HEIGHT;
+        }
+        return new Dimension(d.width, componentHeight);
+    } // end getMaximumSize
+
+    public Dimension getMinimumSize() {
+        System.out.println("DayNoteCompnent " + index + " getMinimumSize");
+        int minWidth = 100; // For the Text Field
+        int theHeight = ICONNOTEHEIGHT;
+        if(myNoteData != null && myNoteData.multiline) {
+            theHeight = MULTI_LINE_HEIGHT;
+        }
+        return new Dimension(minWidth, componentHeight);
+    } // end getMinimumSize
 
     // Returns the data object that this component encapsulates and manages.
     @Override
@@ -76,14 +110,16 @@ public class DayNoteComponent extends IconNoteComponent {
 
     // Need to keep the height constant.
     public Dimension getPreferredSize() {
-        int minWidth = 100; // For the Text Field
-        minWidth += noteTimeLabel.getPreferredSize().width;
-        minWidth += theIconLabel.getPreferredSize().width;
-        int theHeight = ICONNOTEHEIGHT;
-        if(myDayNoteData.multiline) {
-            theHeight = NoteComponent.MULTI_LINE_HEIGHT;
-        }
-        return new Dimension(minWidth, theHeight);
+//        System.out.println("DayNoteCompnent " + index + " getPreferredSize");
+//        int minWidth = 100; // For the Text Field
+//        minWidth += noteTimeLabel.getPreferredSize().width;
+//        minWidth += theIconLabel.getPreferredSize().width;
+//        int theHeight = ICONNOTEHEIGHT;
+//        if(myDayNoteData.multiline) {
+//            theHeight = NoteComponent.MULTI_LINE_HEIGHT;
+//        }
+//        return new Dimension(minWidth, theHeight);
+        return getMinimumSize();
     } // end getPreferredSize
 
 

@@ -168,6 +168,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
                 return new Dimension(super.getPreferredSize().width, 400);
             } // end getPreferredSize
         };
+        theBasePanel.setName("theBasePanel");
         editable = true;
         setAppendable(true);
         intHighestNoteComponentIndex = pageSize - 1;
@@ -181,6 +182,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
                 return new Dimension(super.getPreferredSize().width, 400);
             } // end getPreferredSize
         };
+        jsp.setName("jsp in NoteGroupPanel");
         JScrollBar jsb = new JScrollBar();
 
         // This is necessary because otherwise, once the bar appears
@@ -195,8 +197,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         int borderWidth = 2;
         theBasePanel.setBorder(BorderFactory.createLineBorder(Color.black, borderWidth));
 
-        // The BoxLayout (on the Y axis) gives the same height to all content.
+        // The BoxLayout respects the 'get<max/min/pref>Size()' overrides of its content.
         groupNotesListPanel = new JPanel();
+        groupNotesListPanel.setName("groupNotesListPanel");
         groupNotesListPanel.setLayout(
                 new BoxLayout(groupNotesListPanel, BoxLayout.Y_AXIS));
 
@@ -205,9 +208,8 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         theNotePager = new NotePager(this);
 
         // The 'makeNewNoteComponent' methodology works for ALL child groups regardless
-        //   of the Type of new note that they make, because we do not
-        //   actually put the result into a typed variable; it goes directly
-        //   into the container.  Every Group method that accesses the
+        //   of the Type of new note that they make, because they all must inherit from
+        //   JComponent.  Every Group method that accesses the
         //   container contents will either be overridden and cast the
         //   note to the correct type, or it will call a method common
         //   to all JComponents, such as 'setVisible'.
@@ -513,6 +515,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     // It should be overridden by child classes and those children should NOT call this one.
     JComponent makeNewNoteComponent(int i) {
         NoteComponent nc = new NoteComponent(this, i);
+        nc.setName("initial NoteComponent " + i);
         nc.setVisible(false);
         return nc;
     } // end makeNewNoteComponent

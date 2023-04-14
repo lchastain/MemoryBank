@@ -25,6 +25,8 @@ public class NoteComponent extends JPanel {
     NoteTextField noteTextField;
     NoteTextArea noteTextArea;
 
+    transient int componentHeight;
+
     // May be used by container classes to set their scrollbar unit increments.
     static final int ONE_LINE_HEIGHT = 24;
     static final int MULTI_LINE_HEIGHT = 104;
@@ -97,6 +99,7 @@ public class NoteComponent extends JPanel {
 
     NoteComponent(NoteComponentManager noteComponentManager, int i) {
         super(new BorderLayout(2, 0));
+        componentHeight = ONE_LINE_HEIGHT; // default
         myManager = noteComponentManager;  // A NoteGroup
         if (myManager instanceof NoteGroupPanel) {
             myNoteGroupPanel = (NoteGroupPanel) myManager;
@@ -180,17 +183,12 @@ public class NoteComponent extends JPanel {
         initialized = false;
     } // end clear
 
-
-    // Do not let this component grow to fill the available space in the container.
+    @Override
     public Dimension getMaximumSize() {
-        Dimension d = super.getMaximumSize();
-        int theHeight = ONE_LINE_HEIGHT;
-        if(myNoteData != null && myNoteData.multiline) {
-            theHeight = MULTI_LINE_HEIGHT;
-        }
-        return new Dimension(d.width, theHeight);
+        return new Dimension(super.getMaximumSize().width, componentHeight);
     } // end getMaximumSize
 
+    @Override
     public Dimension getMinimumSize() {
         return getPreferredSize();
     } // end getMinimumSize
@@ -205,14 +203,10 @@ public class NoteComponent extends JPanel {
         return noteTextField;
     }
 
-    // Need to keep the height constant.
+    // Need to manage the height.
+    @Override
     public Dimension getPreferredSize() {
-        int minWidth = 100; // For the Text Field
-        int theHeight = ONE_LINE_HEIGHT;
-        if(myNoteData != null && myNoteData.multiline) {
-            theHeight = MULTI_LINE_HEIGHT;
-        }
-        return new Dimension(minWidth, theHeight);
+        return new Dimension(super.getPreferredSize().width, componentHeight);
     } // end getPreferredSize
 
 
@@ -350,7 +344,7 @@ public class NoteComponent extends JPanel {
 
     // This method is called each time before displaying the popup menu.
     //   Child classes may override it if they have additional selections,
-    //   but they can still call this one first, to add the base items.
+    //   but they can still call this one first, to establish the base items.
     void resetPopup() {
         contextMenu.removeAll();
         contextMenu.add(miCutLine);   // the default state is 'enabled'.
@@ -377,6 +371,7 @@ public class NoteComponent extends JPanel {
             miClearLine.setEnabled(true);
             miMultiLine.setEnabled(true);
             miMultiLine.setSelected(menuNoteData.multiline);
+            componentHeight = menuNoteData.multiline ? MULTI_LINE_HEIGHT : ONE_LINE_HEIGHT;
         }
     } // end resetPopup
 
@@ -517,6 +512,16 @@ public class NoteComponent extends JPanel {
             // Restore the document listener.
             getDocument().addDocumentListener(this);
         }
+
+//        @Override
+//        public Dimension getMinimumSize() {
+//            return getPreferredSize();
+//        }
+//
+//        @Override
+//        public Dimension getPreferredSize() {
+//            return new Dimension(super.getPreferredSize().width, 65);
+//        }
 
         // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
         //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
@@ -920,13 +925,13 @@ public class NoteComponent extends JPanel {
         //   but it does expand to fit.  This cures the perceived error of
         //   an inability to scroll horizontally within the text field,
         //   that it previously had when it was longer than the container.
-        public Dimension getPreferredSize() {
-            Dimension d = super.getPreferredSize();
-
-            // System.out.println("NoteTextField preferred size: " + d);
-            d.width = minWidth;
-            return d;
-        } // end getPreferredSize
+//        public Dimension getPreferredSize() {
+//            Dimension d = super.getPreferredSize();
+//
+//            // System.out.println("NoteTextField preferred size: " + d);
+//            d.width = minWidth;
+//            return d;
+//        } // end getPreferredSize
 
         // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
         //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
@@ -1314,23 +1319,34 @@ public class NoteComponent extends JPanel {
                     //System.out.println(AppUtil.toJsonString(noteData));
                     //System.out.println("Menu Item Selected: " + miMultiLine.getState());
                     theNoteComponent.setNoteChanged();
-                    Dimension hiLine = new Dimension(theNoteComponent.getPreferredSize().width, MULTI_LINE_HEIGHT);
-                    Dimension loLine = new Dimension(theNoteComponent.getPreferredSize().width, ONE_LINE_HEIGHT);
                     if(noteData.multiline) {
+                        theNoteComponent.componentHeight = MULTI_LINE_HEIGHT;
+                        theNoteComponent.noteTextArea.setText(noteData.noteString);
                         theNoteComponent.remove(theNoteComponent.noteTextField);
                         theNoteComponent.add(theNoteComponent.noteTextArea, BorderLayout.CENTER);
-                        theNoteComponent.setSize(hiLine);
+
+// TODO Need to bring back TextArea scrolling - this aint it, but it was, once.
+//                        JScrollPane jsp = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+//                        jsp.setViewportView(noteTextArea);
+//                        add(jsp, BorderLayout.CENTER);
+
                     } else {
+                        theNoteComponent.componentHeight = ONE_LINE_HEIGHT;
+                        theNoteComponent.noteTextField.setText(noteData.noteString);
                         theNoteComponent.remove(theNoteComponent.noteTextArea);
                         theNoteComponent.add(theNoteComponent.noteTextField, BorderLayout.CENTER);
-                        theNoteComponent.setSize(loLine);
                     }
+                    theNoteComponent.resetPopup();
+                    theNoteComponent.resetComponent();
                     theNoteComponent.invalidate();
-                    theNoteComponent.validate();
+                    theNoteComponent.revalidate();
+                    theNoteComponent.repaint();
+                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.invalidate();
                     theNoteComponent.myNoteGroupPanel.groupNotesListPanel.revalidate();
-//                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.updateUI();
-//                    theNoteComponent.myNoteGroupPanel.refresh();
-//                    theNoteComponent.resetComponent();
+                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.repaint();
+                    theNoteComponent.myNoteGroupPanel.theBasePanel.invalidate();
+                    theNoteComponent.myNoteGroupPanel.theBasePanel.revalidate();
+                    theNoteComponent.myNoteGroupPanel.theBasePanel.repaint();
                     theNoteComponent.setActive();
                 }
                 default -> System.out.println(theMenuItemText);

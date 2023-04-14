@@ -109,6 +109,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
     @Override
     JComponent makeNewNoteComponent(int i) {
         DayNoteComponent dnc = new DayNoteComponent(this, i);
+        dnc.setName("initial DayNoteComponent " + i);
         dnc.setVisible(false);
         return dnc;
     } // end makeNewNoteComponent
