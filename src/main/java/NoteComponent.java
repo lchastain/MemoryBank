@@ -183,6 +183,10 @@ public class NoteComponent extends JPanel {
         initialized = false;
     } // end clear
 
+    public int getComponentHeight() {
+        return ONE_LINE_HEIGHT; // default
+    }
+
     @Override
     public Dimension getMaximumSize() {
         return new Dimension(super.getMaximumSize().width, componentHeight);
@@ -317,10 +321,10 @@ public class NoteComponent extends JPanel {
     //   after a data load, or a non-data change such as a swap.
     //----------------------------------------------------------
     protected void resetComponent() {
-
+        NoteData theNoteData = getNoteData();
         String s;
-        if (getNoteData() == null) s = "";
-        else s = getNoteData().getNoteString();
+        if (theNoteData == null) s = "";
+        else s = theNoteData.getNoteString();
 
         // Set the text of the component without affecting the lastModDate
         noteTextField.getDocument().removeDocumentListener(noteTextField);
@@ -334,6 +338,9 @@ public class NoteComponent extends JPanel {
         noteTextArea.getDocument().addDocumentListener(noteTextArea);
         noteTextArea.setTextColor();
         noteTextArea.resetToolTip(getNoteData());
+
+        if(null != theNoteData && theNoteData.multiline) componentHeight = MULTI_LINE_HEIGHT;
+        else componentHeight = getComponentHeight();
     } // end resetComponent
 
 
@@ -371,7 +378,7 @@ public class NoteComponent extends JPanel {
             miClearLine.setEnabled(true);
             miMultiLine.setEnabled(true);
             miMultiLine.setSelected(menuNoteData.multiline);
-            componentHeight = menuNoteData.multiline ? MULTI_LINE_HEIGHT : ONE_LINE_HEIGHT;
+//            componentHeight = menuNoteData.multiline ? MULTI_LINE_HEIGHT : ONE_LINE_HEIGHT;
         }
     } // end resetPopup
 
@@ -651,7 +658,7 @@ public class NoteComponent extends JPanel {
         //<editor-fold desc="actionPerformed method">
         //   This method will be called indirectly for a mouse double-click on the JTextArea.
         //---------------------------------------------------------
-        public void actionPerformed(ActionEvent ae) {
+        public void actionPerformed(ActionEvent ignoredAe) {
             MemoryBank.event();
             boolean extendedNoteChanged;
             if (!this.isEditable()) return;
@@ -750,14 +757,7 @@ public class NoteComponent extends JPanel {
             hideToolTip(); // Turn off the currently displayed tooltip, if any.
 
             int kp = ke.getKeyCode();
-
             boolean shifted = ke.isShiftDown();
-            if (!shifted) {
-                // In case the user 'activated' the date or time, but then left it depressed and went over to
-                //   the text area on the same line and started typing there.
-//                noteDateLabel.setInactive();
-//                noteTimeLabel.setInactive();
-            }
 
             // Translate TAB / Shift-TAB into DOWN / UP
             if (kp == KeyEvent.VK_TAB) {
@@ -828,7 +828,6 @@ public class NoteComponent extends JPanel {
             }
 
             if (!this.isEditable()) return;
-            int m = e.getModifiersEx();
 
             // Single click, right mouse button.
             if (e.getButton() == MouseEvent.BUTTON3) {

@@ -105,18 +105,18 @@ public class IconNoteComponent extends NoteComponent {
             String s = jm.getText();
             IconNoteData myIconNoteData = ((IconNoteData) getNoteData());
             switch (s) {
-                case "Reset Icon":
+                case "Reset Icon" -> {
                     myIconNoteData.setIconFileString(null);
                     myIconNoteData.setShowIconOnMonthBoolean(false);
                     assert myIconKeeper != null;
                     setIcon(myIconKeeper.getDefaultIcon());
-                    break;
-                case "Blank Icon":
+                }
+                case "Blank Icon" -> {
                     myIconNoteData.setIconFileString("");
                     theIconLabel.setIcon(null);
                     myIconNoteData.setShowIconOnMonthBoolean(false);
-                    break;
-                case "Set As Default":
+                }
+                case "Set As Default" -> {
                     // Get a reference to the icon.
                     ImageIcon tmpIcon;
                     tmpIcon = (ImageIcon) theIconLabel.getIcon();
@@ -137,15 +137,12 @@ public class IconNoteComponent extends NoteComponent {
                     // Make sure the data indicates that this component
                     //   should use the 'default' icon.
                     myIconNoteData.setIconFileString(null);
-
-                    break;
-                case "Show on Month":
-                    myIconNoteData.setShowIconOnMonthBoolean(siombMi.getState());
-                    break;
-                default:  // ignore anything else
+                }
+                case "Show on Month" -> myIconNoteData.setShowIconOnMonthBoolean(siombMi.getState());
+                default -> {  // ignore anything else
                     return;
+                }
             }
-
             setNoteChanged();
         };
     } // end defineActionListener
@@ -159,8 +156,6 @@ public class IconNoteComponent extends NoteComponent {
                 IconNoteComponent.this.setActive();
                 if (!initialized) return;
 
-                int m = e.getModifiersEx();
-                //if ((m & InputEvent.BUTTON3_DOWN_MASK) != 0) { // Click of right mouse button.
                 if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
                     if (e.getClickCount() >= 2) return; // Handle a single right click only, not a double.
                     showIconPopup(e);  // Show the popup menu
@@ -211,6 +206,9 @@ public class IconNoteComponent extends NoteComponent {
         };
     } // end defineMouseListener
 
+    public int getComponentHeight() {
+        return ICONNOTEHEIGHT;
+    }
 
     // Do not let it grow to fill the available space in the container.
     public Dimension getMaximumSize() {
