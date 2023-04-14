@@ -206,25 +206,10 @@ public class IconNoteComponent extends NoteComponent {
         };
     } // end defineMouseListener
 
+    @Override
     public int getComponentHeight() {
         return ICONNOTEHEIGHT;
     }
-
-    // Do not let it grow to fill the available space in the container.
-    public Dimension getMaximumSize() {
-        Dimension d = super.getMaximumSize();
-
-        //return new Dimension(d.width, ICONNOTEHEIGHT);
-        return new Dimension(d.width, MULTI_LINE_HEIGHT);
-    } // end getMaximumSize
-
-    // Need to keep the height constant.
-//    public Dimension getPreferredSize() {
-//        int minWidth = 100; // For the Text Field
-//        minWidth += theIconLabel.getPreferredSize().width;
-//        return new Dimension(minWidth, ICONNOTEHEIGHT);
-//    } // end getPreferredSize
-
 
     protected void initialize() {
         if(myIconKeeper != null) {

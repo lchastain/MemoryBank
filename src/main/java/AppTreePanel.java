@@ -101,7 +101,6 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     public AppTreePanel(@NotNull JFrame aFrame, AppOptions appOpts) {
         super(new GridLayout(1, 0));
-//        super(new BorderLayout());
         appMenuBar = new AppMenuBar();
         aFrame.setJMenuBar(appMenuBar);
 
@@ -904,44 +903,36 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     NoteGroupPanel getPanelFromKeeper(GroupType theType, String theName) {
         NoteGroupPanel noteGroupPanel = null;
         switch (theType) {
-            case GOALS:
-                noteGroupPanel = theGoalsKeeper.get(theName);
-                break;
-            case EVENTS:
-                noteGroupPanel = theEventListKeeper.get(theName);
-                break;
-            case TODO_LIST:
-                noteGroupPanel = theTodoListKeeper.get(theName);
-                break;
-            case NOTES:
-                noteGroupPanel = switch (theName) {
-                    case "Day Notes" -> theAppDays;
-                    case "Month Notes" -> theAppMonths;
-                    case "Year Notes" -> theAppYears;
-                    default -> noteGroupPanel;
-                };
-                break;
-            case DAY_NOTES:
+            case GOALS -> noteGroupPanel = theGoalsKeeper.get(theName);
+            case EVENTS -> noteGroupPanel = theEventListKeeper.get(theName);
+            case TODO_LIST -> noteGroupPanel = theTodoListKeeper.get(theName);
+            case NOTES -> noteGroupPanel = switch (theName) {
+                case "Day Notes" -> theAppDays;
+                case "Month Notes" -> theAppMonths;
+                case "Year Notes" -> theAppYears;
+                default -> noteGroupPanel;
+            };
+            case DAY_NOTES -> {
                 if (theAppDays != null) {
                     String theTitle = theAppDays.getTitle();
                     // if theAppDays is set to the named group then we use it.
                     if (theTitle.equals(theName)) noteGroupPanel = theAppDays;
                 }
-                break;
-            case MONTH_NOTES:
+            }
+            case MONTH_NOTES -> {
                 if (theAppMonths != null) {
                     String theTitle = theAppMonths.getTitle();
                     // if theAppMonths is set to the named group then we use it.
                     if (theTitle.equals(theName)) noteGroupPanel = theAppMonths;
                 }
-                break;
-            case YEAR_NOTES:
+            }
+            case YEAR_NOTES -> {
                 if (theAppYears != null) {
                     String theTitle = theAppYears.getTitle();
                     // if theAppYears is set to the named group then we use it.
                     if (theTitle.equals(theName)) noteGroupPanel = theAppYears;
                 }
-                break;
+            }
         }
         return noteGroupPanel;
     }
