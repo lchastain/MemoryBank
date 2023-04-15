@@ -919,18 +919,21 @@ public class NoteComponent extends JPanel {
             getDocument().addDocumentListener(this);
         }
 
-        // By sizing the text field to a smaller width than its container,
-        //   it does not go beyond the viewable area,
-        //   but it does expand to fit.  This cures the perceived error of
-        //   an inability to scroll horizontally within the text field,
-        //   that it previously had when it was longer than the container.
-//        public Dimension getPreferredSize() {
-//            Dimension d = super.getPreferredSize();
-//
-//            // System.out.println("NoteTextField preferred size: " + d);
-//            d.width = minWidth;
-//            return d;
-//        } // end getPreferredSize
+        // By having the text field prefer a smaller width than its container,
+        //   it does not go beyond the viewable area and we do not get a
+        //   horizontal scrollbar in the panel's scrollpane, but it does
+        //   expand/stretch horizontally to fit.  This also cures a perceived
+        //   error of an inability to scroll horizontally within the text field,
+        //   that it previously had when it was longer than the container and when
+        //   the user was not seeing the horizontal scrollbar lower down on the screen.
+        public Dimension getPreferredSize() {
+            Dimension d = super.getPreferredSize();
+
+            // System.out.println("NoteTextField preferred size: " + d);
+            d.width = minWidth;
+            return d;
+        } // end getPreferredSize
+
 
         // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
         //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to

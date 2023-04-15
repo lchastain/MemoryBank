@@ -165,6 +165,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             //   the vertical scrollbar will kick in.
             @Override
             public Dimension getPreferredSize() {
+                //System.out.println("BasePanel preferred width: " + super.getPreferredSize().width);
                 return new Dimension(super.getPreferredSize().width, 400);
             } // end getPreferredSize
         };
