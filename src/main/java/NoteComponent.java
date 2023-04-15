@@ -1,5 +1,3 @@
-/*  Representation of a single Note.
- */
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -24,6 +22,7 @@ public class NoteComponent extends JPanel {
     NoteData myNoteData;
     NoteTextField noteTextField;
     NoteTextArea noteTextArea;
+    JScrollPane noteScroller;
 
     transient int componentHeight;
 
@@ -108,6 +107,7 @@ public class NoteComponent extends JPanel {
 
         makeDataObject(); // Child classes override this method and set their own data types.
 
+        noteScroller = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         noteTextArea = new NoteTextArea();
         noteTextField = new NoteTextField();
         noteTextArea.setLineWrap(true);
@@ -115,6 +115,7 @@ public class NoteComponent extends JPanel {
             noteTextArea.setEditable(false);
             noteTextField.setEditable(false);
         }
+        noteScroller.setViewportView(noteTextArea);
 
         // This section disables the automatic scrolling done by a JScrollPane
         // when a component that it contains 'hears' an UP or DOWN arrow key.
@@ -129,6 +130,7 @@ public class NoteComponent extends JPanel {
         ActionMap am = noteTextField.getActionMap();
         am.put("scrollDown", new AbstractAction() {
             static final long serialVersionUID = 1L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 //System.out.println(e.getSource() + " - no go down");
@@ -136,6 +138,7 @@ public class NoteComponent extends JPanel {
         });
         am.put("scrollUp", new AbstractAction() {
             static final long serialVersionUID = 1L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 //System.out.println(e.getSource() + " - no go up");
@@ -143,17 +146,12 @@ public class NoteComponent extends JPanel {
         });
         //-------------------------------------------------------------------------------------
 
-        if (myNoteData != null) {
-            System.out.println("Multiline ? " + myNoteData.multiline);
-            if (myNoteData.multiline) {
-                // HERE - add one OR the other ....
-                add(noteTextArea, "Center");
-            } else {
-                add(noteTextField, "Center");
-            }
-        } else {
-            add(noteTextField, "Center");
-        }
+        // The data is not yet associated with this component, since it is only just now being
+        // constructed.  Therefore, we must start with the default content which is the
+        // noteTextField and not the noteTextArea.  If a multiline text area is called for
+        // when the data is loaded, a swap will occur in resetComponent(), called by the
+        // setNoteData() method, which is called by the loadPage() method of the NoteGroupPanel.
+        add(noteTextField, "Center");
 
         MemoryBank.trace();
     } // end constructor
@@ -165,8 +163,8 @@ public class NoteComponent extends JPanel {
     // components first, but they should call this method afterwards.
     //-----------------------------------------------------------------
     void clear() {
-        // Clear the data object.  Since child classes override the
-        //   getNoteData method, this works for them as well.
+        // Clear the data object.  Since child classes override the getNoteData method,
+        //   this works for them as well, without a need for them to override this one.
         MemoryBank.debug("NoteComponent.clear, calling getNoteData()!"); // scr0050 troubleshooting.
         NoteData nd = getNoteData();
         MemoryBank.debug("NoteComponent.clear, calling NoteData.clear!"); // scr0050 troubleshooting.
@@ -298,7 +296,7 @@ public class NoteComponent extends JPanel {
             //   have text before they can have additional features.
             NoteData nd = getNoteData();
             String theMainText;
-            if(nd.multiline) {
+            if (nd.multiline) {
                 theMainText = noteTextArea.getText().trim();
             } else {
                 theMainText = noteTextField.getText().trim();
@@ -312,14 +310,10 @@ public class NoteComponent extends JPanel {
     } // end noteActivated
 
 
-    //----------------------------------------------------------
-    // Method Name: resetComponent
-    //
-    // Called after a change to the encapsulated data, to show
-    //   the visual effects of the change without affecting the
-    //   'lastModDate' since this method may be getting called
-    //   after a data load, or a non-data change such as a swap.
-    //----------------------------------------------------------
+    // To show the visual effects of a change to the encapsulated data.
+    // This method is called after changes to the data such as a data load,
+    //   note swap, state change, etc.  The 'setText' method calls do not
+    //   set noteChanged to true.
     protected void resetComponent() {
         NoteData theNoteData = getNoteData();
         String s;
@@ -327,6 +321,7 @@ public class NoteComponent extends JPanel {
         else s = theNoteData.getNoteString();
 
         // Set the text of the component without affecting the lastModDate
+        // Do this for BOTH variants of the textual component, keeping them in sync.
         noteTextField.getDocument().removeDocumentListener(noteTextField);
         noteTextField.setText(s);
         noteTextField.getDocument().addDocumentListener(noteTextField);
@@ -339,8 +334,16 @@ public class NoteComponent extends JPanel {
         noteTextArea.setTextColor();
         noteTextArea.resetToolTip(getNoteData());
 
-        if(null != theNoteData && theNoteData.multiline) componentHeight = MULTI_LINE_HEIGHT;
-        else componentHeight = getComponentHeight();
+        if (null != theNoteData && theNoteData.multiline) {
+            componentHeight = MULTI_LINE_HEIGHT;
+            remove(noteTextField);
+            add(noteScroller, BorderLayout.CENTER);
+        } else {
+            componentHeight = getComponentHeight();
+            remove(noteScroller);
+            add(noteTextField, BorderLayout.CENTER);
+        }
+
     } // end resetComponent
 
 
@@ -412,13 +415,14 @@ public class NoteComponent extends JPanel {
     //
     // Set the data for this component.  Do not send a null; if you want
     //   to unset the NoteData then call 'clear' instead.
-    // Child classes should override this method and then
-    //   duplicate the needed steps rather than calling super.setNoteData.
+    // Most child classes will override this method and then
+    //   duplicate the needed steps rather than calling this 'super' method.
     //   This is because their DATA component (the myNoteData equivalent)
-    //   will be a child class of NoteData and not the instance that is
-    //   affected here.  But in their overridden
-    //   versions of resetComponent in order to show the change, they
-    //   SHOULD call the super so that the changes here will also be seen.
+    //   will be a child class of NoteData and not the base data instance that
+    //   is affected here.  But in their overridden versions of the
+    //   resetComponent method, in order to show the change, they SHOULD
+    //   call THAT super so that any change to the base data will also be seen.
+    // There ARE some non-overridden usages of this method, so it needs to stay.
     //----------------------------------------------------------
     public void setNoteData(NoteData newNoteData) {
         myNoteData = newNoteData;
@@ -1316,40 +1320,10 @@ public class NoteComponent extends JPanel {
                     theNoteComponent.setNoteChanged();
                 }
                 case "Multiline" -> {
-                    if(noteData.multiline == miMultiLine.getState()) return; // shouldn't happen.
+                    if (noteData.multiline == miMultiLine.getState()) return; // not a change; shouldn't happen.
                     noteData.multiline = !noteData.multiline; // toggle the setting
-                    //System.out.println(AppUtil.toJsonString(noteData));
-                    //System.out.println("Menu Item Selected: " + miMultiLine.getState());
-                    theNoteComponent.setNoteChanged();
-                    if(noteData.multiline) {
-                        theNoteComponent.componentHeight = MULTI_LINE_HEIGHT;
-                        theNoteComponent.noteTextArea.setText(noteData.noteString);
-                        theNoteComponent.remove(theNoteComponent.noteTextField);
-                        theNoteComponent.add(theNoteComponent.noteTextArea, BorderLayout.CENTER);
-
-// TODO Need to bring back TextArea scrolling - this aint it, but it was, once.
-//                        JScrollPane jsp = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-//                        jsp.setViewportView(noteTextArea);
-//                        add(jsp, BorderLayout.CENTER);
-
-                    } else {
-                        theNoteComponent.componentHeight = ONE_LINE_HEIGHT;
-                        theNoteComponent.noteTextField.setText(noteData.noteString);
-                        theNoteComponent.remove(theNoteComponent.noteTextArea);
-                        theNoteComponent.add(theNoteComponent.noteTextField, BorderLayout.CENTER);
-                    }
-                    theNoteComponent.resetPopup();
                     theNoteComponent.resetComponent();
-                    theNoteComponent.invalidate();
-                    theNoteComponent.revalidate();
-                    theNoteComponent.repaint();
-                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.invalidate();
-                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.revalidate();
-                    theNoteComponent.myNoteGroupPanel.groupNotesListPanel.repaint();
-                    theNoteComponent.myNoteGroupPanel.theBasePanel.invalidate();
-                    theNoteComponent.myNoteGroupPanel.theBasePanel.revalidate();
-                    theNoteComponent.myNoteGroupPanel.theBasePanel.repaint();
-                    theNoteComponent.setActive();
+                    theNoteComponent.setNoteChanged();
                 }
                 default -> System.out.println(theMenuItemText);
             }
