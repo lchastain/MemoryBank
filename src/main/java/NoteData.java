@@ -1,12 +1,17 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 class NoteData extends BaseData {
     String noteString;
     String subjectString;
     String extendedNoteString;
     boolean multiline;
 
-    // This member is used in linking.  Not always present; needs to be set by a higher context.
-    private transient NoteGroup myNoteGroup;
+    @JsonIgnore // Now unused, but linkTargets is already in too many data files.
+    LinkTargets[] linkTargets;
 
+    // This member is used in search result tracing.
+    // Not always present, needs to be set by a higher context via the 'set' method.
+    private transient NoteGroup myNoteGroup;
 
     NoteData() {
         clear();

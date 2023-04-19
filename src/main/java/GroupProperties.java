@@ -11,9 +11,14 @@
 //   are kept in sync with their corresponding GroupInfo object.
 // Data and Object rehabilitation at some future point - is an option.
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class GroupProperties extends BaseData {
     GroupType groupType;     // Says what kind of group this is.
     private String groupName; // The name of the group, as shown in the Tree.
+
+    @JsonIgnore // Now unused, but linkTargets is already in too many data files.
+    LinkTargets[] linkTargets;
 
     // This constructor is used by Jackson type conversion operations and child class constructors.
     GroupProperties() { }
