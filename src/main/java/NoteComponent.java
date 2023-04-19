@@ -309,12 +309,26 @@ public class NoteComponent extends JPanel {
         } // end if
     } // end noteActivated
 
+    protected void resetComponent() {
+        NoteData theNoteData = getNoteData();
+        if (null != theNoteData && theNoteData.multiline) {
+            componentHeight = MULTI_LINE_HEIGHT;
+            remove(noteTextField);
+            add(noteScroller, BorderLayout.CENTER);
+            noteTextArea.requestFocusInWindow();
+        } else {
+            componentHeight = getComponentHeight();
+            remove(noteScroller);
+            add(noteTextField, BorderLayout.CENTER);
+            noteTextField.requestFocusInWindow();
+        }
+    } // end resetComponent
 
     // To show the visual effects of a change to the encapsulated data.
     // This method is called after changes to the data such as a data load,
     //   note swap, state change, etc.  The 'setText' method calls do not
     //   set noteChanged to true.
-    protected void resetComponent() {
+    protected void resetText() {
         NoteData theNoteData = getNoteData();
         String s;
         if (theNoteData == null) s = "";
@@ -333,18 +347,8 @@ public class NoteComponent extends JPanel {
         noteTextArea.getDocument().addDocumentListener(noteTextArea);
         noteTextArea.setTextColor();
         noteTextArea.resetToolTip(getNoteData());
+    } // end resetText
 
-        if (null != theNoteData && theNoteData.multiline) {
-            componentHeight = MULTI_LINE_HEIGHT;
-            remove(noteTextField);
-            add(noteScroller, BorderLayout.CENTER);
-        } else {
-            componentHeight = getComponentHeight();
-            remove(noteScroller);
-            add(noteTextField, BorderLayout.CENTER);
-        }
-
-    } // end resetComponent
 
 
     void resetPanelStatusMessage(int textStatus) {
@@ -429,6 +433,7 @@ public class NoteComponent extends JPanel {
 
         // show the updated noteString
         initialized = true; // but do not update the 'lastModDate'
+        resetText();
         resetComponent();
         setNoteChanged();
     } // end setNoteData
@@ -491,6 +496,7 @@ public class NoteComponent extends JPanel {
         @Serial
 
         private static final long serialVersionUID = 1L;
+        public static final int minWidth = 100;
 
         public NoteTextArea() {
             // By calling the super contructor with no rows or columns, we get the smallest possible TextArea.
@@ -524,15 +530,12 @@ public class NoteComponent extends JPanel {
             getDocument().addDocumentListener(this);
         }
 
-//        @Override
-//        public Dimension getMinimumSize() {
-//            return getPreferredSize();
-//        }
-//
-//        @Override
-//        public Dimension getPreferredSize() {
-//            return new Dimension(super.getPreferredSize().width, 65);
-//        }
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension d = super.getPreferredSize();
+            d.width = minWidth;
+            return d;
+        } // end getPreferredSize
 
         // This provides a gap between the bounds of the NoteComponent and the location of its tooltip,
         //   if it has one.  It is just low enough (by a few pixels) that we go thru 'mouseExited' if we try to
@@ -584,7 +587,7 @@ public class NoteComponent extends JPanel {
             }
         } // end hideToolTip
 
-        private void resetToolTip(NoteData nd) {
+        void resetToolTip(NoteData nd) {
             if (nd == null) return;
 
             String subjectString = nd.getSubjectString();
@@ -646,7 +649,7 @@ public class NoteComponent extends JPanel {
             setCaretPosition(0); // Do not leave notes scrolled horizontally.
         }
 
-        private void setTextColor() {
+        void setTextColor() {
             NoteData nd = getNoteData();
             if (nd == null) return;
             if (!nd.getExtendedNoteString().isBlank())
@@ -989,7 +992,7 @@ public class NoteComponent extends JPanel {
         }
 
 
-        private void resetToolTip(NoteData nd) {
+        void resetToolTip(NoteData nd) {
             if (nd == null) return;
 
             String subjectString = nd.getSubjectString();
@@ -1051,7 +1054,7 @@ public class NoteComponent extends JPanel {
             setCaretPosition(0); // Do not leave notes scrolled horizontally.
         }
 
-        private void setTextColor() {
+        void setTextColor() {
             NoteData nd = getNoteData();
             if (nd == null) return;
             if (!nd.getExtendedNoteString().isBlank())

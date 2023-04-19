@@ -80,22 +80,14 @@ public class DayNoteComponent extends IconNoteComponent {
     } // end clear
 
     public Dimension getMaximumSize() {
-        System.out.println("DayNoteCompnent " + index + " getMaximumSize");
+        //System.out.println("DayNoteCompnent " + index + " getMaximumSize");
         Dimension d = super.getMaximumSize();
-        int theHeight = ICONNOTEHEIGHT;
-        if(myNoteData != null && myNoteData.multiline) {
-            theHeight = MULTI_LINE_HEIGHT;
-        }
         return new Dimension(d.width, componentHeight);
     } // end getMaximumSize
 
     public Dimension getMinimumSize() {
-        System.out.println("DayNoteCompnent " + index + " getMinimumSize");
+        //System.out.println("DayNoteCompnent " + index + " getMinimumSize");
         int minWidth = 100; // For the Text Field
-        int theHeight = ICONNOTEHEIGHT;
-        if(myNoteData != null && myNoteData.multiline) {
-            theHeight = MULTI_LINE_HEIGHT;
-        }
         return new Dimension(minWidth, componentHeight);
     } // end getMinimumSize
 
@@ -110,15 +102,6 @@ public class DayNoteComponent extends IconNoteComponent {
 
     // Need to keep the height constant.
     public Dimension getPreferredSize() {
-//        System.out.println("DayNoteCompnent " + index + " getPreferredSize");
-//        int minWidth = 100; // For the Text Field
-//        minWidth += noteTimeLabel.getPreferredSize().width;
-//        minWidth += theIconLabel.getPreferredSize().width;
-//        int theHeight = ICONNOTEHEIGHT;
-//        if(myDayNoteData.multiline) {
-//            theHeight = NoteComponent.MULTI_LINE_HEIGHT;
-//        }
-//        return new Dimension(minWidth, theHeight);
         return getMinimumSize();
     } // end getPreferredSize
 
@@ -203,7 +186,8 @@ public class DayNoteComponent extends IconNoteComponent {
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
-        resetComponent();
+        this.resetText();
+        this.resetComponent();
         setNoteChanged();
     } // end setDayNoteData
 

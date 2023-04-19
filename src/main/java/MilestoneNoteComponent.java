@@ -271,7 +271,8 @@ public class MilestoneNoteComponent extends IconNoteComponent {
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
-        resetComponent();
+        this.resetText();
+        this.resetComponent();
         setNoteChanged();
     } // end setMilestoneNoteData
 
@@ -360,8 +361,6 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        public static final int minWidth = 40;
-
         private int theIconOrder;
         private int theOriginalStatus;
 
@@ -387,10 +386,6 @@ public class MilestoneNoteComponent extends IconNoteComponent {
         public Dimension getPreferredSize() {
             return new Dimension(ICONNOTEHEIGHT + 4, ICONNOTEHEIGHT);
         } // end getPreferredSize
-
-        public int getIconOrder() {
-            return theIconOrder;
-        }
 
 
         void setEditable(boolean b) {
@@ -510,7 +505,6 @@ public class MilestoneNoteComponent extends IconNoteComponent {
                     MilestoneNoteComponent.this.setActive();
                     if (!initialized) return;
 
-                    int m = e.getModifiersEx();
                     if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
                         if (e.getClickCount() >= 2) return;  // We don't handle a double click on this component.
                         // Show the YearView data chooser

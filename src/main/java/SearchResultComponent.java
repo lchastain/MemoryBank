@@ -170,6 +170,7 @@ public class SearchResultComponent extends NoteComponent {
         initialized = true;
 
         // update visual components....
+        resetText();
         resetComponent();
 
         setNoteChanged();

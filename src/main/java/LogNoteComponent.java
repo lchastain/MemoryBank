@@ -152,6 +152,7 @@ public class LogNoteComponent extends NoteComponent {
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
+        resetText();
         resetComponent();
         setNoteChanged();
     } // end setLogNoteData
@@ -262,7 +263,6 @@ public class LogNoteComponent extends NoteComponent {
                     LogNoteComponent.this.setActive();
                     if (!initialized) return;
 
-                    int m = e.getModifiersEx();
                     if(e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
                         if (e.getClickCount() >= 2) return;  // We don't handle a double click on this component.
                         // Show the YearView data chooser

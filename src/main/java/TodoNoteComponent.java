@@ -88,6 +88,7 @@ public class TodoNoteComponent extends NoteComponent {
         //   in the layout can be the one to be stretched.
         add(pbThePriorityButton, "pb");
         add(noteTextField, "Stretch"); // will resize along with container
+        noteTextArea.setName("Stretch");
         add(sbTheStatusButton, "sb");
 
         MemoryBank.trace();
@@ -221,26 +222,77 @@ public class TodoNoteComponent extends NoteComponent {
         clear();  // Clear our note line.  This creates a 'gap'.
     } // end moveToDayNote
 
-
-    //----------------------------------------------------------------
-    // Method Name: resetColumnOrder
-    //
-    // Do not call this method if the columns are already in order;
-    //   it just wastes cpu cycles.  Test for that condition in the
-    //   calling context and only make the call if needed.
-    //----------------------------------------------------------------
     public void resetColumnOrder(int theOrder) {
-        String pos = String.valueOf(theOrder);
-         System.out.println("TodoNoteComponent resetColumnOrder to " + pos);
+        String pos = String.valueOf(theOrder); // 123,132,213,231,312,321 - expecting one of these...
+        System.out.println("TodoNoteComponent resetColumnOrder to " + pos);
 
-        //   Note that now we do not provide the 'name' and so we will
-        //   be going through the base layout class 'add' method.
-        add(pbThePriorityButton, pos.indexOf("1"));
-        add(noteTextField, pos.indexOf("2"));
-        add(sbTheStatusButton, pos.indexOf("3"));
+        removeAll(); // With the DndLayout, it is easier to start over than try to rearrange.
+
+        componentHeight = getComponentHeight(); // Defaulting to one line.
+        if(theOrder < 200) { // 123, 132
+            add(pbThePriorityButton, "1");
+            if(theOrder == 123) {
+                if (myTodoNoteData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+                add(sbTheStatusButton, "3");
+            } else { // 132
+                add(sbTheStatusButton, "3");
+                if (myTodoNoteData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+            }
+        } else if(theOrder < 300) { // 213, 231
+            if (myTodoNoteData.multiline) {
+                componentHeight = MULTI_LINE_HEIGHT;
+                add(noteScroller, "Stretch");
+            } else {
+                add(noteTextField, "Stretch");
+            }
+            if(theOrder == 213) {
+                add(pbThePriorityButton, "1");
+                add(sbTheStatusButton, "3");
+            } else { // 231
+                add(sbTheStatusButton, "3");
+                add(pbThePriorityButton, "1");
+            }
+        } else { // 312, 321
+            if(theOrder == 312) {
+                add(sbTheStatusButton, "3");
+                add(pbThePriorityButton, "1");
+                if (myTodoNoteData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+            } else { // 321
+                add(sbTheStatusButton, "3");
+                if (myTodoNoteData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+                add(pbThePriorityButton, "1");
+            }
+
+        }
+
 
         // This was needed after paging was implemented.
-        noteTextField.transferFocusUpCycle();  // new 3/19/2008
+        if (myTodoNoteData.multiline) {
+            noteTextArea.transferFocusUpCycle();  // new 4/18/2023
+        } else {
+            noteTextField.transferFocusUpCycle();  // new 3/19/2008
+        }
+
     } // end resetColumnOrder
 
 
@@ -254,7 +306,26 @@ public class TodoNoteComponent extends NoteComponent {
     protected void resetComponent() {
         pbThePriorityButton.setPriority(myTodoNoteData.getPriority());
         sbTheStatusButton.setStatus(myTodoNoteData.getStatus());
-        super.resetComponent(); // the note text
+
+        removeAll(); // With a DndLayout, it is easiest to just do it over.
+        add(pbThePriorityButton);
+
+        if (myTodoNoteData.multiline) {
+            componentHeight = MULTI_LINE_HEIGHT;
+            //remove(noteTextField);
+            add(noteScroller, "Stretch");
+            noteTextArea.requestFocusInWindow();
+        } else {
+            componentHeight = getComponentHeight();
+            //remove(noteScroller);
+            add(noteTextField,"Stretch");
+            noteTextField.requestFocusInWindow();
+        }
+        add(sbTheStatusButton);
+
+        int theOrder = ((TodoGroupProperties) myNoteGroupPanel.myNoteGroup.getGroupProperties()).columnOrder;
+        if(theOrder != TodoNoteGroupPanel.INORDER) resetColumnOrder(theOrder);
+
     } // end resetComponent
 
 
@@ -329,6 +400,7 @@ public class TodoNoteComponent extends NoteComponent {
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
+        resetText();
         resetComponent();
         setNoteChanged();
     } // end setTodoNoteData
@@ -453,22 +525,14 @@ public class TodoNoteComponent extends NoteComponent {
         public Dimension getPreferredSize() {
             if (!isVisible()) return new Dimension(0, 0);
             Dimension d = super.getPreferredSize();
-
-            if (d.width < minWidth) {
-                d.width = minWidth;
-            } // end if
+            d.width = minWidth;
             return d;
         } // end getPreferredSize
 
         // Override these, to disable the 'depressed' color change.
-        public void setBackground() {
-        }
-
-        public void setForeground() {
-        }
-
-        public void focusLost() {
-        }
+        public void setBackground() { }
+        public void setForeground() { }
+//        public void focusLost() { }
 
         //---------------------------------------------------------
         // MouseListener methods

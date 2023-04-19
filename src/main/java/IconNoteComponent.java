@@ -69,8 +69,9 @@ public class IconNoteComponent extends NoteComponent {
         //------------------
         // Graphical elements
         //------------------
-        noteTextField.setFont(Font.decode("DialogInput-bold-20"));
-        noteTextArea.setFont(Font.decode("DialogInput-bold-20"));
+        // Since the text field gets higher to accomodate the icon, it is less unattractive
+        //   to make the text larger, to fill the vertical space.  Multilines are smaller.
+        noteTextField.setFont(Font.decode("DialogInput-bold-18"));
 
         theIconLabel = new JLabel() {
             @Override
@@ -267,6 +268,7 @@ public class IconNoteComponent extends NoteComponent {
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
+        resetText();
         resetComponent();
         setNoteChanged();
     } // end setIconNoteData

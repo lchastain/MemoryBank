@@ -490,6 +490,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
                 // These three lines are an effective 'clear' of the component, without using the
                 // reference that could point back to 'good' data that is elsewhere in the vector.
                 tempNoteComponent.makeDataObject();
+                tempNoteComponent.resetText();
                 tempNoteComponent.resetComponent();
                 tempNoteComponent.initialized = false;
 

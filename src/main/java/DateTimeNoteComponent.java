@@ -13,8 +13,6 @@ public class DateTimeNoteComponent extends NoteComponent {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    static final int COMPONENTHEIGHT = 104;
-
     private final DateTimeFormatter dtf;
     static Notifier optionPane;
 
@@ -61,7 +59,6 @@ public class DateTimeNoteComponent extends NoteComponent {
 
     DateTimeNoteComponent(NoteGroupPanel ng, int i) {
         super(ng, i);
-        remove(noteTextField);
 
         dtf = DateTimeFormatter.ofPattern("d MMM yyyy");
         makeDataObject(); // Child classes of NoteComponent override this method and set their own data types.
@@ -80,9 +77,6 @@ public class DateTimeNoteComponent extends NoteComponent {
         westPanel.add(noteTimeLabel);
 
         add(westPanel, BorderLayout.WEST);
-        JScrollPane jsp = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jsp.setViewportView(noteTextArea);
-        add(jsp, BorderLayout.CENTER);
 
         MemoryBank.trace();
     } // end constructor
@@ -110,7 +104,7 @@ public class DateTimeNoteComponent extends NoteComponent {
     // Need to keep the height constant.
     @Override
     public Dimension getMaximumSize() {
-        return new Dimension(super.getMaximumSize().width, COMPONENTHEIGHT);
+        return new Dimension(super.getMaximumSize().width, componentHeight);
     } // end getMaximumSize
 
     @Override
@@ -120,7 +114,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(super.getPreferredSize().width, COMPONENTHEIGHT);
+        return new Dimension(super.getPreferredSize().width, componentHeight);
     } // end getPreferredSize
 
     @Override
@@ -140,8 +134,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         super.initialize();
 
         myDayNoteData.setTimeOfDayString(LocalTime.now().toString());
-        resetDateLabel();
-        noteTimeLabel.resetTimeLabel();
+        resetComponent();
     } // end initialize
 
 
@@ -180,7 +173,7 @@ public class DateTimeNoteComponent extends NoteComponent {
     protected void resetComponent() {
         super.resetComponent();
         resetDateLabel();
-        noteTimeLabel.resetTimeLabel();
+        resetTimeLabel();
     } // end resetComponent
 
 
@@ -201,6 +194,31 @@ public class DateTimeNoteComponent extends NoteComponent {
     } // end resetDateLabel
 
 
+    // This method is called when initializing or updating the time.
+    void resetTimeLabel() {
+        if (!initialized) return;
+
+        String timeOfDayString = myDayNoteData.getTimeOfDayString();
+        if (timeOfDayString == null || timeOfDayString.isEmpty()) {
+            // The following statement could be needed if a DayNoteComponent had
+            //   had its time cleared, and then it was being shifted up or down.
+            noteTimeLabel.setText("     ");  // enough room for 'HH:MM'
+            // Otherwise, if it had been cleared and this method is called by
+            //   a time format toggle, it is not needed but no harm done.
+            return;
+        } // end if
+
+        LocalTime theTime = LocalTime.parse(timeOfDayString);
+        noteTimeLabel.setText(AppUtil.makeTimeString(theTime));
+
+        // Colorize AM / PM
+        if (theTime.getHour() > 11) {
+            noteTimeLabel.setForeground(MemoryBank.pmColor);
+        } else {
+            noteTimeLabel.setForeground(MemoryBank.amColor);
+        }
+    } // end resetTimeLabel
+
     @Override
     void setEditable(boolean b) {
         super.setEditable(b);
@@ -219,6 +237,7 @@ public class DateTimeNoteComponent extends NoteComponent {
 
         // update visual components...
         initialized = true;  // without updating the 'lastModDate'
+        resetText();
         resetComponent();
         setNoteChanged();
     } // end setDayNoteData
@@ -251,7 +270,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
             lt = lt.minusMinutes(1);
             myDayNoteData.setTimeOfDayString(lt.toString());
-            noteTimeLabel.resetTimeLabel();
+            resetTimeLabel();
             DateTimeNoteComponent.this.setNoteChanged();
         } else if (noteDateLabel.isActive) {
             LocalDate ld = getDateFromDayNoteData();
@@ -279,7 +298,7 @@ public class DateTimeNoteComponent extends NoteComponent {
             LocalTime lt = LocalTime.parse(myDayNoteData.getTimeOfDayString());
             lt = lt.plusMinutes(1);
             myDayNoteData.setTimeOfDayString(lt.toString());
-            noteTimeLabel.resetTimeLabel();
+            resetTimeLabel();
             DateTimeNoteComponent.this.setNoteChanged();
         } else if (noteDateLabel.isActive) {
             LocalDate ld = getDateFromDayNoteData();
@@ -425,7 +444,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         } // end clear
 
         public Dimension getPreferredSize() {
-            return new Dimension(dateWidth, COMPONENTHEIGHT);
+            return new Dimension(dateWidth, componentHeight);
         } // end getPreferredSize
 
 
@@ -518,31 +537,6 @@ public class DateTimeNoteComponent extends NoteComponent {
             isActive = false;
             if (myDayNoteData != null) myDayNoteData.setTimeOfDayString("");
         } // end clear
-
-        // This method is called when initializing or updating the time.
-        void resetTimeLabel() {
-            if (!initialized) return;
-
-            String timeOfDayString = myDayNoteData.getTimeOfDayString();
-            if (timeOfDayString == null || timeOfDayString.isEmpty()) {
-                // The following statement could be needed if a DayNoteComponent had
-                //   had its time cleared, and then it was being shifted up or down.
-                noteTimeLabel.setText("     ");  // enough room for 'HH:MM'
-                // Otherwise, if it had been cleared and this method is called by
-                //   a time format toggle, it is not needed but no harm done.
-                return;
-            } // end if
-
-            LocalTime theTime = LocalTime.parse(timeOfDayString);
-            noteTimeLabel.setText(AppUtil.makeTimeString(theTime));
-
-            // Colorize AM / PM
-            if (theTime.getHour() > 11) {
-                noteTimeLabel.setForeground(MemoryBank.pmColor);
-            } else {
-                noteTimeLabel.setForeground(MemoryBank.amColor);
-            }
-        } // end resetTimeLabel
 
         void setEditable(boolean b) {
             if (b) { // This limits us to only one mouseListener.
@@ -657,7 +651,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         } // end actionPerformed
 
         public Dimension getPreferredSize() {
-            return new Dimension(timeWidth, COMPONENTHEIGHT);
+            return new Dimension(timeWidth, componentHeight);
         } // end getPreferredSize
 
 
@@ -672,7 +666,6 @@ public class DateTimeNoteComponent extends NoteComponent {
             setActive(); // This is a NoteComponent base method - for the text
             if (!initialized) return;
 
-            int m = e.getModifiersEx();
             if (e.getButton() == MouseEvent.BUTTON3) { // Click of right mouse button.
                 if (e.getClickCount() >= 2) return;
                 // Show the popup menu
@@ -691,7 +684,7 @@ public class DateTimeNoteComponent extends NoteComponent {
                         //   note has had its time cleared.  But now the user has clicked
                         //   on the 'blank' time, and so we fill in the current time.
                         myDayNoteData.setTimeOfDayString(LocalTime.now().toString());
-                        noteTimeLabel.resetTimeLabel();
+                        resetTimeLabel();
                         DateTimeNoteComponent.this.setNoteChanged();
                     } // end if
                 } // end if

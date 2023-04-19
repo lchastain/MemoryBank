@@ -37,10 +37,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         if (myNoteGroup.getGroupProperties() != null) {
             theOrder = ((TodoGroupProperties) myNoteGroup.getGroupProperties()).columnOrder;
         } // end if
-        if (theOrder != INORDER) checkColumnOrder();
-
-//        checkMultiline(); // Expand height of multilines, if any.
-// No - this updates LMD!
+        if (theOrder != INORDER) resetColumnOrder();
 
         buildMyPanel(groupInfo.getGroupName());
         theNotePager.reset(1);
@@ -96,7 +93,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder
     //
-    // Re-order the columns.
+    // A panel-level reordering of the columns.
     // This may be needed if the list had been saved with a different
     //   column order than the default.  In that case, this method is
     //   called from the constructor after the file load.
@@ -105,26 +102,15 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
     // We do it for ALL notes, visible or not, so that
     //   newly activated notes will appear properly.
     //-------------------------------------------------------------------
-    private void checkColumnOrder() {
+    private void resetColumnOrder() {
         TodoNoteComponent tempNote;
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
             tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+            // Call the component-level column reordering method.
             tempNote.resetColumnOrder(((TodoGroupProperties) myNoteGroup.myProperties).columnOrder);
         } // end for
-    } // end checkColumnOrder
-
-
-    // After a data load or a page change, any notes that are multi-line will need to have
-    //   their height expanded, to be able to show more than one line at a time.
-    private void checkMultiline() {
-        NoteComponent tempNote;
-
-        for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
-            tempNote = (NoteComponent) groupNotesListPanel.getComponent(i);
-            tempNote.resetComponent();
-        } // end for
-    } // end checkMultiline
+    } // end resetColumnOrder
 
 
     private GroupInfo chooseMergeGroup() {
@@ -243,7 +229,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         // Will not make this call conditional on a short-page-sort,
         //   because the gain in performance against the overhead needed
         //   to track that condition, is questionable.
-        checkColumnOrder();
+        resetColumnOrder();
     } // end pageNumberChanged
 
 
@@ -558,7 +544,7 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         AppUtil.localDebug(false);
 
         // Display the same page, now with possibly different contents.
-        checkColumnOrder();
+        resetColumnOrder();
         loadPage(theNotePager.getCurrentPage());
     } // end sortPriority
 

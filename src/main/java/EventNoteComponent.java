@@ -73,6 +73,7 @@ public class EventNoteComponent extends IconNoteComponent {
 
         // update visual components without updating the 'lastModDate'
         initialized = true;
+        resetText();
         resetComponent();
         setNoteChanged();
     } // end setNoteData
