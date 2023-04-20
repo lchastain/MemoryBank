@@ -290,27 +290,15 @@ public class YearView extends JPanel {
     // I put this in place as a temporary remediation along the way
     // to updating the app to new Java 8 date/time classes.
     private int getDayOfWeekInt(LocalDate tmpDate) {
-        switch (tmpDate.getDayOfWeek()) {
-            case SUNDAY:
-                return 1;
-            case MONDAY:
-                return 2;
-            case TUESDAY:
-                return 3;
-            case WEDNESDAY:
-                return 4;
-            case THURSDAY:
-                return 5;
-            case FRIDAY:
-                return 6;
-            case SATURDAY:
-                return 7;
-        }
-        return -1;
-    }
-
-    int getYear() {
-        return theYear;
+        return switch (tmpDate.getDayOfWeek()) {
+            case SUNDAY -> 1;
+            case MONDAY -> 2;
+            case TUESDAY -> 3;
+            case WEDNESDAY -> 4;
+            case THURSDAY -> 5;
+            case FRIDAY -> 6;
+            case SATURDAY -> 7;
+        };
     }
 
     LabelButton makeAlterButton(String theText) {
@@ -551,7 +539,8 @@ public class YearView extends JPanel {
 
         public void highlight() {
             setForeground(Color.red);
-            setFont(Font.decode("Dialog-bold-18"));
+            setFont(Font.decode("Dialog-bold-16")); // Same as hasData, but 18 is too big for Metal L&F ...
+            // ... and that may only be on a Mac.  'too big == digit changes to '...' due to its bounds.
             choiceLabel.setText(dtf.format(theChoice) + " ");
         } // end highlight
 
@@ -563,7 +552,7 @@ public class YearView extends JPanel {
 
         public void setDay(LocalDate aLocalDate) {
             myDate = aLocalDate;
-            day = myDate.getDayOfMonth();    // these may be wrong...
+            day = myDate.getDayOfMonth();
             month = myDate.getMonthValue() - 1;
 
             if (hasDataArray[month][day - 1]) {

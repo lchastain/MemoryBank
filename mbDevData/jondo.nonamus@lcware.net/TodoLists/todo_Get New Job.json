@@ -1,5 +1,5 @@
 [ {
-  "zdtLastModString" : "2020-11-10T14:36:46.135+04:00[Europe/Samara]",
+  "zdtLastModString" : "2023-04-20T07:30:57.032717+04:00[Europe/Samara]",
   "instanceId" : "0e8b999a-cf59-473e-a7d8-f3697315eb20",
   "groupType" : "TODO_LIST",
   "groupName" : "Get New Job",
@@ -25,9 +25,8 @@
   "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
   "instanceId" : "2a1bc3a2-ce36-4e19-b730-eb25676db6fe",
   "noteString" : "Update Resume",
-  "subjectString" : null,
   "extendedNoteString" : "",
-  "todoDateString" : null,
+  "multiline" : false,
   "intPriority" : 1,
   "intStatus" : 2
 }, {
@@ -35,7 +34,7 @@
   "instanceId" : "d8f6312e-bd90-4325-bde3-3643dcf618f6",
   "noteString" : "Update LinkedIn Profile",
   "extendedNoteString" : "",
-  "todoDateString" : null,
+  "multiline" : false,
   "intPriority" : 1,
   "intStatus" : 0
 }, {
@@ -43,22 +42,23 @@
   "instanceId" : "a2d56d6c-8d0d-4435-819e-b6d686f34c9b",
   "noteString" : "Contact previous co-workers and managers",
   "extendedNoteString" : "",
+  "multiline" : false,
   "intPriority" : 0,
   "intStatus" : 0
 }, {
-  "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
+  "zdtLastModString" : "2023-04-20T07:30:16.287019+04:00[Europe/Samara]",
   "instanceId" : "e92504d4-78bf-4ce1-a333-9716d9e70d4d",
-  "noteString" : "Training",
-  "subjectString" : null,
+  "noteString" : "Training\nHP\nTextronix\nSUN",
   "extendedNoteString" : "",
+  "multiline" : true,
   "intPriority" : 0,
   "intStatus" : 4
 }, {
   "zdtLastModString" : "2019-09-27T10:20:27.684+04:00[Europe/Samara]",
   "instanceId" : "244ad4d8-6825-4962-953f-eca7e4267bfd",
   "noteString" : "Check with friends",
-  "subjectString" : null,
   "extendedNoteString" : "This weekend",
+  "multiline" : false,
   "todoDateString" : "2019-08-24",
   "intPriority" : 0,
   "intStatus" : 3
@@ -67,7 +67,7 @@
   "instanceId" : "0c5a4e47-b27f-4d60-8b30-d1d3344fe143",
   "noteString" : "Relocate?",
   "extendedNoteString" : "I would go to Derry, or Castle Rock - seems I remember reading good things about those places.",
-  "todoDateString" : null,
+  "multiline" : false,
   "intPriority" : 0,
   "intStatus" : 4
 }, {
@@ -75,6 +75,7 @@
   "instanceId" : "575253e4-5c65-4a0f-9063-04d5c8be2653",
   "noteString" : "Online Searches",
   "extendedNoteString" : "",
+  "multiline" : false,
   "intPriority" : 0,
   "intStatus" : 0
 } ] ]

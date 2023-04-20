@@ -1,0 +1,15 @@
+[ {
+  "instanceId" : "f2907f49-2051-4ed4-9c6e-a89ccb7811f5",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Friday, February 14, 2020"
+}, [ {
+  "zdtLastModString" : "2020-04-04T15:35:19.269+04:00[Europe/Samara]",
+  "instanceId" : "d14e1fa5-1a3c-4a97-bb33-f74cac7d8e3f",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "multiline" : false,
+  "iconFileString" : "icons/heart0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "07:45:03.396608"
+} ] ]

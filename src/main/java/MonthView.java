@@ -460,7 +460,7 @@ public class MonthView extends JLayeredPane {
 
         public void highlight() {
             dayLabel.setForeground(Color.red);
-            dayLabel.setFont(Font.decode("Dialog-bold-24"));
+            dayLabel.setFont(Font.decode("Dialog-bold-22"));
             setChoiceLabel(); // may not be needed here, if a call to it can be made from a better loc.
         } // end highlight
 

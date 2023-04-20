@@ -5,10 +5,33 @@
   "notesExpanded" : true,
   "todoListsExpanded" : true,
   "searchesExpanded" : true,
-  "theSelection" : "Search Results",
-  "theSelectionRow" : -1,
+  "groupCalendarNotes" : false,
+  "theSelection" : "Year View",
+  "theSelectionRow" : 12,
+  "defaultDayNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "icon_not",
+    "iconFormat" : "gif"
+  },
+  "defaultMonthNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "calendr2",
+    "iconFormat" : "gif"
+  },
+  "defaultYearNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "note2",
+    "iconFormat" : "gif"
+  },
+  "defaultEventNoteIconInfo" : {
+    "dataArea" : "APP_ICONS",
+    "iconName" : "reminder",
+    "iconFormat" : "gif"
+  },
+  "timeFormat" : "CIVILIAN",
   "goalsList" : [ "Graduate", "Retire by age 50" ],
   "eventsList" : [ "holidays", "appointments", "disasters", "money" ],
+  "notesList" : [ ],
   "tasksList" : [ "Get New Job", "New Car Shopping" ],
   "searchResultList" : [ "20201107080423", "20201107080501" ],
   "paneSeparator" : 191
