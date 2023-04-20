@@ -350,7 +350,6 @@ public class NoteComponent extends JPanel {
     } // end resetText
 
 
-
     void resetPanelStatusMessage(int textStatus) {
         myManager.setStatusMessage(getStatusMessage(textStatus));
     } // end resetPanelStatusMessage

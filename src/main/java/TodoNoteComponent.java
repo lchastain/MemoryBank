@@ -467,6 +467,21 @@ public class TodoNoteComponent extends NoteComponent {
             setPriority(0);
         }
 
+        public Dimension getMaximumSize() {
+            return getPreferredSize();
+        }
+
+        public Dimension getMinimumSize() {
+            return getPreferredSize();
+        }
+
+        public Dimension getPreferredSize() {
+            if (!isVisible()) return new Dimension(0, 0);
+            Dimension d = super.getPreferredSize();
+            d.width = minWidth;
+            return d;
+        } // end getPreferredSize
+
         public int getPriority() {
             return Priority;
         }
@@ -514,25 +529,9 @@ public class TodoNoteComponent extends NoteComponent {
             return false;
         }
 
-        public Dimension getMaximumSize() {
-            return getPreferredSize();
-        }
-
-        public Dimension getMinimumSize() {
-            return getPreferredSize();
-        }
-
-        public Dimension getPreferredSize() {
-            if (!isVisible()) return new Dimension(0, 0);
-            Dimension d = super.getPreferredSize();
-            d.width = minWidth;
-            return d;
-        } // end getPreferredSize
-
         // Override these, to disable the 'depressed' color change.
         public void setBackground() { }
         public void setForeground() { }
-//        public void focusLost() { }
 
         //---------------------------------------------------------
         // MouseListener methods

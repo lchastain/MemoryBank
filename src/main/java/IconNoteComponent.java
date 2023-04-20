@@ -69,9 +69,11 @@ public class IconNoteComponent extends NoteComponent {
         //------------------
         // Graphical elements
         //------------------
-        // Since the text field gets higher to accomodate the icon, it is less unattractive
-        //   to make the text larger, to fill the vertical space.  Multilines are smaller.
-        noteTextField.setFont(Font.decode("DialogInput-bold-18"));
+        // Since the text field gets higher to accomodate the icon, it is less unattractive to
+        //   make the one-line text larger, to fill the vertical space.  But then Multilines could
+        //   be mixed in and the difference is too jarring, so they need to also grow.
+        noteTextField.setFont(Font.decode("DialogInput-bold-20"));
+        noteTextArea.setFont(Font.decode("DialogInput-bold-20"));
 
         theIconLabel = new JLabel() {
             @Override
