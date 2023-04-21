@@ -201,8 +201,15 @@ public class NoteComponent extends JPanel {
     } // end getNoteData
 
 
-    public JComponent getNoteTextField() {
-        return noteTextField;
+    public JComponent getNoteTextComponent() {
+        JComponent theTextComponent;
+        NoteData theNoteData = getNoteData();
+        if (null != theNoteData && theNoteData.multiline) {
+            theTextComponent = noteScroller;
+        } else {
+            theTextComponent = noteTextField;
+        }
+        return theTextComponent;
     }
 
     // Need to manage the height.
@@ -1323,6 +1330,12 @@ public class NoteComponent extends JPanel {
                 }
                 case "Multiline" -> {
                     if (noteData.multiline == miMultiLine.getState()) return; // not a change; shouldn't happen.
+                    // Based on current setting ...
+                    if(noteData.multiline) { // Capture new changes to the text, if any.
+                        theNoteComponent.noteTextField.setText(theNoteComponent.noteTextArea.getText());
+                    } else {
+                        theNoteComponent.noteTextArea.setText(theNoteComponent.noteTextField.getText());
+                    }
                     noteData.multiline = !noteData.multiline; // toggle the setting
                     theNoteComponent.resetComponent();
                     theNoteComponent.setNoteChanged();

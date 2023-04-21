@@ -89,30 +89,6 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
         setGroupHeader(listHeader);
     }
 
-
-    //-------------------------------------------------------------------
-    // Method Name: checkColumnOrder
-    //
-    // A panel-level reordering of the columns.
-    // This may be needed if the list had been saved with a different
-    //   column order than the default.  In that case, this method is
-    //   called from the constructor after the file load.
-    // It is also needed after paging away from a 'short' page where
-    //   a 'sort' was done, even though no reordering occurred.
-    // We do it for ALL notes, visible or not, so that
-    //   newly activated notes will appear properly.
-    //-------------------------------------------------------------------
-    private void resetColumnOrder() {
-        TodoNoteComponent tempNote;
-
-        for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
-            tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
-            // Call the component-level column reordering method.
-            tempNote.resetColumnOrder(((TodoGroupProperties) myNoteGroup.myProperties).columnOrder);
-        } // end for
-    } // end resetColumnOrder
-
-
     private GroupInfo chooseMergeGroup() {
         GroupInfo theChoice = null;
         ArrayList<String> groupNames = MemoryBank.dataAccessor.getGroupNames(GroupType.TODO_LIST, true);
@@ -349,6 +325,24 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
 //        tfp.setVisible(true);
 //    } // end printList
 
+
+    // A panel-level reordering of the columns.
+    // This may be needed if the list had been saved with a different
+    //   column order than the default.  In that case, this method is
+    //   called from the constructor after the file load.
+    // It is also needed after paging away from a 'short' page where
+    //   a 'sort' was done, even though no reordering occurred.
+    // We do it for ALL notes, visible or not, so that
+    //   newly activated notes will appear properly.
+    private void resetColumnOrder() {
+        TodoNoteComponent tempNote;
+
+        for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
+            tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+            // Call the component-level column reordering method.
+            tempNote.resetColumnOrder(((TodoGroupProperties) myNoteGroup.myProperties).columnOrder);
+        } // end for
+    } // end resetColumnOrder
 
     // Called from the menu bar:  AppTreePanel.handleMenuBar() --> saveGroupAs() --> saveAs()
     // Prompts the user for a new list name, checks it for validity,

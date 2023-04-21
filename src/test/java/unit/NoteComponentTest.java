@@ -39,7 +39,7 @@ class NoteComponentTest {
     @Test
     void testGetNoteTextField() {
         NoteComponent.NoteTextField noteTextField;
-        noteTextField = (NoteComponent.NoteTextField) theNoteComponent.getNoteTextField();
+        noteTextField = (NoteComponent.NoteTextField) theNoteComponent.getNoteTextComponent();
         noteTextField.getPreferredSize();
         noteTextField.getToolTipLocation(new MouseEvent(noteTextField, MouseEvent.MOUSE_ENTERED, 0,0,0,0, 0, false ));
     }
@@ -50,7 +50,7 @@ class NoteComponentTest {
         theNoteComponent = todoNoteGroup.getNoteComponent(4);
         theNoteComponent.getTextStatus();
         NoteComponent.NoteTextField noteTextField;
-        noteTextField = (NoteComponent.NoteTextField) theNoteComponent.getNoteTextField();
+        noteTextField = (NoteComponent.NoteTextField) theNoteComponent.getNoteTextComponent();
         noteTextField.setText(" ");
         theNoteComponent.getTextStatus();
         theNoteComponent = todoNoteGroup.getNoteComponent(7);

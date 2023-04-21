@@ -76,12 +76,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
         int origColumnOrder = ((TodoGroupProperties) parent.myNoteGroup.myProperties).columnOrder;
         if (getColumnOrder() != origColumnOrder) {
             ((TodoGroupProperties) parent.myNoteGroup.myProperties).columnOrder = getColumnOrder();
-//            parent.setGroupChanged(true);
-            // the above was commented out on 8 sep 2020, in favor of a direct assignment.  Why?
-//            parent.groupChanged = true;
-            // now (26 oct 2020) need to adjust for new hierarchy, changed the direct back to a method call.  problem with that?
             parent.myNoteGroup.setGroupChanged(true);
-            // System.out.println("\n\nSet Group changed flag!");
         }
     } // end doLayout
 
@@ -117,7 +112,7 @@ public class TodoGroupHeader extends Container implements ClingSource {
             // We still need to change the order, based on actual order.
             compTempComp = switch (hb.defaultLabel) {
                 case "Priority" -> tnc.getPriorityButton();
-                case "To Do Text" -> tnc.getNoteTextField();
+                case "To Do Text" -> tnc.getNoteTextComponent();
                 case "Status" -> tnc.getStatusButton();
                 default ->
                         // Now that there are only 3, this will throw an exception

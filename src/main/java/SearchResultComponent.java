@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 import java.io.Serial;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -86,17 +85,77 @@ public class SearchResultComponent extends NoteComponent {
         super.initialize();
     } // end initialize
 
-
     public void resetColumnOrder(int theOrder) {
-        String pos = String.valueOf(theOrder);
-        // System.out.println("SearchResultComponent resetColumnOrder to " + pos);
+        String pos = String.valueOf(theOrder); // 123,132,213,231,312,321 - expecting one of these...
+        System.out.println("SearchResultNoteComponent resetColumnOrder to " + pos);
 
-        add(foundInButton, pos.indexOf("1"));
-        add(noteTextField, pos.indexOf("2"));
-        add(lastModLabel, pos.indexOf("3"));
+        if(mySearchResultData == null) return;  // TODO ? not needed by To Do lists? Why not?
+        // Without the condition, one of the tests fails but problem not seen otherwise (yet?).
+
+        removeAll(); // With the DndLayout, it is easier to start over than try to rearrange.
+
+        componentHeight = getComponentHeight(); // Defaulting to one line.
+        if(theOrder < 200) { // 123, 132
+            add(foundInButton, "1");
+            if(theOrder == 123) {
+                if (mySearchResultData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+                add(lastModLabel, "3");
+            } else { // 132
+                add(lastModLabel, "3");
+                if (mySearchResultData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+            }
+        } else if(theOrder < 300) { // 213, 231
+            if (mySearchResultData.multiline) {
+                componentHeight = MULTI_LINE_HEIGHT;
+                add(noteScroller, "Stretch");
+            } else {
+                add(noteTextField, "Stretch");
+            }
+            if(theOrder == 213) {
+                add(foundInButton, "1");
+                add(lastModLabel, "3");
+            } else { // 231
+                add(lastModLabel, "3");
+                add(foundInButton, "1");
+            }
+        } else { // 312, 321
+            if(theOrder == 312) {
+                add(lastModLabel, "3");
+                add(foundInButton, "1");
+                if (mySearchResultData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+            } else { // 321
+                add(lastModLabel, "3");
+                if (mySearchResultData.multiline) {
+                    componentHeight = MULTI_LINE_HEIGHT;
+                    add(noteScroller, "Stretch");
+                } else {
+                    add(noteTextField, "Stretch");
+                }
+                add(foundInButton, "1");
+            }
+        }
 
         // This was needed after paging was implemented.
-        noteTextField.transferFocusUpCycle();  // new 3/19/2008
+        if (mySearchResultData.multiline) {
+            noteTextArea.transferFocusUpCycle();  // new 4/18/2023
+        } else {
+            noteTextField.transferFocusUpCycle();  // new 3/19/2008
+        }
     } // end resetColumnOrder
 
 
@@ -104,7 +163,6 @@ public class SearchResultComponent extends NoteComponent {
     //   the visual effects of the change.
     @Override
     protected void resetComponent() {
-        super.resetComponent(); // the note text
 
         // This happens during loadPage, a lot.
         // None of the non-visible notes on the page ever got a data object.
@@ -112,26 +170,10 @@ public class SearchResultComponent extends NoteComponent {
             return;
         }
 
-        // On-the-go data fix: We have stopped preserving a File for 'foundInFile' of new searches.  For now the
-        // member is still present but should be null.  If it isn't, we use it to backfill the GroupInfo (foundIn)
-        // and then set it to null.  Once ALL such data is converted (in all user and test data) the fileFoundIn
-        // may be @JsonIgnore'd and after another iteration of load/save fixing, could be removed altogether.
-        File theFile = mySearchResultData.getFileFoundIn();
-        if(theFile != null) {
-            GroupInfo groupInfo = NoteGroupFile.getGroupInfoFromFilePath(theFile);
-            if(groupInfo.getGroupName() != null) { // If data is too whacked, we cannot 'fix' it.
-                mySearchResultData.foundIn = groupInfo;
-                mySearchResultData.setFileFoundIn(null);
-                myNoteGroup.fixedDataWhileLoading = true; // This will cause a re-save, on exit.
-            }
-        }
-
         // Set the text of the 'Found In' button
-//        fibTheFoundInButton.setText(mySearchResultData.getFoundIn()); // this is the older 'getFoundIn' that is now disabled.
         GroupInfo groupInfo = mySearchResultData.getFoundIn();
         if(groupInfo != null) {
             String foundInString = getFoundInButtonText(groupInfo);
-//            foundInButton.setText(mySearchResultData.getFoundIn().getGroupName());
             foundInButton.setText(foundInString);
         }
 
@@ -145,6 +187,26 @@ public class SearchResultComponent extends NoteComponent {
         assert zdtLastModDate != null;
         String strModDate = dtf.format(zdtLastModDate);
         lastModLabel.setText(strModDate);
+
+        // Height adjustments and column reordering
+        removeAll(); // With a DndLayout, it is easiest to just do it over.
+        add(foundInButton);
+
+        if (mySearchResultData.multiline) {
+            componentHeight = MULTI_LINE_HEIGHT;
+            add(noteScroller, "Stretch");
+            noteTextArea.requestFocusInWindow();
+        } else {
+            componentHeight = getComponentHeight();
+            //remove(noteScroller);
+            add(noteTextField,"Stretch");
+            noteTextField.requestFocusInWindow();
+        }
+        add(lastModLabel);
+
+        int theOrder = ((SearchResultGroupProperties) myNoteGroupPanel.myNoteGroup.getGroupProperties()).columnOrder;
+        if(theOrder != SearchResultGroupPanel.INORDER) resetColumnOrder(theOrder);
+
     } // end resetComponent
 
     @Override
@@ -339,11 +401,9 @@ public class SearchResultComponent extends NoteComponent {
             });
         } // end LastModLabel constructor
 
-
         public void clear() {
             setText("");
         } // end clear
-
 
         public Dimension getPreferredSize() {
             Dimension d = super.getPreferredSize();

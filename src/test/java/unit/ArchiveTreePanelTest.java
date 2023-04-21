@@ -71,19 +71,20 @@ public class ArchiveTreePanelTest {
         assert tp.getLastPathComponent().toString().equals("Day Notes");
     }
 
+    // This is testing the cases where the data is NOT found.
     @Test
-    void testShowFoundIn() throws Exception {
+    void testShowFoundIn() throws InterruptedException {
         SearchResultData mySrd = new SearchResultData(new NoteData());
-        mySrd.setFileFoundIn(new File("2008/Y_20190301095623"));
+        mySrd.foundIn = new GroupInfo("2008", GroupType.YEAR_NOTES);
         archiveTreePanel.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
-        mySrd.setFileFoundIn(new File("2008/M02_20190208182959"));
+        mySrd.foundIn = new GroupInfo("February 2008", GroupType.MONTH_NOTES);
         archiveTreePanel.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
-        mySrd.setFileFoundIn(new File("2008/D0927_20170927175850"));
+        mySrd.foundIn = new GroupInfo("Saturday, September 27, 2008", GroupType.DAY_NOTES);
         archiveTreePanel.showFoundIn(mySrd);
         Thread.sleep(300); // The test framework can drive the app too fast.
-        mySrd.setFileFoundIn(new File("todo_Long Term.json"));
+        mySrd.foundIn = new GroupInfo("Long Term", GroupType.TODO_LIST);
         archiveTreePanel.showFoundIn(mySrd);
     }
 

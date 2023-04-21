@@ -374,7 +374,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
             trimmedList.add(tempNoteData);
         }
         return trimmedList;
-    }
+    } // end getCondensedInfo
 
     boolean getEditable() {
         return editable;

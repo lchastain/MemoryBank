@@ -282,9 +282,7 @@ public class TodoNoteComponent extends NoteComponent {
                 }
                 add(pbThePriorityButton, "1");
             }
-
         }
-
 
         // This was needed after paging was implemented.
         if (myTodoNoteData.multiline) {
@@ -292,16 +290,11 @@ public class TodoNoteComponent extends NoteComponent {
         } else {
             noteTextField.transferFocusUpCycle();  // new 3/19/2008
         }
-
     } // end resetColumnOrder
 
 
-    //----------------------------------------------------------
-    // Method Name: resetComponent
-    //
     // Called after a change to the encapsulated data, to show
     //   the visual effects of the change.
-    //----------------------------------------------------------
     @Override
     protected void resetComponent() {
         pbThePriorityButton.setPriority(myTodoNoteData.getPriority());

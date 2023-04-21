@@ -11,8 +11,9 @@ import java.util.ArrayList;
 public class SearchResultGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(SearchResultGroupPanel.class);
     private JLabel resultsPageOf;
+
     SearchResultHeader listHeader;
-    boolean fixedDataWhileLoading;
+    static final int INORDER = 123;
 
     public SearchResultGroupPanel(GroupInfo groupInfo) {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty GoalGroup.
@@ -44,16 +45,15 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         loadNotesPanel();
 
-        // Unlike with a ToDo list, this is not conditional; we just do it whether needed or not.
-        checkColumnOrder();
-
-        if(fixedDataWhileLoading) setGroupChanged(true); // This can go away when all is fixed.
-        // The component might have set this to true, if it found a non-null 'fileFoundIn' value.
+        int theOrder = INORDER;
+        if (myNoteGroup.getGroupProperties() != null) {
+            theOrder = ((SearchResultGroupProperties) myNoteGroup.getGroupProperties()).columnOrder;
+        } // end if
+        if (theOrder != INORDER) resetColumnOrder();
 
         theNotePager.reset(1);
         buildPanelContent(); // Content other than the groupDataVector
     } // end constructor
-
 
     SearchResultGroupPanel(String groupName) {
         this(new GroupInfo(groupName, GroupType.SEARCH_RESULTS));
@@ -347,13 +347,23 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 //    } // end printList
 
 
-    private void saveProperties() {
-        // Update the header text of the columns.
-        ((SearchResultGroupProperties) myNoteGroup.myProperties).column1Label = listHeader.getColumnHeader(1);
-        ((SearchResultGroupProperties) myNoteGroup.myProperties).column2Label = listHeader.getColumnHeader(2);
-        ((SearchResultGroupProperties) myNoteGroup.myProperties).column3Label = listHeader.getColumnHeader(3);
-        ((SearchResultGroupProperties) myNoteGroup.myProperties).columnOrder = listHeader.getColumnOrder();
-    } // end saveProperties
+    // A panel-level reordering of the columns.
+    // This may be needed if the list had been saved with a different
+    //   column order than the default.  In that case, this method is
+    //   called from the constructor after the file load.
+    // It is also needed after paging away from a 'short' page where
+    //   a 'sort' was done, even though no reordering occurred.
+    // We do it for ALL notes, visible or not, so that
+    //   newly activated notes will appear properly.
+    private void resetColumnOrder() {
+        TodoNoteComponent tempNote;
+
+        for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
+            tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+            // Call the component-level column reordering method.
+            tempNote.resetColumnOrder(((TodoGroupProperties) myNoteGroup.myProperties).columnOrder);
+        } // end for
+    } // end resetColumnOrder
 
 
     // Originally this 'sort' method was cloned from a class where it was possible that

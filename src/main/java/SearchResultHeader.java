@@ -108,15 +108,9 @@ public class SearchResultHeader extends Container implements ClingSource {
 
             // We still need to change the order, based on actual order.
             switch (hb.defaultLabel) {
-                case "Found In":
-                    compTempComp = tnc.getFoundInButton();
-                    break;
-                case "Note Text":
-                    compTempComp = tnc.getNoteTextField();
-                    break;
-                case "Last Mod":
-                    compTempComp = tnc.getLastModLabel();
-                    break;
+                case "Found In" -> compTempComp = tnc.getFoundInButton();
+                case "Note Text" -> compTempComp = tnc.getNoteTextComponent();
+                case "Last Mod" -> compTempComp = tnc.getLastModLabel();
             }
             ClingOns.addElement(compTempComp);
         } // end for i
@@ -125,19 +119,13 @@ public class SearchResultHeader extends Container implements ClingSource {
 
 
     String getColumnHeader(int i) {
-        String s = null;
-        switch (i) {
-            case 1:
-                s = hb1.getText();
-                break;
-            case 2:
-                s = hb2.getText();
-                break;
-            case 3:
-                s = hb3.getText();
-                break;
-        } // end switch
-        return s;
+        // end switch
+        return switch (i) {
+            case 1 -> hb1.getText();
+            case 2 -> hb2.getText();
+            case 3 -> hb3.getText();
+            default -> null;
+        };
     } // end getColumnHeader
 
     public int getColumnOrder() {
@@ -261,11 +249,7 @@ public class SearchResultHeader extends Container implements ClingSource {
                 doUserHeader();
             } else {
                 final int shiftPressed = e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK;
-                new Thread(new Runnable() {
-                    public void run() {
-                        doSorting(shiftPressed);
-                    }
-                }).start(); // Start the thread
+                new Thread(() -> doSorting(shiftPressed)).start(); // Start the thread
             } // end if
         } // end mouseClicked
 
