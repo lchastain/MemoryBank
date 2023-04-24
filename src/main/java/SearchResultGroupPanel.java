@@ -356,12 +356,12 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
     // We do it for ALL notes, visible or not, so that
     //   newly activated notes will appear properly.
     private void resetColumnOrder() {
-        TodoNoteComponent tempNote;
+        SearchResultComponent tempNote;
 
         for (int i = 0; i <= getHighestNoteComponentIndex(); i++) {
-            tempNote = (TodoNoteComponent) groupNotesListPanel.getComponent(i);
+            tempNote = (SearchResultComponent) groupNotesListPanel.getComponent(i);
             // Call the component-level column reordering method.
-            tempNote.resetColumnOrder(((TodoGroupProperties) myNoteGroup.myProperties).columnOrder);
+            tempNote.resetColumnOrder(((SearchResultGroupProperties) myNoteGroup.myProperties).columnOrder);
         } // end for
     } // end resetColumnOrder
 
