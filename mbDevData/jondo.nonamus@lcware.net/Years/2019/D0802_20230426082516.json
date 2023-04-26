@@ -1,0 +1,30 @@
+[ {
+  "zdtLastModString" : "2023-04-26T08:25:08.286041+04:00[Europe/Samara]",
+  "instanceId" : "050abd8b-dc6c-4c30-a372-08b3ae15068e",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Friday, August 2, 2019"
+}, [ {
+  "zdtLastModString" : "2023-04-26T08:25:03.685529+04:00[Europe/Samara]",
+  "instanceId" : "ef0b09da-de18-4aa0-94fe-8f3bcfd23ac8",
+  "noteString" : "Got to work early, TGIF!",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "08:24:42.163502"
+}, {
+  "zdtLastModString" : "2023-04-26T08:24:15.983556+04:00[Europe/Samara]",
+  "instanceId" : "16cdb16e-7841-4142-b879-9e43ca22a223",
+  "noteString" : "Lost my part-time job at Primatech.\nEntire facility was shut down.\nReason given was a writer's strike but I cannot \nsee how that affected us at a paper company.  ",
+  "extendedNoteString" : "",
+  "multiline" : true,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "09:48"
+}, {
+  "zdtLastModString" : "2023-04-26T08:24:23.449550+04:00[Europe/Samara]",
+  "instanceId" : "9bd25356-94cc-4de3-aa95-3c6c62fc25e1",
+  "noteString" : "Decided to take a student loan, no new job.",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "showIconOnMonthBoolean" : false,
+  "timeOfDayString" : "14:23"
+} ] ]
