@@ -28,7 +28,7 @@ public class NoteComponent extends JPanel {
 
     // May be used by container classes to set their scrollbar unit increments.
     static final int ONE_LINE_HEIGHT = 24;
-    static final int MULTI_LINE_HEIGHT = 104;
+    static final int MULTI_LINE_HEIGHT = 114;
 
     static final int NEEDS_TEXT = 77;    // Arbitrary values
     static final int HAS_BASE_TEXT = 88;
