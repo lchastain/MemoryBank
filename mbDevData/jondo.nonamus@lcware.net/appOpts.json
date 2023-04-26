@@ -6,7 +6,7 @@
   "todoListsExpanded" : true,
   "searchesExpanded" : true,
   "groupCalendarNotes" : false,
-  "theSelection" : "Year View",
+  "theSelection" : "Day Notes",
   "theSelectionRow" : 12,
   "defaultDayNoteIconInfo" : {
     "dataArea" : "APP_ICONS",
@@ -30,7 +30,7 @@
   },
   "timeFormat" : "CIVILIAN",
   "goalsList" : [ "Graduate", "Retire by age 50" ],
-  "eventsList" : [ "holidays", "appointments", "disasters", "money" ],
+  "eventsList" : [ "Holidays", "Everything Else" ],
   "notesList" : [ ],
   "tasksList" : [ "Get New Job", "New Car Shopping" ],
   "searchResultList" : [ "20201107080423", "20201107080501" ],

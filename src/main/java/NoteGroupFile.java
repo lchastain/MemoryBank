@@ -482,8 +482,11 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
         }
 
         // Cycle through the sorted directories -
+        String theName;
         for (File f : yearsList) {
-            int dataYear = Integer.parseInt(f.getName());
+            theName = f.getName();
+            if(theName.startsWith(".")) continue; // Mac may add a hidden file here.
+            int dataYear = Integer.parseInt(theName);
 
             // Skip all Years that are in the 'wrong' direction from the initialDate
             if (direction == CalendarNoteGroup.Direction.FORWARD) {
@@ -993,7 +996,8 @@ class NoteGroupFile extends FileDataAccessor implements NoteGroupDataAccessor {
 
     // Provides a way for a calling context to retrieve the most recent result.
     // If there was not a failure then this value will be null.
-    String getFailureReason() {
+    @Override
+    public String getFailureReason() {
         return failureReason;
     }
 

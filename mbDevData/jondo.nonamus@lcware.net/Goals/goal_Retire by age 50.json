@@ -1,26 +1,8 @@
 [ {
-  "zdtLastModString" : "2020-11-10T14:36:07.677+04:00[Europe/Samara]",
+  "zdtLastModString" : "2023-04-25T08:04:54.839784+04:00[Europe/Samara]",
   "instanceId" : "42866b0b-1ee6-489e-8aef-68504b8053ca",
   "groupType" : "GOALS",
   "groupName" : "Retire by age 50",
-  "longTitle" : null,
-  "goalPlan" : null
-}, [ {
-  "zdtLastModString" : "2020-08-17T12:38:37.221+04:00[Europe/Samara]",
-  "instanceId" : "28a333de-1f7b-4dff-b3a7-cc9908f87a30",
-  "noteString" : "Graduate and get a degree",
-  "subjectString" : null,
-  "extendedNoteString" : "",
-  "todoDateString" : null,
-  "intPriority" : 0,
-  "intStatus" : 0
-}, {
-  "zdtLastModString" : "2020-08-17T12:38:23.165+04:00[Europe/Samara]",
-  "instanceId" : "74ecf4fe-a479-4d87-b63c-dea4a7e60a45",
-  "noteString" : "Pay off student loans",
-  "subjectString" : null,
-  "extendedNoteString" : "",
-  "todoDateString" : null,
-  "intPriority" : 0,
-  "intStatus" : 0
-} ] ]
+  "longTitle" : "Retire by age 50",
+  "goalPlan" : "A modest goal.  Early, yes, but not dramatically so."
+}, [ ] ]

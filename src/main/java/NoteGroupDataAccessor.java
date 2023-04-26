@@ -18,6 +18,8 @@ public interface NoteGroupDataAccessor {
 
     boolean renameNoteGroupData(GroupType theType, String nodeName, String renamedTo);
 
+    String getFailureReason();
+
     // void addNoteGroup(GroupInfo groupInfo)
 
 }

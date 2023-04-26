@@ -349,10 +349,16 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         } // end if
         if (aChangeWasMade) noteData.setSubjectString(newSubject);
 
-        assert origExtendedNoteString != null;
-        if (!origExtendedNoteString.equals(newExtendedNoteString)) {
-            noteData.setExtendedNoteString(newExtendedNoteString);
-            aChangeWasMade = true;
+        if(origExtendedNoteString != null) {
+            if (!origExtendedNoteString.equals(newExtendedNoteString)) {
+                noteData.setExtendedNoteString(newExtendedNoteString);
+                aChangeWasMade = true;
+            }
+        } else {
+            if(newExtendedNoteString != null) {
+                noteData.setExtendedNoteString(newExtendedNoteString);
+                aChangeWasMade = true;
+            }
         }
 
         return aChangeWasMade;

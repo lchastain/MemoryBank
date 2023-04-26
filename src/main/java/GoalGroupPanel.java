@@ -265,7 +265,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
 
     // Called from within the constructor to create and place the visual components of the panel.
-    // The view will be a Tabbed Pane, with the initial Tab showing a ToDo List.
+    // The view will be a Header area over a Tabbed Pane, with the initial Tab showing a 'To Do' List.
     private void buildPanelContent() {
         GroupInfo theGroupInfo;  // Support an archiveName, if there is one.
         BorderLayout theLayout;
