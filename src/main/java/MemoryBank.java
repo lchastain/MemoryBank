@@ -152,6 +152,7 @@ public class MemoryBank {
         URL url = MemoryBank.class.getProtectionDomain().getCodeSource().getLocation();
         String jarPath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8);
         System.out.println("Path to the JAR we are running from within:\n  " + jarPath);
+        if(jarPath.contains("Preview")) appIconName = "ball1c"; // Visual indicator of pre-production code.
 
         return extractResourcesToTempFolder(jarPath);
     }
