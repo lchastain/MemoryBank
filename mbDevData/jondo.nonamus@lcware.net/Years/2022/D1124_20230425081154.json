@@ -1,0 +1,36 @@
+[ {
+  "zdtLastModString" : "2023-04-25T08:11:54.030791+04:00[Europe/Samara]",
+  "instanceId" : "a6dbf861-8193-49d2-b662-530e2ed2b5d6",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Thursday, November 24, 2022"
+}, [ {
+  "zdtLastModString" : "2023-04-25T06:13:22.466398+04:00[Europe/Samara]",
+  "instanceId" : "8300e522-940c-4c16-a16a-3e23f3d92fd4",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "multiline" : false,
+  "iconFileString" : "icons/hatchet.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : ""
+}, {
+  "zdtLastModString" : "2023-04-25T08:11:46.379570+04:00[Europe/Samara]",
+  "instanceId" : "89e0b116-4c00-4208-afd2-b24f8d7afc7f",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "multiline" : false,
+  "iconFileString" : "icons/hatchet.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : ""
+}, {
+  "zdtLastModString" : "2023-04-25T08:11:54.030232+04:00[Europe/Samara]",
+  "instanceId" : "d034d48f-2a73-4294-b9c5-594f6953db59",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "multiline" : false,
+  "iconFileString" : "icons/hatchet.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : ""
+} ] ]

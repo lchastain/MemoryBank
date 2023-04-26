@@ -88,11 +88,13 @@ class NoteGroup {
 
     void deleteNoteGroup() {
         groupDataAccessor.deleteNoteGroupData();
-        if (myNoteGroupPanel != null) {
-            // Let the Panel know that its data has been deleted.  For a standard Panel this is just a no-op
-            //  because it is going away, but Panels that are NoteGroup Groups will want to 'know' so they
-            //  can do a bit of cleanup before they disappear.
-            myNoteGroupPanel.deletePanel();
+        if (groupDataAccessor.getFailureReason() == null) {
+            if (myNoteGroupPanel != null) {
+                // Let the Panel know that its data has been deleted.  For a standard Panel this is just a no-op
+                //  because it is going away, but Panels that are NoteGroup Groups will want to 'know' so they
+                //  can do a bit of cleanup before they disappear.
+                myNoteGroupPanel.deletePanel();
+            }
         }
     }
 

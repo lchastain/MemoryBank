@@ -1,0 +1,16 @@
+[ {
+  "zdtLastModString" : "2023-04-26T07:15:31.998683+04:00[Europe/Samara]",
+  "instanceId" : "f7bbbcc1-4885-41db-b047-b9c5eaf7abdd",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Monday, February 14, 2022"
+}, [ {
+  "zdtLastModString" : "2023-04-25T06:13:22.467911+04:00[Europe/Samara]",
+  "instanceId" : "d14e1fa5-1a3c-4a97-bb33-f74cac7d8e3f",
+  "noteString" : "Valentine's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "multiline" : false,
+  "iconFileString" : "icons/heart0c.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : ""
+} ] ]

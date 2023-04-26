@@ -1,0 +1,15 @@
+[ {
+  "instanceId" : "ed79704f-283f-4750-9352-00897a5dcda8",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Sunday, March 8, 2020"
+}, [ {
+  "zdtLastModString" : "2020-04-04T15:35:33.637+04:00[Europe/Samara]",
+  "instanceId" : "7476e7ae-3f8c-42a9-979c-c48351120f09",
+  "noteString" : "International Women's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "iconFileString" : "icons/simp18.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "00:00"
+} ] ]

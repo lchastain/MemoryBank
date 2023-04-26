@@ -1,0 +1,48 @@
+[ {
+  "zdtLastModString" : "2023-04-25T06:39:50.701477+04:00[Europe/Samara]",
+  "instanceId" : "28e78f9d-2401-4016-a81d-17ca7dc4e19a",
+  "groupType" : "GOAL_TODO",
+  "groupName" : "Retire by age 50",
+  "showPriority" : true,
+  "maxPriority" : 20,
+  "deadWidth" : 170,
+  "pHeader" : true,
+  "pFooter" : true,
+  "pBorder" : true,
+  "pCSpace" : true,
+  "pEText" : false,
+  "pPriority" : true,
+  "pDeadline" : false,
+  "pCutoff" : 99,
+  "lineSpace" : 1,
+  "whenNoKey" : 1,
+  "column1Label" : "Priority",
+  "column2Label" : "To Do Text",
+  "column3Label" : "Status",
+  "column4Label" : "Deadline",
+  "columnOrder" : 123
+}, [ {
+  "zdtLastModString" : "2023-04-25T06:39:30.047713+04:00[Europe/Samara]",
+  "instanceId" : "0afe6940-0bae-4438-b4e4-55fe348ad94c",
+  "noteString" : "Graduate and get a degree",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "intPriority" : 1,
+  "intStatus" : 3
+}, {
+  "zdtLastModString" : "2023-04-25T06:39:36.014180+04:00[Europe/Samara]",
+  "instanceId" : "e990b82d-9272-46a8-a92a-6f2154a5f5dd",
+  "noteString" : "Get a good-paying job",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "intPriority" : 3,
+  "intStatus" : 4
+}, {
+  "zdtLastModString" : "2023-04-25T06:39:48.243256+04:00[Europe/Samara]",
+  "instanceId" : "2d915856-6bad-46ca-9dbd-07e5277b4bcc",
+  "noteString" : "Pay off student loans",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "intPriority" : 4,
+  "intStatus" : 4
+} ] ]

@@ -1,0 +1,16 @@
+[ {
+  "zdtLastModString" : "2023-04-26T07:15:41.064842+04:00[Europe/Samara]",
+  "instanceId" : "6f7474bd-5058-475c-bfb7-0fc5bf7c736a",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Thursday, November 25, 2021"
+}, [ {
+  "zdtLastModString" : "2023-04-25T06:13:22.465543+04:00[Europe/Samara]",
+  "instanceId" : "8300e522-940c-4c16-a16a-3e23f3d92fd4",
+  "noteString" : "Thanksgiving",
+  "subjectString" : "Event",
+  "extendedNoteString" : "Holiday\n",
+  "multiline" : false,
+  "iconFileString" : "icons/hatchet.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : ""
+} ] ]

@@ -1,0 +1,16 @@
+[ {
+  "zdtLastModString" : "2023-04-26T07:15:53.938748+04:00[Europe/Samara]",
+  "instanceId" : "564c4faf-414e-45fc-bbbd-d482772cc05e",
+  "groupType" : "DAY_NOTES",
+  "groupName" : "Monday, March 8, 2021"
+}, [ {
+  "zdtLastModString" : "2023-04-25T08:11:46.384949+04:00[Europe/Samara]",
+  "instanceId" : "980bb65c-c00d-4009-bc95-c4b79210035a",
+  "noteString" : "International Women's Day",
+  "subjectString" : "Event",
+  "extendedNoteString" : "",
+  "multiline" : false,
+  "iconFileString" : "icons/simp18.gif",
+  "showIconOnMonthBoolean" : true,
+  "timeOfDayString" : "00:00"
+} ] ]
