@@ -132,6 +132,16 @@ public class TodoNoteGroupPanel extends NoteGroupPanel implements DateSelection 
             TodoNoteData tnd = (TodoNoteData) (tNoteComponent.getNoteData());
             tnd.setTodoDate(ld);
             tNoteComponent.setTodoNoteData(tnd);
+
+            // Not seen with WindowsClassicLookAndFeel on Windows, but at this
+            //   point with the Metal L&F on a Mac, when there are back-to-back
+            //   selections on different months of the TMC, occasionally the text field
+            //   becomes un-highlighted.  However, the next line does not help, so
+            //   the cause and solution must be elsewhere.  But currently, with all
+            //   the AWT threading and event firing, debug tracing is not helping and I
+            //   do not know where else to look.  So - the decision is to see if we can
+            //   just live with it as-is.  Definitely a low-occurrence condition.
+            //tNoteComponent.getNoteTextComponent().setBorder(NoteComponent.redBorder);
         }
     } // end dateSelected
 

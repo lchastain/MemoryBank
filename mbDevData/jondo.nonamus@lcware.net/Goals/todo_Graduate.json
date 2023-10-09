@@ -1,5 +1,5 @@
 [ {
-  "zdtLastModString" : "2022-04-07T07:44:43.157016300+04:00[Europe/Samara]",
+  "zdtLastModString" : "2023-04-28T14:14:04.336848+04:00[Europe/Samara]",
   "instanceId" : "a1d603c5-8520-4bca-b23a-468d63e9ba1d",
   "groupType" : "GOAL_TODO",
   "groupName" : "Graduate",
@@ -26,13 +26,16 @@
   "instanceId" : "6818dcfc-7a4b-4a08-8268-565d10f9a252",
   "noteString" : "Get enough money to pay for tuition and books",
   "extendedNoteString" : "",
+  "multiline" : false,
   "intPriority" : 1,
   "intStatus" : 0
 }, {
-  "zdtLastModString" : "2022-04-07T07:42:58.945149600+04:00[Europe/Samara]",
+  "zdtLastModString" : "2023-04-28T14:14:04.335048+04:00[Europe/Samara]",
   "instanceId" : "5bbd9ce4-32f3-4a8d-81a9-af2cea0eb287",
   "noteString" : "Register for sophomore year",
   "extendedNoteString" : "",
+  "multiline" : false,
+  "todoDateString" : "2023-04-17",
   "intPriority" : 1,
   "intStatus" : 0
 }, {
@@ -40,6 +43,7 @@
   "instanceId" : "9d9e8092-9184-40bf-a196-932aa5a19737",
   "noteString" : "Decide on address - dorm, off-campus, or stay home",
   "extendedNoteString" : "",
+  "multiline" : false,
   "intPriority" : 2,
   "intStatus" : 0
 } ] ]

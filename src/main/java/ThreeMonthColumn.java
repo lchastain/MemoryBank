@@ -24,13 +24,13 @@ public class ThreeMonthColumn extends JPanel {
     private static final int UP = 1002;
 
     // Required for use by 'static' section -
-    private static String[] monthNames;
-    private static String[] weekNames;
+    private static final String[] monthNames;
+    private static final String[] weekNames;
 
     // Variables needed by more than one method -
     private LocalDate theChoice;            // constructor, event handling, numerous
     private DayLabel dayLabel;      // recalc, event handling
-    private MonthColumn monthColumn;
+    private final MonthColumn monthColumn;
 
     private LocalDate baseDate;
     private DateSelection twimc; // To Whom It May Concern - the subscriber.
@@ -246,23 +246,18 @@ public class ThreeMonthColumn extends JPanel {
 
         void showAlterButtons(int which) {
             switch (which) {
-                case BOTH:
+                case BOTH -> {
                     downAb.setVisible(true);
                     upAb.setVisible(true);
-                    break;
-                case DOWN:
-                    downAb.setVisible(true);
-                    break;
-                case UP:
-                    upAb.setVisible(true);
-                    break;
+                }
+                case DOWN -> downAb.setVisible(true);
+                case UP -> upAb.setVisible(true);
             } // end switch
         } // end showAlterButtons
 
         public void recalc(LocalDate theBaseDate) {
             DayLabel tmpDayLabel;
-            boolean firstTime = false;  // first time?
-            if (monthGridPanel.getComponentCount() == 0) firstTime = true;
+            boolean firstTime = monthGridPanel.getComponentCount() == 0;
 
             // Generate new title with month and year.
             int theMonth = theBaseDate.getMonthValue() - 1;
@@ -335,13 +330,13 @@ public class ThreeMonthColumn extends JPanel {
         private static final long serialVersionUID = 1L; // Demanded by JLabel
 
         int day;
-        LocalDate myDate;
+        LocalDate myLocalDate;
 
         DayLabel(LocalDate cal) {
             this();
-            myDate = cal;
+            myLocalDate = cal;
             addMouseListener(this);
-            day = myDate.getDayOfMonth();
+            day = myLocalDate.getDayOfMonth();
             setText(String.valueOf(day));
         } // end constructor
 
@@ -354,7 +349,7 @@ public class ThreeMonthColumn extends JPanel {
 
         public void highlight() {
             setForeground(Color.red);
-            setFont(Font.decode("Dialog-bold-18"));
+            setFont(Font.decode("Dialog-bold-16"));
         } // end highlight
 
         public void reset() {
@@ -364,13 +359,13 @@ public class ThreeMonthColumn extends JPanel {
 
         public void setDay(LocalDate ld) {
             if (ld == null) {
-                myDate = null;
+                myLocalDate = null;
                 removeMouseListener(this);
                 setText("");
             } else {
-                myDate = ld;
+                myLocalDate = ld;
                 addMouseListener(this);
-                day = myDate.getDayOfMonth();
+                day = myLocalDate.getDayOfMonth();
                 setText(String.valueOf(day));
             }
         } // end setDay
@@ -385,7 +380,7 @@ public class ThreeMonthColumn extends JPanel {
         }
 
         public void mousePressed(MouseEvent e) {
-            theChoice = myDate;
+            theChoice = myLocalDate;
             // System.out.println("Choice is: " + choice);
             // System.out.println("dcal is: " + dcal.getTime());
 
@@ -404,7 +399,6 @@ public class ThreeMonthColumn extends JPanel {
             } // end if
 
             if (twimc != null) {
-//                assert theChoice != null;     THIS has not been working; needed the VM option, to enable.  Now - it complains.  So instead -
                 if(theChoice != null) twimc.dateSelected(theChoice);
             }
 
