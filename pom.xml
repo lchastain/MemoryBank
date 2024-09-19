@@ -7,6 +7,7 @@
     <groupId>lcware.memorybank</groupId>
     <artifactId>MemoryBank</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <!-- test of github connection -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
