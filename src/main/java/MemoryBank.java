@@ -226,8 +226,20 @@ public class MemoryBank {
 
         // Hold our place in line, on the taskbar.
         logFrame = new JFrame("Memory Bank:");
-        logFrame.setLocation(-1000, -1000);  // Offscreen; not ready to be seen, yet.
-        logFrame.setVisible(true);
+//        logFrame.setLocation(-1000, -1000);  // Offscreen; not ready to be seen, yet.
+//        logFrame.setVisible(true);
+
+        ImageIcon myIconImage = new IconInfo(DataArea.IMAGES, "MemBank", "png").getImageIcon();
+        Taskbar taskbar = Taskbar.getTaskbar();
+
+        try {
+            //set icon for mac os (and other systems which do support this method)
+            taskbar.setIconImage(myIconImage.getImage());
+        } catch (final UnsupportedOperationException e) {
+            System.out.println("The os does not support: 'taskbar.setIconImage'");
+        } catch (final SecurityException e) {
+            System.out.println("There was a security exception for: 'taskbar.setIconImage'");
+        }
 
         //---------------------------------------------------------------
         // Splash Screen

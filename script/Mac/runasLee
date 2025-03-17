@@ -1,0 +1,15 @@
+#!/bin/ksh
+
+osascript -e 'tell application "Terminal" to set miniaturized of front window to true'
+
+pwd
+
+cd ~/workspace/"Memory Bank"
+java -Dtiming -Ddebug -classpath mbank.jar:jars/* MemoryBank lee@doughmain.net
+
+
+
+
+
+
+
