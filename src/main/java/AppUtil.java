@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.File;
@@ -39,8 +40,17 @@ public class AppUtil {
     // are hardcoded.
     // -------------------------------------------------------------
     static String getTooltipString(String s) {
+        String theToolTip = s;
+        StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(s);
+        if (sdd != null) {
+            JTextPane jtp = new JTextPane();
+            DefaultStyledDocument dsd = (DefaultStyledDocument) jtp.getStyledDocument();
+            sdd.fillStyledDocument(dsd);
+            theToolTip = jtp.getText();
+        }
+
         StringBuilder theTooltipString = new StringBuilder();
-        String[] strings = s.split("\n");
+        String[] strings = theToolTip.split("\n");
         int maxColumns = 60;
         int maxLines = 22;
         int lineCount = 0;
@@ -202,23 +212,15 @@ public class AppUtil {
     // to updating the app to new Java 8 date/time classes.
     // TODO - refactor all usages of this method to use getDayOfWeek, remove this one.
     static int getDayOfWeekInt(LocalDate tmpDate) {
-        switch (tmpDate.getDayOfWeek()) {
-            case SUNDAY:
-                return 1;
-            case MONDAY:
-                return 2;
-            case TUESDAY:
-                return 3;
-            case WEDNESDAY:
-                return 4;
-            case THURSDAY:
-                return 5;
-            case FRIDAY:
-                return 6;
-            case SATURDAY:
-                return 7;
-        }
-        return -1;
+        return switch (tmpDate.getDayOfWeek()) {
+            case SUNDAY -> 1;
+            case MONDAY -> 2;
+            case TUESDAY -> 3;
+            case WEDNESDAY -> 4;
+            case THURSDAY -> 5;
+            case FRIDAY -> 6;
+            case SATURDAY -> 7;
+        };
     }
 
 } // end class AppUtil

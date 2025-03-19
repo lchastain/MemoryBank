@@ -292,7 +292,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         if(subjectEditor != null) subjectEditor.setSubject(noteData.getSubjectString());
 
         // Is the current/original extendedNoteString a JSON string of StyledDocumentData?
-        // If so, turn it into a StyledDocumentData object.  Otherwise it will be null.
+        // If so, turn it into a StyledDocumentData object.  Otherwise, it will be null.
         StyledDocumentData sdd = StyledDocumentData.getStyledDocumentData(origExtendedNoteString);
 
         // Present the NoteData in the appropriate modal dialog
