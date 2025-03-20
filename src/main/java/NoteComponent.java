@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -997,7 +996,6 @@ public class NoteComponent extends JPanel {
             }
         }
 
-
         void resetToolTip(NoteData nd) {
             if (nd == null) return;
 
@@ -1143,11 +1141,15 @@ public class NoteComponent extends JPanel {
             NoteComponent.this.scrollRectToVisible(getBounds());  // Does this scroll text on the line, or the line in the scrollpane?
             if (mySelectionMonitor != null) mySelectionMonitor.noteSelected();
 
-            // We occasionally get a null pointer exception at startup.
-            if (getCaret() == null) return;
-// trying to disable the pre-highlighted text seen in todo lists.  Need to consistently reproduce, first.
-//            setSelectionStart(getSelectionEnd());
-            getCaret().setVisible(true);
+            // To disable the pre-highlighted text seen when the first char is typed
+            //   into a new note, and when a pre-existing note gains focus.
+            // Without the invoke-later delay, the unwanted selection would be done after this.
+            SwingUtilities.invokeLater(() -> {
+                setSelectionStart(getSelectionEnd());
+//                    // We occasionally get a null pointer exception at startup.
+//                    if (getCaret() == null) return;
+//                    getCaret().setVisible(true);
+            });
 
             if (!initialized) return;
             noteActivated(true);
