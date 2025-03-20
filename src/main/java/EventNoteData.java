@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.text.WordUtils;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,15 +14,6 @@ import java.util.Objects;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class EventNoteData extends IconNoteData {
-    // Capturing these values from the old Calendar class, as it goes away -
-    private static final int SUNDAY = 1;
-    private static final int MONDAY = 2;
-    private static final int TUESDAY = 3;
-    private static final int WEDNESDAY = 4;
-    private static final int THURSDAY = 5;
-    private static final int FRIDAY = 6;
-    private static final int SATURDAY = 7;
-
     private String locationString;
 
     private String eventStartDateString = null;
@@ -36,7 +28,7 @@ public class EventNoteData extends IconNoteData {
     // But if Duration was entered by the user and as a result one or more of the Date/Time
     // fields was calculated and set, then we don't want to also do a duration
     // recalculation.  This var is used to stop that from happening.
-    static transient boolean settingDuration = false;
+    static boolean settingDuration = false;
 
     // These two are set by the recalcDuration method via the Date/Time setters, and
     // they share their 'get' methods with durationValue and durationUnits.
@@ -246,27 +238,13 @@ public class EventNoteData extends IconNoteData {
                 strRecurSummary += "Repeats on " + intDayCount + " days of the week at ";
             } else {
                 switch (strDescription) {
-                    case "Su":
-                        strRecurSummary += "Repeats on Sundays at ";
-                        break;
-                    case "Mo":
-                        strRecurSummary += "Repeats on Mondays at ";
-                        break;
-                    case "Tu":
-                        strRecurSummary += "Repeats on Tuesdays at ";
-                        break;
-                    case "We":
-                        strRecurSummary += "Repeats on Wednesdays at ";
-                        break;
-                    case "Th":
-                        strRecurSummary += "Repeats on Thursdays at ";
-                        break;
-                    case "Fr":
-                        strRecurSummary += "Repeats on Fridays at ";
-                        break;
-                    case "Sa":
-                        strRecurSummary += "Repeats on Saturdays at ";
-                        break;
+                    case "Su" -> strRecurSummary += "Repeats on Sundays at ";
+                    case "Mo" -> strRecurSummary += "Repeats on Mondays at ";
+                    case "Tu" -> strRecurSummary += "Repeats on Tuesdays at ";
+                    case "We" -> strRecurSummary += "Repeats on Wednesdays at ";
+                    case "Th" -> strRecurSummary += "Repeats on Thursdays at ";
+                    case "Fr" -> strRecurSummary += "Repeats on Fridays at ";
+                    case "Sa" -> strRecurSummary += "Repeats on Saturdays at ";
                 }
             }
             strRecurSummary += strSetting.substring(1, intUnderscore1);
@@ -467,45 +445,40 @@ public class EventNoteData extends IconNoteData {
         int intUnderscore2 = recurrenceString.lastIndexOf('_');
 
         // Calculate the proposed new start date
-//        calTmp.setTime(dateEventStart);
         LocalDate futureDate = theStartDate;
         if (recurrenceString.startsWith("D")) {
             intTheInterval = Integer.parseInt(recurrenceString.substring(1, intUnderscore1));
-//            calTmp.setNotes(Calendar.DATE, intTheInterval);
             futureDate = futureDate.plusDays(intTheInterval);
         } else if (recurrenceString.startsWith("W")) {
             strDescription = recurrenceString.substring(intUnderscore1 + 1, intUnderscore2);
             intTheInterval = Integer.parseInt(recurrenceString.substring(1, intUnderscore1));
 
-            int intTmp;
             while (true) {
                 // If we are at the end of the week, jump the
                 //   interval before we add another day.
                 // ok, doing that, but why?  need better comment here.
-                intTmp = AppUtil.getDayOfWeekInt(futureDate);
-                if (intTmp == SATURDAY) {
-                    if (intTheInterval > 1) futureDate = futureDate.plusDays(7 * (intTheInterval - 1));
+                DayOfWeek dow = futureDate.getDayOfWeek();
+                if (dow == DayOfWeek.SATURDAY) {
+                    if (intTheInterval > 1) futureDate = futureDate.plusDays(7L * (intTheInterval - 1));
                 } // end if
 
-//                calTmp.setNotes(Calendar.DATE, 1); // Add one day.
                 futureDate = futureDate.plusDays(1);
 
                 // Now check to see if it 'counts'.
-//                intTmp = calTmp.get(Calendar.DAY_OF_WEEK);
-                intTmp = AppUtil.getDayOfWeekInt(futureDate);
-                if (intTmp == SUNDAY) {
+                dow = futureDate.getDayOfWeek();
+                if (dow == DayOfWeek.SUNDAY) {
                     if (strDescription.contains("Su")) break;
-                } else if (intTmp == MONDAY) {
+                } else if (dow == DayOfWeek.MONDAY) {
                     if (strDescription.contains("Mo")) break;
-                } else if (intTmp == TUESDAY) {
+                } else if (dow == DayOfWeek.TUESDAY) {
                     if (strDescription.contains("Tu")) break;
-                } else if (intTmp == WEDNESDAY) {
+                } else if (dow == DayOfWeek.WEDNESDAY) {
                     if (strDescription.contains("We")) break;
-                } else if (intTmp == THURSDAY) {
+                } else if (dow == DayOfWeek.THURSDAY) {
                     if (strDescription.contains("Th")) break;
-                } else if (intTmp == FRIDAY) {
+                } else if (dow == DayOfWeek.FRIDAY) {
                     if (strDescription.contains("Fr")) break;
-                } else if (intTmp == SATURDAY) {
+                } else if (dow == DayOfWeek.SATURDAY) {
                     if (strDescription.contains("Sa")) break;
                 } // end testing to see if the day matters
             } // end while
@@ -584,11 +557,9 @@ public class EventNoteData extends IconNoteData {
 
         // Get our start day, for multiple uses below.
         String strWhichOne = "first";
-//        int intDayOfWeek = calTmp.get(Calendar.DAY_OF_WEEK);
-        int intDayOfWeek = AppUtil.getDayOfWeekInt(getStartDate());
+        DayOfWeek dow = getStartDate().getDayOfWeek();
 
         // Keep the last known 'good' date, as we scan forward.
-//        Date dateGood;
         LocalDate ldGood;
 
         // This calculation works for a simple numeric date and
@@ -616,20 +587,12 @@ public class EventNoteData extends IconNoteData {
                 // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
                 while (!strMonthPattern.toLowerCase().contains(strWhichOne)) {
-                    switch (strWhichOne) {
-                        case "first":
-                            strWhichOne = "second";
-                            break;
-                        case "second":
-                            strWhichOne = "third";
-                            break;
-                        case "third":
-                            strWhichOne = "fourth";
-                            break;
-                        default:
-                            strWhichOne = "keep going...";
-                            break;
-                    }
+                    strWhichOne = switch (strWhichOne) {
+                        case "first" -> "second";
+                        case "second" -> "third";
+                        case "third" -> "fourth";
+                        default -> "keep going...";
+                    };
 
 //                    calTmp.setNotes(Calendar.DATE, 1); // add a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
@@ -666,20 +629,12 @@ public class EventNoteData extends IconNoteData {
                 // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
                 while (!strMonthPattern.contains(strWhichOne)) {
-                    switch (strWhichOne) {
-                        case "first":
-                            strWhichOne = "second";
-                            break;
-                        case "second":
-                            strWhichOne = "third";
-                            break;
-                        case "third":
-                            strWhichOne = "fourth";
-                            break;
-                        default:
-                            strWhichOne = "keep going...";
-                            break;
-                    }
+                    strWhichOne = switch (strWhichOne) {
+                        case "first" -> "second";
+                        case "second" -> "third";
+                        case "third" -> "fourth";
+                        default -> "keep going...";
+                    };
 
 //                    calTmp.setNotes(Calendar.DATE, 1); // add a day
                     tmpFutureDate = tmpFutureDate.plusDays(1);
@@ -726,50 +681,28 @@ public class EventNoteData extends IconNoteData {
             } else {
                 // System.out.println("specific day");
                 // Now set the calendar to the first one in this month -
-//                calTmp.set(Calendar.DAY_OF_MONTH, 1);
                 LocalDate tmpFutureDate = futureDate.withDayOfMonth(1);
-//                while (calTmp.get(Calendar.DAY_OF_WEEK) != intDayOfWeek) {
-//                    calTmp.setNotes(Calendar.DATE, 1);
-//                } // end while
-                while (AppUtil.getDayOfWeekInt(tmpFutureDate) != intDayOfWeek) {
+                while (tmpFutureDate.getDayOfWeek() != dow) {
                     tmpFutureDate = tmpFutureDate.plusDays(1);
                 }
-                // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
                 while (!strMonthPattern.contains(strWhichOne)) {
-                    switch (strWhichOne) {
-                        case "first":
-                            strWhichOne = "second";
-                            break;
-                        case "second":
-                            strWhichOne = "third";
-                            break;
-                        case "third":
-                            strWhichOne = "fourth";
-                            break;
-                        default:
-                            strWhichOne = "keep going...";
-                            break;
-                    }
+                    strWhichOne = switch (strWhichOne) {
+                        case "first" -> "second";
+                        case "second" -> "third";
+                        case "third" -> "fourth";
+                        default -> "keep going...";
+                    };
 
-//                    dateGood = calTmp.getTime();
                     ldGood = tmpFutureDate;
-//                    calTmp.setNotes(Calendar.DATE, 7); // add a week
                     tmpFutureDate = tmpFutureDate.plusWeeks(1);
 
-                    // System.out.println(strWhichOne + " " + calTmp.getTime());
-//                    if (calTmp.get(Calendar.MONTH) != intMonth) {
-//                        // System.out.println("Shot past - resetting.");
-//                        calTmp.setTime(dateGood);
-//                        break;
-//                    } // end if
                     if (tmpFutureDate.getMonthValue() - 1 != intMonth) {
                         // System.out.println("Shot past - resetting.");
                         tmpFutureDate = ldGood;
                         break;
                     } // end if
                 } // end while
-//                dateTheEndDate = calTmp.getTime();
                 futureDate = tmpFutureDate;
             } // end if/else - general or specific or last
         }
@@ -1015,25 +948,17 @@ public class EventNoteData extends IconNoteData {
                 break;
             case END_TIME_KNOWN: // We can set the unknown Start Time
                 switch (theUnits) {
-                    case "Minutes":
-                        setStartTime(getEndTime().minusMinutes(durationValue));
-                        break;
-                    case "Hours":
-                        setStartTime(getEndTime().minusHours(durationValue));
-                        break;
-                    default:  // Working backwards in units of Days or Weeks, the time of day would be the same.
-                        setStartTime(getEndTime());
-                        break;
+                    case "Minutes" -> setStartTime(getEndTime().minusMinutes(durationValue));
+                    case "Hours" -> setStartTime(getEndTime().minusHours(durationValue));
+                    default ->  // Working backwards in units of Days or Weeks, the time of day would be the same.
+                            setStartTime(getEndTime());
                 }
                 break;
             case END_DATE_KNOWN: // We can set the unknown Start Date (maybe)
                 switch (theUnits) {
-                    case "Days":
-                        setStartDate(getEndDate().minusDays(durationValue));
-                        break;
-                    case "Weeks":
-                        setStartDate(getEndDate().minusWeeks(durationValue));
-                        break;
+                    case "Days" -> setStartDate(getEndDate().minusDays(durationValue));
+                    case "Weeks" -> setStartDate(getEndDate().minusWeeks(durationValue));
+
                     // Notes about Hours and Minutes
                     // Yes, the units are smaller than Days but the value may still
                     // be large enough that a number of days are involved.  So we can
@@ -1051,18 +976,18 @@ public class EventNoteData extends IconNoteData {
                     // hours or minutes to Days, there is NO remainder, then and only
                     // then can we use it to calculate the Start Date, otherwise just
                     // do not set a Start Date at all.
-                    case "Hours":
+                    case "Hours" -> {
                         theDays = durationValue / 24;
                         if (theDays > 0) {
                             if (durationValue % 24 == 0) setStartDate(getEndDate().minusDays(theDays));
                         }
-                        break;
-                    case "Minutes":
+                    }
+                    case "Minutes" -> {
                         theDays = durationValue / (24 * 60);
                         if (theDays > 0) {
                             if (durationValue % (24 * 60) == 0) setStartDate(getEndDate().minusDays(theDays));
                         }
-                        break;
+                    }
                 }
                 break;
             case (END_DATE_KNOWN + END_TIME_KNOWN): // We can set both unknown Start fields
@@ -1071,24 +996,24 @@ public class EventNoteData extends IconNoteData {
                 theEnd = getEventEndDateTime();
                 assert theEnd != null;  // We already know this; it's just to make IJ happy.
                 switch (theUnits) {
-                    case "Days":
+                    case "Days" -> {
                         setStartDate(getEndDate().minusDays(durationValue));
                         setStartTime(getEndTime());
-                        break;
-                    case "Weeks":
+                    }
+                    case "Weeks" -> {
                         setStartDate(getEndDate().minusWeeks(durationValue));
                         setStartTime(getEndTime());
-                        break;
-                    case "Hours":
+                    }
+                    case "Hours" -> {
                         theStart = theEnd.minusHours(durationValue);
                         setStartDate(theStart.toLocalDate());
                         setStartTime(theStart.toLocalTime());
-                        break;
-                    case "Minutes":
+                    }
+                    case "Minutes" -> {
                         theStart = theEnd.minusMinutes(durationValue);
                         setStartDate(theStart.toLocalDate());
                         setStartTime(theStart.toLocalTime());
-                        break;
+                    }
                 }
                 break;
             case START_TIME_KNOWN: // We can set the End Time
@@ -1102,16 +1027,9 @@ public class EventNoteData extends IconNoteData {
                 // Time.  But if the user has only increased the number of days in the
                 // duration then the end time will actually just stay the same anyway.
                 switch (theUnits) {
-                    case "Days":
-                    case "Weeks":
-                        setEndTime(getStartTime());
-                        break;
-                    case "Hours":
-                        setEndTime(getStartTime().plusHours(durationValue));
-                        break;
-                    case "Minutes":
-                        setEndTime(getStartTime().plusMinutes(durationValue));
-                        break;
+                    case "Days", "Weeks" -> setEndTime(getStartTime());
+                    case "Hours" -> setEndTime(getStartTime().plusHours(durationValue));
+                    case "Minutes" -> setEndTime(getStartTime().plusMinutes(durationValue));
                 }
                 break;
             case (START_TIME_KNOWN + END_DATE_KNOWN):  // We can set the remaining two values
@@ -1140,12 +1058,9 @@ public class EventNoteData extends IconNoteData {
                 // Date that is within that one-day window we can leave it alone but otherwise
                 // we will have to null it out.
                 switch (theUnits) {
-                    case "Days":
-                        setEndDate(getStartDate().plusDays(durationValue));
-                        break;
-                    case "Weeks":
-                        setEndDate(getStartDate().plusWeeks(durationValue));
-                        break;
+                    case "Days" -> setEndDate(getStartDate().plusDays(durationValue));
+                    case "Weeks" -> setEndDate(getStartDate().plusWeeks(durationValue));
+
                     // Notes about Hours and Minutes
                     // Yes, the units are smaller than Days but the value may still
                     // be large enough that a number of days are involved.  So we can
@@ -1164,40 +1079,38 @@ public class EventNoteData extends IconNoteData {
                     // then can we use it to calculate the End Date, otherwise leave it
                     // unknown, unless one had previously been set and it would be illogical
                     // to leave it that way given the new duration and known start.
-                    case "Hours":
+                    case "Hours" -> {
                         theDays = durationValue / 24;
-                            if ((durationValue % 24 == 0) && (theDays > 0))  { // Set (or override) the End Date
-                                setEndDate(getStartDate().plusDays(theDays));
-                            } else { // Has the End Date previously been set?
-                                LocalDate theEndDate = getEndDate();
-                                if (theEndDate != null) { // We will not use the imprecise duration to set a new End
-                                    // Date but we can check the existing End Date to see if it fits within the
-                                    // duration 'window'.  If so then we can just leave it alone.  Otherwise we need
-                                    // to null it out.
-                                    boolean nullit = true;
-                                    if (getStartDate().plusDays(theDays).equals(getEndDate())) nullit = false;
-                                    if (getStartDate().plusDays(theDays + 1).equals(getEndDate())) nullit = false;
-                                    if (nullit) setEndDate(null);
-                                }
+                        if ((durationValue % 24 == 0) && (theDays > 0)) { // Set (or override) the End Date
+                            setEndDate(getStartDate().plusDays(theDays));
+                        } else { // Has the End Date previously been set?
+                            LocalDate theEndDate = getEndDate();
+                            if (theEndDate != null) { // We will not use the imprecise duration to set a new End
+                                // Date but we can check the existing End Date to see if it fits within the
+                                // duration 'window'.  If so then we can just leave it alone.  Otherwise we need
+                                // to null it out.
+                                boolean nullit = !getStartDate().plusDays(theDays).equals(getEndDate());
+                                if (getStartDate().plusDays(theDays + 1).equals(getEndDate())) nullit = false;
+                                if (nullit) setEndDate(null);
                             }
-                        break;
-                    case "Minutes":
+                        }
+                    }
+                    case "Minutes" -> {
                         theDays = durationValue / (24 * 60);
-                            if ((durationValue % (24 * 60) == 0) && (theDays > 0)){ // Set (or override) the End Date
-                                setEndDate(getStartDate().plusDays(theDays));
-                            } else { // Has the End Date previously been set?
-                                LocalDate theEndDate = getEndDate();
-                                if (theEndDate != null) { // We will not use the imprecise duration to set a new End
-                                    // Date but we can check the existing End Date to see if it fits within the
-                                    // duration 'window'.  If so then we can just leave it alone.  Otherwise we need
-                                    // to null it out.
-                                    boolean nullit = true;
-                                    if (getStartDate().plusDays(theDays).equals(getEndDate())) nullit = false;
-                                    if (getStartDate().plusDays(theDays + 1).equals(getEndDate())) nullit = false;
-                                    if (nullit) setEndDate(null);
-                                }
+                        if ((durationValue % (24 * 60) == 0) && (theDays > 0)) { // Set (or override) the End Date
+                            setEndDate(getStartDate().plusDays(theDays));
+                        } else { // Has the End Date previously been set?
+                            LocalDate theEndDate = getEndDate();
+                            if (theEndDate != null) { // We will not use the imprecise duration to set a new End
+                                // Date but we can check the existing End Date to see if it fits within the
+                                // duration 'window'.  If so then we can just leave it alone.  Otherwise we need
+                                // to null it out.
+                                boolean nullit = !getStartDate().plusDays(theDays).equals(getEndDate());
+                                if (getStartDate().plusDays(theDays + 1).equals(getEndDate())) nullit = false;
+                                if (nullit) setEndDate(null);
                             }
-                        break;
+                        }
+                    }
                 }
                 break;
             case (START_DATE_KNOWN + END_TIME_KNOWN):
@@ -1217,24 +1130,24 @@ public class EventNoteData extends IconNoteData {
             case ALL_KNOWN: // We will override the End Date and End Time
                 theStart = getEventStartDateTime();
                 switch (theUnits) {
-                    case "Days":
+                    case "Days" -> {
                         setEndDate(getStartDate().plusDays(durationValue));
                         setEndTime(getStartTime());
-                        break;
-                    case "Weeks":
+                    }
+                    case "Weeks" -> {
                         setEndDate(getStartDate().plusWeeks(durationValue));
                         setEndTime(getStartTime());
-                        break;
-                    case "Hours":
+                    }
+                    case "Hours" -> {
                         theStart = theStart.plusHours(durationValue);
                         setEndDate(theStart.toLocalDate());
                         setEndTime(theStart.toLocalTime());
-                        break;
-                    case "Minutes":
+                    }
+                    case "Minutes" -> {
                         theStart = theStart.plusMinutes(durationValue);
                         setEndDate(theStart.toLocalDate());
                         setEndTime(theStart.toLocalTime());
-                        break;
+                    }
                 }
                 break;
         }
@@ -1242,23 +1155,13 @@ public class EventNoteData extends IconNoteData {
     }
 
     private int durationToMinutes(int durationValue, String theUnits) {
-        int theMinutes = 0;
-
-        switch (theUnits) {
-            case "Minutes":
-                theMinutes = durationValue;
-                break;
-            case "Hours":
-                theMinutes = durationValue * 60;
-                break;
-            case "Days":
-                theMinutes = durationValue * 60 * 24;
-                break;
-            case "Weeks":
-                theMinutes = durationValue * 60 * 24 * 7;
-                break;
-        }
-        return theMinutes;
+        return switch (theUnits) {
+            case "Minutes" -> durationValue;
+            case "Hours" -> durationValue * 60;
+            case "Days" -> durationValue * 60 * 24;
+            case "Weeks" -> durationValue * 60 * 24 * 7;
+            default -> 0;
+        };
     }
 
 // Found no usages of this, so disabled, for now (10 Nov 2020).  It overrides the one in BaseData, unused except for this.

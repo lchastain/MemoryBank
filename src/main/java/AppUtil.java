@@ -11,7 +11,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,24 +202,6 @@ public class AppUtil {
             e.printStackTrace();
         }
         return theJson;
-    }
-
-
-    // This is my own conversion, to numbers that matched these
-    // that were being returned by Calendar queries, now deprecated.
-    // I put this in place as a temporary remediation along the way
-    // to updating the app to new Java 8 date/time classes.
-    // TODO - refactor all usages of this method to use getDayOfWeek, remove this one.
-    static int getDayOfWeekInt(LocalDate tmpDate) {
-        return switch (tmpDate.getDayOfWeek()) {
-            case SUNDAY -> 1;
-            case MONDAY -> 2;
-            case TUESDAY -> 3;
-            case WEDNESDAY -> 4;
-            case THURSDAY -> 5;
-            case FRIDAY -> 6;
-            case SATURDAY -> 7;
-        };
     }
 
 } // end class AppUtil

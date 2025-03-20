@@ -265,17 +265,22 @@ public class ThreeMonthColumn extends JPanel {
             String labelText = monthNames[theMonth] + " " + theYear;
             monthLabel.setText(labelText);
 
-            // Get the day of the week of the first day.
+            // Get the day of the week of the first day of the month.
             LocalDate tmpDate = theBaseDate.withDayOfMonth(1);
-            int dayOfWeek = AppUtil.getDayOfWeekInt(tmpDate);
-            int month = tmpDate.getMonthValue() - 1;
+            int dow = tmpDate.getDayOfWeek().getValue();
 
+            // Normalize Java's Day of Week numbering from Mon-Sun to Sun-Sat, for 1 to 7.
+            // This is needed so that it matches with Sunday being the first day of a (US) calendar week.
+            if (dow == 7) dow = 1;
+            else dow++
+                    ;
+            int month = tmpDate.getMonthValue() - 1;
             boolean rollover = false;
 
             // Add the days.  Enough room for 31 days across 6 rows.
             for (int i = 1; i <= 37; i++) {
                 // 'blank' days in the first week, before the 1st.
-                if (i < dayOfWeek) {
+                if (i < dow) {
                     if (firstTime) monthGridPanel.add(new DayLabel());
                     else ((DayLabel) monthGridPanel.getComponent(i - 1)).setDay(null);
                     continue;

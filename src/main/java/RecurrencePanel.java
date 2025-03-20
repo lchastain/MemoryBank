@@ -99,28 +99,24 @@ public class RecurrencePanel extends JPanel implements
 
         // System.out.println(strSource);
         switch (strSource) {
-            case "txtfDayInterval":
+            case "txtfDayInterval" -> {
                 rbtnDay.setSelected(true);
                 txtfDayInterval.requestFocus();
-                break;
-            case "txtfWeekInterval":
+            }
+            case "txtfWeekInterval" -> {
                 rbtnWeek.setSelected(true);
                 txtfWeekInterval.requestFocus();
-                break;
-            case "txtfMonthInterval":
+            }
+            case "txtfMonthInterval" -> {
                 rbtnMonth.setSelected(true);
                 txtfMonthInterval.requestFocus();
-                break;
-            case "txtfStopAfter":
+            }
+            case "txtfStopAfter" -> {
                 rbtnStopAfter.setSelected(true);
                 txtfStopAfter.requestFocus();
-                break;
-            case "comboxMonth":
-                rbtnMonth.setSelected(true);
-                break;
-            case "comboxYear":
-                rbtnYear.setSelected(true);
-                break;
+            }
+            case "comboxMonth" -> rbtnMonth.setSelected(true);
+            case "comboxYear" -> rbtnYear.setSelected(true);
         }
     } // end focusGained
 
@@ -151,7 +147,7 @@ public class RecurrencePanel extends JPanel implements
 
         // Get our start day, for multiple uses below.
         String strWhichOne = "first";
-        int intDayOfWeek = AppUtil.getDayOfWeekInt(dateStart);
+        DayOfWeek dow = dateStart.getDayOfWeek();
 
         // Keep the last known 'good' date, as we scan forward.
         LocalDate dateGood;
@@ -179,20 +175,12 @@ public class RecurrencePanel extends JPanel implements
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
             while (!strMonthPattern.toLowerCase().contains(strWhichOne)) {
-                switch (strWhichOne) {
-                    case "first":
-                        strWhichOne = "second";
-                        break;
-                    case "second":
-                        strWhichOne = "third";
-                        break;
-                    case "third":
-                        strWhichOne = "fourth";
-                        break;
-                    default:
-                        strWhichOne = "keep going...";
-                        break;
-                }
+                strWhichOne = switch (strWhichOne) {
+                    case "first" -> "second";
+                    case "second" -> "third";
+                    case "third" -> "fourth";
+                    default -> "keep going...";
+                };
 
                 dateTheEndDate = dateTheEndDate.plusDays(1);
 
@@ -218,20 +206,12 @@ public class RecurrencePanel extends JPanel implements
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
             while (!strMonthPattern.contains(strWhichOne)) {
-                switch (strWhichOne) {
-                    case "first":
-                        strWhichOne = "second";
-                        break;
-                    case "second":
-                        strWhichOne = "third";
-                        break;
-                    case "third":
-                        strWhichOne = "fourth";
-                        break;
-                    default:
-                        strWhichOne = "keep going...";
-                        break;
-                }
+                strWhichOne = switch (strWhichOne) {
+                    case "first" -> "second";
+                    case "second" -> "third";
+                    case "third" -> "fourth";
+                    default -> "keep going...";
+                };
 
 //                calTmp.setNotes(Calendar.DATE, 1); // add a day
                 dateTheEndDate = dateTheEndDate.plusDays(1);
@@ -273,26 +253,18 @@ public class RecurrencePanel extends JPanel implements
             // System.out.println("specific day");
             // Now set the calendar to the first one in this month -
             dateTheEndDate = dateTheEndDate.withDayOfMonth(1);
-            while (AppUtil.getDayOfWeekInt(dateTheEndDate) != intDayOfWeek) {
+            while (dateTheEndDate.getDayOfWeek() != dow) {
                 dateTheEndDate = dateTheEndDate.plusDays(1);
             } // end while
             // System.out.println("Adjusted to correct day: " + calTmp.getTime());
 
             while (!strMonthPattern.contains(strWhichOne)) {
-                switch (strWhichOne) {
-                    case "first":
-                        strWhichOne = "second";
-                        break;
-                    case "second":
-                        strWhichOne = "third";
-                        break;
-                    case "third":
-                        strWhichOne = "fourth";
-                        break;
-                    default:
-                        strWhichOne = "keep going...";
-                        break;
-                }
+                strWhichOne = switch (strWhichOne) {
+                    case "first" -> "second";
+                    case "second" -> "third";
+                    case "third" -> "fourth";
+                    default -> "keep going...";
+                };
 
                 dateGood = dateTheEndDate;
                 dateTheEndDate = dateTheEndDate.plusWeeks(1);
@@ -984,31 +956,31 @@ public class RecurrencePanel extends JPanel implements
             while (intTmp > 0) {
                 tmpDate = tmpDate.plusDays(1);
                 switch (tmpDate.getDayOfWeek()) {
-                    case SUNDAY:
+                    case SUNDAY -> {
                         if (chkboxSunday.isSelected()) intTmp--;
-                        break;
-                    case MONDAY:
+                    }
+                    case MONDAY -> {
                         if (chkboxMonday.isSelected()) intTmp--;
-                        break;
-                    case TUESDAY:
+                    }
+                    case TUESDAY -> {
                         if (chkboxTuesday.isSelected()) intTmp--;
-                        break;
-                    case WEDNESDAY:
+                    }
+                    case WEDNESDAY -> {
                         if (chkboxWednesday.isSelected()) intTmp--;
-                        break;
-                    case THURSDAY:
+                    }
+                    case THURSDAY -> {
                         if (chkboxThursday.isSelected()) intTmp--;
-                        break;
-                    case FRIDAY:
+                    }
+                    case FRIDAY -> {
                         if (chkboxFriday.isSelected()) intTmp--;
-                        break;
-                    case SATURDAY:
+                    }
+                    case SATURDAY -> {
                         if (chkboxSaturday.isSelected()) intTmp--;
 
                         // Jump the (rest of the) interval
 //                        if (intTmp > 0) calTmp.setNotes(Calendar.DATE, 7 * (interval - 1));
                         if (intTmp > 0) tmpDate = tmpDate.plusWeeks(interval - 1);
-                        break;
+                    }
                 } // end switch
 
             } // end while still more to go
@@ -1028,31 +1000,31 @@ public class RecurrencePanel extends JPanel implements
                 // Adjust the count for one week
                 tmpDate = tmpDate.plusDays(1);
                 switch (tmpDate.getDayOfWeek()) {
-                    case SUNDAY:
+                    case SUNDAY -> {
                         if (chkboxSunday.isSelected()) intStopAfter++;
-                        break;
-                    case MONDAY:
+                    }
+                    case MONDAY -> {
                         if (chkboxMonday.isSelected()) intStopAfter++;
-                        break;
-                    case TUESDAY:
+                    }
+                    case TUESDAY -> {
                         if (chkboxTuesday.isSelected()) intStopAfter++;
-                        break;
-                    case WEDNESDAY:
+                    }
+                    case WEDNESDAY -> {
                         if (chkboxWednesday.isSelected()) intStopAfter++;
-                        break;
-                    case THURSDAY:
+                    }
+                    case THURSDAY -> {
                         if (chkboxThursday.isSelected()) intStopAfter++;
-                        break;
-                    case FRIDAY:
+                    }
+                    case FRIDAY -> {
                         if (chkboxFriday.isSelected()) intStopAfter++;
-                        break;
-                    case SATURDAY:
+                    }
+                    case SATURDAY -> {
                         if (chkboxSaturday.isSelected()) intStopAfter++;
 
                         // Jump the (rest of the) interval
 //                        if (calTmp.getTime().before(dateStopBy)) calTmp.setNotes(Calendar.DATE, 7 * (interval - 1));
                         if (tmpDate.isBefore(dateStopBy)) tmpDate = tmpDate.plusWeeks(interval - 1);
-                        break;
+                    }
                 } // end switch
 
             } // end while
@@ -1331,7 +1303,7 @@ public class RecurrencePanel extends JPanel implements
 
         tmpDate = dateStart;
         switch (intWeeksBefore) {
-            case 0: // This is the 1st week
+            case 0 -> { // This is the 1st week
                 strDate = "the first " + strDay;
                 comboxMonth.addItem(strDate);
                 comboxYear.addItem(strDate + " in " + strMonth);
@@ -1372,32 +1344,33 @@ public class RecurrencePanel extends JPanel implements
                     } while (tmpDate.getMonthValue() - 1 == intMonth);
                     intDate -= intOffset;
                     switch (intDate) {
-                        case 1:
+                        case 1 -> {
                             strDate = "the first weekday";
                             comboxMonth.addItem(strDate);
                             comboxYear.addItem(strDate + " in " + strMonth);
-                            break;
-                        case 2:
+                        }
+                        case 2 -> {
                             strDate = "the second weekday";
                             comboxMonth.addItem(strDate);
                             comboxYear.addItem(strDate + " in " + strMonth);
-                            break;
-                        case 3:
+                        }
+                        case 3 -> {
                             strDate = "the third weekday";
                             comboxMonth.addItem(strDate);
                             comboxYear.addItem(strDate + " in " + strMonth);
-                            break;
-                        case 4:
+                        }
+                        case 4 -> {
                             strDate = "the fourth weekday";
                             comboxMonth.addItem(strDate);
                             comboxYear.addItem(strDate + " in " + strMonth);
-                            break;
-                        default: // do nothing for weekdays 5,6,7.
+                        }
+                        default -> {
+                        } // do nothing for weekdays 5,6,7.
                     } // end switch
 
                 }
-                break;
-            case 1: // This is the 2nd week
+            }
+            case 1 -> { // This is the 2nd week
                 strDate = "the second " + strDay;
                 comboxMonth.addItem(strDate);
                 comboxYear.addItem(strDate + " in " + strMonth);
@@ -1423,13 +1396,13 @@ public class RecurrencePanel extends JPanel implements
                         comboxYear.addItem(strDate + " in " + strMonth);
                     }
                 } // end if a weekend day
-                break;
-            case 2: // This is the 3rd week
+            }
+            case 2 -> { // This is the 3rd week
                 strDate = "the third " + strDay;
                 comboxMonth.addItem(strDate);
                 comboxYear.addItem(strDate + " in " + strMonth);
-                break;
-            case 3: // This is the 4th (and also last? week)
+            }
+            case 3 -> { // This is the 4th (and also last? week)
                 strDate = "the fourth " + strDay;
                 comboxMonth.addItem(strDate);
                 comboxYear.addItem(strDate + " in " + strMonth);
@@ -1437,13 +1410,13 @@ public class RecurrencePanel extends JPanel implements
                 // Check to see if there is another week this month.
                 tmpDate = tmpDate.plusWeeks(1);
                 if (tmpDate.getMonthValue() - 1 != intMonth) blnLastWeek = true;
+            }
+            case 4 -> // This is the last (5th) week.
+                    blnLastWeek = true;
 
-                break;
-            case 4: // This is the last (5th) week.
-                blnLastWeek = true;
-                // We handle this case separately so that the variation on
-                //   case 3 above can also participate.  Originally written as
-                //   a case fallthru but the -Xlint compiler whined too much.
+            // We handle this case separately so that the variation on
+            //   case 3 above can also participate.  Originally written as
+            //   a case fallthru but the -Xlint compiler whined too much.
         } // end switch
 
         if (blnLastWeek) {
@@ -1570,10 +1543,9 @@ public class RecurrencePanel extends JPanel implements
     private void shuffleDays() {
         // Interpret the dateStart Day
         switch (dateStart.getDayOfWeek()) {
-            case SUNDAY:
+            case SUNDAY -> {
                 chkboxSunday.setSelected(true);
                 chkboxSunday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.backColor);
                 chkboxMonday.setBackground(EventEditorPanel.futureColor);
                 chkboxTuesday.setBackground(EventEditorPanel.futureColor);
@@ -1581,11 +1553,10 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.futureColor);
                 chkboxFriday.setBackground(EventEditorPanel.futureColor);
                 chkboxSaturday.setBackground(EventEditorPanel.futureColor);
-                break;
-            case MONDAY:
+            }
+            case MONDAY -> {
                 chkboxMonday.setSelected(true);
                 chkboxMonday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.pastColor);
                 chkboxMonday.setBackground(EventEditorPanel.backColor);
                 chkboxTuesday.setBackground(EventEditorPanel.futureColor);
@@ -1593,11 +1564,10 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.futureColor);
                 chkboxFriday.setBackground(EventEditorPanel.futureColor);
                 chkboxSaturday.setBackground(EventEditorPanel.futureColor);
-                break;
-            case TUESDAY:
+            }
+            case TUESDAY -> {
                 chkboxTuesday.setSelected(true);
                 chkboxTuesday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.pastColor);
                 chkboxMonday.setBackground(EventEditorPanel.pastColor);
                 chkboxTuesday.setBackground(EventEditorPanel.backColor);
@@ -1605,11 +1575,10 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.futureColor);
                 chkboxFriday.setBackground(EventEditorPanel.futureColor);
                 chkboxSaturday.setBackground(EventEditorPanel.futureColor);
-                break;
-            case WEDNESDAY:
+            }
+            case WEDNESDAY -> {
                 chkboxWednesday.setSelected(true);
                 chkboxWednesday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.pastColor);
                 chkboxMonday.setBackground(EventEditorPanel.pastColor);
                 chkboxTuesday.setBackground(EventEditorPanel.pastColor);
@@ -1617,11 +1586,10 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.futureColor);
                 chkboxFriday.setBackground(EventEditorPanel.futureColor);
                 chkboxSaturday.setBackground(EventEditorPanel.futureColor);
-                break;
-            case THURSDAY:
+            }
+            case THURSDAY -> {
                 chkboxThursday.setSelected(true);
                 chkboxThursday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.pastColor);
                 chkboxMonday.setBackground(EventEditorPanel.pastColor);
                 chkboxTuesday.setBackground(EventEditorPanel.pastColor);
@@ -1629,11 +1597,10 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.backColor);
                 chkboxFriday.setBackground(EventEditorPanel.futureColor);
                 chkboxSaturday.setBackground(EventEditorPanel.futureColor);
-                break;
-            case FRIDAY:
+            }
+            case FRIDAY -> {
                 chkboxFriday.setSelected(true);
                 chkboxFriday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.pastColor);
                 chkboxMonday.setBackground(EventEditorPanel.pastColor);
                 chkboxTuesday.setBackground(EventEditorPanel.pastColor);
@@ -1641,11 +1608,10 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.pastColor);
                 chkboxFriday.setBackground(EventEditorPanel.backColor);
                 chkboxSaturday.setBackground(EventEditorPanel.futureColor);
-                break;
-            case SATURDAY:
+            }
+            case SATURDAY -> {
                 chkboxSaturday.setSelected(true);
                 chkboxSaturday.setEnabled(false);
-
                 chkboxSunday.setBackground(EventEditorPanel.pastColor);
                 chkboxMonday.setBackground(EventEditorPanel.pastColor);
                 chkboxTuesday.setBackground(EventEditorPanel.pastColor);
@@ -1653,6 +1619,7 @@ public class RecurrencePanel extends JPanel implements
                 chkboxThursday.setBackground(EventEditorPanel.pastColor);
                 chkboxFriday.setBackground(EventEditorPanel.pastColor);
                 chkboxSaturday.setBackground(EventEditorPanel.backColor);
+            }
         } // end switch
     } // end shuffleDays
 

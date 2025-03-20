@@ -8,6 +8,7 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.Serial;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -356,9 +357,20 @@ public class MonthView extends JLayeredPane {
             // Since Java Dates are immutable, we don't lose the value of displayedMonth when we
             // start adjusting the tmpLocalDate below, even though it looks like we are using a reference.
 
-            // Get the day of the week of the first day.
+            // Get the number of blank cells for the current month matrix.
             tmpLocalDate = tmpLocalDate.withDayOfMonth(1);
-            int dayOfWeek = AppUtil.getDayOfWeekInt(tmpLocalDate); // my values; theirs suck.
+            int blankStartingCells;
+            int skippedStartingDays = 0;
+            DayOfWeek dow = tmpLocalDate.getDayOfWeek();
+            switch(dow) {
+                case MONDAY -> blankStartingCells = 1;
+                case TUESDAY -> blankStartingCells = 2;
+                case WEDNESDAY -> blankStartingCells = 3;
+                case THURSDAY -> blankStartingCells = 4;
+                case FRIDAY -> blankStartingCells = 5;
+                case SATURDAY -> blankStartingCells = 6;
+                default -> blankStartingCells = 0;
+            }
 
             boolean rollover = false;
 
@@ -369,9 +381,10 @@ public class MonthView extends JLayeredPane {
                 tempDayCanvas.clear(); //clear first, then override if necess.
 
                 // 'blank' days in the first week, before the 1st.
-                if (i < dayOfWeek) {
+                if (blankStartingCells > skippedStartingDays) {
                     tempDayCanvas.bottomLine();
-                    if (i == (dayOfWeek - 1)) tempDayCanvas.rightLine();
+                    if (skippedStartingDays == (blankStartingCells - 1)) tempDayCanvas.rightLine();
+                    skippedStartingDays++;
                     continue;
                 } // end if
 
