@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 // This class holds the Search parameters.
 // After reading this:  https://dzone.com/articles/getter-setter-use-or-not-use-0
 //   decided to NOT use getters/setters here, and that encapsulation for this
@@ -26,9 +28,13 @@ class SearchPanelSettings  {
     boolean typeMonth = true;
     boolean typeYear = true;
     boolean typeOtherNote = true;
-    boolean typePastEvent = true;
     boolean typeFutureEvent = true;
     boolean typeTask = true;
+
+    @JsonIgnore  // Remove this after all current 'Lee' searches have been removed/redone without it.
+    // Optional - hand-edit the .json files.
+    boolean typePastEvent = true;
+
 
     // Note Dates
     int whenChoice; // Before / Between / After

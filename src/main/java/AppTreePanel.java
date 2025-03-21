@@ -947,6 +947,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
     }
 
     // This is useful for tests; no so much for normal app operation.
+    @SuppressWarnings("unused")
     JComponent getViewedComponent() {
         JViewport viewport = rightPane.getViewport();
         return (JComponent) viewport.getView();
@@ -1123,7 +1124,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         Object[] options = {string1, string2};
         int choice = optionPane.showOptionDialog(theFrame,
                 nameAndSearchPanel,
-                "Search - Please specify the conditions for your quest",
+                "Search - Specify the conditions for your quest",
                 JOptionPane.OK_CANCEL_OPTION,
                 PLAIN_MESSAGE,
                 null,     //don't use a custom Icon

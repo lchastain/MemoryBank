@@ -14,7 +14,7 @@ public class SearchPanelMain {
 
         JOptionPane.showOptionDialog(null,
                 theSearchPanel,
-                "Search - Please specify the conditions for your quest",
+                "Search - Specify the conditions for your quest",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 null,     //don't use a custom Icon
