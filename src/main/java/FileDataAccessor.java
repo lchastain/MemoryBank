@@ -536,7 +536,6 @@ public class FileDataAccessor implements DataAccessor {
     @Override
     public Locations loadLocations() {
         String fileName = userDataHome + File.separatorChar + locationsFilename;
-        Exception e = null;
 
         try {
             String text = FileUtils.readFileToString(new File(fileName), StandardCharsets.UTF_8.name());
@@ -743,6 +742,12 @@ public class FileDataAccessor implements DataAccessor {
                         goLook = false;
                     } else {
                         if (!MemoryBank.appOpts.active(GroupType.TODO_LIST, theGroupName)) goLook = false;
+                    }
+                } else if (theFile1Name.startsWith("notes_")) {
+                    if (!searchPanel.searchNotes()) {
+                        goLook = false;
+                    } else {
+                        if (!MemoryBank.appOpts.active(GroupType.NOTES, theGroupName)) goLook = false;
                     }
                 } else if ((theFile1Name.startsWith("D")) && (level > 0)) {
                     if (!searchPanel.searchDays()) goLook = false;

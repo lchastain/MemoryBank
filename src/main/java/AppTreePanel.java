@@ -769,7 +769,11 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         }
     }
 
-
+    // The 'real' search is done by a DataAccessor, based on the settings that
+    //   it gets from the SearchPanel (SearchPanelSettings).  This method calls
+    //   for the search to be done, makes a name for it, and then saves the results.
+    //   Finally, it makes a new selection tree leaf under 'Search Results', and
+    //   selects that leaf for display.
     void doSearch(SearchPanel searchPanel) {
         // We will display the results of the search, even if it finds nothing.
         SearchPanelSettings searchPanelSettings = searchPanel.getSettings();
@@ -779,13 +783,17 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         // Make a unique name for the results
         String resultsName;
         resultsName = NoteGroupFile.getTimestamp();
+
+        // Make the new Search result
         SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupType.SEARCH_RESULTS));
         SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
         searchResultGroupProperties.setSearchSettings(searchPanelSettings);
         System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
-
         theResultsGroup.setNotes(foundDataVector);
-        // We allow the search to be saved even without results because what was searched for, and when, is also important.
+
+        // Save the search settings and results.
+        // We will do a save even if nothing was found, because what was
+        //   searched for, and when, is just as important.
         theResultsGroup.saveNoteGroup();
 
         // After-actions needed by prepareSearch

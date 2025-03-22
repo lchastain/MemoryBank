@@ -1339,6 +1339,10 @@ public class SearchPanel extends JPanel implements DocumentListener {
         return chkboxTodoLists.isSelected();
     }
 
+    boolean searchNotes() {
+        return chkboxOtherNotes.isSelected();
+    }
+
     // Used only by tests.
     // Refactor them to use the new constructor and 'loadTheSettings'.
     void setTheSettings(SearchPanelSettings theSettings) {
@@ -1381,7 +1385,6 @@ public class SearchPanel extends JPanel implements DocumentListener {
         // Go modal -
         dialogWindow.setVisible(true);
     } // end showDateDialog
-
 
 } // end class SearchPanel
 

@@ -33,6 +33,7 @@ class SearchPanelSettings  {
 
     @JsonIgnore  // Remove this after all current 'Lee' searches have been removed/redone without it.
     // Optional - hand-edit the .json files.
+    @SuppressWarnings("unused")
     boolean typePastEvent = true;
 
 
