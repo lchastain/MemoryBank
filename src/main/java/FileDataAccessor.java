@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 
 @SuppressWarnings("rawtypes")
@@ -369,7 +370,9 @@ public class FileDataAccessor implements DataAccessor {
             String anArchiveName = archiveNameFormat.format(localDateTime);
             theArchiveNames.add(anArchiveName);
         }
-        return theArchiveNames.toArray(new String[0]);
+        String[] theArray = theArchiveNames.toArray(new String[0]);
+        Arrays.sort(theArray);
+        return theArray;
     }
 
     // Returns an array of 5 Icons that are read from a file
