@@ -47,4 +47,25 @@ class SearchPanelSettings  {
     String dateLastMod1String;
     String dateLastMod2String;
 
+    // A 'Search Name' is not a data member here, so we
+    //   do not want to use a getter to retrieve it; Jackson
+    //   would make the wrong assumption about the Class.
+    String determineSearchResultsName() {
+        StringBuilder sb = new StringBuilder();
+        if(AppUtil.isPopulated(word1)) {
+            if (not1) sb.append("NOT ");
+            sb.append(word1);
+
+            if (AppUtil.isPopulated(word2)) {
+                if (or1) sb.append(" OR ");
+                else if (and1) sb.append(" AND ");
+                if (not2) sb.append("NOT ");
+                sb.append(word2);
+            }
+        }
+        else sb.append(NoteGroupFile.getTimestamp());
+
+        return sb.toString();
+    }
+
 } // end SearchPanelSettings

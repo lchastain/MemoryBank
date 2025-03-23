@@ -781,14 +781,13 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         Vector<NoteData> foundDataVector = MemoryBank.dataAccessor.scanData(searchPanel);
 
         // Make a unique name for the results
-        String resultsName;
-        resultsName = NoteGroupFile.getTimestamp();
+        String resultsName = searchPanelSettings.determineSearchResultsName();
 
         // Make the new Search result
         SearchResultGroup theResultsGroup = new SearchResultGroup(new GroupInfo(resultsName, GroupType.SEARCH_RESULTS));
         SearchResultGroupProperties searchResultGroupProperties = (SearchResultGroupProperties) theResultsGroup.getGroupProperties();
         searchResultGroupProperties.setSearchSettings(searchPanelSettings);
-        System.out.println("Search performed at " + resultsName + " results: " + foundDataVector.size());
+        System.out.println("Search performed at " + NoteGroupFile.getTimestamp() + " results: " + foundDataVector.size());
         theResultsGroup.setNotes(foundDataVector);
 
         // Save the search settings and results.
@@ -1108,6 +1107,10 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     // Present the user with a dialog whereby they may specify the parameters of
     // their search, then send those parameters to the 'doSearch' method.
+    // NOTE 22 MAR 2025 - The 'Search Title' field has been 'unused'.  All the work
+    //   that is done here to combine it with the SearchPanel - may be removed, AFTER
+    //   the revision is proven stable.  Search titles are now calculated for the user,
+    //   but they may be changed via the Tree Branch Editor for Search Results.
     private void prepareSearch() {
         JPanel nameAndSearchPanel = new JPanel(new BorderLayout());
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -1118,8 +1121,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
         titlePanel.add(titleLabel);
         titlePanel.add(titleField);   // may want to set text here...  but need to get a name for the new group....
         titleField.setFont(Font.decode("Dialog-bold-14"));
-        nameAndSearchPanel.add(titlePanel, BorderLayout.NORTH);
-        // TODO - allow that a name may be supplied, but do validity checking.
+        //nameAndSearchPanel.add(titlePanel, BorderLayout.SOUTH); // was NORTH, to start.
 
         searching = true;
         searchPanel = new SearchPanel();

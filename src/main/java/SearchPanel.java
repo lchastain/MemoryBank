@@ -865,7 +865,7 @@ public class SearchPanel extends JPanel implements DocumentListener {
         //
         // SearchPanel
         this.setLocation(new Point(16, 0));
-        this.setSize(new Dimension(543, 357));  // May need adjust width...
+        this.setSize(new Dimension(443, 357));  // May need adjust width...
 
         // Below here was originally rebuildPanel()
         //===================================================================================================

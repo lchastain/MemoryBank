@@ -81,6 +81,14 @@ public class AppUtil {
         return theMenuItem;
     }
 
+    public static boolean isPopulated(String s) {
+        boolean b = true;
+        if(s == null) b = false;
+        else if(s.isEmpty()) b = false;
+        else if (s.isBlank()) b = false;
+        return b;
+    }
+
     // -----------------------------------------------------------------
     // Method Name: localDebug
     //
