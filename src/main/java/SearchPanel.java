@@ -291,8 +291,8 @@ public class SearchPanel extends JPanel implements DocumentListener {
 
         // Construct a string to search, from the base NoteData elements.
         String s = nd.getNoteString();
-        s += nd.getSubjectString();
-        s += nd.getExtendedNoteString();
+        s += " " + nd.getSubjectString();
+        s += " " + nd.getExtendedNoteString();
         s = s.toLowerCase(); // For case-insensitivity
 
         // These text conditions include the 'NOT' toggle, so that if

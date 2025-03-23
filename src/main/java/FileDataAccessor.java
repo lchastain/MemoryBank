@@ -805,8 +805,8 @@ public class FileDataAccessor implements DataAccessor {
     //   have been done prior to this method being called.
     // Item-level filtering is not done; date-filtering
     //   is done against Calendar notes, by using their
-    //   filename, only.  Todo items will all just pass thru
-    //   the filter so if not desired, don't search there in the first place.
+    //   filename, only.  To do items are not currently
+    //   filtered by date so if not desired, don't search there in the first place.
     //---------------------------------------------------------
     private void searchDataFile(SearchPanel searchPanel, File dataFile) {
         //MemoryBank.debug("Searching: " + dataFile.getName());  // This one is a bit too verbose.

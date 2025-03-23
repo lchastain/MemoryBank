@@ -2350,7 +2350,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             while (numLists-- > 0) {
                 String s = leafLink.toString();
                 if(!notesExclusionList.contains(s)) {
-                    MemoryBank.debug("  Preserving Notes list: " + s);
+                    //MemoryBank.debug("  Preserving Notes list: " + s);
                     appOpts.notesList.addElement(s);
                 }
                 leafLink = leafLink.getNextLeaf();
