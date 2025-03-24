@@ -360,7 +360,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         NoteDateLabel() {
             clear();
             setHorizontalAlignment(JLabel.CENTER);
-            setFont(Font.decode("Dialog-bold-16"));
+            setFont(Font.decode("Dialog-bold-14"));
 
             ma = new MouseAdapter() {
                 @Override
