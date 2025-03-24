@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.Serial;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class TodoNoteComponent extends NoteComponent {
     // The icon in a TodoNoteComponent is simpler than the one that would be inherited from IconNoteComponent.
@@ -610,9 +611,25 @@ public class TodoNoteComponent extends NoteComponent {
         private int theStatus;
         private int theOriginalStatus;
 
+        static ArrayList<Integer> statusLoop;
+
         public StatusButton() {
             setOpaque(true);
             showStatusIcon();
+
+            // The numbers assigned in the data class are no longer representative
+            //   of the desired cycling order, but they cannot be changed due to the
+            //   need to keep previously persisted data with correct original values.
+            //   So here, the order is set differently into an ArrayList that is used
+            //   when handling a mouse click to cycle thru the available statuses that
+            //   will represent a new or updated status for the item.
+            statusLoop = new ArrayList<>();
+            statusLoop.add(TodoNoteData.TODO_STARTED);
+            statusLoop.add(TodoNoteData.TODO_INPROG);
+            statusLoop.add(TodoNoteData.TODO_WAITING);
+            statusLoop.add(TodoNoteData.TODO_QUERY);
+            statusLoop.add(TodoNoteData.TODO_OBE);
+            statusLoop.add(TodoNoteData.TODO_COMPLETED);
         } // end StatusButton constructor
 
         public void clear() {
@@ -693,17 +710,21 @@ public class TodoNoteComponent extends NoteComponent {
                 return;
             } // end if
 
-            int i;
+            // Get the index into the statusLoop for the current status value.
+            int theIndex = statusLoop.indexOf(theStatus);
+
+            // Increase or Decrease the index per the mouse button,
+            //   and adjust for potential wrap-around.
             if (e.isMetaDown()) {
-                i = -1;
+                theIndex--;
+                if (theIndex<0) theIndex = statusLoop.size() - 1;
             } else {
-                i = 1;
+                theIndex++;
+                if (theIndex >= statusLoop.size()) theIndex = 0;
             } // end if
 
             // Alter the status.
-            theStatus = theStatus + i;
-            if (theStatus > TodoNoteData.TODO_OBE) theStatus = TodoNoteData.TODO_STARTED;
-            if (theStatus < TodoNoteData.TODO_STARTED) theStatus = TodoNoteData.TODO_OBE;
+            theStatus = statusLoop.get(theIndex);
             myTodoNoteData.setStatus(theStatus);
 
             // Now display the correct icon.
