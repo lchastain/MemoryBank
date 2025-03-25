@@ -373,7 +373,7 @@ public class SearchResultComponent extends NoteComponent {
     protected class LastModLabel extends LabelButton {
         private static final long serialVersionUID = 1L;
 
-        static final int intWidth = 80;
+        static final int intWidth = 85;
 
         public LastModLabel() {
             // May resemble one, but not a Java method -
