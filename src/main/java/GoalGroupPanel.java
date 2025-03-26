@@ -213,6 +213,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTabbedPane.addTab("Log", null);
         theTabbedPane.addTab("Milestones", null);
         theTabbedPane.addTab("Notes", null);
+        theTabbedPane.setToolTipTextAt(0, "Tasks needed for progress toward Goal completion");
+        theTabbedPane.setToolTipTextAt(1, "Cumulative developments related to the Goal");
+        theTabbedPane.setToolTipTextAt(2, "Notations of significant progress");
+        theTabbedPane.setToolTipTextAt(3, "Random notes, wish list, thoughts in progress");
 
         theTabbedPane.addChangeListener(e -> {
             // If the Goal itself has changed (Title or Plan), preserve it now, before adjusting the

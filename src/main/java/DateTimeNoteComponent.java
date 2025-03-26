@@ -350,7 +350,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         private static final YearView yvDateChooser;
 
         boolean isActive;
-        int dateWidth = 100;
+        int dateWidth = 90;
         MouseAdapter ma;
 
         static {
@@ -360,7 +360,7 @@ public class DateTimeNoteComponent extends NoteComponent {
         NoteDateLabel() {
             clear();
             setHorizontalAlignment(JLabel.CENTER);
-            setFont(Font.decode("Dialog-bold-14"));
+            setFont(Font.decode("Dialog-bold-12"));
 
             ma = new MouseAdapter() {
                 @Override
@@ -521,13 +521,12 @@ public class DateTimeNoteComponent extends NoteComponent {
         private static final long serialVersionUID = 1L;
 
         boolean isActive;
-        int timeWidth = 68;
+        int timeWidth = 56;
 
         NoteTimeLabel() {
             clear(); // initializes as well as 'clears'.
             setHorizontalAlignment(JLabel.CENTER);
-            //setFont(Font.decode("DialogInput-bold-20"));
-            setFont(Font.decode("Dialog-bold-16"));
+            setFont(Font.decode("Dialog-bold-14"));
         } // end constructor
 
         private void clear() {

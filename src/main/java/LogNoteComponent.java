@@ -65,14 +65,6 @@ public class LogNoteComponent extends NoteComponent {
     } // end getNoteData
 
 
-    // Need to keep the height constant.
-//    public Dimension getPreferredSize() {
-//        int minWidth = 100; // For the Text Field
-//        minWidth += noteDateLabel.getPreferredSize().width;
-//        return new Dimension(minWidth, LOGNOTEHEIGHT);
-//    } // end getPreferredSize
-
-
     @Override
     protected void initialize() {
         super.initialize();
@@ -246,7 +238,7 @@ public class LogNoteComponent extends NoteComponent {
         private static final long serialVersionUID = 1L;
 
         boolean isActive;
-        int dateWidth = 100;
+        int dateWidth = 90;
         MouseAdapter ma;
 
         NoteDateLabel() {

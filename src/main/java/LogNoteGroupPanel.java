@@ -15,7 +15,7 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty NoteGroup.
         myNoteGroup.myNoteGroupPanel = this;
         if (groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
-        setAppendable(false); // New notes for this panel will come in at the 'top'.
+        //setAppendable(false); // New notes for this panel will come in at the 'top'.
         loadNotesPanel();
 
         // Get the group properties.
@@ -32,13 +32,18 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
     }
 
     // Called from the constructor to create and place the visual components of the panel.
+    // Note to forgetful-me:  When a LogPanel appears as one of a Goal's tabbed panes, the
+    //   header here is not actually used.  The goal will manage the pager control, but the
+    //   work for the header is needed only for a standalone instance, NOT for a Goal.
+    //   This is because the pager and the center panel here are extracted and used by the Goal
+    //   when handling a tab change, but do not get added to a container there in the 'normal' way.
     private void buildPanelContent() {
         // The multi-row Header for the Log Panel -
         //-----------------------------------------------------
         JPanel heading = new JPanel();
         heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
 
-        // The First Header Row -   Title
+        // The Header Row -   Title
         JPanel headingRow1 = new JPanel(new BorderLayout());
         headingRow1.setBackground(Color.blue);
         String logName = groupProperties.getGroupName();
@@ -55,7 +60,10 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         theNotePager.setBackground(headingRow1.getBackground());
         headingRow1.add(theNotePager, "East");
 
-        // The Second Header Row -   New Log Entry button
+        // The NoteGroup Header Row -   New Log Entry button
+        // This is a 'trick' - it is not actually being added to the header, but
+        //   prepended as a header to the NoteGroup, via the setGroupHeader call.
+        //   But now (March 2025) there is a new approach - not going to use it.
         JPanel headingRow2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         JButton newEntryButton = new JButton("New Entry");
@@ -71,8 +79,8 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
         heading.add(headingRow1);
         add(heading, BorderLayout.NORTH);
-        setGroupHeader(headingRow2);
-    }
+//        setGroupHeader(headingRow2);
+    } // end buildPanelContent
 
 
     @Override
