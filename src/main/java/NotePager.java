@@ -84,6 +84,15 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     }
 
     int getHighestPage() {
+        // Calculate the maximum number of pages.
+        if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
+        else if ((intGroupSize % intPageSize) == 0) { // The data comes out to an even number of pages, exactly.
+            intMaxPages = (intGroupSize / intPageSize);
+            if (myNoteGroupPanel.getEditable()) {
+                intMaxPages = (intGroupSize / intPageSize) + 1; // Add a page for 'growth'.
+            }
+        } else intMaxPages = (intGroupSize / intPageSize) + 1;  // A partial last page.
+
         return intMaxPages;
     }
 
@@ -116,14 +125,7 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         intPageSize = myNoteGroupPanel.pageSize;
         intGroupSize = myNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
 
-        // Calculate the maximum number of pages.
-        if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
-        else if ((intGroupSize % intPageSize) == 0) { // The data comes out to an even number of pages, exactly.
-            intMaxPages = (intGroupSize / intPageSize);
-            if (myNoteGroupPanel.getEditable()) {
-                intMaxPages = (intGroupSize / intPageSize) + 1; // Add a page for 'growth'.
-            }
-        } else intMaxPages = (intGroupSize / intPageSize) + 1;  // A partial last page.
+        getHighestPage(); // set the intMaxPages value.
 
         if (intMaxPages < 2) {
             // No paging control is needed if there is only one page.
@@ -208,21 +210,12 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
         Component source = (Component) me.getSource();
         String s = source.getName();
 
-        String mouseMsg;
-        switch (s) {
-            case "middleButton":
-                mouseMsg = "Click here to go to a specific page.";
-                break;
-            case "rightAb":
-                mouseMsg = "Click here to see the next page of results.";
-                break;
-            case "leftAb":
-                mouseMsg = "Click here to see the previous page of results.";
-                break;
-            default:
-                mouseMsg = "I have no idea how to handle " + s;
-                break;
-        }
+        String mouseMsg = switch (s) {
+            case "middleButton" -> "Click here to go to a specific page.";
+            case "rightAb" -> "Click here to see the next page of results.";
+            case "leftAb" -> "Click here to see the previous page of results.";
+            default -> "I have no idea how to handle " + s;
+        };
 
         myNoteGroupPanel.setStatusMessage(mouseMsg);
     } // end mouseEntered
@@ -244,7 +237,6 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
             jtfThePageNum.requestFocusInWindow();
             lbCurrentPage.setVisible(false);
         } else {
-//            AppTreePanel.theInstance.requestFocusInWindow();  // 1/4/2020 - this tripped up a test, so seeing if we can live without.
             myNoteGroupPanel.pageFrom(currentPageNumber);
             if (s.equals("leftAb")) {
                 // System.out.println("Prev page");

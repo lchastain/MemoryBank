@@ -426,8 +426,9 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         lastVisibleNoteIndex = 0;
 
         Exception e = null;
-        try { // Shouldn't only be for page 1 - see if there can be a better call-sequence.
+        try {
             loadPage(1); // Always load page 1
+//            loadPage(theNotePager.getHighestPage()); // Always load the last page
         } catch (Exception cce) {
             // The most likely/common exception will be a ClassCastException, but it gets no
             // different handling so we only need the one catch-all 'catch'.

@@ -23,6 +23,7 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
 
         theNotePager.reset(1); // Without this, the pager appears and shows 'page 0 of 0'.
         // But with it, if there are fewer than 2 pages, it remains non-visible.
+//        theNotePager.reset(theNotePager.getHighestPage());
 
         buildPanelContent(); // Content other than the groupDataVector
     } // end of the primary constructor
@@ -38,6 +39,8 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
     //   This is because the pager and the center panel here are extracted and used by the Goal
     //   when handling a tab change, but do not get added to a container there in the 'normal' way.
     private void buildPanelContent() {
+        log.info("Building components for a LogNoteGroupPanel");
+
         // The multi-row Header for the Log Panel -
         //-----------------------------------------------------
         JPanel heading = new JPanel();

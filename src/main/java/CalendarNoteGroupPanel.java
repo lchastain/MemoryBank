@@ -65,7 +65,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
         GroupInfo groupInfo = new GroupInfo(getTitle(), groupType);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
-        loadNotesPanel(); // previously was done via updateGroup; remove this comment when stable.
+        loadNotesPanel();
 
         archiveDate = null; // unless and until 'setArchiveDate' is called.
         reviewMode = AppMenuBar.reviewMode.isSelected();
