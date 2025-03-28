@@ -1,8 +1,5 @@
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
@@ -42,7 +39,7 @@ public class ArchiveTreePanelTest {
         AppOptions.loadOpts();
 
         // We need an AppTreePanel instance -
-        AppTreePanel appTreePanel = TestUtil.getTheAppTreePanel();
+        TestUtil.getTheAppTreePanel();
 
         // If this is not a 'good' archive name, we will see a failure to parse it into a LocalDate.
         // If it is just not available for some reason, the options load will fail.
@@ -55,6 +52,12 @@ public class ArchiveTreePanelTest {
         theTree = archiveTreePanel.getTree(); // Usage here means no united test needed for getTree().
 
     } // end meFirst
+
+    @AfterEach
+    void tearDown() throws InterruptedException {
+        // These tests drive the app faster than it would go if it was only under user control.
+        Thread.sleep(500); // Otherwise we see NullPointerExceptions after tests pass.
+    }
 
     @AfterAll
     static void meLast() {

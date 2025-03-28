@@ -1,7 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Functional" type="JUnit" factoryName="JUnit">
     <module name="MemoryBank" />
-    <useClassPathOnly />
     <extension name="coverage" sample_coverage="false" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />

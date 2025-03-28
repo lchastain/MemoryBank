@@ -437,6 +437,8 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
     void closeArchive(String archiveName) {
         // Close any windows that are currently open for this Archive -
+        showWorkingDialog(false); // Consider a more global loc for this, such as handleMenuBar.
+        // But we also come here from the ArchiveTreePanelTest.  It would need the call too.
         Set<String> setCodes = archiveWindows.keySet();
         for (String code : setCodes) {
             if (code.startsWith(archiveName)) {

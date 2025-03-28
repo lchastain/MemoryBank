@@ -25,7 +25,7 @@ import java.io.IOException;
 // Gap elimination
 
 
-public class NoteAppearanceTests {
+public class NoteGroupPanelTests {
     static AppMenuBar appMenuBar;
 
     @BeforeAll
