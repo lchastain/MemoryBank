@@ -7,36 +7,21 @@ import java.awt.*;
 public class MilestoneNoteGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(MilestoneNoteGroupPanel.class);
     private static final int DEFAULT_PAGE_SIZE = 25;
-    static String userInfo;
 
     JComponent theHeader;
-    private MilestoneNoteComponent milestoneNoteComponent; // The currently selected one.
     GroupProperties groupProperties;
-
-
-    static {
-        MemoryBank.trace();
-        userInfo = "Goal Narrative:  If the title alone does not convey the full intent of your Goal then here you ";
-        userInfo += "can describe more precisely what it is that you wish to acquire or accomplish.  Together with ";
-        userInfo += "the milestones that lay out the discrete individual steps, this becomes your Plan.";
-        userInfo += "\n\nIf you need to comment on developments or issues related to this goal, make one or more ";
-        userInfo += "log entries.  The most recent log entry goes to the top but you can manually reorder after ";
-        userInfo += "that if needed. ";
-    } // end static
-
 
     public MilestoneNoteGroupPanel(GroupInfo groupInfo, int pageSize) {
         super(pageSize);
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty NoteGroup.
         myNoteGroup.myNoteGroupPanel = this;
         if (groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
-        loadNotesPanel();
+        int lastPage = theNotePager.getHighestPage();
+        theNotePager.reset(lastPage); // Without this, the pager appears and shows 'page 0 of 0'.
+        // But with it, if there are fewer than 2 pages, it remains non-visible.
+        loadNotesPanel(lastPage);
 
         groupProperties = myNoteGroup.getGroupProperties();
-
-        theNotePager.reset(1); // Without this, the pager appears and shows 'page 0 of 0'.
-        // But with it, if there are fewer than 2 pages, it remains non-visible.
-
         buildPanelContent(); // Content other than the groupDataVector
     } // end constructor
 
@@ -69,6 +54,7 @@ public class MilestoneNoteGroupPanel extends NoteGroupPanel {
 
     // Called from within the constructor to create and place the visual components of the panel.
     private void buildPanelContent() {
+        log.info("Building components for a MilestoneNoteGroupPanel");
         theHeader = buildHeader();
         add(theHeader, BorderLayout.NORTH);  // Adds to theBasePanel
     }

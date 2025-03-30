@@ -22,14 +22,15 @@ public class DateTimeNoteGroupPanel extends NoteGroupPanel {
 
     public DateTimeNoteGroupPanel(@NotNull GroupInfo groupInfo, int pageSize) {
         super(pageSize);
-
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.
         myNoteGroup.myNoteGroupPanel = this;
         if(groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
-        loadNotesPanel();
+        int lastPage = theNotePager.getHighestPage();
+        theNotePager.reset(lastPage); // Without this, the pager appears and shows 'page 0 of 0'.
+        // But with it, if there are fewer than 2 pages, it remains non-visible.
+        loadNotesPanel(lastPage);
 
         buildMyPanel(groupInfo.getGroupName());
-        theNotePager.reset(1);
         setListMenu(AppMenuBar.getNodeMenu("Notes"));
     } // end constructor
 

@@ -421,14 +421,18 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         myNoteGroup.setNotes(getCondensedInfo());
     }
 
-    // The base group data will be reloaded whenever this method is called.
+    // The default page loader, first page.
     void loadNotesPanel() {
+        loadNotesPanel(1);
+    }
+
+    // The base group data will be reloaded whenever this method is called.
+    void loadNotesPanel(int pageNum) {
         lastVisibleNoteIndex = 0;
 
         Exception e = null;
         try {
-            loadPage(1); // Always load page 1
-//            loadPage(theNotePager.getHighestPage()); // Always load the last page
+            loadPage(pageNum);
         } catch (Exception cce) {
             // The most likely/common exception will be a ClassCastException, but it gets no
             // different handling so we only need the one catch-all 'catch'.

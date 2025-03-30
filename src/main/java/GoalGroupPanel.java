@@ -11,7 +11,6 @@ import java.util.ArrayList;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class GoalGroupPanel extends NoteGroupPanel {
     private static final Logger log = LoggerFactory.getLogger(GoalGroupPanel.class);
-    static String userInfo;
 
     private final GoalGroupProperties groupProperties;
     JTabbedPane theTabbedPane;
@@ -26,17 +25,6 @@ public class GoalGroupPanel extends NoteGroupPanel {
     LogNoteGroupPanel theLogNoteGroupPanel;
     MilestoneNoteGroupPanel theMilestoneNoteGroupPanel;
     DateTimeNoteGroupPanel theDateTimeNoteGroupPanel;
-
-    static {
-        MemoryBank.trace();
-        userInfo = "Goal Narrative:  If the title alone does not convey the full intent of your Goal then here you ";
-        userInfo += "can describe more precisely what it is that you wish to acquire or accomplish.  Together with ";
-        userInfo += "the milestones that lay out the discrete individual steps, this becomes your Plan.";
-        userInfo += "\n\nIf you need to comment on developments or issues related to this goal, make one or more ";
-        userInfo += "log entries.  The most recent log entry goes to the top but you can manually reorder after ";
-        userInfo += "that if needed. ";
-    } // end static
-
 
     public GoalGroupPanel(GroupInfo groupInfo) {
         super();

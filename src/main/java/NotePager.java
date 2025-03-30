@@ -84,6 +84,9 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     }
 
     int getHighestPage() {
+        intPageSize = myNoteGroupPanel.pageSize;
+        intGroupSize = myNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
+
         // Calculate the maximum number of pages.
         if (intGroupSize == 0) intMaxPages = 1;  // No data; only one page means no pager control.
         else if ((intGroupSize % intPageSize) == 0) { // The data comes out to an even number of pages, exactly.
@@ -115,17 +118,13 @@ public class NotePager extends JPanel implements ActionListener, FocusListener, 
     } // end getSummary
 
 
-    // This method is used to set the current page number of the pager and to
-    //   calculate the maximum number of pages.  It is called
-    //   by NoteGroup.updateGroup() where it sets the current
-    //   page to 1, both before and after a group load.  Loading occurs in the
-    //   calling context, not here.
+    // This method is used to set the current page number of the pager.  It is called
+    //   by the constructors of NoteGroupPanel children where it sets the current
+    //   page after a group load.  Loading occurs in a different context, not here.
     public void reset(int i) {
         currentPageNumber = i;
-        intPageSize = myNoteGroupPanel.pageSize;
-        intGroupSize = myNoteGroupPanel.myNoteGroup.noteGroupDataVector.size();
 
-        getHighestPage(); // set the intMaxPages value.
+        getHighestPage(); // (re-)set the intMaxPages value.
 
         if (intMaxPages < 2) {
             // No paging control is needed if there is only one page.

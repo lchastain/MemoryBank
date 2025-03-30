@@ -15,15 +15,13 @@ public class LogNoteGroupPanel extends NoteGroupPanel {
         myNoteGroup = groupInfo.getNoteGroup(); // This also loads the data, if any.  If none, we get an empty NoteGroup.
         myNoteGroup.myNoteGroupPanel = this;
         if (groupInfo.archiveName != null) setEditable(false); // Archived groups are non-editable
-        //setAppendable(false); // New notes for this panel will come in at the 'top'.
-        loadNotesPanel();
+        int lastPage = theNotePager.getHighestPage();
+        theNotePager.reset(lastPage); // Without this, the pager appears and shows 'page 0 of 0'.
+        // But with it, if there are fewer than 2 pages, it remains non-visible.
+        loadNotesPanel(lastPage);
 
         // Get the group properties.
         groupProperties = (LogGroupProperties) myNoteGroup.getGroupProperties();
-
-        theNotePager.reset(1); // Without this, the pager appears and shows 'page 0 of 0'.
-        // But with it, if there are fewer than 2 pages, it remains non-visible.
-//        theNotePager.reset(theNotePager.getHighestPage());
 
         buildPanelContent(); // Content other than the groupDataVector
     } // end of the primary constructor
