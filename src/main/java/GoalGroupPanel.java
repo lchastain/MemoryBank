@@ -56,14 +56,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
         if (myNoteGroup.groupChanged) {
             super.adjustMenuItems(true);
         } else {
-            boolean doit = false;
-            int index = theTabbedPane.getSelectedIndex();
-            switch (index) {
-                case 0 -> doit = theTodoNoteGroupPanel.myNoteGroup.groupChanged;
-                case 1 -> doit = theLogNoteGroupPanel.myNoteGroup.groupChanged;
-                case 2 -> doit = theMilestoneNoteGroupPanel.myNoteGroup.groupChanged;
-                case 3 -> doit = theDateTimeNoteGroupPanel.myNoteGroup.groupChanged;
-            }
+            boolean doit = theTodoNoteGroupPanel.myNoteGroup.groupChanged;
+            doit |= theLogNoteGroupPanel.myNoteGroup.groupChanged;
+            doit |= theMilestoneNoteGroupPanel.myNoteGroup.groupChanged;
+            doit |= theDateTimeNoteGroupPanel.myNoteGroup.groupChanged;
             super.adjustMenuItems(doit);
         }
     } // end adjustMenuItems
@@ -230,22 +226,18 @@ public class GoalGroupPanel extends NoteGroupPanel {
                     theBasePanel.add(theTodoCenterPanel, BorderLayout.CENTER);
                     theBasePanel.add(tmcPanel, BorderLayout.EAST);
                     headingRow1.add(theTodoNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                    GoalGroupPanel.super.adjustMenuItems(theTodoNoteGroupPanel.myNoteGroup.groupChanged);
                 }
                 case 1 -> { // Log Entries
                     theBasePanel.add(theLogCenterPanel, BorderLayout.CENTER);
                     headingRow1.add(theLogNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                    GoalGroupPanel.super.adjustMenuItems(theLogNoteGroupPanel.myNoteGroup.groupChanged);
                 }
                 case 2 -> { // Milestones
                     theBasePanel.add(theMilestonesCenterPanel, BorderLayout.CENTER);
                     headingRow1.add(theMilestoneNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                    GoalGroupPanel.super.adjustMenuItems(theMilestoneNoteGroupPanel.myNoteGroup.groupChanged);
                 }
                 case 3 -> { // Notes
                     theBasePanel.add(theNotesCenterPanel, BorderLayout.CENTER);
                     headingRow1.add(theDateTimeNoteGroupPanel.theNotePager, BorderLayout.EAST);
-                    GoalGroupPanel.super.adjustMenuItems(theDateTimeNoteGroupPanel.myNoteGroup.groupChanged);
                 }
             }
             theBasePanel.validate();
@@ -340,17 +332,27 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     }
 
+    // This one is called upon app conclusion to save the data, but no need to update Panels.
     @Override
     void preClosePanel() {
-        super.preClosePanel();  // this one takes care of the Properties (Goal header info)
-        int index = theTabbedPane.getSelectedIndex();
-        switch (index) {
-            case 0 -> theTodoNoteGroupPanel.preClosePanel();
-            case 1 -> theLogNoteGroupPanel.preClosePanel();
-            case 2 -> theMilestoneNoteGroupPanel.preClosePanel();
-            case 3 -> theDateTimeNoteGroupPanel.preClosePanel();
-        }
-    }
+        super.preClosePanel(); // This saves the Goal Plan (only)
+        theTodoNoteGroupPanel.preClosePanel();
+        theLogNoteGroupPanel.preClosePanel();
+        theMilestoneNoteGroupPanel.preClosePanel();
+        theDateTimeNoteGroupPanel.preClosePanel();
+    } // end preClosePanel
+
+    @Override
+    // Save the group and update the Panel (but only if changed)
+    // Called in response to a click on the 'Save' menu item.
+    public void refresh() {
+        super.refresh(); // This saves the Goal Plan (only)
+        theTodoNoteGroupPanel.refresh(); // Save changes and refresh Panel
+        theLogNoteGroupPanel.refresh();
+        theMilestoneNoteGroupPanel.refresh();
+        theDateTimeNoteGroupPanel.refresh();
+    } // end refresh
+
 
     @Override
     void renamePanel(String renameTo) {

@@ -308,8 +308,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
     @Override
     // Called in response to a click on the 'Save' menu item.
     public void refresh() {
-        preClosePanel();     // Save changes
-        updateGroup();
+        super.refresh(); // Save changes and reload panel
 
         // Call 'ageEvents'
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
