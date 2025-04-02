@@ -1051,7 +1051,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             //else if (what.startsWith("Print")) ((TodoNoteGroup) theNoteGroup).printList();
         else if (what.equals("Remove")) doRemoveArchive();
         else if (what.equals("Review...")) ((SearchResultGroupPanel) theNoteGroupPanel).doReview();
-        else if (what.equals("Save")) theNoteGroupPanel.refresh();
+        else if (what.equals("Save")) theNoteGroupPanel.preCloseAndRefresh();
         else if (what.startsWith("Save As")) saveGroupAs();
         else if (what.equals("Undo Delete")) {
             appMenuBar.manageMenus(appMenuBar.getCurrentContext());
@@ -1073,7 +1073,7 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
             rightPane.setViewportView(jp);
         } else if (what.equals("Today")) showToday();
         else if (what.equals("Undo All")) {
-            theNoteGroupPanel.updateGroup(); // reload without save
+            theNoteGroupPanel.refresh(); // reload without save
         } else {
             AppUtil.localDebug(true);
             MemoryBank.debug("  " + what);

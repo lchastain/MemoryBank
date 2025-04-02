@@ -115,7 +115,7 @@ public class MoveToDayNoteTest {
         miMoveToSelectedDate.doClick();
 
         // The 'test' consequence noted above is that when a 'setDate' is called on a CNG type Panel, it does an
-        // updateGroup() which first does a clearPage(), which clears the Notes on that page so they can be reused
+        // refresh() which first does a clearPage(), which clears the Notes on that page so they can be reused
         // by the new incoming data.  This clearing is 'felt' all the way back into source data, so the handle that
         // we have to one of them - 'unsavedNoteData' - is now empty.  It needs new text, or else it will not get
         // preserved at save time.
@@ -199,7 +199,7 @@ public class MoveToDayNoteTest {
         miMoveToToday.doClick();
 
         // The 'test' consequence noted above is that when a 'setDate' is called on a CNG type Panel, it does an
-        // updateGroup() which first does a clearPage(), which clears the Notes on that page so they can be reused
+        // refresh() which first does a clearPage(), which clears the Notes on that page so they can be reused
         // by the new incoming data.  This clearing is 'felt' all the way back into source data, so the handle that
         // we have to one of them - 'unsavedNoteData' - is now empty.  It needs new text, or else it will not get
         // preserved at save time.

@@ -554,6 +554,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         loadPage(pageTo);
     } // end pageTo
 
+    void preCloseAndRefresh() {
+        boolean doRefresh = myNoteGroup.groupChanged;
+        preClosePanel(); // Save any in-progress changes
+        if (doRefresh) refresh();  // Reload the interface - this removes 'gaps', which is the 'refresh' part of it.
+    }
+
     // Scrape the interface to put any changes back into the data vector,
     //   then save the NoteGroup.
     // This should be called prior to closing, but there are a few other cases.
@@ -764,14 +770,10 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
     } // end unloadNotesPanel
 
 
-    //----------------------------------------------------
-    // Method Name: updateGroup
-    //
     // Repaints the display by clearing the data, then reload.
     // Called by various actions.  To preserve changes,
     //   the calling context should first call 'preClosePanel'.
-    //----------------------------------------------------
-    public void updateGroup() {
+    public void refresh() {
         BaseData.loading = true; // This needs to happen before we 'clear'.
         clearPage(); // Clears the data from the interface Components.
 
@@ -795,8 +797,7 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         // Also needed AFTER loadGroup, not to set the page number but to set the total number of
         //   pages, which will be shown in the pager control and may have changed due to the load.
         theNotePager.reset(1);
-
-    } // end updateGroup
+    } // end refresh
 
 
     // You can add a note to either a plain NoteGroup or to a Panel (which adds it to its NoteGroup).
@@ -808,16 +809,6 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         theNotePager.reset(1); // Recalculate the number of pages; the addition may have caused a page rollover.
         loadPage(1); // Page to the start of the notes, to show the one that was just inserted.
     }
-
-    // Called by AppTreePanel in response to user selection of the menu item to save the group.
-    protected void refresh() { // I'm open to a better choice of name here...
-        // .. but 'save' is happening in preClosePanel so maybe that one
-        // needs a new name too?
-        boolean doRefresh = myNoteGroup.groupChanged;
-        preClosePanel();     // Save any in-progress changes
-        if (doRefresh) updateGroup();  // Reload the interface - this removes 'gaps', which is the 'refresh' part of it.
-    }
-
 
     static class LastModComparator implements Comparator<NoteData> {
         int direction;

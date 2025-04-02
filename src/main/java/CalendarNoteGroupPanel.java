@@ -136,7 +136,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
             myNoteGroup.myGroupInfo.setGroupName(getTitle()); // Set the groupName now in case there is no data to load.
 
             // Reload the data, if there is any for the new date.
-            updateGroup();  // Be aware that this clears the panel, which also clears the source data.
+            refresh();  // Be aware that this clears the panel, which also clears the source data.
             // In operational use cases this works just fine; test classes, however, could get tripped up if they
             //   intend to keep using that same data for the next test in the test class.
         } else { // Take the new date but decline the panel reload; we are already showing this date.
@@ -155,7 +155,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
 
     // Reduce the date by one increment and notify the AlteredDateListener, if one is defined.
-    // To load in the new data after this, calling contexts should call 'updateGroup()'.
+    // To load in the new data after this, calling contexts should call 'refresh()'.
     // They should not call setDate() after this because the only value it would provide at that point is to make that
     //   call for them, while repeating most of the other tasks that by then would have already been done here.
     public void setOneBack(ChronoUnit theMagnitude) {
@@ -173,7 +173,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
     } // end setOneBack
 
     // Increase the date by one increment and notify the AlteredDateListener, if one is defined.
-    // To load in the new data after this, calling contexts should call 'updateGroup()'.
+    // To load in the new data after this, calling contexts should call 'refresh()'.
     // They should not call setDate() after this because the only value it would provide at that point is to make that
     //   call for them, while repeating most of the other tasks that by then would have already been done here.
     public void setOneForward(ChronoUnit theMagnitude) {
@@ -200,8 +200,8 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
 
 
     @Override
-    public void updateGroup() {
-        super.updateGroup();
+    public void refresh() {
+        super.refresh();
 
         String today = dtf.format(Objects.requireNonNullElseGet(archiveDate, LocalDate::now));
         todayButton.setEnabled(!getTitle().equals(today));
@@ -222,7 +222,7 @@ public abstract class CalendarNoteGroupPanel extends NoteGroupPanel {
             public void run() {
                 // This could alternatively be the start of a thread that performs these operations.
                 preClosePanel();
-                updateGroup();
+                refresh();
                 System.out.println("Updated the 'T' button status!  " + LocalDateTime.now());
             }
         };

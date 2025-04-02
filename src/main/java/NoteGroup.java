@@ -53,7 +53,7 @@ class NoteGroup {
         // Well no, not completely.  All NoteGroups get constructed with their group name, but the
         //   CalendarNoteGroup (CNG) types get a new name every time the date changes, and yet when they are used
         //   in Panels they only get constructed upon the first access of the data type.  The 'fix' below will only
-        //   happen during construction; it does not happen again when the group is loaded via the updateGroup method,
+        //   happen during construction; it does not happen again when the group is loaded via the refresh method,
         //   primarily because that would be a lot of unneeded effort when the group is not a CNG type because
         //   any other group type needing 'update' will be known to have available persisted data, whereas the
         //   CNGs may not.

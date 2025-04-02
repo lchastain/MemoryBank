@@ -47,10 +47,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
     @Override
     // As a composite (foster) NoteGroupPanel, the logic of menu item enablement needs some elaboration:
     // For a change to the Goal's title or plan, the items are enabled regardless of the state of the NoteGroup
-    // in the active tab.  Otherwise, the changed state of the NoteGroup in the active tab is used.
-    // This logic only applies while the Goal has already been displayed due to Tree selection and it remains on the
-    //   same tab; after that the tab-change listener is tasked with adjusting the menu for the NoteGroup in the
-    //   active tab, and prior to that change the Goal's changes (if any) are preserved.
+    // in the active tab.  Otherwise, the changed states of all the NoteGroup tabs is used.
     protected void adjustMenuItems(boolean b) {
         //MemoryBank.debug("GoalGroupPanel.adjustMenuItems <" + b + ">");
         if (myNoteGroup.groupChanged) {
@@ -205,7 +202,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
         theTabbedPane.addChangeListener(e -> {
             // If the Goal itself has changed (Title or Plan), preserve it now, before adjusting the
             //   menu to match the state of NoteGroup in the new tab.
-            GoalGroupPanel.super.preClosePanel();
+            super.preClosePanel(); // Just the Goal plan, not all tabs (yet).
 
             // Clear out the previous components.
             // We don't need to be surgical about this; there is no complaint if one or more are not found.
@@ -332,6 +329,15 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     }
 
+    @Override
+    void preCloseAndRefresh() {
+        super.preClosePanel(); // This saves the Goal Plan (only).  No refresh needed.
+        theTodoNoteGroupPanel.preCloseAndRefresh();
+        theLogNoteGroupPanel.preCloseAndRefresh();
+        theMilestoneNoteGroupPanel.preCloseAndRefresh();
+        theDateTimeNoteGroupPanel.preCloseAndRefresh();
+    }
+
     // This one is called upon app conclusion to save the data, but no need to update Panels.
     @Override
     void preClosePanel() {
@@ -343,11 +349,10 @@ public class GoalGroupPanel extends NoteGroupPanel {
     } // end preClosePanel
 
     @Override
-    // Save the group and update the Panel (but only if changed)
-    // Called in response to a click on the 'Save' menu item.
+    // Reload the persisted data, and redisplay.
     public void refresh() {
-        super.refresh(); // This saves the Goal Plan (only)
-        theTodoNoteGroupPanel.refresh(); // Save changes and refresh Panel
+        super.refresh();
+        theTodoNoteGroupPanel.refresh();
         theLogNoteGroupPanel.refresh();
         theMilestoneNoteGroupPanel.refresh();
         theDateTimeNoteGroupPanel.refresh();
@@ -356,7 +361,7 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
     @Override
     void renamePanel(String renameTo) {
-        // A rename of the Goal Panel needs to cascade thru to its tabs.
+        // A re-name of the Goal Panel needs to cascade thru to its tabs.
         theTodoNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
         theLogNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
         theMilestoneNoteGroupPanel.myNoteGroup.renameNoteGroup(renameTo);
@@ -467,19 +472,4 @@ public class GoalGroupPanel extends NoteGroupPanel {
 
         return true;
     } // end saveAs
-
-    @Override
-    public void updateGroup() {
-        super.updateGroup(); // This can 'undo' header changes, if they haven't yet been preserved
-        //      (and that may be what is being asked for).
-        int index = theTabbedPane.getSelectedIndex();
-        switch (index) {
-            case 0 -> theTodoNoteGroupPanel.updateGroup();
-            case 1 -> theLogNoteGroupPanel.updateGroup();
-            case 2 -> theMilestoneNoteGroupPanel.updateGroup();
-            case 3 -> theDateTimeNoteGroupPanel.updateGroup();
-        }
-        super.updateGroup();
-    }
-
 }

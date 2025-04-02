@@ -58,7 +58,7 @@ class DateLoadingTest {
 
         // 1.  Change from Panel without data to one with data:  15 Mar 2018 --> 14 Mar 2018
         noteGroupPanel.setOneBack(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Wednesday, March 14, 2018", noteGroupPanel.getTitle());
         // Access the group verify that we have loaded the expected data.
@@ -70,13 +70,13 @@ class DateLoadingTest {
 
         // Now we skip one (also has data but that shouldn't matter)
         noteGroupPanel.setOneBack(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Tuesday, March 13, 2018", noteGroupPanel.getTitle());
 
         // 2.  Change from Panel with data to another with data: 13 Mar 2018 --> 12 Mar 2018
         noteGroupPanel.setOneBack(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Monday, March 12, 2018", noteGroupPanel.getTitle());
         // Re-acquire the NoteData for the element we are examining.
@@ -86,7 +86,7 @@ class DateLoadingTest {
 
         // 3.  Change from Panel with data to one without data:  12 Mar 2018 --> 11 Mar 2018
         noteGroupPanel.setOneBack(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Sunday, March 11, 2018", noteGroupPanel.getTitle());
         groupSize = theNoteGroup.noteGroupDataVector.size();
@@ -94,7 +94,7 @@ class DateLoadingTest {
 
         // 4.  Change from Panel without data to another without data: 11 Mar 2018 --> 10 Mar 2018
         noteGroupPanel.setOneBack(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Saturday, March 10, 2018", noteGroupPanel.getTitle());
         groupSize = theNoteGroup.noteGroupDataVector.size();
@@ -123,7 +123,7 @@ class DateLoadingTest {
 
         // 1.  Change from Panel without data to one with data:  15 Mar 2018 --> 14 Mar 2018
         noteGroupPanel.setOneForward(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Monday, March 12, 2018", noteGroupPanel.getTitle());
         // Access the group verify that we have loaded the expected data.
@@ -135,13 +135,13 @@ class DateLoadingTest {
 
         // Now we skip one (also has data but that shouldn't matter)
         noteGroupPanel.setOneForward(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Tuesday, March 13, 2018", noteGroupPanel.getTitle());
 
         // 2.  Change from Panel with data to another with data: 13 Mar 2018 --> 12 Mar 2018
         noteGroupPanel.setOneForward(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Wednesday, March 14, 2018", noteGroupPanel.getTitle());
         // Re-acquire the NoteData for the element we are examining.
@@ -151,7 +151,7 @@ class DateLoadingTest {
 
         // 3.  Change from Panel with data to one without data:  12 Mar 2018 --> 11 Mar 2018
         noteGroupPanel.setOneForward(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Thursday, March 15, 2018", noteGroupPanel.getTitle());
         groupSize = theNoteGroup.noteGroupDataVector.size();
@@ -159,7 +159,7 @@ class DateLoadingTest {
 
         // 4.  Change from Panel without data to another without data: 15 Mar 2018 --> 16 Mar 2018
         noteGroupPanel.setOneForward(ChronoUnit.DAYS);
-        noteGroupPanel.updateGroup();
+        noteGroupPanel.refresh();
         System.out.println(noteGroupPanel.getTitle());
         Assertions.assertEquals("Friday, March 16, 2018", noteGroupPanel.getTitle());
         groupSize = theNoteGroup.noteGroupDataVector.size();

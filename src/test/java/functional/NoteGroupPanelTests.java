@@ -94,7 +94,7 @@ public class NoteGroupPanelTests {
         //-------------------------------------------------------------------------------------------------------------
         // We cannot just click the menu item here; normally the AppTreePanel would handle that event.
         // Instead, we do what the handler would do:
-        eventNoteGroup.updateGroup();
+        eventNoteGroup.refresh();
 
         // And now, check to see that the info we added in condition 3, is now gone again.
         NoteData noteData = eventNoteComponent3.getNoteData();
@@ -111,7 +111,7 @@ public class NoteGroupPanelTests {
         Assertions.assertTrue(theSave.isEnabled());
 
         // This is what the 'save' menu item does, when clicked.
-        eventNoteGroup.refresh();
+        eventNoteGroup.preCloseAndRefresh();
 
         // Check the interface - one new item in the list.
         // Now component 4 looks like 3 did, earlier.
@@ -165,7 +165,7 @@ public class NoteGroupPanelTests {
         //-------------------------------------------------------------------------------------------------------------
         // We cannot just click the menu item here; normally the AppTreePanel would handle that event.
         // Instead, we do what the handler would do:
-        todoNoteGroup.updateGroup();
+        todoNoteGroup.refresh();
 
         // And now, check to see that the info we added in condition 3, is now gone again.
         NoteData noteData = todoNoteComponent3.getNoteData();
@@ -182,7 +182,7 @@ public class NoteGroupPanelTests {
         Assertions.assertTrue(theSave.isEnabled());
 
         // This is what the 'save' menu item does, when clicked.
-        todoNoteGroup.refresh();
+        todoNoteGroup.preCloseAndRefresh();
 
         // Check the interface - one new item in the list.
         // Now component 4 looks like 3 did, earlier.

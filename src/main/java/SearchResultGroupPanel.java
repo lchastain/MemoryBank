@@ -167,7 +167,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         JPanel headingRow2 = new JPanel(new BorderLayout());
         headingRow2.setBackground(Color.blue);
 
-        // Show the results count (needs to be after updateGroup)
+        // Show the results count (needs to be after refresh)
         resultsPageOf = new JLabel();
         resultsPageOf.setHorizontalAlignment(JLabel.CENTER);
         resultsPageOf.setForeground(Color.white);

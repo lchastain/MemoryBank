@@ -149,7 +149,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
             }
             default -> System.out.println("DayNoteGroupPanel.mouseClicked unhandled: " + s);
         }
-        updateGroup();
+        refresh();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
@@ -187,7 +187,7 @@ public class DayNoteGroupPanel extends CalendarNoteGroupPanel
         MemoryBank.appOpts.defaultDayNoteIconDescription = li.getDescription();
         setGroupChanged(true);
         preClosePanel();
-        updateGroup();
+        refresh();
     } // end setDefaultIcon
 
 

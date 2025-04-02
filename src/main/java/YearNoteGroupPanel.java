@@ -12,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener, IconKeeper {
-    private static final long serialVersionUID = 1L;
-
     static ImageIcon defaultIcon;
 
     static {
@@ -116,7 +114,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
             setOneForward(ChronoUnit.DECADES);
         }
 
-        updateGroup();
+        refresh();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
@@ -156,7 +154,7 @@ public class YearNoteGroupPanel extends CalendarNoteGroupPanel implements MouseL
         MemoryBank.appOpts.defaultYearNoteIconDescription = li.getDescription();
         setGroupChanged(true);
         preClosePanel();
-        updateGroup();
+        refresh();
     } // end setDefaultIcon
 
 } // end class YearNoteGroupPanel

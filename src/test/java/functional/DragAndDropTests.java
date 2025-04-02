@@ -126,7 +126,7 @@ public class DragAndDropTests {
         todoNoteGroupPanel.preClosePanel();
 
         // Reload the data
-        todoNoteGroupPanel.updateGroup();
+        todoNoteGroupPanel.refresh();
 
         // Verify that the column order in the Group properties (used by the group header) has changed -
         TodoGroupProperties todoGroupProperties = (TodoGroupProperties) todoNoteGroupPanel.myNoteGroup.getGroupProperties();
@@ -201,7 +201,7 @@ public class DragAndDropTests {
         searchResultGroupPanel.preClosePanel();
 
         // Reload the data
-        searchResultGroupPanel.updateGroup();
+        searchResultGroupPanel.refresh();
 
         // Verify that the column order in the Group properties (used by the group header) has changed -
         SearchResultGroupProperties theProperties = (SearchResultGroupProperties) searchResultGroupPanel.myNoteGroup.getGroupProperties();

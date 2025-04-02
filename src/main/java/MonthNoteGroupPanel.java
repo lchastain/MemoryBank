@@ -12,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements MouseListener, IconKeeper {
-    private static final long serialVersionUID = 1L;
-
     static ImageIcon defaultIcon;
 
     static {
@@ -109,7 +107,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
             case "+" -> setOneForward(ChronoUnit.MONTHS);
             case "Y+" -> setOneForward(ChronoUnit.YEARS);
         }
-        updateGroup();
+        refresh();
     } // end mouseClicked
 
     public void mouseEntered(MouseEvent e) {
@@ -149,7 +147,7 @@ public class MonthNoteGroupPanel extends CalendarNoteGroupPanel implements Mouse
         MemoryBank.appOpts.defaultMonthNoteIconDescription = li.getDescription();
         setGroupChanged(true);
         preClosePanel();
-        updateGroup();
+        refresh();
     } // end setDefaultIcon
 
 } // end class MonthNoteGroupPanel

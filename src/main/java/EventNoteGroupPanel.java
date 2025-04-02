@@ -79,7 +79,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
             // removed.  We show that by saving the altered data and then reloading it.
             preClosePanel();    // Save the new states of 'aged' events.
-            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+            this.refresh(); // Reload the group (visually removes aged-off items, if any)
 
             // But also - any of the aged-off events may have moved to the date that is currently being displayed
             // in the DayNoteGroupPanel, and that Panel may already be preserved in its keeper for redisplay but that
@@ -314,7 +314,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         if (ageEvents()) { // This indicates that one or more items was date-adjusted and/or
             // removed.  We show that by saving the altered data and then reloading it.
             preClosePanel();    // Save the new states of 'aged' events.
-            updateGroup(); // Reload the group (visually removes aged-off items, if any)
+            this.refresh(); // Reload the group (visually removes aged-off items, if any)
         } // end if
 
         doSort();  // This action could change the current selection  -
@@ -412,7 +412,7 @@ public class EventNoteGroupPanel extends NoteGroupPanel implements IconKeeper, D
         MemoryBank.appOpts.defaultEventNoteIconDescription = li.getDescription();
         setGroupChanged(true);
         preClosePanel();
-        updateGroup();
+        this.refresh();
         AppTreePanel.theInstance.theEventListKeeper.removeOthers(getGroupName());
     }// end setDefaultIcon
 
