@@ -11,7 +11,6 @@ public class DayNoteComponent extends IconNoteComponent {
     @Serial
     private static final long serialVersionUID = 1L;
 
-//    private static final int DAYNOTEHEIGHT = ICONNOTEHEIGHT;
     static Notifier optionPane;
 
     // The Members

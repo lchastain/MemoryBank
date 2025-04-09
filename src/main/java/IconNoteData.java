@@ -3,7 +3,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.swing.*;
 
 class IconNoteData extends NoteData {
-    String iconFileString;  // The 'description' of the icon
+    String iconFileString;  // The 'description' of the icon.
+    // If null, use the default icon.  If "", show a blank icon.
+
     boolean showIconOnMonthBoolean;
 
     IconNoteData() {
@@ -76,6 +78,7 @@ class IconNoteData extends NoteData {
     }
 
     public void setIconFileString(String val) {
+        iconFileString = val; // A null value is ok; supports the 'Reset Icon' operation.
         if (val != null) {
             iconFileString = val.replaceAll("\\\\", "/");
             //MemoryBank.debug("IconNoteData.setIconFileString to: " + iconFileString);

@@ -122,11 +122,15 @@ class GoalGroupPanelTest {
         System.out.println("Retrieved menu item text: " + jmi.getText());
         Assertions.assertTrue(jmi.isEnabled());
 
-        // Change to tab 1 (the Log) and verify that its menu items are still disabled.
+        // Change to tab 1 (the Log) and verify that its menu items are also enabled.
+        // This represents a change in intended behavior.  Previously, tabs were meant
+        //   to be individually handled, but when a Goal is saved, current thinking is
+        //   that ALL tabs should be saved.  When that was not true, changes were being
+        //   lost, hence the behavioral change and different outcome for this test.
         goalPanel.theTabbedPane.setSelectedIndex(1); // Change to the Log tab.
         jmi = testUtil.getMenuItem("Goal", "Save");
         System.out.println("Retrieved menu item text: " + jmi.getText());
-        Assertions.assertFalse(jmi.isEnabled());
+        Assertions.assertTrue(jmi.isEnabled());
     }
 
     @Test
