@@ -329,7 +329,7 @@ public class TodoNoteComponent extends NoteComponent {
 
         switch (textStatus) {
             case NEEDS_TEXT -> s = "Click here to enter text for this task.";
-            case HAS_BASE_TEXT -> s = "Double-click here to sdd details about this task.";
+            case HAS_BASE_TEXT -> s = "Double-click here to add details about this task.";
             case HAS_EXT_TEXT -> {
                 // This gives away the 'hidden' text, if
                 //   there is no primary (blue) text.

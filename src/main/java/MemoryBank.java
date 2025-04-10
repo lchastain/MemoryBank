@@ -224,10 +224,7 @@ public class MemoryBank {
         // uniquely identifies the data set for the given user email.
         userEmail = "default.user@elseware.com";
 
-        // Hold our place in line, on the taskbar.
         logFrame = new JFrame("Memory Bank:");
-//        logFrame.setLocation(-1000, -1000);  // Offscreen; not ready to be seen, yet.
-//        logFrame.setVisible(true);
 
         ImageIcon myIconImage = new IconInfo(DataArea.IMAGES, "MemBank", "png").getImageIcon();
         Taskbar taskbar = Taskbar.getTaskbar();
@@ -379,7 +376,7 @@ public class MemoryBank {
         logFrame.pack();
         Dimension d = logFrame.getSize();
         System.out.println("Default Frame Size: " + d.toString());
-        logFrame.setSize(880, 620);  // explicit
+        logFrame.setSize(880, 638);  // explicit
 
         logFrame.setLocationRelativeTo(null); // Center
         logFrame.setVisible(true);

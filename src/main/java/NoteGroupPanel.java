@@ -636,10 +636,14 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
 
     @Override
     public void setStatusMessage(String s) {
-        if (editable) {
-            lblStatusMessage.setText("  " + s);
-            lblStatusMessage.invalidate();
-            theBasePanel.validate();
+        if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
+            fosterNoteGroupPanel.setStatusMessage(s);
+        } else {
+            if (editable) {
+                lblStatusMessage.setText("  " + s);
+                lblStatusMessage.invalidate();
+                theBasePanel.validate();
+            }
         }
     } // end setStatusMessage
 
