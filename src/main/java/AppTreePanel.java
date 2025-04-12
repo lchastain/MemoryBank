@@ -1652,22 +1652,35 @@ public class AppTreePanel extends JPanel implements TreePanel, TreeSelectionList
 
 
     // Show the Group where the search result was found.  This is going to be its current state and not a snapshot
-    // of the group when the data was found, so the note(s) in this group that met the search criteria may not still
-    // be here or may not still meet that criteria.  And it is possible that the
-    // group itself has gone away.  If the group cannot be shown then nothing happens.
+    //   of the group when the data was found, so the note(s) in this group that met the search criteria may not
+    //   still be here or may not still meet that criteria.  And it is possible that the group itself has gone
+    //   away.  If the group cannot be shown then an info message will appear but otherwise nothing happens.
     @Override
-    public void showFoundIn(SearchResultData srd) {
-        if (srd.foundIn == null) return;
+    public void showFoundIn(@NotNull SearchResultData srd) {
+        if (!srd.foundIn.exists()) { // Note that srd.foundIn also cannot be null.
+            String groupName = srd.foundIn.getGroupName();
+            String theMessage = "The '" + groupName + "' NoteGroup is no longer present!";
+            optionPane.showMessageDialog(this, theMessage);
+            return;
+        }
+
         NoteGroupPanel thePanel = srd.foundIn.getNoteGroupPanel();
         thePanel.setEditable(false);
         theNoteGroupPanel = thePanel; // For 'showCurrentNoteGroup'
 
-        // Whatever view we are about to switch to - is 'disconnected' from the tree, so clear tree selection.
+        // We are about to switch away from the Search Results, so clear the current
+        //   tree selection so that it does not look like the tree was used to display
+        //   the new view.
         theTree.clearSelection();
+        // If we came here from an Archive then there is no menu bar, so no 'Go Back'.
+        // Otherwise, we came from a current search result list already known to be
+        //   'the way back', so there is no need to preserve the current selection.
 
-        // set the 'Go Back' menu item to visible
+        // Menu management -
+        //   set the 'Go Back' menu item to visible,
         if (selectedArchiveNode == null) appMenuBar.manageMenus("Viewing FoundIn");
-        else appMenuBar.manageMenus("No Selection"); // Or not, if we came from an archive.
+        //   or not, if we came from an archive.
+        else appMenuBar.manageMenus("No Selection");
 
         // View the Panel where the search result was found.
         rightPane.setViewportView(thePanel.theBasePanel);

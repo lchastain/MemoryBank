@@ -85,7 +85,7 @@ class GroupInfo {
         }
 
         if (thePanel != null) { // It worked!
-            thePanel.preClosePanel(); // Ensures persisted data matches Panel data.
+            thePanel.preClosePanel(); // Ensures in-progress changes are persisted prior to a reload.
         } else { // There isn't a pre-existing Panel for it, so we will just make one now.
             LocalDate theDate; // Needed by the Calendar note types.
             switch (groupType) {

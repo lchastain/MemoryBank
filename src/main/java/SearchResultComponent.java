@@ -63,6 +63,8 @@ public class SearchResultComponent extends NoteComponent {
         return mySearchResultData;
     } // end getNoteData
 
+    // The next three 'get' methods are in support of column reordering.
+
     JComponent getFoundInButton() {
         return foundInButton;
     }

@@ -834,10 +834,10 @@ public class FileDataAccessor implements DataAccessor {
             // If we find what we're looking for in/about this note -
             if (searchPanel.foundIt(vectorItem)) {
                 // Get the 'foundIn' info -
-                // Although this is actually a GroupInfo, we do not need to populate the foundIn.groupId
-                //   because search results are not intended to themselves be a part of the traceability chain,
-                //   and they cannot be linked to or from.  Currently, the method below does not read in the
-                //   data, so it cannot provide the groupId.
+                // Although this is a GroupInfo, we do not need to populate the foundIn.groupId because
+                //   search results are not intended to themselves be a part of the traceability chain.
+                // Currently, the method below does not read in the data, so it cannot provide the groupId.
+                // Further, it will always return a non-null value.
                 GroupInfo foundIn = NoteGroupFile.getGroupInfoFromFilePath(dataFile);
 
                 // Make new search result data for this find.
