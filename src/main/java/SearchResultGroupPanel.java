@@ -175,13 +175,23 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
         resultsPageOf.setText(theNotePager.getSummary());
         headingRow2.add(resultsPageOf, "West");
 
-        // Show the search summary
+        // Show the search summary - NO, now unshown.
         JLabel searchSummary = new JLabel();
         searchSummary.setHorizontalAlignment(JLabel.CENTER);
         searchSummary.setForeground(Color.white);
         searchSummary.setFont(Font.decode("Serif-bold-14"));
         searchSummary.setText(SearchPanel.getSummary(((SearchResultGroupProperties) myNoteGroup.myProperties).searchPanelSettings));
-        headingRow2.add(searchSummary, "Center");
+        //headingRow2.add(searchSummary, "Center");
+
+        // Show the Date of the Search
+        JLabel searchDateLabel = new JLabel();
+        searchDateLabel.setHorizontalAlignment(JLabel.CENTER);
+        searchDateLabel.setForeground(Color.white);
+        searchDateLabel.setFont(Font.decode("Serif-bold-14"));
+        String searchDateLabelString = "Search Date was: ";
+        searchDateLabelString += ((SearchResultGroupProperties) myNoteGroup.myProperties).searchDateString;
+        searchDateLabel.setText(searchDateLabelString);
+        headingRow2.add(searchDateLabel, "Center");
 
         heading.add(headingRow1);
         heading.add(headingRow2);
@@ -189,7 +199,7 @@ public class SearchResultGroupPanel extends NoteGroupPanel {
 
         listHeader = new SearchResultHeader(this);
         setGroupHeader(listHeader);
-    }
+    } // end buildPanelContent
 
     //-------------------------------------------------------------------
     // Method Name: checkColumnOrder

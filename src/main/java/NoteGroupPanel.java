@@ -639,11 +639,12 @@ public abstract class NoteGroupPanel implements NoteComponentManager {
         if(fosterNoteGroupPanel != null) { // This NoteGroupPanel is one tab of a collection.
             fosterNoteGroupPanel.setStatusMessage(s);
         } else {
-            if (editable) {
+//            if (editable) {    // Search Results not editable but need status messages.
+// TODO - need to determine if removal of this condition creates problems in other areas...
                 lblStatusMessage.setText("  " + s);
                 lblStatusMessage.invalidate();
                 theBasePanel.validate();
-            }
+//            }
         }
     } // end setStatusMessage
 

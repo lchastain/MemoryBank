@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public class SearchResultGroupProperties extends GroupProperties {
 
     SearchPanelSettings searchPanelSettings;
-    String searchDateString; // This is needed, now that a search can be renamed.  No way to 'see' it, yet.
+    String searchDateString;
 
     public String column1Label;
     public String column2Label;
