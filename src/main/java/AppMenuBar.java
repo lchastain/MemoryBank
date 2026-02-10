@@ -82,6 +82,8 @@ public class AppMenuBar extends JMenuBar {
         calendarNotesMenu.add(reviewMode);
         calendarNotesMenu.add(new JMenuItem("Today"));
         calendarNotesMenu.add(new JMenuItem("Save"));
+        calendarNotesMenu.addSeparator();
+        calendarNotesMenu.addSeparator();
         calendarNotesMenu.add(new JMenuItem("Clear All"));
 
         userNotesMenu = new JMenu("Notes");
